@@ -1,7 +1,7 @@
 // bdlsu_processutil.t.cpp                                            -*-C++-*-
 #include <bdlsu_processutil.h>
 
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -53,7 +53,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL HELPER TYPES & CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlsu::FileUtil    FUtil;
+typedef bdlsu::FileSystemUtil    FUtil;
 typedef bdlsu::ProcessUtil Obj;
 
 //=============================================================================

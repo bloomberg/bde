@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bdlsu_pipeutil_cpp,"$Id$ $CSID$")
 
 #include <bdlsu_filedescriptorguard.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlsu_pathutil.h>
 
 #include <bsls_assert.h>
@@ -47,7 +47,7 @@ void getPipeDir(bsl::string *dir)
         dir->assign(tmpdir);
     }
     else {
-        int rc = bdlsu::FileUtil::getWorkingDirectory(dir);
+        int rc = bdlsu::FileSystemUtil::getWorkingDirectory(dir);
         BSLS_ASSERT(0 == rc);
     }
 }

@@ -8,7 +8,7 @@
 #include <bdlmtt_threadutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlb_random.h>
 #include <bdlb_string.h>
 
@@ -1183,7 +1183,7 @@ int main(int argc, char *argv[])
 // of the code shows that we neglected to free 'd_cook' in the destructor and
 // we can now easily fix our leak.
 
-        bdlsu::FileUtil::remove("shipscrew.txt");
+        bdlsu::FileSystemUtil::remove("shipscrew.txt");
       }  break;
       case 21: {
         //---------------------------------------------------------------------

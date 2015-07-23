@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <ball_log.h>
 
 #include <bdlf_bind.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlsu_pathutil.h>
 #include <bdlsu_pipeutil.h>
 
@@ -337,7 +337,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         return -7;
     }
 
-    if (bdlsu::FileUtil::exists(pipeName)) {
+    if (bdlsu::FileSystemUtil::exists(pipeName)) {
        // The pipe already exists, but it may have been left over from a
        // previous crash.  Check whether there is a reader on the pipe, in
        // which case fail; otherwise unlink the pipe and continue.
@@ -348,13 +348,13 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                           << BALL_LOG_END;
            return -2;
        }
-       bdlsu::FileUtil::remove(pipeName.c_str());
+       bdlsu::FileSystemUtil::remove(pipeName.c_str());
     }
 
     // TBD: USE BDEU_PATHUTIL
     bsl::string dirname;
     if (0 == bdlsu::PathUtil::getDirname(&dirname, pipeName)) {
-        if (!bdlsu::FileUtil::exists(dirname)) {
+        if (!bdlsu::FileSystemUtil::exists(dirname)) {
             BALL_LOG_ERROR << "Named pipe directory "
                               "'" << dirname << "' "
                               "does not exist"

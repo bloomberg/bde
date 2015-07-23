@@ -7,7 +7,7 @@
 
 #include <bdlde_crc32.h>
 #include <bdlf_bind.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlsu_memoryutil.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_epochutil.h>
@@ -118,8 +118,8 @@ bdlt::Datetime int64ToDatetime(bsls::Types::Int64 ns)
 
 struct PrintSize {
     // TBD: it would be nice to move this to BDE
-    bdlsu::FileUtil::Offset d_size;
-    PrintSize(bdlsu::FileUtil::Offset size)
+    bdlsu::FileSystemUtil::Offset d_size;
+    PrintSize(bdlsu::FileSystemUtil::Offset size)
         : d_size(size)
     {};
 };
@@ -320,7 +320,7 @@ balj_Journal_LockGuard::balj_Journal_LockGuard(balj_Journal *journal,
 : d_journal_p(journal)
 {
     BSLS_ASSERT(journal);
-    BSLS_ASSERT(d_journal_p->d_fd != bdlsu::FileUtil::INVALID_FD);
+    BSLS_ASSERT(d_journal_p->d_fd != bdlsu::FileSystemUtil::INVALID_FD);
     BSLS_ASSERT(d_journal_p->d_mode & balj_Journal::BAECS_READWRITE);
 
     if (write) {
@@ -386,7 +386,7 @@ balj_Journal_ReadLockGuard::balj_Journal_ReadLockGuard(
 : d_journal_p(journal)
 {
     BSLS_ASSERT(d_journal_p);
-    BSLS_ASSERT(d_journal_p->d_fd != bdlsu::FileUtil::INVALID_FD);
+    BSLS_ASSERT(d_journal_p->d_fd != bdlsu::FileSystemUtil::INVALID_FD);
     d_journal_p->d_lock.lockRead();
 }
 
@@ -489,7 +489,7 @@ balj_Journal::balj_Journal(balj::MappingManager *mappingManager,
                              bslma::Allocator     *allocator)
 : d_mappingManager_p(mappingManager)
 , d_fileSize(-1)
-, d_fd(bdlsu::FileUtil::INVALID_FD)
+, d_fd(bdlsu::FileSystemUtil::INVALID_FD)
 , d_pageSetHeaderHandles(bslma::Default::allocator(allocator))
 , d_pageHandles(bslma::Default::allocator(allocator))
 , d_dirtyListHandle(mappingManager->createDirtyList())
@@ -506,7 +506,7 @@ balj_Journal::balj_Journal(balj::MappingManager *mappingManager,
 
 balj_Journal::~balj_Journal()
 {
-    if (d_fd != bdlsu::FileUtil::INVALID_FD) {
+    if (d_fd != bdlsu::FileSystemUtil::INVALID_FD) {
         close();
     }
     d_mappingManager_p->deleteDirtyList(d_dirtyListHandle);
@@ -527,18 +527,18 @@ int balj_Journal::openImpl(const char                   *filename,
         mode |= envmode;
     }
     bool isReadWrite = (mode & BAECS_READWRITE) != 0;
-    FileDescriptor fd = bdlsu::FileUtil::open(filename, isReadWrite, true);
-    if (fd == bdlsu::FileUtil::INVALID_FD) {
+    FileDescriptor fd = bdlsu::FileSystemUtil::open(filename, isReadWrite, true);
+    if (fd == bdlsu::FileSystemUtil::INVALID_FD) {
         return BAECS_FILE_NOT_FOUND_ERROR;
     }
-    if (0 != bdlsu::FileUtil::tryLock(fd, isReadWrite)) {
+    if (0 != bdlsu::FileSystemUtil::tryLock(fd, isReadWrite)) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": cannot lock the file"
             << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_UNABLE_TO_LOCK_ERROR;
     }
-    d_fileSize = bdlsu::FileUtil::getFileSize(filename);
+    d_fileSize = bdlsu::FileSystemUtil::getFileSize(filename);
 
     struct {
         // TBD: move to header component.
@@ -546,14 +546,14 @@ int balj_Journal::openImpl(const char                   *filename,
         bdlb::BigEndianUint32    d_version;
         bdlb::BigEndianUint32    d_headerSize;
     } data;
-    int n = bdlsu::FileUtil::read(fd, &data, sizeof(data));
+    int n = bdlsu::FileSystemUtil::read(fd, &data, sizeof(data));
 
     if (n != sizeof(data)) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": failed to read header (" << sizeof(data)
             << "bytes)"
             << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_IO_ERROR;
     }
     if (data.d_magic != balj::JournalHeader::BAECS_JOURNAL_MAGIC_NUMBER) {
@@ -563,7 +563,7 @@ int balj_Journal::openImpl(const char                   *filename,
             << bsl::hex << balj::JournalHeader::BAECS_JOURNAL_MAGIC_NUMBER
             << ")"
             << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_FORMAT_ERROR;
     }
     if (data.d_version != balj::JournalHeader::BAECS_JOURNAL_VERSION_CURRENT) {
@@ -571,7 +571,7 @@ int balj_Journal::openImpl(const char                   *filename,
             << ": unsupported journal version found: "
             << bsl::hex << data.d_version
             << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_UNSUPPORTED_VERSION_ERROR;
     }
     unsigned headerSize = data.d_headerSize;
@@ -581,7 +581,7 @@ int balj_Journal::openImpl(const char                   *filename,
             << ": header size " << headerSize << " is not supported "
                "on this platform, must be a multiple of " << alignment
             << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_ALIGNMENT_ERROR;
     }
 
@@ -600,7 +600,7 @@ int balj_Journal::openImpl(const char                   *filename,
         BALL_LOG_ERROR << "Cannot open " << filename
                        << ": " << errorMessage(BAECS_MMAP_ERROR)
                        << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_MMAP_ERROR;
     }
     d_header.setPersistentStore(d_headerPage);
@@ -613,7 +613,7 @@ int balj_Journal::openImpl(const char                   *filename,
             << BALL_LOG_END;
         d_mappingManager_p->removePage(d_headerHandle);
         d_headerHandle = balj::MappingManager::INVALID_HANDLE;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_ALIGNMENT_ERROR;
     }
 
@@ -625,7 +625,7 @@ int balj_Journal::openImpl(const char                   *filename,
             << BALL_LOG_END;
         d_mappingManager_p->removePage(d_headerHandle);
         d_headerHandle = balj::MappingManager::INVALID_HANDLE;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_VALIDATION_ERROR;
     }
 
@@ -640,7 +640,7 @@ int balj_Journal::openImpl(const char                   *filename,
             << BALL_LOG_END;
         d_mappingManager_p->removePage(d_headerHandle);
         d_headerHandle = balj::MappingManager::INVALID_HANDLE;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_VALIDATION_ERROR;
     }
 
@@ -667,7 +667,7 @@ int balj_Journal::open(const char *filename,
                         unsigned    mode)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-    if (d_fd != bdlsu::FileUtil::INVALID_FD) {
+    if (d_fd != bdlsu::FileSystemUtil::INVALID_FD) {
         BALL_LOG_ERROR << "Cannot open " << filename
                        << ": journal is already open"
                        << BALL_LOG_END;
@@ -734,7 +734,7 @@ balj_Journal::create(
         MIN_ALIGNMENT = 65536
     };
 
-    if (d_fd != bdlsu::FileUtil::INVALID_FD) {
+    if (d_fd != bdlsu::FileSystemUtil::INVALID_FD) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": journal is already open"
             << BALL_LOG_END;
@@ -775,19 +775,19 @@ balj_Journal::create(
         return BAECS_INVALID_PARAMETERS_ERROR;
     }
 
-    FileDescriptor fd = bdlsu::FileUtil::open(filename, true, false);
-    if (fd == bdlsu::FileUtil::INVALID_FD) {
+    FileDescriptor fd = bdlsu::FileSystemUtil::open(filename, true, false);
+    if (fd == bdlsu::FileSystemUtil::INVALID_FD) {
         BALL_LOG_ERROR << "Cannot open " << filename
                        << ": cannot create file"
                        << BALL_LOG_END;
         return BAECS_IO_ERROR;
     }
 
-    if (0 != bdlsu::FileUtil::tryLock(fd, isReadWrite)) {
+    if (0 != bdlsu::FileSystemUtil::tryLock(fd, isReadWrite)) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": cannot lock the file"
             << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_UNABLE_TO_LOCK_ERROR;
     }
 
@@ -822,7 +822,7 @@ balj_Journal::create(
         BALL_LOG_ERROR << "Cannot open " << filename
                        << ": " << errorMessage(BAECS_MMAP_ERROR)
                        << BALL_LOG_END;
-        bdlsu::FileUtil::close(fd);
+        bdlsu::FileSystemUtil::close(fd);
         return BAECS_MMAP_ERROR;
     }
     d_header.setPersistentStore(d_headerPage);
@@ -858,8 +858,8 @@ int balj_Journal::closeImpl()
     // TBD d_header_p = 0;
     d_debugRecordMap.clear();
 
-    bdlsu::FileUtil::close(d_fd);
-    d_fd = bdlsu::FileUtil::INVALID_FD;
+    bdlsu::FileSystemUtil::close(d_fd);
+    d_fd = bdlsu::FileSystemUtil::INVALID_FD;
     return 0;
 }
 
@@ -867,7 +867,7 @@ int balj_Journal::close()
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    if (d_fd == bdlsu::FileUtil::INVALID_FD) {
+    if (d_fd == bdlsu::FileSystemUtil::INVALID_FD) {
         return 0;
     }
 
@@ -879,7 +879,7 @@ int balj_Journal::close()
 }
 
 int balj_Journal::growFile(FileDescriptor         fd,
-                            bdlsu::FileUtil::Offset size,
+                            bdlsu::FileSystemUtil::Offset size,
                             bool                   )
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
@@ -889,7 +889,7 @@ int balj_Journal::growFile(FileDescriptor         fd,
         << size << " bytes (RESERVED)."
         << BALL_LOG_END;
 
-    Offset currentSize = bdlsu::FileUtil::seek(
+    Offset currentSize = bdlsu::FileSystemUtil::seek(
         fd, 0, SEEK_END);
     // Double check below for the case when Offset is unsigned.
     if (currentSize != -1 && currentSize >= size) {
@@ -897,15 +897,15 @@ int balj_Journal::growFile(FileDescriptor         fd,
         return 0;
     }
 
-    bdlsu::FileUtil::Offset fileSizeLimit = bdlsu::FileUtil::getFileSizeLimit();
+    bdlsu::FileSystemUtil::Offset fileSizeLimit = bdlsu::FileSystemUtil::getFileSizeLimit();
     if (fileSizeLimit < 0) {
-        fileSizeLimit = bdlsu::FileUtil::OFFSET_MAX;
+        fileSizeLimit = bdlsu::FileSystemUtil::OFFSET_MAX;
     }
 
-    bdlsu::FileUtil::Offset availableSpace =
-                                         bdlsu::FileUtil::getAvailableSpace(fd);
+    bdlsu::FileSystemUtil::Offset availableSpace =
+                                         bdlsu::FileSystemUtil::getAvailableSpace(fd);
     if (availableSpace < 0) {
-        availableSpace = bdlsu::FileUtil::OFFSET_MAX;
+        availableSpace = bdlsu::FileSystemUtil::OFFSET_MAX;
     }
 
     if (currentSize + availableSpace < size) {
@@ -931,7 +931,7 @@ int balj_Journal::growFile(FileDescriptor         fd,
         return BAECS_IO_ERROR;
     }
 
-    bdlsu::FileUtil::Offset limit = availableSpace;
+    bdlsu::FileSystemUtil::Offset limit = availableSpace;
     if (fileSizeLimit > currentSize) {
         limit = bsl::min(limit, fileSizeLimit - currentSize);
     }
@@ -951,7 +951,7 @@ int balj_Journal::growFile(FileDescriptor         fd,
     }
 
     // Reserve is always forced now
-    int rc = bdlsu::FileUtil::grow(fd, size, true);
+    int rc = bdlsu::FileSystemUtil::grow(fd, size, true);
     if (rc) {
         BALL_LOG_ERROR << "Unable to grow the journal "
             << d_filename << " to "
@@ -963,9 +963,9 @@ int balj_Journal::growFile(FileDescriptor         fd,
     return 0;
 }
 
-bdlsu::FileUtil::Offset balj_Journal::getFileSize(FileDescriptor fd)
+bdlsu::FileSystemUtil::Offset balj_Journal::getFileSize(FileDescriptor fd)
 {
-    bdlsu::FileUtil::Offset result =  bdlsu::FileUtil::seek(fd, 0, SEEK_END);
+    bdlsu::FileSystemUtil::Offset result =  bdlsu::FileSystemUtil::seek(fd, 0, SEEK_END);
     return result;
 }
 
@@ -986,9 +986,9 @@ int balj_Journal::growJournal(bool init)
 
         bsl::size_t n = d_pageSetHeaderHandles.size();
 
-        bdlsu::FileUtil::Offset offset =
+        bdlsu::FileSystemUtil::Offset offset =
             d_header.headerSize() +
-           (size + (bdlsu::FileUtil::Offset)(d_header.pagesPerSet())
+           (size + (bdlsu::FileSystemUtil::Offset)(d_header.pagesPerSet())
             * d_header.pageDataSize()) * n;
 
         BSLS_ASSERT(getFileSize(d_fd) >= size + offset);
@@ -1069,10 +1069,10 @@ int balj_Journal::growJournal(bool init)
     while (numPages > d_pageHandles.size()) {
         bsl::size_t n = d_pageHandles.size();
         bsl::size_t nPageSet = n / d_header.pagesPerSet();
-        bdlsu::FileUtil::Offset offset =
+        bdlsu::FileSystemUtil::Offset offset =
                      d_header.headerSize() +
-                     (bdlsu::FileUtil::Offset)(nPageSet+1) * pageSetHeaderSize +
-                     (bdlsu::FileUtil::Offset)(n) * d_header.pageDataSize();
+                     (bdlsu::FileSystemUtil::Offset)(nPageSet+1) * pageSetHeaderSize +
+                     (bdlsu::FileSystemUtil::Offset)(n) * d_header.pageDataSize();
 
         BSLS_ASSERT(getFileSize(d_fd) >= d_header.pageDataSize() + offset);
 
@@ -1347,7 +1347,7 @@ int balj_Journal::commitImpl()
     d_header.commitCurrentTransaction();
     d_header.commitActiveState();
 
-    int rc = bdlsu::FileUtil::sync((char*)d_headerPage,
+    int rc = bdlsu::FileSystemUtil::sync((char*)d_headerPage,
                                   d_header.headerSize(),
                                   true);
 
@@ -2381,8 +2381,8 @@ int balj_Journal::validate(bool verbose) const
 }
 
 void balj_Journal::setDiskSpaceLoggingThresholds(
-        bdlsu::FileUtil::Offset warningThreshold,
-        bdlsu::FileUtil::Offset errorThreshold)
+        bdlsu::FileSystemUtil::Offset warningThreshold,
+        bdlsu::FileSystemUtil::Offset errorThreshold)
 {
     d_diskSpaceWarningThreshold = bsl::max(warningThreshold,
                                            errorThreshold);

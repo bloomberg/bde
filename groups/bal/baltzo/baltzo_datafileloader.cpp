@@ -10,7 +10,7 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 
 #include <ball_log.h>
 
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlsu_pathutil.h>
 #include <bdlb_strtokenrefiter.h>
 
@@ -91,7 +91,7 @@ bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 {
     BSLS_ASSERT(path);
 
-    if (!bdlsu::FileUtil::isDirectory(path, true)) {
+    if (!bdlsu::FileSystemUtil::isDirectory(path, true)) {
         return false;                                                 // RETURN
     }
 
@@ -101,7 +101,7 @@ bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
     // If 'path' is a valid directory, appending "GMT" to it must result in a
     // valid path.
 
-    return bdlsu::FileUtil::isRegularFile(gmtPath.c_str(), true);
+    return bdlsu::FileSystemUtil::isRegularFile(gmtPath.c_str(), true);
 }
 
 // CREATORS

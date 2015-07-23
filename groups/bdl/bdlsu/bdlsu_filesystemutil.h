@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlsu::FilesystemUtil: namespace for filesystem access methods
 //
-//@SEE_ALSO: bdlsu_xxxfileutil, bdlsu_pathutil
+//@SEE_ALSO: bdlsu_pathutil
 //
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov),
 // Hyman Rosen (hrosen4), Alexander Beels (abeels)
@@ -23,10 +23,6 @@ BSLS_IDENT("$Id: $")
 // of the operating system's own filesystem access functions, providing a
 // consistent and unambiguous interface for handling files on all supported
 // platforms.
-//
-// Note that this component is designed to replace 'bdlsu_xxxfileutil', which does
-// not support multi-language file and path names on Windows, and has limited
-// semantics for the 'open' method.
 //
 // Methods in this component can be used to manipulate files with any name in
 // any language on all supported platforms.  To provide such support, the

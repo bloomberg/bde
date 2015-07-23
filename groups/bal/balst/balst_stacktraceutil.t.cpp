@@ -9,7 +9,6 @@
 
 #include <bdlf_function.h>
 #include <bdlma_sequentialallocator.h>
-#include <bdlsu_xxxfileutil.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 #include <bdlb_string.h>

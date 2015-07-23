@@ -172,8 +172,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLSU_XXXFILEUTIL
-#include <bdlsu_xxxfileutil.h>
+#ifndef INCLUDED_bdlsu_filesystemutil
+#include <bdlsu_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -296,8 +296,8 @@ class MappingManager {
         // are unmapped.
 
     // MANIPULATORS
-    Handle addPage(bdlsu::FileUtil::FileDescriptor   fileDescriptor,
-                   bdlsu::FileUtil::Offset           offset,
+    Handle addPage(bdlsu::FileSystemUtil::FileDescriptor   fileDescriptor,
+                   bdlsu::FileSystemUtil::Offset           offset,
                    bsl::size_t                      size,
                    bool                             isReadWrite,
                    int                              priorityLevel,

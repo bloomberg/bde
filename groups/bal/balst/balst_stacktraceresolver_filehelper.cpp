@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlb_string.h>
 
 #include <bslma_allocator.h>
@@ -28,17 +28,17 @@ StackTraceResolver_FileHelper::StackTraceResolver_FileHelper(
 {
     BSLS_ASSERT(fileName);
 
-    d_fd = bdlsu::FileUtil::open(fileName,
+    d_fd = bdlsu::FileSystemUtil::open(fileName,
                                 false,    // not writable
                                 true);    // already exists
-    BSLS_ASSERT(FileUtil::INVALID_FD != d_fd);
+    BSLS_ASSERT(FileSystemUtil::INVALID_FD != d_fd);
 }
 
 StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
 {
-    BSLS_ASSERT(FileUtil::INVALID_FD != d_fd);
+    BSLS_ASSERT(FileSystemUtil::INVALID_FD != d_fd);
 
-    bdlsu::FileUtil::close(d_fd);
+    bdlsu::FileSystemUtil::close(d_fd);
 }
 
 // ACCESSORS
@@ -100,14 +100,14 @@ bsls::Types::UintPtr StackTraceResolver_FileHelper::readBytes(
     BSLS_ASSERT(buf);
     BSLS_ASSERT(offset >= 0);
 
-    Offset seekDest = FileUtil::seek(d_fd,
+    Offset seekDest = FileSystemUtil::seek(d_fd,
                                      offset,
-                                     FileUtil::BDESU_SEEK_FROM_BEGINNING);
+                                     FileSystemUtil::BDESU_SEEK_FROM_BEGINNING);
     if (seekDest != offset) {
         return 0;                                                     // RETURN
     }
 
-    int res = FileUtil::read(d_fd, buf, (int) numBytes);
+    int res = FileSystemUtil::read(d_fd, buf, (int) numBytes);
     return (res <= 0 ? 0 : res);
 }
 }  // close package namespace

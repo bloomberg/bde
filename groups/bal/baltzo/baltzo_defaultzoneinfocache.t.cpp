@@ -537,7 +537,7 @@ static const char *AMERICA_NEW_YORK_ID = "America/New_York";
 
 void writeData(const char *fileName, const char *data, int numBytes)
 {
-    int rc = bdlsu::FileUtil::createDirectories(fileName, false);
+    int rc = bdlsu::FileSystemUtil::createDirectories(fileName, false);
     ASSERT(0 == rc);
 //..
 // Then we create a file for Bangkok and write the binary time zone data to
@@ -582,19 +582,19 @@ int main(int argc, char *argv[])
 
     putenv(zoneInfo);
 
-    if (!bdlsu::FileUtil::exists(AMERICA_NEW_YORK_FILE)) {
+    if (!bdlsu::FileSystemUtil::exists(AMERICA_NEW_YORK_FILE)) {
         writeData(AMERICA_NEW_YORK_FILE,
                   reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
                   sizeof(AMERICA_NEW_YORK_DATA));
     }
 
-    if (!bdlsu::FileUtil::exists(ETC_UTC_FILE)) {
+    if (!bdlsu::FileSystemUtil::exists(ETC_UTC_FILE)) {
         writeData(ETC_UTC_FILE,
                   reinterpret_cast<const char  *>(ETC_UTC_DATA),
                   sizeof(ETC_UTC_DATA));
     }
 
-    if (!bdlsu::FileUtil::exists(GMT_FILE)) {
+    if (!bdlsu::FileSystemUtil::exists(GMT_FILE)) {
         writeData(GMT_FILE,
                   reinterpret_cast<const char  *>(GMT_DATA),
                   sizeof(GMT_DATA));
@@ -1217,7 +1217,7 @@ int main(int argc, char *argv[])
     // TBD: multiple test cases use the same path and so cleanup can not occur
     //      after each test case ends, or else there is a race condition when
     //      multiple test cases are run in parallel
-    //bdlsu::FileUtil::remove("defaultzictest", true);
+    //bdlsu::FileSystemUtil::remove("defaultzictest", true);
 
     return testStatus;
 }

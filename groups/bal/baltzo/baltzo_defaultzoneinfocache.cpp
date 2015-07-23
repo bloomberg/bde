@@ -11,8 +11,6 @@ BSLS_IDENT_RCSID(baltzo_defaultzoneinfocache_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_once.h>
 
-#include <bdlsu_xxxfileutil.h>
-
 #include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>

@@ -37,16 +37,16 @@ BSLS_IDENT("$Id: $")
 //..
 // Make sure file does not already exist.
 //..
-//  bdlsu::FileUtil::remove(fileNameBuffer);
+//  bdlsu::FileSystemUtil::remove(fileNameBuffer);
 //..
 // Next, Create the file and open a file descriptor to it.  The boolean
 // flags indicate that the file is writable, and not previously existing
 // (and therefore must be created).
 //..
-//  FdType fd = FileUtil::open(fileNameBuffer,
+//  FdType fd = FileSystemUtil::open(fileNameBuffer,
 //                             true,          // writable
 //                             false);        // doesn't already exist
-//  assert(FileUtil::INVALID_FD != fd);
+//  assert(FileSystemUtil::INVALID_FD != fd);
 //..
 // 64 char long string
 //..
@@ -58,21 +58,21 @@ BSLS_IDENT("$Id: $")
 //..
 //  int rc;
 //  for (int i = 0; i < 20; ++i) {
-//      rc = FileUtil::write(fd, testString64, 64);
+//      rc = FileSystemUtil::write(fd, testString64, 64);
 //      assert(64 == rc);
 //  }
 //
 //  enum { OFFSET_OF_ZERO_BYTE = 7 * 64 };
 //
-//  rc = (int) FileUtil::seek(fd,
+//  rc = (int) FileSystemUtil::seek(fd,
 //                            OFFSET_OF_ZERO_BYTE,
-//                            FileUtil::BDESU_SEEK_FROM_BEGINNING);
+//                            FileSystemUtil::BDESU_SEEK_FROM_BEGINNING);
 //  assert(OFFSET_OF_ZERO_BYTE == rc);
 //
-//  rc = FileUtil::write(fd, "", 1);        // write the zero byte
+//  rc = FileSystemUtil::write(fd, "", 1);        // write the zero byte
 //  assert(1 == rc);
 //
-//  rc = FileUtil::close(fd);
+//  rc = FileSystemUtil::close(fd);
 //  assert(0 == rc);
 //
 //  {
@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      ta.deallocate(result);
 //  }
-//  bdlsu::FileUtil::remove(fileNameBuffer);
+//  bdlsu::FileSystemUtil::remove(fileNameBuffer);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -123,8 +123,8 @@ BSLS_IDENT("$Id: $")
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
-#ifndef INCLUDED_BDLSU_XXXFILEUTIL
-#include <bdlsu_xxxfileutil.h>
+#ifndef INCLUDED_bdlsu_filesystemutil
+#include <bdlsu_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -151,11 +151,11 @@ class StackTraceResolver_FileHelper {
     // this object.
 
     // PRIVATE TYPES
-    typedef bdlsu::FileUtil           FileUtil;  // shorthand for class
-                                                // 'bdlsu::FileUtil'
-    typedef FileUtil::FileDescriptor FdType;    // shorthand for file
+    typedef bdlsu::FileSystemUtil           FileSystemUtil;  // shorthand for class
+                                                // 'bdlsu::FileSystemUtil'
+    typedef FileSystemUtil::FileDescriptor FdType;    // shorthand for file
                                                 // descriptor
-    typedef FileUtil::Offset         Offset;
+    typedef FileSystemUtil::Offset         Offset;
     typedef bsls::Types::UintPtr     UintPtr;
     typedef bsls::Types::IntPtr      IntPtr;
 

@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
-//@SEE_ALSO: bdlsu_xxxfileutil
+//@SEE_ALSO: bdlsu_filesystemutil
 //
 //@DESCRIPTION: This component provides utility methods for manipulating
 // strings that represent paths in the filesystem.  Class methods of
