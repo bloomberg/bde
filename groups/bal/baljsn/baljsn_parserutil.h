@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLPUXXX_ISO8601
+#ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
 #endif
 
