@@ -20,6 +20,8 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 
+using bsl::int32_t;
+using bsl::int64_t;
 using bsl::uint32_t;
 using bsl::uint64_t;
 
