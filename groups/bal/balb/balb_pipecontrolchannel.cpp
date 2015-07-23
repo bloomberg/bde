@@ -115,7 +115,7 @@ int PipeControlChannel::readNamedPipe()
                if (buffer[bytesRead - 1] == '\n') {
                    bytesRead--;
                }
-               bdlb::StringRef stringRef(buffer, bytesRead);
+               bslstl::StringRef stringRef(buffer, bytesRead);
                if (!stringRef.isEmpty()) {
                    d_callback(stringRef);
                }
@@ -536,7 +536,7 @@ void PipeControlChannel::dispatchMessageUpTo(
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlb::StringRef stringRef(&(*d_buffer.begin()),
+    bslstl::StringRef stringRef(&(*d_buffer.begin()),
                               iter - d_buffer.begin());
     BALL_LOG_TRACE << "Assembled complete message '"
                    << (bsl::string)stringRef << "'"

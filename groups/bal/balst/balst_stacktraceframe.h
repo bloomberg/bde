@@ -495,11 +495,11 @@ StackTraceFrame::StackTraceFrame(
                    basicAllocator)
 , d_symbolName(symbolName.begin(), symbolName.end(), basicAllocator)
 {
-    BSLS_ASSERT_SAFE(libraryFileName.isBound());
+    BSLS_ASSERT_SAFE(0 != libraryFileName.data());
     BSLS_ASSERT_SAFE(-1 <= lineNumber);
-    BSLS_ASSERT_SAFE(mangledSymbolName.isBound());
-    BSLS_ASSERT_SAFE(sourceFileName.isBound());
-    BSLS_ASSERT_SAFE(symbolName.isBound());
+    BSLS_ASSERT_SAFE(0 != mangledSymbolName.data());
+    BSLS_ASSERT_SAFE(0 != sourceFileName.data());
+    BSLS_ASSERT_SAFE(0 != symbolName.data());
 }
 
 
@@ -546,7 +546,7 @@ void StackTraceFrame::setAddress(const void *value)
 inline
 void StackTraceFrame::setLibraryFileName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_libraryFileName.assign(value.begin(), value.end());
 }
@@ -562,7 +562,7 @@ void StackTraceFrame::setLineNumber(int value)
 inline
 void StackTraceFrame::setMangledSymbolName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_mangledSymbolName.assign(value.begin(), value.end());
 }
@@ -577,7 +577,7 @@ void StackTraceFrame::setOffsetFromSymbol(bsl::size_t value)
 inline
 void StackTraceFrame::setSourceFileName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_sourceFileName.assign(value.begin(), value.end());
 }
@@ -585,7 +585,7 @@ void StackTraceFrame::setSourceFileName(const bslstl::StringRef& value)
 inline
 void StackTraceFrame::setSymbolName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_symbolName.assign(value.begin(), value.end());
 }

@@ -711,7 +711,7 @@ Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 inline
 void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_identifier.assign(value.begin(), value.end());
 }

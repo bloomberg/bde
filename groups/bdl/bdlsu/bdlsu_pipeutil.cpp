@@ -72,7 +72,7 @@ namespace bdlsu {
 // CLASS METHODS
 int
 PipeUtil::makeCanonicalName(bsl::string           *pipeName,
-                                  const bdlb::StringRef& baseName)
+                                  const bslstl::StringRef& baseName)
 {
     BSLS_ASSERT(pipeName);
 
@@ -94,8 +94,8 @@ PipeUtil::makeCanonicalName(bsl::string           *pipeName,
 
 namespace bdlsu {
 int
-PipeUtil::send(const bdlb::StringRef& pipeName,
-                     const bdlb::StringRef& message)
+PipeUtil::send(const bslstl::StringRef& pipeName,
+                     const bslstl::StringRef& message)
 {
     HANDLE pipe;
     do {
@@ -115,7 +115,7 @@ PipeUtil::send(const bdlb::StringRef& pipeName,
 }
 
 bool
-PipeUtil::isOpenForReading(const bdlb::StringRef& pipeName)
+PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
 {
     HANDLE pipe = CreateFile(pipeName.data(),
                              GENERIC_WRITE, 0, NULL,
@@ -146,8 +146,8 @@ PipeUtil::isOpenForReading(const bdlb::StringRef& pipeName)
 
 namespace bdlsu {
 int
-PipeUtil::send(const bdlb::StringRef& pipeName,
-                     const bdlb::StringRef& message)
+PipeUtil::send(const bslstl::StringRef& pipeName,
+                     const bslstl::StringRef& message)
 {
     int pipe = open(pipeName.data(), O_WRONLY);
     if (-1 == pipe) {
@@ -160,7 +160,7 @@ PipeUtil::send(const bdlb::StringRef& pipeName,
 }
 
 bool
-PipeUtil::isOpenForReading(const bdlb::StringRef& pipeName)
+PipeUtil::isOpenForReading(const bslstl::StringRef& pipeName)
 {
     int fd = open(pipeName.data(), O_WRONLY | O_NONBLOCK);
     if (-1 != fd) {

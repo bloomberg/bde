@@ -2148,7 +2148,7 @@ int main(int argc, char *argv[])
     } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING: 'addSpecificPublishers(const bdlb::StringRef&, ...);
+        // TESTING: 'addSpecificPublishers(const bslstl::StringRef&, ...);
         //
         // Concerns:
         //   That the alternative 'addSpecificPublishers' variant (taking a
@@ -2167,7 +2167,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout
             << endl
-            << "TEST: addSpecificPublishers(const bdlb::StringRef&, ...)\n"
+            << "TEST: addSpecificPublishers(const bslstl::StringRef&, ...)\n"
             << "========================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
@@ -2208,7 +2208,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING: 'findSpecificPublishers(..., const bdlb::StringRef&);
+        // TESTING: 'findSpecificPublishers(..., const bslstl::StringRef&);
         //
         // Concerns:
         //   That the alternative 'findSpecificPublishers' variant (taking a
@@ -2229,7 +2229,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
             << endl
-            << "TEST: findSpecificPublishers(...,const bdlb::StringRef&)\n"
+            << "TEST: findSpecificPublishers(...,const bslstl::StringRef&)\n"
             << "========================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
@@ -2263,7 +2263,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING: 'registerCollectionCallback(const bdlb::StringRef&, ...);
+        // TESTING: 'registerCollectionCallback(const bslstl::StringRef&, ...);
         //
         // Concerns:
         //   That the alternative 'registerCollectionCallback' variant (taking

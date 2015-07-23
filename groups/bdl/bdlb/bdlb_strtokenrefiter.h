@@ -319,9 +319,9 @@ namespace bdlb {
 
 class StrTokenRefIter {
     // Provide read-only sequential access to the user-described tokens in a
-    // 'const char *' string or 'StringRef'.  Access to tokens, as well
+    // 'const char *' string or 'bslstl::StringRef'.  Access to tokens, as well
     // as to previous and (trailing) delimiters, is provided efficiently via
-    // 'StringRef'.
+    // 'bslstl::StringRef'.
 
     // PRIVATE TYPES
     enum { BDEUT_TABLE_SIZE = 256 };
@@ -349,9 +349,9 @@ class StrTokenRefIter {
     StrTokenRefIter(const char *input,
                           const char *softDelims,
                           const char *hardDelims);
-    StrTokenRefIter(const StringRef&  input,
+    StrTokenRefIter(const bslstl::StringRef&  input,
                           const char             *softDelims);
-    StrTokenRefIter(const StringRef&  input,
+    StrTokenRefIter(const bslstl::StringRef&  input,
                           const char             *softDelims,
                           const char             *hardDelims);
         // Create a token iterator for the specified 'input' string in which
@@ -370,12 +370,12 @@ class StrTokenRefIter {
         // reaches an invalid state, but the "previous" delimiter (if any) is
         // still accessible.  The behavior is undefined if 'input' is changed
         // while this iterator is bound to it, or if an 'input' supplied via
-        // 'StringRef' contains a null character.  Note that any
+        // 'bslstl::StringRef' contains a null character.  Note that any
         // character specified as both a soft delimiter character and a hard
         // delimiter character is regarded as a *hard* delimiter character
         // (repeating a character in the same delimiter set is redundant and
         // has no additional effect).  Also note that an 'input' supplied via
-        // 'StringRef' need not be null-terminated.
+        // 'bslstl::StringRef' need not be null-terminated.
 
     ~StrTokenRefIter();
         // Destroy this token iterator.
@@ -391,35 +391,35 @@ class StrTokenRefIter {
         // undefined unless the iterator is initially in a valid state.
 
     void reset(const char *input);
-    void reset(const StringRef& input);
+    void reset(const bslstl::StringRef& input);
         // Reset this token iterator to refer to the specified 'input' string
         // (which may be null).  The state of the iterator following 'reset' is
         // *as if* it had been constructed with 'input' and the soft and hard
         // delimiter character sets currently in use by the iterator.  The
         // behavior is undefined if 'input' is changed while this iterator is
-        // bound to it, or if an 'input' supplied via 'StringRef'
+        // bound to it, or if an 'input' supplied via 'bslstl::StringRef'
         // contains a null character.  Note that an 'input' supplied via
-        // 'StringRef' need not be null-terminated.
+        // 'bslstl::StringRef' need not be null-terminated.
 
     // ACCESSORS
     operator const void *() const;
         // Return non-zero if this token iterator is in a valid state, and 0
         // otherwise.
 
-    StringRef operator()() const;
+    bslstl::StringRef operator()() const;
         // Return a reference to the non-modifiable current token of this token
         // iterator.  The reference returned remains valid even after the state
         // of the iteration of this iterator is advanced, enabling the client
         // to avoid copying the token.  The behavior is undefined unless this
         // token iterator is in a valid state.
 
-    StringRef delimiter() const;
+    bslstl::StringRef delimiter() const;
         // Return a reference to the non-modifiable current (trailing)
         // delimiter of this token iterator.  The reference returned remains
         // valid even after the state of the iteration of this iterator is
         // advanced, enabling the client to avoid copying the delimiter.
 
-    StringRef previousDelimiter() const;
+    bslstl::StringRef previousDelimiter() const;
         // Return a reference to the non-modifiable previous delimiter (i.e.,
         // the delimiter preceding the current token) of this token iterator.
         // The reference returned remains valid even after the state of the
@@ -461,23 +461,23 @@ bdlb::StrTokenRefIter::operator const void *() const
 
 namespace bdlb {
 inline
-StringRef StrTokenRefIter::operator()() const
+bslstl::StringRef StrTokenRefIter::operator()() const
 {
     BSLS_ASSERT_SAFE(d_cursor_p);
 
-    return StringRef(d_token_p, d_postDelim_p);
+    return bslstl::StringRef(d_token_p, d_postDelim_p);
 }
 
 inline
-StringRef StrTokenRefIter::delimiter() const
+bslstl::StringRef StrTokenRefIter::delimiter() const
 {
-    return StringRef(d_postDelim_p, d_cursor_p ? d_cursor_p : d_end_p);
+    return bslstl::StringRef(d_postDelim_p, d_cursor_p ? d_cursor_p : d_end_p);
 }
 
 inline
-StringRef StrTokenRefIter::previousDelimiter() const
+bslstl::StringRef StrTokenRefIter::previousDelimiter() const
 {
-    return StringRef(d_prevDelim_p, d_token_p);
+    return bslstl::StringRef(d_prevDelim_p, d_token_p);
 }
 }  // close package namespace
 

@@ -48,10 +48,10 @@ using bsl::flush;
 // [ 2]  baem_MetricRegistry(bslma::Allocator *);
 // [ 2]  ~baem_MetricRegistry();
 // MANIPULATORS
-// [ 2]  balm::MetricId addId(const bdlb::StringRef& , const bdlb::StringRef& );
-// [ 3]  balm::MetricId getId(const bdlb::StringRef& , const bdlb::StringRef& );
-// [ 2]  const balm::Category *addCategory(const bdlb::StringRef& category);
-// [ 4]  const balm::Category *getCategory(const bdlb::StringRef& category);
+// [ 2]  balm::MetricId addId(const bslstl::StringRef& , const bslstl::StringRef& );
+// [ 3]  balm::MetricId getId(const bslstl::StringRef& , const bslstl::StringRef& );
+// [ 2]  const balm::Category *addCategory(const bslstl::StringRef& category);
+// [ 4]  const balm::Category *getCategory(const bslstl::StringRef& category);
 // [ 6]  void setCategoryEnabled(const balm::Category* , isEnabled);
 // [ 6]  void setAllCategoriesEnabled(bool );
 // [10]  void setPreferredPublicationType(const balm::MetricId& ,
@@ -63,9 +63,9 @@ using bsl::flush;
 // ACCESSORS
 // [ 2]  bsl::size_t numMetrics() const;
 // [ 2]  bsl::size_t numCategories() const;
-// [ 2]  balm::MetricId findId(const bdlb::StringRef& ,
-//                           const bdlb::StringRef& ) const;
-// [ 2]  const balm::Category *findCategory(const bdlb::StringRef& ) const;
+// [ 2]  balm::MetricId findId(const bslstl::StringRef& ,
+//                           const bslstl::StringRef& ) const;
+// [ 2]  const balm::Category *findCategory(const bslstl::StringRef& ) const;
 // [ 5]  void getAllCategories(bsl::vector<const balm::Category *> *) const;
 // [ 7]  bsl::ostream& print(bsl::ostream& , int, int) const;
 //-----------------------------------------------------------------------------
@@ -1517,7 +1517,7 @@ int main(int argc, char *argv[])
         //   to add a category.
         //
         // Testing:
-        //   const balm::Category *getCategory(const bdlb::StringRef& );
+        //   const balm::Category *getCategory(const bslstl::StringRef& );
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'getCategory'."
@@ -1596,8 +1596,8 @@ int main(int argc, char *argv[])
         //   'addCategory'.
         //
         // Testing:
-        //   balm::MetricId getId(const bdlb::StringRef& ,
-        //                       const bdlb::StringRef& );
+        //   balm::MetricId getId(const bslstl::StringRef& ,
+        //                       const bslstl::StringRef& );
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'getId'."
@@ -1734,14 +1734,14 @@ int main(int argc, char *argv[])
         // Testing:
         //   baem_MetricRegistry(bslma::Allocator *);
         //   ~baem_MetricRegistry();
-        //   balm::MetricId addId(const bdlb::StringRef& ,
-        //                       const bdlb::StringRef& );
-        //   const balm::Category *addCategory(const bdlb::StringRef& );
+        //   balm::MetricId addId(const bslstl::StringRef& ,
+        //                       const bslstl::StringRef& );
+        //   const balm::Category *addCategory(const bslstl::StringRef& );
         //   bsl::size_t numMetrics() const;
         //   bsl::size_t numCategories() const;
-        //   balm::MetricId findId(const bdlb::StringRef& ,
-        //                        const bdlb::StringRef& ) const;
-        //   const balm::Category *findCategory(const bdlb::StringRef& ) const;
+        //   balm::MetricId findId(const bslstl::StringRef& ,
+        //                        const bslstl::StringRef& ) const;
+        //   const balm::Category *findCategory(const bslstl::StringRef& ) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting basic mainpulator and accessors."

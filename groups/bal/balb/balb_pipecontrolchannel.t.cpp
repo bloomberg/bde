@@ -147,7 +147,7 @@ class ControlServer {
     bsl::vector<bsl::string> d_messages;
 
     // PRIVATE MANIPULATORS
-    void onMessage(const bdlb::StringRef& message)
+    void onMessage(const bslstl::StringRef& message)
     {
         if ("EXIT" != message) {
             d_messages.push_back(message);
@@ -168,7 +168,7 @@ class ControlServer {
     {}
 
     // MANIPULATORS
-    int start(const bdlb::StringRef &pipeName) {
+    int start(const bslstl::StringRef &pipeName) {
         return d_channel.start(pipeName);
     }
 
@@ -199,12 +199,12 @@ static void threadSend(const bsl::string& pipeName,
     }
 }
 
-void noop(const bdlb::StringRef&)
+void noop(const bslstl::StringRef&)
 {
 }
 
 void verifyPayload(const bsl::string&      expected,
-                   const bdlb::StringRef&  found,
+                   const bslstl::StringRef&  found,
                    bdlmtt::Barrier          *barrier)
 {
     // Verify that the specified 'found' payload has the same value as the

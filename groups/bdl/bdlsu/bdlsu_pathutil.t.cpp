@@ -4,6 +4,7 @@
 #include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -250,12 +251,12 @@ int main(int argc, char *argv[])
         //:  
         //: 1 Iterate over a series of simple test paths, and for each
         //:   path, iterate over a series of sub-string within that path.
-        //:   For each sub-string, create a bdlb::StringRef aliasing that
+        //:   For each sub-string, create a bslstl::StringRef aliasing that
         //:   sub-string, create an expected result value, and verify
         //:   that 'appendIfValid' also generates that expected value (C-7).
         //
         // Testing:
-        //  int appendIfValid(bsl::string *, const bdlb::StringRef& );
+        //  int appendIfValid(bsl::string *, const bslstl::StringRef& );
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -395,7 +396,7 @@ int main(int argc, char *argv[])
                     for (int offset=0; offset<pathLen-subStrLen+1; ++offset){
                         
                         bsl::string path(VALUES[i]);
-                        bdlb::StringRef filename(path.c_str() + offset,
+                        bslstl::StringRef filename(path.c_str() + offset,
                                                  subStrLen);
 
                         if (filename.length() > 0 && '/' == filename[0]) {

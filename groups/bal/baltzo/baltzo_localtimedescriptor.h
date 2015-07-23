@@ -362,7 +362,7 @@ LocalTimeDescriptor::LocalTimeDescriptor(
 , d_description(description.begin(), description.end(), basicAllocator)
 {
     BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
-    BSLS_ASSERT_SAFE(description.isBound());
+    BSLS_ASSERT_SAFE(0 != description.data());
 }
 
 inline
@@ -396,7 +396,7 @@ LocalTimeDescriptor& LocalTimeDescriptor::operator=(
 inline
 void LocalTimeDescriptor::setDescription(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_description.assign(value.begin(), value.end());
 }

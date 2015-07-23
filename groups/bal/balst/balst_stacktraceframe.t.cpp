@@ -122,12 +122,12 @@ using bsl::ostream;
 // MANIPULATORS
 // [ 9] operator=(const balst::StackTraceFrame& rhs);
 // [ 2] setAddress(const void *value);
-// [ 2] setLibraryFileName(const bdlb::StringRef& value);
+// [ 2] setLibraryFileName(const bslstl::StringRef& value);
 // [ 2] setLineNumber(int value);
-// [ 2] setMangledSymbolName(const bdlb::StringRef& value);
+// [ 2] setMangledSymbolName(const bslstl::StringRef& value);
 // [ 2] setOffsetFromSymbol(bsl::size_t value);
-// [ 2] setSourceFileName(const bdlb::StringRef& value);
-// [ 2] setSymbolName(const bdlb::StringRef& value);
+// [ 2] setSourceFileName(const bslstl::StringRef& value);
+// [ 2] setSymbolName(const bslstl::StringRef& value);
 //
 // [ 8] void swap(balst::StackTraceFrame& other);
 //
@@ -3620,12 +3620,12 @@ int main(int argc, char *argv[])
         //   balst::StackTraceFrame(bslma::Allocator *bA = 0);
         //   ~balst::StackTraceFrame();
         //   setAddress(const void *value);
-        //   setLibraryFileName(const bdlb::StringRef& value);
+        //   setLibraryFileName(const bslstl::StringRef& value);
         //   setLineNumber(int value);
-        //   setMangledSymbolName(const bdlb::StringRef& value);
+        //   setMangledSymbolName(const bslstl::StringRef& value);
         //   setOffsetFromSymbol(bsl::size_t value);
-        //   setSourceFileName(const bdlb::StringRef& value);
-        //   setSymbolName(const bdlb::StringRef& value);
+        //   setSourceFileName(const bslstl::StringRef& value);
+        //   setSymbolName(const bslstl::StringRef& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

@@ -64,19 +64,19 @@ using bsl::flush;
 //                                bslma::Allocator *);
 // [ 3] ~balm::PublicationScheduler();
 // MANIPULATORS
-// [10] void scheduleCategory(const bdlb::StringRef&   ,
+// [10] void scheduleCategory(const bslstl::StringRef&   ,
 //                            const bsls::TimeInterval& );
 // [ 3] void scheduleCategory(const balm::Category      *,
 //                            const bsls::TimeInterval&  );
 // [ 3] void setDefaultSchedule(const bsls::TimeInterval& );
-// [10] int cancelCategorySchedule(const bdlb::StringRef& );
+// [10] int cancelCategorySchedule(const bslstl::StringRef& );
 // [ 6] int cancelCategorySchedule(const balm::Category *);
 // [ 6] int clearDefaultSchedule();
 // [ 7] void cancelAll();
 // [ 3] balm::MetricsManager *manager();
 // ACCESSORS
 // [10] bool findCategorySchedule(bsls::TimeInterval *,
-//                                const bdlb::StringRef&  ) const;
+//                                const bslstl::StringRef&  ) const;
 // [ 3] bool findCategorySchedule(bsls::TimeInterval*,
 //                                const balm::Category*) const;
 // [ 3] bool getDefaultSchedule(bsls::TimeInterval *) const;
@@ -1524,7 +1524,7 @@ int main(int argc, char *argv[])
             << endl
             << "TESTING ALTERNATIVE METHODS: " << endl
             << "scheduleCategory(const bdeut::StringReg&, ...)', \n"
-            << "'findCategorySchedule(..., const bdlb::StringRef&)', and\n"
+            << "'findCategorySchedule(..., const bslstl::StringRef&)', and\n"
             << "'cancelCategorySchedule(constbdeut_StringRef&)\n"
             << "========================================================\n";
 
