@@ -4,6 +4,8 @@
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
+#include <bdlt_datetz.h>
+#include <bdlt_timetz.h>
 
 #include <bsl_sstream.h>
 #include <bsl_cfloat.h>
