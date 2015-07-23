@@ -1555,7 +1555,7 @@ void writerThread(unsigned threadIndex)
 
 void success()
 {
-    std::cout << "no bug found" << std::endl;
+    bsl::cout << "no bug found" << bsl::endl;
     _exit(0);
 }
 

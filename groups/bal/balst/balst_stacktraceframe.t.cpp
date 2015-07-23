@@ -814,8 +814,8 @@ int main(int argc, char *argv[])
     b.setSymbolName(a.symbolName());
     ASSERT(true == a.isSymbolNameKnown());
     ASSERT(true == b.isSymbolNameKnown());
-    ASSERT(0    == std::strcmp("woof", a.symbolName().c_str()));
-    ASSERT(0    == std::strcmp("woof", b.symbolName().c_str()));
+    ASSERT(0    == bsl::strcmp("woof", a.symbolName().c_str()));
+    ASSERT(0    == bsl::strcmp("woof", b.symbolName().c_str()));
     ASSERT(a    == b);
 
     a.setSourceFileName("woof.cpp");
@@ -823,8 +823,8 @@ int main(int argc, char *argv[])
     b.setSourceFileName(a.sourceFileName());
     ASSERT(a.isSourceFileNameKnown());
     ASSERT(b.isSourceFileNameKnown());
-    ASSERT(0 == std::strcmp("woof.cpp", a.sourceFileName().c_str()));
-    ASSERT(0 == std::strcmp("woof.cpp", b.sourceFileName().c_str()));
+    ASSERT(0 == bsl::strcmp("woof.cpp", a.sourceFileName().c_str()));
+    ASSERT(0 == bsl::strcmp("woof.cpp", b.sourceFileName().c_str()));
     ASSERT(a == b);
 //..
 

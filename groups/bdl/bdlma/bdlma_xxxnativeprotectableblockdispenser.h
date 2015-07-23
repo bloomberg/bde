@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // Modify its contents:
 //..
 //    char *memory = static_cast<char *>(block.ptr());
-//    std::memset(memory, 0, size);
+//    bsl::memset(memory, 0, size);
 //                                   assert(0 == memory[0]);
 //    memory[0] = 1;
 //                                   assert(1 == memory[0]);

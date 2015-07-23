@@ -649,7 +649,7 @@ if (verbose)
                 ASSERT(R == R2);
             }
 
-            if (verbose) cout << "\t\tstd::ostream print" << endl;
+            if (verbose) cout << "\t\tbsl::ostream print" << endl;
             {
                 char buffer[1000];
                 ostrstream out(buffer, sizeof buffer);
@@ -974,7 +974,7 @@ if (verbose)
                 ASSERT(R == R2);
             }
 
-            if (verbose) cout << "\t\tstd::ostream print" << endl;
+            if (verbose) cout << "\t\tbsl::ostream print" << endl;
             {
                 mR[0].theModifiableInt() = 5;
                 char buffer[1000];

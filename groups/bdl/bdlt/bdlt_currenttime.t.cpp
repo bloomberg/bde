@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
         //: 1 Repeatedly invoke the method and verify that returned values are
         //:   non-decreasing.
         //:
-        //: 2 Compare the result of 'currentTimeDefault' against 'std::time'
+        //: 2 Compare the result of 'currentTimeDefault' against 'bsl::time'
         //:   and 'bsls::SystemTime::now'.
         //
         // Testing:

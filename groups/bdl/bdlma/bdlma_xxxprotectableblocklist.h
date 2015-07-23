@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //             d_blockList.unprotect();
 //             bdlma::MemoryBlockDescriptor block =
 //                                              d_blockList.allocate(numBytes);
-//             std::memcpy(block.address(), data, numBytes);
+//             bsl::memcpy(block.address(), data, numBytes);
 //             d_blockList.protect();
 //             return block.address();
 //         }

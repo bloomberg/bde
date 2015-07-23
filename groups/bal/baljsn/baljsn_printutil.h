@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //  Finally, we print out the JSON string:
 //..
 //  if (verbose) {
-//      std::cout << oss.str();
+//      bsl::cout << oss.str();
 //  }
 //..
 //  The output should look like:

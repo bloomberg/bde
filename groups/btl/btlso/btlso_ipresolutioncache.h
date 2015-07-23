@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we write the address to stdout:
 //..
-//  bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
+//  bsl::cout << "IP Address: " << ipAddresses[0] << bsl::endl;
 //..
 // The output of the preceding operation will look like:
 //..
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we write the address to stdout:
 //..
-//  bsl::cout << "IP Address: " << ipAddress << std::endl;
+//  bsl::cout << "IP Address: " << ipAddress << bsl::endl;
 //..
 // Finally, we observe the output to be in the form:
 //..

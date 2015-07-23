@@ -3541,7 +3541,7 @@ int main(int argc, char *argv[])
 
                     expTransitions[TIME] = LTD;
 
-                    const std::size_t NT = EXP.size();
+                    const bsl::size_t NT = EXP.size();
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }

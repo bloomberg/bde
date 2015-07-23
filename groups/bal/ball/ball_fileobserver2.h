@@ -294,7 +294,7 @@ class FileObserver2 : public Observer {
         // E.g.:
         //..
         //  void onLogFileRotation(int                rotationStatus,
-        //                         const std::string& rotatedLogFileName);
+        //                         const bsl::string& rotatedLogFileName);
         //..
 
   private:

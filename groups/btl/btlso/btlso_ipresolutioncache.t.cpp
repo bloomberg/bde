@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
 
     ASSERT(0 == rc);
     ASSERT(1 == ipAddresses.size());
-    if (verbose) bsl::cout << "IP Address: " << ipAddresses[0] << std::endl;
+    if (verbose) bsl::cout << "IP Address: " << ipAddresses[0] << bsl::endl;
 #endif
 //..
 //  Finally, we verify that subsequent call to 'lookupAddressRaw' return 0 to
@@ -821,7 +821,7 @@ int main(int argc, char *argv[])
 // Now, we write the address to stdout:
 //..
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    if (verbose) bsl::cout << "IP Address: " << ipAddress << std::endl;
+    if (verbose) bsl::cout << "IP Address: " << ipAddress << bsl::endl;
 #endif
 //..
 // Finally, we observe the output to be in the form:

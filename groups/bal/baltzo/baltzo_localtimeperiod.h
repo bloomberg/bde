@@ -331,7 +331,7 @@ bool operator!=(const LocalTimePeriod& lhs,
     // 'descriptor', 'utcStartTime', or 'utcEndTime' attributes are not the
     // same.
 
-std::ostream& operator<<(std::ostream&                 stream,
+bsl::ostream& operator<<(bsl::ostream&                 stream,
                          const LocalTimePeriod& localTimePeriod);
 }  // close package namespace
     // Write the value of the specified 'object' to the specified output
@@ -495,7 +495,7 @@ bool baltzo::operator!=(const LocalTimePeriod& lhs,
 }
 
 inline
-std::ostream& baltzo::operator<<(std::ostream&                 stream,
+bsl::ostream& baltzo::operator<<(bsl::ostream&                 stream,
                          const LocalTimePeriod& localTimePeriod)
 {
     return localTimePeriod.print(stream, 0, -1);

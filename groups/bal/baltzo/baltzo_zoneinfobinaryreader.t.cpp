@@ -4551,9 +4551,9 @@ int main(int argc, char *argv[])
         }
 
         int size;
-        istream.seekg(0, std::ios::end);
+        istream.seekg(0, bsl::ios::end);
         size = istream.tellg();
-        istream.seekg(0, std::ios::beg);
+        istream.seekg(0, bsl::ios::beg);
         char *buffer = new char[size];
         istream.read(buffer, size);
         istream.close();

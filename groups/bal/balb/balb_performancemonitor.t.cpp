@@ -147,7 +147,7 @@ namespace test {
 
 class MmapAllocator : public bslma::Allocator {
 
-    typedef bsl::map<void*, std::size_t> MapType;
+    typedef bsl::map<void*, bsl::size_t> MapType;
 
     MapType           d_map;
     bslma::Allocator *d_allocator_p;
@@ -227,7 +227,7 @@ class MmapAllocator : public bslma::Allocator {
         MapType::iterator it = d_map.find(address);
         BSLS_ASSERT(it != d_map.end());
 
-        std::size_t size = it->second;
+        bsl::size_t size = it->second;
 
         int rc = munmap(static_cast<char*>(address), size);
         BSLS_ASSERT(-1 != rc);
@@ -243,50 +243,50 @@ void report(int                bufferSize,
             double             virtualSize,
             double             residentSize)
 {
-    std::cout << "BufferSize        = "
-              << std::setprecision(8)
+    bsl::cout << "BufferSize        = "
+              << bsl::setprecision(8)
               << bufferSize
               << " ("
-              << std::setprecision(8)
+              << bsl::setprecision(8)
               << (((double)(bufferSize)) / (1024 * 1024))
               << " MB)"
-              << std::endl;
+              << bsl::endl;
 
-    std::cout << "CurrentBytesInUse = "
-              << std::setprecision(8)
+    bsl::cout << "CurrentBytesInUse = "
+              << bsl::setprecision(8)
               << currentBytesInUse
               << " ("
-              << std::setprecision(8)
+              << bsl::setprecision(8)
               << (((double)(currentBytesInUse)) / (1024 * 1024))
               << " MB)"
-              << std::endl;
+              << bsl::endl;
 
-    std::cout << "PeakBytesInUse   = "
-              << std::setprecision(8)
+    bsl::cout << "PeakBytesInUse   = "
+              << bsl::setprecision(8)
               << peakBytesInUse
               << " ("
-              << std::setprecision(8)
+              << bsl::setprecision(8)
               << (((double)(peakBytesInUse)) / (1024 * 1024))
               << " MB)"
-              << std::endl;
+              << bsl::endl;
 
-    std::cout << "VirtualSize      = "
-              << std::setprecision(8)
+    bsl::cout << "VirtualSize      = "
+              << bsl::setprecision(8)
               << virtualSize * 1024 * 1024
               << " ("
-              << std::setprecision(8)
+              << bsl::setprecision(8)
               << (((double)(virtualSize)))
               << " MB)"
-              << std::endl;
+              << bsl::endl;
 
-    std::cout << "ResidentSize     = "
-              << std::setprecision(8)
+    bsl::cout << "ResidentSize     = "
+              << bsl::setprecision(8)
               << residentSize * 1024 * 1024
               << " ("
-              << std::setprecision(8)
+              << bsl::setprecision(8)
               << (((double)(residentSize)))
               << " MB)"
-              << std::endl;
+              << bsl::endl;
 }
 #endif
 
@@ -698,8 +698,8 @@ int main(int argc, char *argv[])
                     peakBytesInUse    = bsl::max(peakBytesInUse,
                                                  ta.numBytesInUse());
 
-                    std::cout << "--"
-                              << std::endl;
+                    bsl::cout << "--"
+                              << bsl::endl;
 
                     report(bufferSize,
                            currentBytesInUse,
@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
                            residentSize);
                 }
 
-                std::size_t halfBufferSize = bufferSize / 2;
+                bsl::size_t halfBufferSize = bufferSize / 2;
 
                 {
                     bsl::deque<char> buffer(&ta);
@@ -726,8 +726,8 @@ int main(int argc, char *argv[])
                     peakBytesInUse    = bsl::max(peakBytesInUse,
                                                  ta.numBytesInUse());
 
-                    std::cout << "**"
-                              << std::endl;
+                    bsl::cout << "**"
+                              << bsl::endl;
 
                     report(halfBufferSize,
                            currentBytesInUse,
@@ -750,8 +750,8 @@ int main(int argc, char *argv[])
             currentBytesInUse = ta.numBytesInUse();
             peakBytesInUse    = bsl::max(peakBytesInUse, ta.numBytesInUse());
 
-            std::cout << "##"
-                      << std::endl;
+            bsl::cout << "##"
+                      << bsl::endl;
 
             report(0,
                    currentBytesInUse,

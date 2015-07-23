@@ -126,8 +126,8 @@ BSLS_IDENT("$Id: $")
 //  b.setSymbolName(a.symbolName());
 //  assert(true == a.isSymbolNameKnown());
 //  assert(true == b.isSymbolNameKnown());
-//  assert(0    == std::strcmp("woof", a.symbolName().c_str()));
-//  assert(0    == std::strcmp("woof", b.symbolName().c_str()));
+//  assert(0    == bsl::strcmp("woof", a.symbolName().c_str()));
+//  assert(0    == bsl::strcmp("woof", b.symbolName().c_str()));
 //  assert(a    == b);
 //
 //  a.setSourceFileName("woof.cpp");
@@ -135,8 +135,8 @@ BSLS_IDENT("$Id: $")
 //  b.setSourceFileName(a.sourceFileName());
 //  assert(a.isSourceFileNameKnown());
 //  assert(b.isSourceFileNameKnown());
-//  assert(0 == std::strcmp("woof.cpp", a.sourceFileName().c_str()));
-//  assert(0 == std::strcmp("woof.cpp", b.sourceFileName().c_str()));
+//  assert(0 == bsl::strcmp("woof.cpp", a.sourceFileName().c_str()));
+//  assert(0 == bsl::strcmp("woof.cpp", b.sourceFileName().c_str()));
 //  assert(a == b);
 //..
 

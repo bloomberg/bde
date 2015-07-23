@@ -1683,7 +1683,7 @@ int main(int argc, char *argv[])
             ASSERT(X.isFileLoggingEnabled());
 
             char buffer[1025];  // rotateOnSize is specified in multiples of 1K
-            std::memset(buffer, 'x', sizeof(buffer));
+            bsl::memset(buffer, 'x', sizeof(buffer));
             buffer[sizeof(buffer) - 1] = 0;
 
             bsl::vector<bsl::string> files(Z);
