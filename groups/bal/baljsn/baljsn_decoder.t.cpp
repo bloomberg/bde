@@ -10,8 +10,6 @@
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_valuetypefunctions.h>
 #include <bdlsb_fixedmeminstreambuf.h>
-#include <bdlxxxx_instream.h>
-#include <bdlxxxx_outstream.h>
 #include <bsl_sstream.h>
 
 #include <bdlde_utf8util.h>
@@ -25,8 +23,6 @@
 // increase because of them.  They should be remove when possible.
 #include <balb_testmessages.h>
 #include <balxml_decoder.h>
-#include <balxml_xxxdatautil.h>
-#include <balxml_xxxschemaparser.h>
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
 
@@ -59,15 +55,17 @@ using bsl::endl;
 // [ 2] ~baljsn::Decoder();
 //
 // MANIPULATORS
-// [ 5] int decode(bsl::streambuf *streamBuf, TYPE *v, options);
-// [ 5] int decode(bsl::istream& stream, TYPE *v, options);
+// [ 4] int decode(bsl::streambuf *streamBuf, TYPE *v, options);
+// [ 4] int decode(bsl::istream& stream, TYPE *v, options);
 //
 // ACCESSORS
-// [ 5] bsl::string loggedMessages() const;
+// [ 4] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
-// [ 6] MULTI-THREADING TEST CASE
+// [ 5] MULTI-THREADING TEST CASE
+// [ 6] DRQS 43702912
+
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -33748,15 +33746,15 @@ namespace test {
                                // =============
 
 class Address {
-    // Address: TBD: Provide annotation
+    // Address
 
   private:
     bsl::string d_street;
-        // street: TBD: Provide annotation
+        // street
     bsl::string d_city;
-        // city: TBD: Provide annotation
+        // city
     bsl::string d_state;
-        // state: TBD: Provide annotation
+        // state
 
   public:
     // TYPES
@@ -33994,21 +33992,21 @@ const bdeat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
         ATTRIBUTE_ID_STREET,
         "street",                 // name
         sizeof("street") - 1,     // name length
-        "street: TBD: Provide annotation",  // annotation
+        "street",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_CITY,
         "city",                 // name
         sizeof("city") - 1,     // name length
-        "city: TBD: Provide annotation",  // annotation
+        "city",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_STATE,
         "state",                 // name
         sizeof("state") - 1,     // name length
-        "state: TBD: Provide annotation",  // annotation
+        "state",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     }
 };
@@ -34400,15 +34398,15 @@ namespace test {
                                // ==============
 
 class Employee {
-    // Employee: TBD: Provide annotation
+    // Employee
 
   private:
     bsl::string d_name;
-        // name: TBD: Provide annotation
+        // name
     Address d_homeAddress;
-        // homeAddress: TBD: Provide annotation
+        // homeAddress
     int d_age;
-        // age: TBD: Provide annotation
+        // age
 
   public:
     // TYPES
@@ -34646,21 +34644,21 @@ const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
         ATTRIBUTE_ID_NAME,
         "name",                 // name
         sizeof("name") - 1,     // name length
-        "name: TBD: Provide annotation",  // annotation
+        "name",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",                 // name
         sizeof("homeAddress") - 1,     // name length
-        "homeAddress: TBD: Provide annotation",  // annotation
+        "homeAddress",  // annotation
         bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "age",                 // name
         sizeof("age") - 1,     // name length
-        "age: TBD: Provide annotation",  // annotation
+        "age",  // annotation
         bdeat_FormattingMode::BDEAT_DEC // formatting mode
     }
 };
@@ -35080,7 +35078,7 @@ void constructFeatureTestMessage(
     }
 }
 
-namespace CASE6 {
+namespace CASE5 {
 
 struct ThreadData {
     const bsl::vector<balb::FeatureTestMessage> *d_testObjects_p;
@@ -35157,16 +35155,16 @@ void *threadFunction(void *data)
     return (void *) 0;
 }
 
-} // close namespace CASE6
+} // close namespace CASE5
 
 
 namespace BloombergLP {
 
 namespace bslma { class Allocator; }
 
-namespace case5 { class FullName; }
-namespace case5 { class Employee; }
-namespace case5 {
+namespace case4 { class FullName; }
+namespace case4 { class Employee; }
+namespace case4 {
 
                                 // ===========                                 
                                 // class Color                                 
@@ -35266,10 +35264,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, Color::Value rhs);
 
 // TRAITS
 
-BDLAT_DECL_ENUMERATION_TRAITS(case5::Color)
+BDLAT_DECL_ENUMERATION_TRAITS(case4::Color)
 
 
-namespace case5 {
+namespace case4 {
 
                                // ==============                               
                                // class FullName                               
@@ -35459,9 +35457,9 @@ bool operator!=(const FullName& lhs, const FullName& rhs);
 
 // TRAITS
 
-BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case5::FullName)
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case4::FullName)
 
-namespace case5 {
+namespace case4 {
 
                                // ==============                               
                                // class Employee                               
@@ -35694,13 +35692,13 @@ bool operator!=(const Employee& lhs, const Employee& rhs);
 
 // TRAITS
 
-BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case5::Employee)
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case4::Employee)
 
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-namespace case5 {
+namespace case4 {
 
                                 // -----------                                 
                                 // class Color                                 
@@ -36224,27 +36222,27 @@ const bsl::vector<FullName>& Employee::friends() const
 
 
 inline
-bool case5::operator==(
-        const case5::FullName& lhs,
-        const case5::FullName& rhs)
+bool case4::operator==(
+        const case4::FullName& lhs,
+        const case4::FullName& rhs)
 {
     return  lhs.name() == rhs.name()
          && lhs.ids() == rhs.ids();
 }
 
 inline
-bool case5::operator!=(
-        const case5::FullName& lhs,
-        const case5::FullName& rhs)
+bool case4::operator!=(
+        const case4::FullName& lhs,
+        const case4::FullName& rhs)
 {
     return  lhs.name() != rhs.name()
          || lhs.ids() != rhs.ids();
 }
 
 inline
-bool case5::operator==(
-        const case5::Employee& lhs,
-        const case5::Employee& rhs)
+bool case4::operator==(
+        const case4::Employee& lhs,
+        const case4::Employee& rhs)
 {
     return  lhs.name() == rhs.name()
          && lhs.age() == rhs.age()
@@ -36255,9 +36253,9 @@ bool case5::operator==(
 }
 
 inline
-bool case5::operator!=(
-        const case5::Employee& lhs,
-        const case5::Employee& rhs)
+bool case4::operator!=(
+        const case4::Employee& lhs,
+        const case4::Employee& rhs)
 {
     return  lhs.name() != rhs.name()
          || lhs.age() != rhs.age()
@@ -36267,7 +36265,7 @@ bool case5::operator!=(
          || lhs.friends() != rhs.friends();
 }
 
-namespace case5 {
+namespace case4 {
 
                                 // -----------                                 
                                 // class Color                                 
@@ -37291,7 +37289,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -37400,7 +37398,7 @@ int main(int argc, char *argv[])
     }
 //..
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE
         //
@@ -37511,7 +37509,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING DECODING FROM MULTIPLE DECODERS IN SEPARATE THREADS
         //
@@ -37554,7 +37552,7 @@ int main(int argc, char *argv[])
                << "==========================================================="
                << endl;
 
-        using namespace CASE6;
+        using namespace CASE5;
 
         bsl::vector<balb::FeatureTestMessage> testObjects;
         constructFeatureTestMessage(&testObjects);
@@ -37576,7 +37574,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == bdlmtt::ThreadUtil::join(handles[i]));
         }
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING INVALID JSON RETURNS AN ERROR
         //
@@ -37584,20 +37582,17 @@ int main(int argc, char *argv[])
         //: 1 The decoder returns an error on encoutering invalid JSON text.
         //
         // Plan:
-        //: 1 Construct a schema object for constructing 'bdlaggxxx::Aggregate'
-        //:   objects.
+        //: 1 Using the table-driven technique, specify a table with JSON text.
         //:
-        //: 2 Using the table-driven technique, specify a table with JSON text.
+        //: 2 For each row in the tables of P-1:
         //:
-        //: 3 For each row in the tables of P-1:
-        //:
-        //:   1 Construct a 'bdlaggxxx::Aggregate' object from the created schema.
+        //:   1 Construct a test object.
         //:
         //:   2 Create a 'baljsn::Decoder' object.
         //:
         //:   3 Create a 'bsl::istringstream' object with the JSON text.
         //:
-        //:   4 Decode that JSON into a 'bdlaggxxx::Aggregate' object.
+        //:   4 Decode that JSON into a test object.
         //:
         //:   5 Verify that the return code from 'decode' is *not* 0.
         //
@@ -38451,7 +38446,7 @@ int main(int argc, char *argv[])
                       ":"
             "}"
         },
-        // TBD:
+// TBD:
 //         {
 //             L_,
 //             "{"
@@ -38565,12 +38560,10 @@ int main(int argc, char *argv[])
 
         // Testing sequences
         {
-            bsl::shared_ptr<bdlmxxx::Schema> schema(new bdlmxxx::Schema);
-
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE  = DATA[ti].d_lineNum;
                 const bsl::string& INPUT = DATA[ti].d_text_p;
-                case5::Employee bob;
+                case4::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
@@ -38589,7 +38582,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE  = DATA[ti].d_lineNum;
                 const bsl::string& INPUT = DATA[ti].d_text_p;
-                case5::Employee bob;
+                case4::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
@@ -38726,7 +38719,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE  = DATA[ti].d_lineNum;
                 const bsl::string& INPUT = DATA[ti].d_text_p;
-                case5::Employee bob;
+                case4::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
@@ -38740,7 +38733,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING SKIPPING UNKNOWN ELEMENTS
         //
@@ -38752,20 +38745,17 @@ int main(int argc, char *argv[])
         //:   the 'skipUnknownElement' decoder option is *not* specified.
         //
         // Plan:
-        //: 1 Construct a schema object for constructing 'bdlaggxxx::Aggregate'
-        //:   objects.
+        //: 1 Using the table-driven technique, specify a table with JSON text.
         //:
-        //: 2 Using the table-driven technique, specify a table with JSON text.
+        //: 2 For each row in the tables of P-1:
         //:
-        //: 3 For each row in the tables of P-1:
-        //:
-        //:   1 Construct a 'bdlaggxxx::Aggregate' object from the created schema.
+        //:   1 Construct a test object.
         //:
         //:   2 Create a 'baljsn::Decoder' object.
         //:
         //:   3 Create a 'bsl::istringstream' object with the JSON text.
         //:
-        //:   4 Decode that JSON into a 'bdlaggxxx::Aggregate' object specifying
+        //:   4 Decode that JSON into a test object specifying
         //:     that unknown elements be skipped.
         //:
         //:   5 Verify that the decoded object has the expected data.
@@ -39320,9 +39310,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 21            == bob.age());
             }
         }
-      } break;
-      case 3: {
-        // TBD
       } break;
       case 2: {
         // --------------------------------------------------------------------

@@ -73,7 +73,7 @@ using bsl::endl;
 // [13] bsl::string loggedMessages() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -28867,15 +28867,15 @@ namespace test {
                                // =============
 
 class Address {
-    // Address: TBD: Provide annotation
+    // Address
 
   private:
     bsl::string d_street;
-        // street: TBD: Provide annotation
+        // street
     bsl::string d_city;
-        // city: TBD: Provide annotation
+        // city
     bsl::string d_state;
-        // state: TBD: Provide annotation
+        // state
 
   public:
     // TYPES
@@ -29113,21 +29113,21 @@ const bdeat_AttributeInfo Address::ATTRIBUTE_INFO_ARRAY[] = {
         ATTRIBUTE_ID_STREET,
         "street",                 // name
         sizeof("street") - 1,     // name length
-        "street: TBD: Provide annotation",  // annotation
+        "street",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_CITY,
         "city",                 // name
         sizeof("city") - 1,     // name length
-        "city: TBD: Provide annotation",  // annotation
+        "city",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_STATE,
         "state",                 // name
         sizeof("state") - 1,     // name length
-        "state: TBD: Provide annotation",  // annotation
+        "state",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     }
 };
@@ -29519,15 +29519,15 @@ namespace test {
                                // ==============
 
 class Employee {
-    // Employee: TBD: Provide annotation
+    // Employee
 
   private:
     bsl::string d_name;
-        // name: TBD: Provide annotation
+        // name
     Address d_homeAddress;
-        // homeAddress: TBD: Provide annotation
+        // homeAddress
     int d_age;
-        // age: TBD: Provide annotation
+        // age
 
   public:
     // TYPES
@@ -29765,21 +29765,21 @@ const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
         ATTRIBUTE_ID_NAME,
         "name",                 // name
         sizeof("name") - 1,     // name length
-        "name: TBD: Provide annotation",  // annotation
+        "name",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     },
     {
         ATTRIBUTE_ID_HOME_ADDRESS,
         "homeAddress",                 // name
         sizeof("homeAddress") - 1,     // name length
-        "homeAddress: TBD: Provide annotation",  // annotation
+        "homeAddress",  // annotation
         bdeat_FormattingMode::BDEAT_DEFAULT // formatting mode
     },
     {
         ATTRIBUTE_ID_AGE,
         "age",                 // name
         sizeof("age") - 1,     // name length
-        "age: TBD: Provide annotation",  // annotation
+        "age",  // annotation
         bdeat_FormattingMode::BDEAT_DEC // formatting mode
     }
 };
@@ -30313,7 +30313,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 16: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -30425,7 +30425,7 @@ int main(int argc, char *argv[])
     }
 //..
       } break;
-      case 15: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'encodeNullElements' option
         //
@@ -30871,12 +30871,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == encoder.encode(oss, object, options));
             ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
         }
-      } break;
-      case 14: {
-        // TBD
-      } break;
-      case 13: {
-        // TBD
       } break;
       case 12: {
         // --------------------------------------------------------------------
