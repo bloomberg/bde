@@ -141,16 +141,6 @@ struct BitUtil {
 
   public:
     // PUBLIC TYPE ALIASES (to support old toolchains)
-#if 0
-#if defined(BDLB_BITUTIL_NO_STDINT)
-    typedef unsigned int       uint32_t;
-    typedef unsigned long long uint64_t;
-#else
-    typedef ::uint32_t uint32_t;
-    typedef ::uint64_t uint64_t;
-#endif
-#endif
-
     typedef bsl::uint32_t uint32_t;
     typedef bsl::uint64_t uint64_t;
 
