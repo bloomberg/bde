@@ -528,6 +528,7 @@ void testBasicAccessors(bool verbose)
         ASSERT(ES.end()     == TestData<CHAR>::emptyString);
         ASSERT(ES.length()  ==
            native_std::char_traits<CHAR>::length(TestData<CHAR>::emptyString));
+        ASSERT(ES.empty());
         ASSERT(ES.isEmpty());
 
         bsl::basic_string<CHAR> EString(TestData<CHAR>::emptyString);
@@ -547,6 +548,7 @@ void testBasicAccessors(bool verbose)
         ASSERT(NES.data()    == NES.begin());
         ASSERT(NES.end()     == TestData<CHAR>::nonEmptyString + LEN);
         ASSERT(NES.length()  == LEN);
+        ASSERT(!NES.empty());
         ASSERT(!NES.isEmpty());
 
         bsl::basic_string<CHAR> NEString(TestData<CHAR>::nonEmptyString);
@@ -2807,6 +2809,7 @@ int main(int argc, char *argv[])
         //      const_iterator data() const;
         //      const_iterator end() const;
         //      int            length() const;
+        //      int            empty() const;
         //      int            isEmpty() const;
         //      int            compare(other) const;
         //                     operator bsl::string() const;

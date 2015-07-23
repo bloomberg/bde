@@ -489,6 +489,14 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // characters might not be null-terminated and may contain embedded
         // null characters.
 
+    bool empty() const;
+        // Return 'true' if this object represents an empty string value, and
+        // 'false' otherwise.  This object represents an empty string value if
+        // 'begin() == end()'.  Note that this method is functionally identical
+        // with the 'isEmpty' method and allows developers to avoid distracting
+        // syntax differences when 'StringRef' appears in juxtaposition with
+        // 'string', which defines 'empty' but not 'isEmpty'.
+
     bool isEmpty() const;
         // Return 'true' if this object represents an empty string value, and
         // 'false' otherwise.  This object represents an empty string value if
@@ -911,6 +919,13 @@ inline
 const CHAR_TYPE *StringRefImp<CHAR_TYPE>::data() const
 {
     return begin();
+}
+
+template <typename CHAR_TYPE>
+inline
+bool StringRefImp<CHAR_TYPE>::empty() const
+{
+    return begin() == end();
 }
 
 template <typename CHAR_TYPE>
