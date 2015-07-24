@@ -19,86 +19,65 @@ using namespace BloombergLP;
 // of its template arguments.  As such, the concerns are limited to the
 // correctness of the return "value", which is established by using overload
 // resolution as the mechanism to discriminate among types.
+//-----------------------------------------------------------------------------
 //
 // [ 2] bslmf::SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
 // [ 1] bslmf::Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
 //-----------------------------------------------------------------------------
 // [ 1] FUNCTIONALITY TEST (CLASS 'bslmf::Switch')
 // [ 2] CLASSES 'bslmf::SwitchN'
+// [ 3] USAGE EXAMPLE
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-struct A { };
-struct B { };
-struct C { };
-struct D { };
-struct E { };
-struct F { };
-struct G { };
-struct H { };
-struct I { };
-struct J { };
-
-char f(A) { return 'A'; }
-char f(B) { return 'B'; }
-char f(C) { return 'C'; }
-char f(D) { return 'D'; }
-char f(E) { return 'E'; }
-char f(F) { return 'F'; }
-char f(G) { return 'G'; }
-char f(H) { return 'H'; }
-char f(I) { return 'I'; }
-char f(J) { return 'J'; }
-char f(bslmf::Nil) { return '0'; }
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
+
+// BDE_VERIFY pragma: push // Usage examples relax rules for expository clarity
+// BDE_VERIFY pragma: -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: -FD01 // Function contracts replaced by expository text
 
 // Assume an external server API for storing and retrieving data:
 //..
@@ -132,34 +111,38 @@ char f(bslmf::Nil) { return '0'; }
         char d_buffer[LEN];
 
       public:
-        ShortString(const char *s = "") { strncpy(d_buffer, s, LEN); }
-            // Construct a 'ShortString' from a NTCS.
+        explicit ShortString(const char *s = "") { strncpy(d_buffer, s, LEN); }
+            // Construct a 'ShortString' having the same value as the
+            // optionally specified NTCS 's', and having an empty string value
+            // otherwise.
 
         void retrieve(data_Server *server);
-            // Retrieve this string from a data server.
+            // Retrieve this string from the specified data 'server'.
 
         void store(data_Server *server) const;
-            // Store this string to a data server.
+            // Store this string to the specified data 'server'.
 
         char operator[](int n) const { return d_buffer[n]; }
-            // Return the nth byte in this string.
+            // Return the specified 'n'th byte in this string.
     };
 
     template <int LEN>
     bool operator==(const ShortString<LEN>& lhs, const ShortString<LEN>& rhs)
-        // Return true if a 'lhs' is equal to 'rhs'
+        // Return 'true' if the specified 'lhs' has the same value as the
+        // specified 'rhs', and 'false' otherwise.
     {
         return 0 == memcmp(&lhs, &rhs, LEN);
     }
 
     template <int LEN>
     bool operator==(const ShortString<LEN>& lhs, const char *rhs)
-        // Return true if a 'ShortString' 'lhs' is equal to a NTCS 'rhs'.
+        // Return 'true' if the specified 'ShortString' 'lhs' has the same
+        // value as the specified NTCS 'rhs', and 'false' otherwise.
     {
         int i;
         for (i = 0; LEN > i && lhs[i]; ++i) {
             if (lhs[i] != rhs[i]) {
-                return false;
+                return false;                                         // RETURN
             }
         }
 
@@ -250,16 +233,45 @@ char f(bslmf::Nil) { return '0'; }
     }
 //..
 
+//BDE_VERIFY pragma: pop // end of usage example-example relaxed rules
+
+//=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+struct A { };
+struct B { };
+struct C { };
+struct D { };
+struct E { };
+struct F { };
+struct G { };
+struct H { };
+struct I { };
+struct J { };
+
+char f(A) { return 'A'; }
+char f(B) { return 'B'; }
+char f(C) { return 'C'; }
+char f(D) { return 'D'; }
+char f(E) { return 'E'; }
+char f(F) { return 'F'; }
+char f(G) { return 'G'; }
+char f(H) { return 'H'; }
+char f(I) { return 'I'; }
+char f(J) { return 'J'; }
+char f(bslmf::Nil) { return '0'; }
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     setbuf(stdout, 0);    // Use unbuffered output
 
@@ -268,7 +280,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
         //
@@ -281,7 +293,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
-                                 "\n=============\n");
+                            "\n=============\n");
 
         usageExample();
 
@@ -303,12 +315,18 @@ int main(int argc, char *argv[])
         //   repeated template arguments.
         //
         // Testing:
-        //     bslmf::SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
+        //   bslmf::SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nFUNCTIONALITY TEST"
-                                 "\n==================\n");
+        if (verbose) printf("\nTESTING CLASSES 'bslmf::SwitchN'"
+                            "\n================================\n");
 
+#ifndef BSLMF_SWITCH_USING_VARIADIC_TEMPLATES
+# define BSLMF_SWITCH_TEST_SWITCH_WITH_NAMED_LENGTH
+#endif
+
+
+#ifdef BSLMF_SWITCH_TEST_SWITCH_WITH_NAMED_LENGTH
         if (verbose) printf("\tTesting 'bslmf_Switch2.\n");
         {
             if (verbose) printf("Testing SELECTOR in range\n");
@@ -432,7 +450,7 @@ int main(int argc, char *argv[])
             ASSERT('0' == f(bslmf::Switch9<10,A,B,C,D,E,F,G,H,I>::Type()));
             ASSERT('0' == f(bslmf::Switch9<-1,A,B,C,D,E,F,G,H,I>::Type()));
         }
-
+#endif  // BSLMF_SWITCH_TEST_SWITCH_WITH_NAMED_LENGTH
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -454,11 +472,11 @@ int main(int argc, char *argv[])
         //   Instantiate with fewer than 9 different types and verify results.
         //
         // Testing:
-        //     bslmf::Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
+        //   bslmf::Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTIONALITY TEST"
-                                 "\n==================\n");
+                            "\n==================\n");
 
         if (verbose) printf("Testing SELECTOR in range\n");
         ASSERT('A' == f(bslmf::Switch<0,A,B,C,D,E,F,G,H,I,J>::Type()));
