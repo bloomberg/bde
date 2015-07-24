@@ -2,8 +2,9 @@
 #include <bdlmtt_barrier.h>
 
 #include <bsls_atomic.h>  // for testing only
-#include <bdlmtt_xxxthread.h>      // for testing only
-#include <bdlmtt_xxxatomictypes.h>
+#include <bdlmtt_threadattributes.h>
+#include <bdlmtt_threadutil.h>
+#include <bdlmtt_xxxatomictypes.h>  // for SpinLock
 
 #include <bsls_platform.h>
 #include <bsls_systemclocktype.h>

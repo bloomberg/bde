@@ -8,7 +8,7 @@
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
 #include <bdlmtt_threadgroup.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bdlmtt_xxxatomictypes.h>  // for SpinLock
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bslma_defaultallocatorguard.h>
