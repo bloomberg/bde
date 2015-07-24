@@ -718,13 +718,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDEXCEPT
 #endif
 
-// For transitive includes.  This is not placed in 'bsl+stdhdrs' because it
-// causes a cycle within the native standard headers.
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
-
 #if defined(BDE_BUILD_TARGET_STLPORT)
 // Code in Robo depends on these headers included transitively with <string>
 // and it fails to build otherwise in the stlport4 mode on Sun.
