@@ -1396,8 +1396,9 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     }
     else {
         stringRef.write(stream);
-        stream.width(0);
     }
+
+    stream.width(0);
 
     return stream;
 }
