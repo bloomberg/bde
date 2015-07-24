@@ -486,6 +486,10 @@ BSLS_IDENT("$Id: $")
 #include <bslx_versionfunctions.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
 #endif
@@ -929,6 +933,13 @@ STREAM& OutStreamFunctions::bdexStreamOutImp(STREAM&           stream,
                                              int            /* version */,
                                              const IsEnumType&)
 {
+    // A compilation error indicating the next line of code implies the 'TYPE'
+    // cannot be represented as a 32-bit 'int' and an overload for the
+    // 'OutStreamFunctions::bdexStreamOut' function, in the enumeration's
+    // namespace, should be provided.
+
+    BSLMF_ASSERT(sizeof(TYPE) <= sizeof(int32_t));
+
     // Stream the 'enum' value as a 32-bit 'int'.
     return stream.putInt32(static_cast<int>(value));
 }
