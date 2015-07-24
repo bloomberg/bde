@@ -14,7 +14,7 @@
 
 #include <bdlmca_blob.h>
 #include <bslma_testallocator.h>
-#include <bdlmtt_threadutil.h>
+#include <bdlqq_threadutil.h>
 #include <bsls_atomic.h>
 
 #include <bdlmxxx_list.h>
@@ -258,21 +258,21 @@ int veryVeryVerbose;
 
 void executeInParallel(
                       int                                           numThreads,
-                      BloombergLP::bdlmtt::ThreadUtil::ThreadFunction func)
+                      BloombergLP::bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing 'i'
    // to i'th thread.  Finally join all the threads.
 {
     using namespace BloombergLP;
-    bdlmtt::ThreadUtil::Handle *threads =
-                                      new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                                      new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -283,7 +283,7 @@ const int FILL = 0xbb;
 inline
 char *messageBuffer()
 {
-    BloombergLP::bdlmtt::Mutex *mutex = 0;
+    BloombergLP::bdlqq::Mutex *mutex = 0;
     int bufferSize = 0;
     char *buffer = Obj::obtainMessageBuffer(&mutex, &bufferSize);
     Obj::releaseMessageBuffer(mutex);
@@ -293,7 +293,7 @@ char *messageBuffer()
 inline
 int messageBufferSize()
 {
-    BloombergLP::bdlmtt::Mutex *mutex = 0;
+    BloombergLP::bdlqq::Mutex *mutex = 0;
     int bufferSize = 0;
     Obj::obtainMessageBuffer(&mutex, &bufferSize);
     Obj::releaseMessageBuffer(mutex);
@@ -517,7 +517,7 @@ enum {
 
 char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
-BloombergLP::bdlmtt::Mutex categoryMutex;
+BloombergLP::bdlqq::Mutex categoryMutex;
 
 extern "C" {
 void *workerThread18(void *arg)
@@ -585,7 +585,7 @@ enum {
 
 char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
-BloombergLP::bdlmtt::Mutex categoryMutex;
+BloombergLP::bdlqq::Mutex categoryMutex;
 
 extern "C" {
 void *workerThread13(void *arg)
@@ -616,7 +616,7 @@ enum {
 
 char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
-BloombergLP::bdlmtt::Mutex categoryMutex;
+BloombergLP::bdlqq::Mutex categoryMutex;
 extern "C" {
 void *workerThread12(void *arg)
 {
@@ -646,7 +646,7 @@ enum {
 
 char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
-BloombergLP::bdlmtt::Mutex categoryMutex;
+BloombergLP::bdlqq::Mutex categoryMutex;
 extern "C" {
 void *workerThread11(void *arg)
 {
@@ -676,7 +676,7 @@ enum {
 
 char message[MAX_MSG_SIZE + 1];
 int randomSizes[NUM_MSGS];
-BloombergLP::bdlmtt::Mutex categoryMutex;
+BloombergLP::bdlqq::Mutex categoryMutex;
 extern "C" {
 void *workerThread10(void *arg)
 {
@@ -750,7 +750,7 @@ class my_Observer : public BloombergLP::ball::Observer {
 
     // DATA
     bsl::vector<bsl::string> d_publishedMessages;
-    BloombergLP::bdlmtt::Mutex d_mutex;
+    BloombergLP::bdlqq::Mutex d_mutex;
 
   public:
     // CONSTRUCTORS
@@ -780,7 +780,7 @@ class my_Observer : public BloombergLP::ball::Observer {
     }
 };
 
-BloombergLP::bdlmtt::Mutex categoryMutex;
+BloombergLP::bdlqq::Mutex categoryMutex;
 
 extern "C" {
 void *workerThread9(void *arg)
@@ -861,7 +861,7 @@ struct ThreadFunctor {
         BALL_LOG_SET_CATEGORY( "CATEGORY_5" );
 
         bsls::Types::Int64 id =
-                               (bsls::Types::Int64) bdlmtt::ThreadUtil::selfId();
+                               (bsls::Types::Int64) bdlqq::ThreadUtil::selfId();
 
         while( true )
         {
@@ -5967,9 +5967,9 @@ int main(int argc, char *argv[])
         ball::LoggerManager::initSingleton( &observer, 0 );
 
         bcemt_Attribute attributes;
-        bdlmtt::ThreadUtil::Handle handles[10];
+        bdlqq::ThreadUtil::Handle handles[10];
         for (int i = 0; i < 10; ++i) {
-            bdlmtt::ThreadUtil::create(&handles[i], attributes, ThreadFunctor());
+            bdlqq::ThreadUtil::create(&handles[i], attributes, ThreadFunctor());
         }
 
         char buffer[256];

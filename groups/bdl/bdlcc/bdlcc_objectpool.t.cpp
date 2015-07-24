@@ -4,9 +4,9 @@
 
 #include <bdlcc_fixedqueue.h>
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_threadgroup.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_threadgroup.h>
 #include <bsls_atomic.h>
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -97,13 +97,13 @@ int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
 {
-   static bdlmtt::Mutex *mutex = 0;
+   static bdlqq::Mutex *mutex = 0;
    if (0 == mutex) {
-      mutex = new bdlmtt::Mutex;
+      mutex = new bdlqq::Mutex;
    }
 
     if (c) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(mutex);
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
@@ -145,13 +145,13 @@ void aSsErT(int c, const char *s, int i)
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
 
-typedef bdlmtt::LockGuard<bdlmtt::Mutex> LockGuard;
-static bdlmtt::Mutex printMutex;  // mutex to protect output macros
+typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
+static bdlqq::Mutex printMutex;  // mutex to protect output macros
 
 #define PT(X)  { LockGuard guard(&printMutex); P(X);  }
 #define PT_(X) { LockGuard guard(&printMutex); P_(X); }
 
-static bdlmtt::Mutex assertMutex; // mutex to protect assert macros
+static bdlqq::Mutex assertMutex; // mutex to protect assert macros
 
 #define LOOP_ASSERTT(I,X) { \
    if (!(X)) {                                                                \
@@ -188,20 +188,20 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 bcemt_Attribute attributes;
-void executeInParallel(int numThreads, bdlmtt::ThreadUtil::ThreadFunction func)
+void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
    // to i'th thread.  Finally join all the threads.
 {
-    bdlmtt::ThreadUtil::Handle *threads =
-                               new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                               new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -418,9 +418,9 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
          // a lot more time than we want.  So just microSleep(1) instead,
          // which is a much smaller delay (but quite a bit more than 1
          // microsecond).
-         bdlmtt::ThreadUtil::microSleep(1);
+         bdlqq::ThreadUtil::microSleep(1);
 #else
-         bdlmtt::ThreadUtil::yield();
+         bdlqq::ThreadUtil::yield();
 #endif
 
          ASSERT(val == d_count.testAndSwap(val, val+1));
@@ -474,7 +474,7 @@ void case13Processor(bdlcc::ObjectPool<Case13Type> *mX,
           break;
       }
       else {
-          bdlmtt::ThreadUtil::microSleep(500); //0.5 ms
+          bdlqq::ThreadUtil::microSleep(500); //0.5 ms
       }
    }
 }
@@ -652,7 +652,7 @@ public:
 
 bdlcc::ObjectPool<Counter> *pool;
 
-bdlmtt::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -694,7 +694,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlmtt::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -740,7 +740,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlmtt::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -782,9 +782,9 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlmtt::Barrier barrierAll(NUM_THREADS); // barrier for all threads
+bdlqq::Barrier barrierAll(NUM_THREADS); // barrier for all threads
 
-bdlmtt::Barrier barrier0(NUM_THREADS/4); // barrier for threads having
+bdlqq::Barrier barrier0(NUM_THREADS/4); // barrier for threads having
                                        // thread-number % 4 == 0
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
@@ -887,7 +887,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlmtt::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -927,8 +927,8 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlmtt::Barrier barrierAll(NUM_THREADS);   // barrier for all threads
-bdlmtt::Barrier barrier0(NUM_THREADS / 2); // barrier for even numbered threads
+bdlqq::Barrier barrierAll(NUM_THREADS);   // barrier for all threads
+bdlqq::Barrier barrier0(NUM_THREADS / 2); // barrier for even numbered threads
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -996,7 +996,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlmtt::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -1153,17 +1153,17 @@ class my_DatabaseConnection
   public:
     my_DatabaseConnection()
     {
-        bdlmtt::ThreadUtil::microSleep(CONNECTION_OPEN_TIME);
+        bdlqq::ThreadUtil::microSleep(CONNECTION_OPEN_TIME);
     }
 
     ~my_DatabaseConnection()
     {
-        bdlmtt::ThreadUtil::microSleep(CONNECTION_CLOSE_TIME);
+        bdlqq::ThreadUtil::microSleep(CONNECTION_CLOSE_TIME);
     }
 
     void executeQuery(Query *query)
     {
-        bdlmtt::ThreadUtil::microSleep(QUERY_EXECUTION_TIME);
+        bdlqq::ThreadUtil::microSleep(QUERY_EXECUTION_TIME);
     }
 };
 
@@ -1468,7 +1468,7 @@ int main(int argc, char *argv[])
         };
 
         bsls::AtomicInt numQueries(0);
-        bdlmtt::ThreadGroup tg;
+        bdlqq::ThreadGroup tg;
 
         tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
                                           (int)NUM_QUERIES, &queryHandler1),
@@ -1543,7 +1543,7 @@ int main(int argc, char *argv[])
               bsls::AtomicInt done(0);
 
               bdlcc::FixedQueue<Case13Type*> queue(p.d_maxCount);
-              bdlmtt::ThreadGroup procTg;
+              bdlqq::ThreadGroup procTg;
               for (int j = 0; j < 2; ++j) {
                  procTg.addThread(bdlf::BindUtil::bind(&case13Processor,
                                                       &mX,
@@ -1551,7 +1551,7 @@ int main(int argc, char *argv[])
                                                       &done));
               }
 
-              bdlmtt::ThreadGroup tg;
+              bdlqq::ThreadGroup tg;
               for (int j = 0; j < p.d_numThreads; ++j) {
                  ASSERT(0 == tg.addThread(bdlf::BindUtil::bind(
                                                        &case13Thread,

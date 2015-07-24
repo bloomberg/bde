@@ -50,8 +50,8 @@ BSLS_IDENT("$Id: $")
 #include <balst_stacktraceresolver_filehelper.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_QLOCK
-#include <bdlmtt_qlock.h>
+#ifndef INCLUDED_BDLQQ_QLOCK
+#include <bdlqq_qlock.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
@@ -203,7 +203,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
                                               // object will be freed when this
                                               // allocator is destroyed.
 
-    static bdlmtt::QLock     s_demangleQLock;   // 'QLock' to guard access to
+    static bdlqq::QLock     s_demangleQLock;   // 'QLock' to guard access to
                                               // the non-thread-safe 'Demangle'
                                               // function.
 

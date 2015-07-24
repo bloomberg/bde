@@ -2,8 +2,8 @@
 
 #include <bdlmca_xxxprotectablemultipool.h>
 
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_xxxthread.h>
 #include <bslma_testallocatorexception.h>         // for testing only
 #include <bdlma_xxxtestprotectableblockdispenser.h>  // for testing only
 
@@ -345,8 +345,8 @@ struct WorkerArgs {
 
 };
 
-bdlmtt::Barrier g_barrier(NUM_THREADS);
-bdlmtt::Mutex   g_mutex;
+bdlqq::Barrier g_barrier(NUM_THREADS);
+bdlqq::Mutex   g_mutex;
 
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, protect, unprotect, and deallocate
@@ -383,7 +383,7 @@ extern "C" void *workerThread(void *arg) {
     }
 
     // perform a second set of allocations
-    unsigned char threadId = bdlmtt::ThreadUtil::selfIdAsInt();
+    unsigned char threadId = bdlqq::ThreadUtil::selfIdAsInt();
     for (int i = 0; i < numAllocs; ++i) {
         blocks[i] = (char *)allocator->allocate(allocSizes[i]);
         memset(blocks[i], threadId, allocSizes[i]);
@@ -661,7 +661,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlmtt::ThreadUtil::Handle threads[NUM_THREADS];
+        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
 
         TestDisp disp(1024, veryVeryVerbose);
         Obj      mX(4, &disp);
@@ -679,12 +679,12 @@ int main(int argc, char *argv[])
         }
         for (int i = 0; i < NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
+                bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
         for (int i = 0; i < NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::join(threads[i]);
+                bdlqq::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
         mX.release();

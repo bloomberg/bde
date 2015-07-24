@@ -181,7 +181,7 @@ class SkipList_PoolManager {
     typedef bcec_SkipList_Pool      Pool;
 
     bdlma::InfrequentDeleteBlockList   d_blockList;  // supplies free memory
-    bdlmtt::Mutex                       d_mutex;      // protects the block list
+    bdlqq::Mutex                       d_mutex;      // protects the block list
 
     Pool                              d_pools[MAX_POOLS];
 
@@ -202,7 +202,7 @@ class SkipList_PoolManager {
 
 void SkipList_PoolManager::replenish(Pool *pool)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     int objectSize = pool->d_objectSize;
     int numObjects = (pool->d_numObjects >= 0 ? pool->d_numObjects :

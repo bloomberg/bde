@@ -168,8 +168,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_bdlsu_filesystemutil
@@ -184,8 +184,8 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -264,7 +264,7 @@ class MappingManager {
     typedef MappingManager_Page     Page;
 
     // INSTANCE DATA
-    bdlmtt::Mutex              d_mapLock;
+    bdlqq::Mutex              d_mapLock;
     bsl::size_t              d_totalMapped;
     bsl::size_t              d_mappingLimit;
     PageList                 d_usedPages;

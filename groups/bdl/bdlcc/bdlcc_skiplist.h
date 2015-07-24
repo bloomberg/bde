@@ -152,9 +152,9 @@ BSLS_IDENT("$Id: $")
 //    typedef bdlcc::SkipList<bdlt::Datetime, bdlf::Function<void(*)()> > List;
 //
 //    List                     d_list;
-//    bdlmtt::ThreadUtil::Handle d_dispatcher;
-//    bdlmtt::Condition          d_notEmptyCond;
-//    bdlmtt::Mutex              d_condMutex;
+//    bdlqq::ThreadUtil::Handle d_dispatcher;
+//    bdlqq::Condition          d_notEmptyCond;
+//    bdlqq::Mutex              d_condMutex;
 //    volatile bool            d_doneFlag;
 //
 //    // PRIVATE METHODS
@@ -212,7 +212,7 @@ BSLS_IDENT("$Id: $")
 //    : d_list(basicAllocator)
 //    , d_doneFlag(false)
 //    {
-//        int rc = bdlmtt::ThreadUtil::create(
+//        int rc = bdlqq::ThreadUtil::create(
 //                    &d_dispatcher,
 //                    bdlf::BindUtil::bind(&SimpleScheduler::dispatcherThread,
 //                                        this));
@@ -228,16 +228,16 @@ BSLS_IDENT("$Id: $")
 //    void stop()
 //    {
 //        // NOTE: this method will deadlock if invoked from an event callback
-//        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_condMutex);
-//        if (bdlmtt::ThreadUtil::invalidHandle() != d_dispatcher) {
-//            bdlmtt::ThreadUtil::Handle dispatcher = d_dispatcher;
+//        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_condMutex);
+//        if (bdlqq::ThreadUtil::invalidHandle() != d_dispatcher) {
+//            bdlqq::ThreadUtil::Handle dispatcher = d_dispatcher;
 //            d_doneFlag = true;
 //            d_notEmptyCond.signal();
 //            {
-//                bdlmtt::UnLockGuard<bdlmtt::Mutex> g(&d_condMutex);
-//                bdlmtt::ThreadUtil::join(dispatcher);
+//                bdlqq::UnLockGuard<bdlqq::Mutex> g(&d_condMutex);
+//                bdlqq::ThreadUtil::join(dispatcher);
 //            }
-//            d_dispatcher = bdlmtt::ThreadUtil::invalidHandle();
+//            d_dispatcher = bdlqq::ThreadUtil::invalidHandle();
 //        }
 //    }
 //
@@ -300,7 +300,7 @@ BSLS_IDENT("$Id: $")
 // assert(values.isEmpty());
 // scheduleTime.addMilliseconds(250);
 // while (bdlt::CurrentTime::utc() < scheduleTime) {
-//     bdlmtt::ThreadUtil::microSleep(10000);
+//     bdlqq::ThreadUtil::microSleep(10000);
 // }
 // scheduler.stop();
 // assert(3 == values.size());
@@ -313,12 +313,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -742,8 +742,8 @@ class SkipList {
     typedef SkipList_NodeCreationHelper<KEY, DATA>
                                                NodeGuard;
 
-    typedef bdlmtt::Mutex                        Lock;
-    typedef bdlmtt::LockGuard<bdlmtt::Mutex>       LockGuard;
+    typedef bdlqq::Mutex                        Lock;
+    typedef bdlqq::LockGuard<bdlqq::Mutex>       LockGuard;
 
     // DATA
     SkipList_RandomLevelGenerator         d_rand;
@@ -2986,8 +2986,8 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
     if (&lhs == &rhs) {
         return true;
     }
-    bdlmtt::LockGuard<bdlmtt::Mutex> lhsGuard(&lhs.d_lock);
-    bdlmtt::LockGuard<bdlmtt::Mutex> rhsGuard(&rhs.d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> lhsGuard(&lhs.d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> rhsGuard(&rhs.d_lock);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and
@@ -3028,8 +3028,8 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
     if (&lhs == &rhs) {
         return false;
     }
-    bdlmtt::LockGuard<bdlmtt::Mutex> lhsGuard(&lhs.d_lock);
-    bdlmtt::LockGuard<bdlmtt::Mutex> rhsGuard(&rhs.d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> lhsGuard(&lhs.d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> rhsGuard(&rhs.d_lock);
 
     // Once we have locked the lists, we need to do all operations manually
     // because the important functions of the lists (like frontNode and

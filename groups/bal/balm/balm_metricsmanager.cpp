@@ -9,8 +9,8 @@ BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 
 #include <ball_log.h>
 
-#include <bdlmtt_readlockguard.h>
-#include <bdlmtt_writelockguard.h>
+#include <bdlqq_readlockguard.h>
+#include <bdlqq_writelockguard.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -560,8 +560,8 @@ void MetricsManager_PublicationHelper::publish(
     bsls::TimeInterval now = bdlt::CurrentTime::now();
 
     // Lock the publication lock *then* lock the other object properties.
-    bdlmtt::LockGuard<bdlmtt::Mutex> publishGuard(&manager->d_publishLock);
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> propertiesGuard(&manager->d_rwLock);
+    bdlqq::LockGuard<bdlqq::Mutex> publishGuard(&manager->d_publishLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> propertiesGuard(&manager->d_rwLock);
 
     // Build the 'sampleCache' by iterating over the categories and collecting
     // records for those categories.
@@ -1026,8 +1026,8 @@ void MetricsManager::collectSample(
     samples.reserve(numCategories);
 
     // Lock the publication lock *then* lock the other object properties.
-    bdlmtt::LockGuard<bdlmtt::Mutex> publishGuard(&d_publishLock);
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> propertiesGuard(&d_rwLock);
+    bdlqq::LockGuard<bdlqq::Mutex> publishGuard(&d_publishLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> propertiesGuard(&d_rwLock);
 
     const Category * const *category = categories;
     for ( ; category != categories + numCategories; ++category) {
@@ -1131,40 +1131,40 @@ MetricsManager::registerCollectionCallback(
                                    const Category              *category,
                                    const RecordsCollectionCallback&  callback)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_callbacks->registerCollectionCallback(category, callback);
 }
 
 int MetricsManager::removeCollectionCallback(CallbackHandle handle)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_callbacks->removeCollectionCallback(handle);
 }
 
 int MetricsManager::addGeneralPublisher(
                              const bsl::shared_ptr<Publisher>& publisher)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->addGeneralPublisher(publisher);
 }
 int MetricsManager::addSpecificPublisher(
                            const Category                    *category,
                            const bsl::shared_ptr<Publisher>&  publisher)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->addSpecificPublisher(category, publisher);
 }
 
 int MetricsManager::removePublisher(const Publisher *publisher)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->removePublisher(publisher);
 }
 
 int MetricsManager::removePublisher(
                              const bsl::shared_ptr<Publisher>& publisher)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->removePublisher(publisher.get());
 }
 
@@ -1172,7 +1172,7 @@ int MetricsManager::removePublisher(
 int MetricsManager::findGeneralPublishers(
                                bsl::vector<Publisher *> *publishers) const
 {
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->findGeneralPublishers(publishers);
 }
 
@@ -1180,7 +1180,7 @@ int MetricsManager::findSpecificPublishers(
                                  bsl::vector<Publisher *> *publishers,
                                  const Category           *category) const
 {
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwLock);
     return d_publishers->findSpecificPublishers(publishers, category);
 }
 }  // close package namespace

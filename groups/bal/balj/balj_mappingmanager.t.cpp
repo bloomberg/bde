@@ -14,9 +14,9 @@
 #include <ball_loggermanager.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
-#include <bdlmtt_threadgroup.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadgroup.h>
 
 #include <bdlsu_filesystemutil.h>
 #include <bdlsu_memoryutil.h>
@@ -121,8 +121,8 @@ class Case2Thread
    int            d_id;
    int            d_numThreads;
    int            d_pageSize;
-   bdlmtt::Barrier *d_barrier;
-   bdlmtt::Barrier *d_barrier2;
+   bdlqq::Barrier *d_barrier;
+   bdlqq::Barrier *d_barrier2;
    Obj           *d_mappingManager;
    Obj::Handle   *d_handles;
    int            d_numPages;
@@ -136,8 +136,8 @@ class Case2Thread
 
 public:
 
-   Case2Thread(int id, int numThreads, int pageSize, bdlmtt::Barrier *barrier,
-               bdlmtt::Barrier *barrier2, Obj *mappingManager,
+   Case2Thread(int id, int numThreads, int pageSize, bdlqq::Barrier *barrier,
+               bdlqq::Barrier *barrier2, Obj *mappingManager,
                Obj::Handle *handles, int numPages)
       : d_id(id), d_numThreads(numThreads), d_pageSize(pageSize),
         d_barrier(barrier), d_barrier2(barrier2),
@@ -289,13 +289,13 @@ int main(int argc, char *argv[])
                 mappingManager.releasePage(pageHandles[i]);
              }
 
-             bdlmtt::ThreadGroup group;
+             bdlqq::ThreadGroup group;
 
              if (verbose) {
                 cout << "Starting threads..." << endl;
              }
 
-             bdlmtt::Barrier barrier1(NUM_THREADS+1), barrier2(NUM_THREADS+1);
+             bdlqq::Barrier barrier1(NUM_THREADS+1), barrier2(NUM_THREADS+1);
              int numCycles = 0;
              for (int i = 0; i < NUM_THREADS; ++i) {
                 threadData[i] = new Case2Thread(i, NUM_THREADS,

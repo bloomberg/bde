@@ -9,7 +9,7 @@
 #include <btlso_inetstreamsocketfactory.h>  // HACK
 #include <btlso_socketimputil.h>            // cleanup, startup
 
-#include <bdlmtt_xxxthread.h>                   // thread management util
+#include <bdlqq_xxxthread.h>                   // thread management util
 #include <bslma_testallocator.h>            // thread-safe allocator
 
 #include <bdlt_currenttime.h>
@@ -83,7 +83,7 @@ static void aSsErT(int c, const char *s, int i)
                       aSsErT(1, #X, __LINE__); } }
 
 //----------------------------------------------------------------------------
-bdlmtt::Mutex  d_mutex;   // for i/o synchronization in all threads
+bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -673,14 +673,14 @@ static int testExecutionHelper(btlsos::TcpCbConnector *connector,
                             connector->allocate(cb));
             }
         }
-        bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
     }  break;
     case 'C': {
         connector->cancelAll();
     } break;
     case 'D': {
         int ret = manager->dispatch(0);
-        bdlmtt::ThreadUtil::microSleep(SLEEP_TIME * 2);
+        bdlqq::ThreadUtil::microSleep(SLEEP_TIME * 2);
         rCode = !ret;
     } break;
     case 'I': {
@@ -696,7 +696,7 @@ static int testExecutionHelper(btlsos::TcpCbConnector *connector,
     return rCode;
 }
 
-static int createServerThread(bdlmtt::ThreadUtil::Handle           *threadHandle,
+static int createServerThread(bdlqq::ThreadUtil::Handle           *threadHandle,
             btlso::InetStreamSocketFactory<btlso::IPv4Address>     *factory,
             btlso::StreamSocket<btlso::IPv4Address>                *serverSocket,
             bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> *connList,
@@ -734,10 +734,10 @@ static int createServerThread(bdlmtt::ThreadUtil::Handle           *threadHandle
                                    numConnects
                                  };
 
-    bdlmtt::ThreadUtil::create(threadHandle, attributes,
+    bdlqq::ThreadUtil::create(threadHandle, attributes,
                              threadToAcceptConnection, &connectInfo);
 
-    bdlmtt::ThreadUtil::microSleep(SLEEP_TIME * 3);
+    bdlqq::ThreadUtil::microSleep(SLEEP_TIME * 3);
     return ret;
 }
 
@@ -1032,13 +1032,13 @@ int main(int argc, char *argv[])
                                                NUM_CONNECTIONS
                                              };
 
-                bdlmtt::ThreadUtil::Handle threadHandle;
+                bdlqq::ThreadUtil::Handle threadHandle;
                 bcemt_Attribute attributes;
-                bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                      threadToAcceptConnection, &connectInfo);
 
                 int numConnections = 0;
-                bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
                 {
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj connector(&factory, &manager, &testAllocator);
@@ -1066,7 +1066,7 @@ int main(int argc, char *argv[])
                     QT("The total number of channels established:");
                     PT(connList.size());
                 }
-                bdlmtt::ThreadUtil::join(threadHandle);
+                bdlqq::ThreadUtil::join(threadHandle);
 
                 for (int j = 0; j < length; ++j) {
                     factory.deallocate(connList[j]);
@@ -1202,7 +1202,7 @@ int main(int argc, char *argv[])
                                            / sizeof *commands;
 
                 for (int i = 0; i < NUM_COMMANDS_SET; ++i) {
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                          factory.allocate();
 
@@ -1218,7 +1218,7 @@ int main(int argc, char *argv[])
                                               &connList, maxConnections,
                                               &serverAddress));
                     // The client is waiting for the server.
-                    bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+                    bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1365,7 +1365,7 @@ int main(int argc, char *argv[])
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
-                bdlmtt::ThreadUtil::Handle threadHandle;
+                bdlqq::ThreadUtil::Handle threadHandle;
                 btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                          factory.allocate();
                 int maxConnections = 0, numConnections = 0;
@@ -1378,7 +1378,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1404,7 +1404,7 @@ int main(int argc, char *argv[])
                         PT(connector.numChannels());
                     }
                 }
-                bdlmtt::ThreadUtil::join(threadHandle);
+                bdlqq::ThreadUtil::join(threadHandle);
 
                 int length = connList.size();
                 if (veryVerbose) {
@@ -1526,7 +1526,7 @@ int main(int argc, char *argv[])
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
-                bdlmtt::ThreadUtil::Handle threadHandle;
+                bdlqq::ThreadUtil::Handle threadHandle;
                 btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                          factory.allocate();
                 int maxConnections = 0, numConnections = 0;
@@ -1539,7 +1539,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1570,7 +1570,7 @@ int main(int argc, char *argv[])
                     QT("The total number of channels established:");
                     PT(connector.numChannels());
                 }
-                bdlmtt::ThreadUtil::join(threadHandle);
+                bdlqq::ThreadUtil::join(threadHandle);
 
                 for (int j = 0; j < length; ++j) {
                     factory.deallocate(connList[j]);
@@ -1687,7 +1687,7 @@ int main(int argc, char *argv[])
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
-                bdlmtt::ThreadUtil::Handle threadHandle;
+                bdlqq::ThreadUtil::Handle threadHandle;
                 btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                          factory.allocate();
                 int maxConnections = 0, numConnections = 0;
@@ -1700,7 +1700,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1731,7 +1731,7 @@ int main(int argc, char *argv[])
                     QT("The total number of channels established:");
                     PT(connector.numChannels());
                 }
-                bdlmtt::ThreadUtil::join(threadHandle);
+                bdlqq::ThreadUtil::join(threadHandle);
 
                 for (int j = 0; j < length; ++j) {
                     factory.deallocate(connList[j]);
@@ -1849,7 +1849,7 @@ int main(int argc, char *argv[])
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
-                bdlmtt::ThreadUtil::Handle threadHandle;
+                bdlqq::ThreadUtil::Handle threadHandle;
                 btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                          factory.allocate();
                 int maxConnections = 0, numConnections = 0;
@@ -1862,7 +1862,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1893,7 +1893,7 @@ int main(int argc, char *argv[])
                     QT("The total number of channels established:");
                     PT(connector.numChannels());
                 }
-                bdlmtt::ThreadUtil::join(threadHandle);
+                bdlqq::ThreadUtil::join(threadHandle);
                 for (int j = 0; j < length; ++j) {
                     factory.deallocate(connList[j]);
                 }
@@ -1912,7 +1912,7 @@ int main(int argc, char *argv[])
                 QT("==============");
             }
             {
-                bdlmtt::ThreadUtil::Handle threadHandle;
+                bdlqq::ThreadUtil::Handle threadHandle;
                 bcemt_Attribute attributes;
                 btlso::IPv4Address serverAddress, localAddress;
                 serverAddress.setIpAddress(hostName);
@@ -1941,12 +1941,12 @@ int main(int argc, char *argv[])
                                                NUM_CONNECTIONS
                                              };
 
-                ret = bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                      threadToAcceptConnection, &connectInfo);
                 ASSERT(0 == ret);
 
                 int numConnections = 0;
-                bdlmtt::ThreadUtil::microSleep(SLEEP_TIME * 10);
+                bdlqq::ThreadUtil::microSleep(SLEEP_TIME * 10);
                 {
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj connector(&factory, &manager, &testAllocator);
@@ -1976,7 +1976,7 @@ int main(int argc, char *argv[])
                     QT("The total number of channels established:");
                     PT(connList.size());
                 }
-                bdlmtt::ThreadUtil::join(threadHandle);
+                bdlqq::ThreadUtil::join(threadHandle);
 
                 for (int j = 0; j < length; ++j) {
                     factory.deallocate(connList[j]);

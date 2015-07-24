@@ -241,8 +241,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_bdlsu_filesystemutil
@@ -430,9 +430,9 @@ class balj_Journal {
     bsl::vector<PageHandle>   d_pageSetHeaderHandles;
     bsl::vector<PageHandle>   d_pageHandles;
     mutable bsl::vector<int>  d_pageWorkIndexes;
-    mutable bdlmtt::Mutex       d_workIndexLock;
+    mutable bdlqq::Mutex       d_workIndexLock;
 
-    mutable bdlmtt::RWMutex     d_lock;
+    mutable bdlqq::RWMutex     d_lock;
 
     balj::MappingManager::PageListHandle
                               d_dirtyListHandle;

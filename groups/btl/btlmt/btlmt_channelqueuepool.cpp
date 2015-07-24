@@ -189,14 +189,14 @@ int ChannelQueuePool::start() {
     bcemt_Attribute attributes;
     attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
-    return bdlmtt::ThreadUtil::create(&d_processorHandle, attributes,
+    return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                     &queueProc, (void*)this);
 }
 
 int ChannelQueuePool::stop() {
     d_channelPool_p->stop();
     bsls::AtomicOperations::setInt(&d_runningFlag, 0);
-    return bdlmtt::ThreadUtil::join(d_processorHandle);
+    return bdlqq::ThreadUtil::join(d_processorHandle);
 }
 
 int ChannelQueuePool::processOutgoingQueue() {

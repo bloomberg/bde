@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(ball_fixedsizerecordbuffer_cpp,"$Id$ $CSID$")
 
 #if 0
 #include <ball_severity.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #endif
 
 namespace BloombergLP {
@@ -23,7 +23,7 @@ FixedSizeRecordBuffer::~FixedSizeRecordBuffer()
 // MANIPULATORS
 void FixedSizeRecordBuffer::popBack()
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 
     d_currentTotalSize -=
         (d_deque.back())->numAllocatedBytes();
@@ -36,7 +36,7 @@ void FixedSizeRecordBuffer::popBack()
 
 void FixedSizeRecordBuffer::popFront()
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 
     d_currentTotalSize -=
         (d_deque.front())->numAllocatedBytes();
@@ -50,7 +50,7 @@ void FixedSizeRecordBuffer::popFront()
 int FixedSizeRecordBuffer::pushBack(
                          const bsl::shared_ptr<Record>& handle)
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 
 
     int size = handle->numAllocatedBytes() +
@@ -88,7 +88,7 @@ int FixedSizeRecordBuffer::pushBack(
 int FixedSizeRecordBuffer::pushFront(
                          const bsl::shared_ptr<Record>& handle)
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 
 
     int size = handle->numAllocatedBytes() +

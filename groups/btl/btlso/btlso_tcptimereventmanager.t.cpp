@@ -4,7 +4,7 @@
 #include <btlso_flag.h>
 #include <btlso_socketimputil.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -333,12 +333,12 @@ void timerCallback(bsls::TimeInterval *regTime, int *isInvoked)
     ASSERT(bdlt::CurrentTime::now() >= *regTime);
 }
 
-bdlmtt::ThreadUtil::Handle mainThread;
+bdlqq::ThreadUtil::Handle mainThread;
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 extern "C" void *interruptThread(void* arg) {
     const int SLEEP_INTERVAL = 500000; // in microseconds
-    bdlmtt::ThreadUtil::microSleep(SLEEP_INTERVAL, 0);
+    bdlqq::ThreadUtil::microSleep(SLEEP_INTERVAL, 0);
     pthread_kill((pthread_t)mainThread, SIGUSR1);
     return arg;
 }
@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
             << "================================================" << endl;
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        mainThread = bdlmtt::ThreadUtil::self();
+        mainThread = bdlqq::ThreadUtil::self();
         struct {
             double d_offset;
             int d_flag;
@@ -485,8 +485,8 @@ int main(int argc, char *argv[])
                     bdlf::BindUtil::bind(&timerCallback, &offset, &isInvoked));
             mX.registerTimer(offset, functor);
 
-            bdlmtt::ThreadUtil::Handle h;
-            bdlmtt::ThreadUtil::create(&h, interruptThread, NULL);
+            bdlqq::ThreadUtil::Handle h;
+            bdlqq::ThreadUtil::create(&h, interruptThread, NULL);
 
             int rc = mX.dispatch(DATA[i].d_flag);
             if (veryVerbose) {
@@ -497,7 +497,7 @@ int main(int argc, char *argv[])
                 P_(DATA[i].d_expIsInvoked);
                 P(isInvoked);
             }
-            bdlmtt::ThreadUtil::join(h);
+            bdlqq::ThreadUtil::join(h);
         }
 #endif
 

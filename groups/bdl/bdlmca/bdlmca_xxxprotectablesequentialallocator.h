@@ -226,12 +226,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
@@ -284,7 +284,7 @@ class ProtectableSequentialAllocator : public bdlma::ManagedAllocator {
 
   private:
     // DATA
-    mutable bdlmtt::Mutex    d_mutex;       // synchronize access to data
+    mutable bdlqq::Mutex    d_mutex;       // synchronize access to data
 
     int                    d_cursor;      // position of the next free byte
 
@@ -432,14 +432,14 @@ class ProtectableSequentialAllocator : public bdlma::ManagedAllocator {
 inline
 void ProtectableSequentialAllocator::protect()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_blockList.protect();
 }
 
 inline
 void ProtectableSequentialAllocator::unprotect()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_blockList.unprotect();
 }
 
@@ -447,7 +447,7 @@ void ProtectableSequentialAllocator::unprotect()
 inline
 bool ProtectableSequentialAllocator::isProtected() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_blockList.isProtected();
 }
 }  // close package namespace

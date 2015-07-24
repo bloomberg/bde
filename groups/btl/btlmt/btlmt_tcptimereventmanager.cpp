@@ -13,9 +13,9 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <btlso_platform.h>
 #include <btlso_socketimputil.h>
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_readlockguard.h>
-#include <bdlmtt_writelockguard.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_readlockguard.h>
+#include <bdlqq_writelockguard.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -129,8 +129,8 @@ class TcpTimerEventManager_Request {
   private:
     // DATA
     OpCode                        d_opCode;       // request type
-    bdlmtt::Mutex                  *d_mutex_p;      // result notification
-    bdlmtt::Condition              *d_condition_p;  //
+    bdlqq::Mutex                  *d_mutex_p;      // result notification
+    bdlqq::Condition              *d_condition_p;  //
 
     // The following two fields are used in socket related requests.
     btlso::SocketHandle::Handle    d_handle;       // socket handle associated
@@ -207,8 +207,8 @@ class TcpTimerEventManager_Request {
     TcpTimerEventManager_Request(
                                btlso::SocketHandle::Handle  handle,
                                btlso::EventType::Type       event,
-                               bdlmtt::Condition            *condition,
-                               bdlmtt::Mutex                *mutex,
+                               bdlqq::Condition            *condition,
+                               bdlqq::Mutex                *mutex,
                                bslma::Allocator           *basicAllocator = 0);
         // Create an 'IS_REGISTERED' request containing the specified 'handle'
         // and the specified 'event'; the specified 'condition' is signaled
@@ -220,8 +220,8 @@ class TcpTimerEventManager_Request {
 
     TcpTimerEventManager_Request(
                         const btlso::SocketHandle::Handle&  handle,
-                        bdlmtt::Condition                   *condition,
-                        bdlmtt::Mutex                       *mutex,
+                        bdlqq::Condition                   *condition,
+                        bdlqq::Mutex                       *mutex,
                         bslma::Allocator                  *basicAllocator = 0);
         // Create a 'NUM_SOCKET_EVENTS' request containing the specified
         // 'handle' the specified 'condition' is signaled when the request is
@@ -239,8 +239,8 @@ class TcpTimerEventManager_Request {
         // the currently installed default allocator is used.
 
     TcpTimerEventManager_Request(OpCode            code,
-                                       bdlmtt::Condition  *condition,
-                                       bdlmtt::Mutex      *mutex,
+                                       bdlqq::Condition  *condition,
+                                       bdlqq::Mutex      *mutex,
                                        bslma::Allocator *basicAllocator = 0);
         // Create a request with the specified 'code'; the request will be
         // processed according to the value of 'code'.  The behavior is
@@ -400,8 +400,8 @@ TcpTimerEventManager_Request::TcpTimerEventManager_Request(
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
                              const btlso::SocketHandle::Handle&  handle,
-                             bdlmtt::Condition                   *condition,
-                             bdlmtt::Mutex                       *mutex,
+                             bdlqq::Condition                   *condition,
+                             bdlqq::Mutex                       *mutex,
                              bslma::Allocator                  *basicAllocator)
 : d_opCode(NUM_SOCKET_EVENTS)
 , d_mutex_p(mutex)
@@ -433,8 +433,8 @@ inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
                                     btlso::SocketHandle::Handle  handle,
                                     btlso::EventType::Type       event,
-                                    bdlmtt::Condition            *condition,
-                                    bdlmtt::Mutex                *mutex,
+                                    bdlqq::Condition            *condition,
+                                    bdlqq::Mutex                *mutex,
                                     bslma::Allocator           *basicAllocator)
 : d_opCode(IS_REGISTERED)
 , d_mutex_p(mutex)
@@ -467,8 +467,8 @@ TcpTimerEventManager_Request::TcpTimerEventManager_Request(
 inline
 TcpTimerEventManager_Request::TcpTimerEventManager_Request(
                                               OpCode            code,
-                                              bdlmtt::Condition  *condition,
-                                              bdlmtt::Mutex      *mutex,
+                                              bdlqq::Condition  *condition,
+                                              bdlqq::Mutex      *mutex,
                                               bslma::Allocator *basicAllocator)
 : d_opCode(code)
 , d_mutex_p(mutex)
@@ -502,14 +502,14 @@ TcpTimerEventManager_Request::~TcpTimerEventManager_Request()
 inline
 void TcpTimerEventManager_Request::setTimerId(void *value)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(d_mutex_p);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(d_mutex_p);
     d_timerId = value;
 }
 
 inline
 void TcpTimerEventManager_Request::setResult(int value)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(d_mutex_p);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(d_mutex_p);
     d_result = value;
 }
 
@@ -804,8 +804,8 @@ int TcpTimerEventManager::initiateControlChannelRead()
     // Wait for the dispatcher thread to start and process
     // the request.
 
-    bdlmtt::Mutex     mutex;
-    bdlmtt::Condition condition;
+    bdlqq::Mutex     mutex;
+    bdlqq::Condition condition;
 
     TcpTimerEventManager_Request *req =
         new (d_requestPool) TcpTimerEventManager_Request(
@@ -814,7 +814,7 @@ int TcpTimerEventManager::initiateControlChannelRead()
                                      &mutex,
                                      d_allocator_p);
     BSLS_ASSERT(-1 == req->result());
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&mutex);
 
     d_requestQueue.pushBack(req);
     int ret = d_controlChannel_p->clientWrite(true);
@@ -975,7 +975,7 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
             // swap below could occur between the push_back(functor) and
             // pop_back(functor).
 
-            bdlmtt::LockGuard<bdlmtt::Mutex> lockGuard(&d_executeQueueLock);
+            bdlqq::LockGuard<bdlqq::Mutex> lockGuard(&d_executeQueueLock);
 
             BSLS_ASSERT(0 == requestsPtr->size());
             bsl::swap(d_executeQueue_p, requestsPtr);
@@ -1054,9 +1054,9 @@ int TcpTimerEventManager::reinitializeControlChannel()
         return rc;
     }
 
-    bdlmtt::ThreadUtil::Handle handle;
-    bdlmtt::ThreadAttributes   attributes;
-    attributes.setDetachedState(bdlmtt::ThreadAttributes::BCEMT_CREATE_DETACHED);
+    bdlqq::ThreadUtil::Handle handle;
+    bdlqq::ThreadAttributes   attributes;
+    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 
     bdlf::Function<void (*)()> initiateReadFunctor = bdlf::Function<void (*)()>(
       bdlf::BindUtil::bindA(
@@ -1064,7 +1064,7 @@ int TcpTimerEventManager::reinitializeControlChannel()
                        &TcpTimerEventManager::initiateControlChannelRead,
                        this));
 
-    rc = bdlmtt::ThreadUtil::create(&handle, attributes, initiateReadFunctor);
+    rc = bdlqq::ThreadUtil::create(&handle, attributes, initiateReadFunctor);
     BSLS_ASSERT_OPT(0 == rc);
     return 0;
 }
@@ -1075,7 +1075,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 : d_requestPool(sizeof(TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bdlmtt::ThreadUtil::invalidHandle())
+, d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
@@ -1096,7 +1096,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 : d_requestPool(sizeof(TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bdlmtt::ThreadUtil::invalidHandle())
+, d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
@@ -1118,7 +1118,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 : d_requestPool(sizeof(TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bdlmtt::ThreadUtil::invalidHandle())
+, d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
@@ -1139,7 +1139,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 : d_requestPool(sizeof(TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bdlmtt::ThreadUtil::invalidHandle())
+, d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
@@ -1161,7 +1161,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 : d_requestPool(sizeof(TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bdlmtt::ThreadUtil::invalidHandle())
+, d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
@@ -1184,7 +1184,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 : d_requestPool(sizeof(TcpTimerEventManager_Request),
                 threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bdlmtt::ThreadUtil::invalidHandle())
+, d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
@@ -1205,7 +1205,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 : d_requestPool(sizeof(TcpTimerEventManager_Request),
                                                            threadSafeAllocator)
 , d_requestQueue(threadSafeAllocator)
-, d_dispatcher(bdlmtt::ThreadUtil::invalidHandle())
+, d_dispatcher(bdlqq::ThreadUtil::invalidHandle())
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_manager_p(rawEventManager)
@@ -1253,13 +1253,13 @@ int TcpTimerEventManager::disable()
         return 0;
     }
 
-    if(bdlmtt::ThreadUtil::isEqual(bdlmtt::ThreadUtil::self(),
+    if(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
                                  d_dispatcher))
     {
         return 1;
     }
 
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         // Synchronized section.
         if (d_state == BTEMT_DISABLED) {
@@ -1268,9 +1268,9 @@ int TcpTimerEventManager::disable()
 
         // Send dispatcher thread request to exit and wait until it
         // terminates, via 'join'.
-        bdlmtt::Mutex mutex;
-        bdlmtt::Condition condition;
-        bdlmtt::ThreadUtil::Handle dispatcherHandle = d_dispatcher;
+        bdlqq::Mutex mutex;
+        bdlqq::Condition condition;
+        bdlqq::ThreadUtil::Handle dispatcherHandle = d_dispatcher;
 
         TcpTimerEventManager_Request *req =
            new (d_requestPool) TcpTimerEventManager_Request(
@@ -1287,7 +1287,7 @@ int TcpTimerEventManager::disable()
 
         // Note that for this function, the wait for result is subsumed
         // by joining with the thread.
-        int rc = bdlmtt::ThreadUtil::join(dispatcherHandle);
+        int rc = bdlqq::ThreadUtil::join(dispatcherHandle);
 
         BSLS_ASSERT(0 == rc);
         d_requestPool.deleteObjectRaw(req);
@@ -1303,7 +1303,7 @@ int TcpTimerEventManager::disable()
 
 int TcpTimerEventManager::enable(const bcemt_Attribute& attr)
 {
-    if(bdlmtt::ThreadUtil::isEqual(bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(), d_dispatcher)) {
         return 0;
     }
 
@@ -1311,7 +1311,7 @@ int TcpTimerEventManager::enable(const bcemt_Attribute& attr)
         return 0;
     }
 
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         // Synchronized section.
         if (BTEMT_ENABLED == d_state) {
@@ -1377,7 +1377,7 @@ int TcpTimerEventManager::enable(const bcemt_Attribute& attr)
 #endif
 
         d_terminateThread = 0;
-        rc = bdlmtt::ThreadUtil::create((bdlmtt::ThreadUtil::Handle*)&d_dispatcher,
+        rc = bdlqq::ThreadUtil::create((bdlqq::ThreadUtil::Handle*)&d_dispatcher,
                                       attr,
                                       d_dispatchThreadEntryPoint);
 
@@ -1398,15 +1398,15 @@ int TcpTimerEventManager::registerSocketEvent(
         btlso::EventType::Type                       event,
         const btlso::TimerEventManager::Callback&    callback)
 {
-    if (bdlmtt::ThreadUtil::isEqual(
-                    bdlmtt::ThreadUtil::self(), d_dispatcher))
+    if (bdlqq::ThreadUtil::isEqual(
+                    bdlqq::ThreadUtil::self(), d_dispatcher))
     {
         int rc = d_manager_p->registerSocketEvent(handle, event, callback);
         d_numTotalSocketEvents = d_manager_p->numEvents()-1;
         return rc;
     }
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
     if (BTEMT_DISABLED == d_state) {
         d_stateLock.unlock();
@@ -1447,15 +1447,15 @@ void *TcpTimerEventManager::registerTimer(
         const bsls::TimeInterval&                 timeout,
         const btlso::TimerEventManager::Callback& callback)
 {
-    if (bdlmtt::ThreadUtil::isEqual(
-                    bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if (bdlqq::ThreadUtil::isEqual(
+                    bdlqq::ThreadUtil::self(), d_dispatcher)) {
         void *id = reinterpret_cast<void*>(d_timerQueue.add(timeout,
                                                             callback));
         return id;
     }
 
     void *result = (void *)0;
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         switch (d_state) {
           case BTEMT_ENABLED: {
@@ -1512,14 +1512,14 @@ int TcpTimerEventManager::rescheduleTimer(
                                              const void               *id,
                                              const bsls::TimeInterval&  timeout)
 {
-    if (bdlmtt::ThreadUtil::isEqual(
-                    bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if (bdlqq::ThreadUtil::isEqual(
+                    bdlqq::ThreadUtil::self(), d_dispatcher)) {
         return d_timerQueue.update((int)(bsls::Types::IntPtr)id, timeout);
                                                                       // RETURN
     }
 
     int rc;
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
     {
         switch (d_state) {
           case BTEMT_ENABLED: {
@@ -1564,14 +1564,14 @@ void TcpTimerEventManager::deregisterSocketEvent(
         const btlso::SocketHandle::Handle& handle,
         btlso::EventType::Type             event)
 {
-    if (bdlmtt::ThreadUtil::isEqual(
-                    bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if (bdlqq::ThreadUtil::isEqual(
+                    bdlqq::ThreadUtil::self(), d_dispatcher)) {
         d_manager_p->deregisterSocketEvent(handle, event);
         d_numTotalSocketEvents = d_manager_p->numEvents()-1;
         return;
     }
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
     if (BTEMT_DISABLED == d_state) {
         d_stateLock.unlock();
@@ -1611,15 +1611,15 @@ void TcpTimerEventManager::deregisterSocketEvent(
 void TcpTimerEventManager::execute(const bdlf::Function<void (*)()>&
                                                                        functor)
 {
-    if (bdlmtt::ThreadUtil::isEqual(
-                    bdlmtt::ThreadUtil::self(), d_dispatcher)) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_executeQueueLock);
+    if (bdlqq::ThreadUtil::isEqual(
+                    bdlqq::ThreadUtil::self(), d_dispatcher)) {
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_executeQueueLock);
         d_executeQueue_p->push_back(functor);
         return;
     }
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> stateLockGuard(&d_stateLock);
-    bdlmtt::LockGuard<bdlmtt::Mutex>       executeQueueGuard(&d_executeQueueLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> stateLockGuard(&d_stateLock);
+    bdlqq::LockGuard<bdlqq::Mutex>       executeQueueGuard(&d_executeQueueLock);
 
     switch (d_state) {
       case BTEMT_ENABLED: {
@@ -1659,20 +1659,20 @@ void TcpTimerEventManager::execute(const bdlf::Function<void (*)()>&
 
 void TcpTimerEventManager::clearExecuteQueue()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_executeQueueLock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_executeQueueLock);
     d_executeQueue_p->clear();
 }
 
 void TcpTimerEventManager::deregisterSocket(
         const btlso::SocketHandle::Handle& handle)
 {
-    if (bdlmtt::ThreadUtil::isEqual(bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if (bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(), d_dispatcher)) {
         d_manager_p->deregisterSocket(handle);
         d_numTotalSocketEvents = d_manager_p->numEvents()-1;
         return;
     }
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
     if (BTEMT_DISABLED == d_state) {
         d_stateLock.unlock();
@@ -1709,13 +1709,13 @@ void TcpTimerEventManager::deregisterSocket(
 
 void TcpTimerEventManager::deregisterAllSocketEvents()
 {
-    if (bdlmtt::ThreadUtil::isEqual(bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if (bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(), d_dispatcher)) {
         d_manager_p->deregisterAll();
         d_numTotalSocketEvents = 0;
         return;
     }
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
     if (BTEMT_DISABLED == d_state) {
         d_stateLock.unlock();
@@ -1770,14 +1770,14 @@ int TcpTimerEventManager::isRegistered(
         const btlso::SocketHandle::Handle& handle,
         btlso::EventType::Type             event) const
 {
-    if (bdlmtt::ThreadUtil::isEqual(
-                    bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if (bdlqq::ThreadUtil::isEqual(
+                    bdlqq::ThreadUtil::self(), d_dispatcher)) {
         return d_manager_p->isRegistered(handle, event);
     }
 
     int result;
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
     if (BTEMT_DISABLED == d_state) {
         d_stateLock.unlock();
@@ -1788,8 +1788,8 @@ int TcpTimerEventManager::isRegistered(
       case BTEMT_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
-        bdlmtt::Mutex     mutex;
-        bdlmtt::Condition condition;
+        bdlqq::Mutex     mutex;
+        bdlqq::Condition condition;
         TcpTimerEventManager_Request *req =
             new (d_requestPool) TcpTimerEventManager_Request(
                                                                 handle,
@@ -1798,7 +1798,7 @@ int TcpTimerEventManager::isRegistered(
                                                                 &mutex,
                                                                 d_allocator_p);
         d_requestQueue.pushBack(req);
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&mutex);
         if (0 > d_controlChannel_p->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
@@ -1834,13 +1834,13 @@ int TcpTimerEventManager::numTimers() const
 int TcpTimerEventManager::numSocketEvents(
         const btlso::SocketHandle::Handle& handle) const
 {
-    if (bdlmtt::ThreadUtil::isEqual(
-                    bdlmtt::ThreadUtil::self(), d_dispatcher)) {
+    if (bdlqq::ThreadUtil::isEqual(
+                    bdlqq::ThreadUtil::self(), d_dispatcher)) {
         return d_manager_p->numSocketEvents(handle);
     }
     int result;
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_stateLock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_stateLock);
 
     if (BTEMT_DISABLED == d_state) {
         d_stateLock.unlock();
@@ -1851,8 +1851,8 @@ int TcpTimerEventManager::numSocketEvents(
       case BTEMT_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
-        bdlmtt::Mutex mutex;
-        bdlmtt::Condition condition;
+        bdlqq::Mutex mutex;
+        bdlqq::Condition condition;
         TcpTimerEventManager_Request *req =
             new (d_requestPool) TcpTimerEventManager_Request(
                                                                 handle,
@@ -1860,7 +1860,7 @@ int TcpTimerEventManager::numSocketEvents(
                                                                 &mutex,
                                                                 d_allocator_p);
         d_requestQueue.pushBack(req);
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&mutex);
         if (0 > d_controlChannel_p->clientWrite()) {
             d_requestQueue.popBack();
             d_requestPool.deleteObjectRaw(req);
@@ -1893,8 +1893,8 @@ int TcpTimerEventManager::isEnabled() const
     return d_state == BTEMT_ENABLED; // d_state is volatile
 
 /*
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_cs);
-    return d_dispatcher != bdlmtt::ThreadUtil::invalidHandle();
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_cs);
+    return d_dispatcher != bdlqq::ThreadUtil::invalidHandle();
 */
 
 }

@@ -17,7 +17,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <ball_recordstringformatter.h>       // for testing only
 #endif
 
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlmxxx_list.h>
 
@@ -550,7 +550,7 @@ FileObserver2::~FileObserver2()
 // MANIPULATORS
 void FileObserver2::disableFileLogging()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (d_logStreamBuf.isOpened()) {
         d_logStreamBuf.clear();
     }
@@ -563,19 +563,19 @@ void FileObserver2::disableLifetimeRotation()
 
 void FileObserver2::disableTimeIntervalRotation()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_rotationInterval.setTotalSeconds(0);
 }
 
 void FileObserver2::disableSizeRotation()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_rotationSize = 0;
 }
 
 void FileObserver2::disablePublishInLocalTime()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_publishInLocalTime = false;
 }
 
@@ -583,7 +583,7 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
 {
     BSLS_ASSERT(logFilenamePattern);
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (d_logStreamBuf.isOpened()) {
         return 1;                                                     // RETURN
     }
@@ -631,7 +631,7 @@ void FileObserver2::forceRotation()
     bsl::string rotatedLogFileName;
     int         rotationStatus;
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         rotationStatus = rotateFile(&rotatedLogFileName);
     }
 
@@ -639,7 +639,7 @@ void FileObserver2::forceRotation()
     // to allow the callback to invoke other manipulators on this object.
 
     if (0 >= rotationStatus) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_rotationCbMutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_rotationCbMutex);
         if (d_onRotationCb) {
             d_onRotationCb(rotationStatus, rotatedLogFileName);
         }
@@ -648,7 +648,7 @@ void FileObserver2::forceRotation()
 
 void FileObserver2::enablePublishInLocalTime()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_publishInLocalTime = true;
 }
 
@@ -659,7 +659,7 @@ void FileObserver2::publish(const Record&  record,
     int         rotationStatus;
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         rotationStatus = rotateIfNecessary(&rotatedFileName,
                                            record.fixedFields().timestamp());
 
@@ -677,7 +677,7 @@ void FileObserver2::publish(const Record&  record,
     }
 
     if (0 >= rotationStatus) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_rotationCbMutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_rotationCbMutex);
         if (d_onRotationCb) {
             d_onRotationCb(rotationStatus, rotatedFileName);
         }
@@ -702,7 +702,7 @@ void FileObserver2::rotateOnTimeInterval(
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_rotationInterval = interval;
 
     // Reference time is stored as local time as conversion to UTC time may
@@ -724,28 +724,28 @@ void FileObserver2::rotateOnSize(int size)
 {
     BSLS_ASSERT(size > 0);
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_rotationSize = size;
 }
 
 void FileObserver2::setLogFileFunctor(
                                         const LogRecordFunctor& logFileFunctor)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_logFileFunctor = logFileFunctor;
 }
 
 void FileObserver2::setOnFileRotationCallback(
                               const OnFileRotationCallback& onRotationCallback)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_rotationCbMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_rotationCbMutex);
     d_onRotationCb = onRotationCallback;
 }
 
 // ACCESSORS
 bool FileObserver2::isFileLoggingEnabled() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     return d_logStreamBuf.isOpened();
 }
@@ -754,7 +754,7 @@ bool FileObserver2::isFileLoggingEnabled(bsl::string *result) const
 {
     BSLS_ASSERT(result);
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     bool rc = d_logStreamBuf.isOpened();
     if (rc) {
@@ -766,25 +766,25 @@ bool FileObserver2::isFileLoggingEnabled(bsl::string *result) const
 
 bool FileObserver2::isPublishInLocalTimeEnabled() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_publishInLocalTime;
 }
 
 bdlt::DatetimeInterval FileObserver2::rotationLifetime() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_rotationInterval;
 }
 
 int FileObserver2::rotationSize() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_rotationSize;
 }
 
 bdlt::DatetimeInterval FileObserver2::localTimeOffset() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     bdlt::Datetime timestamp = d_logStreamBuf.isOpened()
                                ? d_logFileTimestampUtc
                               : bdlt::CurrentTime::utc();

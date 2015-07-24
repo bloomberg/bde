@@ -68,7 +68,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
         // mutex lock.
 
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> lock(&scheduler->d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> lock(&scheduler->d_mutex);
             if (!scheduler->d_running) {
                 return;
             }
@@ -210,12 +210,12 @@ namespace bdlmt {
 // PRIVATE MANIPULATORS
 void TimerEventScheduler::yieldToDispatcher()
 {
-    if (d_running && !bdlmtt::ThreadUtil::isEqual(bdlmtt::ThreadUtil::self(),
+    if (d_running && !bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
                                                 d_dispatcherThread)) {
         const int it = d_iterations;
         while (it == d_iterations && d_running) {
             d_condition.signal();
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::yield();
         }
     }
 }
@@ -417,23 +417,23 @@ TimerEventScheduler::~TimerEventScheduler()
 // MANIPULATORS
 int TimerEventScheduler::start()
 {
-    bdlmtt::ThreadAttributes attr;
+    bdlqq::ThreadAttributes attr;
 
     return start(attr);
 }
 
 int TimerEventScheduler::start(
-                                const bdlmtt::ThreadAttributes& threadAttributes)
+                                const bdlqq::ThreadAttributes& threadAttributes)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_running) {
         return 0;
     }
 
-    bdlmtt::ThreadAttributes modAttr(threadAttributes);
-    modAttr.setDetachedState(bdlmtt::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+    bdlqq::ThreadAttributes modAttr(threadAttributes);
+    modAttr.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
 
-    if (bdlmtt::ThreadUtil::create(&d_dispatcherThread, modAttr,
+    if (bdlqq::ThreadUtil::create(&d_dispatcherThread, modAttr,
                                  &TimerEventSchedulerDispatcherThread,
                                  this))
     {
@@ -446,11 +446,11 @@ int TimerEventScheduler::start(
 
 void TimerEventScheduler::stop()
 {
-    BSLS_ASSERT(! bdlmtt::ThreadUtil::isEqual(bdlmtt::ThreadUtil::self(),
+    BSLS_ASSERT(! bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
                                             d_dispatcherThread));
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
         if (!d_running) {
             return;
         }
@@ -459,7 +459,7 @@ void TimerEventScheduler::stop()
         d_condition.signal();
     }
 
-    bdlmtt::ThreadUtil::join(d_dispatcherThread);
+    bdlqq::ThreadUtil::join(d_dispatcherThread);
 }
 
 TimerEventScheduler::Handle
@@ -470,7 +470,7 @@ TimerEventScheduler::scheduleEvent(
 {
     Handle handle;
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
         int isNewTop = 0;
         handle = d_eventTimeQueue.add(timer, callback, key, &isNewTop);
 
@@ -496,7 +496,7 @@ int TimerEventScheduler::rescheduleEvent(
 {
     int status;
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
         int isNewTop = 0;
         status = d_eventTimeQueue.update(handle, key, newTime, &isNewTop);
         if (isNewTop) {
@@ -533,7 +533,7 @@ int TimerEventScheduler::cancelEvent(
     // tries to cancel the event even if it has been put onto the pending list.
     // Note that there is no need for a lock here.
 
-    if (bdlmtt::ThreadUtil::isEqual(bdlmtt::ThreadUtil::self(),
+    if (bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(),
                                   d_dispatcherThread))
     {
         // If there are pending items, search among them, starting with
@@ -601,7 +601,7 @@ TimerEventScheduler::startClock(const bsls::TimeInterval&        interval,
     ClockDataPtr p(pClockData, &d_clockDataAllocator, d_allocator_p);
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
         int isNewTop = 0;
         p->d_handle = d_clockTimeQueue.add(stime, p, &isNewTop);
 

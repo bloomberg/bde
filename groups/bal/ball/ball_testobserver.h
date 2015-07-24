@@ -124,12 +124,12 @@ BSLS_IDENT("$Id: $")
 #include <ball_record.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -182,7 +182,7 @@ class TestObserver : public Observer {
     volatile int        d_verboseFlag;  // "verbosity" mode on 'publish'
     volatile int        d_numRecords;   // total number of published records
 
-    mutable bdlmtt::Mutex d_mutex;        // serializes concurrent calls to
+    mutable bdlqq::Mutex d_mutex;        // serializes concurrent calls to
                                         // 'publish' and protects concurrent
                                         // access to other class members
 
@@ -281,7 +281,7 @@ TestObserver::TestObserver(bsl::ostream&     stream,
 inline
 void TestObserver::setVerbose(int flagValue)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_verboseFlag = flagValue;
 }
 
@@ -307,7 +307,7 @@ const Record& TestObserver::lastPublishedRecord() const
 inline
 const Context& TestObserver::lastPublishedContext() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_context;
 }
 }  // close package namespace

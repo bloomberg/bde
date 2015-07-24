@@ -5,7 +5,7 @@
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlmxxx_elemtype.h>
 #include <bdlmxxx_list.h>
@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
         const int   lineNum   = 542;
         const char *filename  = "subdir/process.cpp";
         const bsls::Types::Uint64
-                                threadID  = bdlmtt::ThreadUtil::selfIdAsUint64();
+                                threadID  = bdlqq::ThreadUtil::selfIdAsUint64();
 #ifdef BSLS_PLATFORM_OS_UNIX
         const pid_t processID = getpid();
 #else

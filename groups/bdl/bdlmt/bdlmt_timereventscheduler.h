@@ -223,20 +223,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
-#include <bdlmtt_threadattributes.h>
+#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
+#include <bdlqq_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_CONDITION
-#include <bdlmtt_condition.h>
+#ifndef INCLUDED_BDLQQ_CONDITION
+#include <bdlqq_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_THREADUTIL
-#include <bdlmtt_threadutil.h>
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -375,14 +375,14 @@ class TimerEventScheduler {
     bdlcc::ObjectCatalog<ClockDataPtr>
                       d_clocks;             // catalog of clocks
 
-    bdlmtt::Mutex       d_mutex;              // mutex used to control access to
+    bdlqq::Mutex       d_mutex;              // mutex used to control access to
                                             // this timer event scheduler
 
-    bdlmtt::Condition   d_condition;          // condition variable used to
+    bdlqq::Condition   d_condition;          // condition variable used to
                                             // control access to this timer
                                             // event scheduler
 
-    bdlmtt::ThreadUtil::Handle
+    bdlqq::ThreadUtil::Handle
                       d_dispatcherThread;   // handle of the dispatcher thread
 
     Dispatcher        d_dispatcherFunctor;  // functor used to dispatch events
@@ -544,7 +544,7 @@ class TimerEventScheduler {
         // stopped by invoking 'stop'.  Note that any event whose time has
         // already passed is pending and will be dispatched immediately.
 
-    int start(const bdlmtt::ThreadAttributes& threadAttributes);
+    int start(const bdlqq::ThreadAttributes& threadAttributes);
         // Start dispatching events on this scheduler, using the specified
         // 'threadAttributes' for the dispatcher thread, except the DETACHED
         // attribute will always be overridden to be joinable.  Return 0 on

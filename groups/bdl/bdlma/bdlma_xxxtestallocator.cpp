@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_xxxtestallocator_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_lockguard.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -16,7 +16,7 @@ namespace BloombergLP {
 // FREE OPERATORS
 bsl::ostream& bdlma::operator<<(bsl::ostream& lhs, const TestAllocator& rhs)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&rhs.d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&rhs.d_mutex);
 
     lhs << '\n';
     lhs << "==================================================" << '\n';

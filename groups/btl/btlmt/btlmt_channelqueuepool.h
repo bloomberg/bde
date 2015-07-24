@@ -561,8 +561,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_queue.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -656,7 +656,7 @@ class ChannelQueuePool {
     ParseMessagesCallback                  d_userCallback;
     int                                    d_minIncomingMessageSize;
 
-    bdlmtt::ThreadUtil::Handle               d_processorHandle;
+    bdlqq::ThreadUtil::Handle               d_processorHandle;
     bsls::AtomicOperations::AtomicTypes::Int                   d_runningFlag;
     bsls::TimeInterval                      d_workTimeout;
     bslma::Allocator                      *d_allocator_p;

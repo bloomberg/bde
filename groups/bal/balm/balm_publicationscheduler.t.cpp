@@ -10,13 +10,13 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 #include <bdlmt_timereventscheduler.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 #include <bdlf_bind.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_defaultallocatorguard.h>
 
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bslma_testallocator.h>
 
@@ -289,7 +289,7 @@ enum {
 void microSleep(int microSeconds, int seconds)
     // Sleep for *at* *least* the specified 'seconds' and 'microseconds'.  This
     // function is used for testing only.  It uses the function
-    // 'bdlmtt::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
+    // 'bdlqq::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
     // a chance to the event scheduler to process its dispatching thread.
     // Without this, there have been a large number of unpredictable
     // intermittent failures by this test driver, especially on AIX with
@@ -297,10 +297,10 @@ void microSleep(int microSeconds, int seconds)
     // running the test driver by hand).  It was noticed that calls to 'yield'
     // helped, and this routine centralizes this as a mechanism.
 {
-    bdlmtt::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
-    bdlmtt::ThreadUtil::yield();
-    bdlmtt::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
-    bdlmtt::ThreadUtil::yield();
+    bdlqq::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
+    bdlqq::ThreadUtil::yield();
+    bdlqq::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
+    bdlqq::ThreadUtil::yield();
 }
 
 bool withinWindow(const bsls::TimeInterval& value,
@@ -789,7 +789,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool         d_pool;
-    bdlmtt::Barrier                d_barrier;
+    bdlqq::Barrier                d_barrier;
     balm::PublicationScheduler   *d_scheduler_p;
     bdlmt::TimerEventScheduler    *d_eventScheduler_p;
     bslma::Allocator            *d_allocator_p;
@@ -825,7 +825,7 @@ class ConcurrencyTest {
 void ConcurrencyTest::execute()
 {
     bsl::string uniqueString1;
-    stringId(&uniqueString1, "US",  bdlmtt::ThreadUtil::selfIdAsInt());
+    stringId(&uniqueString1, "US",  bdlqq::ThreadUtil::selfIdAsInt());
     const char *S1 = uniqueString1.c_str();
 
     Schedule schedule(d_allocator_p);
@@ -1348,7 +1348,7 @@ int main(int argc, char *argv[])
     A->update(1.0);
     B->update(2.0);
     C->update(3.0);
-    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(.11));
+    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.11));
 //..
 // The output of the publication should look similar to:
 //..

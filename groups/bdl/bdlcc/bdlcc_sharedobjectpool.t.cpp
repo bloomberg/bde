@@ -7,8 +7,8 @@
 #include <bdlma_concurrentpoolallocator.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
-#include <bdlmtt_threadgroup.h>
-#include <bdlmtt_xxxatomictypes.h>  // for SpinLock
+#include <bdlqq_threadgroup.h>
+#include <bdlqq_xxxatomictypes.h>  // for SpinLock
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bslma_defaultallocatorguard.h>
@@ -43,7 +43,7 @@ void aSsErT(int c, const char *s, int i)
 namespace {
    //Unnamed namespace scopes private classes and methods for testing
 
-bdlmtt::SpinLock coutLock;
+bdlqq::SpinLock coutLock;
 
 template <class POOL>
 class TestRun
@@ -119,7 +119,7 @@ void TestRun<POOL>::threadProc(int id)
 template <class POOL>
 void TestRun<POOL>::run()
 {
-   bdlmtt::ThreadGroup tg;
+   bdlqq::ThreadGroup tg;
 
    for (int i = 0; i < d_numThreads; ++i) {
       tg.addThread(bdlf::BindUtil::bind(&TestRun::threadProc,
@@ -337,7 +337,7 @@ void LinkTestRun<POOL>::threadProc(int id)
 template <class POOL>
 void LinkTestRun<POOL>::run()
 {
-   bdlmtt::ThreadGroup tg;
+   bdlqq::ThreadGroup tg;
 
    for (int i = 0; i < d_numThreads; ++i) {
       tg.addThread(bdlf::BindUtil::bind(&LinkTestRun::threadProc,
@@ -400,11 +400,11 @@ void LinkTestRun<POOL>::run()
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
-static bdlmtt::Mutex printMutex;  // mutex to protect output macros
+static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
 
-static bdlmtt::Mutex assertMutex; // mutex to protect assert macros
+static bdlqq::Mutex assertMutex; // mutex to protect assert macros
 
 #define LOOP_ASSERTT(I,X) { \
    if (!(X)) { assertMutex.lock(); cout << #I << ": " << I << "\n"; \
@@ -559,20 +559,20 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 bcemt_Attribute attributes;
-void executeInParallel(int numThreads, bdlmtt::ThreadUtil::ThreadFunction func)
+void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
    // to i'th thread.  Finally join all the threads.
 {
-    bdlmtt::ThreadUtil::Handle *threads =
-                               new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                               new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;

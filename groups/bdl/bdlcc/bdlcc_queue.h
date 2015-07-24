@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // the 'bdlc::Queue' object used in the implementation.  Member functions
 // 'bdlcc::Queue::mutex()', 'bdlcc::Queue::notEmptyCondition()', and
 // 'bdlcc::Queue::notFullCondition()' correspondingly provide *direct* modifiable
-// access to the underlying 'bdlmtt::Mutex' and 'bdlmtt::Condition' objects
+// access to the underlying 'bdlqq::Mutex' and 'bdlqq::Condition' objects
 // respectively.  These underlying objects are used within 'bdlcc::Queue' to
 // manage concurrent access to the queue.  Clients may use these member
 // variables together if needed.
@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //..
 //     bdlcc::Queue<myData>  myWorkQueue;
 //     bdlc::Queue<myData>& rawQueue = myWorkQueue.queue();
-//     bdlmtt::Mutex&        queueMutex = myWorkQueue.mutex();
+//     bdlqq::Mutex&        queueMutex = myWorkQueue.mutex();
 //         // other code omitted...
 //
 //     myData  data1;
@@ -164,12 +164,12 @@ BSLS_IDENT("$Id: $")
 //     }
 // }
 //..
-// The function below is a callback for 'bdlmtt::ThreadUtil', which requires a
-// "C" signature.  'bdlmtt::ThreadUtil::create()' expects a pointer to this
+// The function below is a callback for 'bdlqq::ThreadUtil', which requires a
+// "C" signature.  'bdlqq::ThreadUtil::create()' expects a pointer to this
 // function, and provides that function pointer to the newly created thread.
 // The new thread then executes this function.
 //
-// Since 'bdlmtt::ThreadUtil::create()' uses the familiar "C" convention of
+// Since 'bdlqq::ThreadUtil::create()' uses the familiar "C" convention of
 // passing a 'void' pointer, our function simply casts that pointer to our
 // required type ('bdlcc::Queue<my_WorkRequest*> *'), and then delegates to
 // the queue-specific function 'myConsumer', above.
@@ -192,7 +192,7 @@ BSLS_IDENT("$Id: $")
 //
 // Finally, the 'myProducer' function "joins" each Consumer thread, which
 // ensures that the thread itself will terminate correctly; see the
-// 'bdlmtt_xxxthread' component for details.
+// 'bdlqq_xxxthread' component for details.
 //..
 // void myProducer(int numThreads)
 // {
@@ -202,10 +202,10 @@ BSLS_IDENT("$Id: $")
 //     bdlcc::Queue<my_WorkRequest *> queue;
 //
 //     assert(numThreads > 0 && numThreads <= MAX_CONSUMER_THREADS);
-//     bdlmtt::ThreadUtil::Handle consumerHandles[MAX_CONSUMER_THREADS];
+//     bdlqq::ThreadUtil::Handle consumerHandles[MAX_CONSUMER_THREADS];
 //
 //     for (int i = 0; i < numThreads; ++i) {
-//         bdlmtt::ThreadUtil::create(&consumerHandles[i],
+//         bdlqq::ThreadUtil::create(&consumerHandles[i],
 //                                  myConsumerThread,
 //                                  &queue);
 //     }
@@ -222,7 +222,7 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     for (int i = 0; i < numThreads; ++i) {
-//         bdlmtt::ThreadUtil::join(consumerHandles[i]);
+//         bdlqq::ThreadUtil::join(consumerHandles[i]);
 //     }
 // }
 //..
@@ -269,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //     char      d_eventText[MAX_EVENT_TEXT];
 // };
 //..
-// As noted in the previous example, 'bdlmtt::ThreadUtil::create()' spawns
+// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns
 // a new thread, which invokes a simple "C" function taking a 'void' pointer.
 // In the previous example, we simply converted that 'void' pointer into a
 // pointer to the parameterized 'bdlcc::Queue<TYPE>' object.
@@ -313,7 +313,7 @@ BSLS_IDENT("$Id: $")
 //     queue->pushBack(ev);
 // }
 //..
-// The callback function invoked by 'bdlmtt::ThreadUtil::create()' takes the
+// The callback function invoked by 'bdlqq::ThreadUtil::create()' takes the
 // traditional 'void' pointer.  The expected data is the composite structure
 // 'my_WorkerData'.  The callback function casts the 'void' pointer to the
 // application-specific data type and then uses the referenced object to
@@ -344,13 +344,13 @@ BSLS_IDENT("$Id: $")
 //     bdlcc::Queue<my_Event> queue;
 //
 //     assert(NTHREADS > 0 && NTHREADS <= MAX_CONSUMER_THREADS);
-//     bdlmtt::ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
+//     bdlqq::ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
 //
 //     my_WorkerData workerData;
 //     workerData.d_queue = &queue;
 //     for (int i = 0; i < NTHREADS; ++i) {
 //         workerData.d_workerId = i;
-//         bdlmtt::ThreadUtil::create(&workerHandles[i],
+//         bdlqq::ThreadUtil::create(&workerHandles[i],
 //                                  myWorkerThread,
 //                                  &workerData);
 //     }
@@ -362,7 +362,7 @@ BSLS_IDENT("$Id: $")
 //                          << ev.d_eventText   << bsl::endl;
 //         if (my_Event::TASK_COMPLETE == ev.d_type) {
 //             ++n_Stop;
-//             bdlmtt::ThreadUtil::join(workerHandles[ev.d_workerId]);
+//             bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
 //         }
 //     }
 // }
@@ -372,12 +372,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BDLC_QUEUE
@@ -412,7 +412,7 @@ class Queue {
     // This class provides a thread-enabled implementation of an efficient,
     // in-place, indexable, double-ended queue of parameterized 'TYPE' values.
     // Very efficient access to the underlying 'bdlc::Queue' object is provided,
-    // as well as to a 'bdlmtt::Mutex' and a 'bdlmtt::Condition' variable, to
+    // as well as to a 'bdlqq::Mutex' and a 'bdlqq::Condition' variable, to
     // facilitate thread-safe use of the 'bdlc::Queue'.  Note that 'Queue'
     // is not a value-semantic type, but the underlying 'bdlc::Queue' is.  In
     // this regard, 'Queue' is a thread-enabled handle for a 'bdlc::Queue'.
@@ -430,14 +430,14 @@ class Queue {
 
     // DATA
     mutable
-    bdlmtt::Mutex      d_mutex;             // mutex object used to synchronize
+    bdlqq::Mutex      d_mutex;             // mutex object used to synchronize
                                           // access to this queue
 
-    bdlmtt::Condition  d_notEmptyCondition; // condition variable used to signal
+    bdlqq::Condition  d_notEmptyCondition; // condition variable used to signal
                                           // that new data is available in the
                                           // queue
 
-    bdlmtt::Condition  d_notFullCondition;  // condition variable used to signal
+    bdlqq::Condition  d_notFullCondition;  // condition variable used to signal
                                           // when there is room available to
                                           // add new data to the queue
 
@@ -660,28 +660,28 @@ class Queue {
 
     // *** Modifiable access to the mutex, condition variable, and queue ***
 
-    bdlmtt::Condition& condition();
+    bdlqq::Condition& condition();
         // Return a reference to the modifiable condition variable used by this
         // queue to signal that the queue is not empty.
         //
         // *DEPRECATED*  Use 'notEmptyCondition' instead.
 
-    bdlmtt::Condition& insertCondition();
+    bdlqq::Condition& insertCondition();
         // Return a reference to the modifiable condition variable used by this
         // queue to signal that the queue is not full (i.e., has fewer items
         // than its high-water mark).
         //
         // *DEPRECATED*  Use 'notFullCondition' instead.
 
-    bdlmtt::Mutex& mutex();
+    bdlqq::Mutex& mutex();
         // Return a reference to the modifiable mutex used by this queue to
         // synchronize access to its underlying 'bdlc::Queue' object.
 
-    bdlmtt::Condition& notEmptyCondition();
+    bdlqq::Condition& notEmptyCondition();
         // Return the condition variable used by this queue to signal that the
         // queue is not empty.
 
-    bdlmtt::Condition& notFullCondition();
+    bdlqq::Condition& notFullCondition();
         // Return the condition variable used by this queue to signal that the
         // queue is not full (i.e., has fewer items than its high-water
         // mark).
@@ -784,7 +784,7 @@ void Queue<TYPE>::popBack(TYPE *buffer)
 {
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     while (0 == (length = d_queue.length())) {
         d_notEmptyCondition.wait(&d_mutex);
@@ -806,7 +806,7 @@ TYPE Queue<TYPE>::popBack()
 
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     while (0 == (length = d_queue.length())) {
         d_notEmptyCondition.wait(&d_mutex);
@@ -827,7 +827,7 @@ int Queue<TYPE>::timedPopBack(TYPE                     *buffer,
 {
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     while (0 == (length = d_queue.length())) {
         if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
@@ -849,7 +849,7 @@ void Queue<TYPE>::popFront(TYPE *buffer)
 {
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     while (0 == (length = d_queue.length())) {
         d_notEmptyCondition.wait(&d_mutex);
@@ -871,7 +871,7 @@ TYPE Queue<TYPE>::popFront()
 
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     while (0 == (length = d_queue.length())) {
         d_notEmptyCondition.wait(&d_mutex);
@@ -892,7 +892,7 @@ int Queue<TYPE>::timedPopFront(TYPE                     *buffer,
 {
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     while (0 == (length = d_queue.length())) {
         if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
@@ -914,7 +914,7 @@ int Queue<TYPE>::tryPopFront(TYPE *buffer)
 {
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     if (0 == (length = d_queue.length())) {
         return 1;                                                     // RETURN
@@ -932,7 +932,7 @@ int Queue<TYPE>::tryPopFront(TYPE *buffer)
 template <class TYPE>
 void Queue<TYPE>::tryPopFront(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     int        length  = d_queue.length();
     const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
@@ -954,7 +954,7 @@ int Queue<TYPE>::tryPopBack(TYPE *buffer)
 {
     unsigned int length;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     if (0 == (length = d_queue.length())) {
         return 1;                                                     // RETURN
@@ -972,7 +972,7 @@ int Queue<TYPE>::tryPopBack(TYPE *buffer)
 template <class TYPE>
 void Queue<TYPE>::tryPopBack(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     int        length  = d_queue.length();
     const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
@@ -992,7 +992,7 @@ void Queue<TYPE>::tryPopBack(int maxNumItems, bsl::vector<TYPE> *buffer)
 template <class TYPE>
 void Queue<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     bool wasFull = d_highWaterMark > 0 && d_queue.length() >= d_highWaterMark;
     d_queue.removeAll(buffer);
     if (wasFull) {
@@ -1005,7 +1005,7 @@ void Queue<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 template <class TYPE>
 void Queue<TYPE>::pushBack(const TYPE& item)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_highWaterMark >= 0) {
         while (d_queue.length() >= d_highWaterMark) {
             d_notFullCondition.wait(&d_mutex);
@@ -1018,7 +1018,7 @@ void Queue<TYPE>::pushBack(const TYPE& item)
 template <class TYPE>
 void Queue<TYPE>::pushFront(const TYPE& item)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_highWaterMark >= 0) {
         while (d_queue.length() >= d_highWaterMark) {
             d_notFullCondition.wait(&d_mutex);
@@ -1032,7 +1032,7 @@ template <class TYPE>
 int Queue<TYPE>::timedPushBack(const TYPE&              item,
                                     const bsls::TimeInterval& timeout)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_highWaterMark >= 0) {
         while (d_queue.length() >= d_highWaterMark) {
             if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
@@ -1049,7 +1049,7 @@ template <class TYPE>
 int Queue<TYPE>::timedPushFront(const TYPE&              item,
                                      const bsls::TimeInterval &timeout)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_highWaterMark >= 0) {
         while (d_queue.length() >= d_highWaterMark) {
             if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
@@ -1066,7 +1066,7 @@ template <class TYPE>
 inline
 void Queue<TYPE>::forcePushFront(const TYPE& item)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     d_queue.pushFront(item);
     d_notEmptyCondition.signal();
 }
@@ -1075,35 +1075,35 @@ void Queue<TYPE>::forcePushFront(const TYPE& item)
 
 template <class TYPE>
 inline
-bdlmtt::Condition& Queue<TYPE>::condition()
+bdlqq::Condition& Queue<TYPE>::condition()
 {
     return d_notEmptyCondition;
 }
 
 template <class TYPE>
 inline
-bdlmtt::Condition& Queue<TYPE>::insertCondition()
+bdlqq::Condition& Queue<TYPE>::insertCondition()
 {
     return d_notFullCondition;
 }
 
 template <class TYPE>
 inline
-bdlmtt::Mutex& Queue<TYPE>::mutex()
+bdlqq::Mutex& Queue<TYPE>::mutex()
 {
     return d_mutex;
 }
 
 template <class TYPE>
 inline
-bdlmtt::Condition& Queue<TYPE>::notEmptyCondition()
+bdlqq::Condition& Queue<TYPE>::notEmptyCondition()
 {
     return d_notEmptyCondition;
 }
 
 template <class TYPE>
 inline
-bdlmtt::Condition& Queue<TYPE>::notFullCondition()
+bdlqq::Condition& Queue<TYPE>::notFullCondition()
 {
     return d_notFullCondition;
 }
@@ -1127,7 +1127,7 @@ template <class TYPE>
 inline
 int Queue<TYPE>::length() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     return d_queue.length();
 }

@@ -8,8 +8,8 @@ BSLS_IDENT_RCSID(btls5_networkconnector_cpp, "$Id$ $CSID$")
 #include <btls5_networkdescriptionutil.h>
 #include <btls5_testserver.h>              // for testing only
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_mutex.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 #include <bslma_default.h>
@@ -214,7 +214,7 @@ class NetworkConnector::ConnectionAttempt {
                                                    // to the first-level proxy,
                                                    // owned
 
-    bdlmtt::Mutex                   d_socketLock;    // serialize 'd_socket_p'
+    bdlqq::Mutex                   d_socketLock;    // serialize 'd_socket_p'
                                                    // access
 
     int                           d_numRetries;    // number of tries left for
@@ -304,14 +304,14 @@ static void terminate(
                                                          attempt->d_timer);
     }
     if (btls5::NetworkConnector::e_SUCCESS == status) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&attempt->d_socketLock);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
         attempt->d_callback(status,
                             attempt->d_socket_p,
                             attempt->d_connector->d_socketFactory_p,
                             detailedStatus);
     } else {
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&attempt->d_socketLock);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
             if (attempt->d_socket_p) {
                 attempt->d_connector->d_socketFactory_p
                                              ->deallocate(attempt->d_socket_p);
@@ -408,7 +408,7 @@ static void socksConnectCb(
         }
 
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&attempt->d_socketLock);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
             if (attempt->d_socket_p) {
                 attempt->d_connector->d_socketFactory_p->deallocate(
                                                       attempt->d_socket_p);
@@ -446,7 +446,7 @@ static void socksConnect(
 
     int rc;
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&attempt->d_socketLock);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
         if (attempt->d_socket_p) {
             if (proxy.credentials().username().length()) {
                 attempt->d_negotiation
@@ -505,7 +505,7 @@ static void tcpConnectCb(
         // the timeout event is scheduled by the client thread.  Therefore,
         // lock to insure the proxy connection timer is registered.
 
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&attempt->d_socketLock);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
 
         void *& timer = attempt->d_proxyTimer;
         if (timer) {
@@ -698,7 +698,7 @@ static void tcpConnect(
         // socket-related operations to prevent races with event
         // manager-invoked callbacks accessing 'd_socket_p' and 'd_proxyTimer'.
 
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&attempt->d_socketLock);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&attempt->d_socketLock);
         attempt->d_socket_p = makeSocket(
                                        attempt->d_connector->d_socketFactory_p,
                                        &error,

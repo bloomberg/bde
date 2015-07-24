@@ -9,7 +9,7 @@
 #include <bslma_testallocator.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
@@ -160,7 +160,7 @@ class MetricConcurrencyTest {
     bdlmt::FixedThreadPool   d_pool;
     balm::Metric           *d_metric;
     baem_MetricRegistry   *d_registry;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS

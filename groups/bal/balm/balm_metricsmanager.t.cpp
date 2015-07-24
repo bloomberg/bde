@@ -10,7 +10,7 @@
 #include <ball_severity.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
@@ -429,9 +429,9 @@ class LockAndModifyWorker {
     // 'balm::MetricsManager' are invoked under the scope of another lock,
     // repeatedly.
 
-    bdlmtt::Mutex                *d_mutex_p;
+    bdlqq::Mutex                *d_mutex_p;
     balm::MetricsManager        *d_obj_p;
-    bdlmtt::ThreadUtil::Handle    d_thread;
+    bdlqq::ThreadUtil::Handle    d_thread;
     bsls::AtomicInt              d_done;
     const balm::Category        *d_myCategory_p;
 
@@ -441,7 +441,7 @@ class LockAndModifyWorker {
 
 public:
     // CREATORS
-    LockAndModifyWorker(bdlmtt::Mutex *mutex,
+    LockAndModifyWorker(bdlqq::Mutex *mutex,
                         balm::MetricsManager *obj)
     : d_mutex_p(mutex)
     , d_obj_p(obj)
@@ -450,7 +450,7 @@ public:
 
     int start() {
         d_done = 0;
-        return bdlmtt::ThreadUtil::create(
+        return bdlqq::ThreadUtil::create(
                       &d_thread,
                       bdlf::MemFnUtil::memFn(&LockAndModifyWorker::worker,
                                             this));
@@ -458,14 +458,14 @@ public:
 
     void stop() {
         d_done = 1;
-        bdlmtt::ThreadUtil::join(d_thread);
+        bdlqq::ThreadUtil::join(d_thread);
     }
 };
 
 void
 LockAndModifyWorker::worker() {
     while (!d_done) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
 
         balm::MetricsManager::CallbackHandle handle =
             d_obj_p->registerCollectionCallback(
@@ -483,12 +483,12 @@ class LockingPublisher : public balm::Publisher {
     // This class defines a test implementation of 'balm::Publisher' that
     // locks and unlocks a specified mutex when publish() is invoked.
 
-    bdlmtt::Mutex *d_mutex_p;
+    bdlqq::Mutex *d_mutex_p;
 
 public:
 
     // CREATORS
-    LockingPublisher(bdlmtt::Mutex *mutex)
+    LockingPublisher(bdlqq::Mutex *mutex)
     : d_mutex_p(mutex)
     {}
 
@@ -499,7 +499,7 @@ public:
 
 void
 LockingPublisher::publish(const balm::MetricSample&) {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
 }
 
                       // ===================
@@ -881,7 +881,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool      d_pool;
-    bdlmtt::Barrier             d_barrier;
+    bdlqq::Barrier             d_barrier;
     balm::MetricsManager      *d_manager_p;
     bslma::Allocator         *d_allocator_p;
 
@@ -937,8 +937,8 @@ void ConcurrencyTest::execute()
 
         // Create 2 strings unique across all threads & iterations.
         bsl::string uniqueString1, uniqueString2;
-        stringId(&uniqueString1, "U1", bdlmtt::ThreadUtil::selfIdAsInt(), i);
-        stringId(&uniqueString2, "U2", bdlmtt::ThreadUtil::selfIdAsInt(), i);
+        stringId(&uniqueString1, "U1", bdlqq::ThreadUtil::selfIdAsInt(), i);
+        stringId(&uniqueString2, "U2", bdlqq::ThreadUtil::selfIdAsInt(), i);
         const char *S1 = uniqueString1.c_str();
         const char *S2 = uniqueString2.c_str();
 
@@ -1037,10 +1037,10 @@ void ConcurrencyTest::execute()
         // Verify the callbacks were invoked.
         ASSERT(2 <= aCb.invocations());
         ASSERT(2 <= bCb.invocations());
-        LOOP2_ASSERT( bdlmtt::ThreadUtil::selfIdAsInt(),
+        LOOP2_ASSERT( bdlqq::ThreadUtil::selfIdAsInt(),
                       s1Cb.invocations(),
                       2 == s1Cb.invocations());
-        LOOP2_ASSERT( bdlmtt::ThreadUtil::selfIdAsInt(),
+        LOOP2_ASSERT( bdlqq::ThreadUtil::selfIdAsInt(),
                       s2Cb.invocations(),
                       2 == s2Cb.invocations());
 
@@ -1061,10 +1061,10 @@ void ConcurrencyTest::execute()
         // Verify the callbacks were invoked.
         ASSERT(3 <= aCb.invocations());
         ASSERT(3 <= bCb.invocations());
-        LOOP2_ASSERT(bdlmtt::ThreadUtil::selfIdAsInt(),
+        LOOP2_ASSERT(bdlqq::ThreadUtil::selfIdAsInt(),
                      s1Cb.invocations(),
                      3 == s1Cb.invocations());
-        LOOP2_ASSERT(bdlmtt::ThreadUtil::selfIdAsInt(),
+        LOOP2_ASSERT(bdlqq::ThreadUtil::selfIdAsInt(),
                      s2Cb.invocations(),
                      3 == s2Cb.invocations());
 
@@ -1609,7 +1609,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlmtt::Mutex lock;
+            bdlqq::Mutex lock;
             bsl::shared_ptr<balm::Publisher> publisher
                 (new (testAllocator) LockingPublisher(&lock),
                  &testAllocator);
@@ -1801,7 +1801,7 @@ int main(int argc, char *argv[])
             }
 
             bsls::TimeInterval start = bdlt::CurrentTime::now();
-            bdlmtt::ThreadUtil::microSleep(100000, 0);
+            bdlqq::ThreadUtil::microSleep(100000, 0);
 
             bsl::vector<balm::MetricRecord> records(Z);
             balm::MetricSample sample;
@@ -2596,7 +2596,7 @@ int main(int argc, char *argv[])
             }
 
             // Publish the records.
-            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
+            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
             bsls::TimeInterval publicationTime = bdlt::CurrentTime::now();
             mX.publishAll();
 
@@ -2827,7 +2827,7 @@ int main(int argc, char *argv[])
         }
 
         // Invoke 'publishAll'.
-        bdlmtt::ThreadUtil::microSleep(100000, 0);
+        bdlqq::ThreadUtil::microSleep(100000, 0);
         bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
         mX.publishAll();
 
@@ -2922,7 +2922,7 @@ int main(int argc, char *argv[])
             }
 
             // Publish the records.
-            bdlmtt::ThreadUtil::microSleep(100000, 0);
+            bdlqq::ThreadUtil::microSleep(100000, 0);
             bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
             mX.publish(CAT);
 
@@ -4235,7 +4235,7 @@ int main(int argc, char *argv[])
             cout << "\tVerify publish\n";
         }
 
-        bdlmtt::ThreadUtil::microSleep(100000, 0);
+        bdlqq::ThreadUtil::microSleep(100000, 0);
         mX.publish(CAT_A);
         ASSERT(1 == tcba_1.invocations());
         ASSERT(1 == tcba_2.invocations());
@@ -4274,7 +4274,7 @@ int main(int argc, char *argv[])
         tpb_1.reset(); tpb_2.reset();
         tpc_1.reset(); tpc_2.reset();
 
-        bdlmtt::ThreadUtil::microSleep(100000, 0);
+        bdlqq::ThreadUtil::microSleep(100000, 0);
         mX.publish(CAT_B);
         ASSERT(0 == tcba_1.invocations());
         ASSERT(0 == tcba_2.invocations());
@@ -4299,7 +4299,7 @@ int main(int argc, char *argv[])
         tpb_1.reset(); tpb_2.reset();
         tpc_1.reset(); tpc_2.reset();
 
-        bdlmtt::ThreadUtil::microSleep(100000, 0);
+        bdlqq::ThreadUtil::microSleep(100000, 0);
         mX.publish(CAT_C);
         ASSERT(0 == tcba_1.invocations());
         ASSERT(0 == tcba_2.invocations());
@@ -4330,7 +4330,7 @@ int main(int argc, char *argv[])
 
         const balm::Category *CATEGORIES[] = {CAT_A, CAT_B, CAT_C};
         const int  NUM_CATEGORIES = sizeof(CATEGORIES)/sizeof(*CATEGORIES);
-        bdlmtt::ThreadUtil::microSleep(100000, 0);
+        bdlqq::ThreadUtil::microSleep(100000, 0);
         mX.publish(CATEGORIES, NUM_CATEGORIES);
 
         ASSERT(1 == tcba_1.invocations());
@@ -4412,7 +4412,7 @@ int main(int argc, char *argv[])
         bsl::set<const balm::Category *> catSet;
         catSet.insert(CAT_C);
 
-        bdlmtt::ThreadUtil::microSleep(100000, 0);
+        bdlqq::ThreadUtil::microSleep(100000, 0);
         mX.publishAll(catSet);
 
         ASSERT(1 == tcba_1.invocations());
@@ -4463,12 +4463,12 @@ int main(int argc, char *argv[])
 
         const int TIME_UNIT = 50 * NANOSECS_PER_MILLISEC;
 
-        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
+        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
         bsls::TimeInterval catATime  = bdlt::CurrentTime::now();
         bsls::TimeInterval catAIntvl = catATime - startTime;
         mX.publish(CAT_A);
 
-        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
+        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
         bsls::TimeInterval catBTime  = bdlt::CurrentTime::now();
         bsls::TimeInterval catBIntvl = catBTime - startTime;
         mX.publish(CAT_B);
@@ -4486,7 +4486,7 @@ int main(int argc, char *argv[])
         ASSERT(withinWindow(*tpa_1.lastElapsedTimes().begin(), catAIntvl, 2));
         ASSERT(withinWindow(*tpb_1.lastElapsedTimes().begin(), catBIntvl, 2));
 
-        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
+        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
         bsls::TimeInterval allTime  = bdlt::CurrentTime::now();
         mX.publishAll();
 

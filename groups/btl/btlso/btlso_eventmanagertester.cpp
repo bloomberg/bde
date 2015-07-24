@@ -13,7 +13,7 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <btlso_ioutil.h>
 #include <btlso_platform.h>
 
-#include <bdlmtt_xxxthread.h>                       // thread management util
+#include <bdlqq_xxxthread.h>                       // thread management util
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -128,7 +128,7 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
 {
     BSLS_ASSERT(arg);
     enum { BASE_TIME = 1000 };      // the basic sleep time in microseconds
-    bdlmtt::ThreadUtil::microSleep(BASE_TIME);
+    bdlqq::ThreadUtil::microSleep(BASE_TIME);
                                     // The thread waits to make sure
                                     // the main thread is hanging in the
                                     // dispatch() call.
@@ -138,16 +138,16 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
     pthread_kill(socketInfo.d_tid, SIGSYS);
     if (socketInfo.d_ctrlFlag & btlso::EventManagerTester::BTESO_VERY_VERBOSE) {
         bsl::printf("Thread %llu generated a SIGSYS signal.\n",
-                    bdlmtt::ThreadUtil::selfIdAsUint64());
+                    bdlqq::ThreadUtil::selfIdAsUint64());
         bsl::fflush(stdout);
     }
-    bdlmtt::ThreadUtil::microSleep(3 * BASE_TIME);
+    bdlqq::ThreadUtil::microSleep(3 * BASE_TIME);
     pthread_kill(socketInfo.d_tid, SIGSYS);
     if (socketInfo.d_ctrlFlag & btlso::EventManagerTester::BTESO_VERY_VERBOSE) {
         bsl::printf("Thread %llu delivered another SIGSYS signal to %d.\n",
-                    bdlmtt::ThreadUtil::selfIdAsInt(),
-                    bdlmtt::ThreadUtil::idAsInt(
-                              bdlmtt::ThreadUtil::handleToId(socketInfo.d_tid)));
+                    bdlqq::ThreadUtil::selfIdAsInt(),
+                    bdlqq::ThreadUtil::idAsInt(
+                              bdlqq::ThreadUtil::handleToId(socketInfo.d_tid)));
         bsl::fflush(stdout);
     }
     if (!socketInfo.d_timeoutFlag) {
@@ -165,7 +165,7 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
         if (socketInfo.d_ctrlFlag &
                                 btlso::EventManagerTester::BTESO_VERY_VERBOSE) {
             bsl::printf("Thread %llu writes %d bytes to socket %d.\n",
-                        bdlmtt::ThreadUtil::selfIdAsUint64(),
+                        bdlqq::ThreadUtil::selfIdAsUint64(),
                         len,
                         socketInfo.d_socket);
             bsl::fflush(stdout);
@@ -178,13 +178,13 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
             else {
                 bsl::printf("Thread %llu doesn't write the right number of"
                             " bytes to socket %d.\n",
-                            bdlmtt::ThreadUtil::selfIdAsUint64(),
+                            bdlqq::ThreadUtil::selfIdAsUint64(),
                             socketInfo.d_socket);
                 bsl::fflush(stdout);
             }
         }
     }
-    bdlmtt::ThreadUtil::microSleep(BASE_TIME);
+    bdlqq::ThreadUtil::microSleep(BASE_TIME);
     return 0;
 }
 
@@ -563,7 +563,7 @@ static int ggHelper(btlso::EventManager         *mX,
         int flags = 0;
         bsls::TimeInterval deadline(bdlt::CurrentTime::now());
         //enum { SLEEP_TIME = 200000 };
-        //bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+        //bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
         if (3 == bsl::sscanf(test, "D%c%d,%d%n", &ch, &msecs, &rc, &nbytes)) {
             if (0 > msecs || 0 > rc) {
                 return FAIL;
@@ -680,7 +680,7 @@ static int ggHelper(btlso::EventManager         *mX,
           if (1 != rc) {
               return FAIL;
           }
-          bdlmtt::ThreadUtil::microSleep(milliSeconds * 1000);
+          bdlqq::ThreadUtil::microSleep(milliSeconds * 1000);
       } break;
       default:
           return FAIL;
@@ -1186,7 +1186,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             // a polling interface, this just means events will take a few
             // cycles to catch up.
 
-            bdlmtt::ThreadUtil::microSleep(40 * 1000);
+            bdlqq::ThreadUtil::microSleep(40 * 1000);
 #endif
 
             for (int j = 0; j < NUM_PAIRS; ++j) {
@@ -1244,7 +1244,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
            { L_,     TIMEOUT,      0,                           0  },
         };
         const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
-        bdlmtt::ThreadUtil::Handle threadHandle[NUM_VALUES];
+        bdlqq::ThreadUtil::Handle threadHandle[NUM_VALUES];
         SocketPair socketPairs[NUM_VALUES];
 
         for (int i = 0; i < NUM_VALUES; i++) {
@@ -1253,14 +1253,14 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
 
             ThreadInfo threadInfo = {
                 socketPairs[i].controlFd(), tid, VALUES[i].d_timeFlag, flags };
-            int ret = bdlmtt::ThreadUtil::create(
+            int ret = bdlqq::ThreadUtil::create(
                                &threadHandle[i],
                                attributes,
                                &bteso_eventmanagertester_threadSignalGenerator,
                                &threadInfo);
             if (0 != ret)
             {
-                bsl::printf("bdlmtt::ThreadUtil::create() call at line %d "
+                bsl::printf("bdlqq::ThreadUtil::create() call at line %d "
                             "failed. return: %d\n",
                             __LINE__, ret);
                 bsl::fflush(stdout);
@@ -1270,7 +1270,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
 #define LLU BSLS_BSLTESTUTIL_FORMAT_U64
                 bsl::printf("Created a thread " LLU "; socket: %u\n",
-                            bdlmtt::ThreadUtil::idAsUint64(threadHandle[i]),
+                            bdlqq::ThreadUtil::idAsUint64(threadHandle[i]),
                             socketPairs[0].controlFd());
                 bsl::fflush(stdout);
 #undef LLU
@@ -1334,7 +1334,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
                 }
             }
             mX->deregisterAll();
-            bdlmtt::ThreadUtil::join(threadHandle[i]);
+            bdlqq::ThreadUtil::join(threadHandle[i]);
         }
     }
 #endif
@@ -1486,7 +1486,7 @@ EventManagerTester::testDispatchPerformance(
 #ifdef BSLS_PLATFORM_OS_HPUX
         // On HPUX, newly created sockets need about ~ 20ms to wake up.
 
-        bdlmtt::ThreadUtil::microSleep(40 * 1000);
+        bdlqq::ThreadUtil::microSleep(40 * 1000);
 #endif
 
         for (i = 0; i < numSocketPairs; ++i) {
@@ -1557,7 +1557,7 @@ EventManagerTester::testDispatchPerformance(
                 // sleep to allow for latency in the sockets, which are not
                 // the fault of the dispatcher
 
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 int ret = 0;
                 int attempts = 0;
@@ -1773,7 +1773,7 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
 
     if (d_verboseFlag) {
         bsl::printf("T%llu: socketPair (%d, %d): %d\n",
-                   bdlmtt::ThreadUtil::selfIdAsUint64(), d_fds[0], d_fds[1], rc);
+                   bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[0], d_fds[1], rc);
     }
     if (0 != rc ) {
         d_validFlag = -1;
@@ -1783,13 +1783,13 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
         rc |= IoUtil::setBlockingMode(d_fds[0], option);
         if (d_verboseFlag) {
             bsl::printf("T%llu: setBlockingMode (%d): %d\n",
-                        bdlmtt::ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
+                        bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
         }
 
         rc |= IoUtil::setBlockingMode(d_fds[1], option);
         if (d_verboseFlag) {
             bsl::printf("T%llu: setBlockingMode (%d): %d\n",
-                        bdlmtt::ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
+                        bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
         }
 #if !BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
         rc |= SocketOptUtil::setOption(d_fds[0],
@@ -1797,7 +1797,7 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
                       SocketOptUtil::BTESO_TCPNODELAY, 1);
         if (d_verboseFlag) {
             bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
-                        bdlmtt::ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
+                        bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
         }
 
         rc |= SocketOptUtil::setOption(d_fds[1],
@@ -1805,20 +1805,20 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
                       SocketOptUtil::BTESO_TCPNODELAY, 1);
         if (d_verboseFlag) {
             bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
-                        bdlmtt::ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
+                        bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
         }
 #endif
 
         if (rc) {
             if (d_verboseFlag) {
                 bsl::printf("T%llu: Closing %d\n",
-                            bdlmtt::ThreadUtil::selfIdAsUint64(),
+                            bdlqq::ThreadUtil::selfIdAsUint64(),
                             d_fds[1]);
                 SocketImpUtil::close(d_fds[1]);
             }
             if (d_verboseFlag) {
                 bsl::printf("T%llu: Closing %d\n",
-                            bdlmtt::ThreadUtil::selfIdAsUint64(),
+                            bdlqq::ThreadUtil::selfIdAsUint64(),
                             d_fds[0]);
                 SocketImpUtil::close(d_fds[0]);
             }
@@ -1833,12 +1833,12 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
 EventManagerTestPair::~EventManagerTestPair()
 {
     if (d_verboseFlag) {
-        bsl::printf("T%llu: Closing %d\n", bdlmtt::ThreadUtil::selfIdAsUint64(),
+        bsl::printf("T%llu: Closing %d\n", bdlqq::ThreadUtil::selfIdAsUint64(),
                     d_fds[1]);
         SocketImpUtil::close(d_fds[1]);
     }
     if (d_verboseFlag) {
-        bsl::printf("T%llu: Closing %d\n", bdlmtt::ThreadUtil::selfIdAsUint64(),
+        bsl::printf("T%llu: Closing %d\n", bdlqq::ThreadUtil::selfIdAsUint64(),
                     d_fds[0]);
         SocketImpUtil::close(d_fds[0]);
     }

@@ -27,7 +27,7 @@ void IntegerCollector::loadAndReset(MetricRecord *record)
     int                min;
     int                max;
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         count = d_count;
         total = d_total;
         min   = d_min;
@@ -59,7 +59,7 @@ void IntegerCollector::load(MetricRecord *record) const
     int                max;
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         count = d_count;
         total = d_total;
         min   = d_min;

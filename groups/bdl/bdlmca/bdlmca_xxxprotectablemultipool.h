@@ -173,8 +173,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_xxxprotectablesequentialallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_XXXPROTECTABLEBLOCKLIST
@@ -228,7 +228,7 @@ class ProtectableMultipool {
     // operations always require explicit synchronization in user space.
 
     // DATA
-    bdlmtt::Mutex                    d_mutex;            // synchronize access
+    bdlqq::Mutex                    d_mutex;            // synchronize access
 
     bdlma::ProtectableBlockList     d_blockList;        // overflow "pool"
 

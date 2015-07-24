@@ -1,9 +1,9 @@
 // balb_controlmanager.t.cpp   -*-C++-*-
 
 #include <balb_controlmanager.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_xxxthread.h>
 #include <bdlf_bind.h>
 #include <bslma_testallocator.h>
 
@@ -106,8 +106,8 @@ class Dispatcher
     balb::ControlManager* d_manager_p; //held
     FunctionVector  d_functions;
     int             d_iterations;
-    bdlmtt::Mutex     d_mutex;
-    bdlmtt::Barrier   d_barrier;
+    bdlqq::Mutex     d_mutex;
+    bdlqq::Barrier   d_barrier;
 
   public:
     Dispatcher(int iterations, balb::ControlManager* manager_p)
@@ -116,7 +116,7 @@ class Dispatcher
 
     void addFunction(const string& function)
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         d_functions.push_back(bsl::make_pair(function, 0));
     }
 
@@ -125,7 +125,7 @@ class Dispatcher
         return d_functions[i].second;
     }
 
-    bdlmtt::Barrier* barrier()
+    bdlqq::Barrier* barrier()
     {
         return &d_barrier;
     }
@@ -134,7 +134,7 @@ class Dispatcher
     {
         d_barrier.wait();
         for (int i = 1; i < d_iterations; ++i) {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
             for (FunctionVector::iterator j = d_functions.begin();
                  j != d_functions.end();
                  ++j)
@@ -145,7 +145,7 @@ class Dispatcher
         }
         d_barrier.wait();
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
             for (FunctionVector::iterator j = d_functions.begin();
                  j != d_functions.end();
                  ++j)
@@ -252,9 +252,9 @@ int main(int argc, char *argv[])
             dispatcher.addFunction("FOOBAR zippy");
 
             bcemt_Attribute detached;
-            bdlmtt::ThreadUtil::Handle dummy;
+            bdlqq::ThreadUtil::Handle dummy;
             detached.setDetachedState(bcemt_Attribute::BCEMT_CREATE_DETACHED);
-            ASSERT(0 == bdlmtt::ThreadUtil::create(&dummy,
+            ASSERT(0 == bdlqq::ThreadUtil::create(&dummy,
                                                  detached,
                                                  bdlf::BindUtil::bind(
                                                      &Dispatcher::run,

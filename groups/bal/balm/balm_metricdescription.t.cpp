@@ -5,7 +5,7 @@
 #include <balm_metricformat.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 #include <bslma_allocator.h>
@@ -122,7 +122,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool    d_pool;
-    bdlmtt::Barrier           d_barrier;
+    bdlqq::Barrier           d_barrier;
     balm::MetricDescription *d_description_p;
     bslma::Allocator       *d_allocator_p;
 
@@ -151,7 +151,7 @@ class ConcurrencyTest {
         // Run the test.
 };
 
-bdlmtt::Mutex m;
+bdlqq::Mutex m;
 void ConcurrencyTest::execute()
 {
     bslma::Allocator *Z = d_allocator_p;

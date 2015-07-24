@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bdlma::ProtectableBlockList  d_blockList;   // supplies free memory
 //
-//      bdlmtt::Mutex                 d_mutex;       // synchronize access to
+//      bdlqq::Mutex                 d_mutex;       // synchronize access to
 //                                                 // non-'const' data
 //
 //      // NOT IMPLEMENTED
@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //  void *ThreadEnabledProtectablePool::allocate()
 //  {
-//      bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+//      bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 //      if (!d_freeList_p) {
 //          replenish();
 //      }
@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //
 //  void ThreadEnabledProtectablePool::deallocate(void *address)
 //  {
-//      bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+//      bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 //      Link *link     = static_cast<Link *>(address);
 //      link->d_next_p = d_freeList_p;
 //      d_freeList_p   = link;
@@ -246,7 +246,7 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //      // DATA
-//      bdlmtt::Mutex               d_mutex;       // synchronize access to data
+//      bdlqq::Mutex               d_mutex;       // synchronize access to data
 //
 //      bdlmca::ProtectableBlockDispenserAdapter
 //                                d_dispenser;   // adapter for dispenser,
@@ -470,7 +470,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmtt { class Mutex; }
+namespace bdlqq { class Mutex; }
 
 namespace bdlmca {
           // ============================================
@@ -488,7 +488,7 @@ class ProtectableBlockDispenserAdapter :
     // object are synchronized.
 
     // DATA
-    mutable bdlmtt::Mutex             *d_mutex_p;      // synchronizer for
+    mutable bdlqq::Mutex             *d_mutex_p;      // synchronizer for
                                                      // operations on the
                                                      // dispenser (held,
                                                      // not owned)
@@ -505,7 +505,7 @@ class ProtectableBlockDispenserAdapter :
   public:
     // CREATORS
     ProtectableBlockDispenserAdapter(
-                          bdlmtt::Mutex                     *mutex,
+                          bdlqq::Mutex                     *mutex,
                           bdlma::ProtectableBlockDispenser *blockDispenser = 0);
         // Create a thread-enabled dispenser adapter that will use the
         // specified 'mutex' to synchronize access from multiple threads to the
@@ -575,7 +575,7 @@ class ProtectableBlockDispenserAdapter :
 // CREATORS
 inline
 ProtectableBlockDispenserAdapter::ProtectableBlockDispenserAdapter(
-                               bdlmtt::Mutex                     *mutex,
+                               bdlqq::Mutex                     *mutex,
                                bdlma::ProtectableBlockDispenser *blockDispenser)
 : d_mutex_p(mutex)
 , d_dispenser_p(

@@ -11,8 +11,8 @@
 #include <ball_severity.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_threadutil.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_threadutil.h>
+#include <bdlqq_barrier.h>
 #include <bsls_atomic.h>
 
 #include <bslma_allocator.h>
@@ -146,20 +146,20 @@ const int U = baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID;
 //-----------------------------------------------------------------------------
 
 void executeInParallel(int                               numThreads,
-                       bdlmtt::ThreadUtil::ThreadFunction  func,
+                       bdlqq::ThreadUtil::ThreadFunction  func,
                        void                             *threadArgs)
    // Create the specified 'numThreads', each executing the specified 'func'
    // on the specified 'threadArgs'.
 {
-    bdlmtt::ThreadUtil::Handle *threads =
-                                      new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                                      new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], func, threadArgs);
+        bdlqq::ThreadUtil::create(&threads[i], func, threadArgs);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -377,7 +377,7 @@ int TestDriverTestLoader::loadTimeZone(baltzo::Zoneinfo *result,
     d_lastRequestedTimeZone = timeZoneId;
 
     if (d_delayMicroseconds > 0) {
-        bdlmtt::ThreadUtil::microSleep(d_delayMicroseconds); }
+        bdlqq::ThreadUtil::microSleep(d_delayMicroseconds); }
 
     TimeZoneMap::const_iterator it = d_timeZones.find(timeZoneId);
 
@@ -433,13 +433,13 @@ const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
 struct ThreadData {
     Obj           *d_cache_p;    // cache under test
-    bdlmtt::Barrier *d_barrier_p;  // testing barrier
+    bdlqq::Barrier *d_barrier_p;  // testing barrier
 };
 
 extern "C" void *workerThread(void *arg)
 {
     ThreadData *p = (ThreadData*)arg;
-    bdlmtt::Barrier& barrier = *p->d_barrier_p;
+    bdlqq::Barrier& barrier = *p->d_barrier_p;
 
     Obj &mX = *p->d_cache_p; const Obj &X = mX;
 
@@ -816,7 +816,7 @@ int main(int argc, char *argv[])
             NUM_THREADS = 5
         };
 
-        bdlmtt::Barrier barrier(NUM_THREADS);
+        bdlqq::Barrier barrier(NUM_THREADS);
         Obj mX(&testLoader, &testAllocator); const Obj& X = mX;
         ThreadData args = { &mX, &barrier };
         executeInParallel(NUM_THREADS, workerThread, &args);

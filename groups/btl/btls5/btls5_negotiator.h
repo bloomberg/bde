@@ -42,10 +42,10 @@ BSLS_IDENT("$Id: $")
 //  void socks5Callback(btls5::Negotiator::NegotiationStatus  result,
 //                      const btls5::DetailedStatus&          error,
 //                      int                                 *state,
-//                      bdlmtt::Mutex                         *stateLock,
-//                      bdlmtt::Condition                     *stateChanged)
+//                      bdlqq::Mutex                         *stateLock,
+//                      bdlqq::Condition                     *stateChanged)
 //  {
-//      bdlmtt::LockGuard<bdlmtt::Mutex> lock(stateLock);
+//      bdlqq::LockGuard<bdlqq::Mutex> lock(stateLock);
 //      if (btls5::Negotiator::e_SUCCESS == result) {
 //          *state = 0;
 //      } else {
@@ -67,8 +67,8 @@ BSLS_IDENT("$Id: $")
 // Then, we declare the variable for communicating the response, with a mutex
 // and a condition variable to protect access to it from different threads:
 //..
-//      bdlmtt::Mutex     stateLock;
-//      bdlmtt::Condition stateChanged;
+//      bdlqq::Mutex     stateLock;
+//      bdlqq::Condition stateChanged;
 //      int             state = 1;
 //          // 'state == 1' means negotiation is still in progress.
 //..
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // Now, we wait until the negotiation ends and 'socks5Callback' updates the
 // 'state' variable:
 //..
-//      bdlmtt::LockGuard<bdlmtt::Mutex> lock(&stateLock);
+//      bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
 //      while (1 == state) {
 //          stateChanged.wait(&stateLock);
 //      }

@@ -1082,7 +1082,7 @@ do {                                                                       \
 
 namespace BloombergLP {
 
-namespace bdlmtt { class Mutex; }
+namespace bdlqq { class Mutex; }
 
 
 namespace ball {class Record;
@@ -1172,7 +1172,7 @@ struct Log {
         // obtained by a call to 'Log::getRecord', and the logger
         // manager singleton has been initialized.
 
-    static char *obtainMessageBuffer(bdlmtt::Mutex **mutex, int *bufferSize);
+    static char *obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize);
         // Block until access to the buffer used for formatting messages in
         // this thread of execution is available.  Return the address of the
         // modifiable buffer to which this thread of execution has exclusive
@@ -1187,7 +1187,7 @@ struct Log {
         // 'Log::logMessage'; other use may adversely affect performance
         // for the entire program.
 
-    static void releaseMessageBuffer(bdlmtt::Mutex *mutex);
+    static void releaseMessageBuffer(bdlqq::Mutex *mutex);
         // Unlock the specified '*mutex' that guards the buffer used for
         // formatting messages in this thread of execution.  The behavior is
         // undefined unless '*mutex' was obtained by a call to
@@ -1331,7 +1331,7 @@ class Log_Formatter {
 
     int                  d_bufferLen;   // length of buffer
 
-    bdlmtt::Mutex         *d_mutex_p;     // mutex to lock buffer (held, not
+    bdlqq::Mutex         *d_mutex_p;     // mutex to lock buffer (held, not
                                         // owned)
 
   private:

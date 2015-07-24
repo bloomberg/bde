@@ -85,12 +85,12 @@ BSLS_IDENT("$Id: $")
 #include <balm_publicationtype.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -136,7 +136,7 @@ class MetricDescription {
     bsl::vector<const void *>
                          d_userData;    // user data, indexed by keys
 
-    mutable bdlmtt::Mutex  d_mutex;       // synchronize non-const elements
+    mutable bdlqq::Mutex  d_mutex;       // synchronize non-const elements
                                         // (publication type, format, user
                                         // data)
 
@@ -294,7 +294,7 @@ void MetricDescription::setPreferredPublicationType(
                                               PublicationType::Value type)
 {
     // This guard is not strictly required on any supported platform.
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_preferredPublicationType = type;
 }
 
@@ -302,7 +302,7 @@ inline
 void MetricDescription::setFormat(
                         const bsl::shared_ptr<const MetricFormat>& format)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_format = format;
 }
 
@@ -311,7 +311,7 @@ void MetricDescription::setUserData(UserDataKey key,  const void *value)
 {
     BSLS_ASSERT_SAFE(key >= 0);
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if ((unsigned int)key >= d_userData.size()) {
         d_userData.resize(key + 1, 0);
     }
@@ -336,7 +336,7 @@ PublicationType::Value
 MetricDescription::preferredPublicationType() const
 {
     // This guard is not strictly required on any supported platform.
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_preferredPublicationType;
 }
 
@@ -345,7 +345,7 @@ bsl::shared_ptr<const MetricFormat>
 MetricDescription::format() const
 
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_format;
 }
 
@@ -353,7 +353,7 @@ inline
 const void *MetricDescription::userData(UserDataKey key) const
 {
     BSLS_ASSERT_SAFE(key >= 0);
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return ((unsigned int)key < d_userData.size()) ? d_userData[key] : 0;
 }
 }  // close package namespace

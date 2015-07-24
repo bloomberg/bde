@@ -465,8 +465,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -542,7 +542,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     BlockHeader              *d_blocks;            // list of allocated,
                                                    // unfreed blocks
 
-    mutable bdlmtt::Mutex       d_mutex;             // mutex used to synchronize
+    mutable bdlqq::Mutex       d_mutex;             // mutex used to synchronize
                                                    // access to this object
 
     const char               *d_name;              // name of this allocator

@@ -17,8 +17,8 @@ BSLS_IDENT_RCSID(btlso_resolveutil_cpp,"$Id$ $CSID$")
 
 #include <btlso_ipv4address.h>
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
@@ -92,8 +92,8 @@ struct servent *getservbyname_r(const char        *name,
     // Return 'result' with all entries filled in upon success, and 0 if
     // 'getservbyname' fails.
 {
-    static BloombergLP::bdlmtt::Mutex mutex;
-    BloombergLP::bdlmtt::LockGuard<BloombergLP::bdlmtt::Mutex> lockguard(&mutex);
+    static BloombergLP::bdlqq::Mutex mutex;
+    BloombergLP::bdlqq::LockGuard<BloombergLP::bdlqq::Mutex> lockguard(&mutex);
 
     struct servent *server = getservbyname((char *)name, (char *)proto);
     if (server == 0) {
@@ -493,8 +493,8 @@ int ResolveUtil::getHostnameByAddress(
 #elif defined(BSLS_PLATFORM_OS_UNIX)
     // Standard call cannot be assumed to be re-entrant (it often is not).
     {
-        static bdlmtt::Mutex mutex;
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&mutex);
+        static bdlqq::Mutex mutex;
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&mutex);
 
         hp = gethostbyaddr((char *)&addr,
                            sizeof (struct in_addr),

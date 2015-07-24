@@ -1133,7 +1133,7 @@ balj_Journal::getPageHeader(unsigned page, bool makeDirty) const
 
     if (d_mode & BAECS_SAFE) {
         // TBD: think of how we can get rid of this lock?
-        bdlmtt::LockGuard<bdlmtt::Mutex> lGuard(&d_workIndexLock);
+        bdlqq::LockGuard<bdlqq::Mutex> lGuard(&d_workIndexLock);
 
         bsls::Types::Int64 ctid;
         if (ph[index]->getTransactionId(&ctid)) {

@@ -4,8 +4,8 @@
 #include <bslma_testallocator.h>     // for testing only
 #include <bslma_allocator.h>
 #include <bslma_default.h>           // for testing only
-#include <bdlmtt_xxxthread.h>            // for testing only
-#include <bdlmtt_barrier.h>           // for testing only
+#include <bdlqq_xxxthread.h>            // for testing only
+#include <bdlqq_barrier.h>           // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_c_stdlib.h>     // atoi()
@@ -178,7 +178,7 @@ struct TestThreadArgs {
     // Arguments used to test the thread-safeness of the the class.
     DerivedObj      *d_obj_p;
     int             d_iterations;
-    bdlmtt::Barrier   *d_barrier_p;
+    bdlqq::Barrier   *d_barrier_p;
 };
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -306,20 +306,20 @@ int main(int argc, char *argv[])
             bslma::Allocator *myAllocator = bslma::Default::defaultAllocator();
 
             args.d_obj_p = new(*myAllocator) DerivedObj(myAllocator);
-            args.d_barrier_p = new(*myAllocator) bdlmtt::Barrier(NTHREADS);
+            args.d_barrier_p = new(*myAllocator) bdlqq::Barrier(NTHREADS);
             args.d_iterations = NITERATIONS;
             args.d_obj_p->increment();
 
-            bdlmtt::ThreadUtil::Handle threadHandles[NTHREADS];
+            bdlqq::ThreadUtil::Handle threadHandles[NTHREADS];
             bcemt_Attribute attributes;
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlmtt::ThreadUtil::create(&threadHandles[i], attributes,
+                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
                                          testIncDecThreadSafeness, &args );
             }
 
             for (int i=0; i<NTHREADS;++i) {
-                bdlmtt::ThreadUtil::join(threadHandles[i]);
+                bdlqq::ThreadUtil::join(threadHandles[i]);
             }
             ASSERT(0 == args.d_obj_p->decrement());
             myAllocator->deallocate(args.d_obj_p);

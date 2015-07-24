@@ -7,9 +7,9 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 #include <ball_severity.h>
 #include <ball_thresholdaggregate.h>
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_readlockguard.h>
-#include <bdlmtt_writelockguard.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_readlockguard.h>
+#include <bdlqq_writelockguard.h>
 
 #include <bdlb_xxxbitutil.h>
 
@@ -315,7 +315,7 @@ Category *CategoryManager::addCategory(
         return 0;                                                     // RETURN
     }
 
-    bdlmtt::WriteLockGuard<bdlmtt::ReaderWriterLock> registryGuard(
+    bdlqq::WriteLockGuard<bdlqq::ReaderWriterLock> registryGuard(
                                                               &d_registryLock);
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
 
@@ -334,7 +334,7 @@ Category *CategoryManager::addCategory(
 
         registryGuard.release()->unlock();
 
-        bdlmtt::LockGuard<bdlmtt::Mutex> ruleSetGuard(&d_ruleSetMutex);
+        bdlqq::LockGuard<bdlqq::Mutex> ruleSetGuard(&d_ruleSetMutex);
 
         for (int i = 0; i < RuleSet::maxNumRules(); ++i) {
             const Rule *rule = d_ruleSet.getRuleById(i);
@@ -363,7 +363,7 @@ Category *CategoryManager::addCategory(
 
 Category *CategoryManager::lookupCategory(const char *categoryName)
 {
-    bdlmtt::ReadLockGuard<bdlmtt::ReaderWriterLock> registryGuard(&d_registryLock);
+    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> registryGuard(&d_registryLock);
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
     return iter != d_registry.end() ? d_categories[iter->second] : 0;
 }
@@ -373,7 +373,7 @@ Category *CategoryManager::lookupCategory(
                                            const char          *categoryName)
 {
     d_registryLock.lockReadReserveWrite();
-    bdlmtt::WriteLockGuard<bdlmtt::ReaderWriterLock>
+    bdlqq::WriteLockGuard<bdlqq::ReaderWriterLock>
                                              registryGuard(&d_registryLock, 1);
     Category *category = 0;
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
@@ -416,7 +416,7 @@ Category *CategoryManager::setThresholdLevels(
     }
 
     d_registryLock.lockReadReserveWrite();
-    bdlmtt::WriteLockGuard<bdlmtt::ReaderWriterLock> registryGuard(&d_registryLock,
+    bdlqq::WriteLockGuard<bdlqq::ReaderWriterLock> registryGuard(&d_registryLock,
                                                                1);
     CategoryMap::iterator iter = d_registry.find(categoryName);
     if (iter != d_registry.end()) {
@@ -438,7 +438,7 @@ Category *CategoryManager::setThresholdLevels(
                                                       triggerAllLevel);
         registryGuard.release();
         d_registryLock.unlock();
-        bdlmtt::LockGuard<bdlmtt::Mutex> ruleSetGuard(&d_ruleSetMutex);
+        bdlqq::LockGuard<bdlqq::Mutex> ruleSetGuard(&d_ruleSetMutex);
 
         for (int i = 0; i < RuleSet::maxNumRules(); ++i) {
             const Rule *rule = d_ruleSet.getRuleById(i);
@@ -464,7 +464,7 @@ Category *CategoryManager::setThresholdLevels(
 
 int CategoryManager::addRule(const Rule& value)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_ruleSetMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_ruleSetMutex);
     int ruleId = d_ruleSet.addRule(value);
     if (ruleId < 0) {
         return 0;                                                     // RETURN
@@ -506,7 +506,7 @@ int CategoryManager::addRules(const RuleSet& ruleSet)
 
 int CategoryManager::removeRule(const Rule& value)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_ruleSetMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_ruleSetMutex);
     int ruleId = d_ruleSet.ruleId(value);
     if (ruleId < 0) {
         return 0;                                                     // RETURN
@@ -565,7 +565,7 @@ int CategoryManager::removeRules(const RuleSet& ruleSet)
 
 void CategoryManager::removeAllRules()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_ruleSetMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_ruleSetMutex);
     ++d_ruleSequenceNum;
     for (int i = 0; i < length(); ++i) {
         if (d_categories[i]->d_relevantRuleMask) {
@@ -581,7 +581,7 @@ void CategoryManager::removeAllRules()
 const Category *CategoryManager::lookupCategory(
                                                 const char *categoryName) const
 {
-    bdlmtt::ReadLockGuard<bdlmtt::ReaderWriterLock> registryGuard(&d_registryLock);
+    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> registryGuard(&d_registryLock);
     CategoryMap::const_iterator iter = d_registry.find(categoryName);
     return iter != d_registry.end() ? d_categories[iter->second] : 0;
 }

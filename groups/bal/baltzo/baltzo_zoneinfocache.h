@@ -161,8 +161,8 @@ BSLS_IDENT("$Id: $")
 #include <baltzo_zoneinfo.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -223,7 +223,7 @@ class ZoneinfoCache {
     Loader         *d_loader_p;     // loader used to obtain time-zone
                                            // information (held, not owned)
 
-    mutable bdlmtt::RWMutex  d_lock;         // cache access synchronization
+    mutable bdlqq::RWMutex  d_lock;         // cache access synchronization
 
     bslma::Allocator      *d_allocator_p;  // allocator (held, not owned)
 

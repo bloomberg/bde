@@ -181,16 +181,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_READLOCKGUARD
-#include <bdlmtt_readlockguard.h>
+#ifndef INCLUDED_BDLQQ_READLOCKGUARD
+#include <bdlqq_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_WRITELOCKGUARD
-#include <bdlmtt_writelockguard.h>
+#ifndef INCLUDED_BDLQQ_WRITELOCKGUARD
+#include <bdlqq_writelockguard.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_POOL
@@ -330,7 +330,7 @@ class ObjectCatalog {
     bdlma::Pool             d_nodePool;
     Node                  *d_nextFreeNode_p;
     volatile int           d_length;
-    mutable bdlmtt::RWMutex  d_lock;
+    mutable bdlqq::RWMutex  d_lock;
 
     // FRIENDS
     friend class ObjectCatalog_AutoCleanup<TYPE>;
@@ -582,7 +582,7 @@ template <class TYPE>
 int ObjectCatalog<TYPE>::add(const TYPE& object)
 {
     int handle;
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_lock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
     ObjectCatalog_AutoCleanup<TYPE> proctor(this);
     Node *node;
 
@@ -629,7 +629,7 @@ template <class TYPE>
 inline
 int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_lock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
     Node *node = findNode(handle);
 
@@ -651,7 +651,7 @@ int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
 template <class TYPE>
 void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_lock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
     for (typename bsl::vector<Node*>::iterator it = d_nodes.begin();
          it != d_nodes.end();++it) {
@@ -675,7 +675,7 @@ void ObjectCatalog<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 template <class TYPE>
 int ObjectCatalog<TYPE>::replace(int handle, const TYPE& newObject)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_lock);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
     Node *node = findNode(handle);
 
@@ -697,7 +697,7 @@ template <class TYPE>
 inline
 int ObjectCatalog<TYPE>::find(int handle, TYPE *valueBuffer) const
 {
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_lock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
     Node *node = findNode(handle);
 
@@ -721,7 +721,7 @@ int ObjectCatalog<TYPE>::length() const
 template <class TYPE>
 void ObjectCatalog<TYPE>::verifyState() const
 {
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_lock);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
     BSLS_ASSERT_SAFE((int)d_nodes.size() >= d_length);
     BSLS_ASSERT_SAFE(d_length >= 0);

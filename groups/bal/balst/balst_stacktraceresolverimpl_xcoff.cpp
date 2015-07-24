@@ -10,8 +10,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #include <balst_stacktraceresolver_filehelper.h>
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_mutex.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
 
 #include <bdlsu_filesystemutil.h>
 #include <bdlsu_processutil.h>
@@ -590,8 +590,8 @@ local::UintPtr parseNumber(const TYPE& text)
  //               == struct local::StackTraceResolver::AuxInfo
  // ===========================================================================
 
-bdlmtt::QLock local::StackTraceResolver::s_demangleQLock =
-                                                       BDLMTT_QLOCK_INITIALIZER;
+bdlqq::QLock local::StackTraceResolver::s_demangleQLock =
+                                                       BDLQQ_QLOCK_INITIALIZER;
 
 struct local::StackTraceResolver::AuxInfo {
     // Objects of this type exist in the array 'd_auxInfo' in class
@@ -1514,7 +1514,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
             if (d_demangle) {
                 // Note that 'Demangle' is not thread safe.
 
-                bdlmtt::QLockGuard guard(&s_demangleQLock);
+                bdlqq::QLockGuard guard(&s_demangleQLock);
 
                 // Note that 'Demangle' allocates with 'new', and that
                 // 'remainder' is passed as a reference to a modifiable.  Also

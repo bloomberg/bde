@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //      // This class defines a trivial thread-enabled vector.
 //
 //      // DATA
-//      mutable bdlmtt::Mutex d_mutex;     // synchronize access
+//      mutable bdlqq::Mutex d_mutex;     // synchronize access
 //      bsl::vector<TYPE>   d_elements;  // underlying list of strings
 //
 //      // NOT IMPLEMENTED
@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //          // Append the specified 'value' to this thread-enabled vector and
 //          // return the index of the new element.
 //      {
-//          bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+//          bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 //          d_elements.push_back(value);
 //          return d_elements.size();
 //      }
@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //          // vector to the specified 'value'.  The behavior is undefined
 //          // unless '0 <= index < length()'.
 //      {
-//          bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+//          bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 //          d_elements[index] = value;
 //      }
 //
@@ -99,14 +99,14 @@ BSLS_IDENT("$Id: $")
 //          // *value* because references to elements managed by this container
 //          // may be invalidated by another thread.
 //      {
-//          bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+//          bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 //          return d_elements[index];
 //      }
 //
 //      int length() const
 //          // Return the number of elements in this thread-enabled vector.
 //      {
-//          bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+//          bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 //          return d_elements.size();
 //      }
 //  };
@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //      // the mutex and adapter are initialized before other member variables
 //      // that depend on them.
 //
-//      bdlmtt::Mutex           d_mutex;             // synchronize allocator
+//      bdlqq::Mutex           d_mutex;             // synchronize allocator
 //
 //      bdlma::ConcurrentAllocatorAdapter
 //                            d_allocatorAdapter;  // adapter for allocator
@@ -224,13 +224,13 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 namespace BloombergLP {
 
-namespace bdlmtt { class Mutex; }
+namespace bdlqq { class Mutex; }
 
 namespace bdlma {
               // =========================================
@@ -243,7 +243,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
     // thread-safe access to the decorated allocator.
 
     // DATA
-    bdlmtt::Mutex      *d_mutex_p;      // synchronizer for operations on the
+    bdlqq::Mutex      *d_mutex_p;      // synchronizer for operations on the
                                       // allocator (held, not owned)
 
     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
@@ -255,7 +255,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
                                    const ConcurrentAllocatorAdapter&);
   public:
     // CREATORS
-    ConcurrentAllocatorAdapter(bdlmtt::Mutex      *mutex,
+    ConcurrentAllocatorAdapter(bdlqq::Mutex      *mutex,
                                         bslma::Allocator *basicAllocator);
         // Create a thread-enabled allocator adapter that uses the specified
         // 'mutex' to synchronize access to the specified 'basicAllocator'.
@@ -294,7 +294,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
 // CREATORS
 inline
 ConcurrentAllocatorAdapter::ConcurrentAllocatorAdapter(
-                                              bdlmtt::Mutex      *mutex,
+                                              bdlqq::Mutex      *mutex,
                                               bslma::Allocator *basicAllocator)
 : d_mutex_p(mutex)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
