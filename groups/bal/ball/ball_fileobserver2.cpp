@@ -233,13 +233,14 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(stream);
     BSLS_ASSERT(filename);
 
-    const bool fileExistFlag = bdlsu::FileSystemUtil::exists(filename);
-    bdlsu::FileSystemUtil::FileDescriptor fd = bdlsu::FileSystemUtil::open(filename,
-                                                             true,
-                                                             fileExistFlag,
-                                                             true);
+    const bool fileExistFlag = bdlsu::FilesystemUtil::exists(filename);
+    bdlsu::FilesystemUtil::FileDescriptor fd = bdlsu::FilesystemUtil::open(
+                       filename,
+                       fileExistFlag ? bdlsu::FilesystemUtil::e_OPEN
+                                     : bdlsu::FilesystemUtil::e_OPEN_OR_CREATE,
+                       bdlsu::FilesystemUtil::e_READ_APPEND);
 
-    if (fd == bdlsu::FileSystemUtil::INVALID_FD) {
+    if (fd == bdlsu::FilesystemUtil::k_INVALID_FD) {
         fprintf(
            stderr,
            "%s Cannot open log file %s: %s.  File logging will be disabled!\n",
@@ -248,7 +249,7 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     }
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // Add read/write access to other, because 'bdlsu::FileSystemUtil::open' set file
+    // Add read/write access to other, because 'bdlsu::FilesystemUtil::open' set file
     // permission to 'rw-rw----'.
 
     chmod(filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
@@ -453,7 +454,7 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
                    d_logFilePattern.c_str(),
                    d_publishInLocalTime);
 
-    if (bdlsu::FileSystemUtil::exists(d_logFileName.c_str())) {
+    if (bdlsu::FilesystemUtil::exists(d_logFileName.c_str())) {
         bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
         if (d_publishInLocalTime) {
             timeStampSuffix += localTimeOffsetInterval(oldLogFileTimestamp);
@@ -524,7 +525,7 @@ int  FileObserver2::rotateIfNecessary(
 
 // CREATORS
 FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
-: d_logStreamBuf(bdlsu::FileSystemUtil::INVALID_FD, false)
+: d_logStreamBuf(bdlsu::FilesystemUtil::k_INVALID_FD, false)
 , d_logOutStream(&d_logStreamBuf)
 , d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
@@ -598,7 +599,7 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
     // 'getLastModificationTime' method will simply fail without modifying
     // 'd_logFileTimestampUtc' if the log file does not already exist.
 
-    bdlsu::FileSystemUtil::getLastModificationTime(&d_logFileTimestampUtc,
+    bdlsu::FilesystemUtil::getLastModificationTime(&d_logFileTimestampUtc,
                                             d_logFileName);
 
     if (0 < d_rotationInterval.totalSeconds()) {

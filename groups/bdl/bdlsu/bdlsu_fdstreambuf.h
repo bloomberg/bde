@@ -547,12 +547,12 @@ class FdStreamBuf_FileHandler {
         // Set the file position associated with this object according to the
         // specified 'dir' behavior.
         //..
-        //   * If 'dir' is 'FilesystemUtil::BDESU_SEEK_FROM_BEGINNING',
+        //   * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_BEGINNING',
         //     set the position to the specified 'offset' bytes from the
         //     beginning of the file.
-        //   * If 'dir' is 'FilesystemUtil::BDESU_SEEK_FROM_CURRENT',
+        //   * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_CURRENT',
         //     advance the position by the specified 'offset' bytes
-        //   * If 'dir' is 'FilesystemUtil::BDESU_SEEK_FROM_END', set the
+        //   * If 'dir' is 'FilesystemUtil::e_SEEK_FROM_END', set the
         //     position to the specified 'offset' bytes beyond the end of the
         //     file.
         //..

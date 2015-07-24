@@ -91,7 +91,7 @@ bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 {
     BSLS_ASSERT(path);
 
-    if (!bdlsu::FileSystemUtil::isDirectory(path, true)) {
+    if (!bdlsu::FilesystemUtil::isDirectory(path, true)) {
         return false;                                                 // RETURN
     }
 
@@ -101,7 +101,7 @@ bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
     // If 'path' is a valid directory, appending "GMT" to it must result in a
     // valid path.
 
-    return bdlsu::FileSystemUtil::isRegularFile(gmtPath.c_str(), true);
+    return bdlsu::FilesystemUtil::isRegularFile(gmtPath.c_str(), true);
 }
 
 // CREATORS

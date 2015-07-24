@@ -28,17 +28,18 @@ StackTraceResolver_FileHelper::StackTraceResolver_FileHelper(
 {
     BSLS_ASSERT(fileName);
 
-    d_fd = bdlsu::FileSystemUtil::open(fileName,
-                                false,    // not writable
-                                true);    // already exists
-    BSLS_ASSERT(FileSystemUtil::INVALID_FD != d_fd);
+    d_fd = bdlsu::FilesystemUtil::open(
+                        fileName,
+                        bdlsu::FilesystemUtil::e_OPEN,        // already exists
+                        bdlsu::FilesystemUtil::e_READ_ONLY);  // not writable
+    BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_fd);
 }
 
 StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
 {
-    BSLS_ASSERT(FileSystemUtil::INVALID_FD != d_fd);
+    BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_fd);
 
-    bdlsu::FileSystemUtil::close(d_fd);
+    bdlsu::FilesystemUtil::close(d_fd);
 }
 
 // ACCESSORS
@@ -100,14 +101,14 @@ bsls::Types::UintPtr StackTraceResolver_FileHelper::readBytes(
     BSLS_ASSERT(buf);
     BSLS_ASSERT(offset >= 0);
 
-    Offset seekDest = FileSystemUtil::seek(d_fd,
+    Offset seekDest = FilesystemUtil::seek(d_fd,
                                      offset,
-                                     FileSystemUtil::BDESU_SEEK_FROM_BEGINNING);
+                                     FilesystemUtil::e_SEEK_FROM_BEGINNING);
     if (seekDest != offset) {
         return 0;                                                     // RETURN
     }
 
-    int res = FileSystemUtil::read(d_fd, buf, (int) numBytes);
+    int res = FilesystemUtil::read(d_fd, buf, (int) numBytes);
     return (res <= 0 ? 0 : res);
 }
 }  // close package namespace

@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
                compare = tmpdirPtr;
            }
            else {
-               bdlsu::FileSystemUtil::getWorkingDirectory(&compare);
+               bdlsu::FilesystemUtil::getWorkingDirectory(&compare);
            }
 
            ASSERT(0 == bdlsu::PathUtil::appendIfValid(&compare, "foo.bar"));

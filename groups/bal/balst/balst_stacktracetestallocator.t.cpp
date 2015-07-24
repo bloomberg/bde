@@ -1183,7 +1183,7 @@ int main(int argc, char *argv[])
 // of the code shows that we neglected to free 'd_cook' in the destructor and
 // we can now easily fix our leak.
 
-        bdlsu::FileSystemUtil::remove("shipscrew.txt");
+        bdlsu::FilesystemUtil::remove("shipscrew.txt");
       }  break;
       case 21: {
         //---------------------------------------------------------------------

@@ -37,16 +37,16 @@ BSLS_IDENT("$Id: $")
 //..
 // Make sure file does not already exist.
 //..
-//  bdlsu::FileSystemUtil::remove(fileNameBuffer);
+//  bdlsu::FilesystemUtil::remove(fileNameBuffer);
 //..
 // Next, Create the file and open a file descriptor to it.  The boolean
 // flags indicate that the file is writable, and not previously existing
 // (and therefore must be created).
 //..
-//  FdType fd = FileSystemUtil::open(fileNameBuffer,
+//  FdType fd = FilesystemUtil::open(fileNameBuffer,
 //                             true,          // writable
 //                             false);        // doesn't already exist
-//  assert(FileSystemUtil::INVALID_FD != fd);
+//  assert(FilesystemUtil::k_INVALID_FD != fd);
 //..
 // 64 char long string
 //..
@@ -58,21 +58,21 @@ BSLS_IDENT("$Id: $")
 //..
 //  int rc;
 //  for (int i = 0; i < 20; ++i) {
-//      rc = FileSystemUtil::write(fd, testString64, 64);
+//      rc = FilesystemUtil::write(fd, testString64, 64);
 //      assert(64 == rc);
 //  }
 //
 //  enum { OFFSET_OF_ZERO_BYTE = 7 * 64 };
 //
-//  rc = (int) FileSystemUtil::seek(fd,
+//  rc = (int) FilesystemUtil::seek(fd,
 //                            OFFSET_OF_ZERO_BYTE,
-//                            FileSystemUtil::BDESU_SEEK_FROM_BEGINNING);
+//                            FilesystemUtil::e_SEEK_FROM_BEGINNING);
 //  assert(OFFSET_OF_ZERO_BYTE == rc);
 //
-//  rc = FileSystemUtil::write(fd, "", 1);        // write the zero byte
+//  rc = FilesystemUtil::write(fd, "", 1);        // write the zero byte
 //  assert(1 == rc);
 //
-//  rc = FileSystemUtil::close(fd);
+//  rc = FilesystemUtil::close(fd);
 //  assert(0 == rc);
 //
 //  {
@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      ta.deallocate(result);
 //  }
-//  bdlsu::FileSystemUtil::remove(fileNameBuffer);
+//  bdlsu::FilesystemUtil::remove(fileNameBuffer);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -151,11 +151,11 @@ class StackTraceResolver_FileHelper {
     // this object.
 
     // PRIVATE TYPES
-    typedef bdlsu::FileSystemUtil           FileSystemUtil;  // shorthand for class
-                                                // 'bdlsu::FileSystemUtil'
-    typedef FileSystemUtil::FileDescriptor FdType;    // shorthand for file
+    typedef bdlsu::FilesystemUtil           FilesystemUtil;  // shorthand for class
+                                                // 'bdlsu::FilesystemUtil'
+    typedef FilesystemUtil::FileDescriptor FdType;    // shorthand for file
                                                 // descriptor
-    typedef FileSystemUtil::Offset         Offset;
+    typedef FilesystemUtil::Offset         Offset;
     typedef bsls::Types::UintPtr     UintPtr;
     typedef bsls::Types::IntPtr      IntPtr;
 

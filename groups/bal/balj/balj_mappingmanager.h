@@ -296,8 +296,8 @@ class MappingManager {
         // are unmapped.
 
     // MANIPULATORS
-    Handle addPage(bdlsu::FileSystemUtil::FileDescriptor   fileDescriptor,
-                   bdlsu::FileSystemUtil::Offset           offset,
+    Handle addPage(bdlsu::FilesystemUtil::FileDescriptor   fileDescriptor,
+                   bdlsu::FilesystemUtil::Offset           offset,
                    bsl::size_t                      size,
                    bool                             isReadWrite,
                    int                              priorityLevel,

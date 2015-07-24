@@ -47,7 +47,7 @@ void getPipeDir(bsl::string *dir)
         dir->assign(tmpdir);
     }
     else {
-        int rc = bdlsu::FileSystemUtil::getWorkingDirectory(dir);
+        int rc = bdlsu::FilesystemUtil::getWorkingDirectory(dir);
         BSLS_ASSERT(0 == rc);
     }
 }

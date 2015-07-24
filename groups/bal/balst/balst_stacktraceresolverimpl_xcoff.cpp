@@ -1420,7 +1420,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
     }
     else {
         d_archiveMemberOffset = 0;
-        d_archiveMemberSize = bdlsu::FileSystemUtil::getFileSize(libraryFileName);
+        d_archiveMemberSize = bdlsu::FilesystemUtil::getFileSize(libraryFileName);
     }
 
     xcoffhdr header;                  // Xcoff header at the beginning of the

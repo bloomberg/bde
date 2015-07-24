@@ -53,7 +53,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL HELPER TYPES & CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlsu::FileSystemUtil    FUtil;
+typedef bdlsu::FilesystemUtil    FUtil;
 typedef bdlsu::ProcessUtil Obj;
 
 //=============================================================================
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM_OS_UNIX
             FUtil::FileDescriptor fd = FUtil::open(tmpFileName,
-                                                   true, false);
+                                 FUtil::e_OPEN_OR_CREATE, FUtil::e_READ_WRITE);
             LOOP2_ASSERT(i, fd, fd < 40);
             FUtil::close(fd);
             FUtil::remove(tmpFileName);

@@ -214,7 +214,7 @@ class JournalHeader {
     int blockSize() const;
     int blocksPerPage() const;
 
-    bdlsu::FileSystemUtil::Offset calculateFileSize(int numPages);
+    bdlsu::FilesystemUtil::Offset calculateFileSize(int numPages);
     bsls::Types::Int64 creationTime() const;
     bsls::Types::Int64 currentTransactionId() const;
     bsls::Types::Int64 committedTransactionId() const;
@@ -443,12 +443,12 @@ int JournalHeader::headerSize() const
 }
 
 inline
-bdlsu::FileSystemUtil::Offset JournalHeader::calculateFileSize(int numPages)
+bdlsu::FilesystemUtil::Offset JournalHeader::calculateFileSize(int numPages)
 {
-    bdlsu::FileSystemUtil::Offset result =  d_persistent_p->d_headerSize
-        + (bdlsu::FileSystemUtil::Offset) numPageSets(numPages)
+    bdlsu::FilesystemUtil::Offset result =  d_persistent_p->d_headerSize
+        + (bdlsu::FilesystemUtil::Offset) numPageSets(numPages)
         * d_persistent_p->d_pageHeaderSize * d_persistent_p->d_pagesPerSet * 2
-        + (bdlsu::FileSystemUtil::Offset) numPages
+        + (bdlsu::FilesystemUtil::Offset) numPages
         * d_persistent_p->d_pageDataSize;
     return result;
 }
