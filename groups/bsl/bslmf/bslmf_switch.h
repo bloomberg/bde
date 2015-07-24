@@ -22,8 +22,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_typelist
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a compile-time 'switch' meta-function.
 // Its main class, 'bslmf::Switch', parameterized by an integral 'SELECTOR' and
 // a variable number 'N' of types, 'T0' up to 'T{N - 1}', contains a single
@@ -218,9 +216,175 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#define BSLMF_SWITCH_USING_VARIADIC_TEMPLATES
+    // This macro indicates that we have all the needed features for an
+    // implementation of the type-switch facility that is source-compatible
+    // with the pre-existing C++03 facility.  The main change is that the
+    // numbered classes Switch0-Switch9 are no longer distinct classes, but
+    // aliases of specific instantiations of the primary Switch template.
+    // Eventually these partial template specializations will be eliminated,
+    // when the individually named members are no longer used throughout the
+    // whole of the Bloomberg codebase.
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
+
+#if defined(BSLMF_SWITCH_USING_VARIADIC_TEMPLATES)
+template <unsigned SELECTOR,
+          class ...TYPES>
+struct Switch {
+    // This meta-function, parameterized by an integral 'SELECTOR' and types
+    // 'T0' up to 'T9', provides a single type alias, 'Type', which resolves,
+    // through specialization for a particular value 'N' of 'SELECTOR', to the
+    // type 'TN', or to 'Nil' if 'SELECTOR' is negative or larger than the
+    // number of template arguments provided for the types.
+
+    typedef Nil Type;
+        // This 'Type' is an alias to the parameterized 'TN', where 'N' is the
+        // integral value of the parameterized 'SELECTOR'.  Note that the first
+        // type in the list corresponds to 'T0', not 'T1'.
+};
+
+// SPECIALIZATIONS
+template <class T0, class ...TYPES>
+struct Switch<0u, T0, TYPES...> {
+
+    typedef T0 Type;
+};
+
+template <class T0, class T1, class ...TYPES>
+struct Switch<1u, T0, T1, TYPES...> {
+
+    typedef T1 Type;
+};
+
+template <class T0, class T1, class T2, class ...TYPES>
+struct Switch<2u, T0, T1, T2, TYPES...> {
+
+    typedef T2 Type;
+};
+
+template <class T0, class T1, class T2, class T3, class ...TYPES>
+struct Switch<3u, T0, T1, T2, T3, TYPES...> {
+
+    typedef T3 Type;
+};
+
+template <class T0, class T1, class T2, class T3, class T4, class ...TYPES>
+struct Switch<4u, T0, T1, T2, T3, T4, TYPES...> {
+
+    typedef T4 Type;
+};
+
+template <class T0, class T1, class T2, class T3, class T4, class T5,
+          class ...TYPES>
+struct Switch<5u, T0, T1, T2, T3, T4, T5, TYPES...> {
+
+    typedef T5 Type;
+};
+
+template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class ...TYPES>
+struct Switch<6u, T0, T1, T2, T3, T4, T5, T6, TYPES...> {
+
+    typedef T6 Type;
+};
+
+template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class ...TYPES>
+struct Switch<7u, T0, T1, T2, T3, T4, T5, T6, T7, TYPES...> {
+
+    typedef T7 Type;
+};
+
+template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8, class ...TYPES>
+struct Switch<8u, T0, T1, T2, T3, T4, T5, T6, T7, T8, TYPES...> {
+
+    typedef T8 Type;
+};
+
+template <class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8, class T9, class ...TYPES>
+struct Switch<9u, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TYPES...> {
+
+    typedef T9 Type;
+};
+
+template <unsigned SELECTOR, class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9, class T10,
+          class ...TYPES>
+struct Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TYPES...>
+                                                                              {
+    typedef typename Switch<SELECTOR-10, T10, TYPES...>::Type Type;
+};
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+template <unsigned SELECTOR, class T0, class T1>
+using Switch2 = Switch<SELECTOR, T0, T1>;
+
+template <unsigned SELECTOR, class T0, class T1, class T2>
+using Switch3 = Switch<SELECTOR, T0, T1, T2>;
+
+template <unsigned SELECTOR, class T0, class T1, class T2, class T3>
+using Switch4 = Switch<SELECTOR, T0, T1, T2, T3>;
+
+template <unsigned SELECTOR, class T0, class T1, class T2, class T3, class T4>
+using Switch5 = Switch<SELECTOR, T0, T1, T2, T3, T4>;
+
+template <unsigned SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5>
+using Switch6 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5>;
+
+template <unsigned SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5,
+          class T6>
+using Switch7 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6>;
+
+template <unsigned SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5,
+          class T6,
+          class T7>
+using Switch8 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7>;
+
+template <unsigned SELECTOR,
+          class T0,
+          class T1,
+          class T2,
+          class T3,
+          class T4,
+          class T5,
+          class T6,
+          class T7,
+          class T8>
+using Switch9 = Switch<SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7, T8>;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+#else
 
                         // =============
                         // struct Switch
@@ -864,13 +1028,16 @@ struct Switch9<8, T0, T1, T2, T3, T4, T5, T6, T7, T8> {
 
     typedef T8 Type;
 };
+#endif
 
 }  // close package namespace
 
+
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_Switch
 #undef bslmf_Switch
