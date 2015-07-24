@@ -384,7 +384,9 @@ int usageExample(bslma::Allocator *allocator)
        return -1;
     }
 
-    bsls::AtomicInt iCheck=0, uCheck=0, cCheck=0;
+bsls::AtomicInt iCheck(0);
+bsls::AtomicInt uCheck(0);
+bsls::AtomicInt cCheck(0);
 
     JobQueue::Job ijob =
         bdlf::BindUtil::bind(&bsls::AtomicInt::add, &iCheck, 1);
@@ -464,7 +466,7 @@ int main(int argc, char *argv[])
                 NUM_JOBS      = 100
             };
 
-            bsls::AtomicInt timesCalled = 0;
+            bsls::AtomicInt timesCalled(0);
             bdlmtt::Semaphore startSemaphore;
             bdlmt::ThreadMultiplexor mX(1, MAX_QUEUESIZE, &ta);
             bdlmtt::ThreadGroup threads;

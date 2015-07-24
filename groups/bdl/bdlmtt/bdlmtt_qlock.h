@@ -435,7 +435,7 @@ void QLock::initialize()
 inline
 bool QLock::isLocked() const
 {
-    return bsls::AtomicOperations::getPtr(d_guardQueueTail) != 0;
+    return bsls::AtomicOperations::getPtr(&d_guardQueueTail) != 0;
 }
 
                            // ---------------------------

@@ -172,8 +172,8 @@ namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_13 {
 // where traffic of low priority, while massively more numerous, does not
 // impede the progress of higher priority jobs.
 
-bsls::AtomicInt urgentJobsDone = 0;
-bsls::AtomicInt lessUrgentJobsDone = 0;
+bsls::AtomicInt urgentJobsDone(0);
+bsls::AtomicInt lessUrgentJobsDone(0);
 
 extern "C" void *urgentJob(void *) {
     bdlmtt::ThreadUtil::microSleep(10000);          // 10 mSec
@@ -341,7 +341,7 @@ struct Functor {
 
     void operator()() {
         if (0 == d_priority) {
-            bsls::AtomicInt& rScannedTo = scannedTo[d_numToScan];
+            bsls::AtomicInt& rScannedTo(scannedTo[d_numToScan]);
 
             for (int i = d_numToScan; d_limit > i; i += d_numToScan) {
                 isStillPrime[i] = false;
@@ -430,7 +430,7 @@ struct Worker {
 };
 bdlmt::MultipriorityThreadPool *Worker::s_pool = 0;
 bdlcc::Queue<Worker>           *Worker::s_doneQueue = 0;
-bsls::AtomicInt Worker::s_time = 0;
+bsls::AtomicInt Worker::s_time(0);
 
 struct ProducerThread {
     int                   d_workersPerProducer;

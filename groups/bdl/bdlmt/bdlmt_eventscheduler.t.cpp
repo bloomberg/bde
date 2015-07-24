@@ -104,7 +104,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-static bsls::AtomicInt testStatus = 0;
+static bsls::AtomicInt testStatus(0);
 
 static void aSsErT(int c, const char *s, int i)
 {
@@ -406,10 +406,10 @@ class TestClass {
       d_isClock(original.d_isClock),
       d_periodicInterval(original.d_periodicInterval),
       d_expectedTimeAtExecution(original.d_expectedTimeAtExecution),
-      d_numExecuted(original.d_numExecuted),
-      d_executionTime(original.d_executionTime),
+      d_numExecuted(original.d_numExecuted.loadRelaxed()),
+      d_executionTime(original.d_executionTime.loadRelaxed()),
       d_line(original.d_line),
-      d_delayed(original.d_delayed),
+      d_delayed(original.d_delayed.loadRelaxed()),
       d_referenceTime(original.d_referenceTime),
       d_globalLastExecutionTime(original.d_globalLastExecutionTime),
       d_assertOnFailure(original.d_assertOnFailure),

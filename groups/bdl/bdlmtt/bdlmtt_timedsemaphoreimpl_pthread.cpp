@@ -104,7 +104,7 @@ void initializeCondition(pthread_cond_t              *cond,
 }
 
 static
-int decrementIfPositive(bdlmtt::AtomicInt *a)
+int decrementIfPositive(bsls::AtomicInt *a)
     // Try to decrement the specified atomic integer 'a' if positive.  Return
     // 0 on success and a non-zero value otherwise.
 {

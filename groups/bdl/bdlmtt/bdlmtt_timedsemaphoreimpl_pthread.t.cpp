@@ -644,7 +644,7 @@ int main(int argc, char *argv[]) {
 
         bdlmtt::ThreadUtil::Handle threads[10];
         MyBarrier barrier(6);
-        bsls::AtomicInt past = 0;
+        bsls::AtomicInt past(0);
         Obj sem;
 
         struct ThreadInfo2 info;

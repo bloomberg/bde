@@ -101,7 +101,7 @@ int ThreadGroup::addThread(const bdlf::Function<void(*)()>& functor,
         LockGuard<Mutex> lockGuard(&d_threadsMutex);
 
         d_threads.push_back(handle);
-        d_numThreads.relaxedAdd(1);
+        d_numThreads.addRelaxed(1);
         detachGuard.release();
     }
     return rc;
@@ -129,7 +129,7 @@ void ThreadGroup::joinAll()
 
     bsl::for_each(d_threads.begin(), d_threads.end(), &bindJoin);
     d_threads.clear();
-    d_numThreads.relaxedStore(0);
+    d_numThreads.storeRelaxed(0);
 }
 }  // close package namespace
 

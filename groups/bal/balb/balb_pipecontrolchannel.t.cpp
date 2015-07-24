@@ -778,7 +778,7 @@ int main(int argc, char *argv[])
                 loadData(&message, messageLength);
 
                 bdlmtt::Barrier  barrier(2);
-                bsls::AtomicInt numWrites = 0;
+                bsls::AtomicInt numWrites(0);
 
                 balb::PipeControlChannel channel(bdlf::BindUtil::bind(
                                                          &verifyPayload,

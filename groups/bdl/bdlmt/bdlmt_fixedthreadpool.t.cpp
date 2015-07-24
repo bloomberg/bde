@@ -149,7 +149,7 @@ struct TestJobFunctionArgs {
 struct TestJobFunctionArgs1 {
     bdlmtt::Barrier   *d_startBarrier_p;
     bdlmtt::Barrier   *d_stopBarrier_p;
-    bdlmtt::AtomicInt   d_count;
+    bsls::AtomicInt   d_count;
 };
 
 extern "C" {
@@ -494,7 +494,7 @@ enum {
 };
 
 bdlmt::FixedThreadPool *threadPools[NUM_THREADPOOLS];
-bdlmtt::AtomicInt64 numFertileRabbits = 0;
+bsls::AtomicInt64 numFertileRabbits(0);
 
 struct EnqueueRabbit {
     bool d_fertile;
@@ -614,7 +614,7 @@ Obj *xP;
 bdlmtt::Barrier barrier(DEPTH_LIMIT + 1); // to ensure that all the threads
                                         // have started
 
-bdlmtt::AtomicInt depthCounter;
+bsls::AtomicInt depthCounter;
 
 extern "C" {
 

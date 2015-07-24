@@ -198,7 +198,7 @@ struct LLink {
     // Note that this type is copied from 'bdlma_concurrentpool.h'.
 
     union {
-        bdlmtt::AtomicUtil::Int               d_refCount;
+        bsls::AtomicOperations::AtomicTypes::Int               d_refCount;
         bsls::AlignmentUtil::MaxAlignedType d_dummy;
     };
     LLink *d_next_p;

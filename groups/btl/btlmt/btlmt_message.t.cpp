@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
         bdlmt::ThreadPool pool(defaultAttributes, 1, 2, 100);
         bdlcc::Queue<btlmt::Message> queue;
         pool.start();
-        bsls::AtomicInt count = 0;
+        bsls::AtomicInt count(0);
         bdlf::Function<void (*)()> functor(
                 bdlf::BindUtil::bind(&processMessages, &queue, &count));
         for (int i = 0; i < NUM_MESSAGES; ++i) {
@@ -471,7 +471,7 @@ int main(int argc, char *argv[])
         bdlmt::ThreadPool pool(defaultAttributes, 1, 2, 100);
         bdlcc::Queue<btlmt::Message> queue;
         pool.start();
-        bsls::AtomicInt count = 0;
+        bsls::AtomicInt count(0);
         bdlf::Function<void (*)()>functor(
                 bdlf::BindUtil::bind(&processMessages, &queue, &count));
         for (int i = 0; i < NUM_MESSAGES; ++i) {

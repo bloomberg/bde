@@ -2451,7 +2451,7 @@ bdlmca::BlobBufferFactory *ChannelPool::outboundBlobBufferFactory()
 inline
 int ChannelPool::busyMetrics() const
 {
-    return bsls::AtomicOperations::getInt(d_capacity);
+    return bsls::AtomicOperations::getInt(&d_capacity);
 }
 
 inline

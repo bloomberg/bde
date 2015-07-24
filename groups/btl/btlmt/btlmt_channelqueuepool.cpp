@@ -169,7 +169,7 @@ ChannelQueuePool::ChannelQueuePool(
                                                d_dataCbFunctor,
                                                d_poolCbFunctor,
                                                parameters, basicAllocator);
-    bdlmtt::AtomicUtil::initInt(&d_runningFlag, 0);
+    bsls::AtomicOperations::initInt(&d_runningFlag, 0);
 }
 
 ChannelQueuePool::~ChannelQueuePool() {
@@ -188,19 +188,19 @@ int ChannelQueuePool::start() {
     d_channelPool_p->start();
     bcemt_Attribute attributes;
     attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
-    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 1);
+    bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlmtt::ThreadUtil::create(&d_processorHandle, attributes,
                                     &queueProc, (void*)this);
 }
 
 int ChannelQueuePool::stop() {
     d_channelPool_p->stop();
-    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 0);
+    bsls::AtomicOperations::setInt(&d_runningFlag, 0);
     return bdlmtt::ThreadUtil::join(d_processorHandle);
 }
 
 int ChannelQueuePool::processOutgoingQueue() {
-    while(bdlmtt::AtomicUtil::getInt(d_runningFlag)) {
+    while(bsls::AtomicOperations::getInt(&d_runningFlag)) {
         Message msg(Message::BTEMT_DATA);
         int s = d_outgoingQueue_p->timedPopFront(&msg,
                                       bdlt::CurrentTime::now() + d_workTimeout);

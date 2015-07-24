@@ -123,7 +123,7 @@ BSLS_IDENT("$Id: $")
 // method to store the value of a variable into an array, and set up a
 // scheduler to call that as a recurring event.
 //..
-//   bdlmtt::AtomicInt  g_data;  // Some global data we want to track
+//   bsls::AtomicInt  g_data;  // Some global data we want to track
 //   typedef pair<bdlt::Datetime, int> Value;
 //
 //   void saveData(vector<Value> *array)

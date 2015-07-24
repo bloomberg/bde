@@ -615,7 +615,7 @@ int FixedThreadPool::numActiveThreads() const
 {
     int numStarted = d_threadGroup.numThreads();
     return d_numThreads == numStarted
-         ? numStarted - d_numThreadsWaiting.relaxedLoad()
+         ? numStarted - d_numThreadsWaiting.loadRelaxed()
          : 0;
 }
 

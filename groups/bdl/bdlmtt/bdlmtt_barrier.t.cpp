@@ -568,7 +568,7 @@ public:
 void case7 (bdlmtt::Barrier* barrier,
             bool verbose, int numThreads, int numWaits) {
 
-   bsls::AtomicInt state = 0;
+   bsls::AtomicInt state(0);
    vector<Case7_Waiter > waiters;
    waiters.insert(waiters.end(), numThreads-1,
                   Case7_Waiter(barrier, &state,
@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
         bdlmtt::Barrier normalBarrier(2);
 
         bdlmtt::ThreadAttributes detached;
-        bsls::AtomicInt state = 0;
+        bsls::AtomicInt state(0);
         bdlmtt::ThreadUtil::Handle dummy;
         detached.setDetachedState(
                                 bdlmtt::ThreadAttributes::BCEMT_CREATE_DETACHED);

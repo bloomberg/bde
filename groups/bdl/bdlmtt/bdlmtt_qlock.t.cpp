@@ -48,7 +48,7 @@ using namespace bsl;  // automatically added by script
 //      setFlag and waitOnFlag
 // [ 3] Aggressive contention test: many threads - one bdlmtt::QLock
 // [ 2] USAGE EXAMPLE:  MT-Safe Singleton.
-//      Design is based on combination of bdlmtt::AtomicInt
+//      Design is based on combination of bsls::AtomicInt
 //      and bcemt_QLocks.
 // [ 1] BREATHING TEST
 
@@ -104,16 +104,16 @@ class MyTask {
     bdlmtt::ThreadUtil::Handle  d_handles[MAX_THREADS];
     bdlmtt::Mutex               d_logMutex;
 
-    bdlmtt::AtomicInt            d_numThreadsStarted;
+    bsls::AtomicInt            d_numThreadsStarted;
      // number of threads started since last call start ()
 
-    bdlmtt::AtomicInt            d_numThreadsFinished;
+    bsls::AtomicInt            d_numThreadsFinished;
      // number of threads finished since last call start ()
 
-    bdlmtt::AtomicInt            d_totalThreadsStarted;
+    bsls::AtomicInt            d_totalThreadsStarted;
      // total number of threads started since task creation
 
-    bdlmtt::AtomicInt            d_totalThreadsFinished;
+    bsls::AtomicInt            d_totalThreadsFinished;
      // number of threads finished since task creation
 
     bdlmtt::Barrier            *d_barrier;
@@ -360,7 +360,7 @@ typedef bdlmtt::Semaphore Semaphore;
 
 struct ContextCase7 {
     bdlmtt::QLock     *d_qlock;
-    bdlmtt::AtomicInt   d_owner;
+    bsls::AtomicInt   d_owner;
     bsl::vector<int> d_slots;
 };
 
@@ -601,10 +601,10 @@ static Semaphore *const dummySemaphorePtr =
       reinterpret_cast<Semaphore *const> (-1L);
 
 struct DataCase4 {
-    bdlmtt::AtomicPointer<Semaphore>  d_event1;
-    bdlmtt::AtomicPointer<Semaphore>  d_event2;
-    bdlmtt::AtomicInt                 d_flagStart;
-    bdlmtt::AtomicInt                 d_flagEnd;
+    bsls::AtomicPointer<Semaphore>  d_event1;
+    bsls::AtomicPointer<Semaphore>  d_event2;
+    bsls::AtomicInt                 d_flagStart;
+    bsls::AtomicInt                 d_flagEnd;
 
     void reset ()
     {
@@ -618,7 +618,7 @@ struct DataCase4 {
     }
 };
 
-void setFlag(bdlmtt::AtomicPointer<Semaphore> *flag)
+void setFlag(bsls::AtomicPointer<Semaphore> *flag)
 {
     // set '-1' if it was 0, and get the original value
     Semaphore *event = flag->testAndSwap(0, dummySemaphorePtr);
@@ -633,7 +633,7 @@ void setFlag(bdlmtt::AtomicPointer<Semaphore> *flag)
     }
 }
 
-void waitOnFlag(bdlmtt::AtomicPointer<Semaphore> *flag, int spinCount)
+void waitOnFlag(bsls::AtomicPointer<Semaphore> *flag, int spinCount)
 {
     Semaphore *event = 0;
     int        i     = 0;
@@ -1265,7 +1265,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Set-Wait Flags Test" << endl;
 
-            bdlmtt::AtomicPointer<Semaphore> flag = 0;
+            bsls::AtomicPointer<Semaphore> flag(0);
 
             DataCase4 data;
 

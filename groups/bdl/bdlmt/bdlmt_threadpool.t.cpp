@@ -143,7 +143,7 @@ struct TestJobFunctionArgs {
 struct TestJobFunctionArgs1 {
     bdlmtt::Barrier    *d_startBarrier_p;
     bdlmtt::Barrier    *d_stopBarrier_p;
-    bdlmtt::AtomicInt   d_count;
+    bsls::AtomicInt   d_count;
 };
 
 extern "C" {
@@ -555,7 +555,7 @@ Obj *xP;
 bdlmtt::Barrier barrier(DEPTH_LIMIT + 1); // to ensure that all the threads have
                                         // started
 
-bdlmtt::AtomicInt depthCounter;
+bsls::AtomicInt depthCounter;
 
 extern "C" {
 

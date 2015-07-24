@@ -174,7 +174,7 @@ class TestPublisher : public balm::Publisher {
     // *not* thread-safe.
 
     // DATA
-    bdlmtt::AtomicInt                 d_numInvocations;  // # of invocations
+    bsls::AtomicInt                 d_numInvocations;  // # of invocations
 
     bsl::vector<balm::MetricRecord> d_recordBuffer;    // last samples records
 

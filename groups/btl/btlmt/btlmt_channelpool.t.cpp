@@ -1507,7 +1507,7 @@ void delay(int delay)
 
 // signal allow writer threads to start writing from the same time (to
 // increase concurrency), barrier could be another way but might be too heavy.
-static bdlmtt::AtomicInt sig = 0;
+static bsls::AtomicInt sig(0);
 void signalerThread()
 {
     while(1) {
@@ -3445,8 +3445,8 @@ class TestCase25ConcurrencyTest {
      const int                 d_channelId;
      Socket * const            d_clientSocket_p;
      const int                 d_numThreads;
-     bdlmtt::AtomicInt            d_numBytesWritten;
-     bdlmtt::AtomicInt            d_done;
+     bsls::AtomicInt            d_numBytesWritten;
+     bsls::AtomicInt            d_done;
      bdlmtt::Barrier             d_barrier;
      bdlmt::FixedThreadPool      d_threadPool;
 
@@ -3580,8 +3580,8 @@ void TestCase25ConcurrencyTest::run()
 void testCase25ConcurrencyTest(btlmt::ChannelPool *pool,
                                int                channelId,
                                bdlmtt::Barrier     *barrier,
-                               bdlmtt::AtomicInt    *numWritten,
-                               bdlmtt::AtomicInt    *done)
+                               bsls::AtomicInt    *numWritten,
+                               bsls::AtomicInt    *done)
 {
     enum { HI_WATERMARK = 1024,
            NUM_BYTES    = HI_WATERMARK * 10 };
@@ -3677,9 +3677,9 @@ struct case23CallbackInfo {
     bdlmtt::Barrier     *d_clientServerBarrier_p;
     bdlmtt::Barrier     *d_stateBarrier_p;
     bdlmtt::Barrier     *d_dataBarrier_p;
-    bdlmtt::AtomicInt     d_channelId;
-    bdlmtt::AtomicInt     d_channelDownReadFlag;
-    bdlmtt::AtomicInt     d_channelDownWriteFlag;
+    bsls::AtomicInt     d_channelId;
+    bsls::AtomicInt     d_channelDownReadFlag;
+    bsls::AtomicInt     d_channelDownWriteFlag;
     btlmt::ChannelPool *d_channelPool_p;
     int                d_msgLength;
     bool               d_echoMode; // differentiates server thread
@@ -3865,8 +3865,8 @@ struct case22ThreadInfo {
     btlso::IPv4Address               d_serverAddress;
     bool                            d_isLeaderFlag;
     int                             d_groupId;
-    bdlmtt::AtomicInt                 *d_channelId;
-    bdlmtt::AtomicInt                 *d_oldChannelId;
+    bsls::AtomicInt                 *d_channelId;
+    bsls::AtomicInt                 *d_oldChannelId;
     int                             d_bufferAlloc;
     int                             d_totalAlloc;
     int                             d_numIters;
@@ -4056,10 +4056,10 @@ void case22PoolStateCallback(
 struct case22CallbackInfo {
     Obj               **d_channelPool_p;
     btlso::IPv4Address   d_serverAddress;
-    bdlmtt::AtomicInt     *d_channelId1;
-    bdlmtt::AtomicInt     *d_channelId2;
-    bdlmtt::AtomicInt     *d_oldChannelId1;
-    bdlmtt::AtomicInt     *d_oldChannelId2;
+    bsls::AtomicInt     *d_channelId1;
+    bsls::AtomicInt     *d_channelId2;
+    bsls::AtomicInt     *d_oldChannelId1;
+    bsls::AtomicInt     *d_oldChannelId2;
     char                d_payloadChar1;
     char                d_payloadChar2;
     int                 d_numNeeded;
@@ -4329,10 +4329,10 @@ void runTestCase22(char                                         *progname,
     const btlso::IPv4Address ADDRESS("127.0.0.1", 0);
 
     btlmt::ChannelPool *poolAddr;
-    bdlmtt::AtomicInt channelId1 = 0;
-    bdlmtt::AtomicInt channelId2 = 0;
-    bdlmtt::AtomicInt oldChannelId1 = 0;
-    bdlmtt::AtomicInt oldChannelId2 = 0;
+    bsls::AtomicInt channelId1(0);
+    bsls::AtomicInt channelId2(0);
+    bsls::AtomicInt oldChannelId1(0);
+    bsls::AtomicInt oldChannelId2(0);
 
     case22CallbackInfo info;
     info.d_channelPool_p = &poolAddr;
@@ -5306,7 +5306,7 @@ void case19PoolStateCallback(
     int              state,
     int              serverId,
     int              severity,
-    bdlmtt::AtomicInt64 *acceptErrors)
+    bsls::AtomicInt64 *acceptErrors)
 {
     ASSERT(acceptErrors);
 
@@ -5379,7 +5379,7 @@ void case18PoolStateCallback(
     int              serverId,
     int              severity,
     int            **eventAddr,
-    bdlmtt::AtomicInt  *limitReachedFlag)
+    bsls::AtomicInt  *limitReachedFlag)
 {
     ASSERT(eventAddr && *eventAddr);
     ASSERT(limitReachedFlag);
@@ -5633,7 +5633,7 @@ namespace TEST_CASE_14_NAMESPACE {
 static
 void case14ChannelDataCallback(int *numConsumed, int *numNeeded,
                            btlmt::DataMsg msg, void *context,
-                           Obj **channelPool_p, bdlmtt::AtomicInt *fail)
+                           Obj **channelPool_p, bsls::AtomicInt *fail)
 {
     ASSERT(numConsumed);
     ASSERT(msg.data());
@@ -6130,7 +6130,7 @@ namespace TEST_CASE_9_NAMESPACE {
 
 struct case9ThreadInfo {
     bdlmtt::Barrier    *d_barrier;
-    bdlmtt::AtomicInt   *d_threadCount;
+    bsls::AtomicInt   *d_threadCount;
     Obj              *d_channelPool_p;
     int               d_channelId;
     int               d_write;
@@ -6141,7 +6141,7 @@ struct case9ThreadInfo {
 
 struct case9ThreadInfo2 {
     bdlmtt::Barrier                  *d_barrier;
-    bdlmtt::AtomicInt                 *d_threadCount;
+    bsls::AtomicInt                 *d_threadCount;
     Obj                            *d_channelPool_p;
     int                             d_channelId;
     int                             d_write;
@@ -6387,7 +6387,7 @@ struct case9ReadInfo {
     btlsos::TcpChannel  *d_channel_p;
     int                 d_concurrentReadFlag;
     int                 d_numThreads;
-    bdlmtt::AtomicInt     *d_threadCount;
+    bsls::AtomicInt     *d_threadCount;
     int                 d_bufferAlloc;
     int                 d_totalAlloc;
     bslma::Allocator   *d_allocator_p;
@@ -6740,7 +6740,7 @@ void runTestCase9(char                                         *progname,
             if (veryVerbose)
                 cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
 
-            bdlmtt::AtomicInt count = 0;
+            bsls::AtomicInt count(0);
             bdlmtt::ThreadUtil::Handle threadsHandle[WRITING_THREADS + 1];
             bdlmtt::Barrier            threadBarrier(WRITING_THREADS);
             bcemt_Attribute          attr;
@@ -6836,7 +6836,7 @@ void runTestCase9(char                                         *progname,
             if (veryVerbose)
                 cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
 
-            bdlmtt::AtomicInt count = 0;
+            bsls::AtomicInt count(0);
             bdlmtt::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
             bdlmtt::Barrier            threadBarrier(WRITING_THREADS);
             bcemt_Attribute          attr;
@@ -6932,7 +6932,7 @@ void runTestCase9(char                                         *progname,
             if (veryVerbose)
                 cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
 
-            bdlmtt::AtomicInt count = 0;
+            bsls::AtomicInt count(0);
             bdlmtt::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
             bdlmtt::Barrier            threadBarrier(WRITING_THREADS);
             bcemt_Attribute          attr;
@@ -7026,7 +7026,7 @@ void runTestCase9(char                                         *progname,
                 cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
             }
 
-            bdlmtt::AtomicInt count = 0;
+            bsls::AtomicInt count(0);
             bdlmtt::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
             bdlmtt::Barrier            threadBarrier(WRITING_THREADS);
             bcemt_Attribute          attr;
@@ -7129,9 +7129,9 @@ namespace TEST_CASE_8_NAMESPACE {
 
 struct case8CallbackInfo {
     bdlmtt::Barrier  *d_barrier_p;
-    bdlmtt::AtomicInt  d_channelId;
-    bdlmtt::AtomicInt  d_channelDownReadFlag;
-    bdlmtt::AtomicInt  d_channelDownWriteFlag;
+    bsls::AtomicInt  d_channelId;
+    bsls::AtomicInt  d_channelDownReadFlag;
+    bsls::AtomicInt  d_channelDownWriteFlag;
 };
 
 static
@@ -7255,7 +7255,7 @@ struct case4WorkerInfo {
     int                       d_expNumFailures;
     int                       d_queueSize;
     int                       d_timeOut;
-    bdlmtt::AtomicInt            d_portNumber;
+    bsls::AtomicInt            d_portNumber;
     bdlmtt::ThreadUtil::Handle *d_worker_p;
 };
 
@@ -7317,7 +7317,7 @@ static void case4PoolStateCb(int              poolState,
                              int              sourceId,
                              int              severity,
                              // additional arguments follow
-                             bdlmtt::AtomicInt  *numFailures,
+                             bsls::AtomicInt  *numFailures,
                              case4WorkerInfo *info)
 {
     if (veryVerbose) {
@@ -7364,8 +7364,8 @@ static void case4ChannelCb(int                channelId,
                            void              *context,
                            // additional arguments follow
                            int                *channelIdPtr,
-                           bdlmtt::AtomicInt     *isInvokedFlag,
-                           bdlmtt::AtomicInt     *numFailures,
+                           bsls::AtomicInt     *isInvokedFlag,
+                           bsls::AtomicInt     *numFailures,
                            case4WorkerInfo    *info,
                            btlmt::ChannelPool **pool)
 {
@@ -7425,7 +7425,7 @@ static void case4ErrorPoolStateCb(int             poolState,
                                   int             severity,
                                   int             expectedSourceId,
                                   int             expectedSeverity,
-                                  bdlmtt::AtomicInt *isInvokedFlag)
+                                  bsls::AtomicInt *isInvokedFlag)
 {
     ASSERT(expectedSourceId == sourceId);
     ASSERT(expectedSeverity == severity);
@@ -7771,7 +7771,7 @@ class my_QueueProcessor {
     bdlcc::Queue<btlmt::DataMsg>     *d_incomingQueue_p;
     bdlcc::Queue<btlmt::DataMsg>     *d_outgoingQueue_p;
     bdlmtt::ThreadUtil::Handle       d_processorHandle;
-    bdlmtt::AtomicUtil::Int           d_runningFlag;
+    bsls::AtomicOperations::AtomicTypes::Int           d_runningFlag;
   private:
     // Callback functions:
     void poolCb(int state, int source, int severity);
@@ -7825,7 +7825,7 @@ my_QueueProcessor::my_QueueProcessor(bdlcc::Queue<btlmt::DataMsg> *incomingQueue
 , d_incomingQueue_p(incomingQueue)
 , d_outgoingQueue_p(outgoingQueue)
 {
-    bdlmtt::AtomicUtil::initInt(&d_runningFlag, 0);
+    bsls::AtomicOperations::initInt(&d_runningFlag, 0);
     d_config.setMaxThreads(4);
     d_config.setMaxConnections(numConnections);
     d_config.setReadTimeout(5.0);      // in seconds
@@ -7871,7 +7871,7 @@ my_QueueProcessor::~my_QueueProcessor() {
 }
 
 int my_QueueProcessor::processOutgoingQueue() {
-    while (bdlmtt::AtomicUtil::getInt(d_runningFlag)) {
+    while (bsls::AtomicOperations::getInt(&d_runningFlag)) {
         bsls::TimeInterval TIMEOUT(bdlt::CurrentTime::now());
         TIMEOUT += 5.0; // 5s
         btlmt::DataMsg msg;
@@ -7894,13 +7894,13 @@ int my_QueueProcessor::processOutgoingQueue() {
 int my_QueueProcessor::startProcessor() {
     bcemt_Attribute attributes;
     attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
-    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 1);
+    bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlmtt::ThreadUtil::create(&d_processorHandle, attributes,
                                     &queueProc, (void*)this);
 }
 
 int my_QueueProcessor::stopProcessor() {
-    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 0);
+    bsls::AtomicOperations::setInt(&d_runningFlag, 0);
     return bdlmtt::ThreadUtil::join(d_processorHandle);
 }
 
@@ -8240,7 +8240,7 @@ class my_QueueClient {
     bdlcc::Queue<btlmt::DataMsg>     *d_incomingQueue_p;
     bdlcc::Queue<btlmt::DataMsg>     *d_outgoingQueue_p;
     bdlmtt::ThreadUtil::Handle       d_processorHandle;
-    bdlmtt::AtomicUtil::Int           d_runningFlag;
+    bsls::AtomicOperations::AtomicTypes::Int           d_runningFlag;
     btlmt::DataMsg                  d_initialMessage;
     btlso::IPv4Address              d_peer;
     int                            d_numConnections;
@@ -8306,7 +8306,7 @@ my_QueueClient::my_QueueClient(bdlcc::Queue<btlmt::DataMsg> *incomingQueue,
 , d_peer(hostname, portNumber)
 , d_numConnections(numConnections)
 {
-    bdlmtt::AtomicUtil::initInt(&d_runningFlag, 0);
+    bsls::AtomicOperations::initInt(&d_runningFlag, 0);
     d_config.setMaxThreads(4);
     d_config.setMaxConnections(numConnections);
     d_config.setReadTimeout(5.0);      // in seconds
@@ -8351,7 +8351,7 @@ my_QueueClient::~my_QueueClient() {
 }
 
 int my_QueueClient::processOutgoingQueue() {
-    while (bdlmtt::AtomicUtil::getInt(d_runningFlag)) {
+    while (bsls::AtomicOperations::getInt(&d_runningFlag)) {
         bsls::TimeInterval TIMEOUT(bdlt::CurrentTime::now());
         TIMEOUT += 5.0; // 5s
         btlmt::DataMsg msg;
@@ -8365,13 +8365,13 @@ int my_QueueClient::processOutgoingQueue() {
 int my_QueueClient::startProcessor() {
     bcemt_Attribute attributes;
     attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
-    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 1);
+    bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlmtt::ThreadUtil::create(&d_processorHandle, attributes,
                                     &queueClientProc, (void*)this);
 }
 
 int my_QueueClient::stopProcessor() {
-    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 0);
+    bsls::AtomicOperations::setInt(&d_runningFlag, 0);
     return bdlmtt::ThreadUtil::join(d_processorHandle);
 }
 
@@ -13041,7 +13041,7 @@ void TestDriver::testCase19()
             if (verbose)
                cout << "Configuring channel pool and setting FD limit" << endl;
 
-            bdlmtt::AtomicInt64 acceptErrors = 0;
+            bsls::AtomicInt64 acceptErrors(0);
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             makeNull(&channelCb);
@@ -13234,7 +13234,7 @@ void TestDriver::testCase18()
             };
 
             bdlmtt::Barrier  channelBarrier(2);
-            bdlmtt::AtomicInt limitReachedFlag;
+            bsls::AtomicInt limitReachedFlag;
 
             btlmt::ChannelPool *poolAddr;
             int                poolEvent = -1;
@@ -13969,7 +13969,7 @@ void TestDriver::testCase14()
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
 
             bdlmtt::Barrier channelBarrier(2);
-            bdlmtt::AtomicInt fail = 0;
+            bsls::AtomicInt fail(0);
 
             btlmt::ChannelPool  *poolAddr;
             int                 poolEvent = -1;
@@ -16116,8 +16116,8 @@ void TestDriver::testCase4()
             config.setReadTimeout(600);    // in seconds
 
             int channelId = -1;
-            bdlmtt::AtomicInt numFailures = 0;
-            bdlmtt::AtomicInt isConnected = 0;
+            bsls::AtomicInt numFailures(0);
+            bsls::AtomicInt isConnected(0);
 
             btlmt::ChannelPool *pMX;
 
@@ -16251,8 +16251,8 @@ void TestDriver::testCase4()
             config.setReadTimeout(600);    // in seconds
 
             int channelId = -1;
-            bdlmtt::AtomicInt numFailures = 0;
-            bdlmtt::AtomicInt isConnected = 0;
+            bsls::AtomicInt numFailures(0);
+            bsls::AtomicInt isConnected(0);
 
             btlmt::ChannelPool *pMX;
 
@@ -16391,7 +16391,7 @@ void TestDriver::testCase4()
             {
                 for (int i = 0; i < NUM_DATA; ++i) {
                     for (int j = 0; j < MAX_NUM_ATTEMPTS; ++j) {
-                        bdlmtt::AtomicInt isInvoked = 0;
+                        bsls::AtomicInt isInvoked(0);
 
                         btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                                 bdlf::BindUtil::bindA( &ta
@@ -16485,7 +16485,7 @@ void TestDriver::testCase4()
             if (verbose) cout << "\tWhen channel pool is NOT running.\n";
             for (int i = 0; i < NUM_DATA; ++i) {
                 for (int j = 0; j < MAX_NUM_ATTEMPTS; ++j) {
-                    bdlmtt::AtomicInt isInvoked = 0;
+                    bsls::AtomicInt isInvoked(0);
 
                     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                             bdlf::BindUtil::bindA( &ta

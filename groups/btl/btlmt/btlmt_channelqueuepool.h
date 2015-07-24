@@ -657,7 +657,7 @@ class ChannelQueuePool {
     int                                    d_minIncomingMessageSize;
 
     bdlmtt::ThreadUtil::Handle               d_processorHandle;
-    bdlmtt::AtomicUtil::Int                   d_runningFlag;
+    bsls::AtomicOperations::AtomicTypes::Int                   d_runningFlag;
     bsls::TimeInterval                      d_workTimeout;
     bslma::Allocator                      *d_allocator_p;
 

@@ -401,12 +401,12 @@ class TimerEventScheduler {
                                             // current event callback being
                                             // processed by dispatcher thread
 
-    bdlmtt::AtomicInt    d_numEvents;          // the number of events currently
+    bsls::AtomicInt    d_numEvents;          // the number of events currently
                                             // registered and/or pending
                                             // dispatch (current callback is
                                             // NOT counted)
 
-    bdlmtt::AtomicInt    d_numClocks;          // number of clocks currently
+    bsls::AtomicInt    d_numClocks;          // number of clocks currently
                                             // registered
 
     // NOT IMPLEMENTED

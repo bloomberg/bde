@@ -9,7 +9,7 @@ BSLS_IDENT_RCSID(ball_testobserver_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // STATIC DATA MEMBER INITIALIZATION
-bdlmtt::AtomicInt ball::TestObserver::s_count;
+bsls::AtomicInt ball::TestObserver::s_count;
 
 namespace ball {
 // CREATORS

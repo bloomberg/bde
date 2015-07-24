@@ -1005,8 +1005,8 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
         last->d_inUse.d_next_p = old;
     } while (old != d_freeObjectsList.testAndSwap(old, (ObjectNode *)start));
 
-    d_numObjects.relaxedAdd(numObjects);
-    d_numAvailableObjects.relaxedAdd(numObjects);
+    d_numObjects.addRelaxed(numObjects);
+    d_numAvailableObjects.addRelaxed(numObjects);
 }
 
 // CREATORS
@@ -1136,7 +1136,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 {
     ObjectNode *p;
     do {
-        p = d_freeObjectsList.relaxedLoad();
+        p = d_freeObjectsList.loadRelaxed();
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!p)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
@@ -1168,7 +1168,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         // checked the 'refCount' *before* we incremented it.  Either we can
         // observe the new free list value (== p) and because of the release
         // barrier, we can observe the new 'd_next_p' value (this relies on a
-        // dependent load) or 'relaxedLoad' will the "old" (!= p) and the
+        // dependent load) or 'loadRelaxed' will the "old" (!= p) and the
         // condition will fail.
         // Note that 'h' is made volatile so that the compiler does not replace
         // the 'h->d_inUse' load with 'p->d_inUse' (and thus removing the data
@@ -1176,7 +1176,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         // TBD to be completely thorough 'h->d_inUse.d_next_p' needs a load
         // dependent barrier (no-op on all current architectures though).
 
-        const ObjectNode * volatile h = d_freeObjectsList.relaxedLoad();
+        const ObjectNode * volatile h = d_freeObjectsList.loadRelaxed();
 
         // Split the likely into 2 to workaround gcc 4.2 to gcc 4.4 bugs
         // documented in 'bsls_performancehint'.
@@ -1191,7 +1191,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 
         int refCount;
         for (;;) {
-            refCount = bsls::AtomicOperations::getInt(p->d_inUse.d_refCount);
+            refCount = bsls::AtomicOperations::getInt(&p->d_inUse.d_refCount);
 
             if (refCount & 1) {
                 // The node is now free but not on the free list.
@@ -1203,7 +1203,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
                                                     refCount^1)) {
                     // Taken!
                     p->d_inUse.d_next_p = 0;  // not strictly necessary
-                    d_numAvailableObjects.relaxedAdd(-1);
+                    d_numAvailableObjects.addRelaxed(-1);
                     return (TYPE*)(p + 1);
 
                 }
@@ -1218,7 +1218,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
     } while(1);
 
     p->d_inUse.d_next_p = 0;  // not strictly necessary
-    d_numAvailableObjects.relaxedAdd(-1);
+    d_numAvailableObjects.addRelaxed(-1);
     return (TYPE *)(p+1);
 }
 
@@ -1237,7 +1237,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
     ObjectNode *current = (ObjectNode *)(void *)objPtr - 1;
     d_objectResetter.object()(objPtr);
 
-    int refCount = bsls::AtomicOperations::getIntRelaxed(current->d_inUse.d_refCount);
+    int refCount = bsls::AtomicOperations::getIntRelaxed(&current->d_inUse.d_refCount);
     do {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
             refCount =
@@ -1259,13 +1259,13 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
             // Someone else is still trying to pop this item.  Just let them
             // have it.
 
-            d_numAvailableObjects.relaxedAdd(1);
+            d_numAvailableObjects.addRelaxed(1);
             return;
         }
 
     } while(1);
 
-    ObjectNode *head = d_freeObjectsList.relaxedLoad();
+    ObjectNode *head = d_freeObjectsList.loadRelaxed();
     for (;;) {
         current->d_inUse.d_next_p = head;
         ObjectNode * const oldHead = head;
@@ -1275,7 +1275,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
         }
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     }
-    d_numAvailableObjects.relaxedAdd(1);
+    d_numAvailableObjects.addRelaxed(1);
 }
 
 template <class TYPE, class CREATOR, class RESETTER>

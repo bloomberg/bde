@@ -47,7 +47,7 @@ void ReaderWriterLock::lockRead()
 {
     int wait;
     bsls::Types::Int64 rwcount;
-    bsls::Types::Int64 newrwcount=bsls::AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
 
     do {
         rwcount = newrwcount;
@@ -58,7 +58,7 @@ void ReaderWriterLock::lockRead()
             wait = 1;
             newrwcount += BLOCKED_READER_INC;
         }
-        newrwcount = bsls::AtomicUtil::testAndSwapInt64(&d_rwCount,
+        newrwcount = bsls::AtomicOperations::testAndSwapInt64(&d_rwCount,
                                                        rwcount,
                                                        newrwcount);
     } while (newrwcount != rwcount);
@@ -66,7 +66,7 @@ void ReaderWriterLock::lockRead()
     if (wait) {
         d_mutex.lock();
         do {
-            rwcount = bsls::AtomicUtil::getInt64(d_rwCount);
+            rwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
             if ((rwcount & READ_BCAST_MASK) != (newrwcount & READ_BCAST_MASK))
                 break;
             d_readCond.wait(&d_mutex);
@@ -79,7 +79,7 @@ void ReaderWriterLock::lockReadReserveWrite()
 {
     int wait;
     bsls::Types::Int64 rwcount;
-    bsls::Types::Int64 newrwcount=bsls::AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
 
     do {
         rwcount = newrwcount;
@@ -95,7 +95,7 @@ void ReaderWriterLock::lockReadReserveWrite()
         if ((newrwcount & WRITER_MASK) > 16) {
             wait = 1;
         }
-        newrwcount = bsls::AtomicUtil::testAndSwapInt64( &d_rwCount,
+        newrwcount = bsls::AtomicOperations::testAndSwapInt64( &d_rwCount,
                                                         rwcount,
                                                         newrwcount);
     } while(newrwcount != rwcount);
@@ -107,14 +107,14 @@ void ReaderWriterLock::lockReadReserveWrite()
         }
         d_signalState = BCEMT_NOT_SIGNALED;
 
-        newrwcount = bsls::AtomicUtil::getInt64(d_rwCount);
+        newrwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
         do {
             rwcount = newrwcount;
             newrwcount = ((rwcount >> 16 ) & READER_MASK)
                              + ((rwcount | READ_OK | RESERVATION_PENDING)
                              & ~BLOCKED_READER_MASK) + READER_INC;
             if (newrwcount & READER_MASK) newrwcount += READ_BCAST_INC;
-        } while ((newrwcount = bsls::AtomicUtil::testAndSwapInt64(
+        } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(
                                                      &d_rwCount,
                                                      rwcount,
                                                      newrwcount)) != rwcount );
@@ -133,7 +133,7 @@ void ReaderWriterLock::lockReadReserveWrite()
 void ReaderWriterLock::lockWrite()
 {
     bsls::Types::Int64 rwcount;
-    bsls::Types::Int64 newrwcount=bsls::AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
     int wait;
 
     do {
@@ -143,7 +143,7 @@ void ReaderWriterLock::lockWrite()
         else wait = 1;
         newrwcount &= ~READ_OK;
         newrwcount++;
-    } while ((newrwcount = bsls::AtomicUtil::testAndSwapInt64(
+    } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(
                                                      &d_rwCount,
                                                      rwcount,
                                                      newrwcount)) != rwcount );
@@ -163,7 +163,7 @@ void ReaderWriterLock::lockWrite()
 int ReaderWriterLock::tryLockRead()
 {
     bsls::Types::Int64 rwcount;
-    bsls::Types::Int64 newrwcount=bsls::AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
     do {
         rwcount = newrwcount;
 
@@ -171,7 +171,7 @@ int ReaderWriterLock::tryLockRead()
             return 1;
         }
         newrwcount += READER_INC;
-        newrwcount = bsls::AtomicUtil::testAndSwapInt64(&d_rwCount,
+        newrwcount = bsls::AtomicOperations::testAndSwapInt64(&d_rwCount,
                                                        rwcount,
                                                        newrwcount);
     } while(rwcount != newrwcount);
@@ -182,14 +182,14 @@ int ReaderWriterLock::tryLockWrite()
 {
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount;
-    newrwcount = bsls::AtomicUtil::getInt64(d_rwCount);
+    newrwcount = bsls::AtomicOperations::getInt64(&d_rwCount);
     do {
         rwcount = newrwcount;
         if (rwcount & (READER_MASK|WRITER_MASK)) {
             return 1;
         }
         newrwcount = 1;
-    } while ((newrwcount = bsls::AtomicUtil::testAndSwapInt64(&d_rwCount,
+    } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(&d_rwCount,
                                                                 rwcount,
                                                              newrwcount))
              != rwcount );
@@ -204,7 +204,7 @@ int ReaderWriterLock::upgradeToWriteLock()
     int atomic;
     int wait;
     bsls::Types::Int64 rwcount;
-    bsls::Types::Int64 newrwcount=bsls::AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
     ThreadUtil::Id me = ThreadUtil::selfId();
     bool mine = d_owned && ThreadUtil::isEqualId(d_owner, me);
 
@@ -253,7 +253,7 @@ int ReaderWriterLock::upgradeToWriteLock()
                 }
             }
         }
-    } while ((newrwcount = bsls::AtomicUtil::testAndSwapInt64(
+    } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(
                                                      &d_rwCount,
                                                      rwcount,
                                                      newrwcount)) != rwcount );
@@ -294,7 +294,7 @@ int ReaderWriterLock::tryUpgradeToWriteLock()
 {
     int wait;
     bsls::Types::Int64 rwcount;
-    bsls::Types::Int64 newrwcount=bsls::AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
     ThreadUtil::Id me = ThreadUtil::selfId();
     bool mine = d_owned && ThreadUtil::isEqualId(d_owner, me);
 
@@ -331,7 +331,7 @@ int ReaderWriterLock::tryUpgradeToWriteLock()
                 else wait = 0;
             }
         }
-    } while ((newrwcount = bsls::AtomicUtil::testAndSwapInt64(
+    } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(
                                                       &d_rwCount,
                                                       rwcount,
                                                       newrwcount)) != rwcount);
@@ -357,7 +357,7 @@ void ReaderWriterLock::unlock()
     enum {SIG_NONE = 0, SIG_READ = 1, SIG_WRITE=2, SIG_UPGRADE=3 };
 
     bsls::Types::Int64 rwcount;
-    bsls::Types::Int64 newrwcount=bsls::AtomicUtil::getInt64(d_rwCount);
+    bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
     bool mine = d_owned && ThreadUtil::isEqualId(d_owner,
                                                    ThreadUtil::selfId());
     int sigType;
@@ -395,7 +395,7 @@ void ReaderWriterLock::unlock()
             else sigType = SIG_WRITE;
         }
         else break;
-    } while ((newrwcount = bsls::AtomicUtil::testAndSwapInt64(
+    } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(
                                                       &d_rwCount,
                                                       rwcount,
                                                       newrwcount)) != rwcount);

@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
         Obj mX(&ta);
         int done = 0;
         bdlmtt::Mutex lock;
-        bsls::AtomicInt iterations = 0;
+        bsls::AtomicInt iterations(0);
 
         bdlmtt::ThreadGroup tg;
 

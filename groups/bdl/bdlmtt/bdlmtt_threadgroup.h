@@ -213,7 +213,7 @@ int ThreadGroup::addThreads(const bdlf::Function<void(*)()>& functor,
 inline
 int ThreadGroup::numThreads() const
 {
-   return d_numThreads.relaxedLoad();
+   return d_numThreads.loadRelaxed();
 }
 }  // close package namespace
 

@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //      // using a 'balm::MetricsManager::RecordsCollectionCallback'.
 //
 //      // PRIVATE DATA
-//      bdlmtt::AtomicInt       d_numEvents;         // number of events
+//      bsls::AtomicInt       d_numEvents;         // number of events
 //
 //      bsls::TimeInterval    d_periodStart;       // start of the current
 //                                                // period

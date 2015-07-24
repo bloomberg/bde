@@ -86,7 +86,7 @@ using namespace std;
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static bsls::AtomicInt testStatus = 0;
+static bsls::AtomicInt testStatus(0);
 static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
@@ -414,20 +414,20 @@ struct TimeZoneData {
                     d_expectedAddress_p;
                                   // expected cache address of this id
 } VALUES[] = {
-    { L_,  "ID_A",  1, true,  "A" , 0 },
-    { L_,  "ID_B",  2, false, "B" , 0 },
-    { L_,  "ID_C",  3, true,  0   , 0 },
-    { L_,  "ID_D",  4, false, "A" , 0 },
-    { L_,  "ID_E",  5, true,  "B" , 0 },
-    { L_,  "ID_F",  6, false, 0   , 0 },
-    { L_,  "ID_G",  7, true,  "A" , 0 },
-    { L_,  "ID_H",  8, true,  "A" , 0 },
-    { L_,  "ID_I",  9, false, "B" , 0 },
-    { L_,  "ID_J", 10, true,  0   , 0 },
-    { L_,  "ID_K", 11, false, "A" , 0 },
-    { L_,  "ID_L", 12, true,  "B" , 0 },
-    { L_,  "ID_M", 13, false, 0   , 0 },
-    { L_,  "ID_N", 14, true,  "A" , 0 }
+    { L_,  "ID_A",  1, true,  "A" },
+    { L_,  "ID_B",  2, false, "B" },
+    { L_,  "ID_C",  3, true,  0   },
+    { L_,  "ID_D",  4, false, "A" },
+    { L_,  "ID_E",  5, true,  "B" },
+    { L_,  "ID_F",  6, false, 0   },
+    { L_,  "ID_G",  7, true,  "A" },
+    { L_,  "ID_H",  8, true,  "A" },
+    { L_,  "ID_I",  9, false, "B" },
+    { L_,  "ID_J", 10, true,  0   },
+    { L_,  "ID_K", 11, false, "A" },
+    { L_,  "ID_L", 12, true,  "B" },
+    { L_,  "ID_M", 13, false, 0   },
+    { L_,  "ID_N", 14, true,  "A" }
 };
 const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
@@ -450,13 +450,13 @@ extern "C" void *workerThread(void *arg)
         // Add all the test values to the cache.
 
         const char *ID = VALUES[i].d_id;
-        bsls::AtomicPointer<const Zone>& addr = VALUES[i].d_expectedAddress_p;
+        bsls::AtomicPointer<const Zone>& addr(VALUES[i].d_expectedAddress_p);
 
         // 'result' should either be 0, or the previously returned value (*IF*
         // the previously returned value has been set).
 
         const Zone *result   = X.lookupZoneinfo(ID);
-        const Zone *EXPECTED = addr.relaxedLoad();
+        const Zone *EXPECTED = addr.loadRelaxed();
         ASSERT(0 == result || EXPECTED == 0 || EXPECTED == result);
 
         result = mX.getZoneinfo(ID);
@@ -473,7 +473,7 @@ extern "C" void *workerThread(void *arg)
     for (int testRun = 0; testRun < 5; ++testRun) {
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *ID       = VALUES[i].d_id;
-            const Zone *EXPECTED = VALUES[i].d_expectedAddress_p.relaxedLoad();
+            const Zone *EXPECTED = VALUES[i].d_expectedAddress_p.loadRelaxed();
             ASSERT(EXPECTED == X.lookupZoneinfo(ID));
             ASSERT(EXPECTED == mX.getZoneinfo(ID));
             ASSERT(EXPECTED == X.lookupZoneinfo(ID));

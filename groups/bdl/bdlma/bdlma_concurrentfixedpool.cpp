@@ -117,7 +117,7 @@ void *ConcurrentFixedPool::allocate()
     Node *node;
 
     while (1) {
-        head = d_freeList.relaxedLoad();
+        head = d_freeList.loadRelaxed();
         if (!head) {
             return allocateNew();
         }
@@ -144,7 +144,7 @@ void ConcurrentFixedPool::deallocate(void *address)
     int index = node->d_next;  // 'd_next' contains the link index of this
                                // link node advanced by one generation.
     while (1) {
-        int old = d_freeList.relaxedLoad();
+        int old = d_freeList.loadRelaxed();
         node->d_next = old;
         if (old == d_freeList.testAndSwap(old, index)) {
             break;
@@ -178,7 +178,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
 
     // Reserve nodes using the free list.
     while (numObjects) {
-        int head = d_freeList.relaxedLoad();
+        int head = d_freeList.loadRelaxed();
         if (!head) {
             break;
         }
@@ -224,7 +224,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
     if (lastNode != &reserved) {
         int head = reserved.d_next;
         while (1) {
-            int old = d_freeList.relaxedLoad();
+            int old = d_freeList.loadRelaxed();
             lastNode->d_next = old;
             if (old == d_freeList.testAndSwap(old, head)) {
                 break;

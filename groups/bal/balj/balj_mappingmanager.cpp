@@ -26,7 +26,7 @@ struct MappingManager_Page {
     void*                           d_address;
     bdlsu::FilesystemUtil::Offset          d_offset;
     int                             d_size;
-    bdlmtt::AtomicInt                  d_useCount;
+    bsls::AtomicInt                  d_useCount;
     bool                            d_isReadWrite;
     int                             d_priority;
     MappingManager_PageList  *d_dirtyList;

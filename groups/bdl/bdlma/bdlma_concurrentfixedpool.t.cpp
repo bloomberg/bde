@@ -371,7 +371,7 @@ struct Control {
     bdlmtt::Barrier         *d_barrier;
     bdlma::ConcurrentFixedPool       *d_fixedpool;
     int                    d_iterations;
-    bdlmtt::AtomicInt         d_allocationCount;
+    bsls::AtomicInt         d_allocationCount;
 };
 
 void bench(Control *control)
@@ -379,7 +379,7 @@ void bench(Control *control)
     bdlma::ConcurrentFixedPool *pool = control->d_fixedpool;
     const int poolSize = pool->poolSize();
     const int iterations = control->d_iterations;
-    bdlmtt::AtomicInt& allocationCount = control->d_allocationCount;
+    bsls::AtomicInt& allocationCount(control->d_allocationCount);
 
 
     for (int i = 0; i<iterations; i++) {

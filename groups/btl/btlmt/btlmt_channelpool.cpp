@@ -730,7 +730,7 @@ TcpTimerEventManager *Channel::eventManager() const
 inline
 bool Channel::isChannelDown(ChannelDownMask mask) const
 {
-    return mask == (d_channelDownFlag.relaxedLoad() & mask);
+    return mask == (d_channelDownFlag.loadRelaxed() & mask);
 }
 
 inline
@@ -760,13 +760,13 @@ bsls::Types::Int64 Channel::numBytesRequestedToBeWritten() const
 inline
 int Channel::currentWriteCacheSize() const
 {
-    return d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    return d_writeEnqueuedCacheSize + d_writeActiveCacheSize.loadRelaxed();
 }
 
 inline
 int Channel::recordedMaxWriteCacheSize() const
 {
-    return d_recordedMaxWriteCacheSize.relaxedLoad();
+    return d_recordedMaxWriteCacheSize.loadRelaxed();
 }
 
 inline
@@ -1702,7 +1702,7 @@ int Channel::refillOutgoingMsg()
 #else
     d_writeEnqueuedData.swap(d_writeActiveData.sharedData());
     d_writeEnqueuedCacheSize = 0;
-    d_writeActiveCacheSize.relaxedAdd(
+    d_writeActiveCacheSize.addRelaxed(
                                      d_writeActiveData.sharedData()->length());
 #endif
 
@@ -1855,7 +1855,7 @@ void Channel::writeCb(ChannelHandle self)
             bdlmtt::LockGuard<bdlmtt::Mutex> oGuard(&d_writeMutex);
 
             d_numBytesWritten += writeRet;
-            d_writeActiveCacheSize.relaxedAdd(-writeRet);
+            d_writeActiveCacheSize.addRelaxed(-writeRet);
 
             if (d_hiWatermarkHitFlag
              && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
@@ -2229,8 +2229,8 @@ int Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    if (d_recordedMaxWriteCacheSize.relaxedLoad() < writeCacheSize) {
-        d_recordedMaxWriteCacheSize.relaxedStore(writeCacheSize);
+    if (d_recordedMaxWriteCacheSize.loadRelaxed() < writeCacheSize) {
+        d_recordedMaxWriteCacheSize.storeRelaxed(writeCacheSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2256,7 +2256,7 @@ int Channel::writeMessage(const MessageType&   msg,
         BSLS_ASSERT(0 == d_writeActiveData.userDataField1());
         BSLS_ASSERT(0 == d_writeActiveData.userDataField2());
 
-        d_writeActiveCacheSize.relaxedAdd(static_cast<int>(dataLength));
+        d_writeActiveCacheSize.addRelaxed(static_cast<int>(dataLength));
 
         oGuard.release()->unlock();
 
@@ -2289,7 +2289,7 @@ int Channel::writeMessage(const MessageType&   msg,
             return CHANNEL_DOWN;
         }
 
-        d_writeActiveCacheSize.relaxedAdd(-writeRet);
+        d_writeActiveCacheSize.addRelaxed(-writeRet);
 
         if (dataLength == writeRet) {
             // We succeeded in writing the whole message.  We did release the
@@ -2448,7 +2448,7 @@ void Channel::setWriteCacheWatermarks(int lowWatermark, int hiWatermark)
 
 void Channel::resetRecordedMaxWriteCacheSize()
 {
-    d_recordedMaxWriteCacheSize.relaxedStore(currentWriteCacheSize());
+    d_recordedMaxWriteCacheSize.storeRelaxed(currentWriteCacheSize());
 }
 
 // ============================================================================
@@ -2516,7 +2516,7 @@ void ChannelPool::init()
     // the client has explicitly requested those metrics
     // (i.e. 'd_config.requireTimeMetrics() == false').  DRQS 16796407.
 
-    bsls::AtomicUtil::initInt(&d_capacity, 0);
+    bsls::AtomicOperations::initInt(&d_capacity, 0);
     d_metricsFunctor = bdlf::BindUtil::bindA( d_allocator_p
                                            , &ChannelPool::metricsCb
                                            , this);
@@ -3455,7 +3455,7 @@ void ChannelPool::metricsCb()
     double d = double(s) / d_config.maxThreads();
     BSLS_ASSERT(0 <= d);
     BSLS_ASSERT(100 >= d);
-    bsls::AtomicUtil::setInt(&d_capacity, (int)d);
+    bsls::AtomicOperations::setInt(&d_capacity, (int)d);
 
     d_metricsTimerId.makeValue(d_managers[0]->registerTimer(
                           bdlt::CurrentTime::now() + d_config.metricsInterval(),

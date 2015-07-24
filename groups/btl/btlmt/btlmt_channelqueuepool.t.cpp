@@ -105,7 +105,7 @@ static int veryVeryVerbose;
 //-----------------------------------------------------------------------------
 
 btlso::IPv4Address serverAddress("127.0.0.1", 0);
-bsls::AtomicInt    portNumber = 0;
+bsls::AtomicInt    portNumber(0);
 
 ///Usage
 ///-----

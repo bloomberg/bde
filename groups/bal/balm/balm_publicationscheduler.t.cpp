@@ -395,7 +395,7 @@ class TestPublisher : public balm::Publisher {
         // information for that identifying set of categories.
 
     // DATA
-    bdlmtt::AtomicInt              d_numInvocations; // # of invocations
+    bsls::AtomicInt              d_numInvocations; // # of invocations
 
     InvocationMap               d_invocations;    // map of invocation
                                                   // information

@@ -1010,7 +1010,7 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
         // This guarantees that memory associated with open channels
         // is deallocated.
         {
-            if (d_terminateThread.relaxedLoad()) {  // it is volatile
+            if (d_terminateThread.loadRelaxed()) {  // it is volatile
                 if (d_collectMetrics) {
                     d_metrics.switchTo(btlso::TimeMetrics::BTESO_IO_BOUND);
                 }

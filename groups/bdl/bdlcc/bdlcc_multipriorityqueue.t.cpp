@@ -181,7 +181,7 @@ struct Element {
         return d_data;
     }
 };
-bsls::AtomicInt Element::s_allocCount = 0;
+bsls::AtomicInt Element::s_allocCount(0);
 
 typedef bdlcc::MultipriorityQueue<Element>      Obj;
 typedef bdlcc::MultipriorityQueue<double>       Dobj;
@@ -423,7 +423,7 @@ struct ProducerThread {
 };
 int             ProducerThread::s_numPriorities;
 int             ProducerThread::s_numItemsPerProducer;
-bsls::AtomicInt  ProducerThread::s_pushVal = 0;
+bsls::AtomicInt  ProducerThread::s_pushVal(0);
 bdlmtt::Barrier  *ProducerThread::s_barrier;
 Obj            *ProducerThread::s_queue_p;
 int             ProducerThread::s_removeMask;
@@ -532,7 +532,7 @@ struct ProducerThread {
 };
 int             ProducerThread::s_numPriorities;
 int             ProducerThread::s_numItemsPerProducer;
-bsls::AtomicInt  ProducerThread::s_pushVal = 0;
+bsls::AtomicInt  ProducerThread::s_pushVal(0);
 bdlmtt::Barrier  *ProducerThread::s_barrier;
 Iobj           *ProducerThread::s_queue_p;
 
@@ -1315,7 +1315,7 @@ int main(int argc, char *argv[])
 
         bdlmtt::Barrier  consumerBarrier(NUM_CONSUMERS + 1);
         OutPair        outPairVec[NUM_PRODUCERS * NUM_ITEMS_PER_PRODUCER];
-        bsls::AtomicInt outPairVecIdx = 0;
+        bsls::AtomicInt outPairVecIdx(0);
 
         bsl::memset(outPairVec, GARBAGE_CHAR, sizeof(outPairVec));
 
@@ -1495,7 +1495,7 @@ int main(int argc, char *argv[])
                                                          * numItemsPerProducer;
         OutPair        *outPairVec = (OutPair *)
                                                ta.allocate(outPairVecNumBytes);
-        bsls::AtomicInt  outPairVecIdx = 0;
+        bsls::AtomicInt  outPairVecIdx(0);
 
         bsl::memset(outPairVec, GARBAGE_CHAR, outPairVecNumBytes);
 

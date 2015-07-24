@@ -757,7 +757,7 @@ void *listenFunction(void *args)
     ListenData       data             = *(const ListenData *) args;
     const int        INDEX            = data.d_index;
     const int        NUM_BYTES        = data.d_numBytes;
-    bsls::AtomicInt *numUpConnections = data.d_numUpConnections_p;
+    bsls::AtomicInt *numUpConnections(data.d_numUpConnections_p);
 
     btlso::StreamSocket<btlso::IPv4Address> *serverSocket = factory.allocate();
     serverSockets[INDEX] = serverSocket;

@@ -262,7 +262,7 @@ void noop() {
 }
 
 static
-void incrementCounter(bdlmtt::AtomicInt *counter)
+void incrementCounter(bsls::AtomicInt *counter)
 {
     // Increment the value at the address specified by 'counter'.
 
@@ -284,7 +284,7 @@ void waitOnBarrier(bdlmtt::Barrier *barrier, int numIterations)
 
 struct Sleeper {
     int                   d_sleepMicroSeconds;
-    static bdlmtt::AtomicInt s_finished;
+    static bsls::AtomicInt s_finished;
 
     Sleeper(double sleepSeconds)
     {
@@ -296,14 +296,14 @@ struct Sleeper {
         ++s_finished;
     }
 };
-bdlmtt::AtomicInt Sleeper::s_finished;
+bsls::AtomicInt Sleeper::s_finished;
 
 struct Reproducer {
     Obj                    *d_threadPool;
     const bsl::vector<int> *d_handles;
     int                     d_handleIdx;
     int                     d_handleIdxIncrement;
-    static bdlmtt::AtomicInt   s_counter;        // submit until counter == 0
+    static bsls::AtomicInt   s_counter;        // submit until counter == 0
 
     Reproducer(Obj                    *threadPool,
                const bsl::vector<int> *handles,
@@ -327,7 +327,7 @@ struct Reproducer {
         }
     }
 };
-bdlmtt::AtomicInt Reproducer::s_counter;
+bsls::AtomicInt Reproducer::s_counter;
 
 double now() {
     return bdlt::CurrentTime::now().totalSecondsAsDouble();
@@ -337,7 +337,7 @@ double now() {
 //       CASE-SPECIFIC TYPES, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 static
-void case9Callback(bdlmtt::AtomicInt *counter, bsl::vector<int> *results)
+void case9Callback(bsls::AtomicInt *counter, bsl::vector<int> *results)
 {
     ASSERT(counter);
     ASSERT(results);
@@ -346,7 +346,7 @@ void case9Callback(bdlmtt::AtomicInt *counter, bsl::vector<int> *results)
 }
 
 static
-void case11CleanUp(bdlmtt::AtomicInt *counter, bdlmtt::Barrier *barrier) {
+void case11CleanUp(bsls::AtomicInt *counter, bdlmtt::Barrier *barrier) {
     BSLS_ASSERT(barrier);
     BSLS_ASSERT(counter);
     barrier->wait();
@@ -1299,7 +1299,7 @@ int main(int argc, char *argv[]) {
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
 
-            bdlmtt::AtomicInt counter = 0;
+            bsls::AtomicInt counter(0);
             Func count;        // increment 'counter'
             makeFunc(&ta, &count, incrementCounter, &counter);
 
@@ -1402,7 +1402,7 @@ int main(int argc, char *argv[]) {
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
 
             int id = 0;
-            bdlmtt::AtomicInt counter = 0;
+            bsls::AtomicInt counter(0);
             Func cleanupCb;
             bdlmtt::Barrier barrier(2);
             makeFunc(&ta, &cleanupCb, case11CleanUp, &counter, &barrier);
@@ -1663,7 +1663,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 bsl::vector<bsl::vector<int> > results(NUM_QUEUES);
-                bsl::vector<bdlmtt::AtomicInt>    counters(NUM_QUEUES);
+                bsl::vector<bsls::AtomicInt>    counters(NUM_QUEUES);
 
                 // Create queues and enqueue jobs.
                 for (int j = 0; j < NUM_QUEUES; ++j) {
@@ -1747,7 +1747,7 @@ int main(int argc, char *argv[]) {
             };
             bcemt_Attribute defaultAttrs;
             bdlmtt::Barrier   barrier(2);
-            bdlmtt::AtomicInt  counter = 0;
+            bsls::AtomicInt  counter(0);
             Func     cleanupCb;  // empty callback
             Func     block;      // blocks on 'barrier'
             Func     count;      // increments 'counter'
@@ -1877,7 +1877,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(MIN_THREADS == pool.numWaitingThreads());
 
                 bdlmtt::Barrier  barrier(2);
-                bdlmtt::AtomicInt counter = 0;
+                bsls::AtomicInt counter(0);
                 Func    block;      // blocks on 'barrier'
                 Func    count;      // increments 'counter'
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
@@ -2004,7 +2004,7 @@ int main(int argc, char *argv[]) {
             bcemt_Attribute defaultAttrs;
 
             bdlmtt::Barrier   barrier(2);
-            bdlmtt::AtomicInt  counter = 0;
+            bsls::AtomicInt  counter(0);
             Func     block;      // blocks on 'barrier'
             Func     count;      // increments 'counter'
             makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
@@ -2146,7 +2146,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.start());
             ASSERT(0 == X.numQueues());
 
-            bdlmtt::AtomicInt counters[MAX_QUEUES] = {0};
+            bsls::AtomicInt counters[MAX_QUEUES];
             for (int i = 0; i < MAX_QUEUES; ++i) {
                 int NUM_QUEUES = i + 1;
                 int id = mX.createQueue();
@@ -2302,7 +2302,7 @@ int main(int argc, char *argv[]) {
 
         enum { NUM_JOBS = 1000 };  // for testing 'stop' and 'shutdown'
 
-        bdlmtt::AtomicInt counter;
+        bsls::AtomicInt counter;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
@@ -2631,7 +2631,7 @@ int main(int argc, char *argv[]) {
             ASSERT(MIN_THREADS == tp.numWaitingThreads());
 
             bdlmtt::Barrier  barrier(2);
-            bdlmtt::AtomicInt counter(0);
+            bsls::AtomicInt counter(0);
             Func    block;      // blocks on 'barrier'
             Func    count;      // increments 'counter'
             makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);

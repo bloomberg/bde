@@ -784,8 +784,8 @@ int main(int argc, char *argv[])
 
             bdlmtt::ThreadUtil::Handle threads[NUM_POSTERS + NUM_WAITERS];
             MyBarrier barrier(NUM_POSTERS+ 1);
-            bsls::AtomicInt posts = n;
-            bsls::AtomicInt past  = 0;
+            bsls::AtomicInt posts(n);
+            bsls::AtomicInt past(0);
             Obj sem(0);
 
             struct ThreadInfo2 info;

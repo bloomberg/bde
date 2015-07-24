@@ -168,7 +168,7 @@ void case18(bdlcc::SkipList<int, int>* list, int numIterations, int level,
 
 class CountedDelete
 {
-    static bdlmtt::AtomicInt deleteCount;
+    static bsls::AtomicInt deleteCount;
     bool isTemp;
 
 public:
@@ -191,7 +191,7 @@ public:
     }
 };
 
-bdlmtt::AtomicInt CountedDelete::deleteCount = 0;
+bsls::AtomicInt CountedDelete::deleteCount(0);
 
 void case20(bdlcc::SkipList<int, CountedDelete>* list, int maxRefCount)
 {
@@ -420,7 +420,7 @@ struct IDATA {
 };
 
 void case16Produce (bdlcc::SkipList<int, int> *list,
-                    bdlmtt::AtomicInt          *done)
+                    bsls::AtomicInt          *done)
 {
     int count = 0;
     while (!(*done)) {
@@ -435,7 +435,7 @@ void case16Produce (bdlcc::SkipList<int, int> *list,
 }
 
 void case16Consume(bdlcc::SkipList<int, int> *list,
-                   bdlmtt::AtomicInt          *done)
+                   bsls::AtomicInt          *done)
 {
     while (!(*done)) {
         bdlcc::SkipList<int, int>::Pair *h1;
@@ -654,7 +654,7 @@ void run()
 
 namespace BCEC_SKIPLIST_TEST_CASE_MINUS_100 {
 
-static bdlmtt::AtomicInt currentTime = 0;
+static bsls::AtomicInt currentTime(0);
 typedef bdlcc::SkipList<bsls::TimeInterval,int> TimeQ;
 
 enum {
@@ -1319,7 +1319,7 @@ int main(int argc, char *argv[])
             typedef bdlcc::SkipList<int, int> SkipList;
             SkipList list(&ta);
 
-            bdlmtt::AtomicInt done = 0;
+            bsls::AtomicInt done(0);
 
             // TBD
         }

@@ -279,7 +279,7 @@ class TestCallback {
     // invocation, calls 'recordMetrics' on the object.
 
     // DATA
-    bdlmtt::AtomicInt     d_numInvocations; // number of invocations
+    bsls::AtomicInt     d_numInvocations; // number of invocations
     balm::MetricRecord  d_record;         // record to append on 'recordMetrics'
     bool               d_reset;          // last invocation's resetFlag
     bslma::Allocator  *d_allocator_p;    // allocator (held, not owned)
@@ -432,7 +432,7 @@ class LockAndModifyWorker {
     bdlmtt::Mutex                *d_mutex_p;
     balm::MetricsManager        *d_obj_p;
     bdlmtt::ThreadUtil::Handle    d_thread;
-    bdlmtt::AtomicInt              d_done;
+    bsls::AtomicInt              d_done;
     const balm::Category        *d_myCategory_p;
 
     void worker();
@@ -524,7 +524,7 @@ class TestPublisher : public balm::Publisher {
     // information.  Note that the 'publish' method is *not* thread-safe.
 
     // DATA
-    bdlmtt::AtomicInt                 d_numInvocations;  // # of invocations
+    bsls::AtomicInt                 d_numInvocations;  // # of invocations
 
     bsl::vector<balm::MetricRecord> d_recordBuffer;    // last samples records
 
@@ -1300,7 +1300,7 @@ void ConcurrencyTest::runTest()
         // using a 'balm::MetricsManager::RecordsCollectionCallback'.
 
         // PRIVATE DATA
-        bdlmtt::AtomicInt       d_numEvents;         // number of requests
+        bsls::AtomicInt       d_numEvents;         // number of requests
 
         bsls::TimeInterval    d_periodStart;       // start of the current
                                                   // period

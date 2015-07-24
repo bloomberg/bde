@@ -463,7 +463,7 @@ void TestLockObject::reset()
 
 namespace BCEC_TIMEQUEUE_TEST_CASE_MINUS_100 {
 
-static bdlmtt::AtomicInt currentTime = 0;
+static bsls::AtomicInt currentTime(0);
 
 enum {
     NUM_THREADS    = 4,
@@ -1058,7 +1058,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
 bsls::TimeInterval makeTimeInterval()
 {
-    static bdlmtt::AtomicInt counter(0);
+    static bsls::AtomicInt counter(0);
     return bsls::TimeInterval((double)counter++);
 }
 

@@ -108,7 +108,7 @@ int SkipList_RandomLevelGenerator::randomLevel()
 {
     // This routine is "thread-safe enough".
 
-    int randomBits = d_randomBits.relaxedLoad();
+    int randomBits = d_randomBits.loadRelaxed();
 
     int level = 0;
     int b;
@@ -117,9 +117,9 @@ int SkipList_RandomLevelGenerator::randomLevel()
         if (1 == randomBits) {
             // Only the sentinel bit left.  Regenerate.
 
-            int seed = d_seed.relaxedLoad();
+            int seed = d_seed.loadRelaxed();
             randomBits = bdlb::Random::generate15(&seed);
-            d_seed.relaxedStore(seed);
+            d_seed.storeRelaxed(seed);
             BSLS_ASSERT((randomBits >> 15) == 0);
 
             randomBits |= (1 << 14); // Set the sentinel bit.
@@ -131,7 +131,7 @@ int SkipList_RandomLevelGenerator::randomLevel()
 
     } while (!b);
 
-    d_randomBits.relaxedStore(randomBits);
+    d_randomBits.storeRelaxed(randomBits);
 
     return level > BCEC_MAX_LEVEL ? BCEC_MAX_LEVEL : level;
 }
@@ -156,7 +156,7 @@ struct bcec_SkipList_PoolNode {
 struct bcec_SkipList_Pool {
     typedef bcec_SkipList_PoolNode Node;
 
-    bdlmtt::AtomicPointer<Node> d_freeList;
+    bsls::AtomicPointer<Node> d_freeList;
     int                      d_objectSize;
     int                      d_numObjects;
     int                      d_level;

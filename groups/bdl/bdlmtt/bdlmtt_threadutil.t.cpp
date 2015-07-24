@@ -441,9 +441,9 @@ struct Functor {
 };
 int            Functor::s_urgentPlace;
 bool           Functor::s_firstThread = 1;
-bsls::AtomicInt Functor::s_finished = 0;
-bsls::AtomicInt Functor::s_lockCount = 0;
-bsls::AtomicInt Functor::s_timerCounter = 0;
+bsls::AtomicInt Functor::s_finished(0);
+bsls::AtomicInt Functor::s_lockCount(0);
+bsls::AtomicInt Functor::s_timerCounter(0);
 MyMutex        Functor::s_mutex;
 
 void Functor::operator()()

@@ -21,15 +21,15 @@ namespace bdlmtt {
 
 bool Once::enter(Once::OnceLock *onceLock)
 {
-    if (BCEMT_DONE == bdlmtt::AtomicUtil::getInt(d_state)) {
+    if (BCEMT_DONE == bsls::AtomicOperations::getInt(&d_state)) {
         return false;
     }
 
     onceLock->lock(&d_mutex);  // Lock the mutex
-    switch (bdlmtt::AtomicUtil::getInt(d_state)) {
+    switch (bsls::AtomicOperations::getInt(&d_state)) {
 
       case BCEMT_NOT_ENTERED:
-        bdlmtt::AtomicUtil::setInt(&d_state, BCEMT_IN_PROGRESS);
+        bsls::AtomicOperations::setInt(&d_state, BCEMT_IN_PROGRESS);
         return true;  // Leave mutex locked
 
       case BCEMT_IN_PROGRESS:
@@ -46,17 +46,17 @@ bool Once::enter(Once::OnceLock *onceLock)
 
 void Once::leave(Once::OnceLock *onceLock)
 {
-    BSLS_ASSERT(BCEMT_IN_PROGRESS == bdlmtt::AtomicUtil::getInt(d_state));
+    BSLS_ASSERT(BCEMT_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
-    bdlmtt::AtomicUtil::setInt(&d_state, BCEMT_DONE);
+    bsls::AtomicOperations::setInt(&d_state, BCEMT_DONE);
     onceLock->unlock();
 }
 
 void Once::cancel(Once::OnceLock *onceLock)
 {
-    BSLS_ASSERT(BCEMT_IN_PROGRESS == bdlmtt::AtomicUtil::getInt(d_state));
+    BSLS_ASSERT(BCEMT_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
-    bdlmtt::AtomicUtil::setInt(&d_state, BCEMT_NOT_ENTERED);
+    bsls::AtomicOperations::setInt(&d_state, BCEMT_NOT_ENTERED);
     onceLock->unlock();
 }
 

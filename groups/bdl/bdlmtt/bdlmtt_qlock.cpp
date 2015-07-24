@@ -143,7 +143,7 @@ TlsKey *getSemaphoreTLSKey()
     // simultaneously will return the the same address to an initialized key.
 {
     TlsKey *key =
-        reinterpret_cast<TlsKey *>(bsls::AtomicOperations::getPtr(s_semaphoreKey));
+        reinterpret_cast<TlsKey *>(bsls::AtomicOperations::getPtr(&s_semaphoreKey));
 
     if (!key) {
         key = initializeSemaphoreTLSKey();

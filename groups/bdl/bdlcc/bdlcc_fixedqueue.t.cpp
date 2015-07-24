@@ -156,7 +156,7 @@ void pushpopThread(bdlcc::FixedQueue<int> *queue,
 } // close namespace Backoff
 
 void rolloverPusher(bdlcc::FixedQueue<int> *queue,
-                    bdlmtt::AtomicInt *doneFlag,
+                    bsls::AtomicInt *doneFlag,
                     bdlmtt::Turnstile *turnstile,
                     int threadId)
 {
@@ -175,12 +175,12 @@ void rolloverPusher(bdlcc::FixedQueue<int> *queue,
 }
 
 void rolloverLengthChecker(bdlcc::FixedQueue<int> *queue,
-                           bdlmtt::AtomicInt *doneFlag)
+                           bsls::AtomicInt *doneFlag)
 {
     const int minLength = queue->size() / 2;
     const int maxLength = queue->size();
 
-    for (unsigned i = 1; 2 > doneFlag->relaxedLoad(); ++i) {
+    for (unsigned i = 1; 2 > doneFlag->loadRelaxed(); ++i) {
         int length = queue->length();
 
         LOOP_ASSERTT(length, minLength <= length && maxLength >= length);
@@ -191,7 +191,7 @@ void rolloverLengthChecker(bdlcc::FixedQueue<int> *queue,
 }
 
 void rolloverPopper(bdlcc::FixedQueue<int> *queue,
-                    bdlmtt::AtomicInt *doneFlag,
+                    bsls::AtomicInt *doneFlag,
                     bdlmtt::Turnstile *turnstile)
 {
     const int minLength = queue->size() / 2;
@@ -199,7 +199,7 @@ void rolloverPopper(bdlcc::FixedQueue<int> *queue,
     int lastSeen1 = minLength;
     int lastSeen2 = minLength;
 
-    while (2 > doneFlag->relaxedLoad()) {
+    while (2 > doneFlag->loadRelaxed()) {
         turnstile->waitTurn();
 
         if (queue->length() > minLength + 1) {
@@ -223,9 +223,9 @@ void rolloverPopper(bdlcc::FixedQueue<int> *queue,
 }
 
 void pushpopThread(bdlcc::FixedQueue<int> *queue,
-                   bdlmtt::AtomicInt *stop)
+                   bsls::AtomicInt *stop)
 {
-    while (!stop->relaxedLoad()) {
+    while (!stop->loadRelaxed()) {
         queue->pushBack(1);
         queue->popFront();
 
@@ -267,7 +267,7 @@ bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 
 void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
                        bdlmtt::TimedSemaphore                   *sema,
-                       bdlmtt::AtomicInt                         *numCaught) {
+                       bsls::AtomicInt                         *numCaught) {
     enum { NUM_ITERATIONS = 3 };
 
     for (int i = 0; i < NUM_ITERATIONS; ++i) {
@@ -616,10 +616,10 @@ struct Control {
     int                    d_queueSize;
     int                    d_pushCount;
 
-    bdlmtt::AtomicInt         d_numThreads;
+    bsls::AtomicInt         d_numThreads;
 
-    bdlmtt::AtomicInt         d_numPushed;
-    bdlmtt::AtomicInt         d_numPopped;
+    bsls::AtomicInt         d_numPushed;
+    bsls::AtomicInt         d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -640,8 +640,8 @@ void workerThread(Control *control)
     int iterations = control->d_iterations;
     int pushCount = control->d_pushCount;
 
-    bdlmtt::AtomicInt& numPushed = control->d_numPushed;
-    bdlmtt::AtomicInt& numPopped = control->d_numPopped;
+    bsls::AtomicInt& numPushed(control->d_numPushed);
+    bsls::AtomicInt& numPopped(control->d_numPopped);
 
     int threadId = control->d_numThreads++;
 
@@ -788,8 +788,8 @@ struct Control {
     int                    d_numExpectedPushers;
     int                    d_iterations;
 
-    bdlmtt::AtomicInt         d_numPushers;
-    bdlmtt::AtomicInt         d_numPopped;
+    bsls::AtomicInt         d_numPushers;
+    bsls::AtomicInt         d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -883,8 +883,8 @@ struct Control {
     int                    d_numExpectedPushers;
     int                    d_iterations;
 
-    bdlmtt::AtomicInt         d_numPushers;
-    bdlmtt::AtomicInt         d_numPopped;
+    bsls::AtomicInt         d_numPushers;
+    bsls::AtomicInt         d_numPopped;
 };
 
 void pusherThread(Control *control)
@@ -1098,7 +1098,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != queue.tryPushBack(ExceptionTester()));
 
             bdlmtt::TimedSemaphore sema;
-            bdlmtt::AtomicInt numCaught = 0;
+            bsls::AtomicInt numCaught(0);
 
             bdlmtt::ThreadUtil::Handle producer;
             int rc = bdlmtt::ThreadUtil::create(&producer,
@@ -1246,7 +1246,7 @@ int main(int argc, char *argv[])
 
         bdlcc::FixedQueue<int> queue (NUM_PUSHPOP_THREADS*2);
 
-        bdlmtt::AtomicInt stop = 0;
+        bsls::AtomicInt stop(0);
 
         bdlmtt::ThreadGroup tg;
         tg.addThreads(bdlf::BindUtil::bind(&pushpopThread,
@@ -1274,7 +1274,7 @@ int main(int argc, char *argv[])
             length = queue.length();
             LOOP_ASSERT(length, 0 <= length && length <= NUM_PUSHPOP_THREADS);
         }
-        stop.relaxedStore(1);
+        stop.storeRelaxed(1);
         tg.joinAll();
       } break;
 
@@ -2418,7 +2418,7 @@ int main(int argc, char *argv[])
         // First, run our tests on a non-rolled-over queue
         bsl::cout << "Testing newly created queue..." << bsl::endl;
         bdlmtt::ThreadGroup workThreads;
-        bdlmtt::AtomicInt doneFlag = 0;
+        bsls::AtomicInt doneFlag(0);
         bdlcc::FixedQueue<int> youngQueue(QUEUE_SIZE);
         // Fill the queue up halfway.
         for (unsigned i = QUEUE_SIZE/2; i < QUEUE_SIZE; ++i) {

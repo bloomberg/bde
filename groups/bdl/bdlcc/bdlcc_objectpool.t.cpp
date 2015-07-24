@@ -1072,7 +1072,7 @@ int my_CheckingClass::objCount = 0;
 union ObjectNode {
     struct {
         ObjectNode                *d_next_p;
-        bsls::AtomicUtil::Int       d_refCount;
+        bsls::AtomicOperations::AtomicTypes::Int       d_refCount;
     } d_inUse;
     bsls::AlignmentFromType<my_CheckingClass>::Type d_dummy;
 };
@@ -1467,7 +1467,7 @@ int main(int argc, char *argv[])
             NUM_QUERIES = 10000
         };
 
-        bsls::AtomicInt numQueries = 0;
+        bsls::AtomicInt numQueries(0);
         bdlmtt::ThreadGroup tg;
 
         tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
@@ -1534,13 +1534,13 @@ int main(int argc, char *argv[])
                  cout << "------------------------" << endl;
               }
 
-              bsls::AtomicInt created = 0;
+              bsls::AtomicInt created(0);
 
               bdlcc::ObjectPool<Case13Type> mX(
                                   bdlf::BindUtil::bind
                                    (&createCase13, _1, _2, &created), 1, &ta);
 
-              bsls::AtomicInt done = 0;
+              bsls::AtomicInt done(0);
 
               bdlcc::FixedQueue<Case13Type*> queue(p.d_maxCount);
               bdlmtt::ThreadGroup procTg;

@@ -167,10 +167,10 @@ struct PingPongWriter
    LOCK*            d_locks;
    bdlmtt::Semaphore *d_readySema;
    bdlmtt::Barrier   *d_barrier;
-   bdlmtt::AtomicInt  *d_stop;
+   bsls::AtomicInt  *d_stop;
    double          *d_score;
 
-   PingPongWriter(LOCK *locks = 0, bdlmtt::AtomicInt *stop = 0, double *score=0,
+   PingPongWriter(LOCK *locks = 0, bsls::AtomicInt *stop = 0, double *score=0,
                   bdlmtt::Semaphore *readySema=0,
                   bdlmtt::Barrier *barrier=0)
       : d_locks(locks),
@@ -222,10 +222,10 @@ struct PingPongReader
    LOCK            *d_locks;
    bdlmtt::Semaphore *d_readySema;
    bdlmtt::Barrier   *d_barrier;
-   bdlmtt::AtomicInt  *d_stop;
+   bsls::AtomicInt  *d_stop;
    double          *d_score;
 
-   PingPongReader(LOCK *locks = 0, bdlmtt::AtomicInt *stop = 0, double *score=0,
+   PingPongReader(LOCK *locks = 0, bsls::AtomicInt *stop = 0, double *score=0,
                   bdlmtt::Semaphore *readySema=0,
                   bdlmtt::Barrier *barrier=0)
       : d_locks(locks),
@@ -276,10 +276,10 @@ struct ContentionWriter
 {
    LOCK*            d_locks;
    bdlmtt::Barrier   *d_barrier;
-   bdlmtt::AtomicInt  *d_stop;
+   bsls::AtomicInt  *d_stop;
    double          *d_score;
 
-   ContentionWriter(LOCK *locks = 0, bdlmtt::AtomicInt *stop = 0,
+   ContentionWriter(LOCK *locks = 0, bsls::AtomicInt *stop = 0,
                     double *score=0, bdlmtt::Barrier *barrier=0)
       : d_locks(locks),
         d_stop(stop),
@@ -319,10 +319,10 @@ struct ContentionReader
 {
    LOCK            *d_locks;
    bdlmtt::Barrier   *d_barrier;
-   bdlmtt::AtomicInt  *d_stop;
+   bsls::AtomicInt  *d_stop;
    double          *d_score;
 
-   ContentionReader(LOCK *locks = 0, bdlmtt::AtomicInt *stop = 0,
+   ContentionReader(LOCK *locks = 0, bsls::AtomicInt *stop = 0,
                     double *score=0,
                     bdlmtt::Barrier *barrier=0)
       : d_locks(locks),
@@ -407,7 +407,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
 
    // Now we run the writer by itself for 3 seconds.  This score
    // is the "no-contention overhead."
-   bdlmtt::AtomicInt stop = 0;
+   bsls::AtomicInt stop(0);
    bdlmtt::Semaphore startSema;
    PingPongWriter<LOCK> writerThread(locks, &stop, &score, &startSema);
    bdlmtt::ThreadUtil::Handle hWriter, hReader;

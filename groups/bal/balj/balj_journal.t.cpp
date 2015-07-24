@@ -789,17 +789,17 @@ void caseNeg10Test(balj_Journal *mX, int numRecords, int recordSize)
 struct JournalBenchmark
 {
     bsl::vector<char>   d_buf;
-    bdlmtt::AtomicInt      d_nAdd;
-    bdlmtt::AtomicInt      d_nRemove;
-    bdlmtt::AtomicInt      d_nRead;
+    bsls::AtomicInt      d_nAdd;
+    bsls::AtomicInt      d_nRemove;
+    bsls::AtomicInt      d_nRead;
     bsls::Types::Int64  d_totalSize;
     bsls::TimeInterval   d_timer;
     bsls::TimeInterval   d_now;
     int                 d_minSize;
     int                 d_maxSize;
 
-    bdlmtt::AtomicInt      d_stopFlag;
-    bdlmtt::AtomicInt      d_targetSize;
+    bsls::AtomicInt      d_stopFlag;
+    bsls::AtomicInt      d_targetSize;
 
     BaseJournal        *d_journal;
 
@@ -1109,9 +1109,9 @@ class Case16 {
     bsl::vector< bsl::shared_ptr<Obj> > d_journals;
     bsl::vector< bsl::string >          d_journalNames;
     bdlcc::FixedQueue<Case16_Record>     *d_queue_p;
-    bdlmtt::AtomicInt                      d_numRecordsAdded;
-    bdlmtt::AtomicInt                      d_numRecordsRemoved;
-    bdlmtt::AtomicInt                      d_haltFlag;
+    bsls::AtomicInt                      d_numRecordsAdded;
+    bsls::AtomicInt                      d_numRecordsRemoved;
+    bsls::AtomicInt                      d_haltFlag;
     int                                 d_mode;
     bslma::Allocator                   *d_allocator_p;
     bdlmt::TimerEventScheduler            d_eventScheduler;

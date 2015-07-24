@@ -566,7 +566,7 @@ struct my_ThreadArgument
 extern "C" void *case11ThreadRW(void *arg)
 {
     my_ThreadArgument    a = *static_cast<my_ThreadArgument*>(arg);
-    bsls::AtomicInt&      k = *a.d_shared_p;
+    bsls::AtomicInt&      k(*a.d_shared_p);
 
     a.d_barrier_p->wait();
 
@@ -617,7 +617,7 @@ extern "C" void *case11ThreadRW(void *arg)
 extern "C" void *case11ThreadRO(void *arg)
 {
     my_ThreadArgument    a = *static_cast<my_ThreadArgument*>(arg);
-    bsls::AtomicInt&      k = *a.d_shared_p;
+    bsls::AtomicInt&      k(*a.d_shared_p);
 
     a.d_barrier_p->wait();
     register int v;

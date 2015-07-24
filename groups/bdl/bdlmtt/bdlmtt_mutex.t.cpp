@@ -159,8 +159,8 @@ struct F {
 };
 int            F::s_urgentPlace;
 bool           F::s_firstThread = 1;
-bsls::AtomicInt F::s_finished = 0;
-bsls::AtomicInt F::s_lockCount = 0;
+bsls::AtomicInt F::s_finished(0);
+bsls::AtomicInt F::s_lockCount(0);
 bdlmtt::Mutex    F::s_mutex;
 
 void F::operator()()
