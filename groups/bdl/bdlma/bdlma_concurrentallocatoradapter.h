@@ -224,7 +224,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMTT_MUTEX
+#ifndef INCLUDED_BDLMTT_MUTEX
 #include <bdlmtt_mutex.h>
 #endif
 
