@@ -14,15 +14,16 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
-// The Microsoft toolchains prior to VC2010 do not support the C99 <stdint.h>
-typedef int                     int32_t;
-typedef long long               int64_t;
-typedef bdlb::BitUtil::uint32_t uint32_t;
-typedef bdlb::BitUtil::uint64_t uint64_t;
-#endif
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
+
+using bsl::int32_t;
+using bsl::int64_t;
+using bsl::uint32_t;
+using bsl::uint64_t;
 
 //=============================================================================
 //                                TEST PLAN
@@ -125,7 +126,7 @@ typedef bsls::Types::Uint64 Uint64;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
 
