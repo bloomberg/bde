@@ -22,9 +22,9 @@ struct MappingManager_Page {
         MappingManager_Page      *d_next;
         MappingManager_Page      *d_prev;
     };
-    bdlsu::FileUtil::FileDescriptor  d_fd;
+    bdlsu::FilesystemUtil::FileDescriptor  d_fd;
     void*                           d_address;
-    bdlsu::FileUtil::Offset          d_offset;
+    bdlsu::FilesystemUtil::Offset          d_offset;
     int                             d_size;
     bdlmtt::AtomicInt                  d_useCount;
     bool                            d_isReadWrite;
@@ -202,7 +202,7 @@ MappingManager::usePage(Handle pageHandle, bool isDirty)
                 if (!d_unusedPages[priority].isEmpty()) {
                     Page* pageToUnmap = d_unusedPages[priority].popPage();
                     BSLS_ASSERT(pageToUnmap->d_useCount < 2);
-                    bdlsu::FileUtil::unmap(pageToUnmap->d_address,
+                    bdlsu::FilesystemUtil::unmap(pageToUnmap->d_address,
                                           pageToUnmap->d_size);
                     if (pageToUnmap->d_useCount & 1) {
                         pageToUnmap->d_dirtyList->removePage(pageToUnmap);
@@ -219,7 +219,7 @@ MappingManager::usePage(Handle pageHandle, bool isDirty)
             BALL_LOG_TRACE << "Mapping page for fd = " << page->d_fd
                 << " at " << page->d_offset << "(" << page->d_size << ")"
                 << BALL_LOG_END;
-            int rc = bdlsu::FileUtil::map(
+            int rc = bdlsu::FilesystemUtil::map(
                 page->d_fd,
                 &page->d_address,
                 page->d_offset,
@@ -320,7 +320,7 @@ int MappingManager::flushDirtyList(PageListHandle  pageListHandle,
                        << " at " << (void*)page->d_address
                        << BALL_LOG_END;
 
-        bdlsu::FileUtil::sync((char*)page->d_address, page->d_size, isSync);
+        bdlsu::FilesystemUtil::sync((char*)page->d_address, page->d_size, isSync);
     }
     d_mapLock.unlock();
     return numPages;
@@ -341,8 +341,8 @@ char* MappingManager::getPageData(Handle pageHandle)
 
 MappingManager::Handle
 MappingManager::addPage(
-    bdlsu::FileUtil::FileDescriptor           fd,
-    bdlsu::FileUtil::Offset                   offset,
+    bdlsu::FilesystemUtil::FileDescriptor           fd,
+    bdlsu::FilesystemUtil::Offset                   offset,
     bsl::size_t                              size,
     bool                                     isReadWrite,
     int                                      priority,
@@ -375,7 +375,7 @@ void MappingManager::removePage(Handle pageHandle)
         } else {
             d_unusedPages[page->d_priority].removePage(page);
         }
-        int rc = bdlsu::FileUtil::unmap(page->d_address, page->d_size);
+        int rc = bdlsu::FilesystemUtil::unmap(page->d_address, page->d_size);
         BSLS_ASSERT(rc == 0);
         if (page->d_useCount & 1) {
             page->d_dirtyList->removePage(page);
