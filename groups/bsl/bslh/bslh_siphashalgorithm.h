@@ -82,12 +82,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Hash Consistency
 ///----------------
-// This hash algorithm is endian-specific.  The algorithm will run on big- and
-// little-endian machines and the above guarantees apply on both architectures,
-// however, the hashes produced will be different.  Therefor it is not
-// recommended to send hashes from 'bslh::SipHashAlgorithm' over a network.  It
-// is also not recommended to write hashes from 'bslh::SipHashAlgorithm' to any
-// memory accessible by multiple machines.
+// This hash algorithm is endian-independent.  The hashes produced for a given
+// 16-byte key sequence will be the same on big-endian and little-endian
+// platforms.  (However, in the literature the key is sometimes presented as a
+// large integer or sequence of integers, such as
+// '0xDEADBEEF, 0xCAFEBABE, 0x8BADF00D, 0x1BADB002', in which case care must be
+// taken to supply the individual key bytes in the same order on both platforms
+// if the same hash results are desired.)
 //
 ///Usage
 ///-----

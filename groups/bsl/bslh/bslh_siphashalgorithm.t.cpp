@@ -487,10 +487,19 @@ int main(int argc, char *argv[])
             int                 d_length;
             bsls::Types::Uint64 d_expectedHash;
         } DATA[] = {
-        // LINE SEED VALUE LENGTH EXPECTEDHASH
-         {  L_, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
-                     "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16",
-                           15,    0xa129ca6149be45e5ULL        },
+        //     LINE  SEED VALUE LENGTH EXPECTEDHASH
+            {  L_,   { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
+                          "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16",
+                                15,    0xa129ca6149be45e5ULL                 },
+            {  L_,   { '0', '1', '2', '3', '4', '5', '6', '7',
+                       '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',  },
+                          "a",  1,     12398370950267227270ULL               },
+            {  L_,   { '\xef', '\xbe', '\xad', '\xde',
+                       '\xbe', '\xba', '\xfe', '\xca',
+                       '\x0d', '\xf0', '\xad', '\x8b',
+                       '\x02', '\xb0', '\xad', '\x1b',  },
+                          "Short test message",
+                                18,    0xf2e893485bd3badeULL                 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
