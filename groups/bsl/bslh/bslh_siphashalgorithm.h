@@ -83,12 +83,15 @@ BSLS_IDENT("$Id: $")
 ///Hash Consistency
 ///----------------
 // This hash algorithm is endian-independent.  The hashes produced for a given
-// 16-byte key sequence will be the same on big-endian and little-endian
-// platforms.  (However, in the literature the key is sometimes presented as a
-// large integer or sequence of integers, such as
+// 16-byte key sequence and given data will be the same on big-endian and
+// little-endian platforms.  (In the literature the key is sometimes presented
+// as a large integer or sequence of integers, such as
 // '0xDEADBEEF, 0xCAFEBABE, 0x8BADF00D, 0x1BADB002', in which case care must be
 // taken to supply the individual key bytes in the same order on both platforms
-// if the same hash results are desired.)
+// if the same hash results are desired.)  However, if the "given data" is not
+// just a character string but has internal structure, such as being integral
+// or floating-point, it is likely ordered in different ways depending on the
+// platform, and thus will not hash to the same value.
 //
 ///Usage
 ///-----
