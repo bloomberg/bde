@@ -333,7 +333,7 @@ BSLS_IDENT("$Id: $")
 // assert that both the return value and the string that is produced are as
 // expected:
 //..
-//  bsl::ostringstream oss;
+//  bsl::ostringstream  oss;
 //  const bsl::ostream& ret =
 //                         bdlt::Iso8601Util::generate(oss, sourceDatetimeTz);
 //  assert(&oss == &ret);
@@ -408,7 +408,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::TimeTz' object, including a null terminator:
 //..
 //  const int BUFLEN = bdlt::Iso8601Util::k_TIMETZ_STRLEN + 1;
-//  char buffer[BUFLEN];
+//  char      buffer[BUFLEN];
 //..
 // Then, we use a 'generate' function that accepts our 'configuration' to
 // produce an ISO 8601-compliant string for 'sourceTimeTz', this time writing
@@ -663,7 +663,6 @@ struct Iso8601Util {
         // (counting a null terminator, if any).
 
     static int parse(Date *result, const char *input, int inputLength);
-        // TBD update doc
         // Attempt to parse the specified 'inputLength' characters of the
         // specified 'input' as a date, and if successful load this date into
         // the specified 'result'.  Parsing is successful if the input is of
@@ -680,10 +679,9 @@ struct Iso8601Util {
         // '0 <= inputLength'.  Note that this function parses *exactly*
         // 'inputLength' characters; parsing will fail if a subset of the
         // passed string matches the specified format and is then followed by
-        // trailing characters.
+        // trailing characters.  TBD update doc.
 
     static int parse(Time *result, const char *input, int inputLength);
-        // TBD update doc
         // Parse a time, represented in the "hh:mm:ss{.d+}{((+|-)hh:mm|Z)}"
         // format, from the specified 'input' of the specified 'inputLength'
         // and load it into the specified '*result'.  In the "hh:mm:ss{.d+}"
@@ -708,10 +706,9 @@ struct Iso8601Util {
         // length of the parsed data, parsing will fail.  Also note that it is
         // possible for the resulting 'ss' value to be rounded up twice if
         // originally 'ss == 60' and there was rounding up due to the '{.d+}'
-        // field.
+        // field.  TBD update doc.
 
     static int parse(Datetime *result, const char *input, int inputLength);
-        // TBD update doc
         // Parse a date time, represented in the
         // "YYYY-MM-DDThh:mm:ss{.d+}{((+|-)hh:mm|Z)}" format, from the
         // specified 'input' of the specified 'inputLength' and load it into
@@ -742,10 +739,9 @@ struct Iso8601Util {
         // '0 <= inputLength'.  Note that if 'inputLength' is longer than the
         // length of the parsed data, parsing will fail.  Also note that the
         // final 'ss' may be rounded up twice if originally 'ss == 60' and
-        // there is rounding up due to the '{.d+}' field.
+        // there is rounding up due to the '{.d+}' field.  TBD update doc.
 
     static int parse(DateTz *result, const char *input, int inputLength);
-        // TBD update doc
         // Parse a date, represented in the "YYYY-MM-DD{((+|-)hh:mm|Z)}"
         // format, from the specified 'input' of the specified 'inputLength'
         // and load it into the specified '*result'.  In the "YYYY-MM-DD"
@@ -759,15 +755,14 @@ struct Iso8601Util {
         // function, 'hh' and 'mm' are 2 digit integers (left padded with '0's
         // if necessary).  'hh' must be in the range '[00 .. 23]' and 'mm' must
         // be in the range '[00 .. 59]'.  An alternate form of the
-        // representation for the time zone is 'Z', signifying GMT.  If
-        // no time zone is provided, GMT is assumed.  Do not modify '*result'
-        // on failure.  The behavior is undefined unless '0 <= inputLength'.
+        // representation for the time zone is 'Z', signifying GMT.  If no
+        // time zone is provided, GMT is assumed.  Do not modify '*result' on
+        // failure.  The behavior is undefined unless '0 <= inputLength'.
         // Return 0 on success, and a non-zero value otherwise.  Note that if
         // 'inputLength' is longer than the length of the parsed data, parsing
-        // will fail.
+        // will fail.  TBD update doc.
 
     static int parse(TimeTz *result, const char *input, int inputLength);
-        // TBD update doc
         // Parse a time, represented in the "hh:mm:ss{.d+}{((+|-)hh:mm|Z)}"
         // format, from the specified 'input' of the specified 'inputLength'
         // and load it into the specified '*result'.  In the "hh:mm:ss{.d+}"
@@ -787,19 +782,18 @@ struct Iso8601Util {
         // (left padded with '0's if necessary).  'hh' must be in the range
         // '[00 .. 23]' and 'mm' must be in the range '[00 .. 59]'.  An
         // alternate form of the representation for the time zone is 'Z',
-        // signifying GMT.  If time zone information is not provided, GMT
-        // is assumed.  An exceptional time value of '24:00:00' may be
-        // provided, in which case the fraction of a second must be 0 and the
-        // time zone, if present, must be GMT.  Do not modify '*result' on
-        // failure.  Return 0 on success, and a non-zero value otherwise.  The
-        // behavior is undefined unless '0 <= inputLength'.  Note that if
-        // 'inputLength' is longer than the length of the parsed data, parsing
-        // will fail.  Also note that the final 'ss' may be rounded up twice if
-        // originally 'ss == 60' and there is rounding up due to the '{.d+}'
-        // field.
+        // signifying GMT.  If time zone information is not provided, GMT is
+        // assumed.  An exceptional time value of '24:00:00' may be provided,
+        // in which case the fraction of a second must be 0 and the time zone,
+        // if present, must be GMT.  Do not modify '*result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  The behavior
+        // is undefined unless '0 <= inputLength'.  Note that if 'inputLength'
+        // is longer than the length of the parsed data, parsing will fail.
+        // Also note that the final 'ss' may be rounded up twice if originally
+        // 'ss == 60' and there is rounding up due to the '{.d+}' field.  TBD
+        // update doc.
 
     static int parse(DatetimeTz *result, const char *input, int inputLength);
-        // TBD update doc
         // Parse a date time, represented in the
         // "YYYY-MM-DDThh:mm:ss{.d+}{((+|-)hh:mm|Z)}" format, from the
         // specified 'input' of the specified 'inputLength' and load it into
@@ -826,15 +820,15 @@ struct Iso8601Util {
         // digit integers (left padded with '0's if necessary).  'hh' must be
         // in the range '[00 .. 23]' and 'mm' must be in the range
         // '[00 .. 59]'.  An alternate form of representing the time zone is
-        // 'Z', signifying GMT.  If the time zone is not provided, GMT
-        // is assumed.  Do not modify '*result' on failure.  An exceptional
-        // time value of '24:00;00' may be provided, but if so the fraction of
-        // a second must be 0 and time zone, if any, must be GMT.  Return 0 on
+        // 'Z', signifying GMT.  If the time zone is not provided, GMT is
+        // assumed.  Do not modify '*result' on failure.  An exceptional time
+        // value of '24:00;00' may be provided, but if so the fraction of a
+        // second must be 0 and time zone, if any, must be GMT.  Return 0 on
         // success, and a non-zero value otherwise.  The behavior is undefined
         // unless '0 <= inputLength'.  Note that if 'inputLength' is longer
         // than the length of the parsed data, parsing will fail.  Also note
         // that the final 'ss' may be rounded up twice if originally 'ss == 60'
-        // and there is rounding up due to the '{.d+}' field.
+        // and there is rounding up due to the '{.d+}' field.  TBD update doc.
 };
 
                         // ==============================
@@ -875,7 +869,7 @@ class Iso8601UtilConfiguration {
 
   private:
     // PRIVATE CREATORS
-    Iso8601UtilConfiguration(int configurationMask);
+    explicit Iso8601UtilConfiguration(int configurationMask);
         // Create an 'Iso8601UtilConfiguration' object having the value
         // indicated by the specified 'configurationMask'.  The behavior is
         // undefined unless 'configurationMask' represents a valid
@@ -883,16 +877,16 @@ class Iso8601UtilConfiguration {
 
   public:
     // CLASS METHODS
+    static Iso8601UtilConfiguration defaultConfiguration();
+        // Return the value of the process-wide 'Iso8601UtilConfiguration' that
+        // is currently in effect.
+
     static void setDefaultConfiguration(
                                 const Iso8601UtilConfiguration& configuration);
         // Set the value of the process-wide 'Iso8601UtilConfiguration' to the
         // specified 'configuration'.  Note that the expected usage is that the
         // process-wide configuration will be established *once*, early in
         // 'main', and not changed throughout the lifetime of a process.
-
-    static Iso8601UtilConfiguration defaultConfiguration();
-        // Return the value of the process-wide 'Iso8601UtilConfiguration' that
-        // is currently in effect.
 
     // CREATORS
     Iso8601UtilConfiguration();
@@ -1255,18 +1249,18 @@ Iso8601UtilConfiguration::Iso8601UtilConfiguration(int configurationMask)
 
 // CLASS METHODS
 inline
+Iso8601UtilConfiguration Iso8601UtilConfiguration::defaultConfiguration()
+{
+    return Iso8601UtilConfiguration(
+               bsls::AtomicOperations::getIntRelaxed(&s_defaultConfiguration));
+}
+
+inline
 void Iso8601UtilConfiguration::setDefaultConfiguration(
                                  const Iso8601UtilConfiguration& configuration)
 {
     bsls::AtomicOperations::setIntRelease(&s_defaultConfiguration,
                                           configuration.d_configurationMask);
-}
-
-inline
-Iso8601UtilConfiguration Iso8601UtilConfiguration::defaultConfiguration()
-{
-    return Iso8601UtilConfiguration(
-               bsls::AtomicOperations::getIntRelaxed(&s_defaultConfiguration));
 }
 
 // CREATORS

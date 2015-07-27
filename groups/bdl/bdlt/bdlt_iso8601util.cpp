@@ -467,8 +467,8 @@ void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
     // Copy, to the specified 'dst' buffer having the specified 'dstLen', the
     // specified initial 'srcLen' characters in the specified 'src' string if
     // 'dstLen >= srcLen', and copy 'dstLen' characters otherwise.  Include a
-    // null terminator iff 'dstLen > srcLen'.  The behavior is undefined unless
-    // '0 <= dstLen' and '0 <= srcLen'.
+    // null terminator if and only if 'dstLen > srcLen'.  The behavior is
+    // undefined unless '0 <= dstLen' and '0 <= srcLen'.
 {
     BSLS_ASSERT(dst);
     BSLS_ASSERT(0 <= dstLen);
@@ -499,7 +499,7 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATE_STRLEN];
+    char      outBuf[k_DATE_STRLEN];
     const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen == sizeof outBuf);
 
@@ -516,7 +516,7 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_TIME_STRLEN];
+    char      outBuf[k_TIME_STRLEN];
     const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen == sizeof outBuf);
 
@@ -533,7 +533,7 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATETIME_STRLEN];
+    char      outBuf[k_DATETIME_STRLEN];
     const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen == sizeof outBuf);
 
@@ -550,7 +550,7 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATETZ_STRLEN];
+    char      outBuf[k_DATETZ_STRLEN];
     const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
     BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETZ_STRLEN,
@@ -570,7 +570,7 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_TIMETZ_STRLEN];
+    char      outBuf[k_TIMETZ_STRLEN];
     const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
     BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_TIMETZ_STRLEN,
@@ -590,7 +590,7 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATETIMETZ_STRLEN];
+    char      outBuf[k_DATETIMETZ_STRLEN];
     const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
     BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETIMETZ_STRLEN,
@@ -729,7 +729,7 @@ int Iso8601Util::parse(Date *result, const char *input, int inputLength)
     int year, month, day;
 
     if (0 != parseDate(&p, &year, &month, &day, p, end)
-     || !Date::isValid(year, month, day)) {
+     || !Date::isValidYearMonthDay(year, month, day)) {
         return -1;                                                    // RETURN
     }
 
