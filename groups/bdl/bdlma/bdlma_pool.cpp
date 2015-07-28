@@ -26,44 +26,15 @@ struct Link {
 
 // CONSTANTS
 enum {
-    INITIAL_CHUNK_SIZE =  1,  // default number of blocks per chunk
+    k_INITIAL_CHUNK_SIZE =  1,  // default number of blocks per chunk
 
-    GROWTH_FACTOR      =  2,  // multiplicative factor by which to grow pool
-                              // capacity
+    k_GROWTH_FACTOR      =  2,  // multiplicative factor by which to grow pool
+                                // capacity
 
-    MAX_CHUNK_SIZE     = 32   // maximum number of blocks per chunk
+    k_MAX_CHUNK_SIZE     = 32   // maximum number of blocks per chunk
 };
 
 // LOCAL FUNCTIONS
-static
-void *replenishImp(BloombergLP::bdlma::InfrequentDeleteBlockList *blockList,
-                   int                                            blockSize,
-                   int                                            numBlocks,
-                   void                                          *nextList)
-    // Return the address of a linked list of modifiable free memory blocks
-    // having the specified 'numBlocks', with each memory block having the
-    // specified 'blockSize' (in bytes).  Append the specified 'nextList' to
-    // the newly-created linked list.  Allocate memory using the specified
-    // 'blockList'.  The behavior is undefined unless '1 <= blockSize' and
-    // '1 <= numBlocks'.
-{
-    BSLS_ASSERT(blockList);
-    BSLS_ASSERT(1 <= blockSize);
-    BSLS_ASSERT(1 <= numBlocks);
-
-    char *begin = static_cast<char *>(
-                                   blockList->allocate(numBlocks * blockSize));
-    char *end   = begin + (numBlocks - 1) * blockSize;
-
-    for (char *p = begin; p < end; p += blockSize) {
-        reinterpret_cast<Link *>(p)->d_next_p =
-                                       reinterpret_cast<Link *>(p + blockSize);
-    }
-    reinterpret_cast<Link *>(end)->d_next_p = static_cast<Link *>(nextList);
-
-    return begin;
-}
-
 static inline
 int roundUp(int x, int y)
     // Round up the specified 'x' to the nearest whole integer multiple of the
@@ -75,7 +46,7 @@ int roundUp(int x, int y)
     return (x + y - 1) / y * y;
 }
 
-}  // close unnamed namepace
+}  // close unnamed namespace
 
                         // ----------
                         // class Pool
@@ -84,17 +55,16 @@ int roundUp(int x, int y)
 // PRIVATE MANIPULATORS
 void Pool::replenish()
 {
-    d_freeList_p = static_cast<Link *>(replenishImp(&d_blockList,
-                                                    d_internalBlockSize,
-                                                    d_chunkSize,
-                                                    0));
+    d_begin_p = static_cast<char *>(d_blockList.allocate(d_chunkSize
+                                                       * d_internalBlockSize));
+    d_end_p = d_begin_p + d_chunkSize * d_internalBlockSize;
 
-    if (bsls::BlockGrowth::BSLS_GEOMETRIC == d_growthStrategy
-     && d_chunkSize < d_maxBlocksPerChunk) {
+    if (   bsls::BlockGrowth::BSLS_GEOMETRIC == d_growthStrategy
+        && d_chunkSize < d_maxBlocksPerChunk) {
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                     d_chunkSize * 2 <= d_maxBlocksPerChunk)) {
-            d_chunkSize = d_chunkSize * 2;
+                       d_chunkSize * k_GROWTH_FACTOR <= d_maxBlocksPerChunk)) {
+            d_chunkSize = d_chunkSize * k_GROWTH_FACTOR;
         }
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -106,11 +76,13 @@ void Pool::replenish()
 // CREATORS
 Pool::Pool(int blockSize, bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+, d_chunkSize(k_INITIAL_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_freeList_p(0)
 , d_blockList(basicAllocator)
+, d_begin_p(0)
+, d_end_p(0)
 {
     BSLS_ASSERT(1 <= blockSize);
 
@@ -124,12 +96,14 @@ Pool::Pool(int                          blockSize,
            bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
-              ? MAX_CHUNK_SIZE
-              : INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+              ? k_MAX_CHUNK_SIZE
+              : k_INITIAL_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_growthStrategy(growthStrategy)
 , d_freeList_p(0)
 , d_blockList(basicAllocator)
+, d_begin_p(0)
+, d_end_p(0)
 {
     BSLS_ASSERT(1 <= blockSize);
 
@@ -145,11 +119,13 @@ Pool::Pool(int                          blockSize,
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
               ? maxBlocksPerChunk
-              : INITIAL_CHUNK_SIZE)
+              : k_INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
 , d_growthStrategy(growthStrategy)
 , d_freeList_p(0)
 , d_blockList(basicAllocator)
+, d_begin_p(0)
+, d_end_p(0)
 {
     BSLS_ASSERT(1 <= blockSize);
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
@@ -171,16 +147,35 @@ void Pool::reserveCapacity(int numBlocks)
     BSLS_ASSERT(0 <= numBlocks);
 
     Link *p = d_freeList_p;
-    while (p && numBlocks) {
+    while (p && numBlocks > 0) {
         p = p->d_next_p;
         --numBlocks;
     }
 
-    if (numBlocks) {
-        d_freeList_p = static_cast<Link *>(replenishImp(&d_blockList,
-                                                        d_internalBlockSize,
-                                                        numBlocks,
-                                                        d_freeList_p));
+    if (numBlocks > 0 && d_end_p == d_begin_p) {
+        d_begin_p = static_cast<char *>(d_blockList.allocate(numBlocks
+                                                       * d_internalBlockSize));
+        d_end_p = d_begin_p + numBlocks * d_internalBlockSize;
+        return;                                                       // RETURN
+    }
+
+    numBlocks -= (d_end_p - d_begin_p) / d_internalBlockSize;
+
+    if (numBlocks > 0) {
+
+        // Allocate memory and add its blocks to the free list.
+
+        char *begin = static_cast<char *>(
+                        d_blockList.allocate(numBlocks * d_internalBlockSize));
+        char *end   = begin + (numBlocks - 1) * d_internalBlockSize;
+
+        for (char *p = begin; p < end; p += d_internalBlockSize) {
+            reinterpret_cast<Link *>(p)->d_next_p =
+                             reinterpret_cast<Link *>(p + d_internalBlockSize);
+        }
+
+        reinterpret_cast<Link *>(end)->d_next_p = d_freeList_p;
+        d_freeList_p = reinterpret_cast<Link *>(begin);
     }
 }
 
@@ -188,7 +183,7 @@ void Pool::reserveCapacity(int numBlocks)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
