@@ -76,3 +76,28 @@ bsl_c_time.h
 bsl_c_wchar.h
 bsl_c_wctype.h
 
+# C++11 headers
+bsl_array.h
+bsl_atomic.h
+bsl_chrono.h
+bsl_condition_variable.h
+bsl_future.h
+bsl_initializer_list.h
+bsl_mutex.h
+bsl_random.h
+bsl_ratio.h
+bsl_regex.h
+bsl_scoped_allocator.h
+bsl_system_error.h
+bsl_thread.h
+bsl_tuple.h
+bsl_typeindex.h
+
+#C11 headers
+bsl_cfenv.h
+bsl_cinttypes.h
+bsl_ciso646.h
+bsl_cstdbool.h
+bsl_cstdint.h
+bsl_ctgmath.h
+bsl_cuchar.h
