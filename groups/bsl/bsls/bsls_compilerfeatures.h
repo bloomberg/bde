@@ -490,9 +490,14 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
+// Note that while MSVC 2013 supports variadic templates in principle, there
+// are sufficient problems with the implementation that we defer support until
+// the 2015 compiler where those issues are ironed out.
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 // MSVC has __declspec(noreturn)
 // (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)
