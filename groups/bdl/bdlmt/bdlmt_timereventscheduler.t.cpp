@@ -11,7 +11,11 @@
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
 #include <bdlimpxxx_fuzzy.h>
+#if 0
 #include <bdlb_xxxbitutil.h>
+#endif 
+#include <bdlb_bitstringutil.h> // XXX replacement
+#include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 
@@ -1045,7 +1049,11 @@ void startClock(Obj            *scheduler,
 // 'maxValue'.
 int numBitsRequired(int maxValue)
 {
-    return bdlb::BitUtil::find1AtLargestIndex(maxValue) + 1;
+    ASSERT(0 <= maxValue);                                               
+
+    return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
+                                                   &maxValue,
+                                                   CHAR_BIT * sizeof maxValue);
 }
 
 // Calculate the largest integer indentifiable using the specified 'numBits'.
@@ -2662,6 +2670,39 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 26: {
+        // FAST TRACK SCRATCH AREA
+
+        if (verbose) cout << endl
+                          << "FAST TRACK SCRATCH AREA" << endl
+                          << "=======================" << endl;
+
+        const int ARRAY[] = {
+            //  INT_MIN,
+            //       -1,
+                      0,
+                      1,
+                      2,
+                      3,
+                1 << 10,
+                INT_MAX
+        };
+        const int NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
+        
+        for (int i = 0; i < NUM_ELEMENTS; ++i) {
+            const int VALUE = ARRAY[i];
+        //  const int ret0 = bdlb::BitUtil::find1AtLargestIndex(VALUE);
+            const int ret1 = bdlb::BitstringUtil::find1AtLargestIndex(
+                                                      &VALUE,
+                                                      CHAR_BIT * sizeof VALUE);
+                                                          
+            P_(VALUE)
+            //P_(ret0)
+            P(ret1)
+            // ASSERT(ret1 == ret0);
+        }
+    
+      } break;
       case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:

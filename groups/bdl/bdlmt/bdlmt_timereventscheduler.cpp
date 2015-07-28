@@ -8,9 +8,13 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_systemtime.h>
 
+#if 0
 #include <bdlb_xxxbitutil.h>
+#endif
+#include <bdlb_bitstringutil.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_limits.h>   // for 'CHAR_BIT'
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -27,10 +31,14 @@ const int NUM_INDEX_BITS_MIN = 8;
 
 int numBitsRequired(int value)
 {
+    BSLS_ASSERT_SAFE(0 <= value);
+
     // Calculate the smallest number of bits required to represent the
     // specified 'value'.
 
-    return bdlb::BitUtil::find1AtLargestIndex(value) + 1;
+    return bdlb::BitstringUtil::find1AtLargestIndex(&value,
+                                                    CHAR_BIT * sizeof value)
+         + 1;
 }
 
 }  // close unnamed namespace
