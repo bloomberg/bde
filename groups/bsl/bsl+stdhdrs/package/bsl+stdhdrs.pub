@@ -1,4 +1,5 @@
 # Standard Container headers
+array           array.SUNWCCh
 deque           deque.SUNWCCh
 iterator        iterator.SUNWCCh
 list            list.SUNWCCh
@@ -19,12 +20,17 @@ hash_map        hash_map.SUNWCCh
 slist           slist.SUNWCCh
 
 # Non-container headers
+atomic          atomic.SUNWCCh
 algorithm       algorithm.SUNWCCh
 bitset          bitset.SUNWCCh
+condition_variable      condition_variable.SUNWCCh
+chrono          chrono.SUNWCCh
 complex         complex.SUNWCCh
 exception       exception.SUNWCCh
 fstream         fstream.SUNWCCh
 functional      functional.SUNWCCh
+future          future.SUNWCCh
+initializer_list    initializer_list.SUNWCCh
 iomanip         iomanip.SUNWCCh
 ios             ios.SUNWCCh
 iosfwd          iosfwd.SUNWCCh
@@ -32,12 +38,21 @@ iostream        iostream.SUNWCCh
 istream         istream.SUNWCCh
 limits          limits.SUNWCCh
 locale          locale.SUNWCCh
+mutex           mutex.SUNWCCh
 new             new.SUNWCCh
 numeric         numeric.SUNWCCh
 ostream         ostream.SUNWCCh
+random          random.SUNWCCh
+ratio           ratio.SUNWCCh
+regex           regex.SUNWCCh
+scoped_allocator    scoped_allocator.SUNWCCh
 stdexcept       stdexcept.SUNWCCh
 streambuf       streambuf.SUNWCCh
 strstream       strstream.SUNWCCh
+system_error    system_error.SUNWCCh
+thread          thread.SUNWCCh
+tuple           tuple.SUNWCCh
+typeindex       typeindex.SUNWCCh
 typeinfo        typeinfo.SUNWCCh
 utility         utility.SUNWCCh
 valarray        valarray.SUNWCCh
@@ -46,7 +61,9 @@ valarray        valarray.SUNWCCh
 cassert         cassert.SUNWCCh
 cctype          cctype.SUNWCCh
 cerrno          cerrno.SUNWCCh
+cfenv           cfenv.SUNWCCh
 cfloat          cfloat.SUNWCCh
+cinttypes       cinttypes.SUNWCCh
 ciso646         ciso646.SUNWCCh
 climits         climits.SUNWCCh
 clocale         clocale.SUNWCCh
@@ -54,11 +71,15 @@ cmath           cmath.SUNWCCh
 csetjmp         csetjmp.SUNWCCh
 csignal         csignal.SUNWCCh
 cstdarg         cstdarg.SUNWCCh
+cstdbool        cstdbool.SUNWCCh
 cstddef         cstddef.SUNWCCh
+cstdint         cstdint.SUNWCCh
 cstdio          cstdio.SUNWCCh
 cstdlib         cstdlib.SUNWCCh
 cstring         cstring.SUNWCCh
+ctgmath         ctgmath.SUNWCCh
 ctime           ctime.SUNWCCh
+cuchar          cuchar.SUNWCCh
 cwchar          cwchar.SUNWCCh
 cwctype         cwctype.SUNWCCh
 
@@ -77,6 +98,7 @@ iso646.h        iso646.h.SUNWCCh
                 istream.h.SUNWCCh
 limits.h        limits.h.SUNWCCh
 locale.h        locale.h.SUNWCCh
+math.h          math.h.SUNWCCh
 pthread.h
 signal.h        signal.h.SUNWCCh
 stdarg.h        stdarg.h.SUNWCCh
@@ -89,3 +111,20 @@ time.h          time.h.SUNWCCh
 wchar.h         wchar.h.SUNWCCh
 wctype.h        wctype.h.SUNWCCh
 setjmp.h        setjmp.h.SUNWCCh
+
+# Non-standard legacy files
+# These form a compatibility layer for code with non-standard expectations that
+# is unlikely to be cleaned up - mostly old deprecated libraries with no desire
+# to update, even something as simple as fixing an #include.
+exception.h     exception.h.SUNWCCh
+fstream.h       fstream.h.SUNWCCh
+iomanip.h       iomanip.h.SUNWCCh
+ios.h           ios.h.SUNWCCh
+iosfwd.h        iosfwd.h.SUNWCCh
+iostream.h      iostream.h.SUNWCCh
+memory.h        memory.h.SUNWCCh
+new.h           new.h.SUNWCCh
+ostream.h       ostream.h.SUNWCCh
+streambuf.h     streambuf.h.SUNWCCh
+strstream.h     strstream.h.SUNWCCh
+typeinfo.h      typeinfo.h.SUNWCCh

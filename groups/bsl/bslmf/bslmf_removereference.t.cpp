@@ -30,37 +30,48 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-void aSsErT(bool b, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -178,7 +189,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::RemoveReference::Type'
+        // TESTING 'bslmf::RemoveReference::Type'
         //   Ensure that the 'typedef' 'Type' of 'bslmf::RemoveReference'
         //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
@@ -191,15 +202,15 @@ int main(int argc, char *argv[])
         //:   reference type.
         //
         // Plan:
-        //   Instantiate 'bslmf::RemoveReference' with various types and
-        //   verify that the 'Type' member is initialized properly.  (C-1)
+        //: 1 Instantiate 'bslmf::RemoveReference' with various types and
+        //:   verify that the 'Type' member is initialized properly.  (C-1)
         //
         // Testing:
         //   bslmf::RemoveReference::Type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bslmf::RemoveReference::Type\n"
-                            "============================\n");
+        if (verbose) printf("TESTING 'bslmf::RemoveReference::Type'\n"
+                            "======================================\n");
 
         // C-1
 
@@ -219,14 +230,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME2(  Fi,  Fi);
         ASSERT_SAME2( FRi, FRi);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-        // Rvalue reference template specialization of RemoveReference<TYPE>
-        // breaks for function reference types on MSVC 16: both TYPE& and
-        // TYPE&& match, when only TYPE& should.
         ASSERT_SAME2(  RF,   F);
         ASSERT_SAME2( RFi,  Fi);
         ASSERT_SAME2(RFRi, FRi);
-#endif
 
         ASSERT_SAME2(RA, A);
 
@@ -257,11 +263,9 @@ int main(int argc, char *argv[])
         ASSERT_REMOVE_REF2(Class&&,  Class);
         ASSERT_REMOVE_REF2(int Class::*&&, int Class::*);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT_SAME2(RRF,   F);
         ASSERT_SAME2(RRPF,  PF);
         ASSERT_SAME2(RRFRi, FRi);
-#endif
 
         ASSERT_SAME2(RRA, A);
 #endif
@@ -269,7 +273,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_reference::type'
+        // TESTING 'bsl::remove_reference::type'
         //   Ensure that the 'typedef' 'type' of 'bsl::remove_reference'
         //   instantiations having various (template parameter) 'TYPE's has the
         //   correct value.
@@ -282,15 +286,15 @@ int main(int argc, char *argv[])
         //:   reference type.
         //
         // Plan:
-        //   Instantiate 'bsl::remove_reference' with various types and
-        //   verify that the 'type' member is initialized properly.  (C-1,2)
+        //: 1 Instantiate 'bsl::remove_reference' with various types and
+        //:  verify that the 'type' member is initialized properly.  (C-1,2)
         //
         // Testing:
         //   bsl::remove_reference::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::remove_reference::type\n"
-                            "===========================\n");
+        if (verbose) printf("TESTING 'bsl::remove_reference::type'\n"
+                            "=====================================\n");
 
         // C-1
 
@@ -326,14 +330,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME( Fi,  Fi);
         ASSERT_SAME(FRi, FRi);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-        // Rvalue reference template specialization of RemoveReference<TYPE>
-        // breaks for function reference types on MSVC 16: both TYPE& and
-        // TYPE&& match, when only TYPE& should.
         ASSERT_SAME( RF,  F);
         ASSERT_SAME( RFi, Fi);
         ASSERT_SAME(RFRi, FRi);
-#endif
 
         ASSERT_SAME(A,  A);
 
@@ -346,11 +345,9 @@ int main(int argc, char *argv[])
         ASSERT_REMOVE_REF(Class&&,  Class);
         ASSERT_REMOVE_REF(int Class::*&&, int Class::*);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT_SAME(RRF,   F);
         ASSERT_SAME(RRPF,  PF);
         ASSERT_SAME(RRFRi, FRi);
-#endif
 
         ASSERT_SAME(RRA, A);
   #endif

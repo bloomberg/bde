@@ -242,8 +242,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_STDDEF
+#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>    // 'size_t'
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {
@@ -273,7 +274,7 @@ class SpookyHashAlgorithmImp {
     enum { k_BUFFER_SIZE = k_BLOCK_SIZE * 2 };
         // Size of buffer of unhashed data, in bytes.
 
-    static const Uint64 sc_const = 0xdeadbeefdeadbeefLL;
+    static const Uint64 sc_const = 0xdeadbeefdeadbeefULL;
         // A non-zero, odd, constant that has an irregular distribution of 1's
         // and 0's to be used in hashing calculations.
 

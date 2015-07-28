@@ -56,10 +56,10 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Defining Equality Comparison Operators on a Container
+///Example 1: Defining Equality-Comparison Operators on a Container
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will use the 'bslalg::RangeCompare::equal' class method
-// to implement the equality comparison operators for an iterable container
+// to implement the equality-comparison operators for an iterable container
 // type residing in the 'bslstl' package, and highlight the circumstances under
 // which the optimization provided by the class method may be applied.
 //
@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 // the 'bslstl' package, and we wish to define comparison operators for the
 // container.  If the container has an iterator that provides access to the
 // container's elements in a consistent order, and the elements themselves are
-// equality-comparable, we can implement the container's equality comparison
+// equality-comparable, we can implement the container's equality-comparison
 // operators by pair-wise comparing each of the elements over the entire range
 // of elements in both containers.  In such cases the container can use the
 // 'bslalg::RangeCompare::equal' class method to equal-compare the container's
@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 // the criteria required to enable the optimizations provided by the
 // 'bslalg::RangeCompare::equal' class method.
 //
-// Then, we declare the equality comparison operators for 'MyContainer':
+// Then, we declare the equality-comparison operators for 'MyContainer':
 //..
 //  template <class VALUE_TYPE>
 //  bool operator==(const MyContainer<VALUE_TYPE>& lhs,
@@ -150,7 +150,7 @@ BSLS_IDENT("$Id: $")
 //      // any element in 'lhs' does not have the same value as the
 //      // corresponding element in 'rhs'.
 //..
-// Next, we implement the equality comparison operators using
+// Next, we implement the equality-comparison operators using
 // 'bslalg::RangeCompare::equal':
 //..
 //  template <class VALUE_TYPE>
@@ -1010,14 +1010,14 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::RangeCompare bslalg_RangeCompare;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

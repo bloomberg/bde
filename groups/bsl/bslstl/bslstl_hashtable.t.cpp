@@ -26,6 +26,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_platform.h>
 
 #include <bsltf_convertiblevaluewrapper.h>
@@ -36,9 +37,9 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
-#include <limits>
 #include <stdexcept>  // to verify correct exceptions are thrown
 
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -110,6 +111,23 @@
 # define BSLSTL_HASHTABLE_TRIM_TEST_CASE9_COMPLEXITY
 #endif
 
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1800)
+// Earlier Microsoft libraries did not have an attribute to indicate that the
+// 'abort' function does not return.  We actively get warings for unreachable
+// code with the VC 2013 compiler if the workaround is enabled, so should limit
+// the usage based on a version check.  This code has not yet been explicitly
+// tested with VC2010 or VC2012, as the actively supported platforms for
+// development are VC2008, and VC2013.
+# define BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// Similar to the Microsoft workaround above, but we have not yet had reports
+// of test drivers warning about unreachable code, so no version check is
+// applied.
+# define BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT
+#endif
+
 using namespace BloombergLP;
 using bslstl::CallableVariable;
 
@@ -118,7 +136,7 @@ using bslstl::CallableVariable;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test is a value semantic container class template, whose
+// The component under test is a value-semantic container class template, whose
 // elements are indexed by key, and duplicate key values are permitted.  The
 // purpose of the component is to support implementing the four standard
 // unordered containers, so it may be customized at compile time with a C++11
@@ -130,7 +148,7 @@ using bslstl::CallableVariable;
 // important issue is the selection of primary manipulators.  The 'insert'
 // operations of the container may trigger a 'rehash' operation, which is
 // unrelated to value.  As this is an operation we prefer to defer testing
-// until after the initial ten value semantic test cases, we create an
+// until after the initial ten value-semantic test cases, we create an
 // 'insertElement' function that checks if an insert would trigger a rehash
 // before proceeding.  This becomes our primary manipulator, coupled with a
 // strategy to always reserve enough space at construction to accommodate all
@@ -165,7 +183,7 @@ using bslstl::CallableVariable;
 // empty container with no space reserved for elements to insert.  As we are
 // avoiding rehash operations during the (idiomatic) initial ten value-
 // semantic class test cases, this means we must use the value constructor
-// through the value semantic bootstrap tests, as this constructor does allow
+// through the value-semantic bootstrap tests, as this constructor does allow
 // us to specify an initial capacity.  Further, the default constructor has a
 // more minimal set of requirements on the template arguments than other
 // constructors, so we will test this constructor as the very final test case,
@@ -282,7 +300,7 @@ using bslstl::CallableVariable;
 // [  ] CONCERN: The type has the necessary type traits.
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
@@ -291,21 +309,26 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
 // ============================================================================
-//                      STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -314,13 +337,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
@@ -350,12 +372,12 @@ bool veryVerbose;
 bool veryVeryVerbose;
 bool veryVeryVeryVerbose;
 
-#pragma bde_verify push    // Suppress idiomatic issues with usage examples
-#pragma bde_verify -CC01   // C-style casts are used for readability
-#pragma bde_verify -FABC01 // Functions ordered for expository purpose
-#pragma bde_verify -FD01   // Function contracts may be documented implicitly
+// BDE_VERIFY pragma: push    // Suppress idiomatic issues with usage examples
+// BDE_VERIFY pragma: -CC01   // C-style casts are used for readability
+// BDE_VERIFY pragma: -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: -FD01   // Function contract may be documented implicitly
 
-#pragma bde_verify set ok_unquoted allocator hash value
+// BDE_VERIFY pragma: set ok_unquoted allocator hash value
 // ============================================================================
 //                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
@@ -1780,7 +1802,7 @@ struct UsesBslmaAllocator<UsageExamples::MySalesRecordContainer>
 
 }  // close traits namespace
 }  // close enterprise namespace
-#pragma bde_verify pop  // Suppress idiomatic issues with usage examples
+// BDE_VERIFY pragma: pop  // Suppress idiomatic issues with usage examples
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1941,7 +1963,7 @@ class AwkwardMaplikeElement {
     // This class provides an awkward value-semantic type, designed to be used
     // with a KEY_CONFIG policy for a HashTable that supplies a non-equality
     // comparable key-type, using 'data' for the 'extractKey' method, while the
-    // class itself *is* equality-comparable (as required of a value semantic
+    // class itself *is* equality-comparable (as required of a value-semantic
     // type) so that a HashTable of these objects should have a well-defined
     // 'operator=='.  Note that this class is a specific example for a specific
     // problem, rather than a template providing the general test type for keys
@@ -2007,8 +2029,8 @@ class MostEvilTestType {
     // This class provides an awkward value-semantic type, designed to be used
     // with a KEY_CONFIG policy for a HashTable that supplies a non-equality
     // comparable key-type, using 'data' for the 'extractKey' method, while the
-    // class itself *is* equality-comparable (as required of a value semantic
-    // type) so that a HashTable of these objects should have a well- defined
+    // class itself *is* equality-comparable (as required of a value-semantic
+    // type) so that a HashTable of these objects should have a well-defined
     // 'operator=='.  Note that this class is a specific example for a specific
     // problem, rather than a template providing the general test type for keys
     // distinct from values, as the template test facility requires an explicit
@@ -3344,7 +3366,7 @@ void ThrowingEqualityComparator<TYPE>::setThrowInterval(size_t value)
 template <class TYPE>
 inline
 bool ThrowingEqualityComparator<TYPE>::operator() (const TYPE& lhs,
-                                               const TYPE& rhs) const
+                                                   const TYPE& rhs) const
 {
     ++d_count;
 
@@ -3775,36 +3797,36 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
-          *objPtr = new (*fa) Obj(objAlloc);
-          return objAlloc;                                            // RETURN
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
+        *objPtr = new (*fa) Obj(objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj();
-          return ALLOCATOR();                                         // RETURN
+        *objPtr = new (*fa) Obj();
+        return ALLOCATOR();                                           // RETURN
       } break;
       case 'c': {
-          ALLOCATOR result = ALLOCATOR();
-          *objPtr = new (*fa) Obj(result);
-          return result;                                              // RETURN
+        ALLOCATOR result = ALLOCATOR();
+        *objPtr = new (*fa) Obj(result);
+        return result;                                                // RETURN
       } break;
       case 'd': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
                                            bslma::Default::defaultAllocator());
-          *objPtr = new (*fa) Obj(objAlloc);
-          return objAlloc;                                            // RETURN
+        *objPtr = new (*fa) Obj(objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
     }
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
@@ -3823,51 +3845,51 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
-          *objPtr = new (*fa) Obj(hash,
-                                 compare,
-                                 initialBuckets,
-                                 initialMaxLoadFactor,
-                                 objAlloc);
-          return objAlloc;                                            // RETURN
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor);
-          return ALLOCATOR();                                         // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor);
+        return ALLOCATOR();                                           // RETURN
       } break;
       case 'c': {
-          ALLOCATOR result = ALLOCATOR();
-          *objPtr = new (*fa) Obj(hash,
-                                 compare,
-                                 initialBuckets,
-                                 initialMaxLoadFactor,
-                                 result);
-          return result;                                              // RETURN
+        ALLOCATOR result = ALLOCATOR();
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                result);
+        return result;                                                // RETURN
       } break;
       case 'd': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
                                            bslma::Default::defaultAllocator());
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  objAlloc);
-          return objAlloc;                                            // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
     }
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
@@ -3889,32 +3911,32 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          *objPtr = new (*fa) Obj(objectAllocator);
-          return objectAllocator;                                     // RETURN
+        *objPtr = new (*fa) Obj(objectAllocator);
+        return objectAllocator;                                       // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj();
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj();
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'c': {
-          *objPtr = new (*fa) Obj(static_cast<bslma::Allocator *>(0));
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(static_cast<bslma::Allocator *>(0));
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'd': {
-          *objPtr = new (*fa) Obj(bslma::Default::defaultAllocator());
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(bslma::Default::defaultAllocator());
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
     }
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
@@ -3940,47 +3962,47 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  objectAllocator);
-          return objectAllocator;                                     // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                objectAllocator);
+        return objectAllocator;                                       // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor);
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor);
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'c': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  static_cast<bslma::Allocator *>(0));
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                static_cast<bslma::Allocator *>(0));
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'd': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  bslma::Default::defaultAllocator());
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                bslma::Default::defaultAllocator());
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
     }
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
@@ -4268,6 +4290,27 @@ bool expectPoolToAllocate(size_t n)
     return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
 }
 
+template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
+Link* insertElement(
+                  bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
+                  const typename KEY_CONFIG::ValueType&              value)
+    // Insert an element having the specified 'value' into the specified
+    // 'hashTable' and return the address of the new node, unless the insertion
+    // would cause the hash table to exceed its 'maxLoadFactor' and rehash, in
+    // which case return a null pointer value.  Return a null pointer value if
+    // the 'hashTable' address is a null pointer value.
+{
+    if (!hashTable) {
+        return 0;                                                     // RETURN
+    }
+
+    if (hashTable->size() == hashTable->rehashThreshold()) {
+        return 0;                                                     // RETURN
+    }
+
+    return hashTable->insert(value);
+}
+
 template <class SIZE_TYPE>
 SIZE_TYPE predictNumBuckets(SIZE_TYPE length, float maxLoadFactor)
     // Return the minimum number of buckets necessary to support the specified
@@ -4308,7 +4351,6 @@ int verifyListContents(Link                                 *containerList,
     // Return 0 if 'container' has the expected values, and a non-zero value
     // otherwise.
 {
-    typedef typename KEY_CONFIG::KeyType   KeyType;
     typedef typename KEY_CONFIG::ValueType ValueType;
 
     enum { SUCCESS          =  0,
@@ -4414,27 +4456,6 @@ int verifyListContents(Link                                 *containerList,
     }
 
     return SUCCESS;
-}
-
-template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
-Link* insertElement(
-                  bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
-                  const typename KEY_CONFIG::ValueType&              value)
-    // Insert an element having the specified 'value' into the specified
-    // 'hashTable' and return the address of the new node, unless the insertion
-    // would cause the hash table to exceed its 'maxLoadFactor' and rehash, in
-    // which case return a null pointer value.  Return a null pointer value if
-    // the 'hashTable' address is a null pointer value.
-{
-    if (!hashTable) {
-        return 0;                                                     // RETURN
-    }
-
-    if (hashTable->size() == hashTable->rehashThreshold()) {
-        return 0;                                                     // RETURN
-    }
-
-    return hashTable->insert(value);
 }
 
 }  // close unnamed namespace
@@ -5749,7 +5770,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (SizeType ti = 0; ti < MAX_LENGTH; ++ti) {
         const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
-        const size_t LENGTH = ti;
+        const SizeType LENGTH = ti;
 
         for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
             const char CONFIG = *cfg;  // how we specify the allocator
@@ -5782,13 +5803,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             Obj       *objPtr;
             ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
-                                                       CONFIG,
+                                                        CONFIG,
                                                        &fa,
                                                        &sa,
-                                                       HASH,
-                                                       COMPARE,
-                                                       NUM_BUCKETS,
-                                                       MAX_LF);
+                                                        HASH,
+                                                        COMPARE,
+                                                        NUM_BUCKETS,
+                                                        MAX_LF);
             bslma::RawDeleterGuard<Obj, bslma::TestAllocator> guardObj(objPtr,
                                                                        &fa);
             Obj& mX = *objPtr;  const Obj& X = mX;
@@ -8462,7 +8483,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
                 ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() ==
                                                                  RESERVED_MEM);
 
-                for (int tl = 0; tl < ADDITIONAL_ELEMENTS; ++tl) {
+                for (size_t tl = 0; tl < ADDITIONAL_ELEMENTS; ++tl) {
                     mResX.insert( VALUES[tl % 10] );
                     mNoResX.insert( VALUES[tl % 10] );
                 }
@@ -9293,6 +9314,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase16()
 
     typedef typename KEY_CONFIG::KeyType   KeyType;
     typedef typename KEY_CONFIG::ValueType ValueType;
+
+
+    ASSERT((bsl::is_same<typename Obj::KeyType,   KeyType>::value));
+    ASSERT((bsl::is_same<typename Obj::ValueType, ValueType>::value));
 
     // These traits should never be true
 
@@ -11454,35 +11479,35 @@ int main(int argc, char *argv[])
     ASSERT(bsltf::StdTestAllocatorConfiguration::delegateAllocator() ==
                                                            g_bsltfAllocator_p);
 
-#pragma bde_verify push
-#pragma bde_verify -TP05  // Test doc is in delegated functions
-#pragma bde_verify -TP17  // No test-banners in a delegating switch statement
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TP05 // Test doc is in delegated functions
+// BDE_VERIFY pragma: -TP17 // No test-banners in a delegating switch statement
     switch (test) { case 0:
-      case 17: mainTestCaseUsageExample(); break;
-//      case 18: mainTestCase18(); break;
-//      case 17: mainTestCase17(); break;
-      case 16: mainTestCase16(); break;
-      case 15: mainTestCase15(); break;
-      case 14: mainTestCase14(); break;
-      case 13: mainTestCase13(); break;
-      case 12: mainTestCase12(); break;
-      case 11: mainTestCase11(); break;
-      case 10: mainTestCase10(); break;
-      case  9: mainTestCase9 (); break;
-      case  8: mainTestCase8 (); break;
-      case  7: mainTestCase7 (); break;
-      case  6: mainTestCase6 (); break;
-      case  5: mainTestCase5 (); break;
-      case  4: mainTestCase4 (); break;
-      case  3: mainTestCase3 (); break;
-      case  2: mainTestCase2 (); break;
-      case  1: mainTestCase1 (); break;
+      case 17: { mainTestCaseUsageExample(); } break;
+//      case 18: { mainTestCase18(); } break;
+//      case 17: { mainTestCase17(); } break;
+      case 16: { mainTestCase16(); } break;
+      case 15: { mainTestCase15(); } break;
+      case 14: { mainTestCase14(); } break;
+      case 13: { mainTestCase13(); } break;
+      case 12: { mainTestCase12(); } break;
+      case 11: { mainTestCase11(); } break;
+      case 10: { mainTestCase10(); } break;
+      case  9: { mainTestCase9 (); } break;
+      case  8: { mainTestCase8 (); } break;
+      case  7: { mainTestCase7 (); } break;
+      case  6: { mainTestCase6 (); } break;
+      case  5: { mainTestCase5 (); } break;
+      case  4: { mainTestCase4 (); } break;
+      case  3: { mainTestCase3 (); } break;
+      case  2: { mainTestCase2 (); } break;
+      case  1: { mainTestCase1 (); } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
     // There should be no allocations for the "default STL-test allocator"
     ASSERTV(bsltfAllocator.numBlocksTotal(),

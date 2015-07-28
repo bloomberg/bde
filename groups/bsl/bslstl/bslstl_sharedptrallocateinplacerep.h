@@ -17,7 +17,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@SEE_ALSO: bslma_sharedptrrep, bslma_sharedptrinplacerep, bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides a class template,
-// 'SharedPtrAllocateInplaceRep', proving a concrete implementation of
+// 'bslstl::SharedPtrAllocateInplaceRep', proving a concrete implementation of
 // 'bslma::SharedPtrRep' for managing objects of the parameterized 'TYPE' that
 // are stored in-place in the representation, and are allocated by an allocator
 // that satisfies the requirements of an Allocator type in the C++11 standard.
@@ -26,7 +26,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // object are released (using 'releaseRef'), the destructor of 'TYPE' is
 // invoked.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // 'bslstl::SharedPtrAllocateInplaceRep' is thread-safe provided that
 // 'disposeObject' and 'disposeRep' are not called explicitly, meaning that all

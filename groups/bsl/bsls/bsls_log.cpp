@@ -250,6 +250,8 @@ int vsnprintf_allocate(char                 *originalBuffer,
     return status;
 }
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+
 int snprintf_allocate(char                 *originalBuffer,
                       size_t                originalBufferSize,
                       BufferScopedGuard&    guard,
@@ -288,6 +290,8 @@ int snprintf_allocate(char                 *originalBuffer,
     va_end(substitutions);
     return status;
 }
+
+#endif
 
 }  // close unnamed namespace
 

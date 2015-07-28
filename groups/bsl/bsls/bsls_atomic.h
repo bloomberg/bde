@@ -183,7 +183,7 @@ BSLS_IDENT("$Id: $")
 // Note that functions 'createWorkerThread' and 'waitAllThreads' can be
 // implemented using any thread-support package.
 //
-///Example 2: Thread-safe Counted Handle
+///Example 2: Thread-Safe Counted Handle
 ///- - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of atomic integer operations to
 // implement a thread-safe ref-counted handle similar to a shared pointer.
@@ -1003,17 +1003,17 @@ class AtomicPointer {
 
     TYPE *testAndSwap(const TYPE *compareValue, TYPE *swapValue);
         // Compare the value of this object to the specified 'compareValue'.
-        // If they are equal, set the value of this atomic integer to the
+        // If they are equal, set the value of this atomic pointer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
-        // the previous value of this atomic integer, whether or not the swap
+        // the previous value of this atomic pointer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
         // atomically.
 
     TYPE *testAndSwapAcqRel(const TYPE *compareValue, TYPE *swapValue);
         // Compare the value of this object to the specified 'compareValue'.
-        // If they are equal, set the value of this atomic integer to the
+        // If they are equal, set the value of this atomic pointer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
-        // the previous value of this atomic integer, whether or not the swap
+        // the previous value of this atomic pointer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
         // atomically and it provides the acquire/release memory ordering
         // guarantee.

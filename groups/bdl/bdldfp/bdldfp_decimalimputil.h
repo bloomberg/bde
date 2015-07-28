@@ -225,15 +225,15 @@ class DecimalImpUtil {
     typedef Imp::ValueType128 ValueType128;
 
     // CLASS METHODS
-    static ValueType64 makeDecimal64(                   int mantissa,
+    static ValueType64 makeDecimal64(                   int significand,
                                                         int exponent);
-    static ValueType64 makeDecimal64(unsigned           int mantissa,
+    static ValueType64 makeDecimal64(unsigned           int significand,
                                                         int exponent);
-    static ValueType64 makeDecimal64(         long long int mantissa,
+    static ValueType64 makeDecimal64(         long long int significand,
                                                         int exponent);
-    static ValueType64 makeDecimal64(unsigned long long int mantissa,
+    static ValueType64 makeDecimal64(unsigned long long int significand,
                                                         int exponent);
-        // Return a 'Decimal64' object that has the specified 'mantissa' and
+        // Return a 'Decimal64' object that has the specified 'significand' and
         // 'exponent', rounded according to the current decimal rounding mode,
         // if necessary.  If an overflow condition occurs, store the value of
         // the macro 'ERANGE' into 'errno' and return infinity with the
@@ -278,7 +278,7 @@ class DecimalImpUtil {
     //static ValueType128 composeDecimal128(DecimalTriple triple);
         // Return a 'ValueTypeXX' number having the value as specified by the
         // salient attributes of the specified 'triple'.  The behavior is
-        // undefined if the 'mantissa' has too many decimal digits for
+        // undefined if the 'significand' has too many decimal digits for
         // 'ValueType', or the 'exponent' is too large for 'ValueType'
 
     //static DecimalTriple decomposeDecimal(ValueType32  value);
@@ -765,38 +765,38 @@ class DecimalImpUtil {
 
                         // makeDecimalRaw functions
 
-    static ValueType32 makeDecimalRaw32(int mantissa, int exponent);
+    static ValueType32 makeDecimalRaw32(int significand, int exponent);
         // Create a 'ValueType32' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by 'mantissa'.  The behavior is undefined unless
-        // 'abs(mantissa) <= 9,999,999' and '-101 <= exponent <= 90'.
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.  The behavior is undefined
+        // unless 'abs(significand) <= 9,999,999' and '-101 <= exponent <= 90'.
 
-    static ValueType64 makeDecimalRaw64(unsigned long long int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(         long long int mantissa,
+    static ValueType64 makeDecimalRaw64(         long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(unsigned           int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned           int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(                   int mantissa,
+    static ValueType64 makeDecimalRaw64(                   int significand,
                                                            int exponent);
         // Create a 'ValueType64' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by 'mantissa'.  The behavior is undefined unless
-        // 'abs(mantissa) <= 9,999,999,999,999,999' and
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.  The behavior is undefined
+        // unless 'abs(significand) <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
-    static ValueType128 makeDecimalRaw128(unsigned long long int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(         long long int mantissa,
+    static ValueType128 makeDecimalRaw128(         long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(unsigned           int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned           int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(                   int mantissa,
+    static ValueType128 makeDecimalRaw128(                   int significand,
                                                              int exponent);
         // Create a 'ValueType128' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by 'mantissa'.  The behavior is undefined unless
-        // '-6176 <= exponent <= 6111'.
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.  The behavior is undefined
+        // unless '-6176 <= exponent <= 6111'.
 
                         // ScaleB functions
 
@@ -1371,95 +1371,95 @@ DecimalImpUtil::binaryToDecimal128(double value)
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::makeDecimalRaw32(int mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw32(int significand, int exponent)
 {
     BSLS_ASSERT(-101 <= exponent);
     BSLS_ASSERT(        exponent <= 90);
-    BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999);
-    return Imp::makeDecimalRaw32(mantissa, exponent);
+    BSLS_ASSERT(bsl::max(significand, -significand) <= 9999999);
+    return Imp::makeDecimalRaw32(significand, exponent);
 }
 
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::makeDecimalRaw64(unsigned long long mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw64(unsigned long long significand, int exponent)
 {
     BSLS_ASSERT(-398 <= exponent);
     BSLS_ASSERT(        exponent <= 369);
-    BSLS_ASSERT(mantissa <= 9999999999999999LL);
+    BSLS_ASSERT(significand <= 9999999999999999LL);
 
-    return Imp::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(significand, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::makeDecimalRaw64(long long mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw64(long long significand, int exponent)
 {
     BSLS_ASSERT(-398 <= exponent);
     BSLS_ASSERT(        exponent <= 369);
-    BSLS_ASSERT(std::max(mantissa, -mantissa) <= 9999999999999999LL);
+    BSLS_ASSERT(std::max(significand, -significand) <= 9999999999999999LL);
 
-    return Imp::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(significand, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::makeDecimalRaw64(unsigned int mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw64(unsigned int significand, int exponent)
 {
     BSLS_ASSERT(-398 <= exponent);
     BSLS_ASSERT(        exponent <= 369);
 
-    return Imp::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(significand, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::makeDecimalRaw64(int mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw64(int significand, int exponent)
 {
     BSLS_ASSERT(-398 <= exponent);
     BSLS_ASSERT(        exponent <= 369);
-    return Imp::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(significand, exponent);
 }
 
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::makeDecimalRaw128(unsigned long long mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw128(unsigned long long significand, int exponent)
 {
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return Imp::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(significand, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::makeDecimalRaw128(long long mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw128(long long significand, int exponent)
 {
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return Imp::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(significand, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::makeDecimalRaw128(unsigned int mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw128(unsigned int significand, int exponent)
 {
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return Imp::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(significand, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::makeDecimalRaw128(int mantissa, int exponent)
+DecimalImpUtil::makeDecimalRaw128(int significand, int exponent)
 {
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return Imp::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(significand, exponent);
 }
 
                         // IEEE Scale B Functions

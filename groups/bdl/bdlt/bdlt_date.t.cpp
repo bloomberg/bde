@@ -24,7 +24,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD Extra inclusions needed temporarily for testing 'logIfProblematicDate*'.
 #include <bsls_log.h>
 #include <bsl_string.h>
@@ -127,19 +127,27 @@ using namespace bsl;
 // [15] Date operator+(int numDays, const Date& date);
 // [15] Date operator-(const Date& date, int numDays);
 // [16] int operator-(const Date& lhs, const Date& rhs);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// [20] hashAppend(HASHALG& hashAlg, const Date& date);
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [13] static bool isValid(int year, int dayOfYear);
 // [13] static bool isValid(int year, int month, int day);
 // [10] static int maxSupportedBdexVersion();
+// TRANSITIONAL
+// [22] static void logIfProblematicDate*(args);
+// [23] static void disableLogging();
+// [23] static void enableLogging();
+// [23] static bool isLoggingEnabled();
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [13] int validateAndSetYearDay(int year, int dayOfYear);
 // [13] int validateAndSetYearMonthDay(int year, int month, int day);
 // [ 5] bsl::ostream& streamOut(bsl::ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [20] USAGE EXAMPLE
+// [21] USAGE EXAMPLE
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: In no case does memory come from the default allocator.
@@ -221,7 +229,7 @@ typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 
 // TBD stuff needed temporarily for testing 'logIfProblematicDate*'
 
@@ -342,7 +350,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2000,   58,       364 },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     { L_,    1000,    1,   1001,    1,       365 },
 #endif
     { L_,    1998,   59,   1999,   59,       365 },
@@ -354,7 +362,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2002,   59,      1096 },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     { L_,       1,    1,   9999,  365,   3652058 },
 #endif
 };
@@ -387,8 +395,62 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-#ifndef BDE_OMIT_TRANSITIONAL
-      case 21: {
+#ifndef BDE_OPENSOURCE_PUBLICATION
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING LOGGING SWITCH
+        //
+        // Concerns:
+        //: 1 Logging is disabled by default.
+        //:
+        //: 2 The 'disableLogging' function disables logging regardless of its
+        //:   current setting.
+        //:
+        //: 3 The 'enableLogging' function enables logging regardless of its
+        //:   current setting.
+        //:
+        //: 4 The value returned by the 'isLoggingEnabled' function is 'true'
+        //:   if logging is enabled, and 'false' otherwise.
+        //
+        // Plan:
+        //: 1 Verify logging is initially disabled.  (C-1)
+        //:
+        //: 2 Cycle through a sequence of calls to the "disable" and "enable"
+        //:   functions ensuring that each function is called at least once
+        //:   when the current logging state is off and at least once when the
+        //:   state is on.  Follow each call with a call to 'isLoggingEnabled'
+        //:   to verify that the expected logging state is in effect.  (C-2..4)
+        //
+        // Testing:
+        //   static void disableLogging();
+        //   static void enableLogging();
+        //   static bool isLoggingEnabled();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING LOGGING SWITCH" << endl
+                          << "======================" << endl;
+
+        // Logging is disabled by default.
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::disableLogging();
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::disableLogging();
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::enableLogging();
+        ASSERT(true  == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::enableLogging();
+        ASSERT(true  == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::disableLogging();
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+      } break;
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING 'logIfProblematicDate*'
         //
@@ -424,6 +486,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'logIfProblematicDate*'"
                           << "\n===============================" << endl;
+
+        if (!bdlt::Date::isLoggingEnabled()) {
+            if (verbose) cout << "\nLogging is disabled.  Skipping..." << endl;
+
+            break;
+        }
 
         bslma::TestAllocator da("case21", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -1036,7 +1104,7 @@ int main(int argc, char *argv[])
 
       } break;
 #endif
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1133,6 +1201,95 @@ if (verbose)
 //..
 // on 'stdout'.
 
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING: hashAppend
+        //
+        // Concerns:
+        //: 1 Hashes different inputs differently
+        //
+        //: 2 Hashes equal inputs identically
+        //
+        //: 3 Works for const and non-const dates
+        //
+        // Plan:
+        //: 1 Brute force test of a few hand picked values, ensuring that
+        //    hashes of equivalent values match and hashes of unequal values do
+        //    not.
+        //
+        // Testing:
+        //     hashAppend(HASHALG& hashAlg, const Date&  date);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING 'hashAppend'"
+                          << "\n====================\n";
+
+        if (verbose) cout << "Brute force test of several dates." << endl;
+        {
+            typedef ::BloombergLP::bslh::Hash<> Hasher;
+
+            bdlt::Date d1; // P-1
+            bdlt::Date d2(1999, 12, 31);
+            bdlt::Date d3(1999, 12, 31);
+            bdlt::Date d4(1, 1, 2);
+            const bdlt::Date d5(1, 1, 2);
+            const bdlt::Date d6(1, 1, 3);
+
+            Hasher hasher;
+            Hasher::result_type a1 = hasher(d1), a2 = hasher(d2),
+                                a3 = hasher(d3), a4 = hasher(d4),
+                                a5 = hasher(d5), a6 = hasher(d6);
+
+            if (veryVerbose) {
+                cout << "\tHash of " << d1 << " is " << a1 << endl;
+                cout << "\tHash of " << d2 << " is " << a2 << endl;
+                cout << "\tHash of " << d3 << " is " << a3 << endl;
+                cout << "\tHash of " << d4 << " is " << a4 << endl;
+                cout << "\tHash of " << d5 << " is " << a5 << endl;
+                cout << "\tHash of " << d6 << " is " << a6 << endl;
+            }
+
+            ASSERT(a1 != a2);
+            ASSERT(a1 != a3);
+            ASSERT(a1 != a4);
+            ASSERT(a1 != a5);
+            ASSERT(a1 != a6);
+            if (veryVerbose) {
+                cout << "\td1/d2: " << int(a1 != a2)
+                     << ", d1/d3: " << int(a1 != a3)
+                     << ", d1/d4: " << int(a1 != a4)
+                     << ", d1/d5: " << int(a1 != a5)
+                     << ", d1/d6: " << int(a1 != a6) << endl;
+            }
+            ASSERT(a2 == a3);
+            ASSERT(a2 != a4);
+            ASSERT(a2 != a5);
+            ASSERT(a2 != a6);
+            if (veryVerbose) {
+                cout << "\td2/d3: " << int(a2 != a3)
+                     << ", d2/d4: " << int(a2 != a4)
+                     << ", d2/d5: " << int(a2 != a5)
+                     << ", d2/d6: " << int(a2 != a6) << endl;
+            }
+            ASSERT(a3 != a4);
+            ASSERT(a3 != a5);
+            ASSERT(a3 != a6);
+            if (veryVerbose) {
+                cout << "\td3/d4: " << int(a3 != a4)
+                     << ", d3/d5: " << int(a3 != a5)
+                     << ", d3/d6: " << int(a3 != a6) << endl;
+            }
+            ASSERT(a4 == a5);
+            ASSERT(a4 != a6);
+            if (veryVerbose) {
+                cout << "\td4/d5: " << int(a4 != a5)
+                     << ", d4/d6: " << int(a4 != a6) << endl;
+            }
+            ASSERT(a5 != a6);
+            if (veryVerbose) {
+                cout << "\td5/d6: " << int(a5 != a6) << endl;
+            }
+        }
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -1257,7 +1414,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MIN },
                 { L_,    9999,   365,    INT_MIN },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    9999,   365,   -3652059 },
 #endif
 
@@ -1282,7 +1439,7 @@ if (verbose)
 
                 { L_,    9998,   365,        366 },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,       1,     1,    3652059 },
 #endif
 
@@ -1423,7 +1580,7 @@ if (verbose)
                 T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
             }
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
             if (!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
              && YEAR <= 1752) {
                 continue;
@@ -2119,7 +2276,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
 #else
@@ -2142,7 +2299,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
 #else
@@ -2168,7 +2325,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
 #else
@@ -2191,7 +2348,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
 #else
@@ -2215,7 +2372,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(V +        0);
                 ASSERT_SAFE_FAIL(V +       -1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(V +  3652058);
                 ASSERT_SAFE_FAIL(V +  3652059);
 #else
@@ -2234,7 +2391,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(W +        0);
                 ASSERT_SAFE_FAIL(W +        1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(W + -3652058);
                 ASSERT_SAFE_FAIL(W + -3652059);
 #else
@@ -2256,7 +2413,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + V);
                 ASSERT_SAFE_FAIL(      -1 + V);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS( 3652058 + V);
                 ASSERT_SAFE_FAIL( 3652059 + V);
 #else
@@ -2275,7 +2432,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + W);
                 ASSERT_SAFE_FAIL(       1 + W);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(-3652058 + W);
                 ASSERT_SAFE_FAIL(-3652059 + W);
 #else
@@ -2297,7 +2454,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(V -        0);
                 ASSERT_SAFE_FAIL(V -        1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(V - -3652058);
                 ASSERT_SAFE_FAIL(V - -3652059);
 #else
@@ -2316,7 +2473,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(W -        0);
                 ASSERT_SAFE_FAIL(W -       -1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(W -  3652058);
                 ASSERT_SAFE_FAIL(W -  3652059);
 #else
@@ -2497,7 +2654,7 @@ if (verbose)
                 { L_,       4,  366,      5,    1 },
                 { L_,      10,   59,     10,   60 },
                 { L_,     100,   90,    100,   91 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,     100,  365,    101,    1 },
 #endif
                 { L_,     400,   59,    400,   60 },
@@ -2799,12 +2956,14 @@ if (verbose)
         //   static bool isValidYearMonthDay(int year, int month, int day);
         //   int setYearDayIfValid(int year, int dayOfYear);
         //   int setYearMonthDayIfValid(int year, int month, int day);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static bool isValid(int year, int dayOfYear);
         //   static bool isValid(int year, int month, int day);
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   int validateAndSetYearDay(int year, int dayOfYear);
         //   int validateAndSetYearMonthDay(int year, int month, int day);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2855,7 +3014,7 @@ if (verbose)
                 { L_,        100,        0,     0 },
                 { L_,        100,        1,     1 },
                 { L_,        100,      365,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,        100,      366,     0 },
 #endif
 
@@ -2867,7 +3026,7 @@ if (verbose)
                 { L_,       1000,        0,     0 },
                 { L_,       1000,        1,     1 },
                 { L_,       1000,      365,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,       1000,      366,     0 },
 #endif
 
@@ -2914,11 +3073,12 @@ if (verbose)
 
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
                 // '[isValid|validateAndSetYearDay](year, dayOfYear)'
 
                 {
                     LOOP_ASSERT(LINE, EXP == Obj::isValid(YEAR, DAY));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
                     Obj mX(1133, 275);  const Obj& X = mX;
 
@@ -2940,8 +3100,9 @@ if (verbose)
 
                         if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                     }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
                 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
             }
         }
 
@@ -2986,7 +3147,7 @@ if (verbose)
                 { L_,          4,        2,       30,     0 },
 
                 { L_,        100,        2,       28,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,        100,        2,       29,     0 },
 #endif
 
@@ -2995,7 +3156,7 @@ if (verbose)
                 { L_,        400,        2,       30,     0 },
 
                 { L_,       1000,        2,       28,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,       1000,        2,       29,     0 },
 #endif
 
@@ -3099,11 +3260,12 @@ if (verbose)
 
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
                 // '[isValid|validateAndSetYearMonthDay](year, month, day)'
 
                 {
                     LOOP_ASSERT(LINE, EXP == Obj::isValid(YEAR, MONTH, DAY));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
                     Obj mY(1133, 10, 2);  const Obj& Y = mY;
 
@@ -3129,8 +3291,9 @@ if (verbose)
 
                         if (veryVeryVerbose) { T_ T_ P_(W) P(Y) }
                     }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
                 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
             }
         }
 
@@ -3251,20 +3414,20 @@ if (verbose)
                 { L_,       2,    1,      1,        1 },
                 { L_,      10,   95,      4,        5 },
                 { L_,      10,  284,     10,       11 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,     100,  158,      6,        7 },
                 { L_,     100,  316,     11,       12 },
                 { L_,    1000,  221,      8,        9 },
 #endif
                 { L_,    1100,   31,      1,       31 },
                 { L_,    1200,   60,      2,       29 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1300,   90,      3,       31 },
                 { L_,    1400,  120,      4,       30 },
                 { L_,    1500,  151,      5,       31 },
 #endif
                 { L_,    1600,  182,      6,       30 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1700,  212,      7,       31 },
 #endif
                 { L_,    1800,  243,      8,       31 },
@@ -3722,7 +3885,7 @@ if (verbose)
         //:
         //: 9 The initial value of the object has no affect on
         //:   unexternalization.
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
         //:
         //:10 Streaming version 1 provides the expected compatibility between
         //:   the two calendar modes.
@@ -3779,7 +3942,7 @@ if (verbose)
         //:
         //:11 In all cases, verify the return value of the tested method.
         //:   (C-8)
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
         //:
         //:12 Let 'M' be the ordered set of calendar modes { POSIX, proleptic
         //:   Gregorian }.  For each '(u, v)' in the set 'M x M', verify that
@@ -3791,10 +3954,12 @@ if (verbose)
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedVersion();
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4111,7 +4276,7 @@ if (verbose)
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
         const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 #else
         int SERIAL_Y;               // streamed rep. of 'Y'
@@ -4355,7 +4520,7 @@ if (verbose)
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 
         if (verbose) cout << "\nCompatibility of the two calendar modes."
                           << endl;
@@ -4706,19 +4871,21 @@ if (verbose)
 
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
         }
         {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             ASSERT(Obj::maxSupportedVersion()
                                            == Obj::maxSupportedBdexVersion(0));
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
             ASSERT(Obj::maxSupportedBdexVersion()
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -5214,9 +5381,9 @@ if (verbose)
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
         //   ostream& operator<<(ostream &os, const Date& object);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   bsl::ostream& streamOut(bsl::ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5390,7 +5557,7 @@ if (verbose)
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         if (verbose) cout << "\nTesting DEPRECATED 'streamOut' for sanity."
                           << endl;
         {
@@ -5406,7 +5573,7 @@ if (verbose)
 
             ASSERT(os1.str() == os2.str());
         }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
       } break;
       case 4: {
@@ -5846,7 +6013,7 @@ if (verbose)
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
 
       } break;
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
       case -1: {
         // --------------------------------------------------------------------
         // 'logIfProblematicDate*' Log Messages

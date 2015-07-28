@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //      // PRIVATE ACCESSORS
 //      bool operator==(const SimplePtr &);  // = delete;
 //      bool operator!=(const SimplePtr &);  // = delete;
-//          // Suppress equality comparison operations on objects of this
+//          // Suppress equality-comparison operations on objects of this
 //          // class.
 //
 //    public:
@@ -192,7 +192,7 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -202,7 +202,7 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 #endif
 #define bsls_UnspecifiedBool bsls::UnspecifiedBool
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

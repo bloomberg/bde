@@ -7,18 +7,18 @@
 #endif
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide an in-core value semantic class to call a delete function.
+//@PURPOSE: Provide an in-core value-semantic class to call a delete function.
 //
 //@CLASSES:
-//  bslma::ManagedPtrDeleter: in-core value semantic class storing a deleter
+//  bslma::ManagedPtrDeleter: in-core value-semantic class storing a deleter
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
 //@SEE_ALSO: bslma_managedptr
 //
 //@DESCRIPTION: This component provides a single, complex-constrained in-core
-// value-semantic attribute class, 'ManagedPtrDeleter', that is used to store a
-// bound function call for a "factory" to destroy an "object".
+// value-semantic attribute class, 'bslma::ManagedPtrDeleter', that is used to
+// store a bound function call for a "factory" to destroy an "object".
 //
 ///Attributes
 ///----------
@@ -83,7 +83,7 @@ class ManagedPtrDeleter {
 
   public:
     // PUBLIC TYPES
-    typedef void(*Deleter)(void *, void *);
+    typedef void(*Deleter)(void *managedObject, void *cookie);
         // Deleter function prototype used to destroy the managed pointer.
 
   private:

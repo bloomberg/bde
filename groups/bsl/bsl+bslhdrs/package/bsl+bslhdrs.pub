@@ -1,4 +1,5 @@
 # Container headers
+bsl_array.h
 bsl_deque.h
 bsl_iterator.h
 bsl_list.h
@@ -18,11 +19,16 @@ bsl_slist.h
 
 # Non-container headers
 bsl_algorithm.h
+bsl_atomic.h
 bsl_bitset.h
+bsl_chrono.h
+bsl_condition_variable.h
 bsl_complex.h
 bsl_exception.h
 bsl_fstream.h
 bsl_functional.h
+bsl_future.h
+bsl_initializer_list.h
 bsl_iomanip.h
 bsl_ios.h
 bsl_iosfwd.h
@@ -30,12 +36,21 @@ bsl_iostream.h
 bsl_istream.h
 bsl_limits.h
 bsl_locale.h
+bsl_mutex.h
 bsl_new.h
 bsl_numeric.h
 bsl_ostream.h
+bsl_random.h
+bsl_ratio.h
+bsl_regex.h
+bsl_scoped_allocator.h
 bsl_stdexcept.h
 bsl_streambuf.h
 bsl_strstream.h
+bsl_system_error.h
+bsl_thread.h
+bsl_tuple.h
+bsl_typeindex.h
 bsl_typeinfo.h
 bsl_utility.h
 bsl_valarray.h
@@ -44,7 +59,9 @@ bsl_valarray.h
 bsl_cassert.h
 bsl_cctype.h
 bsl_cerrno.h
+bsl_cfenv.h
 bsl_cfloat.h
+bsl_cinttypes.h
 bsl_ciso646.h
 bsl_climits.h
 bsl_clocale.h
@@ -52,11 +69,15 @@ bsl_cmath.h
 bsl_csetjmp.h
 bsl_csignal.h
 bsl_cstdarg.h
+bsl_cstdbool.h
 bsl_cstddef.h
+bsl_cstdint.h
 bsl_cstdio.h
 bsl_cstdlib.h
 bsl_cstring.h
+bsl_ctgmath.h
 bsl_ctime.h
+bsl_cuchar.h
 bsl_cwchar.h
 bsl_cwctype.h
 bsl_c_assert.h

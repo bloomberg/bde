@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must be
-        //:   implicitly convertible to 'bool'.
+        //:   contextually convertible to 'bool'.
         //:
         //: 2 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must not
         //:   promote to type 'int'.
@@ -521,13 +521,12 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\t1.12 Comma operator\n");
 
-            // Note that gcc will give a warning if the left-hand side of a
-            // comma operator is an expression with no effect.  The expression
-            // '(tmp == true)', used instead of 'true' below, is sufficiently
-            // complex to avoid the warning.
+            // Note that compilers (i.e., gcc and clang) will give a warning if
+            // the left-hand side of a comma operator computes a result that is
+            // not explicitly used or contains no side effects.  gcc recommends
+            // casting the unused expression to 'void'.
 
-            bool tmp = true;
-            bool bx = ((tmp == true), bt);
+            bool bx = (static_cast<void>(true), bt);
             ASSERT(!bx);
 
         }
@@ -571,20 +570,23 @@ int main(int argc, char *argv[])
                         "\t4. 'BoolType' default value converts to 'false'\n");
 
         {
+            // Perform non-contextual explicit conversion in order to compare
+            // to 'false'.
             const BoolType bt = BoolType();
-            ASSERT(bt    == false);
-            ASSERT(false == bt);
+            const bool vt = bt;
+            ASSERT(vt == false);
             ASSERT(!bt);
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t5. 'BoolType(0)' converts to 'false'\n");
+        if (verbose) printf("\t5. 'BoolType(0)' explicitly converts to "
+                            "'false'\n");
 
         {
             const BoolType b0 = 0;
-            ASSERT(b0    == false);
-            ASSERT(false == b0);
+            const bool vt = b0;
+            ASSERT(vt  == false);
             ASSERT(!b0);
         }
 
@@ -597,8 +599,6 @@ int main(int argc, char *argv[])
             // corruption bug on VC2008 when initializing a variable of
             // empty class type.
             static const Booleable babel = {};
-            ASSERT(babel == false);
-            ASSERT(false == babel);
             ASSERT(!babel);
 
             if (veryVerbose) printf("\t\t6.1 Initialization\n");
@@ -723,13 +723,12 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\t6.12 Comma operator\n");
 
-            // Note that gcc will give a warning if the left-hand side of a
-            // comma operator is an expression with no effect.  The expression
-            // '(tmp == true)', used instead of 'true' below, is sufficiently
-            // complex to avoid the warning.
+            // Note that compilers (i.e., gcc and clang) will give a warning if
+            // the left-hand side of a comma operator computes a result that is
+            // not explicitly used or contains no side effects.  gcc recommends
+            // casting the unused expression to 'void'.
 
-            bool tmp = true;
-            bool bx = ((tmp == true), babel);
+            bool bx = (static_cast<void>(true), babel);
             ASSERT(!bx);
         }
       } break;

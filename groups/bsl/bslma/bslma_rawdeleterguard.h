@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the 'popFront' method returns an object by value because (1) there
 // may be no reasonable default object to pass in, (2) there may be no
-// reasonable copy assignment semantics, or (3) it is simply more syntactically
+// reasonable copy-assignment semantics, or (3) it is simply more syntactically
 // convenient (e.g., if, say, the queued objects are themselves pointers):
 //..
 //  // CREATORS
@@ -238,7 +238,7 @@ RawDeleterGuard<TYPE, ALLOCATOR>::~RawDeleterGuard()
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -248,7 +248,7 @@ RawDeleterGuard<TYPE, ALLOCATOR>::~RawDeleterGuard()
 #endif
 #define bslma_RawDeleterGuard bslma::RawDeleterGuard
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

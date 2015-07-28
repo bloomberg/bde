@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // 'list' is "'const' Thread-Safe [TS.2]" (see {'bsldoc_glossary'}).  Separate
 // threads can safely access and modify separate 'list' objects.  Separate
@@ -1097,8 +1097,8 @@ class list
         // and return a reference providing modifiable access to this list.  If
         // 'rhs.get_allocator() == this->get_allocator()', then no move or copy
         // operations are applied to any individual elements; otherwise each
-        // element of this list is created by either copy-assignment or
-        // "copy-insertion" from the corresponding element of 'rhs'.  After the
+        // element of this list is created by either copy assignment or
+        // "copy insertion" from the corresponding element of 'rhs'.  After the
         // construction, the value of 'rhs' is valid, but unspecified.
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1111,7 +1111,7 @@ class list
                 >::type * = 0)
         // Assign to this list the values of the elements in the specified
         // range '[first, last)'.  Each element in this list is set by either
-        // copy-assignment or "copy-insertion" from the corresponding element
+        // copy assignment or "copy insertion" from the corresponding element
         // in '[first, last)'.  Does not participate in overload resolution
         // unless 'InputIter' is an iterator type.  The behavior is undefined
         // unless '[first, last)' is a range of valid iterators not into this
@@ -1141,7 +1141,7 @@ class list
     void assign(size_type n, const VALUE& value);
         // Replace the contents of this list with the specified 'n' copies of
         // the specified 'value'.  Each element in this list is set by either
-        // copy-assignment or "copy-insertion" from 'value'.
+        // copy assignment or "copy insertion" from 'value'.
 
     // iterators:
 
@@ -2194,7 +2194,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(list&& original)
         // Create a new list with the new allocator and new contents.  This
         // operation might throw, so we do it before destroying the old list.
 
-        list temp(std::forward<list>(original));
+        list temp(BloombergLP::bsls::Util::forward<list>(original));
 
         // Clear existing list and leave in an invalid but destructible state.
 
@@ -2324,7 +2324,7 @@ template <class... ARGS>
 inline
 void list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... args)
 {
-    emplace(begin(), std::forward<ARGS>(args)...);
+    emplace(begin(), BloombergLP::bsls::Util::forward<ARGS>(args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2440,7 +2440,7 @@ template <class... ARGS>
 inline
 void list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... args)
 {
-    emplace(end(), std::forward<ARGS>(args)...);
+    emplace(end(), BloombergLP::bsls::Util::forward<ARGS>(args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2590,7 +2590,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position, ARGS&&... args)
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           std::forward<ARGS>(args)...);
+                           BloombergLP::bsls::Util::forward<ARGS>(args)...);
     proctor.release();
     return insert_node(position, p);
 }

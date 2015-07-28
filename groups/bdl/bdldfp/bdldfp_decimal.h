@@ -69,7 +69,7 @@ BSLS_IDENT("$Id$")
 //  -------------+----------+--------------+  In the Value column you may
 //       1234567 |        0 |   1234567.0  |  observer how the decimal point
 //       1234567 |        1 |  12345670.0  |  is "floating" about the digits
-//       1234567 |        2 | 123456700.0  |  of the significand (mantissa).
+//       1234567 |        2 | 123456700.0  |  of the significand.
 //       1234567 |       -1 |    123456.7  |
 //       1234567 |       -2 |     12345.67 |
 //..
@@ -330,6 +330,21 @@ BSLS_IDENT("$Id$")
 // In decimal floating-point world '0.1 + 0.2 == 0.3', as humans expect;
 // because each of those 3 numbers can be represented *exactly* in a decimal
 // floating-point format.
+//
+///*WARNING*: Conversions from 'float' and 'double'
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// Clients should *be* *careful* when using the conversions from 'float' and
+// 'double' provided by this component.  In situations where a 'float' or
+// 'double' was originally obtained from a decimal floating point
+// representation (e.g., a 'bdldfp::Decimal', or a string, like "4.1"), the
+// conversions in 'bdldfp_decimalconvertutil' will provide the correct
+// conversion back to a decimal floating point value.  The conversions in this
+// component provide the closest decimal floating point value to the supplied
+// binary floating point representation, which may replicate imprecisions
+// required to initially approximate the value in a binary representation.
+// The conversions in this component are typically useful when converting
+// binary floating point values that have undergone mathematical operations
+// that require rounding (so they are already in-exact approximations).
 //
 ///Cohorts
 ///- - - -
@@ -598,9 +613,9 @@ typedef Decimal_Type128 Decimal128;
                             // ====================
 
 class Decimal_Type32 {
-    // This value semantic class implements the IEEE-754 32 bit decimal
+    // This value-semantic class implements the IEEE-754 32 bit decimal
     // floating-point interchange format type.  This class is a standard layout
-    // type that is const thread-safe and exception agnostic.
+    // type that is 'const' thread-safe and exception-neutral.
 
   private:
     // DATA
@@ -655,8 +670,11 @@ class Decimal_Type32 {
     explicit Decimal_Type32(float       other);
     explicit Decimal_Type32(double      other);
         // Create a 'Decimal32_Type' object having the value closest to the
-        // value of the specified 'other' following the conversion rules as
-        // defined by IEEE-754:
+        // value of the specified 'other' value.  *Warning:* clients requiring
+        // a conversion for an exact decimal value should use
+        // 'bdldfp_decimalconverutil' (see *WARNING*: Conversions from
+        // 'float' and 'double'}.  This conversion follows the conversion
+        // rules as defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
         //:
@@ -942,9 +960,9 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
                             // ====================
 
 class Decimal_Type64 {
-    // This value semantic class implements the IEEE-754 64 bit decimal
+    // This value-semantic class implements the IEEE-754 64 bit decimal
     // floating-point format arithmetic type.  This class is a standard layout
-    // type that is const thread-safe and exception agnostic.
+    // type that is 'const' thread-safe and exception-neutral.
 
   private:
     // DATA
@@ -977,42 +995,45 @@ class Decimal_Type64 {
         //:
         //: o Otherwise initialize this object to the value of the 'other'.
 
-        explicit Decimal_Type64(Decimal128 other);
-            // Create a 'Decimal64_Type' object having the value closest to the
-            // value of the specified 'other' following the conversion rules
-            // defined by IEEE-754:
-            //
-            //: o If 'other' is NaN, initialize this object to a NaN.
-            //:
-            //: o Otherwise if 'other' is infinity (positive or negative), then
-            //:   initialize this object to infinity with the same sign.
-            //:
-            //: o Otherwise if 'other' is zero, then initialize this object to
-            //:   zero with the same sign.
-            //:
-            //: o Otherwise if 'other' has an absolute value that is larger
-            //:   than 'std::numeric_limits<Decimal64>::max()' then raise the
-            //:   "overflow" floating-point exception and initialize this
-            //:   object to infinity with the same sign as 'other'.
-            //:
-            //: o Otherwise if 'other' has an absolute value that is smaller
-            //:   than 'std::numeric_limits<Decimal64>::min()' then raise the
-            //:   "underflow" floating-point exception and initialize this
-            //:   object to zero with the same sign as 'other'.
-            //:
-            //: o Otherwise if 'other' has a value that has more significant
-            //:   digits than 'std::numeric_limits<Decimal64>::max_digit' then
-            //:   raise the "inexact" floating-point exception and initialize
-            //:   this object to the value of 'other' rounded according to the
-            //:   rounding direction.
-            //:
-            //: o Otherwise initialize this object to the value as the 'other'.
+    explicit Decimal_Type64(Decimal128 other);
+        // Create a 'Decimal64_Type' object having the value closest to the
+        // value of the specified 'other' following the conversion rules
+        // defined by IEEE-754:
+        //
+        //: o If 'other' is NaN, initialize this object to a NaN.
+        //:
+        //: o Otherwise if 'other' is infinity (positive or negative), then
+        //:   initialize this object to infinity with the same sign.
+        //:
+        //: o Otherwise if 'other' is zero, then initialize this object to
+        //:   zero with the same sign.
+        //:
+        //: o Otherwise if 'other' has an absolute value that is larger
+        //:   than 'std::numeric_limits<Decimal64>::max()' then raise the
+        //:   "overflow" floating-point exception and initialize this
+        //:   object to infinity with the same sign as 'other'.
+        //:
+        //: o Otherwise if 'other' has an absolute value that is smaller
+        //:   than 'std::numeric_limits<Decimal64>::min()' then raise the
+        //:   "underflow" floating-point exception and initialize this
+        //:   object to zero with the same sign as 'other'.
+        //:
+        //: o Otherwise if 'other' has a value that has more significant
+        //:   digits than 'std::numeric_limits<Decimal64>::max_digit' then
+        //:   raise the "inexact" floating-point exception and initialize
+        //:   this object to the value of 'other' rounded according to the
+        //:   rounding direction.
+        //:
+        //: o Otherwise initialize this object to the value as the 'other'.
 
     explicit Decimal_Type64(float       other);
     explicit Decimal_Type64(double      other);
         // Create a 'Decimal64_Type' object having the value closest to the
-        // value of the specified 'other' following the conversion rules as
-        // defined by IEEE-754:
+        // value of the specified 'other' value.  *Warning:* clients requiring
+        // a conversion for an exact decimal value should use
+        // 'bdldfp_decimalconverutil' (see *WARNING*: Conversions from
+        // 'float' and 'double'}.  This conversion follows the conversion
+        // rules as defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
         //:
@@ -2090,9 +2111,9 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal64 object);
                            // =====================
 
 class Decimal_Type128 {
-    // This value semantic class implements the IEEE-754 128 bit decimal
+    // This value-semantic class implements the IEEE-754 128 bit decimal
     // floating-point format arithmetic type.  This class is a standard layout
-    // type that is const thread-safe and exception agnostic.
+    // type that is 'const' thread-safe and exception-neutral.
 
   private:
     // DATA
@@ -2127,11 +2148,13 @@ class Decimal_Type128 {
         //:
         //: o Otherwise initialize this object to 'value'.
 
-    explicit Decimal_Type128(float       value);
-    explicit Decimal_Type128(double      value);
+    explicit Decimal_Type128(float  other);
+    explicit Decimal_Type128(double other);
         // Create a 'Decimal128_Type' object having the value closest to the
-        // specified 'value' subject to the conversion rules as defined by
-        // IEEE-754:
+        // specified 'other' value.  *Warning:* clients requiring a conversion
+        // for an exact decimal value should use 'bdldfp_decimalconverutil'
+        // (see *WARNING*: Conversions from 'float' and 'double'}.  This
+        // conversion follows the conversion rules as defined by IEEE-754:
         //
         //: o If 'value' is NaN, initialize this object to a NaN.
         //:
@@ -4629,14 +4652,14 @@ Decimal_Type128::Decimal_Type128(Decimal64 value)
 }
 
 inline
-Decimal_Type128::Decimal_Type128(float value)
-: d_value(DecimalImpUtil::binaryToDecimal128(value))
+Decimal_Type128::Decimal_Type128(float other)
+: d_value(DecimalImpUtil::binaryToDecimal128(other))
 {
 }
 
 inline
-Decimal_Type128::Decimal_Type128(double value)
-: d_value(DecimalImpUtil::binaryToDecimal128(value))
+Decimal_Type128::Decimal_Type128(double other)
+: d_value(DecimalImpUtil::binaryToDecimal128(other))
 {
 }
 

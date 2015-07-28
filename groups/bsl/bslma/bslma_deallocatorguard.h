@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // A 'bslma::DeallocatorGuard' can be used to ensure that a dynamically
-// allocated raw memory resource is safely deallocated in the presense of
-// multiple return satements or exceptions in an exception-neutral way (i.e.,
+// allocated raw memory resource is safely deallocated in the presence of
+// multiple return statements or exceptions in an exception-neutral way (i.e.,
 // without the need for 'try'/'catch' blocks).  In this simple example,
 // consider the function 'evaluatePassword' which attempts to determine how
 // secure a given password might be:
@@ -187,7 +187,7 @@ DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -197,7 +197,7 @@ DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 #endif
 #define bslma_DeallocatorGuard bslma::DeallocatorGuard
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

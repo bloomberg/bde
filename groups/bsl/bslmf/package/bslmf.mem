@@ -47,6 +47,7 @@ bslmf_matchanytype
 bslmf_matcharithmetictype
 bslmf_memberfunctionpointertraits
 bslmf_metaint
+bslmf_movableref
 bslmf_nestedtraitdeclaration
 bslmf_nil
 bslmf_removeconst

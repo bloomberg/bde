@@ -95,8 +95,17 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_IOSFWD
+#include <iosfwd>
+#define INCLUDED_IOSFWD
 #endif
 
 #ifndef INCLUDED_LIMITS_H
@@ -471,10 +480,9 @@ class TimeInterval {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
-    template <class STREAM>
-    STREAM& print(STREAM& stream,
-                  int     level          = 0,
-                  int     spacesPerLevel = 4) const;
+    native_std::ostream& print(native_std::ostream& stream,
+                               int                  level          = 0,
+                               int                  spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
         // human-readable format, and return a reference providing modifiable
         // access to 'stream'.  Optionally specify an initial indentation
@@ -489,7 +497,7 @@ class TimeInterval {
         // effect.  Note that the format is not fully specified, and can change
         // without notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
     // DEPRECATED
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -497,6 +505,8 @@ class TimeInterval {
         // Return the most current BDEX streaming version number supported by
         // this class.
 
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -510,7 +520,7 @@ class TimeInterval {
         // Format this time to the specified output 'stream', and return a
         // reference to the modifiable 'stream'.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
@@ -575,9 +585,8 @@ bool operator>=(double lhs, const TimeInterval& rhs);
     // is undefined unless operands of type 'double' can be converted to valid
     // 'TimeInterval' objects.
 
-template <class STREAM>
-STREAM& operator<<(STREAM&             stream,
-                   const TimeInterval& timeInterval);
+native_std::ostream& operator<<(native_std::ostream& stream,
+                                const TimeInterval&  timeInterval);
     // Write the value of the specified 'timeInterval' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
@@ -921,36 +930,8 @@ STREAM& TimeInterval::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-template <class STREAM>
-STREAM& TimeInterval::print(STREAM& stream,
-                            int     level,
-                            int     spacesPerLevel) const
-{
-    if (level > 0 && spacesPerLevel != 0) {
-        // If 'level <= 0' the value will not be indented, otherwise the
-        // indentation is 'level * abs(spacesPerLevel)'.
 
-        // Use 'unsigned' to suppress gcc compiler warning.
-
-        unsigned int indentation = level *
-                      (spacesPerLevel < 0 ? -spacesPerLevel : spacesPerLevel);
-        for (unsigned int i = 0; i < indentation; ++i) {
-            stream << ' ';
-        }
-    }
-
-    stream << '(' << d_seconds     << ", "
-                  << d_nanoseconds << ')';
-
-    // We suppress the trailing end-of-line if 'spacesPerLevel < 0'.
-
-    if (spacesPerLevel >= 0) {
-        stream << '\n';
-    }
-    return stream;
-}
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 // DEPRECATED METHODS
 inline
@@ -959,6 +940,8 @@ int TimeInterval::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int TimeInterval::maxSupportedVersion()
 {
@@ -972,7 +955,7 @@ STREAM& TimeInterval::streamOut(STREAM& stream) const
     return print(stream, 0, -1);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 
@@ -1146,14 +1129,6 @@ inline
 bool bsls::operator>=(double lhs, const TimeInterval& rhs)
 {
     return TimeInterval(lhs) >= rhs;
-}
-
-template <class STREAM>
-inline
-STREAM& bsls::operator<<(STREAM&             stream,
-                         const TimeInterval& timeInterval)
-{
-    return timeInterval.print(stream, 0, -1);
 }
 
 // BDE_VERIFY pragma: pop

@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 // Then, we define our 'MyList' class, which will inherit from
 // 'bslalg::HashTableBucket'.  'MyList::Iterator' will be a public typedef of
 // 'MyList_Iterator'.  For brevity, we will omit a lot of functionality that a
-// full, general-purpose list class would have, implmenting only what we will
+// full, general-purpose list class would have, implementing only what we will
 // need for this example.
 //..
 //                                  // ======
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //      void popBack();
 //  };
 //..
-// Next, we implment the functions for the iterator type.
+// Next, we implement the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator

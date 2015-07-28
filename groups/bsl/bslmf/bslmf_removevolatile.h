@@ -50,6 +50,15 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#define INCLUDED_STDDEF_H
+#endif
+
 namespace bsl {
 
                          // ======================
@@ -85,6 +94,99 @@ struct remove_volatile<TYPE volatile> {
         // parameter) 'TYPE' except with the 'volatile'-qualifier removed.
 };
 
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// The IBM xlC compiler has an odd issue trying to remove 'volatile' qualifiers
+// from multidimensional arrays.  This workaround was last verified as required
+// for the xlC 12.1 compiler - more recent compilers still need testing.
+
+template <class TYPE, size_t N>
+struct remove_volatile<TYPE[N]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_volatile' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<TYPE>::type type[N];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
+};
+
+template <class TYPE, size_t N>
+struct remove_volatile<volatile TYPE[N]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_volatile' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<volatile TYPE>::type type[N];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
+};
+
+template <class TYPE>
+struct remove_volatile<TYPE[]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_volatile' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<TYPE>::type type[];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
+};
+
+template <class TYPE>
+struct remove_volatile<volatile TYPE[]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_volatile' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<volatile TYPE>::type type[];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
+};
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+// The Microsoft compiler does not recognize array-types as cv-qualified when
+// the element type is cv-qualified when performing matching for partial
+// template specialization, but does get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depending on how the trait might be used.  This also
+// corresponds to how Microsoft itself implements the trait in VC2010 and
+// later.  Last tested against VC 2015 (Release Candidate).
+
+template <class TYPE>
+struct remove_volatile<TYPE[]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
+     // it is necessary to separately 'remove_volatile' on the element type,
+     // and then reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<TYPE>::type type[];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
+};
+
+template <class TYPE, size_t LENGTH>
+struct remove_volatile<TYPE[LENGTH]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
+     // it is necessary to separately 'remove_volatile' on the element type,
+     // and then reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<TYPE>::type type[LENGTH];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
+};
+#endif
 }  // close namespace bsl
 
 #endif

@@ -491,6 +491,14 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // characters might not be null-terminated and may contain embedded
         // null characters.
 
+    bool empty() const;
+        // Return 'true' if this object represents an empty string value, and
+        // 'false' otherwise.  This object represents an empty string value if
+        // 'begin() == end()'.  Note that this method is functionally identical
+        // with the 'isEmpty' method and allows developers to avoid distracting
+        // syntax differences when 'StringRef' appears in juxtaposition with
+        // 'string', which defines 'empty' but not 'isEmpty'.
+
     bool isEmpty() const;
         // Return 'true' if this object represents an empty string value, and
         // 'false' otherwise.  This object represents an empty string value if
@@ -913,6 +921,13 @@ inline
 const CHAR_TYPE *StringRefImp<CHAR_TYPE>::data() const
 {
     return begin();
+}
+
+template <typename CHAR_TYPE>
+inline
+bool StringRefImp<CHAR_TYPE>::empty() const
+{
+    return begin() == end();
 }
 
 template <typename CHAR_TYPE>
@@ -1359,7 +1374,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     typedef typename std::basic_ostream<char_type>::ios_base    ios_base;
     typedef typename bslstl::StringRefImp<char_type>::size_type size_type;
 
-    size_type width = stream.width();
+    size_type width = static_cast<size_type>(stream.width());
     size_type len = stringRef.length();
 
     if (len < width) {
@@ -1399,7 +1414,7 @@ void bslstl::hashAppend(HASHALG& hashAlg,
 
 }  // close enterprise namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1421,7 +1436,7 @@ void bslstl::hashAppend(HASHALG& hashAlg,
 #endif
 #define bslstl_StringRef bslstl::StringRef
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 
 #endif

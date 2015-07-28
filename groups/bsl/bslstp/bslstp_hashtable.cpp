@@ -1,4 +1,4 @@
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BDE_OPENSOURCE_PUBLICATION // STP
 
 #include <bslstp_hashtable.h>
 
@@ -9,4 +9,4 @@ template class _Stl_prime<bool>;
 
 }  // close namespace
 
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OPENSOURCE_PUBLICATION -- STP

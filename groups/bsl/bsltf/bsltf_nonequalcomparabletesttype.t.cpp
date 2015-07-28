@@ -433,7 +433,7 @@ int main(int argc, char *argv[]) {
         // EQUALITY-COMPARISON OPERATORS
         //   Ensure that the test apparatus functions 'isEqual' and
         //   'isNotEqual', for use in later test cases, behaves according to
-        //   'operator==' and 'operator!=' in value semantic types.  Also
+        //   'operator==' and 'operator!=' in value-semantic types.  Also
         //   ensure that 'operator==' and 'operator!=' are not defined by this
         //   component.
         //

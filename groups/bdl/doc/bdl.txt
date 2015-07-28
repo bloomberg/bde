@@ -11,12 +11,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdl' package group currently has 7 packages having 3 levels of physical
+ The 'bdl' package group currently has 8 packages having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bdlt
+  4. bdlc
+     bdlt
 
   3. bdlb
      bdldfp
@@ -39,6 +40,9 @@
 :
 : 'bdlb':
 :      Provide utilities classes and functions.
+:
+: 'bdlc':
+:      Provide container vocabulary types.
 :
 : 'bdldfp':
 :      Provide IEEE-754 2008 decimal floating-point types and utilities.

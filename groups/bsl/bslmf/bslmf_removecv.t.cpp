@@ -162,6 +162,20 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_cv<TestType>::type, TestType>::value));
         ASSERT((is_same<remove_cv<int const volatile *>::type,
                                                 int const volatile *>::value));
+
+        ASSERT((is_same<remove_cv<int const *>::type, int const *>::value));
+        ASSERT((is_same<remove_cv<int const &>::type, int const &>::value));
+        ASSERT((is_same<remove_cv<int const()>::type, int const()>::value));
+        ASSERT((is_same<remove_cv<int[5]>::type, int[5]>::value));
+        ASSERT((is_same<remove_cv<int[5][2]>::type, int[5][2]>::value));
+        ASSERT((is_same<remove_cv<int[5][2][3]>::type,
+                                  int[5][2][3]>::value));
+        ASSERT((is_same<remove_cv<int[]>::type, int[]>::value));
+        ASSERT((is_same<remove_cv<int[][2]>::type, int[][2]>::value));
+        ASSERT((is_same<remove_cv<int[][2][3]>::type, int[][2][3]>::value));
+
+        ASSERT((is_same<remove_cv<void>::type, void>::value));
+
         // C-2
         ASSERT((is_same<remove_cv<int const>::type, int>::value));
         ASSERT((is_same<remove_cv<int * const>::type, int *>::value));
@@ -175,6 +189,55 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_cv<int * const volatile>::type, int *>::value));
         ASSERT((is_same<remove_cv<TestType const volatile>::type,
                                                             TestType>::value));
+
+        ASSERT((is_same<remove_cv<const int[5]>::type,
+                                        int[5]>::value));
+        ASSERT((is_same<remove_cv<const int[5][2]>::type,
+                                        int[5][2]>::value));
+        ASSERT((is_same<remove_cv<const int[5][2][3]>::type,
+                                        int[5][2][3]>::value));
+
+        ASSERT((is_same<remove_cv<const int[]>::type,
+                                        int[]>::value));
+        ASSERT((is_same<remove_cv<const int[][2]>::type,
+                                        int[][2]>::value));
+        ASSERT((is_same<remove_cv<const int[][2][3]>::type,
+                                        int[][2][3]>::value));
+
+        ASSERT((is_same<remove_cv<volatile int[5]>::type,
+                                           int[5]>::value));
+        ASSERT((is_same<remove_cv<volatile int[5][2]>::type,
+                                           int[5][2]>::value));
+        ASSERT((is_same<remove_cv<volatile int[5][2][3]>::type,
+                                           int[5][2][3]>::value));
+
+        ASSERT((is_same<remove_cv<volatile int[]>::type,
+                                           int[]>::value));
+        ASSERT((is_same<remove_cv<volatile int[][2]>::type,
+                                           int[][2]>::value));
+        ASSERT((is_same<remove_cv<volatile int[][2][3]>::type,
+                                           int[][2][3]>::value));
+
+        ASSERT((is_same<remove_cv<const volatile int[5]>::type,
+                                                 int[5]>::value));
+        ASSERT((is_same<remove_cv<const volatile int[5][2]>::type,
+                                                 int[5][2]>::value));
+        ASSERT((is_same<remove_cv<const volatile int[5][2][3]>::type,
+                                                 int[5][2][3]>::value));
+
+        ASSERT((is_same<remove_cv<const volatile int[]>::type,
+                                                 int[]>::value));
+        ASSERT((is_same<remove_cv<const volatile int[][2]>::type,
+                                                 int[][2]>::value));
+        ASSERT((is_same<remove_cv<const volatile int[][2][3]>::type,
+                                                 int[][2][3]>::value));
+
+        ASSERT((is_same<remove_cv<const          void>::type,
+                                                 void>::value));
+        ASSERT((is_same<remove_cv<      volatile void>::type,
+                                                 void>::value));
+        ASSERT((is_same<remove_cv<const volatile void>::type,
+                                                 void>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -171,7 +171,7 @@ BSLS_IDENT("$Id: $")
 //:
 //: 3 No accessor allocates any memory.
 //:
-//: 4 All memory allocation is exception neutral.
+//: 4 All memory allocation is exception-neutral.
 //:
 //: 5 QoI: The default constructor allocates no memory.
 //:
@@ -213,7 +213,7 @@ BSLS_IDENT("$Id: $")
 //:     Confirm that the attribute was set and that memory was allocated.
 //:
 //:   3 Confirm the the primary manipulator (the 'setDescription' method) is
-//:     exception neutral (i.e., exceptions from the allocator are propagated
+//:     exception-neutral (i.e., exceptions from the allocator are propagated
 //:     and no memory is leaked).  Use the
 //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to manage the test,
 //:     and use the test allocator monitor to confirm that memory is allocated
@@ -544,7 +544,7 @@ TestAllocatorMonitor::validateArgument(const TestAllocator *allocator)
 inline
 void TestAllocatorMonitor::reset(const TestAllocator *testAllocator)
 {
-    // This method is alled inline by c'tor, hence it should precede it.
+    // This method is called inline by c'tor, hence it should precede it.
 
     if (testAllocator) {
         d_testAllocator_p = testAllocator;
@@ -647,14 +647,14 @@ bsls::Types::Int64 TestAllocatorMonitor::numBlocksTotalChange() const
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::TestAllocatorMonitor bslma_TestAllocatorMonitor;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

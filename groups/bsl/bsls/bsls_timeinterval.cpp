@@ -4,16 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bsls_timeinterval_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
 #include <bsls_asserttest.h>   // for testing only
 #include <bsls_bsltestutil.h>  // for testing only
-
 #include <bsls_platform.h>
 
-#include <limits.h>
+#include <ostream>
 
-#pragma bde_verify push
-#pragma bde_verify -FABC01
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
 
 namespace BloombergLP {
 namespace bsls {
@@ -21,11 +19,11 @@ namespace bsls {
 namespace {
 
 struct bsls_TimeInterval_Assertions {
-    char assertion1[-3 / 2 == -1];  // Ensure that the compiler maintains the
-    char assertion2[-5 % 4 == -1];  // sign of the remainder (the resulting
-                                    // sign is compiler implementation defined,
-                                    // though our current production compilers
-                                    // maintain the sign).
+    char assertion1[-3 / 2 == -1 ? 1 : -1];
+    char assertion2[-5 % 4 == -1 ? 1 : -1];
+        // Ensure that the compiler maintains the sign of the remainder (the
+        // resulting sign is compiler implementation defined, though our
+        // current production compilers maintain the sign).
 };
 
 }  // close unnamed namespace
@@ -164,12 +162,49 @@ void TimeInterval::setInterval(bsls::Types::Int64 seconds,
         ++d_seconds;
         d_nanoseconds -= k_NANOSECS_PER_SEC;
     }
+
+}
+
+native_std::ostream& TimeInterval::print(
+                                     native_std::ostream& stream,
+                                     int                  level,
+                                     int                  spacesPerLevel) const
+{
+    if (level > 0 && spacesPerLevel != 0) {
+        // If 'level <= 0' the value will not be indented, otherwise the
+        // indentation is 'level * abs(spacesPerLevel)'.
+
+        // Use 'unsigned' to suppress gcc compiler warning.
+
+        unsigned int indentation = level *
+                      (spacesPerLevel < 0 ? -spacesPerLevel : spacesPerLevel);
+        for (unsigned int i = 0; i < indentation; ++i) {
+            stream << ' ';
+        }
+    }
+
+    stream << '(' << d_seconds     << ", "
+                  << d_nanoseconds << ')';
+
+    // We suppress the trailing end-of-line if 'spacesPerLevel < 0'.
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+    return stream;
 }
 
 }  // close package namespace
+
+native_std::ostream& bsls::operator<<(native_std::ostream&      stream,
+                                      const bsls::TimeInterval& timeInterval)
+{
+    return timeInterval.print(stream, 0, -1);
+}
+
 }  // close enterprise namespace
 
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
