@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // composite ('true') or is still potentially prime ('false') up to and
 // including the compile-time constant template parameter, 'MAX_VALUE'.
 //..
-//      // Candidate primes in the '[2, MAX_VALUE]' range.
+//      // Candidate primes in the '[2 .. MAX_VALUE]' range.
 //
 //      bsl::bitset<MAX_VALUE + 1> compositeFlags;
 //..
@@ -296,7 +296,8 @@ class bitset {
 
     void clearUnusedBits();
         // Clear the bits unused by the bitset in 'd_data', namely, bits
-        // 'BITSETSIZE * BITSPERINT - 1' to N (where bit count starts at 0).
+        // 'BITSETSIZE * BITSPERINT - 1' to 'N' (where the bit count starts at
+        // 0).
 
     void clearUnusedBits(bsl::false_type);
     void clearUnusedBits(bsl::true_type);
@@ -432,10 +433,10 @@ class bitset {
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> to_string() const;
         // Return a 'basic_string' representation of this bitset, where bit
-        // value 1 will be represented with '1' and bit value 0 will be
-        // represented with '0'.  The most significant bit will be placed at
-        // the beginning of the string, and the least significant bit will be
-        // placed at the end of the string.
+        // value 1 is represented with '1' and bit value 0 is represented with
+        // '0'.  The most-significant bit is placed at the beginning of the
+        // string, and the least-significant bit is placed at the end of the
+        // string.
 
     bool operator[](std::size_t pos) const;
         // Return the value of the bit position at the specified 'pos'.
