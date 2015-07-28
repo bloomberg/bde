@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_pool_cpp,"$Id$ $CSID$")
 
-#include <bsls_alignmentfromtype.h>
 #include <bsls_performancehint.h>
 
 #include <bsl_algorithm.h>
@@ -86,9 +85,8 @@ Pool::Pool(int blockSize, bslma::Allocator *basicAllocator)
 {
     BSLS_ASSERT(1 <= blockSize);
 
-    d_internalBlockSize = bsl::max(
-                     static_cast<int>(sizeof(Link)),
-                     roundUp(blockSize, bsls::AlignmentFromType<Link>::VALUE));
+    d_internalBlockSize = roundUp(blockSize,
+                                  bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
 Pool::Pool(int                          blockSize,
@@ -107,9 +105,8 @@ Pool::Pool(int                          blockSize,
 {
     BSLS_ASSERT(1 <= blockSize);
 
-    d_internalBlockSize = bsl::max(
-                     static_cast<int>(sizeof(Link)),
-                     roundUp(blockSize, bsls::AlignmentFromType<Link>::VALUE));
+    d_internalBlockSize = roundUp(blockSize,
+                                  bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
 Pool::Pool(int                          blockSize,
@@ -130,9 +127,8 @@ Pool::Pool(int                          blockSize,
     BSLS_ASSERT(1 <= blockSize);
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
 
-    d_internalBlockSize = bsl::max(
-                     static_cast<int>(sizeof(Link)),
-                     roundUp(blockSize, bsls::AlignmentFromType<Link>::VALUE));
+    d_internalBlockSize = roundUp(blockSize,
+                                  bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
 Pool::~Pool()

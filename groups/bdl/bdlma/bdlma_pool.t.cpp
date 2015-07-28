@@ -8,7 +8,6 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
-#include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -194,12 +193,7 @@ int poolBlockSize(int size)
     // Return the actual block size used by the pool when given the specified
     // 'size'.  The behavior is undefined unless '1 <= size'.
 {
-    if (size <= static_cast<int>(sizeof(void *))) {
-        return sizeof(void *);                                        // RETURN
-    }
-    else {
-        return roundUp(size, bsls::AlignmentFromType<void *>::VALUE); // RETURN
-    }
+    return roundUp(size, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
 static
