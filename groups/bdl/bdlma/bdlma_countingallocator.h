@@ -287,9 +287,9 @@
 namespace BloombergLP {
 namespace bdlma {
 
-                           // =======================
-                           // class CountingAllocator
-                           // =======================
+                         // =======================
+                         // class CountingAllocator
+                         // =======================
 
 class CountingAllocator : public bslma::Allocator {
     // This class defines a concrete "counting" allocator mechanism that
@@ -379,12 +379,12 @@ class CountingAllocator : public bslma::Allocator {
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                           // -----------------------
-                           // class CountingAllocator
-                           // -----------------------
+                         // -----------------------
+                         // class CountingAllocator
+                         // -----------------------
 
 // ACCESSORS
 inline
@@ -411,7 +411,7 @@ bsls::Types::Int64 CountingAllocator::numBytesTotal() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

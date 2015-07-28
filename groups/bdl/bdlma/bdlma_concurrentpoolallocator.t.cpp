@@ -25,7 +25,7 @@ using namespace bsl;  // automatically added by script
 //                             --------
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 4] bdlma::ConcurrentPoolAllocator(size_type size, bslma::Allocator *allocator = 0);
+// [ 4] bdlma::ConcurrentPoolAllocator(size_type size, bslma::Allocator * = 0);
 // [ 4] bdlma::ConcurrentPoolAllocator(bslma::Allocator *allocator = 0);
 // [ 4] ~bdlma::ConcurrentPoolAllocator();
 //
@@ -121,8 +121,8 @@ typedef bdlma::ConcurrentPoolAllocator Obj;
 // directly.
 
 union Header {
-    // Leading header on each allocated memory block.  If the memory block
-    // was allocated from the pool, the 'd_magicNumber' will be set to
+    // Leading header on each allocated memory block.  If the memory block was
+    // allocated from the pool, the 'd_magicNumber' will be set to
     // 'MAGIC_NUMBER'.  Otherwise, memory was allocated by the external
     // allocator supplied during construction, and 'd_magicNumber' will be
     // zero.
@@ -603,7 +603,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "bdlma::ConcurrentPoolAllocator(growthStrategy, allocator)" << endl;
+            cout << "bdlma::ConcurrentPoolAllocator(growthStrategy, allocator)"
+                 << endl;
         {
             bsls::BlockGrowth::Strategy STRATEGY[] = {
                                             bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -626,9 +627,10 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator ta;
                 bslma::TestAllocator tb;
 
-                bdlma::ConcurrentPool pool(calculateMaxAlignedSize(SB + sizeof(Header)),
-                                STRAT,
-                                &ta);
+                bdlma::ConcurrentPool pool(
+                                  calculateMaxAlignedSize(SB + sizeof(Header)),
+                                  STRAT,
+                                  &ta);
                 Obj x(STRAT, &tb);
                 const Obj& X = x;
 
@@ -641,8 +643,8 @@ int main(int argc, char *argv[])
                 pool.deallocate(a);
                 x.deallocate(b);
 
-                // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                // correctly.
+                // Make sure growth strategy is passed into
+                // 'bdlma::ConcurrentPool' correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -658,7 +660,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "bdlma::ConcurrentPoolAllocator(0,growthStrategy,allocator)" << endl;
+            cout << "bdlma::ConcurrentPoolAllocator(0,growthStrategy,"
+                 << "allocator)"
+                 << endl;
         {
             bsls::BlockGrowth::Strategy STRATEGY[] = {
                                             bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -680,9 +684,10 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator ta;
                 bslma::TestAllocator tb;
 
-                bdlma::ConcurrentPool pool(calculateMaxAlignedSize(SB + sizeof(Header)),
-                                STRAT,
-                                &ta);
+                bdlma::ConcurrentPool pool(
+                                  calculateMaxAlignedSize(SB + sizeof(Header)),
+                                  STRAT,
+                                  &ta);
                 Obj x(0, STRAT, &tb);
                 const Obj& X = x;
 
@@ -695,8 +700,8 @@ int main(int argc, char *argv[])
                 pool.deallocate(a);
                 x.deallocate(b);
 
-                // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                // correctly.
+                // Make sure growth strategy is passed into
+                // 'bdlma::ConcurrentPool' correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -712,7 +717,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout<< "bdlma::ConcurrentPoolAllocator(100,growthStrategy,allocator)" << endl;
+            cout << "bdlma::ConcurrentPoolAllocator(100,growthStrategy,"
+                 << "allocator)"
+                 << endl;
         {
             bsls::BlockGrowth::Strategy STRATEGY[] = {
                                             bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -734,9 +741,10 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator ta;
                 bslma::TestAllocator tb;
 
-                bdlma::ConcurrentPool pool(calculateMaxAlignedSize(100 + sizeof(Header)),
-                                STRAT,
-                                &ta);
+                bdlma::ConcurrentPool pool(
+                                 calculateMaxAlignedSize(100 + sizeof(Header)),
+                                 STRAT,
+                                 &ta);
                 Obj x(100, STRAT, &tb);
                 const Obj& X = x;
 
@@ -749,8 +757,8 @@ int main(int argc, char *argv[])
                 pool.deallocate(a);
                 x.deallocate(b);
 
-                // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                // correctly.
+                // Make sure growth strategy is passed into
+                // 'bdlma::ConcurrentPool' correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -815,8 +823,8 @@ int main(int argc, char *argv[])
                     pool.deallocate(a);
                     x.deallocate(b);
 
-                    // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                    // correctly.
+                    // Make sure growth strategy is passed into
+                    // 'bdlma::ConcurrentPool' correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -883,8 +891,8 @@ int main(int argc, char *argv[])
                     pool.deallocate(a);
                     x.deallocate(b);
 
-                    // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                    // correctly.
+                    // Make sure growth strategy is passed into
+                    // 'bdlma::ConcurrentPool' correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -951,8 +959,8 @@ int main(int argc, char *argv[])
                     pool.deallocate(a);
                     x.deallocate(b);
 
-                    // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                    // correctly.
+                    // Make sure growth strategy is passed into
+                    // 'bdlma::ConcurrentPool' correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 

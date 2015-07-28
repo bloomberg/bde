@@ -8,16 +8,14 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
-
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 // We are testing a pure protocol class as well as a set of overloaded
-// operators.  We need to verify that (1) a concrete derived class compiles
-// and links, and (2) that the overloaded new operator correctly forwards the
-// call to the allocate method of the supplied deleter.
+// operators.  We need to verify that (1) a concrete derived class compiles and
+// links, and (2) that the overloaded new operator correctly forwards the call
+// to the allocate method of the supplied deleter.
 //-----------------------------------------------------------------------------
 // [ 1] virtual ~bdlma::Deleter();
 // [ 1] virtual void delete(TYPE *instance) = 0;

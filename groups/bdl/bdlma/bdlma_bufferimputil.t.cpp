@@ -28,8 +28,8 @@ using namespace bsl;
 // allocated memory block depends on several parameters: the current cursor
 // position, the size of the allocation, the alignment strategy (which is
 // possibly implied by the name on an alignment-specific method), and also the
-// buffer size (necessary to detect overflow with the non-raw methods).  Due
-// to the large amount of possible combinations, only the corner cases are
+// buffer size (necessary to detect overflow with the non-raw methods).  Due to
+// the large amount of possible combinations, only the corner cases are
 // selected as test data.  These data are then organized first by allocation
 // size, then current cursor position (both of which affects the address of the
 // allocated memory block depending on the indicated alignment strategy) in a
@@ -1173,7 +1173,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

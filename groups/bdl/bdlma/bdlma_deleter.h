@@ -7,7 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-
 //@PURPOSE: Provide a protocol for deleting objects of parameterized type.
 //
 //@CLASSES:
@@ -85,7 +84,7 @@ class Deleter {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS

@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 //                            allocate
 //                            deallocate
 //..
-// If an allocation request exceeds the remaining free memory space in
-// the external buffer, the allocator will fall back to a sequence of
+// If an allocation request exceeds the remaining free memory space in the
+// external buffer, the allocator will fall back to a sequence of
 // dynamically-allocated buffers.  Users can optionally specify a growth
 // strategy at construction that governs the growth rate of the
 // dynamically-allocated buffers.  If no growth strategy is specified at
@@ -208,17 +208,17 @@ namespace bdlma {
                     // =================================
 
 class BufferedSequentialAllocator : public ManagedAllocator {
-    // This class implements the 'ManagedAllocator' protocol to provide
-    // a fast allocator that dispenses heterogeneous blocks of memory (of
-    // varying, user-specified sizes) from an external buffer whose address and
-    // size (in bytes) are supplied at construction.  If an allocation request
-    // exceeds the remaining free memory space in the external buffer, memory
-    // will be supplied by an (optional) allocator also supplied at
-    // construction; if no allocator is supplied, the currently installed
-    // default allocator is used.  This class is *exception* *neutral*: If
-    // memory cannot be allocated, the behavior is defined by the (optional)
-    // allocator supplied at construction.  Note that in no case will the
-    // buffered sequential allocator attempt to deallocate the external buffer.
+    // This class implements the 'ManagedAllocator' protocol to provide a fast
+    // allocator that dispenses heterogeneous blocks of memory (of varying,
+    // user-specified sizes) from an external buffer whose address and size (in
+    // bytes) are supplied at construction.  If an allocation request exceeds
+    // the remaining free memory space in the external buffer, memory will be
+    // supplied by an (optional) allocator also supplied at construction; if no
+    // allocator is supplied, the currently installed default allocator is
+    // used.  This class is *exception* *neutral*: If memory cannot be
+    // allocated, the behavior is defined by the (optional) allocator supplied
+    // at construction.  Note that in no case will the buffered sequential
+    // allocator attempt to deallocate the external buffer.
 
     // DATA
     BufferedSequentialPool d_pool;  // manager for allocated memory blocks
@@ -339,7 +339,7 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                     // ---------------------------------
@@ -454,7 +454,7 @@ void BufferedSequentialAllocator::release()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

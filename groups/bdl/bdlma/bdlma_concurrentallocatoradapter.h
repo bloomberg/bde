@@ -43,10 +43,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In the following usage example, we develop a simple 'AddressBook' class
 // containing two thread-enabled vectors of strings: one for names, the other
-// for addresses.  We use a 'bdlma::ConcurrentAllocatorAdapter' to
-// synchronize memory allocations across our two thread-enabled vectors.  For
-// the purpose of this discussion, we first define a simple thread-enabled
-// vector:
+// for addresses.  We use a 'bdlma::ConcurrentAllocatorAdapter' to synchronize
+// memory allocations across our two thread-enabled vectors.  For the purpose
+// of this discussion, we first define a simple thread-enabled vector:
 //..
 //  template <typename TYPE>
 //  class ThreadEnabledVector {
@@ -113,11 +112,11 @@ BSLS_IDENT("$Id: $")
 //..
 // We use this thread-enabled vector to create a AddressBook class.  However,
 // we use the 'bdlma::ConcurrentAllocatorAdapter' to prevent our two
-// (thread-enabled) vectors from attempting synchronous memory allocations
-// from our (potentially) non-thread safe 'bslma::Allocator'.  Note that we
-// define a local class, 'AddressBook_PrivateData', in order to guarantee that
-// 'd_allocatorAdapter' and 'd_mutex' are initialized before the
-// thread-enabled vectors that depend on them:
+// (thread-enabled) vectors from attempting synchronous memory allocations from
+// our (potentially) non-thread safe 'bslma::Allocator'.  Note that we define a
+// local class, 'AddressBook_PrivateData', in order to guarantee that
+// 'd_allocatorAdapter' and 'd_mutex' are initialized before the thread-enabled
+// vectors that depend on them:
 //..
 //  struct AddressBook_PrivateData {
 //      // This 'struct' contains a mutex and an allocator adapter.  The
@@ -258,38 +257,38 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
     ConcurrentAllocatorAdapter(bdlmtt::Mutex      *mutex,
                                         bslma::Allocator *basicAllocator);
         // Create a thread-enabled allocator adapter that uses the specified
-        // 'mutex' to synchronize access to the specified 'basicAllocator'.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // 'mutex' to synchronize access to the specified 'basicAllocator'.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     virtual ~ConcurrentAllocatorAdapter();
         // Destroy this thread-enabled allocator adapter.
 
     // MANIPULATORS
     virtual void *allocate(size_type numBytes);
-        // Return a newly-allocated block of memory of (at least) the
-        // specified 'numBytes'.  If 'numBytes' is 0, a null pointer is
-        // returned with no other effect.  If this allocator cannot return the
-        // requested number of bytes, then it will throw a 'bsl::bad_alloc'
-        // exception in an exception-enabled build, or else will abort the
-        // program in a non-exception build.  Note that the alignment of the
-        // address returned conforms to the platform requirement for any
-        // object of the specified 'numBytes'.
+        // Return a newly-allocated block of memory of (at least) the specified
+        // 'numBytes'.  If 'numBytes' is 0, a null pointer is returned with no
+        // other effect.  If this allocator cannot return the requested number
+        // of bytes, then it will throw a 'bsl::bad_alloc' exception in an
+        // exception-enabled build, or else will abort the program in a
+        // non-exception build.  Note that the alignment of the address
+        // returned conforms to the platform requirement for any object of the
+        // specified 'numBytes'.
 
     virtual void deallocate(void *address);
-        // Return the memory at the specified 'address' back to this
-        // allocator.  If 'address' is 0, this function has no effect.
-        // The behavior is undefined unless 'address' was allocated using
-        // this allocator and has not since been deallocated.
+        // Return the memory at the specified 'address' back to this allocator.
+        // If 'address' is 0, this function has no effect.  The behavior is
+        // undefined unless 'address' was allocated using this allocator and
+        // has not since been deallocated.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-               // -----------------------------------------
-               // class ConcurrentAllocatorAdapter
-               // -----------------------------------------
+                     // --------------------------------
+                     // class ConcurrentAllocatorAdapter
+                     // --------------------------------
 
 // CREATORS
 inline

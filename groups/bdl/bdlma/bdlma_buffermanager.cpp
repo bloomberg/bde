@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(bdlma_buffermanager_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // -------------------
-                        // class BufferManager
-                        // -------------------
+                           // -------------------
+                           // class BufferManager
+                           // -------------------
 
 // PRIVATE MANIPULATORS
 void BufferManager::init(bsls::Alignment::Strategy strategy)
@@ -77,7 +77,7 @@ int BufferManager::truncate(void *address, int originalSize, int newSize)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

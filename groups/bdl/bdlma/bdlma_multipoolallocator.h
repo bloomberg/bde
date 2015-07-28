@@ -265,8 +265,8 @@ BSLS_IDENT("$Id: $")
 // to supply memory to node-based data structures that frequently both insert
 // and remove nodes, while growing to significant size before being destroyed.
 // The following experiment will illustrate the benefits of using a
-// 'bdlma::MultipoolAllocator' under this scenario by comparing the following
-// 3 different allocator uses:
+// 'bdlma::MultipoolAllocator' under this scenario by comparing the following 3
+// different allocator uses:
 //
 //: 1 Using the 'bslma::NewDeleteAllocator'.
 //:
@@ -616,9 +616,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                     // ========================
-                     // class MultipoolAllocator
-                     // ========================
+                         // ========================
+                         // class MultipoolAllocator
+                         // ========================
 
 class MultipoolAllocator : public ManagedAllocator {
     // This class implements the 'bdlma::ManagedAllocator' protocol to provide
@@ -684,10 +684,10 @@ class MultipoolAllocator : public ManagedAllocator {
         // allocation (and deallocation) requests will be satisfied using the
         // internally maintained pool managing memory blocks of the smallest
         // size not less than the requested size, or directly from the
-        // underlying allocator (supplied at construction), if no internal
-        // pool managing memory blocks of sufficient size exists.  The behavior
-        // is undefined unless '1 <= numPools' and '1 <= maxBlocksPerChunk'.
-        // Note that, on platforms where
+        // underlying allocator (supplied at construction), if no internal pool
+        // managing memory blocks of sufficient size exists.  The behavior is
+        // undefined unless '1 <= numPools' and '1 <= maxBlocksPerChunk'.  Note
+        // that, on platforms where
         // '8 < bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
         // allocated for pools managing smaller blocks.  Also note that
         // 'maxBlocksPerChunk' need not be an integral power of 2; if geometric
@@ -723,27 +723,27 @@ class MultipoolAllocator : public ManagedAllocator {
         // is not specified, optionally specify a 'growthStrategyArray',
         // indicating the strategies for each individual 'bdlma::Pool' created
         // by this object.  If neither 'growthStrategy' nor
-        // 'growthStrategyArray' is specified, the allocation strategy for
-        // each internally created 'bdlma::Pool' object will grow
-        // geometrically, starting from 1.  Optionally specify a
-        // 'maxBlocksPerChunk', indicating the maximum number of blocks to be
-        // allocated at once when a pool must be replenished.  If
-        // 'maxBlocksPerChunk' is not specified, optionally specify a
-        // 'maxBlocksPerChunkArray', indicating the maximum number of blocks to
-        // allocate at once for each individually created 'bdlma::Pool' object.
-        // If neither 'maxBlocksPerChunk' nor 'maxBlocksPerChunkArray' is
-        // specified, an implementation-defined value is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Memory allocation (and deallocation) requests will be
-        // satisfied using the internally maintained pool managing memory
-        // blocks of the smallest size not less than the requested size, or
-        // directly from the underlying allocator (supplied at construction),
-        // if no internal pool managing memory blocks of sufficient size
-        // exists.  The behavior is undefined unless '1 <= numPools',
-        // 'growthStrategyArray' has at least 'numPools' strategies,
-        // '1 <= maxBlocksPerChunk', and 'maxBlocksPerChunkArray' has at least
-        // 'numPools' positive values.  Note that, on platforms where
+        // 'growthStrategyArray' is specified, the allocation strategy for each
+        // internally created 'bdlma::Pool' object will grow geometrically,
+        // starting from 1.  Optionally specify a 'maxBlocksPerChunk',
+        // indicating the maximum number of blocks to be allocated at once when
+        // a pool must be replenished.  If 'maxBlocksPerChunk' is not
+        // specified, optionally specify a 'maxBlocksPerChunkArray', indicating
+        // the maximum number of blocks to allocate at once for each
+        // individually created 'bdlma::Pool' object.  If neither
+        // 'maxBlocksPerChunk' nor 'maxBlocksPerChunkArray' is specified, an
+        // implementation-defined value is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Memory
+        // allocation (and deallocation) requests will be satisfied using the
+        // internally maintained pool managing memory blocks of the smallest
+        // size not less than the requested size, or directly from the
+        // underlying allocator (supplied at construction), if no internal pool
+        // managing memory blocks of sufficient size exists.  The behavior is
+        // undefined unless '1 <= numPools', 'growthStrategyArray' has at least
+        // 'numPools' strategies, '1 <= maxBlocksPerChunk', and
+        // 'maxBlocksPerChunkArray' has at least 'numPools' positive values.
+        // Note that, on platforms where
         // '8 < bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT', excess memory may be
         // allocated for pools managing smaller blocks.  Also note that the
         // maximum need not be an integral power of 2; if geometric growth
@@ -796,12 +796,12 @@ class MultipoolAllocator : public ManagedAllocator {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                     // ------------------------
-                     // class MultipoolAllocator
-                     // ------------------------
+                         // ------------------------
+                         // class MultipoolAllocator
+                         // ------------------------
 
 // CREATORS
 inline
@@ -914,7 +914,7 @@ int MultipoolAllocator::maxPooledBlockSize() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

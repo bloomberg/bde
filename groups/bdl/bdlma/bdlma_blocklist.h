@@ -187,18 +187,18 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ===============
-                        // class BlockList
-                        // ===============
+                             // ===============
+                             // class BlockList
+                             // ===============
 
 class BlockList {
     // This class implements a low-level memory manager that allocates and
     // manages a sequence of memory blocks -- each potentially of a different
     // size as specified during the invocation of the 'allocate' method.
     // Allocated blocks may be efficiently deallocated individually, i.e.,
-    // potentially in constant time depending on the supplied allocator.
-    // The 'release' method deallocates the entire sequence of memory blocks,
-    // as does the destructor.
+    // potentially in constant time depending on the supplied allocator.  The
+    // 'release' method deallocates the entire sequence of memory blocks, as
+    // does the destructor.
 
     // TYPES
     struct Block {
@@ -258,12 +258,12 @@ class BlockList {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------
-                        // class BlockList
-                        // ---------------
+                             // ---------------
+                             // class BlockList
+                             // ---------------
 
 // CREATORS
 inline
@@ -279,7 +279,7 @@ BlockList::BlockList(bslma::Allocator *basicAllocator)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

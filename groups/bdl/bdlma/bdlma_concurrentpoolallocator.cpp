@@ -31,14 +31,15 @@ int calculateMaxAlignedSize(int totalSize)
 }
 
 namespace BloombergLP {
-
 namespace bdlma {
-                      // -------------------------
+
+                      // -----------------------------
                       // class ConcurrentPoolAllocator
-                      // -------------------------
+                      // -----------------------------
 
 // CREATORS
-ConcurrentPoolAllocator::ConcurrentPoolAllocator(bslma::Allocator *basicAllocator)
+ConcurrentPoolAllocator::ConcurrentPoolAllocator(
+                                              bslma::Allocator *basicAllocator)
 : d_initialized(BCEMA_UNINITIALIZED)
 , d_blockSize(0)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)

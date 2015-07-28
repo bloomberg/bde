@@ -140,9 +140,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ==================
-                        // class AutoReleaser
-                        // ==================
+                            // ==================
+                            // class AutoReleaser
+                            // ==================
 
 template <class ALLOCATOR>
 class AutoReleaser {
@@ -186,12 +186,12 @@ class AutoReleaser {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------
-                        // class AutoReleaser
-                        // ------------------
+                            // ------------------
+                            // class AutoReleaser
+                            // ------------------
 
 // CREATORS
 template <class ALLOCATOR>
@@ -231,7 +231,7 @@ void AutoReleaser<ALLOCATOR>::reset(ALLOCATOR *newAllocator)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -53,12 +53,12 @@ static void aSsErT(int c, const char *s, int i) {
                 rEpOrT(#X, __LINE__); }}
 
 #define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                          \
+    if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                        \
                 cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";  \
                 rEpOrT(#X, __LINE__); }}
 
 #define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                           \
+   if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                         \
                cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
                     << #K << ": " << K << "\n";                              \
                rEpOrT(#X, __LINE__); }}
@@ -312,19 +312,19 @@ void bench(Control *control)
     control->d_barrier->wait();
 
     for (int i=0; i<control->d_iterations; i++) {
-        for(int j=0; j<numObjects; j++) {
-            for(int t=0; t<=j; t++) {
+        for (int j=0; j<numObjects; j++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = (Item *)pool->allocate();
                 ASSERT(item);
                 item->d_threadId = threadId;
                 objects[t] = item;
             }
-            for(int t=0; t<=j; t++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = objects[t];
                 ASSERT(item->d_threadId == threadId);
                 hardwork(item, load);
             }
-            for(int t=0; t<=j; t++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = objects[t];
                 ASSERT(item->d_threadId == threadId);
                 pool->deallocate(item);
@@ -381,11 +381,10 @@ void bench(Control *control)
     const int iterations = control->d_iterations;
     bdlmtt::AtomicInt& allocationCount = control->d_allocationCount;
 
-
     for (int i = 0; i<iterations; i++) {
 
         int count = allocationCount++;
-        while(count < poolSize) {
+        while (count < poolSize) {
             void *p = pool->allocate();
             ASSERT(p);
             pool->deallocate(p);
@@ -397,11 +396,10 @@ void bench(Control *control)
         // sync up with other threads
         control->d_barrier->wait();
 
-        // To assert that allocate() returns 0, we need to make
-        // sure that all threads have reached this point (so it has
-        // to be done after the barrier.  But we need to make sure
-        // that no thread is about to call release() so we have put
-        // another barrier after the assert.
+        // To assert that allocate() returns 0, we need to make sure that all
+        // threads have reached this point (so it has to be done after the
+        // barrier.  But we need to make sure that no thread is about to call
+        // release() so we have put another barrier after the assert.
 
         ASSERT(pool->allocate() == 0);
 
@@ -571,11 +569,10 @@ int main(int argc, char *argv[]) {
         int numIterations = NUM_ITERATIONS;
         int numObjects = NUM_OBJECTS;
 
-        for(int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
+        for (int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
 
             fill_and_release::runtest(numIterations, numObjects, numThreads);
         }
-
 
       } break;
       case 8: {
@@ -598,12 +595,10 @@ int main(int argc, char *argv[]) {
         int load = LOAD;
         int backoff = BACKOFF;
 
-        for(int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
-
+        for (int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
             bench::runtest(numIterations, numObjects, numThreads,
                            load, backoff);
         }
-
 
       } break;
       case 7: {
@@ -671,11 +666,11 @@ int main(int argc, char *argv[]) {
             //ASSERT(A.numAllocations() == 1);
             mX.allocate();
             //ASSERT(A.numAllocations() == 1);
-                  // By observing that the number of allocations
-                  // stays at one we confirm that the memory obtained
-                  // from the pool has been returned by 'deleteObject'.
-                  // Had it not been returned, the call to allocate would
-                  // have required another allocation from the allocator.
+                  // By observing that the number of allocations stays at one
+                  // we confirm that the memory obtained from the pool has been
+                  // returned by 'deleteObject'.  Had it not been returned, the
+                  // call to allocate would have required another allocation
+                  // from the allocator.
 
             if (verbose) cout << "\twith a my_Class2 object" << endl;
 
@@ -805,7 +800,6 @@ int main(int argc, char *argv[]) {
             int baselineAllocations = 0;
             int ret = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
-
 
             const int N1 = 5;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
@@ -969,7 +963,6 @@ int main(int argc, char *argv[]) {
             int baselineAllocations = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
 
-
             const int N1 = 5;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
 
@@ -1000,7 +993,6 @@ int main(int argc, char *argv[]) {
 
             int baselineAllocations = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
-
 
             const int N1 = NUM_OBJECTS;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
@@ -1062,7 +1054,6 @@ int main(int argc, char *argv[]) {
 
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
 
-
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
             const Obj& X = mX;
 
@@ -1078,7 +1069,6 @@ int main(int argc, char *argv[]) {
             const int NUM_OBJECTS = 15;
 
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
-
 
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
             const Obj& X = mX;

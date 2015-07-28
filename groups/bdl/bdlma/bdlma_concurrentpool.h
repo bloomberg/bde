@@ -10,23 +10,23 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide thread-safe allocation of memory blocks of uniform size.
 //
 //@CLASSES:
-//   bdlma::ConcurrentPool: thread-safe memory manager that allocates uniform sized blocks
+//   bdlma::ConcurrentPool: thread-safe memory manager that allocates blocks
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@SEE ALSO: bdema_pool
 //
-//@DESCRIPTION: This component implements a memory pool, 'bdlma::ConcurrentPool', that
-// allocates and manages memory blocks of some uniform size specified at
-// construction.  A 'bdlma::ConcurrentPool' object maintains an internal linked list of
-// free memory blocks, and dispenses one block for each 'allocate' method
-// invocation.  When a memory block is deallocated, it is returned to the free
-// list for potential reuse.
+//@DESCRIPTION: This component implements a memory pool,
+// 'bdlma::ConcurrentPool', that allocates and manages memory blocks of some
+// uniform size specified at construction.  A 'bdlma::ConcurrentPool' object
+// maintains an internal linked list of free memory blocks, and dispenses one
+// block for each 'allocate' method invocation.  When a memory block is
+// deallocated, it is returned to the free list for potential reuse.
 //
-// Whenever the linked list of free memory blocks is depleted, the 'bdlma::ConcurrentPool'
-// replenishes the list by first allocating a large, contiguous "chunk" of
-// memory, then splitting the chunk into multiple memory blocks.  A chunk and
-// its constituent memory blocks can be depicted visually:
+// Whenever the linked list of free memory blocks is depleted, the
+// 'bdlma::ConcurrentPool' replenishes the list by first allocating a large,
+// contiguous "chunk" of memory, then splitting the chunk into multiple memory
+// blocks.  A chunk and its constituent memory blocks can be depicted visually:
 //..
 //     +-----+--- memory blocks of uniform size
 //     |     |
@@ -44,9 +44,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Configuration at Construction
 ///-----------------------------
-// When creating a 'bdlma::ConcurrentPool', clients must specify the specific block size
-// managed and dispensed by the pool.  Furthermore, clients can optionally
-// configure:
+// When creating a 'bdlma::ConcurrentPool', clients must specify the specific
+// block size managed and dispensed by the pool.  Furthermore, clients can
+// optionally configure:
 //
 //: 1 GROWTH STRATEGY -- geometrically growing chunk size starting from 1 (in
 //:   terms of the number of memory blocks per chunk), or fixed chunk size.  If
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //:   allocator (see 'bslma_default') is used.
 //
 // For example, if geometric growth is used and the maximum blocks per chunk is
-// specified as 30, the chunk size grows geometrically, starting from 1,  until
+// specified as 30, the chunk size grows geometrically, starting from 1, until
 // the specified maximum blocks per chunk, as follows:
 //..
 //  1, 2, 4, 8, 16, 30, 30, 30 ...
@@ -75,18 +75,19 @@ BSLS_IDENT("$Id: $")
 // memory), and the pool's chunk size grows geometrically until it reaches an
 // implementation-defined maximum, at which it is capped.  Finally, unless
 // otherwise specified, all memory comes from the allocator that was the
-// currently installed default allocator at the time the 'bdlma::ConcurrentPool' was
-// created.
+// currently installed default allocator at the time the
+// 'bdlma::ConcurrentPool' was created.
 //
 ///Overloaded Global Operator 'new'
 ///--------------------------------
 // This component overloads the global 'operator new' to allow convenient
-// syntax for the construction of objects using a 'bdlma::ConcurrentPool'.  The 'new'
-// operator supplied in this component takes a 'bdlma::ConcurrentPool' argument indicating
-// the source of the memory.  Consider the following use of standard placement
-// 'new' syntax (supplied by 'bsl_new.h') along with a 'bdlma::ConcurrentPool' to allocate
-// an object of type 'T'.  Note that the size of 'T' must be the same or
-// smaller than the 'blockSize' with which the pool is constructed:
+// syntax for the construction of objects using a 'bdlma::ConcurrentPool'.  The
+// 'new' operator supplied in this component takes a 'bdlma::ConcurrentPool'
+// argument indicating the source of the memory.  Consider the following use of
+// standard placement 'new' syntax (supplied by 'bsl_new.h') along with a
+// 'bdlma::ConcurrentPool' to allocate an object of type 'T'.  Note that the
+// size of 'T' must be the same or smaller than the 'blockSize' with which the
+// pool is constructed:
 //..
 //  void f(bdlma::ConcurrentPool *pool)
 //  {
@@ -133,13 +134,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// A 'bdlma::ConcurrentPool' can be used by node-based containers (such as lists, trees,
-// and hash tables that hold multiple elements of uniform size) for efficient
-// memory allocation of new elements.  The following container class,
-// 'my_PooledArray', stores templatized values "out-of-place" as nodes in a
-// 'vector' of pointers.  Since the size of each node is fixed and known *a
-// priori*, the class uses a 'bdlma::ConcurrentPool' to allocate memory for the nodes to
-// improve memory allocation efficiency:
+// A 'bdlma::ConcurrentPool' can be used by node-based containers (such as
+// lists, trees, and hash tables that hold multiple elements of uniform size)
+// for efficient memory allocation of new elements.  The following container
+// class, 'my_PooledArray', stores templatized values "out-of-place" as nodes
+// in a 'vector' of pointers.  Since the size of each node is fixed and known
+// *a priori*, the class uses a 'bdlma::ConcurrentPool' to allocate memory for
+// the nodes to improve memory allocation efficiency:
 //..
 //  // my_poolarray.h
 //
@@ -149,8 +150,8 @@ BSLS_IDENT("$Id: $")
 //      // out-of-place.
 //
 //      // DATA
-//      bsl::vector<T *> d_array_p;  // array of pooled elements
-//      bdlma::ConcurrentPool       d_pool;     // memory manager for array elements
+//      bsl::vector<T *>      d_array_p;  // array of pooled elements
+//      bdlma::ConcurrentPool d_pool;     // memory manager for array elements
 //
 //    public:
 //      // CREATORS
@@ -296,9 +297,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ================
-                        // class ConcurrentPool
-                        // ================
+                           // ====================
+                           // class ConcurrentPool
+                           // ====================
 
 class ConcurrentPool {
     // This class implements a memory pool that allocates and manages memory
@@ -315,8 +316,8 @@ class ConcurrentPool {
         // This 'struct' implements a link data structure that stores the
         // address of the next link, and is used to implement the internal
         // linked list of free memory blocks.  Note that this type is
-        // replicated in 'bdlma_concurrentpool.cpp' to provide access to a compatible
-        // type from static methods defined in 'bdema_pool.cpp'.
+        // replicated in 'bdlma_concurrentpool.cpp' to provide access to a
+        // compatible type from static methods defined in 'bdema_pool.cpp'.
 
         union {
             bsls::AtomicOperations::AtomicTypes::Int d_refCount;
@@ -475,7 +476,8 @@ void *operator new(bsl::size_t size, BloombergLP::bdlma::ConcurrentPool& pool);
     // internally, requiring the allocator to be passed in as a constructor
     // argument:
     //..
-    //  my_Type *newMyType(bdlma::ConcurrentPool *pool, bslma::Allocator *basicAllocator)
+    //  my_Type *newMyType(bdlma::ConcurrentPool *pool,
+    //                     bslma::Allocator      *basicAllocator)
     //  {
     //      return new (*pool) my_Type(..., basicAllocator);
     //  }
@@ -505,7 +507,7 @@ void operator delete(void *address, BloombergLP::bdlma::ConcurrentPool& pool);
     // 'bdlma::ConcurrentPool::deleteObject()' instead.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {

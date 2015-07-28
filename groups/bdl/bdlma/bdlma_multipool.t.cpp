@@ -172,8 +172,8 @@ int calcPool(int numPools, int objSize)
     // Return the index of the pool that should allocate objects that are of
     // the specified 'objSize' bytes in size from a multipool managing the
     // specified 'numPools' memory pools, or -1 if 'objSize' exceeds the size
-    // of the blocks managed by all of the pools.  The behavior is
-    // undefined unless '0 < numPools' and '0 < objSize'.
+    // of the blocks managed by all of the pools.  The behavior is undefined
+    // unless '0 < numPools' and '0 < objSize'.
 {
     ASSERT(0 < numPools);
     ASSERT(0 < objSize);
@@ -209,8 +209,8 @@ int recPool(char *address)
 
 inline
 int delta(char *address1, char *address2)
-    // Return the number of bytes between the specified 'address1' and
-    // the specified 'address2'.
+    // Return the number of bytes between the specified 'address1' and the
+    // specified 'address2'.
 {
     return address1 < address2 ? address2 - address1 : address1 - address2;
 }
@@ -457,9 +457,9 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // requests needed is greatly reduced.
 //
 // For the number of pools managed by the multipool, we chose to use the
-// implementation-defined default value instead of calculating and specifying
-// a value.  If users instead want to specify the number of pools, the value
-// can be calculated as the smallest value, 'N', such that the following
+// implementation-defined default value instead of calculating and specifying a
+// value.  If users instead want to specify the number of pools, the value can
+// be calculated as the smallest value, 'N', such that the following
 // relationship holds:
 //..
 //  N > log2(sizeof(Object Type)) - 2
@@ -1022,8 +1022,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1063,8 +1063,8 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1115,8 +1115,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1156,8 +1156,8 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1208,8 +1208,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1278,8 +1278,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1348,8 +1348,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1392,8 +1392,8 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1444,8 +1444,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1485,8 +1485,8 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1538,8 +1538,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1579,8 +1579,8 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1631,8 +1631,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1701,8 +1701,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1745,8 +1745,8 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1798,8 +1798,8 @@ int main(int argc, char *argv[])
             int poolAllocations      = pta.numAllocations();
             int multipoolAllocations =  oa.numAllocations();
 
-            // The multipool should have an extra allocation for the array
-            // of pools.
+            // The multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1817,8 +1817,8 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -2547,8 +2547,8 @@ int main(int argc, char *argv[])
             char *p = (char *) doNotDelete->allocate(2048);  // "overflow"
                                                              // block list
             ASSERT(p);
-            // No destructor is called; will produce memory leak in purify
-            // if internal allocators are not hooked up properly.
+            // No destructor is called; will produce memory leak in purify if
+            // internal allocators are not hooked up properly.
         }
       } break;
       case 1: {
@@ -2650,7 +2650,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

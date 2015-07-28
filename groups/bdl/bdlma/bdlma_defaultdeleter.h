@@ -106,10 +106,10 @@ namespace bdlma {
 
 template <class TYPE>
 class DefaultDeleter : public Deleter<TYPE> {
-    // This 'class' provides a default concrete implementation of the
-    // 'Deleter' protocol.  Instances of 'DefaultDeleter<TYPE>' either use an
-    // allocator optionally supplied at construction, or the currently
-    // installed default allocator if an allocator is not provided.
+    // This 'class' provides a default concrete implementation of the 'Deleter'
+    // protocol.  Instances of 'DefaultDeleter<TYPE>' either use an allocator
+    // optionally supplied at construction, or the currently installed default
+    // allocator if an allocator is not provided.
 
     // DATA
     bslma::Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
@@ -140,7 +140,7 @@ class DefaultDeleter : public Deleter<TYPE> {
 };
 
 // ============================================================================
-//                           INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS

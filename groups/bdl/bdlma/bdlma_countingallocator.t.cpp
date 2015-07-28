@@ -887,8 +887,8 @@ if (veryVerbose)
             LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
                          0 == noa.numBlocksTotal());
 
-            // Verify we can allocate from the object and write to the
-            // returned memory block.
+            // Verify we can allocate from the object and write to the returned
+            // memory block.
 
             void *p = mX.allocate(1);
             LOOP2_ASSERT(CONFIG, p, p);
@@ -1357,8 +1357,8 @@ if (veryVerbose)
             LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
                          0 == noa.numBlocksTotal());
 
-            // Verify we can allocate from the object and write to the
-            // returned memory block.
+            // Verify we can allocate from the object and write to the returned
+            // memory block.
 
             void *p = mX.allocate(1);
             LOOP2_ASSERT(CONFIG, p, p);
@@ -1532,7 +1532,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -468,8 +468,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -918,8 +918,8 @@ int main(int argc, char *argv[])
                 mZ.release();
             }
             {
-                // Allocating 65 bytes, 1 byte over the limit.  This
-                // allocation should happen through the allocator.
+                // Allocating 65 bytes, 1 byte over the limit.  This allocation
+                // should happen through the allocator.
 
                 Obj mX(buffer, bufferSize, NAT, &objectAllocator);
                 ASSERT(0 == objectAllocator.numBytesInUse());
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[])
                 ASSERT(cBuffer == buffer);
 
                 cBuffer = (char *)mX.allocate(blockSize);
-                // Block + blockSize/2 - 1  bytes wasted.
+                // Block + blockSize/2 - 1 bytes wasted.
 
                 buffer -= blockSize / 2;
             }
@@ -1852,7 +1852,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

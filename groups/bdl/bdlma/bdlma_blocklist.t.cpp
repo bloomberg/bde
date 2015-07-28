@@ -28,8 +28,8 @@ using namespace bsl;
 // that 'bdlma::BlockList' (1) returns maximally-aligned memory blocks of the
 // expected size from the object allocator, and (2) returns memory blocks back
 // to the object allocator via the 'deallocate' and 'release' methods, and upon
-// destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure
-// that these concerns are satisfied.
+// destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure that
+// these concerns are satisfied.
 //-----------------------------------------------------------------------------
 // [ 2] bdlma::BlockList(bslma::Allocator *ba = 0);
 // [ 3] ~bdlma::BlockList();
@@ -926,7 +926,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -229,18 +229,18 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                      // =========================
-                      // class SequentialAllocator
-                      // =========================
+                        // =========================
+                        // class SequentialAllocator
+                        // =========================
 
 class SequentialAllocator : public ManagedAllocator {
-    // This class implements the 'ManagedAllocator' protocol to provide
-    // a fast allocator that dispenses heterogeneous blocks of memory (of
-    // varying, user-specified sizes) from a sequence of dynamically-allocated
-    // buffers.  Memory for the internal buffers is supplied by an (optional)
-    // allocator supplied at construction; if no allocator is supplied, the
-    // currently installed default allocator is used.  If an allocation exceeds
-    // the remaining free memory space in the current buffer, the allocator
+    // This class implements the 'ManagedAllocator' protocol to provide a fast
+    // allocator that dispenses heterogeneous blocks of memory (of varying,
+    // user-specified sizes) from a sequence of dynamically-allocated buffers.
+    // Memory for the internal buffers is supplied by an (optional) allocator
+    // supplied at construction; if no allocator is supplied, the currently
+    // installed default allocator is used.  If an allocation exceeds the
+    // remaining free memory space in the current buffer, the allocator
     // replenishes its internal buffer with new memory to satisfy the request.
     // This class is *exception* *neutral*: If memory cannot be allocated, the
     // behavior is defined by the (optional) allocator specified at
@@ -309,7 +309,6 @@ class SequentialAllocator : public ManagedAllocator {
         // Also note that when constant growth is used, the size of the
         // internal buffers will always be the same as the
         // implementation-defined value.
-
 
     SequentialAllocator(int                          initialSize,
                         int                          maxBufferSize,
@@ -389,26 +388,26 @@ class SequentialAllocator : public ManagedAllocator {
         // dynamic allocation.
 
     int truncate(void *address, int originalSize, int newSize);
-        // Reduce the amount of memory allocated at the specified 'address'
-        // of the specified 'originalSize' (in bytes) to the specified
-        // 'newSize'.  Return 'newSize' after truncating, or 'originalSize' if
-        // the memory at 'address' cannot be truncated.  This method can only
-        // 'truncate' the memory block returned by the most recent 'allocate'
-        // request from this allocator, and otherwise has no effect.  The
-        // behavior is undefined unless the memory at 'address' was originally
-        // allocated by this allocator, the size of the memory block at
-        // 'address' is 'originalSize', 'newSize <= originalSize',
-        // '0 <= newSize', and 'release' was not called after allocating the
-        // memory block at 'address'.
+        // Reduce the amount of memory allocated at the specified 'address' of
+        // the specified 'originalSize' (in bytes) to the specified 'newSize'.
+        // Return 'newSize' after truncating, or 'originalSize' if the memory
+        // at 'address' cannot be truncated.  This method can only 'truncate'
+        // the memory block returned by the most recent 'allocate' request from
+        // this allocator, and otherwise has no effect.  The behavior is
+        // undefined unless the memory at 'address' was originally allocated by
+        // this allocator, the size of the memory block at 'address' is
+        // 'originalSize', 'newSize <= originalSize', '0 <= newSize', and
+        // 'release' was not called after allocating the memory block at
+        // 'address'.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------
-                      // class SequentialAllocator
-                      // -------------------------
+                        // -------------------------
+                        // class SequentialAllocator
+                        // -------------------------
 
 // CREATORS
 inline
@@ -567,7 +566,7 @@ int SequentialAllocator::truncate(void *address,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -141,8 +141,8 @@ void ConcurrentFixedPool::deallocate(void *address)
     int contentionCount = 0;
 
     Node *node = (Node *)(void *)((char *)address - d_dataOffset);
-    int index = node->d_next;  // 'd_next' contains the link index of this
-                               // link node advanced by one generation.
+    int index = node->d_next;  // 'd_next' contains the link index of this link
+                               // node advanced by one generation.
     while (1) {
         int old = d_freeList.relaxedLoad();
         node->d_next = old;

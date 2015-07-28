@@ -323,19 +323,19 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ====================
-                        // class SequentialPool
-                        // ====================
+                           // ====================
+                           // class SequentialPool
+                           // ====================
 
 class SequentialPool {
     // This class implements a fast memory pool that efficiently dispenses
-    // heterogeneous blocks of memory (of varying, user-specified sizes) from
-    // a sequence of dynamically-allocated internal buffers.  Memory for the
-    // internal buffers is supplied by an (optional) allocator supplied
-    // at construction; if no allocator is supplied, the currently installed
-    // default allocator is used.  If an allocation exceeds the remaining
-    // free memory space in the current buffer, the pool replenishes its
-    // internal buffer with new memory to satisfy the request.  This class is
+    // heterogeneous blocks of memory (of varying, user-specified sizes) from a
+    // sequence of dynamically-allocated internal buffers.  Memory for the
+    // internal buffers is supplied by an (optional) allocator supplied at
+    // construction; if no allocator is supplied, the currently installed
+    // default allocator is used.  If an allocation exceeds the remaining free
+    // memory space in the current buffer, the pool replenishes its internal
+    // buffer with new memory to satisfy the request.  This class is
     // *exception* *neutral*: If memory cannot be allocated, the behavior is
     // defined by the (optional) allocator specified at construction.
 
@@ -465,8 +465,8 @@ class SequentialPool {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
-        // construction.  If the allocation request exceeds the remaining
-        // free memory space in the current internal buffer, use the allocator
+        // construction.  If the allocation request exceeds the remaining free
+        // memory space in the current internal buffer, use the allocator
         // supplied at construction to allocate a new internal buffer, then
         // allocate memory from the new buffer.  The behavior is undefined
         // unless '0 < size'.
@@ -494,29 +494,29 @@ class SequentialPool {
 
     void release();
         // Release all memory allocated through this pool.  The pool is reset
-        // to its default-constructed state, retaining the alignment and
-        // growth strategies, and the initial and maximum buffer sizes in
-        // effect following construction.
+        // to its default-constructed state, retaining the alignment and growth
+        // strategies, and the initial and maximum buffer sizes in effect
+        // following construction.
 
     void reserveCapacity(int numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numBytes' without replenishment (i.e., without
-        // dynamic allocation).  This method ignores 'maxBufferSize' even if
-        // it is supplied at construction.  The behavior is undefined unless
+        // dynamic allocation).  This method ignores 'maxBufferSize' even if it
+        // is supplied at construction.  The behavior is undefined unless
         // '0 < numBytes'.  Note that, due to alignment effects, it is possible
         // that not all 'numBytes' of memory will be used for allocation before
         // triggering dynamic allocation.
 
     int truncate(void *address, int originalSize, int newSize);
-        // Reduce the amount of memory allocated at the specified 'address'
-        // of the specified 'originalSize' (in bytes) to the specified
-        // 'newSize'.  Return 'newSize' after truncating, or 'originalSize' if
-        // the memory block at 'address' cannot be truncated.  This method can
-        // only 'truncate' the memory block returned by the most recent
-        // 'allocate' request from this memory pool, and otherwise has no
-        // effect.  The behavior is undefined unless the memory at 'address'
-        // was originally allocated by this memory pool, the size of the memory
-        // block at 'address' is 'originalSize', 'newSize <= originalSize',
+        // Reduce the amount of memory allocated at the specified 'address' of
+        // the specified 'originalSize' (in bytes) to the specified 'newSize'.
+        // Return 'newSize' after truncating, or 'originalSize' if the memory
+        // block at 'address' cannot be truncated.  This method can only
+        // 'truncate' the memory block returned by the most recent 'allocate'
+        // request from this memory pool, and otherwise has no effect.  The
+        // behavior is undefined unless the memory at 'address' was originally
+        // allocated by this memory pool, the size of the memory block at
+        // 'address' is 'originalSize', 'newSize <= originalSize',
         // '0 <= newSize', and 'release' was not called after allocating the
         // memory block at 'address'.
 };
@@ -546,11 +546,11 @@ class SequentialPool {
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
 // overloaded 'operator delete'; on the other hand, the pointer returned by
-// operator 'new' cannot be passed to the 'deallocate' method directly
-// because the pointer is different from the one returned by the 'allocate'
-// method.  The compiler offsets the value of this pointer by a header, which
-// is used to maintain the number of objects in the array (so that the
-// 'operator delete' can destroy the right number of objects).
+// operator 'new' cannot be passed to the 'deallocate' method directly because
+// the pointer is different from the one returned by the 'allocate' method.
+// The compiler offsets the value of this pointer by a header, which is used to
+// maintain the number of objects in the array (so that the 'operator delete'
+// can destroy the right number of objects).
 
 // FREE OPERATORS
 void *operator new(bsl::size_t size, BloombergLP::bdlma::SequentialPool& pool);
@@ -584,15 +584,15 @@ void operator delete(void *address, BloombergLP::bdlma::SequentialPool& pool);
     // case of an exception.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // --------------------
-                        // class SequentialPool
-                        // --------------------
+                           // --------------------
+                           // class SequentialPool
+                           // --------------------
 
 // CREATORS
 inline
@@ -662,7 +662,7 @@ void operator delete(void *, BloombergLP::bdlma::SequentialPool&)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

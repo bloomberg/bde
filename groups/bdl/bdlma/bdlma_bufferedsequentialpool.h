@@ -329,9 +329,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ============================
-                        // class BufferedSequentialPool
-                        // ============================
+                       // ============================
+                       // class BufferedSequentialPool
+                       // ============================
 
 class BufferedSequentialPool {
     // This class implements a fast memory pool that efficiently dispenses
@@ -511,11 +511,11 @@ class BufferedSequentialPool {
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
 // overloaded 'operator delete'; on the other hand, the pointer returned by
-// 'operator new' cannot be passed to the 'deallocate' method directly
-// because the pointer is different from the one returned by the 'allocate'
-// method.  The compiler offsets the value of this pointer by a header, which
-// is used to maintain the number of objects in the array (so that the
-// 'operator delete' can destroy the right number of objects).
+// 'operator new' cannot be passed to the 'deallocate' method directly because
+// the pointer is different from the one returned by the 'allocate' method.
+// The compiler offsets the value of this pointer by a header, which is used to
+// maintain the number of objects in the array (so that the 'operator delete'
+// can destroy the right number of objects).
 
 // FREE OPERATORS
 void *operator new(bsl::size_t                                 size,
@@ -551,15 +551,15 @@ void operator delete(void                                        *address,
     // case of an exception.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ----------------------------
-                        // class BufferedSequentialPool
-                        // ----------------------------
+                       // ----------------------------
+                       // class BufferedSequentialPool
+                       // ----------------------------
 
 // CREATORS
 inline
@@ -616,7 +616,7 @@ void operator delete(void *, BloombergLP::bdlma::BufferedSequentialPool&)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

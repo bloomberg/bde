@@ -28,9 +28,9 @@ enum {
     MIN_BLOCK_SIZE         =  8   // minimum block size (in bytes)
 };
 
-                      // ---------------
-                      // class Multipool
-                      // ---------------
+                             // ---------------
+                             // class Multipool
+                             // ---------------
 
 // PRIVATE MANIPULATORS
 void Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
@@ -380,7 +380,7 @@ void Multipool::reserveCapacity(int size, int numBlocks)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

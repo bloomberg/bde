@@ -19,11 +19,10 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// We are testing a pure protocol class.  We need to verify that (1) a
-// concrete derived class compiles and links, and (2) that a usage example
-// obtains the behavior specified by the protocol from the concrete subclass.
-// We also need to ensure that this class derives from the 'bslma::Allocator'
-// class.
+// We are testing a pure protocol class.  We need to verify that (1) a concrete
+// derived class compiles and links, and (2) that a usage example obtains the
+// behavior specified by the protocol from the concrete subclass.  We also need
+// to ensure that this class derives from the 'bslma::Allocator' class.
 //-----------------------------------------------------------------------------
 // [ 1] virtual void allocate(size_type size);
 // [ 1] virtual void *allocateAligned(bsl::size_t, size_type);
@@ -70,7 +69,7 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 struct AlignedAllocatorTestImp :
-                                bsls::ProtocolTestImp<bdlma::AlignedAllocator> {
+                               bsls::ProtocolTestImp<bdlma::AlignedAllocator> {
     typedef bslma::Allocator::size_type size_type;
 
     void *allocate(size_type)                     { return markDone(); }
@@ -89,14 +88,14 @@ struct AlignedAllocatorTestImp :
 //
 ///Example 1: Implementing 'bdlma::AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bdlma::AlignedAllocator' protocol provided in this component
-// defines a bilateral contract between suppliers and consumers of raw
-// aligned memory.  In order for the 'bdlma::AlignedAllocator' interface to be
-// useful, we must supply a concrete allocator that implements it.
+// The 'bdlma::AlignedAllocator' protocol provided in this component defines a
+// bilateral contract between suppliers and consumers of raw aligned memory.
+// In order for the 'bdlma::AlignedAllocator' interface to be useful, we must
+// supply a concrete allocator that implements it.
 //
 // In this example, we demonstrate how to adapt 'posix_memalign' on Linux and
-// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this
-// protocol base class:
+// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this protocol
+// base class:
 //
 // First, we specify the interface of the concrete implementation of
 // 'MyAlignedAllocator:
@@ -106,8 +105,8 @@ struct AlignedAllocatorTestImp :
 
     class MyAlignedAllocator: public bdlma::AlignedAllocator {
         // This class is a sample concrete implementation of the
-        // 'bdlma::AlignedAllocator' protocol that provides direct access to the
-        // system-supplied 'posix_memalign' and 'free' on Linux and AIX
+        // 'bdlma::AlignedAllocator' protocol that provides direct access to
+        // the system-supplied 'posix_memalign' and 'free' on Linux and AIX
         // platforms, 'memalign' and 'free' on SunOS, or '_aligned_malloc' and
         // '_aligned_free' on Windows.
 
@@ -244,7 +243,7 @@ struct AlignedAllocatorTestImp :
     }
 //..
 // Note that the memory is not released when the allocator goes out of scope.
-//..
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -283,8 +282,8 @@ int main(int argc, char *argv[])
 // In this example we illustrate how to use the 'bdlma::AlignedAllocator'
 // protocol to allocate memory that is aligned to the beginning of a memory
 // page.  Third party libraries, for example device drivers that perform DMA
-// access of device drivers, or some extreme optimizations to reduce the
-// number of page faults, might require page aligned allocations.
+// access of device drivers, or some extreme optimizations to reduce the number
+// of page faults, might require page aligned allocations.
 //
 // First, we create an aligned allocator 'myAlignedAllocator' using the class
 // 'MyAlignedAllocator' defined in the previous example, and obtain a
@@ -389,11 +388,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

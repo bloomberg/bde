@@ -10,19 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide thread-safe memory-pooling allocator of fixed-size blocks.
 //
 //@CLASSES:
-//   bdlma::ConcurrentPoolAllocator: thread-safe allocator of pooled, fixed-size blocks
+//   bdlma::ConcurrentPoolAllocator: thread-safe allocator of pooled blocks
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component defines a class, 'bdlma::ConcurrentPoolAllocator',
-// that implements the 'bslma::Allocator' protocol and provides a thread-safe
-// allocator of pooled memory blocks of uniform size (the "pooled size").  The
-// pooled size is either (1) configured at construction, or (2) equal to the
-// size of the first block allocated through the allocator.  All of the
-// allocation requests of sizes up to the pooled size are satisfied with blocks
-// from the underlying pool.  All requests of sizes larger than the pooled size
-// will be satisfied through the external allocator (the allocator supplied at
-// construction, or the default allocator if no allocator was provided).
+//@DESCRIPTION: This component defines a class,
+// 'bdlma::ConcurrentPoolAllocator', that implements the 'bslma::Allocator'
+// protocol and provides a thread-safe allocator of pooled memory blocks of
+// uniform size (the "pooled size").  The pooled size is either (1) configured
+// at construction, or (2) equal to the size of the first block allocated
+// through the allocator.  All of the allocation requests of sizes up to the
+// pooled size are satisfied with blocks from the underlying pool.  All
+// requests of sizes larger than the pooled size will be satisfied through the
+// external allocator (the allocator supplied at construction, or the default
+// allocator if no allocator was provided).
 //
 ///Protocol Hierarchy
 ///------------------
@@ -41,13 +42,13 @@ BSLS_IDENT("$Id: $")
 //                     allocate
 //                     deallocate
 //..
-// 'bdlma::ConcurrentPoolAllocator' provides a concrete, thread-safe implementation of the
-// 'bslma::Allocator' protocol.
+// 'bdlma::ConcurrentPoolAllocator' provides a concrete, thread-safe
+// implementation of the 'bslma::Allocator' protocol.
 //
 ///Usage
 ///-----
-// The 'bdlma::ConcurrentPoolAllocator' is intended to be used in either of the following
-// two cases.
+// The 'bdlma::ConcurrentPoolAllocator' is intended to be used in either of the
+// following two cases.
 //
 // The first case is where frequent allocation and deallocation of memory
 // occurs through the 'bslma::Allocator' protocol and all of the allocated
@@ -62,21 +63,22 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1 - Uniform Sized Allocations
 ///- - - - - - - - - - - - - - - - - - -
-// The following example illustrates the use of 'bdlma::ConcurrentPoolAllocator' when all
-// allocations are of uniform size.  A 'bdlma::ConcurrentPoolAllocator' is used in the
-// implementation of a "work queue" where each "item" enqueued by a
-// producer thread is of identical size.  Concurrently, a consumer dequeues
-// each work item when it becomes available, verifies the content (a sequence
-// number in ASCII), and deallocates the work item.  The concurrent allocations
-// and deallocations are valid because 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+// The following example illustrates the use of
+// 'bdlma::ConcurrentPoolAllocator' when all allocations are of uniform size.
+// A 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// queue" where each "item" enqueued by a producer thread is of identical size.
+// Concurrently, a consumer dequeues each work item when it becomes available,
+// verifies the content (a sequence number in ASCII), and deallocates the work
+// item.  The concurrent allocations and deallocations are valid because
+// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
 //
 // First, an abstract of the example will be given with focus and commentary on
-// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details pertaining to queue
-// management, thread creation, thread synchronization, etc., can be seen in
-// the full listing at the end of this example.
+// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// pertaining to queue management, thread creation, thread synchronization,
+// etc., can be seen in the full listing at the end of this example.
 //
-// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work queue by the
-// statements:
+// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// queue by the statements:
 //..
 //  bdlma::ConcurrentPoolAllocator poolAlloc;
 //  my1_WorkQueue queue(&poolAlloc);
@@ -300,22 +302,23 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2 - Variable Allocation Size
 /// - - - - - - - - - - - - - - - - - -
-// The following example illustrates the use of 'bdlma::ConcurrentPoolAllocator' when
-// allocations are of varying size.  A 'bdlma::ConcurrentPoolAllocator' is used in the
-// implementation of a "work queue" where each "item" enqueued by a producer
-// thread varies in size, but all items are smaller than a known maximum.
-// Concurrently, a consumer thread dequeues each work item when it is
-// available, verifies its content (a sequence number in ASCII), and
-// deallocates the work item.  The concurrent allocations and deallocations are
-// valid because 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+// The following example illustrates the use of
+// 'bdlma::ConcurrentPoolAllocator' when allocations are of varying size.  A
+// 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// queue" where each "item" enqueued by a producer thread varies in size, but
+// all items are smaller than a known maximum.  Concurrently, a consumer thread
+// dequeues each work item when it is available, verifies its content (a
+// sequence number in ASCII), and deallocates the work item.  The concurrent
+// allocations and deallocations are valid because
+// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
 //
 // First, an abstract of the example will be given with focus and commentary on
-// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details pertaining to queue
-// management, thread creation, thread synchronization, etc., can be seen in
-// the full listing at the end of this example.
+// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// pertaining to queue management, thread creation, thread synchronization,
+// etc., can be seen in the full listing at the end of this example.
 //
-// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work queue by the
-// statements:
+// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// queue by the statements:
 //..
 //  bdlma::ConcurrentPoolAllocator poolAlloc(100);
 //  my1_WorkQueue queue(&poolAlloc);
@@ -390,9 +393,9 @@ BSLS_IDENT("$Id: $")
 // consumer thread in Example 1.
 //
 // When the consumer thread finds that the queue is not empty, it dequeues the
-// item, verifies its content (a sequence number in ASCII), returns the
-// work item to the pool, and checks for the next item.  If the queue is empty,
-// the consumer blocks until signaled by the producer.  An empty work item
+// item, verifies its content (a sequence number in ASCII), returns the work
+// item to the pool, and checks for the next item.  If the queue is empty, the
+// consumer blocks until signaled by the producer.  An empty work item
 // indicates that the producer will send no more items, so the consumer exits.
 // The consumer's actions are shown below.
 //..
@@ -728,12 +731,12 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                         // -------------------------
-                         // class ConcurrentPoolAllocator
-                         // -------------------------
+                      // -----------------------------
+                      // class ConcurrentPoolAllocator
+                      // -----------------------------
 
 // ACCESSORS
 inline

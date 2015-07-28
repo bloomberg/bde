@@ -47,9 +47,9 @@ int roundUp(int x, int y)
 
 }  // close unnamed namespace
 
-                        // ----------
-                        // class Pool
-                        // ----------
+                                // ----------
+                                // class Pool
+                                // ----------
 
 // PRIVATE MANIPULATORS
 void Pool::replenish()

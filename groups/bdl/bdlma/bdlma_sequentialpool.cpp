@@ -15,9 +15,9 @@ enum {
 namespace BloombergLP {
 namespace bdlma {
 
-                        // --------------------
-                        // class SequentialPool
-                        // --------------------
+                           // --------------------
+                           // class SequentialPool
+                           // --------------------
 
 // PRIVATE ACCESSORS
 int SequentialPool::calculateNextBufferSize(int size) const
@@ -283,7 +283,7 @@ void SequentialPool::reserveCapacity(int size)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

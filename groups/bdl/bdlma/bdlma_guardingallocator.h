@@ -46,8 +46,8 @@
 // from 'allocate'.  Consequently, certain memory access outside the block
 // returned to the client will trigger a memory protection fault.
 //
-// A constructor argument of type 'GuardingAllocator::GuardPageLocation',
-// an enumeration, determines whether guard pages are located following
+// A constructor argument of type 'GuardingAllocator::GuardPageLocation', an
+// enumeration, determines whether guard pages are located following
 // ('e_AFTER_USER_BLOCK') or preceding ('e_BEFORE_USER_BLOCK') the user block.
 // If no value is supplied at construction, 'e_AFTER_USER_BLOCK' is assumed.
 //
@@ -361,7 +361,7 @@ class GuardingAllocator : public bslma::Allocator {
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                          // -----------------------
@@ -381,7 +381,7 @@ GuardingAllocator::GuardingAllocator(GuardPageLocation guardLocation)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -186,9 +186,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                  // ===============================
-                  // class InfrequentDeleteBlockList
-                  // ===============================
+                     // ===============================
+                     // class InfrequentDeleteBlockList
+                     // ===============================
 
 class InfrequentDeleteBlockList {
     // This class implements a low-level memory manager that allocates and
@@ -241,8 +241,8 @@ class InfrequentDeleteBlockList {
     void deallocate(void *address);
         // This method has no effect on the memory block at the specified
         // 'address' as all memory allocated by this object is managed.  The
-        // behavior is undefined unless 'address' was allocated by this
-        // object, and has not already been released.
+        // behavior is undefined unless 'address' was allocated by this object,
+        // and has not already been released.
 
     void release();
         // Deallocate all memory blocks currently managed by this object,
@@ -250,12 +250,12 @@ class InfrequentDeleteBlockList {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                  // -------------------------------
-                  // class InfrequentDeleteBlockList
-                  // -------------------------------
+                     // -------------------------------
+                     // class InfrequentDeleteBlockList
+                     // -------------------------------
 
 // CREATORS
 inline
@@ -278,7 +278,7 @@ void InfrequentDeleteBlockList::deallocate(void *)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

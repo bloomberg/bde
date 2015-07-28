@@ -28,23 +28,23 @@ using namespace bsl;
 //                                  Overview
 //                                  --------
 // The goals of this 'bdlma::Pool' test driver are to verify that: 1) the
-// 'allocate' method dispenses memory blocks of the correct (uniform) size,
-// 2) the pool replenishes correctly according to the 'growthStrategy' and
+// 'allocate' method dispenses memory blocks of the correct (uniform) size, 2)
+// the pool replenishes correctly according to the 'growthStrategy' and
 // 'maxBlocksPerChunk' constructor parameters, 3) the 'deallocate' method
 // returns the memory to the pool, and 4) the 'release' method and the
 // destructor releases all memory allocated through the pool.
 //
 // To achieve goal 1, initialize pools of varying block sizes.  Invoke
 // 'allocate' repeatedly and verify that the difference between the returned
-// memory addresses of two consecutive requests is equal to the specified
-// block size for the current pool.  To achieve goal 2, initialize a pool with
-// a test allocator and varying 'growthStrategy' and 'maxBlocksPerChunk'.
-// Invoke 'allocate' repeatedly and verify that the pool requests memory blocks
-// of the expected sizes from the allocator.  To achieve goal 3, allocate
-// multiple memory blocks from the pool and store the returned addresses in an
-// array.  Deallocate the memory in reverse order, then allocate memory again
-// and verify that the allocated memory are in the same order as those stored
-// in the array.  Note that this test depends on the implementation details of
+// memory addresses of two consecutive requests is equal to the specified block
+// size for the current pool.  To achieve goal 2, initialize a pool with a test
+// allocator and varying 'growthStrategy' and 'maxBlocksPerChunk'.  Invoke
+// 'allocate' repeatedly and verify that the pool requests memory blocks of the
+// expected sizes from the allocator.  To achieve goal 3, allocate multiple
+// memory blocks from the pool and store the returned addresses in an array.
+// Deallocate the memory in reverse order, then allocate memory again and
+// verify that the allocated memory are in the same order as those stored in
+// the array.  Note that this test depends on the implementation details of
 // 'deallocate' in which a deallocated memory block is placed at the beginning
 // of the free memory list.  To achieve goal 4, initialize two pools, each
 // supplied with its own test allocator.  Invoke 'allocate' repeatedly.  Invoke
@@ -179,8 +179,8 @@ int myAbs(int n)
 
 static inline
 int roundUp(int x, int y)
-    // Round up the specified 'x' to the nearest multiple of the specified
-    // 'y'.  The behavior is undefined unless '0 <= x' and '0 < y';
+    // Round up the specified 'x' to the nearest multiple of the specified 'y'.
+    // The behavior is undefined unless '0 <= x' and '0 < y';
 {
     ASSERT(0 <= x);
     ASSERT(0 <  y);

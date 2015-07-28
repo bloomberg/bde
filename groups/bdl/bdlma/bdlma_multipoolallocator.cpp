@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(bdlma_multipoolallocator_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlma {
 
-                     // ------------------------
-                     // class MultipoolAllocator
-                     // ------------------------
+                         // ------------------------
+                         // class MultipoolAllocator
+                         // ------------------------
 
 // CREATORS
 MultipoolAllocator::~MultipoolAllocator()
@@ -53,7 +53,7 @@ void MultipoolAllocator::reserveCapacity(size_type size, size_type numObjects)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

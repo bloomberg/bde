@@ -35,7 +35,8 @@ namespace bdlma {
                       // ---------------------
 
 // PRIVATE MANIPULATORS
-void ConcurrentMultipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
+void ConcurrentMultipool::initialize(
+                                 bsls::BlockGrowth::Strategy growthStrategy,
                                  int                         maxBlocksPerChunk)
 {
     d_maxBlockSize = MIN_BLOCK_SIZE;

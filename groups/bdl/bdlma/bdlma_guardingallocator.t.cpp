@@ -1194,8 +1194,8 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(CONFIG, da.numBlocksTotal(),
                          0 == da.numBlocksTotal());
 
-            // Verify we can allocate from the object and write to the
-            // returned memory block.
+            // Verify we can allocate from the object and write to the returned
+            // memory block.
 
             void *p = mX.allocate(SIZE);
             LOOP2_ASSERT(CONFIG, p, p);
@@ -1403,7 +1403,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

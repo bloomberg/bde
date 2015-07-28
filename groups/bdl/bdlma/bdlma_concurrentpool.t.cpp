@@ -29,9 +29,9 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The goals of this 'bdlma::ConcurrentPool' test suite are to verify that 1) the
-// 'allocate' method distributes memory of the correct object size; 2) the pool
-// replenishes correctly according to the 'numObjects' parameter; 3) the
+// The goals of this 'bdlma::ConcurrentPool' test suite are to verify that 1)
+// the 'allocate' method distributes memory of the correct object size; 2) the
+// pool replenishes correctly according to the 'numObjects' parameter; 3) the
 // 'deallocate' method returns the memory to the pool; and 4) the 'release'
 // method and the destructor releases all memory allocated through the pool.
 //
@@ -54,8 +54,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 5] bdlma::ConcurrentPool(objectSize, basicAllocator);
 // [ 2] bdlma::ConcurrentPool(int, strategy, int, allocator) : BLOCK SIZE
-// [ 3] bdlma::ConcurrentPool(int, strategy, int, allocator) : CONSTANT GROWTH STRATEGY
-// [ 4] bdlma::ConcurrentPool(int, strategy, int, allocator) : GEOMETRIC GROWTH STRATEGY
+// [ 3] bdlma::ConcurrentPool(int, strategy, int, allocator) : CONSTANT GROWTH
+// [ 4] bdlma::ConcurrentPool(int, strategy, int, allocator) : GEOMETRIC GROWTH
 // [11] bdlma::ConcurrentPool(int, strategy, allocator);
 // [12] bdlma::ConcurrentPool(int, int, bslma::allocator *);
 // [ 7] ~bdlma::ConcurrentPool();
@@ -103,23 +103,23 @@ static void aSsErT(int c, const char *s, int i) {
 // ----------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);        \
-                cout << #I << ": " << I << "\n";           \
+    if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                        \
+                cout << #I << ": " << I << "\n";                             \
                 rEpOrT(#X, __LINE__); }}
 
 #define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                          \
+    if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                        \
                 cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";  \
                 rEpOrT(#X, __LINE__); }}
 
 #define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                           \
+   if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                         \
                cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
                     << #K << ": " << K << "\n";                              \
                rEpOrT(#X, __LINE__); }}
 
 #define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                           \
+   if (!(X)) { bdlmtt::QLockGuard guard(&coutMutex);                         \
                cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
                     << #K << ": " << K << "\t" << #L << ": " << L << "\n";   \
                rEpOrT(#X, __LINE__); }}
@@ -153,8 +153,8 @@ struct InfrequentDeleteBlock {
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
-// This type is copied from 'bdlma_concurrentpool.cpp' to determine the internal limits
-// of 'bdlma::ConcurrentPool'.
+// This type is copied from 'bdlma_concurrentpool.cpp' to determine the
+// internal limits of 'bdlma::ConcurrentPool'.
 enum {
     INITIAL_CHUNK_SIZE   =  1,
     GROW_FACTOR          =  2,
@@ -280,13 +280,13 @@ void stretchRemoveAll(Obj *object, int numElements)
 
 ///Usage
 ///-----
-// A 'bdlma::ConcurrentPool' can be used by node-based containers (such as lists, trees,
-// and hash tables that hold multiple elements of uniform size) for efficient
-// memory allocation of new elements.  The following container class,
-// 'my_PooledArray', stores templatized values "out-of-place" as nodes in a
-// 'vector' of pointers.  Since the size of each node is fixed and known *a
-// priori*, the class uses a 'bdlma::ConcurrentPool' to allocate memory for the nodes to
-// improve memory allocation efficiency:
+// A 'bdlma::ConcurrentPool' can be used by node-based containers (such as
+// lists, trees, and hash tables that hold multiple elements of uniform size)
+// for efficient memory allocation of new elements.  The following container
+// class, 'my_PooledArray', stores templatized values "out-of-place" as nodes
+// in a 'vector' of pointers.  Since the size of each node is fixed and known
+// *a priori*, the class uses a 'bdlma::ConcurrentPool' to allocate memory for
+// the nodes to improve memory allocation efficiency:
 //..
     // my_poolarray.h
 //
@@ -296,8 +296,8 @@ void stretchRemoveAll(Obj *object, int numElements)
         // out-of-place.
 //
         // DATA
-        bsl::vector<T *> d_array_p;  // array of pooled elements
-        bdlma::ConcurrentPool       d_pool;     // memory manager for array elements
+        bsl::vector<T *>      d_array_p;  // array of pooled elements
+        bdlma::ConcurrentPool d_pool;     // memory manager for array elements
 //
       public:
         // CREATORS
@@ -398,11 +398,11 @@ void stretchRemoveAll(Obj *object, int numElements)
 // my_doublearray2.h
 
 class my_DoubleArray2 {
-    double           **d_array_p;     // dynamically allocated array
-    int                d_size;        // physical capacity of this array
-    int                d_length;      // logical length of this array
-    bdlma::ConcurrentPool         d_pool;        // memory manager for array elements
-    bslma::Allocator  *d_allocator_p; // holds (but does not own) allocator
+    double                **d_array_p;     // dynamically allocated array
+    int                     d_size;        // physical capacity of this array
+    int                     d_length;      // logical length of this array
+    bdlma::ConcurrentPool   d_pool;        // memory manager for array elements
+    bslma::Allocator       *d_allocator_p; // holds (does not own) allocator
 
   private:
     void increaseSize();
@@ -638,14 +638,14 @@ void bench(Control *control)
     control->d_barrier->wait();
 
     for (int i=0; i<control->d_iterations; i++) {
-        for(int j=0; j<numObjects; j++) {
-            for(int t=0; t<=j; t++) {
+        for (int j=0; j<numObjects; j++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = static_cast<Item *>(pool->allocate());
                 ASSERT(item);
                 item->d_threadId = threadId;
                 objects[t] = item;
             }
-            for(int t=0; t<=j; t++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = objects[t];
                 ASSERT(item->d_threadId == threadId);
                 pool->deallocate(item);
@@ -777,8 +777,7 @@ int main(int argc, char *argv[]) {
         int numIterations = NUM_ITERATIONS;
         int numObjects = NUM_OBJECTS;
 
-        for(int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
-
+        for (int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
             bench::runtest(numIterations, numObjects, numThreads);
         }
 
@@ -818,8 +817,9 @@ int main(int argc, char *argv[]) {
         // TESTING ALTERNATIVE CONSTRUCTOR
         //
         // Concerns:
-        //   That the alternative 'bdlma::ConcurrentPool'  constructor uses the correct
-        //   default argument values for the unspecified parameters.
+        //   That the alternative 'bdlma::ConcurrentPool'  constructor uses
+        //   the correct default argument values for the unspecified
+        //   parameters.
         //
         // Plan:
         //   Create one pool using the alternative constructor, and one pool
@@ -833,8 +833,11 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "TESTING ALTERNATIVE CONSTRUCTOR" << endl
                                   << "===============================" << endl;
 
-        if (verbose) cout << endl << " bdlma::ConcurrentPool(int, Strategy, ...)" << endl
-                                  << "===============================" << endl;
+        if (verbose) cout << endl
+                          << " bdlma::ConcurrentPool(int, Strategy, ...)"
+                          << endl
+                          << "==============================="
+                          << endl;
 
         struct {
             int  d_line;
@@ -1401,10 +1404,14 @@ int main(int argc, char *argv[]) {
         //   bdlma::ConcurrentPool(objectSize, basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose)
+        if (verbose) {
             cout << endl
-                 << "TESTING 'bdlma::ConcurrentPool(objectSize, basicAllocator)'" << endl
-                 << "================================================" << endl;
+                 << "TESTING 'bdlma::ConcurrentPool(objectSize, "
+                 << "basicAllocator)'"
+                 << endl
+                 << "================================================"
+                 << endl;
+        }
 
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ default "
                              "'numObjects'." << endl;
@@ -1654,11 +1661,11 @@ int main(int argc, char *argv[]) {
       case 1: {
         // --------------------------------------------------------------------
         // FILE-STATIC FUNCTION TEST
-        //   To test 'blockSize', create a 'bdlma::BlockList' object initialized
-        //   with a test allocator.  Invoke both the 'blockSize' function and
-        //   the 'bdlma::BlockList::allocate' method with varying memory sizes,
-        //   and verify that the sizes returned by 'blockSize' are equal to the
-        //   sizes recorded by the allocator.
+        //   To test 'blockSize', create a 'bdlma::BlockList' object
+        //   initialized with a test allocator.  Invoke both the 'blockSize'
+        //   function and the 'bdlma::BlockList::allocate' method with varying
+        //   memory sizes, and verify that the sizes returned by 'blockSize'
+        //   are equal to the sizes recorded by the allocator.
         //
         //   To test 'poolObjectSize', invoke the function with varying sizes,
         //   and verify that the returned value is equal to the difference

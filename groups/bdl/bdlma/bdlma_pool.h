@@ -294,9 +294,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ==========
-                        // class Pool
-                        // ==========
+                                // ==========
+                                // class Pool
+                                // ==========
 
 class Pool {
     // This class implements a memory pool that allocates and manages memory
@@ -320,8 +320,8 @@ class Pool {
     int   d_blockSize;          // size (in bytes) of each allocated memory
                                 // block returned to client
 
-    int   d_internalBlockSize;  // actual size of each block maintained on
-                                // free list (contains overhead for 'Link')
+    int   d_internalBlockSize;  // actual size of each block maintained on free
+                                // list (contains overhead for 'Link')
 
     int   d_chunkSize;          // current chunk size (in blocks-per-chunk)
 
@@ -495,15 +495,15 @@ void operator delete(void *address, BloombergLP::bdlma::Pool& pool);
     // to be called in the case of an exception.
 
 // ============================================================================
-//                          INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ----------
-                        // class Pool
-                        // ----------
+                                // ----------
+                                // class Pool
+                                // ----------
 
 // MANIPULATORS
 inline

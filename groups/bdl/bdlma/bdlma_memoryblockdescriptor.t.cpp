@@ -39,8 +39,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] bdlma::MemoryBlockDescriptor(void *, std::size_t);
 // [ 5] bdlma::MemoryBlockDescriptor(const bdlma::MemoryBlockDescriptor&);
 // [ 2] ~bdlma::MemoryBlockDescriptor();
-// [ 6] bdlma::MemoryBlockDescriptor& operator=(
-//                                  const bdlma::MemoryBlockDescriptor&);
+// [ 6] bdlma::MemoryBlockDescriptor& operator=(rhs);
 // [ 7] bool isNull() const;
 // [ 2] void *address() const;
 // [ 2] size_type size() const;
@@ -221,8 +220,8 @@ int main(int argc, char *argv[])
             // Because bdema is a low-level utility, MemoryBlockDescriptor does
             // not have a function to print to ostream, and thus cannot print
             // to a strstream.  The print() member function always prints to
-            // 'stdout'.  The code below forks a process and captures stdout
-            // to a memory buffer
+            // 'stdout'.  The code below forks a process and captures stdout to
+            // a memory buffer
             const char *EXP = mExp;
             int pipes[2];
             int sz;
@@ -317,8 +316,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   bdlma::MemoryBlockDescriptor& operator=(
-        //                             const bdlma::MemoryBlockDescriptor& rhs);
+        //   bdlma::MemoryBlockDescriptor& operator=(rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Assignment Operator" << endl;
@@ -595,15 +593,14 @@ int main(int argc, char *argv[])
         //   denote unique, but otherwise arbitrary, object values, while 'U'
         //   denotes the valid, but "unknown", default object value.
         //
-        // 1. Create an object x1 (init. to VA).    { x1:VA }
-        // 2. Create an object x2 (copy from x1).   { x1:VA x2:VA }
-        // 3. Set x1 to VB.                         { x1:VB x2:VA }
-        // 4. Create an object x3 (default ctor).   { x1:VB x2:VA x3:U }
-        // 5. Create an object x4 (copy from x3).   { x1:VB x2:VA x3:U  x4:U }
-        // 6. Set x3 to VC.                         { x1:VB x2:VA x3:VC x4:U }
-        // 7. Assign x2 = x1.                       { x1:VB x2:VB x3:VC x4:U }
-        // 8. Assign x2 = x3.                       { x1:VB x2:VC x3:VC x4:U }
-        // 9. Assign x1 = x1 (aliasing).            { x1:VB x2:VB x3:VC x4:U }
+        // 1.  Create an object x1 (init. to VA).  { x1:VA } 2.  Create an
+        // object x2 (copy from x1).  { x1:VA x2:VA } 3.  Set x1 to VB.  {
+        // x1:VB x2:VA } 4.  Create an object x3 (default ctor).  { x1:VB x2:VA
+        // x3:U } 5.  Create an object x4 (copy from x3).  { x1:VB x2:VA x3:U
+        // x4:U } 6.  Set x3 to VC.  { x1:VB x2:VA x3:VC x4:U } 7.  Assign x2 =
+        // x1.  { x1:VB x2:VB x3:VC x4:U } 8.  Assign x2 = x3.  { x1:VB x2:VC
+        // x3:VC x4:U } 9.  Assign x1 = x1 (aliasing).  { x1:VB x2:VB x3:VC
+        // x4:U }
         //
         // Testing:
         //   This Test Case exercises basic value-semantic functionality.
@@ -798,11 +795,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

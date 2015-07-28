@@ -28,18 +28,17 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'bdlma::ConcurrentAllocatorAdapter' class consists of one
-// constructor, a destructor, and four manipulators.  The manipulators are
-// used to allocate, deallocate, and reserve memory.  Since this component is
-// a memory manager, the 'bslma_testallocator' component is used extensively
-// to verify expected behaviors.  Note that the copying of objects is
-// explicitly disallowed since the copy constructor and assignment operator
-// are declared 'private' and left unimplemented.  So we are primarily
-// concerned that the internal memory management system functions as expected
-// and that the manipulators operator correctly.  Note that memory allocation
-// must be tested for exception neutrality (also via the 'bslma_testallocator'
-// component).  Several small helper functions are also used to facilitate
-// testing.
+// The 'bdlma::ConcurrentAllocatorAdapter' class consists of one constructor, a
+// destructor, and four manipulators.  The manipulators are used to allocate,
+// deallocate, and reserve memory.  Since this component is a memory manager,
+// the 'bslma_testallocator' component is used extensively to verify expected
+// behaviors.  Note that the copying of objects is explicitly disallowed since
+// the copy constructor and assignment operator are declared 'private' and left
+// unimplemented.  So we are primarily concerned that the internal memory
+// management system functions as expected and that the manipulators operator
+// correctly.  Note that memory allocation must be tested for exception
+// neutrality (also via the 'bslma_testallocator' component).  Several small
+// helper functions are also used to facilitate testing.
 //-----------------------------------------------------------------------------
 // [2] bdlma::ConcurrentAllocatorAdapter(int               numPools,
 //                                         bslma::Allocator *ba = 0);
@@ -113,8 +112,8 @@ class NoopAllocator : public bslma::Allocator{
 
     // CREATORS
     NoopAllocator(char const **lastMethod)
-        // Create this 'NoopAllocator' with the specified
-        // 'lastMethod' to store the last method called.
+        // Create this 'NoopAllocator' with the specified 'lastMethod' to store
+        // the last method called.
     : d_lastMethod(lastMethod)
     {
         *d_lastMethod = "NoopAllocator";
@@ -134,8 +133,7 @@ class NoopAllocator : public bslma::Allocator{
 
     // ACCESSORS
     const char *lastMethod() { return *d_lastMethod; }
-        // Return the last method called on this 'NoopAllocator'
-        // instance.
+        // Return the last method called on this 'NoopAllocator' instance.
 };
 
 NoopAllocator::~NoopAllocator()
@@ -171,9 +169,9 @@ extern "C" void *workerThread(void *arg) {
     // operation is intended to be a thread entry point.  Cast the specified
     // 'args' to a 'WorkerArgs', and perform a series of
     // '(WorkerArgs *)args->d_numSizes' allocations using the corresponding
-    // allocations sizes specified by  '(WorkerARgs *)args->d_sizes'.  Use the
-    // barrier 'g_barrier' to ensure tests are performed while the allocator
-    // is in the correct state.
+    // allocations sizes specified by '(WorkerARgs *)args->d_sizes'.  Use the
+    // barrier 'g_barrier' to ensure tests are performed while the allocator is
+    // in the correct state.
 
     WorkerArgs *args = (WorkerArgs *) arg;
     ASSERT(0 != args);
@@ -280,11 +278,11 @@ extern "C" void *workerThread(void *arg) {
 //..
 // We use this-thread enabled vector to create a Rolodex class.  However, we
 // use the 'bdlma::ConcurrentAllocatorAdapter' to prevent our two
-// (thread-enabled) vectors from attempting synchronous memory allocations
-// from our (potentially) non-thread safe 'bslma::Allocator'.  Note that we
-// define a local class 'Rolodex_PrivateData' in order to guarantee that
-// 'd_allocatorAdapter' and 'd_mutex' are initialized before the
-// thread-enabled vectors that depend on them.
+// (thread-enabled) vectors from attempting synchronous memory allocations from
+// our (potentially) non-thread safe 'bslma::Allocator'.  Note that we define a
+// local class 'Rolodex_PrivateData' in order to guarantee that
+// 'd_allocatorAdapter' and 'd_mutex' are initialized before the thread-enabled
+// vectors that depend on them.
 //..
     struct Rolodex_PrivateData {
         // Define a structure containing a mutex and an allocator adapter.  The
@@ -379,6 +377,7 @@ extern "C" void *workerThread(void *arg) {
         }
 
     };
+//..
 
 //=============================================================================
 //                                MAIN PROGRAM
