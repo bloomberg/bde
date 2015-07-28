@@ -705,11 +705,11 @@ int Iso8601Util::generateRaw(char                            *buffer,
     return datetimeLen + zoneLen;
 }
 
-int Iso8601Util::parse(Date *result, const char *input, int inputLength)
+int Iso8601Util::parse(Date *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
     // Sample ISO 8601 date: "2005-01-31+04:00"
     //
@@ -717,12 +717,12 @@ int Iso8601Util::parse(Date *result, const char *input, int inputLength)
 
     enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
 
-    if (inputLength < k_MINIMUM_LENGTH) {
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *p   = input;
-    const char *end = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
     // 1. Parse and validate date.
 
@@ -748,11 +748,11 @@ int Iso8601Util::parse(Date *result, const char *input, int inputLength)
     return 0;
 }
 
-int Iso8601Util::parse(Time *result, const char *input, int inputLength)
+int Iso8601Util::parse(Time *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
     // Sample ISO 8601 time: "08:59:59.999-04:00"
     //
@@ -760,12 +760,12 @@ int Iso8601Util::parse(Time *result, const char *input, int inputLength)
 
     enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
 
-    if (inputLength < k_MINIMUM_LENGTH) {
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *p   = input;
-    const char *end = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
     // 1. Parse and validate time.
 
@@ -824,11 +824,11 @@ int Iso8601Util::parse(Time *result, const char *input, int inputLength)
     return 0;
 }
 
-int Iso8601Util::parse(Datetime *result, const char *input, int inputLength)
+int Iso8601Util::parse(Datetime *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
     // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999-04:00"
     //
@@ -838,7 +838,7 @@ int Iso8601Util::parse(Datetime *result, const char *input, int inputLength)
 
     DatetimeTz datetimeTz;
 
-    const int rc = parse(&datetimeTz, input, inputLength);
+    const int rc = parse(&datetimeTz, string, length);
 
     if (0 != rc) {
         return rc;                                                    // RETURN
@@ -870,11 +870,11 @@ int Iso8601Util::parse(Datetime *result, const char *input, int inputLength)
     return 0;
 }
 
-int Iso8601Util::parse(DateTz *result, const char *input, int inputLength)
+int Iso8601Util::parse(DateTz *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
     // Sample ISO 8601 date: "2005-01-31+04:00"
     //
@@ -882,12 +882,12 @@ int Iso8601Util::parse(DateTz *result, const char *input, int inputLength)
 
     enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
 
-    if (inputLength < k_MINIMUM_LENGTH) {
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *p   = input;
-    const char *end = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
     // 1. Parse and validate date.
 
@@ -914,11 +914,11 @@ int Iso8601Util::parse(DateTz *result, const char *input, int inputLength)
     return 0;
 }
 
-int Iso8601Util::parse(TimeTz *result, const char *input, int inputLength)
+int Iso8601Util::parse(TimeTz *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
     // Sample ISO 8601 time: "08:59:59.999-04:00"
     //
@@ -926,12 +926,12 @@ int Iso8601Util::parse(TimeTz *result, const char *input, int inputLength)
 
     enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
 
-    if (inputLength < k_MINIMUM_LENGTH) {
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *p   = input;
-    const char *end = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
     // 1. Parse and validate time.
 
@@ -986,11 +986,11 @@ int Iso8601Util::parse(TimeTz *result, const char *input, int inputLength)
     return 0;
 }
 
-int Iso8601Util::parse(DatetimeTz *result, const char *input, int inputLength)
+int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
     // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999-04:00"
     //
@@ -998,12 +998,12 @@ int Iso8601Util::parse(DatetimeTz *result, const char *input, int inputLength)
 
     enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DDThh:mm:ss" - 1 };
 
-    if (inputLength < k_MINIMUM_LENGTH) {
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *p   = input;
-    const char *end = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
     // 1. Parse date.
 
