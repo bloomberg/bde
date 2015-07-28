@@ -314,26 +314,6 @@ BSLS_IDENT("$Id: $")
 //       'TIME_UNITS' indicates the scale of value to report, but does *not*
 //       affect the precision of the elapsed time measurement.
 //
-//   BALM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)
-//       The behavior of this macro is logically equivalent to
-//       'BALM_METRICS_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::SECONDS'.
-//
-//   BALM_METRICS_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)
-//       The behavior of this macro is logically equivalent to
-//       'BALM_METRICS_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::MILLISECONDS'.
-//
-//   BALM_METRICS_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)
-//       The behavior of this macro is logically equivalent to
-//       'BALM_METRICS_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::MICROSECONDS'.
-//
-//   BALM_METRICS_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)
-//       The behavior of this macro is logically equivalent to
-//       'BALM_METRICS_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::NANOSECONDS'.
-//
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)
 //       Update the indicated metric, identified by the specified 'CATEGORY'
 //       and 'METRIC' names, by the elapsed (wall) time, in the specified

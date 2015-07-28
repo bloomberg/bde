@@ -117,8 +117,8 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 #include <bdlb_nullablevalue.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_TYPETRAITS
+#include <bslmf_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -279,8 +279,8 @@ class MetricFormat {
 
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MetricFormat,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricFormat,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     MetricFormat(bslma::Allocator *basicAllocator = 0);

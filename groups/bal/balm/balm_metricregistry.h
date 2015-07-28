@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_cstringless.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_TYPETRAITS
+#include <bslmf_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -285,8 +285,8 @@ class baem_MetricRegistry {
 
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(baem_MetricRegistry,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(baem_MetricRegistry,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     baem_MetricRegistry(bslma::Allocator *basicAllocator = 0);

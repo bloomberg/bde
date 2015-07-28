@@ -209,7 +209,7 @@ class StopwatchScopedGuard {
   public:
     // CREATORS
     explicit StopwatchScopedGuard(Metric *metric,
-                                       Units        timeUnits = BAEM_SECONDS);
+                                  Units        timeUnits = BAEM_SECONDS);
         // Initialize this scoped guard to record elapsed time using the
         // specified 'metric'.  Optionally specify the 'timeUnits' in which to
         // report elapsed time.  If 'metric->isActive()' is 'false', this
@@ -219,9 +219,8 @@ class StopwatchScopedGuard {
         // the double value reported by this guard, but does *not* affect the
         // precision of the elapsed time measurement.
 
-    explicit StopwatchScopedGuard(
-                                     Collector *collector,
-                                     Units           timeUnits = BAEM_SECONDS);
+    explicit StopwatchScopedGuard(Collector *collector,
+                                  Units           timeUnits = BAEM_SECONDS);
         // Initialize this scoped guard to record elapsed time using the
         // specified 'collector'.  Optionally specify the 'timeUnits' in which
         // to report elapsed time.  If 'collector' is 0 or
@@ -234,10 +233,10 @@ class StopwatchScopedGuard {
         // measurement.
 
     StopwatchScopedGuard(const MetricId&  metricId,
-                              MetricsManager  *manager = 0);
+                               MetricsManager  *manager = 0);
     StopwatchScopedGuard(const MetricId&  metricId,
-                              Units                 timeUnit,
-                              MetricsManager  *manager = 0);
+                               Units                 timeUnit,
+                               MetricsManager  *manager = 0);
         // Initialize this scoped guard to record an elapsed time to the
         // specified 'metricId' from the optionally specified
         // 'manager'.  Optionally specify the 'timeUnits' in which to report

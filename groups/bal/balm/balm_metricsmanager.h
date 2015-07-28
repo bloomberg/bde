@@ -393,8 +393,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_TYPETRAITS
+#include <bslmf_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -516,8 +516,8 @@ class MetricsManager {
     };
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MetricsManager,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     MetricsManager(bslma::Allocator *basicAllocator = 0);

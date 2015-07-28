@@ -130,8 +130,8 @@ class PublicationScheduler_ClockData {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(PublicationScheduler_ClockData,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(PublicationScheduler_ClockData,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit PublicationScheduler_ClockData(

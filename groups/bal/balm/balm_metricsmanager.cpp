@@ -288,8 +288,8 @@ class MetricsManager_PublisherRegistry {
         // clients).
 
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MetricsManager_PublisherRegistry,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_PublisherRegistry,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_PublisherRegistry(bslma::Allocator *basicAllocator);
@@ -411,8 +411,8 @@ class MetricsManager_CallbackRegistry {
         // 'MetricsManager' (therefore, it is not exposed to clients).
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MetricsManager_CallbackRegistry,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_CallbackRegistry,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_CallbackRegistry(bslma::Allocator *basicAllocator = 0);

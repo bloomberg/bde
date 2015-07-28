@@ -126,8 +126,8 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricrecord.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_TYPETRAITS
+#include <bslmf_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMETZ
@@ -327,8 +327,8 @@ class MetricSample {
         // non-modifiable sample groups contained in a 'MetricSample'.
 
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MetricSample,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricSample,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     MetricSample(bslma::Allocator *basicAllocator = 0);

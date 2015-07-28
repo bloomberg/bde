@@ -124,8 +124,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_TYPETRAITS
+#include <bslmf_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -212,8 +212,8 @@ class CollectorRepository {
 
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(CollectorRepository,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     CollectorRepository(baem_MetricRegistry *registry,

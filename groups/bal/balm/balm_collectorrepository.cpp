@@ -74,8 +74,8 @@ class baem_CollectorRepository_Collectors {
 
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(baem_CollectorRepository_Collectors,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(baem_CollectorRepository_Collectors,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     baem_CollectorRepository_Collectors(
@@ -272,8 +272,8 @@ class CollectorRepository_MetricCollectors {
                            const  CollectorRepository_MetricCollectors& );
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(CollectorRepository_MetricCollectors,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository_MetricCollectors,
+                                 bslmf::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     CollectorRepository_MetricCollectors(

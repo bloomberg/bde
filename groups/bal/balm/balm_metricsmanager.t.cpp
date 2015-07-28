@@ -181,14 +181,14 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef balm::Collector                 Collector;
-typedef balm::Category                  Category;
-typedef balm::MetricId                  Id;
-typedef balm::Publisher                 Pub;
+typedef balm::Collector                Collector;
+typedef balm::Category                 Category;
+typedef balm::MetricId                 Id;
+typedef balm::Publisher                Pub;
 typedef bsl::shared_ptr<Pub>           PubPtr;
-typedef balm::MetricsManager            Obj;
+typedef balm::MetricsManager           Obj;
 typedef baem_MetricRegistry            Registry;
-typedef balm::CollectorRepository       Repository;
+typedef balm::CollectorRepository      Repository;
 typedef Obj::CallbackHandle            CbHandle;
 
 enum {
