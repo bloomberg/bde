@@ -13,6 +13,7 @@ BSLS_IDENT_RCSID(balm_defaultmetricsmanager_cpp,"$Id$ $CSID$")
 
 #include <bsl_memory.h>
 #include <bsl_ostream.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 

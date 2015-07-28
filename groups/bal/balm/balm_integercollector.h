@@ -70,6 +70,10 @@ BSLS_IDENT("$Id: $")
 //      assert(3        == record.max());
 //..
 
+#ifndef INCLUDED_BSL_UTILITY
+#include <bsl_algorithm.h>
+#endif
+
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
 #endif
@@ -82,12 +86,12 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricrecord.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES

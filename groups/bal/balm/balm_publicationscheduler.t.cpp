@@ -10,7 +10,7 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 #include <bdlmt_timereventscheduler.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 #include <bdlf_bind.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>

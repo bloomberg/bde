@@ -14,6 +14,7 @@ BSLS_IDENT_RCSID(balm_collectorrepository_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>   // for 'bsl::min' and 'bsl::max'
 #include <bsl_ostream.h>
 #include <bsl_set.h>
+#include <bsl_string.h>
 
 #include <bsl_cstddef.h>           // for 'bsl::size_t'
 

@@ -29,14 +29,6 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bdlat_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -47,6 +39,10 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
