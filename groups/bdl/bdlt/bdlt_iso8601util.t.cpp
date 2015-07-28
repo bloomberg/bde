@@ -433,6 +433,7 @@ const BadTimeDataRow BAD_TIME_DATA[] =
     { L_,   "12:59:100"              },
 
     { L_,   "03:02:001."             },  // length = 10
+    { L_,   "03:02:001,"             },
     { L_,   "03:2:001.1"             },
     { L_,   "24:00:00.1"             },
 
@@ -837,65 +838,61 @@ if (veryVerbose)
         // PARSE: DATETIME & DATETIMETZ
         //
         // Concerns:
-        //: 1 'parse' correctly accepts an ISO 8601 value having the full range
-        //:    of dates.
+        //: 1 'parse' accepts an ISO 8601 string having the full range of
+        //:   dates.
         //:
-        //: 2 'parse' correctly accepts an ISO 8601 value having the full range
-        //:    of "normal" times.
+        //: 2 'parse' accepts an ISO 8601 string having the full range of
+        //:   "normal" times.
         //:
         //: 3 'parse' translates fractional seconds to milliseconds.
         //:
         //: 4 'parse' rounds fractional seconds beyond milliseconds to the
         //:    nearest millisecond.
         //:
-        //: 5 'parse' accepts timezone values in the range '(-1440 .. 1440)'.
+        //: 5 'parse' accepts zone designators in the range '(-1440 .. 1440)'.
         //:
         //: 6 'parse' loads a 'bdlt::DatetimeTz' with a 'Tz' having the parsed
         //:   timezone offset.
         //:
-        //: 7 'parse' loads a 'bdlt::Datetime' by converting a time with
-        //:   a timezone to its corresponding UTC time.
+        //: 7 'parse' loads a 'bdlt::Datetime' by converting a time with a
+        //:   zone designator to its corresponding UTC time.
         //:
-        //: 8 'parse' returns a time of 24:00:00.000 as 00:00:00.000 of the
-        //:    same day (see 'Note Regarding the Time 24:00' in the component
-        //:    header file).
-        //:
-        //: 9 'parse' does not accept the hour 24 if minutes, seconds, or
+        //: 8 'parse' does not accept the hour 24 if minutes, seconds, or
         //:    fractional seconds is non-zero.
         //:
-        //:10 'parse' converts a seconds value of 60 (leap-second) to the first
+        //: 9 'parse' converts a seconds value of 60 (leap-second) to the first
         //:   second of the subsequent minute.
         //:
-        //:11 'parse' only parses up to the supplied input length.
+        //:10 'parse' only parses up to the supplied input length.
         //:
-        //:12 'parse' returns a non-zero value if the input is not a valid ISO
+        //:11 'parse' returns a non-zero value if the input is not a valid ISO
         //:    8601 string.
         //:
-        //:13 'parse' returns a non-zero value if the input is not in the valid
+        //:12 'parse' returns a non-zero value if the input is not in the valid
         //:   range of representable 'Datetime' or 'DatetimeTz' values.
         //:
-        //:14 QoI: Asserted precondition violations are detected when enabled.
+        //:13 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 For a table of valid ISO 8601 strings, call 'parse' and compare
         //:   the resulting 'bdlt::Datetime' and 'bdlt::DatetimeTz' values
-        //:   against their expected value.  (C-1..4, 8, 10).
+        //:   against their expected value.  (C-1..4, 9).
         //:
-        //: 2 For a table of valid ISO 8601 strings having timezones, call
-        //:   'parse' and compare the resulting 'bdlt::Datetime' and
-        //:   'bdlt::DatetimeTz' values against their expected value.  (C-5..7)
+        //: 2 For a table of valid ISO 8601 strings having zone designators,
+        //:   call 'parse' and compare the resulting 'bdlt::Datetime' and
+        //:   'bdlt::DatetimeTz' values against their expected value.
         //:
         //: 3 For a table of invalid ISO 8601 strings or ISO 8601 strings
         //:   outside the representable range of values, call 'parse' (for both
-        //:   'Datetime' and 'DatetimeTz') and verify they return a non-zero
-        //:   status.  (C-12..13)
+        //:   'Datetime' and 'DatetimeTz') and a non-zero status is returned.
+        //:   (C-11)
         //:
         //: 4 For a table of ISO 8601 strings that are *within* the
         //:   representable range of 'bdlt::DatetimeTz' *but* *outside* the
         //:   representable range of 'bdlt::Datetime', call 'parse', and verify
         //:   the returned 'bdlt::DatetimeTz' has the expected value, and the
         //:   overload taking a 'bdlt::Datetime' returns a non-zero status.
-        //:   (C-5..7, 13)
+        //:   (C-5..7, 12)
         //:
         //: 5 For a valid ISO 8601 string, 'INPUT', iterate over the possible
         //:   string lengths to provide to 'parse' (i.e., 0 through
@@ -905,7 +902,7 @@ if (veryVerbose)
         //: 6 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to 'parse' if provided an
         //:   invalid result object, input string, and string length
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-14)
+        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-13)
         //
         // Testing:
         //   int parse(Datetime *, const char *, int);
@@ -916,6 +913,146 @@ if (veryVerbose)
                           << "PARSE: DATETIME & DATETIMETZ" << endl
                           << "============================" << endl;
 
+        char buffer[Util::k_MAX_STRLEN];
+
+        const bdlt::Date       DD(246, 8, 10);
+        const bdlt::Time       TT(2, 4, 6, 8);
+
+        const bdlt::Datetime   XX(DD, TT);  // 'XX' and 'ZZ' are controls,
+        const bdlt::DatetimeTz ZZ(XX, -7);  // distinct from any test data
+
+        const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
+        const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
+                                                             DEFAULT_DATE_DATA;
+
+        const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
+
+        const int                  NUM_ZONE_DATA =       NUM_DEFAULT_ZONE_DATA;
+        const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
+                                                             DEFAULT_ZONE_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        if (verbose) cout << "\nValid ISO 8601 strings." << endl;
+
+        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+            const int ILINE = DATE_DATA[ti].d_line;
+            const int YEAR  = DATE_DATA[ti].d_year;
+            const int MONTH = DATE_DATA[ti].d_month;
+            const int DAY   = DATE_DATA[ti].d_day;
+
+            const bdlt::Date DATE(YEAR, MONTH, DAY);
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int JLINE = TIME_DATA[tj].d_line;
+                const int HOUR  = TIME_DATA[tj].d_hour;
+                const int MIN   = TIME_DATA[tj].d_min;
+                const int SEC   = TIME_DATA[tj].d_sec;
+                const int MSEC  = TIME_DATA[tj].d_msec;
+
+                const bdlt::Time TIME(HOUR, MIN, SEC, MSEC);
+
+                for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                    const int KLINE  = ZONE_DATA[tk].d_line;
+                    const int OFFSET = ZONE_DATA[tk].d_offset;
+
+                    if (TIME == bdlt::Time() && OFFSET != 0) {
+                        continue;  // skip invalid compositions
+                    }
+
+                    const bdlt::Datetime   DATETIME(DATE, TIME);
+                    const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
+                    if (veryVerbose) {
+                        T_ P_(ILINE) P_(JLINE) P_(KLINE)
+                        P_(DATETIME) P(DATETIMETZ)
+                    }
+
+                    for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                        const int  CLINE     = CNFG_DATA[tc].d_line;
+                        const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                        const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                        if (veryVerbose) {
+                            T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        }
+
+                        Config mC;  const Config& C = mC;
+                        gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                        // without zone designator in parsed string
+                        {
+                            const int LENGTH = Util::generateRaw(buffer,
+                                                                 DATETIME, C);
+
+                            if (veryVerbose) {
+                                const bsl::string STRING(buffer, LENGTH);
+                                T_ T_ P(STRING)
+                            }
+
+                                  bdlt::Datetime    mX(XX);
+                            const bdlt::Datetime&   X = mX;
+
+                                  bdlt::DatetimeTz  mZ(ZZ);
+                            const bdlt::DatetimeTz& Z = mZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == X);
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mZ, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIME == Z.localDatetime());
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                           0 == Z.offset());
+                        }
+
+                        // with zone designator in parsed string
+                        {
+                            if ((DATE == bdlt::Date() && OFFSET > 0)
+                             || (DATE == bdlt::Date(9999, 12, 31)
+                              && OFFSET < 0)) {
+                                continue;  // skip invalid compositions
+                            }
+
+                            const int LENGTH = Util::generateRaw(buffer,
+                                                                 DATETIMETZ,
+                                                                 C);
+
+                            if (veryVerbose) {
+                                const bsl::string STRING(buffer, LENGTH);
+                                T_ T_ P(STRING)
+                            }
+
+                                  bdlt::Datetime    mX(XX);
+                            const bdlt::Datetime&   X = mX;
+
+                                  bdlt::DatetimeTz  mZ(ZZ);
+                            const bdlt::DatetimeTz& Z = mZ;
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mX, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ.utcDatetime() == X);
+
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    0 == Util::parse(&mZ, buffer, LENGTH));
+                            ASSERTV(ILINE, JLINE, KLINE, CLINE,
+                                    DATETIMETZ               == Z);
+                        }
+                    }  // loop over 'CNFG_DATA'
+                }  // loop over 'ZONE_DATA'
+            }  // loop over 'TIME_DATA'
+        }  // loop over 'DATE_DATA'
+
+// TBD RETAIN - special cases of interest
         if (verbose) cout << "\nTesting valid datetime values." << endl;
         {
             const struct {
@@ -973,7 +1110,7 @@ if (veryVerbose)
                 { L_, "0001-01-01T24:00:00.000"  ,
                                                0001, 01, 01, 24, 00, 00, 000 },
                 { L_, "2001-01-01T24:00:00.000"  ,
-                                               2001, 01, 01, 00, 00, 00, 000 },
+                                               2001, 01, 01, 24, 00, 00, 000 },
                 { L_, "0001-01-01T24:00:00"      ,
                                                0001, 01, 01, 24, 00, 00, 000 },
             };
@@ -1011,141 +1148,7 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting valid datetime values w/timezone."
-                          << endl;
-        {
-            const struct {
-                int         d_line;
-                const char *d_input;
-                int         d_year;
-                int         d_month;
-                int         d_day;
-                int         d_hour;
-                int         d_minute;
-                int         d_second;
-                int         d_millisecond;
-                int         d_tzOffset;
-            } DATA[] = {
-
-                // Test with timezone
-                { L_, "1000-01-01T00:00:00.000+00:00",
-                                         1000, 01, 01, 00, 00, 00, 000,  0   },
-                { L_, "1000-01-01T00:00:00.000+00:01",
-                                         1000, 01, 01, 00, 00, 00, 000,  1   },
-                { L_, "1000-01-01T00:00:00.000-00:01",
-                                         1000, 01, 01, 00, 00, 00, 000, -1   },
-
-                { L_, "2000-01-01T00:00:00.000+23:59",
-                                         2000, 01, 01, 00, 00, 00, 000, 1439 },
-                { L_, "2000-01-01T00:00:00.000-23:59",
-                                         2000, 01, 01, 00, 00, 00, 000,-1439 },
-
-                { L_, "0001-01-01T00:00:00.000Z"     ,
-                                         0001, 01, 01, 00, 00, 00, 000,  0   },
-                { L_, "9999-12-31T23:59:59.999Z"     ,
-                                         9999, 12, 31, 23, 59, 59, 999,  0   },
-            };
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const char *INPUT = DATA[i].d_input;
-
-                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
-
-                bdlt::Datetime   result(4321,1,2,3,4,5,6);
-                bdlt::DatetimeTz resultTz(result, -123);
-                bdlt::DatetimeTz EXPECTEDTZ(
-                                  bdlt::Datetime(DATA[i].d_year,
-                                                DATA[i].d_month,
-                                                DATA[i].d_day,
-                                                DATA[i].d_hour,
-                                                DATA[i].d_minute,
-                                                DATA[i].d_second,
-                                                DATA[i].d_millisecond),
-                                  DATA[i].d_tzOffset);
-                bdlt::Datetime   EXPECTED(EXPECTEDTZ.utcDatetime());
-
-                ASSERTV(LINE,
-                        0 == Util::parse(&result,
-                                         INPUT,
-                                         static_cast<int>(strlen(INPUT))));
-                ASSERTV(LINE, EXPECTED, result, EXPECTED == result);
-
-                ASSERTV(LINE,
-                        0 == Util::parse(&resultTz,
-                                         INPUT,
-                                         static_cast<int>(strlen(INPUT))));
-                ASSERTV(LINE, EXPECTEDTZ, resultTz, EXPECTEDTZ == resultTz);
-            }
-        }
-
-        if (verbose) cout << "\nTesting invalid datetime values." << endl;
-        {
-            const char *DATA[] = {
-                // garbage
-                "",
-                "asdajksad",
-
-                // Invalid dates
-                "0000-01-01T00:00:00.000",
-               "10000-01-01T00:00:00.000",
-                "2000-00-01T00:00:00.000",
-                "2000-13-01T00:00:00.000",
-                "2000-01-00T00:00:00.000",
-                "2000-01-32T00:00:00.000",
-                "2000-02-31T00:00:00.000",
-                "2000-2-31T00:00:00.000",
-                "2000-02-3T00:00:00.000",
-
-                // Invalid Times
-                "2000-01-01T24:01:00.000",
-                "2000-01-01T24:00:01.000",
-                "2000-01-01T24:00:00.001",
-                "2000-01-01T25:00:00.000",
-                "2000-01-01T00:60:00.000",
-                "2000-01-01T00:00:61.000",
-
-                // Invalid Separators
-                "2000/01-01T12:01:00.000",
-                "2000-01/01T12:01:00.000",
-                "2000-01-01:12:01:00.000",
-                "2000-01-01T12 01:00.000",
-                "2000-01-01T12:01 00.000",
-                "2000-01-01T12:01 00/000",
-
-                // Invalid Time zones
-                "2000-01-01T12:01:00.000+23:60",
-                "2000-01-01T12:01:00.000+24:00",
-                "2000-01-01T12:01:00.000-23:60",
-                "2000-01-01T12:01:00.000-24:00",
-
-                // Out-of range values
-                "9999-12-31T23:59:60.000+00:00"
-                "9999-12-31T23:59:59.9996+00:00"
-                "9999-12-31T24:00:00.000+00:00"
-            };
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const char *INPUT = DATA[i];
-
-                if (veryVerbose) { T_ P_(i) P(INPUT) }
-
-                bdlt::Datetime   result(4321,1,2,3,4,5,6);
-                bdlt::DatetimeTz resultTz(result, -213);
-                ASSERTV(INPUT, result,
-                        0 != Util::parse(&result,
-                                         INPUT,
-                                         static_cast<int>(strlen(INPUT))));
-                ASSERTV(INPUT, resultTz,
-                        0 != Util::parse(&resultTz,
-                                         INPUT,
-                                         static_cast<int>(strlen(INPUT))));
-            }
-
-        }
-
+// TBD RETAIN - extremal values
         if (verbose) cout
             << "\nTesting timezone offsets that cannot be converted to UTC"
             << endl;
@@ -1172,7 +1175,6 @@ if (veryVerbose)
                                          9999, 12, 31, 00, 01, 00, 000,-1439 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE  = DATA[i].d_line;
@@ -1207,30 +1209,118 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting length parameter" << endl;
+        if (verbose) cout << "\nInvalid strings." << endl;
         {
-            // Create a test input string 'INPUT', and a set of expected
-            // return statuses for 'parse', 'VALID'.  Notice that:
-            //..
-            // '0 == parse(&out, INPUT, length)' IFF ''V' == VALID[length]'
-            //..
+            bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
+            bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
 
-            const char *INPUT  =  "2013-10-23T01:23:45.678901+12:34111";
-            const char *VALID  = "IIIIIIIIIIIIIIIIIIIVIVVVVVVIIIIIVIII";
-            const int   LENGTH = static_cast<int>(strlen(INPUT));
+            const int              NUM_DATE_DATA =         NUM_BAD_DATE_DATA;
+            const BadDateDataRow (&DATE_DATA)[NUM_DATE_DATA] = BAD_DATE_DATA;
 
-            for (int len = 0; len < LENGTH + 1; ++len) {
-                bdlt::Datetime   result(4321,1,2,3,4,5,6);
-                bdlt::DatetimeTz resultTz(result, -213);
+            for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+                const int LINE = DATE_DATA[ti].d_line;
 
-                if (veryVeryVerbose) { T_ T_ cout << "Length: "; P(len) }
+                bsl::string bad(DATE_DATA[ti].d_invalid);
 
-                const bool EXPECTED = 'V' == VALID[len];
+                // Append a valid time.
 
-                ASSERTV(INPUT, len, result, VALID[len],
-                        EXPECTED == (0 == Util::parse(&result, INPUT, len)));
-                ASSERTV(INPUT, len, resultTz, VALID[len],
-                        EXPECTED == (0 == Util::parse(&resultTz, INPUT, len)));
+                bad.append("T12:26:52.726");
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                ASSERTV(LINE, STRING,  0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
+                ASSERTV(LINE, STRING, ZZ == Z);
+            }
+
+            const int              NUM_TIME_DATA =         NUM_BAD_TIME_DATA;
+            const BadTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] = BAD_TIME_DATA;
+
+            for (int tj = 0; tj < NUM_TIME_DATA; ++tj) {
+                const int LINE = TIME_DATA[tj].d_line;
+
+                // Initialize with a *valid* date string, then append an
+                // invalid time.
+
+                bsl::string bad("2010-08-17");
+
+                // Ensure that 'bad' is initially valid.
+
+                static bool firstFlag = true;
+                if (firstFlag) {
+                    const char *STRING = bad.data();
+                    const int   LENGTH = static_cast<int>(bad.length());
+
+                    bdlt::Date mD(DD);  const bdlt::Date& D = mD;
+
+                    ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
+                    ASSERT(DD != D);
+                }
+
+                bad.append("T");
+                bad.append(TIME_DATA[tj].d_invalid);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                ASSERTV(LINE, STRING,  0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
+                ASSERTV(LINE, STRING, ZZ == Z);
+            }
+
+            const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
+            const BadZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] = BAD_ZONE_DATA;
+
+            for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
+                const int LINE = ZONE_DATA[tk].d_line;
+
+                // Initialize with a *valid* datetime string, then append an
+                // invalid zone designator.
+
+                bsl::string bad("2010-08-17T12:26:52.726");
+
+                // Ensure that 'bad' is initially valid.
+
+                static bool firstFlag = true;
+                if (firstFlag) {
+                    const char *STRING = bad.data();
+                    const int   LENGTH = static_cast<int>(bad.length());
+
+                    bdlt::Datetime mD(XX);  const bdlt::Datetime& D = mD;
+
+                    ASSERT( 0 == Util::parse(&mD, STRING, LENGTH));
+                    ASSERT(XX != D);
+                }
+
+                // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
+                // appending it to 'bad' simply extends the fractional second
+                // (so 'bad' remains valid).
+
+                if (containsOnlyDigits(ZONE_DATA[tk].d_invalid)) {
+                    continue;
+                }
+
+                bad.append(ZONE_DATA[tk].d_invalid);
+
+                const char *STRING = bad.c_str();
+                const int   LENGTH = static_cast<int>(bad.length());
+
+                if (veryVerbose) { T_ P_(LINE) P(STRING) }
+
+                ASSERTV(LINE, STRING,  0 != Util::parse(&mX, STRING, LENGTH));
+                ASSERTV(LINE, STRING, XX == X);
+
+                ASSERTV(LINE, STRING,  0 != Util::parse(&mZ, STRING, LENGTH));
+                ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
 
@@ -1354,6 +1444,11 @@ if (veryVerbose)
                     {
                         const int LENGTH = Util::generateRaw(buffer, TIME, C);
 
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
                         bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                         bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
@@ -1373,6 +1468,11 @@ if (veryVerbose)
                                                              TIMETZ,
                                                              C);
 
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
                         bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                         bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
@@ -1382,11 +1482,13 @@ if (veryVerbose)
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ == Z);
+                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
                     }
                 }  // loop over 'CNFG_DATA'
             }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
+
+        // TBD special cases (24:00, leap seconds, fractional seconds)
 
         if (verbose) cout << "\nInvalid strings." << endl;
         {
@@ -1457,8 +1559,6 @@ if (veryVerbose)
                 ASSERTV(LINE, STRING, ZZ == Z);
             }
         }
-
-        // TBD special cases (24:00, leap seconds, fractional seconds)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -1576,6 +1676,11 @@ if (veryVerbose)
                     {
                         const int LENGTH = Util::generateRaw(buffer, DATE, C);
 
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
+
                         bdlt::Date   mX(XX);  const bdlt::Date&   X = mX;
                         bdlt::DateTz mZ(ZZ);  const bdlt::DateTz& Z = mZ;
 
@@ -1594,6 +1699,11 @@ if (veryVerbose)
                         const int LENGTH = Util::generateRaw(buffer,
                                                              DATETZ,
                                                              C);
+
+                        if (veryVerbose) {
+                            const bsl::string STRING(buffer, LENGTH);
+                            T_ T_ P(STRING)
+                        }
 
                         bdlt::Date   mX(XX);  const bdlt::Date&   X = mX;
                         bdlt::DateTz mZ(ZZ);  const bdlt::DateTz& Z = mZ;
@@ -1832,8 +1942,7 @@ if (veryVerbose)
 
                     const bsl::string EXPECTED_ZONE(ISO8601);
 
-                    if (TIME == bdlt::Time()
-                     && (DATE != bdlt::Date() || OFFSET != 0)) {
+                    if (TIME == bdlt::Time() && OFFSET != 0) {
                         continue;  // skip invalid compositions
                     }
 
@@ -2791,10 +2900,6 @@ if (veryVerbose)
 
                 const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
                 const bsl::string EXPECTED_TIME(ISO8601);
-
-                if (TIME == bdlt::Time() && DATE != bdlt::Date()) {
-                    continue;  // skip invalid compositions
-                }
 
                 const TYPE        X(DATE, TIME);
                 const bsl::string BASE_EXPECTED(
