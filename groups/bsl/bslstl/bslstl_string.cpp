@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <cstdio>
+#include <stdlib.h>
 
 // IMPLEMENTATION NOTES:
 // This string class implements a "short string optimization" which optimizes
@@ -49,7 +50,7 @@ int bsl::stoi(const string& str, std::size_t* pos, int base){
     int original_errno = errno;
 
     errno = 0;
-    long value = std::strtol(str.c_str(), &ptr, base);
+    long value = strtol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
@@ -71,7 +72,7 @@ int bsl::stoi(const wstring& str, std::size_t* pos, int base){
     int original_errno = errno;
 
     errno = 0;
-    long value = std::wcstol(str.c_str(), &ptr, base);
+    long value = wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
@@ -93,7 +94,7 @@ long bsl::stol(const string& str, std::size_t* pos, int base){
     int original_errno = errno;
 
     errno = 0;
-    long value = std::strtol(str.c_str(), &ptr, base);
+    long value = strtol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
@@ -115,7 +116,7 @@ long bsl::stol(const wstring& str, std::size_t* pos, int base){
     int original_errno = errno;
 
     errno = 0;
-    long value = std::wcstol(str.c_str(), &ptr, base);
+    long value = wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
@@ -137,7 +138,7 @@ unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
     int original_errno = errno;
 
     errno = 0;
-    unsigned long value = std::strtoul(str.c_str(), &ptr, base);
+    unsigned long value = strtoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
@@ -155,12 +156,14 @@ unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
 }
 
 unsigned long bsl::stoul(const wstring& str,
-                                                   std::size_t* pos, int base){
+                         std::size_t*   pos,
+                         int            base)
+{
     wchar_t* ptr;
     int original_errno = errno;
 
     errno = 0;
-    unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
+    unsigned long value = wcstoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
@@ -272,7 +275,8 @@ float bsl::stof(const string& str, std::size_t* pos){
     int original_errno = errno;
 
     errno = 0;
-    float value = std::strtod(str.c_str(), &ptr);
+
+    float value = strtof(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
@@ -294,7 +298,7 @@ float bsl::stof(const wstring& str, std::size_t* pos){
     int original_errno = errno;
 
     errno = 0;
-    float value = std::wcstod(str.c_str(), &ptr);
+    float value = wcstof(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
@@ -316,7 +320,7 @@ double bsl::stod(const string& str, std::size_t* pos){
     int original_errno = errno;
 
     errno = 0;
-    double value = std::strtod(str.c_str(), &ptr);
+    double value = strtod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
@@ -338,7 +342,7 @@ double bsl::stod(const wstring& str, std::size_t* pos){
     int original_errno = errno; 
 
     errno = 0;
-    double value = std::wcstod(str.c_str(), &ptr);
+    double value = wcstod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
