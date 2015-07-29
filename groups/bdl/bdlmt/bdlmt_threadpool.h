@@ -346,8 +346,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxthread.h>
 #endif
 
+#if 0
 #ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
 #include <bdlmtt_xxxatomictypes.h>
+#endif
+#else
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -460,11 +466,11 @@ class ThreadPool {
                                            // structure of the first thread
                                            // that is waiting for a request
 
-    bdlmtt::AtomicInt64   d_lastResetTime;    // last reset time of percent-busy
+    bsls::AtomicInt64   d_lastResetTime;    // last reset time of percent-busy
                                            // metric in nanoseconds from some
                                            // arbitrary but fixed point in time
 
-    bdlmtt::AtomicInt64   d_callbackTime;     // the total time spent running jobs
+    bsls::AtomicInt64   d_callbackTime;     // the total time spent running jobs
                                            // (callbacks) across all threads,
                                            // in nanoseconds
 

@@ -180,13 +180,13 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      JobQueue::Job ijob =
-//         bdlf::BindUtil::bind(&bdlmtt::AtomicInt::add, &iCheck, 1);
+//         bdlf::BindUtil::bind(&bsls::AtomicInt::add, &iCheck, 1);
 //
 //      JobQueue::Job ujob = bdlf::BindUtil::bind(
-//         bdlf::BindUtil::bind(&bdlmtt::AtomicInt::add, &uCheck, 1);
+//         bdlf::BindUtil::bind(&bsls::AtomicInt::add, &uCheck, 1);
 //
 //      JobQueue::Job cjob = bdlf::BindUtil::bind(
-//         bdlf::BindUtil::bind(&bdlmtt::AtomicInt::add, &cCheck, 1);
+//         bdlf::BindUtil::bind(&bsls::AtomicInt::add, &cCheck, 1);
 //
 //      importantQueue.processJob(ijob);
 //      importantQueue.processJob(ijob);
@@ -219,8 +219,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
+#if 0
 #ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
 #include <bdlmtt_xxxatomictypes.h>
+#endif
+#else
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -260,7 +266,7 @@ class ThreadMultiplexor {
     // DATA
     bslma::Allocator     *d_allocator_p;      // memory allocator (held)
     bdlcc::FixedQueue<Job> *d_jobQueue_p;       // pending job queue (owned)
-    bdlmtt::AtomicInt        d_numProcessors;    // current number of processors
+    bsls::AtomicInt        d_numProcessors;    // current number of processors
     int                   d_maxProcessors;    // maximum number of processors
 
   private:

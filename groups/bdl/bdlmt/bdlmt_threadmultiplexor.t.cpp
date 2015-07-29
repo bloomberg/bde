@@ -8,7 +8,11 @@
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
 #include <bdlmt_fixedthreadpool.h>
+#if 0
 #include <bdlmtt_xxxatomictypes.h>
+#else
+#include <bsls_atomic.h>
+#endif
 
 #include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
@@ -384,16 +388,16 @@ int usageExample(bslma::Allocator *allocator)
        return -1;
     }
 
-    bdlmtt::AtomicInt iCheck=0, uCheck=0, cCheck=0;
+    bsls::AtomicInt iCheck, uCheck, cCheck;
 
     JobQueue::Job ijob =
-        bdlf::BindUtil::bind(&bdlmtt::AtomicInt::add, &iCheck, 1);
+        bdlf::BindUtil::bind(&bsls::AtomicInt::add, &iCheck, 1);
 
     JobQueue::Job ujob =
-        bdlf::BindUtil::bind(&bdlmtt::AtomicInt::add, &uCheck, 1);
+        bdlf::BindUtil::bind(&bsls::AtomicInt::add, &uCheck, 1);
 
     JobQueue::Job cjob =
-        bdlf::BindUtil::bind(&bdlmtt::AtomicInt::add, &cCheck, 1);
+        bdlf::BindUtil::bind(&bsls::AtomicInt::add, &cCheck, 1);
 
     importantQueue.processJob(ijob);
     importantQueue.processJob(ijob);
@@ -464,13 +468,13 @@ int main(int argc, char *argv[])
                 NUM_JOBS      = 100
             };
 
-            bdlmtt::AtomicInt timesCalled = 0;
+            bsls::AtomicInt timesCalled;
             bdlmtt::Semaphore startSemaphore;
             bdlmt::ThreadMultiplexor mX(1, MAX_QUEUESIZE, &ta);
             bdlmtt::ThreadGroup threads;
 
             bdlf::Function<void(*)()> addFunc = bdlf::BindUtil::bind(
-                                                          &bdlmtt::AtomicInt::add,
+                                                          &bsls::AtomicInt::add,
                                                           &timesCalled,
                                                           1);
 

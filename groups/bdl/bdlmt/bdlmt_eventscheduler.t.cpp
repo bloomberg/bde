@@ -2,7 +2,11 @@
 #include <bdlmt_eventscheduler.h>
 
 #include <bslma_testallocator.h>
+#if 0
 #include <bdlmtt_xxxatomictypes.h>
+#else 
+#include <bsls_atomic.h>
+#endif
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
@@ -108,7 +112,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-static bdlmtt::AtomicInt testStatus = 0;
+static bsls::AtomicInt testStatus;
 
 static void aSsErT(int c, const char *s, int i)
 {

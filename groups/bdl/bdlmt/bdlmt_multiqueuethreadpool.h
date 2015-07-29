@@ -317,8 +317,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_rwmutex.h>
 #endif
 
+#if 0
 #ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
 #include <bdlmtt_xxxatomictypes.h>
+#endif
+#else
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
