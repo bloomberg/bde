@@ -6,8 +6,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 #include <string.h>
 
 #include <new>
@@ -38,9 +38,9 @@ using namespace BloombergLP;
 // which the method is invoked.  We then initialize the proctor object with
 // this allocator and verify that when the proctor is destroyed the expected
 // memory addresses are recorded in the allocator.  Note that since
-// 'TestAllocator' is not derived from 'bslma::Allocator' and does not implement
-// an 'allocate' method, we ensure that this proctor works with any 'ALLOCATOR'
-// object that supports the required 'deallocate' method.
+// 'TestAllocator' is not derived from 'bslma::Allocator' and does not
+// implement an 'allocate' method, we ensure that this proctor works with any
+// 'ALLOCATOR' object that supports the required 'deallocate' method.
 //-----------------------------------------------------------------------------
 // [3] bslma::AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator, length = 0);
 // [3] ~bslma::AutoRawDeleter<TYPE, ALLOCATOR>();
@@ -56,25 +56,34 @@ using namespace BloombergLP;
 // [2] Ensure helper functions 'areEqual' and 'countNonZero' work
 // [5] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -83,13 +92,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      CUSTOM TEST OUTPUT MACROS
@@ -571,9 +579,14 @@ my_String::~my_String()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVeryVerbose;       // suppress unused variable warning
+    (void)veryVeryVeryVerbose;   // suppress unused variable warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
