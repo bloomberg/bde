@@ -6199,12 +6199,12 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
         ASSERT_PASS_RAW(Obj(HASH, COMPARE, 0,      1.0f, objAlloc));
         ASSERT_PASS_RAW(Obj(HASH, COMPARE, 0,  FLT_TINY, objAlloc));
-        ASSERT_FAIL_RAW(Obj(HASH, COMPARE, 0,      0.0f, objAlloc));
-        ASSERT_FAIL_RAW(Obj(HASH, COMPARE, 0,     -0.0f, objAlloc));
-        ASSERT_FAIL_RAW(Obj(HASH, COMPARE, 0, -FLT_TINY, objAlloc));
-        ASSERT_FAIL_RAW(Obj(HASH, COMPARE, 0,     -1.0f, objAlloc));
-        ASSERT_FAIL_RAW(Obj(HASH, COMPARE, 0,  -FLT_INF, objAlloc));
-        ASSERT_FAIL_RAW(Obj(HASH, COMPARE, 0,   FLT_NAN, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0,      0.0f, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0,     -0.0f, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0, -FLT_TINY, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0,     -1.0f, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0,  -FLT_INF, objAlloc));
+        ASSERT_SAFE_FAIL_RAW(Obj(HASH, COMPARE, 0,   FLT_NAN, objAlloc));
         ASSERT_PASS_RAW(Obj(HASH, COMPARE, 0,   FLT_INF, objAlloc));
     }
 }
