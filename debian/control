@@ -2,7 +2,7 @@ Source: bsl-internal
 Section: unknown
 Priority: extra
 Maintainer: Mike Giroux <mgiroux@bloomberg.net>
-Build-Depends: bde-tools, bde-oss-tools, rssuite-tools, python
+Build-Depends: bde-internal-tools
 Standards-Version: 3.8.4
 
 Package: bsl-internal-bdemeta
