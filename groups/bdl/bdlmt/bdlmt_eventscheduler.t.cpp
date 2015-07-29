@@ -4,17 +4,13 @@
 #include <bslma_testallocator.h>
 #include <bsls_atomic.h>
 #include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadutil.h>
 #include <bdlmtt_threadgroup.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
-#if 0
-#include <bdlb_xxxbitutil.h>
-#else
 #include <bdlb_bitstringutil.h>
-#endif
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 

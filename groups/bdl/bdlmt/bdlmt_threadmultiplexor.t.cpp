@@ -5,7 +5,7 @@
 #include <bdlf_bind.h>
 #include <bslmf_if.h>
 #include <bdlmtt_semaphore.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadutil.h>
 #include <bdlmtt_threadgroup.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bsls_atomic.h>

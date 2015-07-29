@@ -51,8 +51,8 @@ BSLS_IDENT("$Id: $")
 // expected average load.  A higher value for the maximum number of threads can
 // be used to handle periodic bursts.  An application can also specify the
 // attributes of the threads in the pool (e.g., thread priority or stack size),
-// by providing a 'bcemt_Attribute' object with the desired values set.  See
-// 'bdlmtt_xxxthread' package documentation for a description of 'bcemt_Attribute'.
+// by providing a 'bdlmtt::ThreadAttributes' object with the desired values set.  See
+// 'bdlmtt_xxxthread' package documentation for a description of 'bdlmtt::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.  A
 // server need only package client requests to execute as jobs, and
@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 //                      bsl::vector<bsl::string>&       outFileList)
 //   {
 //       bdlmtt::Mutex     mutex;
-//       bcemt_Attribute defaultAttributes;
+//       bdlmtt::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
@@ -295,7 +295,7 @@ BSLS_IDENT("$Id: $")
 //                                  )
 //  {
 //      bdlmtt::Mutex     mutex;
-//      bcemt_Attribute defaultAttributes;
+//      bdlmtt::ThreadAttributes defaultAttributes;
 //      bdlmt::ThreadPool pool(defaultAttributes,
 //                           MIN_SEARCH_THREADS,
 //                           MAX_SEARCH_THREADS,
@@ -342,8 +342,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
+#include <bdlmtt_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_CONDITION
+#include <bdlmtt_condition.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_THREADUTIL
+#include <bdlmtt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -421,7 +429,7 @@ class ThreadPool {
                                            // and that all active jobs have
                                            // completed
 
-    bcemt_Attribute    d_threadAttributes; // thread attributes to be used when
+    bdlmtt::ThreadAttributes    d_threadAttributes; // thread attributes to be used when
                                            // constructing processing threads
 
     volatile int       d_maxThreads;       // maximum number of processing
@@ -507,7 +515,7 @@ class ThreadPool {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    ThreadPool(const bcemt_Attribute&  threadAttributes,
+    ThreadPool(const bdlmtt::ThreadAttributes&  threadAttributes,
                     int                     minThreads,
                     int                     maxThreads,
                     int                     maxIdleTime,

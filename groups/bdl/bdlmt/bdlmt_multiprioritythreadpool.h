@@ -63,8 +63,8 @@ BSLS_IDENT("$Id: $")
 //
 // Finally an application can specify the attributes of the worker threads in
 // a thread pool (e.g., guard size or stack size), by optionally supplying an
-// appropriately configured 'bcemt_Attribute' object.  (See the 'bdlmtt_xxxthread'
-// component-level documentation for a description of the 'bcemt_Attribute'
+// appropriately configured 'bdlmtt::ThreadAttributes' object.  (See the 'bdlmtt_xxxthread'
+// component-level documentation for a description of the 'bdlmtt::ThreadAttributes'
 // class.)  Note that the field pertaining to whether the worker threads should
 // be detached or joinable is ignored.
 //
@@ -373,8 +373,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_multipriorityqueue.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
+#include <bdlmtt_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_THREADUTIL
+#include <bdlmtt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_THREADGROUP
@@ -456,7 +460,7 @@ class MultipriorityThreadPool {
     bdlcc::MultipriorityQueue<ThreadFunctor>
                      d_queue;             // pending job queue
 
-    bcemt_Attribute  d_threadAttributes;  // user-supplied attributes of all
+    bdlmtt::ThreadAttributes  d_threadAttributes;  // user-supplied attributes of all
                                           // the threads this pool spawns
 
     bdlmtt::ThreadGroup
@@ -518,7 +522,7 @@ class MultipriorityThreadPool {
                                  bslma::Allocator       *basicAllocator = 0);
     MultipriorityThreadPool(int                     numThreads,
                                  int                     numPriorities,
-                                 const bcemt_Attribute&  threadAttributes,
+                                 const bdlmtt::ThreadAttributes&  threadAttributes,
                                  bslma::Allocator       *basicAllocator = 0);
         // Create a multi-priority thread pool capable of concurrently
         // executing the specified 'numThreads' "jobs" with associated integer

@@ -4,7 +4,7 @@
 #include <bslma_testallocator.h>
 #include <bsls_atomic.h>
 #include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadutil.h>
 #include <bdlmtt_threadgroup.h>
 
 #include <bdlf_bind.h>

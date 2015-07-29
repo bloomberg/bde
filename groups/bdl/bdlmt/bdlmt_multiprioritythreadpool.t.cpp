@@ -6,7 +6,8 @@
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_qlock.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadattributes.h>
+#include <bdlmtt_threadutil.h>
 #include <bsls_atomic.h>
 
 #include <bslma_default.h>
@@ -791,15 +792,15 @@ int main(int argc, char *argv[])
                                                                  --attrState) {
             bslma::TestAllocator localTa;
 
-            bcemt_Attribute attrib;
+            bdlmtt::ThreadAttributes attrib;
 
             if (ATTRIB_DETACHED == attrState) {
                 attrib.setDetachedState(
-                                       bcemt_Attribute::BCEMT_CREATE_DETACHED);
+                                       bdlmtt::ThreadAttributes::BCEMT_CREATE_DETACHED);
             }
             else if (ATTRIB_JOINABLE == attrState) {
                 attrib.setDetachedState(
-                                       bcemt_Attribute::BCEMT_CREATE_JOINABLE);
+                                       bdlmtt::ThreadAttributes::BCEMT_CREATE_JOINABLE);
             }
 
             jobsCompleted = 0;
@@ -1602,7 +1603,7 @@ int main(int argc, char *argv[])
                                                       numThreads, numPri, &ta);
                             }
                             else {
-                                bcemt_Attribute attrib;
+                                bdlmtt::ThreadAttributes attrib;
 
                                 pool = new (ta)
                                                 bdlmt::MultipriorityThreadPool(
@@ -1616,7 +1617,7 @@ int main(int argc, char *argv[])
                                                    numThreads, numPri);
                             }
                             else {
-                                bcemt_Attribute attrib;
+                                bdlmtt::ThreadAttributes attrib;
 
                                 pool = new (taDefault)
                                                 bdlmt::MultipriorityThreadPool(

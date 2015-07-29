@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_lockguard.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadutil.h>
 
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
@@ -191,7 +191,7 @@ int FixedThreadPool::startNewThread()
 // CREATORS
 
 FixedThreadPool::FixedThreadPool(
-        const bcemt_Attribute&  threadAttributes,
+        const bdlmtt::ThreadAttributes&  threadAttributes,
         int                     numThreads,
         int                     maxQueueSize,
         bslma::Allocator       *basicAllocator)

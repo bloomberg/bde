@@ -48,8 +48,8 @@ BSLS_IDENT("$Id: $")
 // threads and queue capacity, hence the name "fixed" thread pool.  An
 // application can, however, specify the attributes of the threads in the
 // pool (e.g., thread priority or stack size), by providing a
-// 'bcemt_Attribute' object with the desired values set.  See 'bdlmtt_xxxthread'
-// package documentation for a description of 'bcemt_Attribute'.
+// 'bdlmtt::ThreadAttributes' object with the desired values set.  See 'bdlmtt_xxxthread'
+// package documentation for a description of 'bdlmtt::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.
 // A server need only package client requests to execute as jobs, and
@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 //                      bsl::vector<bsl::string>&       outFileList)
 //   {
 //       bdlmtt::Mutex     mutex;
-//       bcemt_Attribute defaultAttributes;
+//       bdlmtt::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
@@ -300,8 +300,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_semaphore.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
+#include <bdlmtt_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_THREADUTIL
+#include <bdlmtt_threadutil.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
+#include <bdlmtt_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_CONDITION
+#include <bdlmtt_condition.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_THREADGROUP
@@ -402,7 +414,7 @@ class FixedThreadPool {
 
     bdlmtt::ThreadGroup d_threadGroup;       // threads used by this pool
 
-    bcemt_Attribute   d_threadAttributes;  // thread attributes to be used when
+    bdlmtt::ThreadAttributes   d_threadAttributes;  // thread attributes to be used when
                                            // constructing processing threads
 
     const int         d_numThreads;        // number of configured processing
@@ -457,7 +469,7 @@ class FixedThreadPool {
         // undefined unless '1 <= numThreads' and
         // '1 <= maxPendingJobs <= 0x01FFFFFF'.
 
-    FixedThreadPool(const bcemt_Attribute& threadAttributes,
+    FixedThreadPool(const bdlmtt::ThreadAttributes& threadAttributes,
                          int                    numThreads,
                          int                    maxNumPendingJobs,
                          bslma::Allocator      *basicAllocator = 0);

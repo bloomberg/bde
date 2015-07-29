@@ -3,7 +3,8 @@
 
 #include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadattributes.h>
+#include <bdlmtt_threadutil.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -53,12 +54,12 @@ using namespace BloombergLP;
 //
 // 'bdlmt_multiqueuethreadpool' public interface
 // CREATORS
-// [ 2] bdlmt::MultiQueueThreadPool(const bcemt_Attribute& threadAttributes,
+// [ 2] bdlmt::MultiQueueThreadPool(const bdlmtt::ThreadAttributes& threadAttributes,
 //                                int                    minThreads,
 //                                int                    maxThreads,
 //                                int                    maxIdleTime,
 //                                bslma::Allocator      *basicAllocator = 0);
-// [ 7] bdlmt::MultiQueueThreadPool(bdlmt::ThreadPool  *threadPool,
+// [ 7] bdlmt::MultiQueueThreadPool(bdlmtt::ThreadPool  *threadPool,
 //                                bslma::Allocator *basicAllocator = 0);
 // [ 2] ~bdlmt::MultiQueueThreadPool();
 //
@@ -78,14 +79,14 @@ using namespace BloombergLP;
 // [13] void numProcessed(int *, int *) const;
 // [ 4] int numQueues() const;
 // [ 4] int numElements(int id) const;
-// [ 2] const bdlmt::ThreadPool& threadPool() const;
+// [ 2] const bdlmtt::ThreadPool& threadPool() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] PRIMARY TEST APPARATUS
 // [ 5] OUTPUT (<<) OPERATOR
 // [ 8] CONCERN: 'deleteQueueCb' is the last callback processed
 // [ 9] CONCERN: Multi-threaded safety of public API and processing
-// [10] CONCERN: One 'bdlmt::ThreadPool' can be shared by two MQTPs
+// [10] CONCERN: One 'bdlmtt::ThreadPool' can be shared by two MQTPs
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [14] USAGE EXAMPLE 1
@@ -551,7 +552,7 @@ void fastSearch(const bsl::vector<bsl::string>& wordList,
         MAX_IDLE    = 100   // use a very short idle time since new jobs
                             // arrive only at startup
     };
-    bcemt_Attribute           defaultAttrs;
+    bdlmtt::ThreadAttributes           defaultAttrs;
     bdlmt::MultiQueueThreadPool pool(defaultAttrs,
                                    MIN_THREADS, MAX_THREADS, MAX_IDLE,
                                    basicAllocator);
@@ -673,7 +674,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         MAX_THREADS = NUM_QUEUES + 1,
         MAX_IDLE    = 60000    // milliseconds
     };
-    bcemt_Attribute defaultAttrs;
+    bdlmtt::ThreadAttributes defaultAttrs;
 
     int queueIds[NUM_QUEUES];
 
@@ -940,7 +941,7 @@ int main(int argc, char *argv[]) {
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        bcemt_Attribute threadAttrs;
+        bdlmtt::ThreadAttributes threadAttrs;
         threadAttrs.setStackSize(1 << 20);      // one megabyte
         bdlmt::MultiQueueThreadPool tp(threadAttrs, 1, 1, 1000*1000, &ta);
         ASSERT(0 == tp.start());
@@ -993,7 +994,7 @@ int main(int argc, char *argv[]) {
             MAX_THREADS = NUM_QUEUES + 1,
             MAX_IDLE    = 60000    // milliseconds
         };
-        bcemt_Attribute defaultAttrs;
+        bdlmtt::ThreadAttributes defaultAttrs;
 
         // first do 'drainQueue()' case
         {
@@ -1176,7 +1177,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = NUM_QUEUES + 1,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
@@ -1294,7 +1295,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 2,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
@@ -1397,7 +1398,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 1,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
 
@@ -1459,7 +1460,7 @@ int main(int argc, char *argv[]) {
             MAX_IDLE = 60000    // milliseconds
         };
 
-        bdlmt::ThreadPool tp(bcemt_Attribute(), MIN_THREADS, MAX_THREADS,
+        bdlmt::ThreadPool tp(bdlmtt::ThreadAttributes(), MIN_THREADS, MAX_THREADS,
                                                                 MAX_IDLE, &ta);
         Obj *pMX = new (ta) Obj(&tp, &ta);
         Obj& mX = *pMX;         const Obj& X = mX;
@@ -1649,7 +1650,7 @@ int main(int argc, char *argv[]) {
                 const int NUM_QUEUES  = DATA[i].d_numQueues;
                 const int NUM_JOBS    = DATA[i].d_numJobs;
                 const int MAX_IDLE    = 1000;  // milliseconds
-                bcemt_Attribute defaultAttrs;
+                bdlmtt::ThreadAttributes defaultAttrs;
 
                 Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
                 const Obj& X = mX;
@@ -1745,7 +1746,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 4,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
             bdlmtt::Barrier   barrier(2);
             bdlmtt::AtomicInt  counter = 0;
             Func     cleanupCb;  // empty callback
@@ -1836,7 +1837,7 @@ int main(int argc, char *argv[]) {
                 IDLE        = 1000,    // milliseconds
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
             bdlmt::ThreadPool pool(defaultAttrs,
                                  MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
 
@@ -2001,7 +2002,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 3,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
 
             bdlmtt::Barrier   barrier(2);
             bdlmtt::AtomicInt  counter = 0;
@@ -2135,7 +2136,7 @@ int main(int argc, char *argv[]) {
                 MAX_IDLE    = 60000,    // milliseconds
                 MAX_QUEUES  = 16        // total number of queues to create
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
 
             bdlmtt::Barrier   barrier(1 + MAX_QUEUES);
             Func     block;      // blocks on 'barrier'
@@ -2279,7 +2280,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   bdlmt::MultiQueueThreadPool(
-        //                         const bcemt_Attribute&  threadAttributes,
+        //                         const bdlmtt::ThreadAttributes&  threadAttributes,
         //                         int                     minThreads,
         //                         int                     maxThreads,
         //                         int                     maxIdleTime,
@@ -2310,7 +2311,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 4,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
@@ -2601,7 +2602,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 4,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bcemt_Attribute defaultAttrs;
+            bdlmtt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
