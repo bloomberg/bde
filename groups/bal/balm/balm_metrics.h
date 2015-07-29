@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //       no effect.
 //
 //   BALM_METRICS_UPDATE2(CATEGORY, METRIC1, VALUE1, METRIC2, VALUE2)
-//   BAEM_METRICS_UPDATEn(CATEGORY, METRIC1, VALUE1, ..., METRICn, VALUEn)
+//   BALM_METRICS_UPDATEn(CATEGORY, METRIC1, VALUE1, ..., METRICn, VALUEn)
 //                                                            Where 2 <= n <= 6
 //       Update each of the indicated metrics, identified by the specified
 //       'CATEGORY' name and the respective metric names 'METRIC1', 'METRIC2',
@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //       these macros have no effect.
 //
 //   BALM_METRICS_INT_UPDATE2(CATEGORY, METRIC1, VALUE1, METRIC2, VALUE2)
-//   BAEM_METRICS_INT_UPDATEn(CATEGORY, METRIC1, VALUE1, ..., METRICn, VALUEn)
+//   BALM_METRICS_INT_UPDATEn(CATEGORY, METRIC1, VALUE1, ..., METRICn, VALUEn)
 //                                                            Where 2 <= n <= 6
 //       Update each of the indicated metrics, identified by the specified
 //       'CATEGORY' name and the respective metric names 'METRIC1', 'METRIC2',
@@ -334,22 +334,22 @@ BSLS_IDENT("$Id: $")
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::BAEM_SECONDS'.
+//       'balm::StopwatchScopedGuard::e_BALM_SECONDS'.
 //
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::BAEM_MILLISECONDS'.
+//       'balm::StopwatchScopedGuard::e_BALM_MILLISECONDS'.
 //
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::BAEM_MICROSECONDS'.
+//       'balm::StopwatchScopedGuard::e_BALM_MICROSECONDS'.
 //
 //   BALM_METRICS_DYNAMIC_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)
 //       The behavior of this macro is logically equivalent to
 //       'BALM_METRICS_DYNAMIC_TIME_BLOCK' called with
-//       'balm::StopwatchScopedGuard::BAEM_NANOSECONDS'.
+//       'balm::StopwatchScopedGuard::e_BALM_NANOSECONDS'.
 //..
 //
 ///Usage
@@ -435,7 +435,7 @@ BSLS_IDENT("$Id: $")
 // so we use 'BALM_METRICS_IF_CATEGORY_ENABLED' to ensure we perform those
 // operations only if metrics collection is enabled.  Finally, we use
 // 'BALM_METRICS_UPDATE3' to update the three metrics, which is (slightly) more
-// efficient than updating each metric individually using 'BAEM_METRIC_UPDATE'.
+// efficient than updating each metric individually using 'BALM_METRIC_UPDATE'.
 //..
 //  int processEvent2(int eventId, const bsl::string& eventMessage)
 //      // Process the event described by the specified 'eventId' and
@@ -1018,44 +1018,44 @@ do {                                                                          \
 #define BALM_METRICS_TIME_BLOCK_SECONDS(CATEGORY, METRIC)                     \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::BAEM_SECONDS);
+                          balm::StopwatchScopedGuard::e_BALM_SECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)                \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::BAEM_MILLISECONDS);
+                          balm::StopwatchScopedGuard::e_BALM_MILLISECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)                \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::BAEM_MICROSECONDS);
+                          balm::StopwatchScopedGuard::e_BALM_MICROSECONDS);
 
 #define BALM_METRICS_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)                 \
   BALM_METRICS_TIME_BLOCK((CATEGORY),                                         \
                           (METRIC),                                           \
-                          balm::StopwatchScopedGuard::BAEM_NANOSECONDS);
+                          balm::StopwatchScopedGuard::e_BALM_NANOSECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(CATEGORY, METRIC)             \
   BALM_METRICS_DYNAMIC_TIME_BLOCK((CATEGORY),                                 \
                                   (METRIC),                                   \
-                                  balm::StopwatchScopedGuard::BAEM_SECONDS);
+                                  balm::StopwatchScopedGuard::e_BALM_SECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)        \
   BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
                                  (CATEGORY),                                  \
                                  (METRIC),                                    \
-                                 balm::StopwatchScopedGuard::BAEM_MILLISECONDS);
+                              balm::StopwatchScopedGuard::e_BALM_MILLISECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)        \
   BALM_METRICS_DYNAMIC_TIME_BLOCK(                                            \
                                  (CATEGORY),                                  \
                                  (METRIC),                                    \
-                                 balm::StopwatchScopedGuard::BAEM_MICROSECONDS);
+                              balm::StopwatchScopedGuard::e_BALM_MICROSECONDS);
 
 #define BALM_METRICS_DYNAMIC_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)         \
   BALM_METRICS_DYNAMIC_TIME_BLOCK((CATEGORY),                                 \
                                   (METRIC),                                   \
-                                  balm::StopwatchScopedGuard::BAEM_NANOSECONDS);
+                               balm::StopwatchScopedGuard::e_BALM_NANOSECONDS);
 
                         // =====================
                         // Macro Implementations
@@ -1127,9 +1127,9 @@ do {                                                                          \
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
 // Fortunately the __COUNTER__ extension provided by MSVC is even better.
-#   define BAEM_METRICS_UNIQNUM __COUNTER__
+#   define BALM_METRICS_UNIQNUM __COUNTER__
 #else
-#   define BAEM_METRICS_UNIQNUM __LINE__
+#   define BALM_METRICS_UNIQNUM __LINE__
 #endif
 
                         // ----------------------------------
@@ -1148,7 +1148,7 @@ do {                                                                          \
 // Create a unique variable name by concatenating the specified 'X' string
 // with a unique integer value.
 #define BALM_METRICS_UNIQUE_NAME(X)                                          \
-           BALM_METRICS_CAT(X, BAEM_METRICS_UNIQNUM)
+           BALM_METRICS_CAT(X, BALM_METRICS_UNIQNUM)
 
 namespace BloombergLP {
 
@@ -1169,8 +1169,12 @@ struct Metrics_Helper {
         // Enumeration indicating the type of identifier supplied to
         // 'logEmptyName'.
 
-        TYPE_CATEGORY = 0,
-        TYPE_METRIC   = 1
+        e_TYPE_CATEGORY = 0,
+        e_TYPE_METRIC   = 1
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , TYPE_CATEGORY = e_TYPE_CATEGORY
+        , TYPE_METRIC   = e_TYPE_METRIC
+#endif
     };
 
     // CLASS METHODS
@@ -1178,28 +1182,28 @@ struct Metrics_Helper {
                                          const char          *category);
         // Load into the specified 'holder' the address and enabled status of
         // the specified 'category', and add 'holder' to the list of category
-        // holders for 'category'.  The behavior is undefined unless the baem
+        // holders for 'category'.  The behavior is undefined unless the balm
         // metrics manager singleton is valid.
 
     static Collector *getCollector(const char *category,
                                         const char *metric);
         // Return the address of the default metrics collector for the metric
         // identified by the specified 'category' and 'metric' names.  The
-        // behavior is undefined unless the 'baem' metrics manager singleton is
+        // behavior is undefined unless the 'balm' metrics manager singleton is
         // valid.
 
     static IntegerCollector *getIntegerCollector(const char *category,
                                                       const char *metric);
         // Return the address of the default integer metrics collector for the
         // metric identified by the specified 'category' and 'metric' names.
-        // The behavior is undefined unless the 'baem' metrics manager
+        // The behavior is undefined unless the 'balm' metrics manager
         // singleton is valid.
 
     static void setPublicationType(const MetricId&        id,
                                    PublicationType::Value type);
         // Set the publication type for the metric identified by the specified
         // 'id' to the specified 'type'.  The behavior is undefined unless the
-        // 'baem' metrics manager singleton is valid, and 'id' is a valid
+        // 'balm' metrics manager singleton is valid, and 'id' is a valid
         // identifier supplied by the singleton metrics manager.
 
     static void logEmptyName(const char *name,
@@ -1228,7 +1232,7 @@ void Metrics_Helper::initializeCategoryHolder(
                                          const char          *category)
 {
     MetricsManager  *manager  = DefaultMetricsManager::instance();
-    baem_MetricRegistry&  registry = manager->metricRegistry();
+    balm_MetricRegistry&  registry = manager->metricRegistry();
     registry.registerCategoryHolder(registry.getCategory(category), holder);
 }
 

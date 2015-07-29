@@ -5,7 +5,7 @@
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
-BSLS_IDENT_RCSID(baem_publicationtype_h,"$Id$ $CSID$ $CCId$")
+BSLS_IDENT_RCSID(balm_publicationtype_h,"$Id$ $CSID$ $CCId$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide an enumeration of aggregate types used to publish metrics.
@@ -60,30 +60,54 @@ struct PublicationType {
   public:
     // TYPES
     enum Value {
-        BAEM_UNSPECIFIED = 0
+        e_BALM_UNSPECIFIED = 0
             // There is no defined publication type for the metric.
-      , BAEM_TOTAL       = 1
+      , e_BALM_TOTAL       = 1
             // The total of the measured metric values over the published
             // interval.
-      , BAEM_COUNT       = 2
+      , e_BALM_COUNT       = 2
             // The count of updates over the published interval.
-      , BAEM_MIN         = 3
+      , e_BALM_MIN         = 3
             // The minimum measured metric value over the published interval.
-      , BAEM_MAX         = 4
+      , e_BALM_MAX         = 4
             // The maximum measured metric value over the published interval.
-      , BAEM_AVG         = 5
+      , e_BALM_AVG         = 5
             // The average measured metric value over published interval (i.e.,
             // total / count).
-      , BAEM_RATE        = 6
+      , e_BALM_RATE        = 6
             // The total measured metric value per second over the published
             // interval (i.e., total / sample interval).
-      , BAEM_RATE_COUNT  = 7
+      , e_BALM_RATE_COUNT  = 7
             // The count of measured events per second over the published
             // interval (i.e., count / sample interval).
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEM_UNSPECIFIED = e_BALM_UNSPECIFIED
+            // There is no defined publication type for the metric.
+      , BAEM_TOTAL       = e_BALM_TOTAL
+            // The total of the measured metric values over the published
+            // interval.
+      , BAEM_COUNT       = e_BALM_COUNT
+            // The count of updates over the published interval.
+      , BAEM_MIN         = e_BALM_MIN
+            // The minimum measured metric value over the published interval.
+      , BAEM_MAX         = e_BALM_MAX
+            // The maximum measured metric value over the published interval.
+      , BAEM_AVG         = e_BALM_AVG
+            // The average measured metric value over published interval (i.e.,
+            // total / count).
+      , BAEM_RATE        = e_BALM_RATE
+            // The total measured metric value per second over the published
+            // interval (i.e., total / sample interval).
+      , BAEM_RATE_COUNT  = e_BALM_RATE_COUNT
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        BAEM_LENGTH = 8
+        e_BALM_LENGTH = 8
+#ifdef XXXXX
+        , BAEM_LENGTH = e_BALM_LENGTH
+#endif
     };
 
     // CLASS METHODS
@@ -155,6 +179,8 @@ bsl::ostream& PublicationType::print(bsl::ostream&               stream,
 {
     return stream << toString(value);
 }
+
+}  // close package namespace
 
 // FREE FUNCTIONS
 

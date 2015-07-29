@@ -113,14 +113,14 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //..
 // Now we create a 'balm::MetricRecord' to hold the aggregated metrics values.
 // Note that we create a 'balm::MetricId' object by hand, but in practice
-// an id should be obtained from a 'baem_MetricRegistry' object (such as the
+// an id should be obtained from a 'balm_MetricRegistry' object (such as the
 // one owned by a 'balm::MetricsManager').
 //..
 //  balm::Category           myCategory("MyCategory");
 //  balm::MetricDescription  description(&myCategory, "RequestSize");
 //  balm::MetricId           requestSizeId(&description);
 //
-//  // In practice, obtain 'requestSizeId' from a 'baem_MetricRegistry' object.
+//  // In practice, obtain 'requestSizeId' from a 'balm_MetricRegistry' object.
 //  balm::MetricRecord requestSize(requestSizeId);
 //..
 // Finally we retrieve the information about the request sizes of the

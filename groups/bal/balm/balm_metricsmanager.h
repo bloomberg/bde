@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a metrics manager class for managing
 // the recording and publishing of metric data.  The metrics manager retrieves
-// 'baem::MetricRecords' from both the collector repository it owns as well as
+// 'balm::MetricRecords' from both the collector repository it owns as well as
 // any 'RecordsCollectionCallbacks' registered with it.  The metrics manager
 // also provides methods to register 'balm::Publisher' objects.  The 'publish'
 // method collects metrics for a category (or set of categories) and then
@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // holding mutex locks that provide synchronized access to data in that
 // 'balm::MetricsManager'.  Therefore registered implementations of
 // 'RecordsCollectionCallback' must *not* make any re-entrant calls (either
-// directly or indirectly) to member functions of the 'baem::MetricManager'
+// directly or indirectly) to member functions of the 'balm::MetricManager'
 // object with which they are registered.
 //
 ///Usage
@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 // We obtain the addresses of the respective 'balm::Collector' objects that we
 // will use to collect metrics values from the metrics managers' collector
 // repository.  Note that, in practice, clients can use the
-// 'baem::DefaultMetricManager' (see 'balm_defaultmetricsmanager' and
+// 'balm::DefaultMetricManager' (see 'balm_defaultmetricsmanager' and
 // 'balm_metric') rather than explicitly pass the address of a metrics manager.
 //..
 //      EventHandler(balm::MetricsManager *manager)
@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 //  : d_numEvents(0)
 //  , d_periodStart(bdlt::CurrentTime::now())
 //  , d_eventsPerSecId()
-//  , d_callbackHandle(balm::MetricsManager::BAEM_INVALID_HANDLE)
+//  , d_callbackHandle(balm::MetricsManager::e_BALM_INVALID_HANDLE)
 //  , d_metricsManager_p(manager)
 //  {
 //      d_eventsPerSecId = d_metricsManager_p->metricRegistry().getId(
@@ -394,7 +394,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPETRAITS
-#include <bslmf_typetraits.h>
+#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -476,7 +476,7 @@ class MetricsManager {
         // collected.
 
     // DATA
-    baem_MetricRegistry       d_metricRegistry;  // registry of metrics
+    balm_MetricRegistry       d_metricRegistry;  // registry of metrics
 
     CollectorRepository  d_collectors;      // repository of metric
                                                  // collectors
@@ -512,7 +512,10 @@ class MetricsManager {
   public:
     // CONSTANTS
     enum {
-        BAEM_INVALID_HANDLE = -1   // an invalid callback handle
+        e_BALM_INVALID_HANDLE = -1   // an invalid callback handle
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , BAEM_INVALID_HANDLE = e_BALM_INVALID_HANDLE
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // TRAITS
@@ -624,7 +627,7 @@ class MetricsManager {
         // Return a reference to the modifiable repository of collectors
         // managed by this object.
 
-    baem_MetricRegistry& metricRegistry();
+    balm_MetricRegistry& metricRegistry();
         // Return a reference to the modifiable registry of metrics managed by
         // this object.
 
@@ -853,7 +856,7 @@ class MetricsManager {
         // Return a reference to the non-modifiable repository of collectors
         // managed by this object.
 
-    const baem_MetricRegistry& metricRegistry() const;
+    const balm_MetricRegistry& metricRegistry() const;
         // Return a reference to the non-modifiable registry of metrics managed
         // by this object.
 };
@@ -916,7 +919,7 @@ CollectorRepository& MetricsManager::collectorRepository()
 }
 
 inline
-baem_MetricRegistry& MetricsManager::metricRegistry()
+balm_MetricRegistry& MetricsManager::metricRegistry()
 {
     return d_metricRegistry;
 }
@@ -940,7 +943,7 @@ MetricsManager::collectorRepository() const
 }
 
 inline
-const baem_MetricRegistry& MetricsManager::metricRegistry() const
+const balm_MetricRegistry& MetricsManager::metricRegistry() const
 {
     return d_metricRegistry;
 }

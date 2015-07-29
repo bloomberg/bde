@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 // In the following example we illustrate how to create and publish records
 // with a 'balm::StreamPublisher'.  First we define a couple of metric ids.
 // Note that we create the 'balm::MetricId' objects by hand, but in practice an
-// id should be obtained from a 'baem_MetricRegistry' object (such as the
+// id should be obtained from a 'balm_MetricRegistry' object (such as the
 // one owned by a 'balm::MetricsManager').
 //..
 //  balm::Category myCategory("MyCategory");

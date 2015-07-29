@@ -70,22 +70,22 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 // Next we specify that average values should only be printed to two decimal
 // places:
 //..
-//  format.setFormatSpec(balm::PublicationType::BAEM_AVG,
+//  format.setFormatSpec(balm::PublicationType::e_BALM_AVG,
 //                       balm::MetricFormatSpec(1.0, "%.2f"));
 //..
 // Next we specify that rate values should be formatted as a percentage --
 // i.e., multiplied by 100, and then displayed with a "%" character:
 //..
-//  format.setFormatSpec(balm::PublicationType::BAEM_RATE,
+//  format.setFormatSpec(balm::PublicationType::e_BALM_RATE,
 //                       balm::MetricFormatSpec(100.0, "%.2f%%"));
 //..
 // We can verify that the correct format specifications have been set:
 //..
 //  assert(balm::MetricFormatSpec(1.0, "%.2f") ==
-//         *format.formatSpec(balm::PublicationType::BAEM_AVG));
+//         *format.formatSpec(balm::PublicationType::e_BALM_AVG));
 //  assert(balm::MetricFormatSpec(100.0, "%.2f%%") ==
-//         *format.formatSpec(balm::PublicationType::BAEM_RATE));
-//  assert(0 == format.formatSpec(balm::PublicationType::BAEM_TOTAL));
+//         *format.formatSpec(balm::PublicationType::e_BALM_RATE));
+//  assert(0 == format.formatSpec(balm::PublicationType::e_BALM_TOTAL));
 //..
 // We can use the 'balm::MetricFormatSpec::formatValue' utility function to
 // format the value 0.055 to the console.  Note however, that there is no
@@ -93,10 +93,10 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 // in this way.
 //..
 //  balm::MetricFormatSpec::formatValue(
-//       bsl::cout, .055, *format.formatSpec(balm::PublicationType::BAEM_AVG));
+//     bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_BALM_AVG));
 //  bsl::cout << bsl::endl;
 //  balm::MetricFormatSpec::formatValue(
-//       bsl::cout, .055, *format.formatSpec(balm::PublicationType::BAEM_RATE));
+//    bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_BALM_RATE));
 //  bsl::cout << bsl::endl;
 //..
 // The resulting console output will be:
@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPETRAITS
-#include <bslmf_typetraits.h>
+#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -268,7 +268,7 @@ class MetricFormat {
     // DATA
     bsl::vector<AggregateFormatSpec> d_formatSpecs;
                               // array of length 0, or of length
-                              // 'PublicationType::BAEM_LENGTH',
+                              // 'PublicationType::e_BALM_LENGTH',
                               // holding a mapping of the publication type to
                               // the (possibly null) formatting options for
                               // that type
@@ -488,7 +488,7 @@ void MetricFormat::setFormatSpec(
                                   const MetricFormatSpec& formatSpec)
 {
     if (d_formatSpecs.empty()) {
-        d_formatSpecs.resize(PublicationType::BAEM_LENGTH);
+        d_formatSpecs.resize(PublicationType::e_BALM_LENGTH);
     }
     d_formatSpecs[(int)publicationType].makeValue(formatSpec);
 }

@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 // object (defined above).
 //
 // We start by creating a 'balm::MetricId' object by hand, but in
-// practice, an id should be obtained from a 'baem_MetricRegistry' object
+// practice, an id should be obtained from a 'balm_MetricRegistry' object
 // (such as the one owned by a 'balm::MetricsManager').
 //..
 //  balm::Category           myCategory("MyCategory");

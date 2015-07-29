@@ -34,7 +34,7 @@ int ConfigurationUtil::setFormat(const char               *category,
     if (0 == manager) {
         return -1;
     }
-    baem_MetricRegistry& registry = manager->metricRegistry();
+    balm_MetricRegistry& registry = manager->metricRegistry();
     registry.setFormat(registry.getId(category, metricName), format);
     return 0;
 }
@@ -50,7 +50,7 @@ int ConfigurationUtil::setFormatSpec(
     if (0 == manager) {
         return -1;
     }
-    baem_MetricRegistry& registry = manager->metricRegistry();
+    balm_MetricRegistry& registry = manager->metricRegistry();
     MetricId        metricId = registry.getId(category, metricName);
 
     bsl::shared_ptr<const MetricFormat> currentFormat =
@@ -76,7 +76,7 @@ int ConfigurationUtil::setPreferredPublicationType(
     if (0 == manager) {
         return -1;                                                    // RETURN
     }
-    baem_MetricRegistry& registry = manager->metricRegistry();
+    balm_MetricRegistry& registry = manager->metricRegistry();
     registry.setPreferredPublicationType(registry.getId(category, metricName),
                                          publicationType);
     return 0;
@@ -103,7 +103,7 @@ void ConfigurationUtil::setUserData(
     if (0 == manager) {
         return;                                                       // RETURN
     }
-    baem_MetricRegistry& registry = manager->metricRegistry();
+    balm_MetricRegistry& registry = manager->metricRegistry();
 
     MetricId id = registry.getId(category, metricName);
     registry.setUserData(id, key, value);
@@ -119,7 +119,7 @@ void ConfigurationUtil::setUserData(
     if (0 == manager) {
         return;                                                       // RETURN
     }
-    baem_MetricRegistry& registry = manager->metricRegistry();
+    balm_MetricRegistry& registry = manager->metricRegistry();
 
     const int length = bsl::strlen(categoryName) - 1;
     if (length >= 0 && '*' == categoryName[length]) {

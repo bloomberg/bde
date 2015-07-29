@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPETRAITS
-#include <bslmf_typetraits.h>
+#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -322,7 +322,7 @@ class PublicationScheduler {
         // with the same 'interval' as it is currently scheduled, this
         // operation has no effect.  The behavior is undefined unless
         // 'bsls::TimeInterval(0, 0) < interval' and 'category' is a valid
-        // address supplied by the 'baem_MetricRegistry' owned by the
+        // address supplied by the 'balm_MetricRegistry' owned by the
         // 'MetricsManager' object supplied at construction.
 
     void setDefaultSchedule(const bsls::TimeInterval& interval);
@@ -362,7 +362,7 @@ class PublicationScheduler {
         // not scheduled for publication.  Any scheduled publication of
         // 'category' is either canceled or completed before this method
         // returns.  The behavior is undefined unless 'category' is a valid
-        // address supplied by the 'baem_MetricRegistry' owned by
+        // address supplied by the 'balm_MetricRegistry' owned by
         // 'metricsManager'.  Note that if a default publication schedule has
         // been set (using 'setDefaultSchedule'), then 'category' will continue
         // to be published as part of that scheduled default publication; to
@@ -409,7 +409,7 @@ class PublicationScheduler {
          // 'false' and will not modify 'result' if 'category' is published as
          // part of the default scheduled publication.  The behavior is
          // undefined unless 'category' is a valid address supplied by the
-         // 'baem_MetricRegistry' owned by the 'MetricsManager' object
+         // 'balm_MetricRegistry' owned by the 'MetricsManager' object
          // supplied at construction.
 
     bool getDefaultSchedule(bsls::TimeInterval *result) const;

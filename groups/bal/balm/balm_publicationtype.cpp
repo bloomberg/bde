@@ -31,14 +31,14 @@ int PublicationType::fromInt(PublicationType::Value *result,
                                   int                          number)
 {
     switch (number) {
-      case PublicationType::BAEM_UNSPECIFIED:
-      case PublicationType::BAEM_TOTAL:
-      case PublicationType::BAEM_COUNT:
-      case PublicationType::BAEM_MIN:
-      case PublicationType::BAEM_MAX:
-      case PublicationType::BAEM_AVG:
-      case PublicationType::BAEM_RATE:
-      case PublicationType::BAEM_RATE_COUNT:
+      case PublicationType::e_BALM_UNSPECIFIED:
+      case PublicationType::e_BALM_TOTAL:
+      case PublicationType::e_BALM_COUNT:
+      case PublicationType::e_BALM_MIN:
+      case PublicationType::e_BALM_MAX:
+      case PublicationType::e_BALM_AVG:
+      case PublicationType::e_BALM_RATE:
+      case PublicationType::e_BALM_RATE_COUNT:
         *result = (PublicationType::Value)number;
         return 0;
       default:
@@ -64,7 +64,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                         if (string[6]=='V'
                          && string[7]=='G')
                         {
-                            *result = PublicationType::BAEM_AVG;
+                            *result = PublicationType::e_BALM_AVG;
                             return 0;
                         }
                     } break;
@@ -73,14 +73,14 @@ int PublicationType::fromString(PublicationType::Value *result,
                             case 'A': {
                                 if (string[7]=='X')
                                 {
-                                    *result = PublicationType::BAEM_MAX;
+                                    *result = PublicationType::e_BALM_MAX;
                                     return 0;
                                 }
                             } break;
                             case 'I': {
                                 if (string[7]=='N')
                                 {
-                                    *result = PublicationType::BAEM_MIN;
+                                    *result = PublicationType::e_BALM_MIN;
                                     return 0;
                                 }
                             } break;
@@ -100,7 +100,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[7]=='T'
              && string[8]=='E')
             {
-                *result = PublicationType::BAEM_RATE;
+                *result = PublicationType::e_BALM_RATE;
                 return 0;
             }
         } break;
@@ -118,7 +118,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                          && string[8]=='N'
                          && string[9]=='T')
                         {
-                            *result = PublicationType::BAEM_COUNT;
+                            *result = PublicationType::e_BALM_COUNT;
                             return 0;
                         }
                     } break;
@@ -128,7 +128,7 @@ int PublicationType::fromString(PublicationType::Value *result,
                          && string[8]=='A'
                          && string[9]=='L')
                         {
-                            *result = PublicationType::BAEM_TOTAL;
+                            *result = PublicationType::e_BALM_TOTAL;
                             return 0;
                         }
                     } break;
@@ -152,7 +152,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[13]=='N'
              && string[14]=='T')
             {
-                *result = PublicationType::BAEM_RATE_COUNT;
+                *result = PublicationType::e_BALM_RATE_COUNT;
                 return 0;
             }
         } break;
@@ -174,7 +174,7 @@ int PublicationType::fromString(PublicationType::Value *result,
              && string[14]=='E'
              && string[15]=='D')
             {
-                *result = PublicationType::BAEM_UNSPECIFIED;
+                *result = PublicationType::e_BALM_UNSPECIFIED;
                 return 0;
             }
         } break;
@@ -186,29 +186,29 @@ int PublicationType::fromString(PublicationType::Value *result,
 const char *PublicationType::toString(PublicationType::Value value)
 {
     switch (value) {
-      case BAEM_UNSPECIFIED: {
-        return "BAEM_UNSPECIFIED";
+      case e_BALM_UNSPECIFIED: {
+        return "BALM_UNSPECIFIED";
       } break;
-      case BAEM_TOTAL: {
-        return "BAEM_TOTAL";
+      case e_BALM_TOTAL: {
+        return "BALM_TOTAL";
       } break;
-      case BAEM_COUNT: {
-        return "BAEM_COUNT";
+      case e_BALM_COUNT: {
+        return "BALM_COUNT";
       } break;
-      case BAEM_MIN: {
-        return "BAEM_MIN";
+      case e_BALM_MIN: {
+        return "BALM_MIN";
       } break;
-      case BAEM_MAX: {
-        return "BAEM_MAX";
+      case e_BALM_MAX: {
+        return "BALM_MAX";
       } break;
-      case BAEM_AVG: {
-        return "BAEM_AVG";
+      case e_BALM_AVG: {
+        return "BALM_AVG";
       } break;
-      case BAEM_RATE: {
-        return "BAEM_RATE";
+      case e_BALM_RATE: {
+        return "BALM_RATE";
       } break;
-      case BAEM_RATE_COUNT: {
-        return "BAEM_RATE_COUNT";
+      case e_BALM_RATE_COUNT: {
+        return "BALM_RATE_COUNT";
       } break;
     }
 

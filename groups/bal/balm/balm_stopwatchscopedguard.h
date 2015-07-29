@@ -181,15 +181,19 @@ class StopwatchScopedGuard {
     enum Units {
         // An enumeration of supported time units.
 
-        BAEM_NANOSECONDS   = 1000000000,
-        BAEM_MICROSECONDS  = 1000000,
-        BAEM_MILLISECONDS  = 1000,
-        BAEM_SECONDS       = 1
+        e_BALM_NANOSECONDS   = 1000000000,
+        e_BALM_MICROSECONDS  = 1000000,
+        e_BALM_MILLISECONDS  = 1000,
+        e_BALM_SECONDS       = 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , NANOSECONDS  = BAEM_NANOSECONDS
-      , MICROSECONDS = BAEM_MICROSECONDS
-      , MILLISECONDS = BAEM_MILLISECONDS
-      , SECONDS      = BAEM_SECONDS
+      , BAEM_NANOSECONDS   = e_BALM_NANOSECONDS
+      , BAEM_MICROSECONDS  = e_BALM_MICROSECONDS
+      , BAEM_MILLISECONDS  = e_BALM_MILLISECONDS
+      , BAEM_SECONDS       = e_BALM_SECONDS
+      , NANOSECONDS        = e_BALM_NANOSECONDS
+      , MICROSECONDS       = e_BALM_MICROSECONDS
+      , MILLISECONDS       = e_BALM_MILLISECONDS
+      , SECONDS            = e_BALM_SECONDS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -209,7 +213,7 @@ class StopwatchScopedGuard {
   public:
     // CREATORS
     explicit StopwatchScopedGuard(Metric *metric,
-                                  Units        timeUnits = BAEM_SECONDS);
+                                  Units        timeUnits = e_BALM_SECONDS);
         // Initialize this scoped guard to record elapsed time using the
         // specified 'metric'.  Optionally specify the 'timeUnits' in which to
         // report elapsed time.  If 'metric->isActive()' is 'false', this
@@ -220,7 +224,7 @@ class StopwatchScopedGuard {
         // precision of the elapsed time measurement.
 
     explicit StopwatchScopedGuard(Collector *collector,
-                                  Units           timeUnits = BAEM_SECONDS);
+                                  Units           timeUnits = e_BALM_SECONDS);
         // Initialize this scoped guard to record elapsed time using the
         // specified 'collector'.  Optionally specify the 'timeUnits' in which
         // to report elapsed time.  If 'collector' is 0 or
@@ -332,7 +336,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(
                                                const MetricId&  metricId,
                                                MetricsManager  *manager)
 : d_stopwatch()
-, d_timeUnits(BAEM_SECONDS)
+, d_timeUnits(e_BALM_SECONDS)
 , d_collector_p(0)
 {
     Collector *collector = Metric::lookupCollector(metricId,
@@ -370,7 +374,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(
                                             const char          *name,
                                             MetricsManager *manager)
 : d_stopwatch()
-, d_timeUnits(BAEM_SECONDS)
+, d_timeUnits(e_BALM_SECONDS)
 , d_collector_p(0)
 {
     Collector *collector =

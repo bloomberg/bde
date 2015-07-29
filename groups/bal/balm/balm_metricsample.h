@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // We start by initializing several 'balm::MetricRecord' values, which we will
 // add to the sample.  Note that in this example we create the 'balm::MetricId'
 // objects by hand; however, in practice ids should be obtained from a
-// 'baem_MetricRegistry' object (such as the one owned by a
+// 'balm_MetricRegistry' object (such as the one owned by a
 // 'balm::MetricsManager').
 //..
 //  bslma::Allocator *allocator = bslma::Default::allocator(0);
@@ -127,7 +127,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPETRAITS
-#include <bslmf_typetraits.h>
+#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMETZ

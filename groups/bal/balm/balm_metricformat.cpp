@@ -31,11 +31,11 @@ bsl::ostream& MetricFormatSpec::formatValue(
                                        double                       value,
                                        const MetricFormatSpec& formatSpec)
 {
-    enum { INITIAL_BUFFER_SIZE = 32 };
+    enum { e_INITIAL_BUFFER_SIZE = 32 };
 
-    char buffer[INITIAL_BUFFER_SIZE];
+    char buffer[e_INITIAL_BUFFER_SIZE];
     int rc = snprintf(buffer,
-                      INITIAL_BUFFER_SIZE,
+                      e_INITIAL_BUFFER_SIZE,
                       formatSpec.format(),
                       value * formatSpec.scale());
     if (rc < 0) {
@@ -44,12 +44,12 @@ bsl::ostream& MetricFormatSpec::formatValue(
         return stream;                                                // RETURN
     }
 
-    if (rc < INITIAL_BUFFER_SIZE) {
+    if (rc < e_INITIAL_BUFFER_SIZE) {
         stream << buffer << bsl::flush;
         return stream;                                                // RETURN
     }
     // The string is too big to fit in the buffer (that's a long floating-
-    // point value!).  Note that if 'rc == INITIAL_BUFFER_SIZE', then there
+    // point value!).  Note that if 'rc == e_INITIAL_BUFFER_SIZE', then there
     // was not room for the null-terminator.
 
     bsl::vector<char> newBuffer;

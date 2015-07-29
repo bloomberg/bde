@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 // collects a 'balm::MetricRecord'.
 //
 // We start by creating a 'balm::MetricId' object by hand, but in
-// practice, an id should be obtained from a 'baem_MetricRegistry' object
+// practice, an id should be obtained from a 'balm_MetricRegistry' object
 // (such as the one owned by a 'balm::MetricsManager'):
 //..
 //  balm::Category           myCategory("MyCategory");

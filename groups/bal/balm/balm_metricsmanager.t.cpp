@@ -1008,10 +1008,10 @@ void ConcurrencyTest::execute()
         CbHandle kB  = mX->registerCollectionCallback(B_VAL, bCb.function());
         CbHandle kS1 = mX->registerCollectionCallback(S1, s1Cb.function());
         CbHandle kS2 = mX->registerCollectionCallback(S2, s2Cb.function());
-        ASSERT(Obj::BAEM_INVALID_HANDLE != kA);
-        ASSERT(Obj::BAEM_INVALID_HANDLE != kB);
-        ASSERT(Obj::BAEM_INVALID_HANDLE != kS1);
-        ASSERT(Obj::BAEM_INVALID_HANDLE != kS2);
+        ASSERT(Obj::e_BALM_INVALID_HANDLE != kA);
+        ASSERT(Obj::e_BALM_INVALID_HANDLE != kB);
+        ASSERT(Obj::e_BALM_INVALID_HANDLE != kS1);
+        ASSERT(Obj::e_BALM_INVALID_HANDLE != kS2);
 
         // Test 'collectSample'
         bsl::vector<balm::MetricRecord> records;
@@ -1390,7 +1390,7 @@ void ConcurrencyTest::runTest()
     : d_numEvents(0)
     , d_periodStart(bdlt::CurrentTime::now())
     , d_eventsPerSecId()
-    , d_callbackHandle(balm::MetricsManager::BAEM_INVALID_HANDLE)
+    , d_callbackHandle(balm::MetricsManager::e_BALM_INVALID_HANDLE)
     , d_metricsManager_p(manager)
     {
         d_eventsPerSecId = d_metricsManager_p->metricRegistry().getId(
@@ -2017,7 +2017,7 @@ int main(int argc, char *argv[])
                     CbHandle handle =
                        mX.registerCollectionCallback(CATEGORY, cb->function());
                     callbacks[id] = bsl::make_pair(handle, cb);
-                    ASSERT(handle != Obj::BAEM_INVALID_HANDLE);
+                    ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
                     mX.collectorRepository().getDefaultCollector(CATEGORY,
                                                                  METRICS[j]);
                 }
@@ -2075,7 +2075,7 @@ int main(int argc, char *argv[])
                         CbPtr cb; cb.createInplace(Z, id, Z);
                         CbHandle handle =
                             mX.registerCollectionCallback(CAT, cb->function());
-                        ASSERT(handle != Obj::BAEM_INVALID_HANDLE);
+                        ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
                         ASSERT(0 == mX.removeCollectionCallback(handle));
                     }
                 }
@@ -2308,7 +2308,7 @@ int main(int argc, char *argv[])
                 CbHandle handle =
                   mX.registerCollectionCallback(CATEGORIES[i], cb->function());
                 callbacks[id] = bsl::make_pair(handle, cb);
-                ASSERT(handle != Obj::BAEM_INVALID_HANDLE);
+                ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
             }
         }
 
@@ -2347,14 +2347,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == mX.removeCollectionCallback(cbInfo.first));
                 ASSERT(0 != mX.removeCollectionCallback(cbInfo.first));
 
-                cbInfo.first = Obj::BAEM_INVALID_HANDLE;
+                cbInfo.first = Obj::e_BALM_INVALID_HANDLE;
 
                 mX.publishAll();
 
                 CallbackMap::iterator it = callbacks.begin();
                 for (; it != callbacks.end(); ++it) {
                     CallbackInfo& info = it->second;
-                    const int EXP = (info.first == Obj::BAEM_INVALID_HANDLE)
+                    const int EXP = (info.first == Obj::e_BALM_INVALID_HANDLE)
                                     ? 0 : 1;
                     ASSERT(EXP == info.second->invocations());
                     info.second->reset();
@@ -3542,7 +3542,7 @@ int main(int argc, char *argv[])
                   mX.registerCollectionCallback(id.category(), cb->function());
 
                 callbacks[id] = bsl::make_pair(handle, cb);
-                ASSERT(handle != Obj::BAEM_INVALID_HANDLE);
+                ASSERT(handle != Obj::e_BALM_INVALID_HANDLE);
             }
         }
 
@@ -3581,14 +3581,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == mX.removeCollectionCallback(cbInfo.first));
                 ASSERT(0 != mX.removeCollectionCallback(cbInfo.first));
 
-                cbInfo.first = Obj::BAEM_INVALID_HANDLE;
+                cbInfo.first = Obj::e_BALM_INVALID_HANDLE;
 
                 mX.publishAll();
 
                 CallbackMap::iterator it = callbacks.begin();
                 for (; it != callbacks.end(); ++it) {
                     CallbackInfo& info = it->second;
-                    const int EXP = (info.first == Obj::BAEM_INVALID_HANDLE)
+                    const int EXP = (info.first == Obj::e_BALM_INVALID_HANDLE)
                                     ? 0 : 1;
                     ASSERT(EXP == info.second->invocations());
                     info.second->reset();
