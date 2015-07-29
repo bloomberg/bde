@@ -2,11 +2,7 @@
 #include <bdlmt_eventscheduler.h>
 
 #include <bslma_testallocator.h>
-#if 0
-#include <bdlmtt_xxxatomictypes.h>
-#else 
 #include <bsls_atomic.h>
-#endif
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>

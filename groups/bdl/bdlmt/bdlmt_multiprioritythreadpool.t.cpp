@@ -7,11 +7,7 @@
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_qlock.h>
 #include <bdlmtt_xxxthread.h>
-#if 0
-#include <bdlmtt_xxxatomictypes.h>
-#else
 #include <bsls_atomic.h>
-#endif
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>

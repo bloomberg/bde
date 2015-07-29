@@ -8,11 +8,7 @@
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
 #include <bdlmt_fixedthreadpool.h>
-#if 0
-#include <bdlmtt_xxxatomictypes.h>
-#else
 #include <bsls_atomic.h>
-#endif
 
 #include <bslma_managedptr.h>
 #include <bslma_testallocator.h>

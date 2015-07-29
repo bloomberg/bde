@@ -5,16 +5,9 @@
 BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_lockguard.h>
-#if 0
-#include <bdlmtt_xxxatomictypes.h>  // for testing only
-#else
 #include <bsls_atomic.h>  // for testing only
-#endif
 
 #include <bdlf_bind.h>
-#if 0
-#include <bdlb_xxxbitutil.h>
-#endif
 #include <bsls_systemtime.h>
 
 #include <bsls_assert.h>

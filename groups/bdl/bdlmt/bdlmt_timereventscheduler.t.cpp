@@ -2,11 +2,7 @@
 #include <bdlmt_timereventscheduler.h>
 
 #include <bslma_testallocator.h>
-#if 0
-#include <bdlmtt_xxxatomictypes.h>
-#else
 #include <bsls_atomic.h>
-#endif
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
@@ -15,10 +11,7 @@
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
 #include <bdlimpxxx_fuzzy.h>
-#if 0
-#include <bdlb_xxxbitutil.h>
-#endif 
-#include <bdlb_bitstringutil.h> // XXX replacement
+#include <bdlb_bitstringutil.h>
 #include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
@@ -436,21 +429,15 @@ class TestClass {
       d_isClock(rhs.d_isClock),
       d_periodicInterval(rhs.d_periodicInterval),
       d_expectedTimeAtExecution(rhs.d_expectedTimeAtExecution),
-  //  d_numExecuted(rhs.d_numExecuted),
-  //  d_executionTime(rhs.d_executionTime),
       d_line(rhs.d_line),
-  //  d_delayed(rhs.d_delayed),
       d_referenceTime(rhs.d_referenceTime),
       d_globalLastExecutionTime(rhs.d_globalLastExecutionTime),
       d_assertOnFailure(rhs.d_assertOnFailure),
       d_failures(0)
     {
-        int delayed       = rhs.d_delayed      .load();
-        int executionTime = rhs.d_executionTime.load();
-        int numExecuted   = rhs.d_numExecuted  .load();
-        d_delayed      .storeRelaxed(delayed);
-        d_executionTime.storeRelaxed(executionTime);
-        d_numExecuted  .storeRelaxed(numExecuted);
+        d_delayed      .storeRelaxed(rhs.d_delayed      .load());
+        d_executionTime.storeRelaxed(rhs.d_executionTime.load());
+        d_numExecuted  .storeRelaxed(rhs.d_numExecuted  .load());
     }
 
     // MANIPULATORS

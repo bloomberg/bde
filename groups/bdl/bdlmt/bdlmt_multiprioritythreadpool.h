@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 // priority, while massively more numerous, does not impede the progress of
 // higher-priority jobs:
 //..
-//   bsls::AtomicInt urgentJobsDone     = 0;
-//   bsls::AtomicInt lessUrgentJobsDone = 0;
+//   bsls::AtomicInt     urgentJobsDone;
+//   bsls::AtomicInt lessUrgentJobsDone;
 //
 //   extern "C" void *urgentJob(void *)
 //   {
@@ -381,14 +381,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_threadgroup.h>
 #endif
 
-#if 0
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
-#endif
-#else
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
