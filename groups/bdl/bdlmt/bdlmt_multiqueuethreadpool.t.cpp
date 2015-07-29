@@ -59,7 +59,7 @@ using namespace BloombergLP;
 //                                int                    maxThreads,
 //                                int                    maxIdleTime,
 //                                bslma::Allocator      *basicAllocator = 0);
-// [ 7] bdlmt::MultiQueueThreadPool(bdlmtt::ThreadPool  *threadPool,
+// [ 7] bdlmt::MultiQueueThreadPool(bdlmt::ThreadPool  *threadPool,
 //                                bslma::Allocator *basicAllocator = 0);
 // [ 2] ~bdlmt::MultiQueueThreadPool();
 //
@@ -79,14 +79,14 @@ using namespace BloombergLP;
 // [13] void numProcessed(int *, int *) const;
 // [ 4] int numQueues() const;
 // [ 4] int numElements(int id) const;
-// [ 2] const bdlmtt::ThreadPool& threadPool() const;
+// [ 2] const bdlmt::ThreadPool& threadPool() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] PRIMARY TEST APPARATUS
 // [ 5] OUTPUT (<<) OPERATOR
 // [ 8] CONCERN: 'deleteQueueCb' is the last callback processed
 // [ 9] CONCERN: Multi-threaded safety of public API and processing
-// [10] CONCERN: One 'bdlmtt::ThreadPool' can be shared by two MQTPs
+// [10] CONCERN: One 'bdlmt::ThreadPool' can be shared by two MQTPs
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [14] USAGE EXAMPLE 1

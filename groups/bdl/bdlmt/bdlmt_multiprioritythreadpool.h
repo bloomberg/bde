@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //    bdlmt::MultipriorityThreadPool: mechanism to parallelize prioritized jobs
 //
-//@SEE_ALSO: bdlmtt_xxxthread
+//@SEE_ALSO: bdlmtt_threadutil
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //
 // Finally an application can specify the attributes of the worker threads in
 // a thread pool (e.g., guard size or stack size), by optionally supplying an
-// appropriately configured 'bdlmtt::ThreadAttributes' object.  (See the 'bdlmtt_xxxthread'
+// appropriately configured 'bdlmtt::ThreadAttributes' object.  (See the 'bdlmtt_threadutil'
 // component-level documentation for a description of the 'bdlmtt::ThreadAttributes'
 // class.)  Note that the field pertaining to whether the worker threads should
 // be detached or joinable is ignored.
@@ -371,6 +371,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLCC_MULTIPRIORITYQUEUE
 #include <bdlcc_multipriorityqueue.h>
+#endif
+
+#ifndef INCLUDED_BDLCC_MUTEX
+#include <bdlmtt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_THREADATTRIBUTES

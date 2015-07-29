@@ -353,7 +353,7 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlmtt_xxxthread' for information about the 'bdlmtt::Mutex' class, and
+// See 'bdlmtt_threadutil' for information about the 'bdlmtt::Mutex' class, and
 // component 'bdlmtt_lockguard' for information about the 'bdlmtt::LockGuard'
 // template class.
 //..

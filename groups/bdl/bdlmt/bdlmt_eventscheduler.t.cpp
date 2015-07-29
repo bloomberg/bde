@@ -2729,7 +2729,7 @@ int main(int argc, char *argv[])
 
 #if 0
         // We're commenting this out.  Testing the 'microSleep' method should
-        // really be done in bdlmtt_xxxthread.t.cpp.  Also, we have been having
+        // really be done in 'bdlmtt_threadutil.t.cpp'.  Also, we have been having
         // really annoying problems with this part of the test failing in the
         // nightly build but not reproducibly failing on test machines during
         // the day.  Perhaps testing the 'microSleep' method in bcemt rather

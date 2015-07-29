@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // threads and queue capacity, hence the name "fixed" thread pool.  An
 // application can, however, specify the attributes of the threads in the
 // pool (e.g., thread priority or stack size), by providing a
-// 'bdlmtt::ThreadAttributes' object with the desired values set.  See 'bdlmtt_xxxthread'
+// 'bdlmtt::ThreadAttributes' object with the desired values set.  See 'bdlmtt_threadutil'
 // package documentation for a description of 'bdlmtt::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.
@@ -161,7 +161,7 @@ BSLS_IDENT("$Id: $")
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlmtt_xxxthread' for information about the 'bdlmtt::Mutex' class, and
+// See 'bdlmtt_threadutil' for information about the 'bdlmtt::Mutex' class, and
 // component 'bdlmtt_lockguard' for information about the 'bdlmtt::LockGuard'
 // template class.
 //..
@@ -296,6 +296,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
+#ifndef INCLUDED_BDLMTT_MUTEX
+#include <bdlmtt_mutex.h>
+#endif
+
 #ifndef INCLUDED_BDLMTT_SEMAPHORE
 #include <bdlmtt_semaphore.h>
 #endif
@@ -306,10 +310,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLMTT_THREADUTIL
 #include <bdlmtt_threadutil.h>
-#endif
-
-#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
-#include <bdlmtt_threadattributes.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_CONDITION

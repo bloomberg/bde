@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // be used to handle periodic bursts.  An application can also specify the
 // attributes of the threads in the pool (e.g., thread priority or stack size),
 // by providing a 'bdlmtt::ThreadAttributes' object with the desired values set.  See
-// 'bdlmtt_xxxthread' package documentation for a description of 'bdlmtt::ThreadAttributes'.
+// 'bdlmtt_threadutil' package documentation for a description of 'bdlmtt::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.  A
 // server need only package client requests to execute as jobs, and
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: $")
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlmtt_xxxthread' for information about the 'bdlmtt::Mutex' class, and
+// See 'bdlmtt_threadutil' for information about the 'bdlmtt::Mutex' class, and
 // component 'bdlmtt_lockguard' for information about the 'bdlmtt::LockGuard'
 // template class.
 //..
@@ -348,6 +348,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLMTT_CONDITION
 #include <bdlmtt_condition.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_MUTEX
+#include <bdlmtt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_THREADUTIL

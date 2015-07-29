@@ -3280,7 +3280,7 @@ int main(int argc, char *argv[])
             // to be testing the accuracy of the 'microSleep' method in this
             // component -- especially since it can be really unreasonably slow
             // on a heavily loaded machine (i.e., during the nighttime runs).
-            // Testing of that routine has been moved to bdlmtt_xxxthread.t.cpp.
+            // Testing of that routine has been moved to 'bdlmtt_threadutil.t.cpp'.
 
             // go through odd elements - they should be SLEEP_SECONDS later
             sfit = sf.timeList().begin();
@@ -3419,7 +3419,7 @@ int main(int argc, char *argv[])
         // be testing the accuracy of the 'microSleep' method in this component
         // -- especially since it can be really unreasonably slow on a heavily
         // loaded machine (i.e., during the nighttime runs).  Testing of that
-        // routine has been moved to bdlmtt_xxxthread.t.cpp.
+        // routine has been moved to 'bdlmtt_threadutil.t.cpp'.
 
         // go through odd elements - they should be SLEEP_SECONDS later
         it = sf.timeList().begin();
