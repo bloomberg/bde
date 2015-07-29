@@ -10,7 +10,6 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
-#include <bdlimpxxx_fuzzy.h>
 #include <bdlb_bitstringutil.h>
 #include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>

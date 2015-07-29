@@ -2,8 +2,6 @@
 #include <bdlmt_fixedthreadpool.h>
 #include <bslma_testallocator.h>
 
-#include <bdlimpxxx_fuzzy.h>
-
 #include <bdlt_currenttime.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
