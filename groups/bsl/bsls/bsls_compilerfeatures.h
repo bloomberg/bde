@@ -341,11 +341,13 @@ BSLS_IDENT("$Id: $")
 //: Compiler support:
 //:   gcc 4.3
 //:   clang 2.9
-//:   MSVC 2013
+//:   MSVC 2015 
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //..
-//
+// Note that bugs in MSVC 2013 support for variadic templates preclude
+// enabling the feature for BSL.
+// 
 ///BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 ///- - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'alignas' alignment
