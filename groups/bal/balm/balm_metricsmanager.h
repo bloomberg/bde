@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //      // using a 'balm::MetricsManager::RecordsCollectionCallback'.
 //
 //      // PRIVATE DATA
-//      bdlmtt::AtomicInt       d_numEvents;         // number of events
+//      bsls::AtomicInt       d_numEvents;         // number of events
 //
 //      bsls::TimeInterval    d_periodStart;       // start of the current
 //                                                // period
@@ -381,8 +381,8 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricregistry.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -495,10 +495,10 @@ class MetricsManager {
     LastResetTimes            d_prevResetTimes;  // time of a category's
                                                  // previous reset
 
-    bdlmtt::Mutex               d_publishLock;     // lock for 'publish',
+    bdlqq::Mutex               d_publishLock;     // lock for 'publish',
                                                  // acquired before 'd_rwLock'
 
-    mutable bdlmtt::RWMutex     d_rwLock;          // lock for the data maps
+    mutable bdlqq::RWMutex     d_rwLock;          // lock for the data maps
 
     bslma::Allocator         *d_allocator_p;     // allocator (held not owned)
 

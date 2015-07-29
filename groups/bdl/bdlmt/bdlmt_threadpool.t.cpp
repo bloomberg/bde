@@ -1,7 +1,7 @@
 // bdlmt_threadpool.t.cpp                                              -*-C++-*-
 #include <bdlmt_threadpool.h>
 
-#include <bdlmtt_configuration.h>
+#include <bdlqq_configuration.h>
 
 #include <bslma_testallocator.h>
 
@@ -15,10 +15,10 @@
 #include <bsls_atomic.h>
 
 #include <bdlt_currenttime.h> // For test only
-#include <bdlmtt_barrier.h>    // For test only
-#include <bdlmtt_lockguard.h>  // For test only
-#include <bdlmtt_threadattributes.h>     // For test only
-#include <bdlmtt_threadutil.h>     // For test only
+#include <bdlqq_barrier.h>    // For test only
+#include <bdlqq_lockguard.h>  // For test only
+#include <bdlqq_threadattributes.h>     // For test only
+#include <bdlqq_threadutil.h>     // For test only
 #include <bsl_c_stdio.h>            // For FILE in usage example
 #include <bsl_c_stdlib.h>           // for atoi
 #include <bsl_cstring.h>
@@ -134,17 +134,17 @@ void noopFunc()
 }
 
 struct TestJobFunctionArgs {
-    bdlmtt::Condition *d_startCond;
-    bdlmtt::Condition *d_stopCond;
-    bdlmtt::Mutex     *d_mutex;
+    bdlqq::Condition *d_startCond;
+    bdlqq::Condition *d_stopCond;
+    bdlqq::Mutex     *d_mutex;
     volatile int     d_count;
     volatile int     d_startSig;
     volatile int     d_stopSig;
 };
 
 struct TestJobFunctionArgs1 {
-    bdlmtt::Barrier    *d_startBarrier_p;
-    bdlmtt::Barrier    *d_stopBarrier_p;
+    bdlqq::Barrier    *d_startBarrier_p;
+    bdlqq::Barrier    *d_stopBarrier_p;
     bsls::AtomicInt   d_count;
 };
 
@@ -193,7 +193,7 @@ void TestJobFunction1(void *ptr)
     // signaled.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(args->d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(args->d_mutex);
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
@@ -225,7 +225,7 @@ static void TestJobFunction2( void *ptr )
     // the supplied counter and returns.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(args->d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(args->d_mutex);
     ++args->d_count;
     ++args->d_startSig;
     args->d_startCond->signal();
@@ -277,7 +277,7 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
 // from the queue, open the file, and search for the string.  If a match is
 // found, the job adds the filename to an array of matching filenames.  Because
 // this array of filenames is shared across multiple jobs and across multiple
-// threads, access to the array is controlled via a 'bdlmtt::Mutex'.
+// threads, access to the array is controlled via a 'bdlqq::Mutex'.
 //
 ///Setting ThreadPool Attributes
 ///- - - - - - - - - - - - - - -
@@ -306,7 +306,7 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
     struct my_FastSearchJobInfo {
         const bsl::string        *d_word;    // word to search for
         const bsl::string        *d_path;    // path of the file to search
-        bdlmtt::Mutex              *d_mutex;   // mutex to control access to the
+        bdlqq::Mutex              *d_mutex;   // mutex to control access to the
                                              // result file list
         bsl::vector<bsl::string> *d_outList; // list of matching files
     };
@@ -347,19 +347,19 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
 //..
 // If we find a match, we add the file to the result list and return.  Since
 // the result list is shared among multiple processing threads, we use a mutex
-// lock to regulate access to the list.  We use a 'bdlmtt::LockGuard' to manage
+// lock to regulate access to the list.  We use a 'bdlqq::LockGuard' to manage
 // access to the mutex lock.  This template object acquires a mutex lock on
 // 'job->d_mutex' at construction, releases that lock on destruction.  Thus,
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlmtt_threadutil' for information about the 'bdlmtt::Mutex' class, and
-// component 'bdlmtt_lockguard' for information about the 'bdlmtt::LockGuard'
+// See 'bdlqq_threadutil' for information about the 'bdlqq::Mutex' class, and
+// component 'bdlqq_lockguard' for information about the 'bdlqq::LockGuard'
 // template class.
 //..
-                    bdlmtt::LockGuard<bdlmtt::Mutex> lock(job->d_mutex);
+                    bdlqq::LockGuard<bdlqq::Mutex> lock(job->d_mutex);
                     job->d_outList->push_back(*job->d_path);
-                    break;  // bdlmtt::LockGuard destructor unlocks mutex.
+                    break;  // bdlqq::LockGuard destructor unlocks mutex.
                 }
              }
              bsl::memcpy(buffer, &buffer[nread - wordLen - 1], wordLen - 1);
@@ -380,8 +380,8 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
                        const bsl::vector<bsl::string>& fileList,
                        bsl::vector<bsl::string>&       outFileList)
     {
-        bdlmtt::Mutex     mutex;
-        bdlmtt::ThreadAttributes defaultAttributes;
+        bdlqq::Mutex     mutex;
+        bdlqq::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
@@ -405,7 +405,7 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
 // passed to the search function and add the job to the pool.
 //
 // As noted above, all jobs will share a single mutex to guard the output file
-// list.  Function 'myFastSearchJob' uses a 'bdlmtt::LockGuard' on this mutex to
+// list.  Function 'myFastSearchJob' uses a 'bdlqq::LockGuard' on this mutex to
 // serialize access to the list.
 //..
         int count = fileList.size();
@@ -462,9 +462,9 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
             while (nread >= wordLen) {
                 buffer[nread] = 0;
                 if (strstr(buffer, word)) {
-                    bdlmtt::LockGuard<bdlmtt::Mutex> lock(job->d_mutex);
+                    bdlqq::LockGuard<bdlqq::Mutex> lock(job->d_mutex);
                     job->d_outList->push_back(*job->d_path);
-                    break;  // bdlmtt::LockGuard destructor unlocks mutex.
+                    break;  // bdlqq::LockGuard destructor unlocks mutex.
                 }
             }
             bsl::memcpy(buffer, &buffer[nread - wordLen - 1], wordLen - 1);
@@ -482,8 +482,8 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
                                       vector<string>& outFileList
                                     )
     {
-        bdlmtt::Mutex     mutex;
-        bdlmtt::ThreadAttributes defaultAttributes;
+        bdlqq::Mutex     mutex;
+        bdlqq::ThreadAttributes defaultAttributes;
         bdlmt::ThreadPool pool(defaultAttributes,
                              MIN_SEARCH_THREADS,
                              MAX_SEARCH_THREADS,
@@ -554,7 +554,7 @@ enum {
 };
 
 Obj *xP;
-bdlmtt::Barrier barrier(DEPTH_LIMIT + 1); // to ensure that all the threads have
+bdlqq::Barrier barrier(DEPTH_LIMIT + 1); // to ensure that all the threads have
                                         // started
 
 bsls::AtomicInt depthCounter;
@@ -579,14 +579,14 @@ void TestJobFunction7(void *ptr)
 //                         CASE 13 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-void testJobFunction13_2(bdlmtt::Barrier *barrier)
+void testJobFunction13_2(bdlqq::Barrier *barrier)
 {
     barrier->wait();
 }
 
 class Test13Object {
     Obj *d_threadPool_p;
-    bdlmtt::Barrier *d_barrier_p;
+    bdlqq::Barrier *d_barrier_p;
 
   private:
     // NOT IMPLEMENTED
@@ -594,11 +594,11 @@ class Test13Object {
     Test13Object& operator=(const Test13Object&);
 
   public:
-    Test13Object(bdlmtt::Barrier *barrier_p, Obj *threadPool_p);
+    Test13Object(bdlqq::Barrier *barrier_p, Obj *threadPool_p);
     ~Test13Object();
 };
 
-Test13Object::Test13Object(bdlmtt::Barrier *barrier_p, Obj *threadPool_p)
+Test13Object::Test13Object(bdlqq::Barrier *barrier_p, Obj *threadPool_p)
 : d_threadPool_p(threadPool_p)
 , d_barrier_p(barrier_p)
 {
@@ -660,8 +660,8 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    bdlmtt::Configuration::setDefaultThreadStackSize(
-                     bdlmtt::Configuration::recommendedDefaultThreadStackSize());
+    bdlqq::Configuration::setDefaultThreadStackSize(
+                     bdlqq::Configuration::recommendedDefaultThreadStackSize());
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
@@ -686,12 +686,12 @@ int main(int argc, char *argv[])
                MAX_THREADS = 1,
                IDLE_TIME   = 0 };
 
-        bdlmtt::ThreadAttributes attr;
+        bdlqq::ThreadAttributes attr;
         Obj mX(attr, MIN_THREADS, MAX_THREADS, IDLE_TIME);
 
         STARTPOOL(mX);
 
-        bdlmtt::Barrier barrier(2);
+        bdlqq::Barrier barrier(2);
         {
             Test13Object* p = new Test13Object(&barrier, &mX);
             mX.enqueueJob(testJobFunction13, p);
@@ -723,7 +723,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: cpu time not consumed when idle \n"
                           << "====================================" << endl ;
         {
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
 
             enum {
                 MIN_THREADS = 25,
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 T_(); P(startIdleCpuTime);
             }
-            bdlmtt::ThreadUtil::microSleep(0, SLEEP_TIME);
+            bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedIdleCpuTime = getCurrentCpuTime()
                                        - startIdleCpuTime;
 
@@ -767,7 +767,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                  T_(); P(startCpuTime);
             }
-            bdlmtt::ThreadUtil::microSleep(0, SLEEP_TIME);
+            bdlqq::ThreadUtil::microSleep(0, SLEEP_TIME);
             double consumedCpuTime = getCurrentCpuTime() - startCpuTime;
 
             if (veryVerbose) {
@@ -858,7 +858,7 @@ int main(int argc, char *argv[])
                           << "===========================" << endl ;
         {
 
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
             enum {
                 MIN = 5,
                 MAX = 10,
@@ -902,7 +902,7 @@ int main(int argc, char *argv[])
                 IDLE_TIME      = 0
 
             };
-            bdlmtt::ThreadAttributes attributes;
+            bdlqq::ThreadAttributes attributes;
             Obj mX(attributes, MIN_THREADS, MAX_THREADS, IDLE_TIME,
                    &testAllocator);
             const Obj& X = mX;
@@ -926,7 +926,7 @@ int main(int argc, char *argv[])
                 IDLE_TIME      = 0
 
             };
-            bdlmtt::ThreadAttributes attributes;
+            bdlqq::ThreadAttributes attributes;
             Obj mX(attributes, MIN_THREADS, MAX_THREADS, IDLE_TIME);
 
             const Obj& X = mX;
@@ -1006,7 +1006,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING a job enqueuing other jobs" << endl
                           << "==================================" << endl;
         {
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
             Obj localX(attr, MIN, MAX, IDLE);
             xP = &localX;
             STARTPOOL(localX);
@@ -1052,13 +1052,13 @@ int main(int argc, char *argv[])
             const int BURST= MIN + ((MAX-MIN)/2);
 
             TestJobFunctionArgs1 args;
-            bdlmtt::Barrier startBarrier(MAX + 1);
-            bdlmtt::Barrier stopBarrier(MAX + 1);
+            bdlqq::Barrier startBarrier(MAX + 1);
+            bdlqq::Barrier stopBarrier(MAX + 1);
             args.d_startBarrier_p = &startBarrier;
             args.d_stopBarrier_p = &stopBarrier;
             args.d_count = 0;
 
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             if (veryVerbose) {
@@ -1078,11 +1078,11 @@ int main(int argc, char *argv[])
             args.d_stopBarrier_p->wait();
 
             while (0 != x.numActiveThreads())
-                bdlmtt::ThreadUtil::yield();
+                bdlqq::ThreadUtil::yield();
             bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
 
-            bdlmtt::Barrier startBarrier1(BURST + 1);
-            bdlmtt::Barrier stopBarrier1(BURST + 1);
+            bdlqq::Barrier startBarrier1(BURST + 1);
+            bdlqq::Barrier stopBarrier1(BURST + 1);
             args.d_startBarrier_p = &startBarrier1;
             args.d_stopBarrier_p = &stopBarrier1;
             for (int j=0; j < BURST; ++j) {
@@ -1111,16 +1111,16 @@ int main(int argc, char *argv[])
             // This suspends for AT LEAST duration... one millisecond has 1000
             // microseconds.
 
-            bdlmtt::ThreadUtil::microSleep(duration * 1000);
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::microSleep(duration * 1000);
+            bdlqq::ThreadUtil::yield();
             ASSERT(BURST == x.numActiveThreads());
 
             // Also give a chance to the Threadpool to kill the idle threads.
             // But given the problematic likelihood of failure of this test, do
             // not assert '0 == x.numWaitingThreads()'.
 
-            bdlmtt::ThreadUtil::microSleep(IDLE * 300);
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::microSleep(IDLE * 300);
+            bdlqq::ThreadUtil::yield();
             ASSERT(0 <= x.numWaitingThreads());
             if (0 < x.numWaitingThreads()) {
                 cout << "WARNING: Failure in case 6 (still "
@@ -1134,15 +1134,15 @@ int main(int argc, char *argv[])
             // Again, given the problematic likelihood of failure of the last
             // test, do not assert 'MIN == x.numWaitingThreads()'.
 
-            bdlmtt::ThreadUtil::microSleep(IDLE * 1300);
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::microSleep(IDLE * 1300);
+            bdlqq::ThreadUtil::yield();
             if (0 < x.numActiveThreads()) {
                 cout << "WARNING: Failure in case 6 (still "
                      << x.numActiveThreads() << " threads active after IDLE)"
                      << endl;
                 while (0 < x.numActiveThreads()) {
-                    bdlmtt::ThreadUtil::microSleep(IDLE * 1000);
-                    bdlmtt::ThreadUtil::yield();
+                    bdlqq::ThreadUtil::microSleep(IDLE * 1000);
+                    bdlqq::ThreadUtil::yield();
                 }
             }
             ASSERT(    0 == x.numActiveThreads());
@@ -1209,9 +1209,9 @@ int main(int argc, char *argv[])
                 const int MAX  = VALUES[i].d_maxThreads;
                 const int IDLE = VALUES[i].d_maxIdle;
 
-                bdlmtt::Mutex mutex;
-                bdlmtt::Condition startCond;
-                bdlmtt::Condition stopCond;
+                bdlqq::Mutex mutex;
+                bdlqq::Condition startCond;
+                bdlqq::Condition stopCond;
                 TestJobFunctionArgs args;
 
                 args.d_mutex = &mutex;
@@ -1219,7 +1219,7 @@ int main(int argc, char *argv[])
                 args.d_stopCond = &stopCond;
                 args.d_count = 0;
 
-                bdlmtt::ThreadAttributes attr;
+                bdlqq::ThreadAttributes attr;
                 Obj x(attr, MIN, MAX, IDLE);
 
                 const Obj& X = x;
@@ -1284,9 +1284,9 @@ int main(int argc, char *argv[])
                 const int MAX  = VALUES[i].d_maxThreads;
                 const int IDLE = VALUES[i].d_maxIdle;
 
-                bdlmtt::Mutex mutex;
-                bdlmtt::Condition startCond;
-                bdlmtt::Condition stopCond;
+                bdlqq::Mutex mutex;
+                bdlqq::Condition startCond;
+                bdlqq::Condition stopCond;
                 TestJobFunctionArgs args;
 
                 args.d_mutex = &mutex;
@@ -1294,7 +1294,7 @@ int main(int argc, char *argv[])
                 args.d_stopCond = &stopCond;
                 args.d_count = 0;
 
-                bdlmtt::ThreadAttributes attr;
+                bdlqq::ThreadAttributes attr;
                 Obj x(attr, MIN, MAX, IDLE);
 
                 const Obj& X = x;
@@ -1425,9 +1425,9 @@ int main(int argc, char *argv[])
             const int MAX  = VALUES[i].d_maxThreads;
             const int IDLE = VALUES[i].d_maxIdle;
 
-            bdlmtt::Mutex mutex;
-            bdlmtt::Condition startCond;
-            bdlmtt::Condition stopCond;
+            bdlqq::Mutex mutex;
+            bdlqq::Condition startCond;
+            bdlqq::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1435,7 +1435,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             const Obj& X = x;
@@ -1482,9 +1482,9 @@ int main(int argc, char *argv[])
             const int MAX  = VALUES[i].d_maxThreads;
             const int IDLE = VALUES[i].d_maxIdle;
 
-            bdlmtt::Mutex mutex;
-            bdlmtt::Condition startCond;
-            bdlmtt::Condition stopCond;
+            bdlqq::Mutex mutex;
+            bdlqq::Condition startCond;
+            bdlqq::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1492,7 +1492,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             const Obj& X = x;
@@ -1539,9 +1539,9 @@ int main(int argc, char *argv[])
             const int MAX  = VALUES[i].d_maxThreads;
             const int IDLE = VALUES[i].d_maxIdle;
 
-            bdlmtt::Mutex mutex;
-            bdlmtt::Condition startCond;
-            bdlmtt::Condition stopCond;
+            bdlqq::Mutex mutex;
+            bdlqq::Condition startCond;
+            bdlqq::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1549,7 +1549,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             const Obj& X = x;
@@ -1639,7 +1639,7 @@ int main(int argc, char *argv[])
                 const int MAX  = VALUES[i].d_maxThreads;
                 const int IDLE = VALUES[i].d_maxIdle;
 
-                bdlmtt::ThreadAttributes attr;
+                bdlqq::ThreadAttributes attr;
                 Obj x(attr, MIN, MAX, IDLE);
 
                 const Obj& X = x;
@@ -1692,7 +1692,7 @@ int main(int argc, char *argv[])
         //   This Test Case exercises basic value-semantic functionality.
         // --------------------------------------------------------------------
 
-        bdlmtt::ThreadAttributes attr;
+        bdlqq::ThreadAttributes attr;
         const int MIN  = 10;
         const int MAX  = 50;
         const int IDLE = 1000;
@@ -1743,9 +1743,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTesting: 'TestJobFunction1'" << endl
                                   << "\t===========================" << endl;
 
-            bdlmtt::Mutex mutex;
-            bdlmtt::Condition startCond;
-            bdlmtt::Condition stopCond;
+            bdlqq::Mutex mutex;
+            bdlqq::Condition startCond;
+            bdlqq::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1753,15 +1753,15 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlmtt::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bdlmtt::ThreadAttributes attributes;
+            bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
+            bdlqq::ThreadAttributes attributes;
 
             mutex.lock();
             for (int i=0; i<NITERATIONS; ++i) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
-                bdlmtt::ThreadUtil::create(&threadHandles[i], attributes,
-                                         (bdlmtt::ThreadUtil::ThreadFunction)
+                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                                         (bdlqq::ThreadUtil::ThreadFunction)
                                            TestJobFunction1,
                                          &args );
                 while ( !args.d_startSig ) {
@@ -1775,7 +1775,7 @@ int main(int argc, char *argv[])
             ASSERT(NITERATIONS == args.d_count);
 
             for (int i=0; i<NITERATIONS;++i) {
-                bdlmtt::ThreadUtil::join(threadHandles[i]);
+                bdlqq::ThreadUtil::join(threadHandles[i]);
             }
             ASSERT(NITERATIONS == args.d_count);
         }
@@ -1785,9 +1785,9 @@ int main(int argc, char *argv[])
         {
             const int NITERATIONS=50;
 
-            bdlmtt::Mutex mutex;
-            bdlmtt::Condition startCond;
-            bdlmtt::Condition stopCond;
+            bdlqq::Mutex mutex;
+            bdlqq::Condition startCond;
+            bdlqq::Condition stopCond;
             TestJobFunctionArgs args;
 
             args.d_mutex = &mutex;
@@ -1795,15 +1795,15 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bdlmtt::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bdlmtt::ThreadAttributes attributes;
+            bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
+            bdlqq::ThreadAttributes attributes;
 
             for (int i=0; i<NITERATIONS; ++i) {
                 mutex.lock();
                 args.d_startSig=0;
                 args.d_stopSig=0;
-                bdlmtt::ThreadUtil::create(&threadHandles[i], attributes,
-                                         (bdlmtt::ThreadUtil::ThreadFunction)
+                bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
+                                         (bdlqq::ThreadUtil::ThreadFunction)
                                          TestJobFunction2,
                                          &args );
                 while ( !args.d_startSig ) {
@@ -1815,7 +1815,7 @@ int main(int argc, char *argv[])
             ASSERT(NITERATIONS == args.d_count);
 
             for (int i=0; i<NITERATIONS;++i) {
-                bdlmtt::ThreadUtil::join(threadHandles[i]);
+                bdlqq::ThreadUtil::join(threadHandles[i]);
             }
             ASSERT(NITERATIONS == args.d_count);
         }
@@ -1857,7 +1857,7 @@ int main(int argc, char *argv[])
         for (int i = (SPEED < 25 ? 1 : 2); i < MAX_NTHREADS; ++i)
         {
             cout << "\tUsing " << i << " threads." << endl;
-            bdlmtt::ThreadAttributes attr;
+            bdlqq::ThreadAttributes attr;
             const int NTHREADS = i;
             const int IDLE_TIME = 10000;
 
@@ -1904,7 +1904,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'enqueueJob' fails\n"
                                "==========================\n";
 
-        bdlmtt::ThreadAttributes attr;
+        bdlqq::ThreadAttributes attr;
         attr.setStackSize(500 << 20);    // 500 MByte thread stack size
 
         bdlmt::ThreadPool tp(attr, 0, 10, 1000);

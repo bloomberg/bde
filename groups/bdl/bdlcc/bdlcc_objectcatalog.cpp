@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlcc_objectcatalog_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_barrier.h> // for testing only
+#include <bdlqq_barrier.h> // for testing only
 
 // ---------------------------------------------------------------------------
 // NOTICE:

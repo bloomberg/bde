@@ -14,10 +14,11 @@
 #include <ball_loggermanager.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
-#include <bdlmtt_threadgroup.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadgroup.h>
 
+#include <bdlsu_filesystemutil.h>
 #include <bdlsu_memoryutil.h>
 #include <bdlf_bind.h>
 #include <bsls_platform.h>
@@ -120,8 +121,8 @@ class Case2Thread
    int            d_id;
    int            d_numThreads;
    int            d_pageSize;
-   bdlmtt::Barrier *d_barrier;
-   bdlmtt::Barrier *d_barrier2;
+   bdlqq::Barrier *d_barrier;
+   bdlqq::Barrier *d_barrier2;
    Obj           *d_mappingManager;
    Obj::Handle   *d_handles;
    int            d_numPages;
@@ -135,8 +136,8 @@ class Case2Thread
 
 public:
 
-   Case2Thread(int id, int numThreads, int pageSize, bdlmtt::Barrier *barrier,
-               bdlmtt::Barrier *barrier2, Obj *mappingManager,
+   Case2Thread(int id, int numThreads, int pageSize, bdlqq::Barrier *barrier,
+               bdlqq::Barrier *barrier2, Obj *mappingManager,
                Obj::Handle *handles, int numPages)
       : d_id(id), d_numThreads(numThreads), d_pageSize(pageSize),
         d_barrier(barrier), d_barrier2(barrier2),
@@ -249,14 +250,17 @@ int main(int argc, char *argv[])
              P(NUM_PAGES); P(NUM_THREADS); P(PAGESIZE_BYTES); P(filename);
           }
 
-          bdlsu::FileUtil::FileDescriptor fd
-              = bdlsu::FileUtil::open(filename, 1, 0);
-          ASSERT(bdlsu::FileUtil::INVALID_FD != fd);
+          bdlsu::FilesystemUtil::FileDescriptor fd
+              = bdlsu::FilesystemUtil::open(filename,
+                                       bdlsu::FilesystemUtil::e_OPEN_OR_CREATE,
+                                       bdlsu::FilesystemUtil::e_READ_WRITE);
+
+          ASSERT(bdlsu::FilesystemUtil::k_INVALID_FD != fd);
 
           // TEST INVARIANTS: grow the file beyond the necessary size
-          ASSERT(-1 != bdlsu::FileUtil::seek(fd, PAGESIZE_BYTES*NUM_PAGES*3,
+          ASSERT(-1 != bdlsu::FilesystemUtil::seek(fd, PAGESIZE_BYTES*NUM_PAGES*3,
                                             SEEK_SET));
-          ASSERT(1 == bdlsu::FileUtil::write(fd, "", 1));
+          ASSERT(1 == bdlsu::FilesystemUtil::write(fd, "", 1));
 
           enum { MAPPING_LIMIT = (1 << 19), // 500 K
                  NUM_PRIORITY_LEVELS = 2 };
@@ -285,13 +289,13 @@ int main(int argc, char *argv[])
                 mappingManager.releasePage(pageHandles[i]);
              }
 
-             bdlmtt::ThreadGroup group;
+             bdlqq::ThreadGroup group;
 
              if (verbose) {
                 cout << "Starting threads..." << endl;
              }
 
-             bdlmtt::Barrier barrier1(NUM_THREADS+1), barrier2(NUM_THREADS+1);
+             bdlqq::Barrier barrier1(NUM_THREADS+1), barrier2(NUM_THREADS+1);
              int numCycles = 0;
              for (int i = 0; i < NUM_THREADS; ++i) {
                 threadData[i] = new Case2Thread(i, NUM_THREADS,
@@ -337,18 +341,21 @@ int main(int argc, char *argv[])
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
-          ASSERT(0 == bdlsu::FileUtil::close(fd));
+          ASSERT(0 == bdlsu::FilesystemUtil::close(fd));
 
           if (verbose) {
              cout << "Verifying data on disk..." << endl;
           }
 
           char* pageBuffer = new char[PAGESIZE_BYTES];
-          fd = bdlsu::FileUtil::open(filename, 0, 1);
-          ASSERT(bdlsu::FileUtil::INVALID_FD != fd);
+          fd = bdlsu::FilesystemUtil::open(filename,
+                                           bdlsu::FilesystemUtil::e_OPEN,
+                                           bdlsu::FilesystemUtil::e_READ_ONLY);
+
+          ASSERT(bdlsu::FilesystemUtil::k_INVALID_FD != fd);
 
           for (int i = 0; i < NUM_PAGES; ++i) {
-             ASSERT(PAGESIZE_BYTES == bdlsu::FileUtil::read(fd,
+             ASSERT(PAGESIZE_BYTES == bdlsu::FilesystemUtil::read(fd,
                                                            (void*)pageBuffer,
                                                            PAGESIZE_BYTES));
              // Each page should consist of numIterations copies of the
@@ -382,8 +389,8 @@ int main(int argc, char *argv[])
              delete threadData[i];
           }
 
-          ASSERT(0 == bdlsu::FileUtil::close(fd));
-          ASSERT(0 == bdlsu::FileUtil::remove(filename));
+          ASSERT(0 == bdlsu::FilesystemUtil::close(fd));
+          ASSERT(0 == bdlsu::FilesystemUtil::remove(filename));
           break;
        }
        case 1: {
@@ -397,9 +404,11 @@ int main(int argc, char *argv[])
 
           // Usage example precondition: a file descriptor "fd"
           bsl::string tmpname = tempFileName();
-          bdlsu::FileUtil::FileDescriptor fd =
-              bdlsu::FileUtil::open(tmpname, 1, 0);
-          ASSERT(bdlsu::FileUtil::INVALID_FD != fd);
+          bdlsu::FilesystemUtil::FileDescriptor fd =
+              bdlsu::FilesystemUtil::open(tmpname,
+                                       bdlsu::FilesystemUtil::e_OPEN_OR_CREATE,
+                                       bdlsu::FilesystemUtil::e_READ_WRITE);
+          ASSERT(bdlsu::FilesystemUtil::k_INVALID_FD != fd);
 
           enum {
               MAPPING_LIMIT = (1 << 20) * 100 , // 100 Mb
@@ -452,8 +461,8 @@ int main(int argc, char *argv[])
 
           // IMPORTANT: do not close the file descriptor until the object
           // has been destroyed
-          bdlsu::FileUtil::close(fd);
-          bdlsu::FileUtil::remove(tmpname);
+          bdlsu::FilesystemUtil::close(fd);
+          bdlsu::FilesystemUtil::remove(tmpname);
 
        } break;
        default: {

@@ -7,8 +7,8 @@ BSLS_IDENT_RCSID(btls5_negotiator_cpp,"$Id$ $CSID$")
 #include <btls5_detailedstatus.h>
 #include <btls5_testserver.h>  // for testing only
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_mutex.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlt_currenttime.h>
@@ -129,7 +129,7 @@ class Negotiator_Negotiation {
 
     bsls::TimeInterval           d_timeout;         // timeout
     void                       *d_timer;           // expiration timer
-    bdlmtt::Mutex                 d_timerLock;       // 'd_timer' access
+    bdlqq::Mutex                 d_timerLock;       // 'd_timer' access
 
     bsls::AtomicInt             d_terminating;     // negotiation being
                                                    // terminated
@@ -211,7 +211,7 @@ static void terminate(btls5::Negotiator::NegotiationHandle negotiation,
     negotiation->d_eventManager_p->deregisterSocket(negotiation->d_handle);
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&negotiation->d_timerLock);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&negotiation->d_timerLock);
         if (negotiation->d_timer) {
             negotiation->d_eventManager_p->deregisterTimer(
                                                          negotiation->d_timer);
@@ -572,7 +572,7 @@ static int sendMethodRequest(btls5::Negotiator::NegotiationHandle negotiation)
         btlso::EventManager::Callback
            cb = bdlf::BindUtil::bind(timeoutCallback, negotiation);
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> lock(&negotiation->d_timerLock);
+            bdlqq::LockGuard<bdlqq::Mutex> lock(&negotiation->d_timerLock);
             negotiation->d_timer
                 = negotiation->d_eventManager_p->registerTimer(expiration, cb);
         }

@@ -126,7 +126,7 @@ StrTokenRefIter::StrTokenRefIter(const char *input,
 }
 
 StrTokenRefIter::StrTokenRefIter(
-                                            const StringRef&  input,
+                                            const bslstl::StringRef&  input,
                                             const char             *softDelims)
 : d_cursor_p(0)
 , d_prevDelim_p(0)
@@ -139,7 +139,7 @@ StrTokenRefIter::StrTokenRefIter(
 }
 
 StrTokenRefIter::StrTokenRefIter(
-                                            const StringRef&  input,
+                                            const bslstl::StringRef&  input,
                                             const char             *softDelims,
                                             const char             *hardDelims)
 : d_cursor_p(0)
@@ -231,7 +231,7 @@ void StrTokenRefIter::reset(const char *input)
     }
 }
 
-void StrTokenRefIter::reset(const StringRef& input)
+void StrTokenRefIter::reset(const bslstl::StringRef& input)
 {
     d_cursor_p    = input.begin();
     d_prevDelim_p = input.begin();

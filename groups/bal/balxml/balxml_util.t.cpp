@@ -15,7 +15,7 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The basic idea of testing balxml::Util::extractNamespaceFromXsd
-// to test Lock and bdlmtt::QLock is to create
+// to test Lock and bdlqq::QLock is to create
 // thread poll and manipulate various test data in parallel, then to
 // check the the integrity of data is preserved.
 //-----------------------------------------------------------------------------

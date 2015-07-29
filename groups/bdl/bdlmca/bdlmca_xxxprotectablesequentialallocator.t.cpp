@@ -4,7 +4,7 @@
 
 #include <bslma_testallocator.h>                       // for testing only
 
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #include <bdlma_xxxtestprotectableblockdispenser.h>
 #include <bdlma_xxxprotectableblockdispenser.h>
 #include <bdlma_xxxprotectablememoryscopedguard.h>
@@ -255,7 +255,7 @@ struct WorkerArgs {
 
 };
 
-bdlmtt::Barrier g_barrier(NUM_THREADS);
+bdlqq::Barrier g_barrier(NUM_THREADS);
 extern "C" void *workerThread(void *arg)
 {
     // Perform a series of allocate, protect, unprotect, and deallocate
@@ -319,7 +319,7 @@ extern "C" void *workerThread(void *arg)
 
     // The final block still exists.  Perform a synchronized unprotect and
     // write.  Synchronize and verify the data.
-    unsigned char threadId = bdlmtt::ThreadUtil::selfIdAsInt();
+    unsigned char threadId = bdlqq::ThreadUtil::selfIdAsInt();
     memset(blocks[numAllocs - 1], threadId, allocSizes[numAllocs - 1]);
 
     g_barrier.wait();
@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlmtt::ThreadUtil::Handle threads[NUM_THREADS];
+        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
         {
             if (veryVerbose) cout << "\tTest a variety of small sizes" << endl;
 
@@ -546,12 +546,12 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc =
-                    bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
+                    bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc =
-                    bdlmtt::ThreadUtil::join(threads[i]);
+                    bdlqq::ThreadUtil::join(threads[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
             ASSERT(0 == disp.numBlocksInUse());
@@ -581,12 +581,12 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc =
-                    bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
+                    bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc =
-                    bdlmtt::ThreadUtil::join(threads[i]);
+                    bdlqq::ThreadUtil::join(threads[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
             ASSERT(0                       == disp.numBlocksInUse());

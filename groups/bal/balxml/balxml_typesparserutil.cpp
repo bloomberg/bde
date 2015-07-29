@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balxml_typesparserutil_cpp,"$Id$ $CSID$")
 
 #include <balxml_typesprintutil.h>  // for testing only
 
-#include <balxml_xxxbase64parser.h>
+#include <balxml_base64parser.h>
 #include <balxml_hexparser.h>
 
 #include <bdlsb_fixedmeminstreambuf.h>

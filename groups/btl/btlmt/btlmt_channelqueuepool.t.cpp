@@ -9,7 +9,7 @@
 
 #include <bsls_platform.h>                      // for testing only
 #include <bslma_testallocator.h>                // for testing only
-#include <bdlmtt_xxxatomictypes.h>                   // for testing only
+#include <bsls_atomic.h>                   // for testing only
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -105,7 +105,7 @@ static int veryVeryVerbose;
 //-----------------------------------------------------------------------------
 
 btlso::IPv4Address serverAddress("127.0.0.1", 0);
-bdlmtt::AtomicInt    portNumber = 0;
+bsls::AtomicInt    portNumber(0);
 
 ///Usage
 ///-----
@@ -444,7 +444,7 @@ void checkUsageExampleMsg(btlmt::DataMsg msg, int version)
 static
 void readIncomingMessages(bdlcc::Queue<btlmt::Message> *incoming,
                           btlmt::ChannelQueuePool    *channelQueuePool,
-                          bdlmtt::AtomicInt            *numChannels,
+                          bsls::AtomicInt            *numChannels,
                           int                        maxNumMessages,
                           int                        version)
     // Read messages continuously (up to the specified 'maxNumMessages') from
@@ -592,7 +592,7 @@ void testUsageExample(btlso::IPv4Address serverAddress,
 
     // Start reading.
 
-    bdlmtt::AtomicInt numConnections(0);
+    bsls::AtomicInt numConnections(0);
 
     bdlf::Function<void (*)()> invokeReadIncomingMessages(
             bdlf::BindUtil::bindA(&ta,
@@ -603,18 +603,18 @@ void testUsageExample(btlso::IPv4Address serverAddress,
                                  numMessages,
                                  version));
 
-    bdlmtt::ThreadUtil::Handle readHandle;
-    ASSERT(0 == bdlmtt::ThreadUtil::create(&readHandle,
+    bdlqq::ThreadUtil::Handle readHandle;
+    ASSERT(0 == bdlqq::ThreadUtil::create(&readHandle,
                                          invokeReadIncomingMessages));
 
     while (numConnections < NUM_THREADS) {
-        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1));
-        bdlmtt::ThreadUtil::yield();
+        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));
+        bdlqq::ThreadUtil::yield();
     }
 
     // Send messages to each channel, in parallel.
 
-    bsl::vector<bdlmtt::ThreadUtil::Handle> handle(&ta);
+    bsl::vector<bdlqq::ThreadUtil::Handle> handle(&ta);
     handle.resize(NUM_THREADS);
 
     for (int i = 0; i < NUM_THREADS; ++i) {
@@ -628,16 +628,16 @@ void testUsageExample(btlso::IPv4Address serverAddress,
                                  static_cast<char>(payloadHash(channelIds[i])),
                                  &ta));
 
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&handle[i], invokeWriteMessages));
+        ASSERT(0 == bdlqq::ThreadUtil::create(&handle[i], invokeWriteMessages));
     }
 
     // Wait until finished.
 
     for (int i = 0; i < NUM_THREADS; ++i) {
-        ASSERT(0 == bdlmtt::ThreadUtil::join(handle[i]));
+        ASSERT(0 == bdlqq::ThreadUtil::join(handle[i]));
     }
 
-    ASSERT(0 == bdlmtt::ThreadUtil::join(readHandle));
+    ASSERT(0 == bdlqq::ThreadUtil::join(readHandle));
 }
 
 //=============================================================================
@@ -691,16 +691,16 @@ int main(int argc, char *argv[])
                                      (int)VERSION,
                                      endTime));
 
-        bdlmtt::ThreadUtil::Handle handle;
-        if (bdlmtt::ThreadUtil::create(&handle, invokeUsageExample))
+        bdlqq::ThreadUtil::Handle handle;
+        if (bdlqq::ThreadUtil::create(&handle, invokeUsageExample))
         {
             ASSERT(0 && "ERROR: Could not start thread for 'usageExample'.");
             break;
         }
 
         while (!portNumber) {
-            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1));
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));
+            bdlqq::ThreadUtil::yield();
         }
         serverAddress.setPortNumber(portNumber);
 
@@ -710,7 +710,7 @@ int main(int argc, char *argv[])
                 MSG_LENGTH,
                 VERSION);
 
-        ASSERT(bdlmtt::ThreadUtil::join(handle));
+        ASSERT(bdlqq::ThreadUtil::join(handle));
 
       } break;
       case 30: {
@@ -748,16 +748,16 @@ int main(int argc, char *argv[])
                                      (int)VERSION,
                                      endTime));
 
-        bdlmtt::ThreadUtil::Handle handle;
-        if (bdlmtt::ThreadUtil::create(&handle, invokeUsageExample))
+        bdlqq::ThreadUtil::Handle handle;
+        if (bdlqq::ThreadUtil::create(&handle, invokeUsageExample))
         {
             ASSERT(0 && "ERROR: Could not start thread for 'usageExample'.");
             break;
         }
 
         while (!portNumber) {
-            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1));
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));
+            bdlqq::ThreadUtil::yield();
         }
         serverAddress.setPortNumber(portNumber);
 
@@ -767,7 +767,7 @@ int main(int argc, char *argv[])
                 MSG_LENGTH,
                 VERSION);
 
-        ASSERT(bdlmtt::ThreadUtil::join(handle));
+        ASSERT(bdlqq::ThreadUtil::join(handle));
 
       } break;
       case 20: {
@@ -805,16 +805,16 @@ int main(int argc, char *argv[])
                                     (int)VERSION,
                                     endTime));
 
-        bdlmtt::ThreadUtil::Handle handle;
-        if (bdlmtt::ThreadUtil::create(&handle, invokeUsageExample))
+        bdlqq::ThreadUtil::Handle handle;
+        if (bdlqq::ThreadUtil::create(&handle, invokeUsageExample))
         {
             ASSERT(0 && "ERROR: Could not start thread for 'usageExample'.");
             break;
         }
 
         while (!portNumber) {
-            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1));
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));
+            bdlqq::ThreadUtil::yield();
         }
         serverAddress.setPortNumber(portNumber);
 
@@ -824,7 +824,7 @@ int main(int argc, char *argv[])
                 MSG_LENGTH,
                 VERSION);
 
-        ASSERT(bdlmtt::ThreadUtil::join(handle));
+        ASSERT(bdlqq::ThreadUtil::join(handle));
 
       } break;
       case 1: {

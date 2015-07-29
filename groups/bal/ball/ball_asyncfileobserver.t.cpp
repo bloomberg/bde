@@ -13,7 +13,7 @@
 #include <bslma_testallocator.h>
 
 #include <bdlpcre_regex.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlsu_processutil.h>
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -315,7 +315,7 @@ bsl::string readPartialFile(bsl::string& fileName, int startOffset)
     // as a string.
 {
     bsl::string result;
-    result.reserve(bdlsu::FileUtil::getFileSize(fileName) + 1 - startOffset);
+    result.reserve(bdlsu::FilesystemUtil::getFileSize(fileName) + 1 - startOffset);
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
@@ -513,18 +513,18 @@ namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
 
 void executeInParallel(int                               numThreads,
                        Obj                              *mX,
-                       bdlmtt::ThreadUtil::ThreadFunction  func)
+                       bdlqq::ThreadUtil::ThreadFunction  func)
    // Create the specified 'numThreads', each executing the specified 'func'.
 {
-    bdlmtt::ThreadUtil::Handle *threads =
-                                      new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                                      new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], func, mX);
+        bdlqq::ThreadUtil::create(&threads[i], func, mX);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
             bsls::Stopwatch timer;
             timer.start();
             while (MAX_QUEUE_LENGTH - X.recordQueueLength() <= 5) {
-                bdlmtt::ThreadUtil::microSleep(100, 0);
+                bdlqq::ThreadUtil::microSleep(100, 0);
                 if (timer.elapsedTime() > 5) {
                     ASSERTV("Failed to write any log records",
                             timer.elapsedTime(),
@@ -855,7 +855,7 @@ int main(int argc, char *argv[])
                ball::Severity::BAEL_TRACE,
                &ta);
         mX.startPublicationThread();
-        bdlmtt::ThreadUtil::microSleep(0, 1);
+        bdlqq::ThreadUtil::microSleep(0, 1);
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -867,7 +867,7 @@ int main(int argc, char *argv[])
 
         mX.enableFileLogging(fileName.c_str());
 
-        ASSERT(0 == bdlsu::FileUtil::getFileSize(fileName));
+        ASSERT(0 == bdlsu::FilesystemUtil::getFileSize(fileName));
 
         int numThreads = 4;
 
@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
 
         Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
         mX.startPublicationThread();
-        bdlmtt::ThreadUtil::microSleep(0, 1);
+        bdlqq::ThreadUtil::microSleep(0, 1);
 
         // Set callback to monitor rotation.
 
@@ -958,7 +958,7 @@ int main(int argc, char *argv[])
 
             // Ensure log file did not exist
 
-            bdlsu::FileUtil::remove(BASENAME.c_str());
+            bdlsu::FilesystemUtil::remove(BASENAME.c_str());
 
             bdlt::Datetime refTime = bdlt::CurrentTime::local();
             refTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
@@ -966,25 +966,25 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bdlmtt::ThreadUtil::microSleep(0, 3);
+            bdlqq::ThreadUtil::microSleep(0, 3);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
 
             // Wait up to 3 seconds for the file rotation to complete
 
             int loopCount = 0;
             do {
-                bdlmtt::ThreadUtil::microSleep(0, 1);
+                bdlqq::ThreadUtil::microSleep(0, 1);
             } while (0 == cb.numInvocations() && loopCount++ < 3);
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
 
             ASSERT(1 ==
-                   bdlsu::FileUtil::exists(cb.rotatedFileName().c_str()));
+                   bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"
@@ -993,10 +993,10 @@ int main(int argc, char *argv[])
             cb.reset();
 
             mX.disableTimeIntervalRotation();
-            bdlmtt::ThreadUtil::microSleep(0, 3);
+            bdlqq::ThreadUtil::microSleep(0, 3);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
 
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
@@ -1080,7 +1080,7 @@ int main(int argc, char *argv[])
             Obj mX(ball::Severity::BAEL_OFF, true, 8192, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             bsl::stringstream os;
 
             multiplexObserver.registerObserver(&mX);
@@ -1107,7 +1107,7 @@ int main(int argc, char *argv[])
 
             // Wait some time for async writing to complete
 
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
 
             fflush(stderr);
             bsl::fstream stderrFs;
@@ -1189,7 +1189,7 @@ int main(int argc, char *argv[])
 
             Obj mX(ball::Severity::BAEL_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
             BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
@@ -1213,7 +1213,7 @@ int main(int argc, char *argv[])
                 timer.start();
 
                 do {
-                    bdlmtt::ThreadUtil::microSleep(100, 0);
+                    bdlqq::ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
@@ -1230,7 +1230,7 @@ int main(int argc, char *argv[])
                 mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
                                                          X.rotationLifetime());
-                bdlmtt::ThreadUtil::microSleep(0, 4);
+                bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -1238,7 +1238,7 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    bdlmtt::ThreadUtil::microSleep(100, 0);
+                    bdlqq::ThreadUtil::microSleep(100, 0);
                     glob_t globbuf;
                     ASSERT(
                        0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
@@ -1258,7 +1258,7 @@ int main(int argc, char *argv[])
                 timer.start();
 
                 do {
-                    bdlmtt::ThreadUtil::microSleep(100, 0);
+                    bdlqq::ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 // Check the number of lines in the file.
@@ -1268,7 +1268,7 @@ int main(int argc, char *argv[])
                 }
 
                 mX.disableTimeIntervalRotation();
-                bdlmtt::ThreadUtil::microSleep(0, 4);
+                bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
@@ -1281,7 +1281,7 @@ int main(int argc, char *argv[])
                 timer.start();
 
                 do {
-                    bdlmtt::ThreadUtil::microSleep(100, 0);
+                    bdlqq::ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
@@ -1292,7 +1292,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing forced rotation." << endl;
             {
-                bdlmtt::ThreadUtil::microSleep(0, 2);
+                bdlqq::ThreadUtil::microSleep(0, 2);
                 mX.forceRotation();
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -1314,7 +1314,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
             {
-                bdlmtt::ThreadUtil::microSleep(0, 2);
+                bdlqq::ThreadUtil::microSleep(0, 2);
                 ASSERT(0 == X.rotationSize());
                 mX.rotateOnSize(1);
                 ASSERT(1 == X.rotationSize());
@@ -1324,7 +1324,7 @@ int main(int argc, char *argv[])
                     // We sleep because otherwise, the loop is too fast to make
                     // the timestamp change so we cannot observe the rotation.
 
-                    bdlmtt::ThreadUtil::microSleep(200 * 1000);
+                    bdlqq::ThreadUtil::microSleep(200 * 1000);
                 }
 
                 glob_t globbuf;
@@ -1357,7 +1357,7 @@ int main(int argc, char *argv[])
 
                 for (int i = 0 ; i < 30; ++i) {
                     BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                    bdlmtt::ThreadUtil::microSleep(50 * 1000);
+                    bdlqq::ThreadUtil::microSleep(50 * 1000);
                 }
 
                 // Verify that no rotation occurred.
@@ -1381,7 +1381,7 @@ int main(int argc, char *argv[])
 
             Obj mX(ball::Severity::BAEL_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
             BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
@@ -1402,7 +1402,7 @@ int main(int argc, char *argv[])
                 bsls::Stopwatch timer;
                 timer.start();
                 do {
-                    bdlmtt::ThreadUtil::microSleep(100, 0);
+                    bdlqq::ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
@@ -1418,7 +1418,7 @@ int main(int argc, char *argv[])
                 ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
                 mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0,0,0,3));
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) == X.rotationLifetime());
-                bdlmtt::ThreadUtil::microSleep(0, 4);
+                bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -1426,7 +1426,7 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     glob_t globbuf;
                     ASSERT(
                        0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
@@ -1444,7 +1444,7 @@ int main(int argc, char *argv[])
                 bsls::Stopwatch timer;
                 timer.start();
                 do {
-                    bdlmtt::ThreadUtil::microSleep(100, 0);
+                    bdlqq::ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
@@ -1454,7 +1454,7 @@ int main(int argc, char *argv[])
 
 
                 mX.disableTimeIntervalRotation();
-                bdlmtt::ThreadUtil::microSleep(0, 4);
+                bdlqq::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
@@ -1467,7 +1467,7 @@ int main(int argc, char *argv[])
                 timer.reset();
                 timer.start();
                 do {
-                    bdlmtt::ThreadUtil::microSleep(100, 0);
+                    bdlqq::ThreadUtil::microSleep(100, 0);
                 } while (X.recordQueueLength() > 0 && timer.elapsedTime() < 3);
 
                 {
@@ -1548,13 +1548,13 @@ int main(int argc, char *argv[])
 
             mX.startPublicationThread();
             ASSERT(X.isPublicationThreadRunning());
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
 
             multiplexObserver.registerObserver(&mX);
             mX.enableFileLogging(fileName.c_str());
             BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
 
-            ASSERT(0 == bdlsu::FileUtil::getFileSize(fileName));
+            ASSERT(0 == bdlsu::FilesystemUtil::getFileSize(fileName));
 
             ball::Context context;
             for (int i = 0;i < numTestRecords; ++i)
@@ -1586,7 +1586,7 @@ int main(int argc, char *argv[])
 
             mX.startPublicationThread();
             ASSERT(X.isPublicationThreadRunning());
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
             mX.enableFileLogging(fileName.c_str());
@@ -1678,7 +1678,7 @@ int main(int argc, char *argv[])
         {
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
@@ -1815,8 +1815,8 @@ int main(int argc, char *argv[])
             fflush(stdout);
         }
 
-        ASSERT(bdlsu::FileUtil::exists(fileName));
-        ASSERT(0 == bdlsu::FileUtil::getFileSize(fileName));
+        ASSERT(bdlsu::FilesystemUtil::exists(fileName));
+        ASSERT(0 == bdlsu::FilesystemUtil::getFileSize(fileName));
 
 #if defined(BSLS_PLATFORM_OS_UNIX) && \
    (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)
@@ -1847,26 +1847,26 @@ int main(int argc, char *argv[])
             // started
 
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT(mX.isPublicationThreadRunning());
 
             // Start the publication thread again, make sure nothing bad occurs
 
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT(mX.isPublicationThreadRunning());
 
             // Stop the publication thread, make sure the publication thread
             // stopped
 
             mX.stopPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT(!mX.isPublicationThreadRunning());
 
             // Stop the publication thread again, make sure nothing bad occurs
 
             mX.stopPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT(!mX.isPublicationThreadRunning());
         }
 
@@ -1875,14 +1875,14 @@ int main(int argc, char *argv[])
         {
             Obj mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
 
             bsl::shared_ptr<ball::Record> record(new (ta) ball::Record(&ta),
                                                 &ta);
 
             BALL_LOG_SET_CATEGORY("bael::AsyncFileObserverTest");
 
-            int beginFileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int beginFileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             if (verbose)
                 cout << "Begin file offset: " << beginFileOffset << endl;
 
@@ -1898,7 +1898,7 @@ int main(int argc, char *argv[])
             // Verify there are still records left not published
 
             ASSERT(record.use_count() > 1);
-            int afterFileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int afterFileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             if (verbose)
                 cout << "FileOffset after publish: " << afterFileOffset
                      << endl;
@@ -1906,8 +1906,8 @@ int main(int argc, char *argv[])
             // Verify writing is in process even after all 'publish' calls
             // are finished
 
-            bdlmtt::ThreadUtil::microSleep(0, 1);
-            int endFileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            bdlqq::ThreadUtil::microSleep(0, 1);
+            int endFileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             if (verbose) cout << "End file offset: " << endFileOffset << endl;
 
             ASSERT(afterFileOffset < endFileOffset);
@@ -1920,7 +1920,7 @@ int main(int argc, char *argv[])
         {
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
             bsl::ostringstream os, dos;
 
@@ -1935,24 +1935,24 @@ int main(int argc, char *argv[])
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            int fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             // these two lines are a desperate kludge to make windows
             // work -- this test driver works everywhere else without
             // them.
             (void) readPartialFile(fileName, 0);
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
@@ -1971,12 +1971,12 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             dos.str("");
 
             mX.setStdoutThreshold(ball::Severity::BAEL_ERROR);
@@ -2001,12 +2001,12 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             dos.str("");
 
             BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
@@ -2025,12 +2025,12 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             dos.str("");
 
             bsl::cout.rdbuf(coutSbuf);
@@ -2044,9 +2044,9 @@ int main(int argc, char *argv[])
         {
             Obj mX(ball::Severity::BAEL_FATAL, &ta);
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
-            int fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -2059,26 +2059,26 @@ int main(int argc, char *argv[])
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_WARN << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_ERROR << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_FATAL << "log" << BALL_LOG_END;
@@ -2097,13 +2097,13 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             ASSERT(dos.str() == readPartialFile(fileName, fileOffset));
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             dos.str("");
 
             ASSERT("" == os.str());
@@ -2119,14 +2119,14 @@ int main(int argc, char *argv[])
         {
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT(!X.isPublishInLocalTimeEnabled());
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
 
             bsl::ostringstream os, testOs, dos;
-            int fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -2141,13 +2141,13 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
@@ -2158,12 +2158,12 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             testOs.str("");
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
@@ -2175,12 +2175,12 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             testOs.str("");
 
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
@@ -2205,14 +2205,14 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
                 ASSERT(testOs.str() != coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             ASSERT("" == os.str());
 
@@ -2230,12 +2230,12 @@ int main(int argc, char *argv[])
             Obj mX(ball::Severity::BAEL_WARN, true, 8192, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             ASSERT( X.isPublishInLocalTimeEnabled());
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
-            int fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             bsl::ostringstream os, testOs, dos;
 
@@ -2252,13 +2252,13 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FileUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
@@ -2269,12 +2269,12 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             testOs.str("");
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
@@ -2286,12 +2286,12 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
             testOs.str("");
 
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
@@ -2317,7 +2317,7 @@ int main(int argc, char *argv[])
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
                 if (0 ==
@@ -2375,7 +2375,7 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
                 ASSERT(0 == os.str().length());
 
                 bsl::cout.rdbuf(coutSbuf);
@@ -2389,12 +2389,12 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing file logging." << endl;
         {
             bsl::string fn = tempFileName(veryVerbose);
-            int fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::BAEL_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             Q(Ignore warning about /bogus/path/foo -- it is expected);
             ASSERT(-1 == mX.enableFileLogging("/bogus/path/foo"));
             bsl::stringstream ss;
@@ -2421,7 +2421,7 @@ int main(int argc, char *argv[])
             loopCount = 0;
             do {
                 linesNum = 0;
-                bdlmtt::ThreadUtil::microSleep(0, 1);
+                bdlqq::ThreadUtil::microSleep(0, 1);
                 bsl::ifstream fs1;
                 fs1.open(fn.c_str(), bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
@@ -2467,7 +2467,7 @@ int main(int argc, char *argv[])
 
             loopCount = 0;
             do {
-                bdlmtt::ThreadUtil::microSleep(0, 1);
+                bdlqq::ThreadUtil::microSleep(0, 1);
                 linesNum = 0;
                 bsl::ifstream fs1;
                 fs1.open(fn.c_str(), bsl::ifstream::in);
@@ -2501,7 +2501,7 @@ int main(int argc, char *argv[])
 
             loopCount = 0;
             do {
-                bdlmtt::ThreadUtil::microSleep(0, 1);
+                bdlqq::ThreadUtil::microSleep(0, 1);
                 linesNum = 0;
                 bsl::ifstream fs1;
                 fs1.open(fn.c_str(), bsl::ifstream::in);
@@ -2536,7 +2536,7 @@ int main(int argc, char *argv[])
             Obj mX(ball::Severity::BAEL_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os;
 
             multiplexObserver.registerObserver(&mX);
@@ -2566,7 +2566,7 @@ int main(int argc, char *argv[])
             loopCount = 0;
             do {
                 linesNum = 0;
-                bdlmtt::ThreadUtil::microSleep(0, 1);
+                bdlqq::ThreadUtil::microSleep(0, 1);
                 bsl::ifstream fs1;
                 fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
@@ -2601,7 +2601,7 @@ int main(int argc, char *argv[])
             Obj mX(ball::Severity::BAEL_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
 
             multiplexObserver.registerObserver(&mX);
 
@@ -2677,7 +2677,7 @@ int main(int argc, char *argv[])
 
             loopCount = 0;
             do {
-                bdlmtt::ThreadUtil::microSleep(0, 1);
+                bdlqq::ThreadUtil::microSleep(0, 1);
                 linesNum = 0;
                 bsl::ifstream fs1;
                 fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
@@ -2763,11 +2763,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing customized format." << endl;
         {
-            int fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
-            bdlmtt::ThreadUtil::microSleep(0, 1);
+            bdlqq::ThreadUtil::microSleep(0, 1);
 
             ASSERT(ball::Severity::BAEL_WARN == X.stdoutThreshold());
 
@@ -2794,7 +2794,7 @@ int main(int argc, char *argv[])
                 mX.setLogFormat("%d %p %t %s %l %c %m %u",
                                 "%i %p %t %s %l %c %m %u");
 
-                fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
                 BALL_LOG_WARN << "log" << BALL_LOG_END;
 
@@ -2808,7 +2808,7 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     linesNum = 0;
                     bsl::ifstream fs1;
                     fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
@@ -2875,7 +2875,7 @@ int main(int argc, char *argv[])
                 mX.disableFileLogging();
 
                 ASSERT("" == os.str());
-                fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
                 bsl::cout.rdbuf(coutSbuf);
 
                 mX.disableFileLogging();
@@ -2893,7 +2893,7 @@ int main(int argc, char *argv[])
                 ASSERT(1 == mX.enableFileLogging(baseName.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
 
-                fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
 
                 bsl::stringstream os;
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
@@ -2914,7 +2914,7 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    bdlmtt::ThreadUtil::microSleep(0, 1);
+                    bdlqq::ThreadUtil::microSleep(0, 1);
                     linesNum = 0;
                     bsl::ifstream fs1;
                     fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
@@ -2978,7 +2978,7 @@ int main(int argc, char *argv[])
                     bsl::cerr << "datetime1: " << datetime1 << bsl::endl;
                 }
 
-                fileOffset = bdlsu::FileUtil::getFileSize(fileName);
+                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
                 bsl::cout.rdbuf(coutSbuf);
                 mX.disableFileLogging();
                 removeFilesByPrefix(baseName.c_str());

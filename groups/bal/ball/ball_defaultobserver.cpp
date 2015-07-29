@@ -9,7 +9,7 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlmxxx_list.h>
 
@@ -33,7 +33,7 @@ DefaultObserver::~DefaultObserver()
 void DefaultObserver::publish(const Record&  record,
                                    const Context&)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     const RecordAttributes& fixedFields = record.fixedFields();
 

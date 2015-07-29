@@ -1,7 +1,7 @@
 // balst_stacktraceresolver_filehelper.t.cpp                          -*-C++-*-
 #include <balst_stacktraceresolver_filehelper.h>
 
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <balst_objectfileformat.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -95,8 +95,8 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlsu::FileUtil                      FileUtil;
-typedef FileUtil::FileDescriptor            FdType;    // shorthand for file
+typedef bdlsu::FilesystemUtil                      FilesystemUtil;
+typedef FilesystemUtil::FileDescriptor            FdType;    // shorthand for file
                                                        // descriptor
 typedef balst::StackTraceResolver_FileHelper Obj;
 typedef bsls::Types::Int64                  Int64;
@@ -133,7 +133,7 @@ class FileGuard {
     ~FileGuard()
         // delete the file named 'd_fileName'
     {
-        bdlsu::FileUtil::remove(d_fileName);
+        bdlsu::FilesystemUtil::remove(d_fileName);
     }
 };
 
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
     const char *fileNameTemplate =
                           "/tmp/baesu_StackTraceResolver_FileHelper.%d.%d.txt";
 
-    ASSERT(FileUtil::exists(tmpDirName) && FileUtil::isDirectory(tmpDirName));
+    ASSERT(FilesystemUtil::exists(tmpDirName) && FilesystemUtil::isDirectory(tmpDirName));
 #endif
 
     bslma::TestAllocator ta;
@@ -201,16 +201,17 @@ int main(int argc, char *argv[])
 //..
 // Make sure file does not already exist.
 //..
-    bdlsu::FileUtil::remove(fileNameBuffer);
+    bdlsu::FilesystemUtil::remove(fileNameBuffer);
 //..
 // Next, Create the file and open a file descriptor to it.  The boolean
 // flags indicate that the file is writable, and not previously existing
 // (and therefore must be created).
 //..
-    FdType fd = FileUtil::open(fileNameBuffer,
-                               true,          // writable
-                               false);        // doesn't already exist
-    ASSERT(FileUtil::INVALID_FD != fd);
+    FdType fd = FilesystemUtil::open(
+                    fileNameBuffer,
+                    FilesystemUtil::e_OPEN_OR_CREATE,  // doesn't already exist
+                    FilesystemUtil::e_READ_WRITE);     // writable
+    ASSERT(FilesystemUtil::k_INVALID_FD != fd);
 //..
 // 64 char long string
 //..
@@ -222,21 +223,21 @@ int main(int argc, char *argv[])
 //..
     int rc;
     for (int i = 0; i < 20; ++i) {
-        rc = FileUtil::write(fd, testString64, 64);
+        rc = FilesystemUtil::write(fd, testString64, 64);
         ASSERT(64 == rc);
     }
 
     enum { OFFSET_OF_ZERO_BYTE = 7 * 64 };
 
-    rc = (int) FileUtil::seek(fd,
+    rc = (int) FilesystemUtil::seek(fd,
                               OFFSET_OF_ZERO_BYTE,
-                              FileUtil::BDESU_SEEK_FROM_BEGINNING);
+                              FilesystemUtil::e_SEEK_FROM_BEGINNING);
     ASSERT(OFFSET_OF_ZERO_BYTE == rc);
 
-    rc = FileUtil::write(fd, "", 1);        // write the zero byte
+    rc = FilesystemUtil::write(fd, "", 1);        // write the zero byte
     ASSERT(1 == rc);
 
-    rc = FileUtil::close(fd);
+    rc = FilesystemUtil::close(fd);
     ASSERT(0 == rc);
 
     {
@@ -274,7 +275,7 @@ int main(int argc, char *argv[])
 //..
         ta.deallocate(result);
     }
-    bdlsu::FileUtil::remove(fileNameBuffer);
+    bdlsu::FilesystemUtil::remove(fileNameBuffer);
 //..
       }  break;
       case 5: {
@@ -324,16 +325,17 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FileUtil::remove(fileNameBuffer);
+        bdlsu::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
 
-        FdType fd = FileUtil::open(fileNameBuffer,
-                                   true,              // writable
-                                   false);            // doesn't already exist
-        ASSERT(FileUtil::INVALID_FD != fd);
+        FdType fd = FilesystemUtil::open(
+                    fileNameBuffer,
+                    FilesystemUtil::e_OPEN_OR_CREATE,  // doesn't already exist
+                    FilesystemUtil::e_READ_WRITE);     // writable
+        ASSERT(FilesystemUtil::k_INVALID_FD != fd);
 
         // 64 char long string
 
@@ -342,19 +344,19 @@ int main(int argc, char *argv[])
 
         int rc;
         for (int i = 0; i < 20; ++i) {
-            rc = FileUtil::write(fd, testString64, 64);
+            rc = FilesystemUtil::write(fd, testString64, 64);
             ASSERT(64 == rc);
         }
 
-        rc = (int) FileUtil::seek(fd,
+        rc = (int) FilesystemUtil::seek(fd,
                                   7 * 64,
-                                  FileUtil::BDESU_SEEK_FROM_BEGINNING);
+                                  FilesystemUtil::e_SEEK_FROM_BEGINNING);
         ASSERT(7 * 64 == rc);
 
-        rc = FileUtil::write(fd, "", 1);
+        rc = FilesystemUtil::write(fd, "", 1);
         ASSERT(1 == rc);
 
-        rc = FileUtil::close(fd);
+        rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
 
         if (verbose) cout << "\nloadString" << endl;
@@ -495,16 +497,17 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FileUtil::remove(fileNameBuffer);
+        bdlsu::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, Create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
 
-        FdType fd = FileUtil::open(fileNameBuffer,
-                                   true,              // writable
-                                   false);            // doesn't already exist
-        ASSERT(FileUtil::INVALID_FD != fd);
+        FdType fd = FilesystemUtil::open(
+                    fileNameBuffer,
+                    FilesystemUtil::e_OPEN_OR_CREATE,  // doesn't already exist
+                    FilesystemUtil::e_READ_WRITE);     // writable
+        ASSERT(FilesystemUtil::k_INVALID_FD != fd);
 
         // 64 char long string
 
@@ -512,10 +515,10 @@ int main(int argc, char *argv[])
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
 
         for (int i = 0; i < 10; ++i) {
-            FileUtil::write(fd, testString64, 64);
+            FilesystemUtil::write(fd, testString64, 64);
         }
 
-        int rc = FileUtil::close(fd);
+        int rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
 
         if (verbose) cout << "\nTesting 'readBytes'" << endl;
@@ -523,7 +526,7 @@ int main(int argc, char *argv[])
         static const struct {
             int                   d_line;
             bsls::Types::UintPtr  d_numBytes;
-            FileUtil::Offset      d_offset;
+            FilesystemUtil::Offset      d_offset;
             int                   d_eofFlag;  // reading pass EOF
             const char           *d_result;
         } DATA[] = {
@@ -546,7 +549,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                  LINE      = DATA[ti].d_line;
             const bsls::Types::UintPtr SIZE      = DATA[ti].d_numBytes;
-            const FileUtil::Offset     OFFSET    = DATA[ti].d_offset;
+            const FilesystemUtil::Offset     OFFSET    = DATA[ti].d_offset;
             const char                 EOF_FLAG  = (char) DATA[ti].d_eofFlag;
             const char *const          EXP_RES   = DATA[ti].d_result;
             const bsls::Types::UintPtr EXP_RC    = strlen(EXP_RES);
@@ -627,16 +630,17 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FileUtil::remove(fileNameBuffer);
+        bdlsu::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
 
-        FdType fd = FileUtil::open(fileNameBuffer,
-                                   true,              // writable
-                                   false);            // doesn't already exist
-        ASSERT(FileUtil::INVALID_FD != fd);
+        FdType fd = FilesystemUtil::open(
+                    fileNameBuffer,
+                    FilesystemUtil::e_OPEN_OR_CREATE,  // doesn't already exist
+                    FilesystemUtil::e_READ_WRITE);     // writable
+        ASSERT(FilesystemUtil::k_INVALID_FD != fd);
 
         // 64 char long string
 
@@ -644,10 +648,10 @@ int main(int argc, char *argv[])
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
 
         for (int i = 0; i < 10; ++i) {
-            FileUtil::write(fd, testString64, 64);
+            FilesystemUtil::write(fd, testString64, 64);
         }
 
-        int rc = FileUtil::close(fd);
+        int rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
 
         if (verbose) cout << "\nTesting 'readExact'" << endl;
@@ -655,7 +659,7 @@ int main(int argc, char *argv[])
         static const struct {
             int                  d_line;
             bsls::Types::UintPtr d_numBytes;
-            FileUtil::Offset     d_offset;
+            FilesystemUtil::Offset     d_offset;
             int                  d_eofFlag;  // reading pass EOF
             const char          *d_result;
         } DATA[] = {
@@ -678,7 +682,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                  LINE     = DATA[ti].d_line;
             const bsls::Types::UintPtr SIZE     = DATA[ti].d_numBytes;
-            const FileUtil::Offset     OFFSET   = DATA[ti].d_offset;
+            const FilesystemUtil::Offset     OFFSET   = DATA[ti].d_offset;
             const char                 EOF_FLAG = (char) DATA[ti].d_eofFlag;
             const char *const          EXP_RES  = DATA[ti].d_result;
 
@@ -745,25 +749,26 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FileUtil::remove(fileNameBuffer);
+        bdlsu::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
 
-        FdType fd = FileUtil::open(fileNameBuffer,
-                                   true,              // writable
-                                   false);            // doesn't already exist
-        ASSERT(FileUtil::INVALID_FD != fd);
+        FdType fd = FilesystemUtil::open(
+                    fileNameBuffer,
+                    FilesystemUtil::e_OPEN_OR_CREATE,  // doesn't already exist
+                    FilesystemUtil::e_READ_WRITE);     // writable
+        ASSERT(FilesystemUtil::k_INVALID_FD != fd);
 
         // 64 char long string
 
         const char *testString64 =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
 
-        FileUtil::write(fd, testString64, 64);
+        FilesystemUtil::write(fd, testString64, 64);
 
-        int rc = FileUtil::close(fd);
+        int rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -806,16 +811,17 @@ int main(int argc, char *argv[])
 
         // Then, make sure file does not already exist.
 
-        bdlsu::FileUtil::remove(fileNameBuffer);
+        bdlsu::FilesystemUtil::remove(fileNameBuffer);
 
         // Next, create the file and open a file descriptor to it.  The boolean
         // flags indicate that the file is writable, and not previously
         // existing (and therefore must be created).
 
-        FdType fd = FileUtil::open(fileNameBuffer,
-                                   true,              // writable
-                                   false);            // doesn't already exist
-        ASSERT(FileUtil::INVALID_FD != fd);
+        FdType fd = FilesystemUtil::open(
+                    fileNameBuffer,
+                    FilesystemUtil::e_OPEN_OR_CREATE,  // doesn't already exist
+                    FilesystemUtil::e_READ_WRITE);     // writable
+        ASSERT(FilesystemUtil::k_INVALID_FD != fd);
 
         // 64 char long string
 
@@ -823,10 +829,10 @@ int main(int argc, char *argv[])
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-";
 
         for (int i = 0; i < 10; ++i) {
-            FileUtil::write(fd, testString64, 64);
+            FilesystemUtil::write(fd, testString64, 64);
         }
 
-        Int64 rc = FileUtil::close(fd);
+        Int64 rc = FilesystemUtil::close(fd);
         ASSERT(0 == rc);
 
         {

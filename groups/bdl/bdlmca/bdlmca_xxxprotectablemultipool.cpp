@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmca_xxxprotectablemultipool_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlma_memoryblockdescriptor.h>
 
@@ -58,7 +58,7 @@ void *ProtectableMultipool::allocate(size_type size)
     if (size <= static_cast<size_type>(d_pools_p->maxPooledBlockSize())) {
         return d_pools_p->allocate(size);                             // RETURN
     }
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     // The requested size is large and will not be pooled.  Use our own block
     // list because the one in 'd_pools_p' is based on a sequential allocator,
@@ -80,7 +80,7 @@ void ProtectableMultipool::deallocate(void *address)
     Header *h = (Header *)address - 1;
     const int pool = h->d_header.d_pool;
     if (-1 == pool) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         d_blockList.deallocate(h);
     }
     else {

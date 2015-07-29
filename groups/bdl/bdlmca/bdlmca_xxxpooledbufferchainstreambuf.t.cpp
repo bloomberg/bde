@@ -4,6 +4,7 @@
 
 #include <bslma_testallocator.h>
 
+#include <bsl_algorithm.h>  // bsl::max()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -128,7 +129,7 @@ static void aSsErT(int c, const char *s, int i)
 
 // The following macros facilitate thread-safe streaming to standard output.
 
-#define MTCOUT   coutMutex.lock(); { bsl::cout << bdlmtt::ThreadUtil::self() \
+#define MTCOUT   coutMutex.lock(); { bsl::cout << bdlqq::ThreadUtil::self() \
                                                << ": "
 #define MTENDL   bsl::endl;  } coutMutex.unlock()
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -144,7 +145,7 @@ static int verbose = 0;
 // static int veryVerbose = 0;  // not used
 static int veryVeryVerbose = 0;
 
-static bdlmtt::Mutex coutMutex;
+static bdlqq::Mutex coutMutex;
 
 //=============================================================================
 //                              MAIN PROGRAM

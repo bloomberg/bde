@@ -9,7 +9,7 @@ BSLS_IDENT_RCSID(ball_testobserver_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // STATIC DATA MEMBER INITIALIZATION
-bdlmtt::AtomicInt ball::TestObserver::s_count;
+bsls::AtomicInt ball::TestObserver::s_count;
 
 namespace ball {
 // CREATORS
@@ -21,7 +21,7 @@ TestObserver::~TestObserver()
 void TestObserver::publish(const Record&  record,
                                 const Context& context)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     d_record  = record;
     d_context = context;

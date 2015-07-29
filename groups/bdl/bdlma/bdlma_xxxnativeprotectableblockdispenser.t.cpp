@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
 // Modify its contents:
 //..
       char *memory = static_cast<char *>(block.address());
-      std::memset(memory, 0, size);
+      bsl::memset(memory, 0, size);
                                      ASSERT(0 == memory[0]);
       memory[0] = 1;
                                      ASSERT(1 == memory[0]);

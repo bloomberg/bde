@@ -9,7 +9,6 @@ BSLS_IDENT_RCSID(balxml_encoderoptions_cpp,"$Id$ $CSID$")
 #include <bdlat_valuetypefunctions.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
-#include <bdlb_string.h>
 
 #include <balxml_encodingstyle.h>
 #include <bdlb_nullablevalue.h>

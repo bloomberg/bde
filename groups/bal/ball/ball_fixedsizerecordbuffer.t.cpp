@@ -4,7 +4,7 @@
 
 #include <ball_severity.h>
 
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
@@ -123,11 +123,11 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
-static bdlmtt::Mutex printMutex;  // mutex to protect output macros
+static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
 
-static bdlmtt::Mutex &assertMutex = printMutex; // mutex to protect assert macros
+static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert macros
 
 #define ASSERTT(X) {assertMutex.lock(); aSsErT(!(X), #X, __LINE__); \
                                           assertMutex.unlock();}
@@ -167,41 +167,41 @@ typedef bsl::shared_ptr<ball::Record> Handle;
 //=============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-void executeInParallel(int numThreads, bdlmtt::ThreadUtil::ThreadFunction func)
+void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing 'i'
    // to i'th thread.  Finally join all the threads.
 {
-    bdlmtt::ThreadUtil::Handle *threads =
-                               new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                               new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
 }
 
 void executeInParallel(int numThreads,
-                       bdlmtt::ThreadUtil::ThreadFunction func,
+                       bdlqq::ThreadUtil::ThreadFunction func,
                        Handle *handles)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Pass 'handle[i]' to i'th created thread where 'i' ranges from 0 to
    // 'numThreads'.  Finally join all the threads.
 {
-    bdlmtt::ThreadUtil::Handle *threads =
-                               new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                               new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], func, (void *)(&handles[i]));
+        bdlqq::ThreadUtil::create(&threads[i], func, (void *)(&handles[i]));
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -307,7 +307,7 @@ enum {
     NUM_ITERATIONS2 = 1000
 };
 
-bdlmtt::Barrier barrier(2);
+bdlqq::Barrier barrier(2);
 
 bslma::Allocator *alloc = bslma::Default::defaultAllocator();
 ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
@@ -337,7 +337,7 @@ void *beginSequenceEndSequenceThread(void *arg)
     for (int i=0; i < NUM_ITERATIONS1; ++i) {
         rb.beginSequence();
         int len = rb.length();
-        bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
         int len1 = rb.length();
         LOOP2_ASSERT(len, len1, len == len1);
         rb.endSequence();
@@ -375,7 +375,7 @@ extern "C" {
         rb.beginSequence();
         ASSERT(state == VALID);
         state = INVALID;
-        bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
         state = VALID;
         rb.endSequence();
         return NULL;
@@ -1065,16 +1065,16 @@ int main(int argc, char *argv[])
 
         Handle H(R, alloc, alloc);
 
-        bdlmtt::ThreadUtil::Handle t1, t2;
-        bdlmtt::ThreadUtil::create(&t1,
+        bdlqq::ThreadUtil::Handle t1, t2;
+        bdlqq::ThreadUtil::create(&t1,
                                  beginSequenceEndSequenceThread,
                                  NULL);
-        bdlmtt::ThreadUtil::create(&t2,
+        bdlqq::ThreadUtil::create(&t2,
                                  pushBackPopRemoveAllThread,
                                  (void *)(&H));
 
-        bdlmtt::ThreadUtil::join(t1);
-        bdlmtt::ThreadUtil::join(t2);
+        bdlqq::ThreadUtil::join(t1);
+        bdlqq::ThreadUtil::join(t2);
 
       } break;
       case 9: {

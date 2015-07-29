@@ -10,8 +10,6 @@ BSLS_IDENT_RCSID(balxml_encodingstyle_cpp,"$Id$ $CSID$ $CCId$")
 #include <bdlb_chartype.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
-#include <bdlb_string.h>
-
 
 #include <bsls_assert.h>
 

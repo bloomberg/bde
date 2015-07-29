@@ -101,10 +101,6 @@ BSLS_IDENT("$Id: $ $CSID: $")
 #include <bdlt_datetimetz.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
 #include <bdlxxxx_instreamfunctions.h>
 #endif
@@ -189,7 +185,7 @@ class LocalDatetime {
         // used.
 
     LocalDatetime(const bdlt::DatetimeTz&  datetimeTz,
-                       const bdlb::StringRef&  timeZoneId,
+                       const bslstl::StringRef&  timeZoneId,
                        bslma::Allocator       *basicAllocator = 0);
         // Create a 'LocalDatetime' object having the specified
         // 'datetimeTz' and 'timeZoneId' attribute values.  Optionally specify
@@ -215,7 +211,7 @@ class LocalDatetime {
         // Set the 'datetimeTz' attribute of this object to the specified
         // 'value'.
 
-    void setTimeZoneId(const bdlb::StringRef& value);
+    void setTimeZoneId(const bslstl::StringRef& value);
         // Set the 'timeZoneId' attribute of this object to the specified
         // 'value'.
 
@@ -347,7 +343,7 @@ LocalDatetime::LocalDatetime(bslma::Allocator *basicAllocator)
 
 inline
 LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&  datetimeTz,
-                                       const bdlb::StringRef&  timeZoneId,
+                                       const bslstl::StringRef&  timeZoneId,
                                        bslma::Allocator       *basicAllocator)
 : d_datetimeTz(datetimeTz)
 , d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), basicAllocator)
@@ -380,7 +376,7 @@ void LocalDatetime::setDatetimeTz(const bdlt::DatetimeTz& value)
 }
 
 inline
-void LocalDatetime::setTimeZoneId(const bdlb::StringRef& value)
+void LocalDatetime::setTimeZoneId(const bslstl::StringRef& value)
 {
     d_timeZoneId.assign(value.begin(), value.end());
 }

@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //  Finally, we print out the JSON string:
 //..
 //  if (verbose) {
-//      std::cout << oss.str();
+//      bsl::cout << oss.str();
 //  }
 //..
 //  The output should look like:
@@ -102,8 +102,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLPUXXX_ISO8601
-#include <bdlpuxxx_iso8601.h>
+#ifndef INCLUDED_BDLT_ISO8601UTIL
+#include <bdlt_iso8601util.h>
 #endif
 
 #ifndef INCLUDED_BDLB_FLOAT
@@ -236,8 +236,8 @@ template <class TYPE>
 inline
 int PrintUtil::printDateAndTime(bsl::ostream& stream, const TYPE& value)
 {
-    char buffer[bdlpuxxx::Iso8601::BDEPU_MAX_DATETIME_STRLEN + 1];
-    bdlpuxxx::Iso8601::generate(buffer, value, sizeof buffer);
+    char buffer[bdlt::Iso8601Util::BDEPU_MAX_DATETIME_STRLEN + 1];
+    bdlt::Iso8601Util::generate(buffer, value, sizeof buffer);
     return printValue(stream, buffer);
 }
 

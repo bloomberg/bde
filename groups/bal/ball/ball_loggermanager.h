@@ -860,12 +860,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -890,14 +890,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_SET
 #include <bsl_set.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDEMA_MANAGEDPTR
-#include <bslma_managedptr.h>
-#endif
-
 #endif
 
 namespace BloombergLP {
@@ -960,7 +952,7 @@ class Logger {
 
     int                   d_scratchBufferSize;  // message buffer size (bytes)
 
-    bdlmtt::Mutex           d_scratchBufferMutex; // ensure thread-safety of
+    bdlqq::Mutex           d_scratchBufferMutex; // ensure thread-safety of
                                                 // message buffer
 
     LoggerManagerConfiguration::LogOrder
@@ -1106,7 +1098,7 @@ class Logger {
     void removeAll();
         // Remove all log records from the record buffer of this logger.
 
-    char *obtainMessageBuffer(bdlmtt::Mutex **mutex, int *bufferSize);
+    char *obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize);
         // Block until access to the buffer of this logger used for formatting
         // messages is available.  Return the address of the modifiable buffer
         // to which this thread of execution has exclusive access, load the
@@ -1231,7 +1223,7 @@ class LoggerManager {
                                                  // default threshold levels of
                                                  // "set" categories
 
-    bdlmtt::RWMutex          d_defaultThresholdsLock;
+    bdlqq::RWMutex          d_defaultThresholdsLock;
                                          // 'd_defaultThresholdsLock' protector
 
     ThresholdAggregate
@@ -1261,7 +1253,7 @@ class LoggerManager {
     bsl::set<Logger *>
                            d_loggers;            // set of *allocated* loggers
 
-    bdlmtt::RWMutex          d_loggersLock;        // 'd_loggers' protector
+    bdlqq::RWMutex          d_loggersLock;        // 'd_loggers' protector
 
     RecordBuffer     *d_recordBuffer_p;     // holds record buffer (owned)
 
@@ -1280,7 +1272,7 @@ class LoggerManager {
     bsl::map<void *, Logger *>
                            d_defaultLoggers;     // *registered* loggers
 
-    bdlmtt::RWMutex          d_defaultLoggersLock; // registry lock
+    bdlqq::RWMutex          d_defaultLoggersLock; // registry lock
 
     LoggerManagerConfiguration::LogOrder
                            d_logOrder;           // logging order
@@ -1480,7 +1472,7 @@ class LoggerManager {
         // undefined unless 'record' was obtained by a call to the
         // 'LoggerManager::getRecord' method.
 
-    static char *obtainMessageBuffer(bdlmtt::Mutex **mutex, int *bufferSize);
+    static char *obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize);
         // Block until access to the static buffer used for formatting messages
         // is available.  Return the address of the modifiable buffer to which
         // this thread of execution has exclusive access, load the address of

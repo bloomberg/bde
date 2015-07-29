@@ -255,18 +255,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_memory.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BCEMA_SHAREDPTRREP
-#include <bslma_sharedptrrep.h>
-#endif
-
-#endif
-
 namespace BloombergLP {
 
 namespace bdlcc {

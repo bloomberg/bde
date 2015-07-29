@@ -21,7 +21,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 #include <bsls_assert.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -175,11 +175,11 @@ int DefaultEventManager<Platform::POLL>::dispatch(
             // Sleep till it's time.
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(TimeMetrics::BTESO_IO_BOUND);
-                bdlmtt::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
+                bdlqq::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
                 d_timeMetric_p->switchTo(TimeMetrics::BTESO_CPU_BOUND);
             }
             else {
-                bdlmtt::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
+                bdlqq::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
             }
 
             now = bdlt::CurrentTime::now();

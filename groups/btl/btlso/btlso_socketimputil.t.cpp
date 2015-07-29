@@ -4,8 +4,8 @@
 
 #include <btlso_ipv4address.h>
 
-#include <bdlmtt_threadutil.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_threadutil.h>
+#include <bdlqq_barrier.h>
 
 #include <bdlf_bind.h>
 
@@ -66,7 +66,7 @@ typedef socklen_t ADDRLEN_T;
 typedef bsl::pair<const btlso::IPv4Address, const char *> ClientData;
 
 void serverFunction(const btlso::IPv4Address& IP_ADDR, 
-                    bdlmtt::Barrier *barrier)
+                    bdlqq::Barrier *barrier)
 {
      btlso::SocketHandle::Handle serverSocket, sessionSocket;
      const int                  BACKLOG      = 32;
@@ -298,10 +298,10 @@ int main(int argc, char *argv[])
 //..
      btlso::IPv4Address IP_ADDR("127.0.0.1", 8142);
 
-     bdlmtt::ThreadUtil::Handle stid, ctid;
+     bdlqq::ThreadUtil::Handle stid, ctid;
 
-     bdlmtt::Barrier barrier(2);
-     bdlmtt::ThreadUtil::create(&stid, 
+     bdlqq::Barrier barrier(2);
+     bdlqq::ThreadUtil::create(&stid, 
                               bdlf::BindUtil::bind(&serverFunction, 
                                                   IP_ADDR,
                                                   &barrier));
@@ -314,11 +314,11 @@ int main(int argc, char *argv[])
 //..
      const char *DATA = "Is it raining in London now?";
      ClientData clientData(IP_ADDR, DATA);
-     bdlmtt::ThreadUtil::create(&ctid, clientFunc, (void *) &clientData);
+     bdlqq::ThreadUtil::create(&ctid, clientFunc, (void *) &clientData);
 //..
 
-     ASSERT(0 == bdlmtt::ThreadUtil::join(stid));
-     ASSERT(0 == bdlmtt::ThreadUtil::join(ctid));
+     ASSERT(0 == bdlqq::ThreadUtil::join(stid));
+     ASSERT(0 == bdlqq::ThreadUtil::join(ctid));
       } break;
       case 1: {
         // --------------------------------------------------------------------

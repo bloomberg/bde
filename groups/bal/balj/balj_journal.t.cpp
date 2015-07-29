@@ -18,15 +18,16 @@
 #include <bdlmca_blobutil.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_semaphore.h>
-#include <bdlmtt_threadgroup.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_semaphore.h>
+#include <bdlqq_threadgroup.h>
+#include <bdlqq_xxxthread.h>
 #include <bdlmt_timereventscheduler.h>
 
 #include <bdlf_bind.h>
 #include <bdlsu_processutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlt_currenttime.h>
 
 #include <bsls_assert.h>
@@ -58,11 +59,11 @@ typedef Obj::RecordHandle H;
 static int testStatus = 0;
 static int verbose, veryVerbose, veryVeryVerbose;
 
-static bdlmtt::Mutex g_assertLock;
+static bdlqq::Mutex g_assertLock;
 static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&g_assertLock);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&g_assertLock);
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
@@ -317,14 +318,14 @@ struct Case4Data {
 
    enum { NUM_CONFIRM_ATTEMPTS = 45 };
 
-   bdlmtt::Barrier  d_bp;
-   bdlmtt::Barrier  d_bs;
-   bdlmtt::Barrier  d_bt;
+   bdlqq::Barrier  d_bp;
+   bdlqq::Barrier  d_bs;
+   bdlqq::Barrier  d_bt;
    Obj           *d_journal;
    vector<H>      d_handles;
    volatile int   d_handlesSize;
    bsl::set<H>    d_confirmed;
-   bdlmtt::Mutex    d_removalLock;
+   bdlqq::Mutex    d_removalLock;
    volatile int   d_confirmerRunning;
    H              d_confirming;
 
@@ -399,7 +400,7 @@ Case4Data::confirmerThread() {
    d_bs.wait();
    while (d_confirmerRunning) {
       for (int i = 0; i < NUM_CONFIRM_ATTEMPTS; ++i) {
-         bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_removalLock);
+         bdlqq::LockGuard<bdlqq::Mutex> guard(&d_removalLock);
          if (d_handlesSize > 1) {
             int size = d_handlesSize - 1;
             d_confirming = d_handles[confirmerRand(size)];
@@ -416,7 +417,7 @@ Case4Data::confirmerThread() {
             ASSERT(d_journal->isUnconfirmedRecord(d_confirming));
          }
          else {
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::yield();
             continue;
          }
 
@@ -693,7 +694,7 @@ NewJournalWrapper::NewJournalWrapper(
 , d_filename(filename)
 , d_mode(mode>=0 ? mode : MODE)
 {
-    bdlsu::FileUtil::remove(d_filename.c_str());
+    bdlsu::FilesystemUtil::remove(d_filename.c_str());
     int rc = d_journal.create(d_filename.c_str(), d_mode);
     ASSERT(rc == 0);
 }
@@ -788,22 +789,22 @@ void caseNeg10Test(balj_Journal *mX, int numRecords, int recordSize)
 struct JournalBenchmark
 {
     bsl::vector<char>   d_buf;
-    bdlmtt::AtomicInt      d_nAdd;
-    bdlmtt::AtomicInt      d_nRemove;
-    bdlmtt::AtomicInt      d_nRead;
+    bsls::AtomicInt      d_nAdd;
+    bsls::AtomicInt      d_nRemove;
+    bsls::AtomicInt      d_nRead;
     bsls::Types::Int64  d_totalSize;
     bsls::TimeInterval   d_timer;
     bsls::TimeInterval   d_now;
     int                 d_minSize;
     int                 d_maxSize;
 
-    bdlmtt::AtomicInt      d_stopFlag;
-    bdlmtt::AtomicInt      d_targetSize;
+    bsls::AtomicInt      d_stopFlag;
+    bsls::AtomicInt      d_targetSize;
 
     BaseJournal        *d_journal;
 
-    bdlmtt::Condition     d_cond;
-    bdlmtt::Mutex         d_lock;
+    bdlqq::Condition     d_cond;
+    bdlqq::Mutex         d_lock;
 
     struct Record
     {
@@ -856,7 +857,7 @@ void JournalBenchmark::addRecord()
     ASSERT(rc == 0);
     record.size = size;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_totalSize += size;
     d_records.push_back(record);
     d_nAdd++;
@@ -866,7 +867,7 @@ void JournalBenchmark::removeRecord()
 {
     Record record;
     {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     ASSERT(d_records.size());
     int n = fastrand() % d_records.size();
 //    bsl::printf("[-%d@%d sz %d]\n",records[n].first, n, records[n].second);
@@ -884,7 +885,7 @@ void JournalBenchmark::readRecord()
 {
     Record record;
     {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     ASSERT(d_records.size());
     int n = fastrand() % d_records.size();
     record = d_records[n];
@@ -897,7 +898,7 @@ void JournalBenchmark::readRecord()
     ASSERT(checksum == record.checksum);
 #endif
     {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_nRead++;
     d_records.push_back(record);
     }
@@ -907,7 +908,7 @@ void JournalBenchmark::tickThread()
 {
     d_timer = bdlt::CurrentTime::now();
 
-    bdlmtt::Mutex mutex;
+    bdlqq::Mutex mutex;
     mutex.lock();
     while(!d_stopFlag) {
         d_cond.timedWait(&mutex, d_timer+bsls::TimeInterval(2, 0));
@@ -916,7 +917,7 @@ void JournalBenchmark::tickThread()
             continue;
         }
         double secs = (d_now - d_timer).totalSecondsAsDouble();
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
         double addRate = d_nAdd.swap(0) / secs;
         double removeRate = d_nRemove.swap(0) / secs;
         double readRate = d_nRead.swap(0) / secs;
@@ -949,7 +950,7 @@ void JournalBenchmark::run(int argc, char** argv) {
         "\n");
         return;
     }
-    bdlmtt::ThreadGroup tg;
+    bdlqq::ThreadGroup tg;
     d_stopFlag = 0;
     tg.addThread(bdlf::BindUtil::bind(&JournalBenchmark::tickThread, this));
     static const char* pfxs
@@ -974,7 +975,7 @@ void JournalBenchmark::runImpl(int argc, char** argv, const char* pfx)
             if (!(--depth)) {
                 int nThreads=atoi(argv[arg]+1);
                 printf("%sForking %d threads\n", pfx, nThreads);
-                bdlmtt::ThreadGroup tg;
+                bdlqq::ThreadGroup tg;
                 for(int i=0; i<nThreads; i++) {
                     tg.addThread(bdlf::BindUtil::bind(
                                                     &JournalBenchmark::runImpl,
@@ -1108,9 +1109,9 @@ class Case16 {
     bsl::vector< bsl::shared_ptr<Obj> > d_journals;
     bsl::vector< bsl::string >          d_journalNames;
     bdlcc::FixedQueue<Case16_Record>     *d_queue_p;
-    bdlmtt::AtomicInt                      d_numRecordsAdded;
-    bdlmtt::AtomicInt                      d_numRecordsRemoved;
-    bdlmtt::AtomicInt                      d_haltFlag;
+    bsls::AtomicInt                      d_numRecordsAdded;
+    bsls::AtomicInt                      d_numRecordsRemoved;
+    bsls::AtomicInt                      d_haltFlag;
     int                                 d_mode;
     bslma::Allocator                   *d_allocator_p;
     bdlmt::TimerEventScheduler            d_eventScheduler;
@@ -1187,7 +1188,7 @@ void Case16::close()
 void Case16::removeFiles()
 {
     for(int i=0; i<d_numJournals; ++i) {
-        bdlsu::FileUtil::remove(d_journalNames[i].c_str());
+        bdlsu::FilesystemUtil::remove(d_journalNames[i].c_str());
     }
 }
 
@@ -1216,7 +1217,7 @@ void Case16::producerThread()
 {
     for(int i=0; i < NUM_PRODUCED_RECORDS; ++i) {
         while (d_numRecordsAdded - d_numRecordsRemoved > QUEUE_SIZE/2) {
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::yield();
         }
         int numBuffers = fastrand(MAX_BUFFERS);
         int blobLength = 0;
@@ -1240,7 +1241,7 @@ void Case16::producerThread()
             addBlob(blob);
         }
         else {
-            // bsl::cout << "PRODUCER " << bdlmtt::ThreadUtil::selfIdAsInt()
+            // bsl::cout << "PRODUCER " << bdlqq::ThreadUtil::selfIdAsInt()
             //    << " HALTING." << bsl::endl;
             break;
         }
@@ -1258,7 +1259,7 @@ void Case16::consumerThread()
         // get the data
         bdlmca::Blob blob;
         if (d_haltFlag) {
-            // bsl::cout << "CONSUMER " << bdlmtt::ThreadUtil::selfIdAsInt()
+            // bsl::cout << "CONSUMER " << bdlqq::ThreadUtil::selfIdAsInt()
             //    << " HALTING." << bsl::endl;
             return;
         }
@@ -1315,7 +1316,7 @@ int Case16::run(double commitInterval)
         P(commitInterval);
     }
 
-    bdlmtt::ThreadGroup producerThreads, consumerThreads;
+    bdlqq::ThreadGroup producerThreads, consumerThreads;
     for(int i=0; i<NUM_PRODUCERS; ++i) {
         producerThreads.addThread(bdlf::BindUtil::bind(
                 &Case16::producerThread, this));
@@ -1334,7 +1335,7 @@ int Case16::run(double commitInterval)
                 << " Total: " << NUM_PRODUCERS * NUM_PRODUCED_RECORDS
                 << bsl::endl;
         }
-        bdlmtt::ThreadUtil::microSleep(0, 1);
+        bdlqq::ThreadUtil::microSleep(0, 1);
 #if 0
 
         for(int i = 0; i < d_numJournals; ++i) {
@@ -1471,7 +1472,7 @@ int main(int argc, char *argv[]) {
              ASSERT(NUM_RECORDS == mX.numConfirmedRecords());
 
              mX.close();
-             bdlsu::FileUtil::remove(filename1);
+             bdlsu::FilesystemUtil::remove(filename1);
           }
           ASSERT(0 == ta.numBytesInUse());
       } break;
@@ -1689,7 +1690,7 @@ int main(int argc, char *argv[]) {
                 cout << "Closing and reopening journal..." << endl;
              }
 
-             bdlsu::FileUtil::Offset fileSize = mX.getFileSize();
+             bdlsu::FilesystemUtil::Offset fileSize = mX.getFileSize();
              mX.close();
 
              Obj mY(&mappingManager, &ta);
@@ -1743,7 +1744,7 @@ int main(int argc, char *argv[]) {
              }
 
              mY.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
 
              free(kBuffer);
              free(rBuffer);
@@ -1836,7 +1837,7 @@ int main(int argc, char *argv[]) {
                               mX.numUnconfirmedRecords());
 
              mX.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
@@ -1937,7 +1938,7 @@ int main(int argc, char *argv[]) {
                          2 == mX.numUnconfirmedRecords());
 
              mX.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
           }
 
           struct Parameters {
@@ -2004,7 +2005,7 @@ int main(int argc, char *argv[]) {
                               mX.numUnconfirmedRecords());
 
              mX.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
@@ -2197,7 +2198,7 @@ int main(int argc, char *argv[]) {
 
              delete blob;
              mY.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
 
              freeBuffers(initRecords, NUM_INIT);
              freeBuffers(appendRecords, NUM_APPEND);
@@ -2240,7 +2241,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 != mX.open(filename, MODE_RW));
           ASSERT(0 == mX.create(filename, MODE_RW));
           mX.close();
-          bdlsu::FileUtil::remove(filename);
+          bdlsu::FilesystemUtil::remove(filename);
 
           if (verbose) {
              cout << "Checking bytesPerBlock safety..." << endl;
@@ -2257,7 +2258,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 == mX.create(filename, MODE_RW, 0, param));
 
           mX.close();
-          bdlsu::FileUtil::remove(filename);
+          bdlsu::FilesystemUtil::remove(filename);
 
           if (verbose) {
              cout << "Checking blocksPerPage safety..." << endl;
@@ -2271,7 +2272,7 @@ int main(int argc, char *argv[]) {
           ASSERT(0 == mX.addRecord(&h, (void*)large, 1500000));
 
           mX.close();
-          bdlsu::FileUtil::remove(filename);
+          bdlsu::FilesystemUtil::remove(filename);
           free(large);
       } break;
 
@@ -2352,7 +2353,7 @@ int main(int argc, char *argv[]) {
              ASSERT(NUM_RECORDS == compareNumber);
              delete blob;
           }
-          bdlsu::FileUtil::remove(filename);
+          bdlsu::FilesystemUtil::remove(filename);
           ASSERT(0 == ta.numBytesInUse());
           break;
       }
@@ -2471,7 +2472,7 @@ int main(int argc, char *argv[]) {
                 rate2Avg += rate2;
                 rate3Avg += rate3;
 
-                bdlsu::FileUtil::remove(filename);
+                bdlsu::FilesystemUtil::remove(filename);
              }
              rate1Avg /= NUM_LOOPS;
              rate2Avg /= NUM_LOOPS;
@@ -2627,7 +2628,7 @@ int main(int argc, char *argv[]) {
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
-          bdlsu::FileUtil::remove(filename);
+          bdlsu::FilesystemUtil::remove(filename);
       } break;
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
@@ -2678,7 +2679,7 @@ int main(int argc, char *argv[]) {
           mX.commit();
 
           cout << 'A' << endl;
-          bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(4));
+          bdlqq::ThreadUtil::sleep(bsls::TimeInterval(4));
           mX.close();
           if (verbose) {
              cerr << "CASE 7 Child Process Done" << endl;
@@ -2791,8 +2792,8 @@ int main(int argc, char *argv[]) {
              }
 
              mX.close();
-             bdlsu::FileUtil::remove(filename);
-             bdlsu::FileUtil::remove(filename2);
+             bdlsu::FilesystemUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename2);
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
@@ -2830,7 +2831,7 @@ int main(int argc, char *argv[]) {
           mX.addRecord(&dum, const_cast<char *>(BUF3), (int)strlen(BUF3)+1);
           mX.confirmRecord(h1);
           cout << 'A' << endl;
-          bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(4));
+          bdlqq::ThreadUtil::sleep(bsls::TimeInterval(4));
           mX.close();
           if (verbose) {
              cerr << "CASE 6 Child Process Done" << endl;
@@ -2960,8 +2961,8 @@ int main(int argc, char *argv[]) {
              Obj::RecordHandle h2 = mX.firstUnconfirmedRecord();
              ASSERT(handle == h2);
              mX.close();
-             bdlsu::FileUtil::remove(filename);
-             bdlsu::FileUtil::remove(filename2);
+             bdlsu::FilesystemUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename2);
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
@@ -3032,7 +3033,7 @@ int main(int argc, char *argv[]) {
 
              delete[] BUF3;
              mX.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
@@ -3111,10 +3112,10 @@ int main(int argc, char *argv[]) {
 
              Case4Data data(&mX);
              bcemt_Attribute detached;
-             bdlmtt::ThreadUtil::Handle dummy;
+             bdlqq::ThreadUtil::Handle dummy;
              detached.setDetachedState(bcemt_Attribute::BCEMT_CREATE_DETACHED);
 
-             ASSERT(0 == bdlmtt::ThreadUtil::create(&dummy, detached,
+             ASSERT(0 == bdlqq::ThreadUtil::create(&dummy, detached,
                        bdlf::BindUtil::bind(&Case4Data::confirmerThread,
                                            &data)));
 
@@ -3139,7 +3140,7 @@ int main(int argc, char *argv[]) {
                       data.d_handles[data.d_handlesSize++] = h;
                    }
                    else {
-                      bdlmtt::LockGuard<bdlmtt::Mutex>
+                      bdlqq::LockGuard<bdlqq::Mutex>
                          guard(&data.d_removalLock);
                       int which = Case4Data::mainRand(data.d_handlesSize--);
                       H remove = data.d_handles[which];
@@ -3184,7 +3185,7 @@ int main(int argc, char *argv[]) {
              }
              delete [] buffer;
              mX.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
           }
 
           ASSERT(0 < ta.numAllocations());
@@ -3346,7 +3347,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == strcmp(compareBuffer, buf3[1]));
 
                 mX.close();
-                bdlsu::FileUtil::remove(filename);
+                bdlsu::FilesystemUtil::remove(filename);
                 free(buf1[0]); free(buf1[1]);
                 free(buf2[0]); free(buf2[1]);
                 free(buf3[0]); free(buf3[1]);
@@ -3432,7 +3433,7 @@ int main(int argc, char *argv[]) {
              ASSERT(NUM_RECORDS == mX.numConfirmedRecords());
 
              mX.close();
-             bdlsu::FileUtil::remove(filename);
+             bdlsu::FilesystemUtil::remove(filename);
           }
           ASSERT(0 < ta.numAllocations());
           ASSERT(0 == ta.numBytesInUse());
@@ -3464,7 +3465,7 @@ int main(int argc, char *argv[]) {
            ASSERT(0 == mX.addRecord(&handle, record, 10000));
            ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
         }
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
@@ -3512,7 +3513,7 @@ int main(int argc, char *argv[]) {
         cout << "Implicit Commit: elapsed time: " << elapsed << endl;
 
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
 
         // PHASE 2: AUTOCOMMIT MODE
 
@@ -3524,7 +3525,7 @@ int main(int argc, char *argv[]) {
         cout << "Explicit Commit: elapsed time: " << elapsed << endl;
 
         explicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
 
         bdlmt::TimerEventScheduler scheduler;
         scheduler.start();
@@ -3534,19 +3535,19 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == implicitJournal.create(filename, MODE_RW_SAFE));
 
         CaseNeg3 phase3(&implicitJournal, &plan, &elapsed);
-        bdlmtt::ThreadUtil::Handle threadHandle;
+        bdlqq::ThreadUtil::Handle threadHandle;
         bdlmt::TimerEventScheduler::Handle clockHandle;
         clockHandle = scheduler.startClock
            (bsls::TimeInterval(0.5),
             bdlf::BindUtil::bind(commitJournal, &implicitJournal));
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&threadHandle, phase3));
-        bdlmtt::ThreadUtil::join(threadHandle);
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threadHandle, phase3));
+        bdlqq::ThreadUtil::join(threadHandle);
 
         cout << "Timed Commit 0.5: elapsed time: " << elapsed << endl;
 
         scheduler.cancelClock(clockHandle, true);
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
 
         // PHASE 4: TIMED COMMIT - 2 sec
 
@@ -3556,26 +3557,26 @@ int main(int argc, char *argv[]) {
         clockHandle = scheduler.startClock
            (bsls::TimeInterval(2),
             bdlf::BindUtil::bind(commitJournal, &implicitJournal));
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&threadHandle, phase4));
-        bdlmtt::ThreadUtil::join(threadHandle);
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threadHandle, phase4));
+        bdlqq::ThreadUtil::join(threadHandle);
 
         cout << "Timed Commit 2.0: elapsed time: " << elapsed << endl;
 
         scheduler.cancelClock(clockHandle, true);
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
         // PHASE 5: NO COMMIT
 
         ASSERT(0 == implicitJournal.create(filename, MODE_RW_SAFE));
 
         CaseNeg3 phase5(&implicitJournal, &plan, &elapsed);
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&threadHandle, phase5));
-        bdlmtt::ThreadUtil::join(threadHandle);
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threadHandle, phase5));
+        bdlqq::ThreadUtil::join(threadHandle);
 
         cout << "Safe Mode But No Commit: elapsed time: " << elapsed << endl;
 
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
         break;
       }
       case -4: {
@@ -3623,20 +3624,20 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == implicitJournal.create(filename, MODE_RW_SAFE));
 
         CaseNeg3 phase3(&implicitJournal, &plan, &elapsed);
-        bdlmtt::ThreadUtil::Handle threadHandle;
+        bdlqq::ThreadUtil::Handle threadHandle;
         bdlmt::TimerEventScheduler::Handle clockHandle;
         clockHandle = scheduler.startClock
            (bsls::TimeInterval(period),
             bdlf::BindUtil::bind(commitJournal, &implicitJournal));
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&threadHandle, phase3));
-        bdlmtt::ThreadUtil::join(threadHandle);
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threadHandle, phase3));
+        bdlqq::ThreadUtil::join(threadHandle);
 
         cout << "Timed Commit " << period
              << ": elapsed time: " << elapsed << endl;
 
         scheduler.cancelClock(clockHandle, true);
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
         break;
       }
       case -10: {
@@ -3689,7 +3690,7 @@ int main(int argc, char *argv[]) {
                 TOTAL_PAGES * blocksPerPage / (NUM_THREADS * recordSize);
             P(numRecords);
 
-            bdlmtt::ThreadGroup th;
+            bdlqq::ThreadGroup th;
             bdlf::Function<void(*)(void)> cb;
             cb = bdlf::BindUtil::bind(&caseNeg10Test,
                                      &mX,
@@ -3733,7 +3734,7 @@ int main(int argc, char *argv[]) {
         cout << "Implicit Commit: elapsed time: " << elapsed << endl;
 
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
         bdlmt::TimerEventScheduler scheduler;
         scheduler.start();
 
@@ -3742,19 +3743,19 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == implicitJournal.create(filename, MODE_RW_SAFE));
 
         CaseNeg3 phase3(&implicitJournal, &plan, &elapsed);
-        bdlmtt::ThreadUtil::Handle threadHandle;
+        bdlqq::ThreadUtil::Handle threadHandle;
         bdlmt::TimerEventScheduler::Handle clockHandle;
         clockHandle = scheduler.startClock
            (bsls::TimeInterval(0.5),
             bdlf::BindUtil::bind(&Obj::commit, &implicitJournal));
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&threadHandle, phase3));
-        bdlmtt::ThreadUtil::join(threadHandle);
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threadHandle, phase3));
+        bdlqq::ThreadUtil::join(threadHandle);
 
         cout << "Timed Commit 0.5: elapsed time: " << elapsed << endl;
 
         scheduler.cancelClock(clockHandle, true);
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
 
         // PHASE 3: TIMED COMMIT - 2 sec
 
@@ -3764,27 +3765,27 @@ int main(int argc, char *argv[]) {
         clockHandle = scheduler.startClock
            (bsls::TimeInterval(2),
             bdlf::BindUtil::bind(&Obj::commit, &implicitJournal));
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&threadHandle, phase4));
-        bdlmtt::ThreadUtil::join(threadHandle);
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threadHandle, phase4));
+        bdlqq::ThreadUtil::join(threadHandle);
 
         cout << "Timed Commit 2.0: elapsed time: " << elapsed << endl;
 
         scheduler.cancelClock(clockHandle, true);
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
 
         // PHASE 5: NO COMMIT
 
         ASSERT(0 == implicitJournal.create(filename, MODE_RW_SAFE));
 
         CaseNeg3 phase5(&implicitJournal, &plan, &elapsed);
-        ASSERT(0 == bdlmtt::ThreadUtil::create(&threadHandle, phase5));
-        bdlmtt::ThreadUtil::join(threadHandle);
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threadHandle, phase5));
+        bdlqq::ThreadUtil::join(threadHandle);
 
         cout << "Safe Mode But No Commit: elapsed time: " << elapsed << endl;
 
         implicitJournal.close();
-        bdlsu::FileUtil::remove(filename);
+        bdlsu::FilesystemUtil::remove(filename);
         break;
       }
 // TBD bcecs_persistentjournal is obsolete

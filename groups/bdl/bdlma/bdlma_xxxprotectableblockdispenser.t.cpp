@@ -81,14 +81,14 @@ void printBytes( void *address, int numBytes)
     unsigned char *addr = (unsigned char *) address;
     unsigned char *end  = addr + numBytes;
     while (addr < end) {
-        std::printf("%p:\t", addr);
+        bsl::printf("%p:\t", addr);
         for (int i = 0; i < 16 && addr < end; ++i) {
             if (i % 4 == 0) {
-                std::printf("  ");
+                bsl::printf("  ");
             }
-            std::printf("%02x", *addr++);
+            bsl::printf("%02x", *addr++);
         }
-        std::printf("\n");
+        bsl::printf("\n");
     }
 }
 
@@ -209,14 +209,14 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
 // Memory is unprotected when initially allocated from a protectable block
 // dispenser, so we can freely write to it:
 //..
-        std::strcpy(static_cast<char *>(block.address()), "data");
+        bsl::strcpy(static_cast<char *>(block.address()), "data");
 
         dispenser->protect(block);
 //..
 // But now that the block is protected, it cannot be written to without causing
 // a memory fault:
 //..
-          // std::strcpy(static_cast<char *>(block.address()), "BAD");
+          // bsl::strcpy(static_cast<char *>(block.address()), "BAD");
           // WARNING: THIS WILL CAUSE A SEGMENTATION VIOLATION!
 //..
 // Note that the memory block must be *unprotected* before being deallocated:
@@ -255,7 +255,7 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
             d_data = d_dispenser_p->allocate(d_data.size() * 2);
             d_cursor_p = (int *)((char *)d_data.address() +
                          ((char *)d_cursor_p - (char *)oldData.address()));
-            std::memcpy(d_data.address(), oldData.address(), oldData.size());
+            bsl::memcpy(d_data.address(), oldData.address(), oldData.size());
             d_dispenser_p->deallocate(oldData);
         }
 
@@ -350,7 +350,7 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
               // at least the specified 'size'.  If 'size' is 0, a null block
               // descriptor is returned with no other effect.  If this
               // dispenser cannot return the requested number of bytes, then it
-              // will throw a 'std::bad_alloc' exception in an
+              // will throw a 'bsl::bad_alloc' exception in an
               // exception-enabled build, or else will abort the program in a
               // non-exception build.  The behavior is undefined unless
               // 'size >= 0'.
@@ -410,7 +410,7 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
           if (condition) {
               bsl::cout << "Abort:" << stmnt << "  " << file << ":" << line
                         << bsl::endl;
-              std::exit(-1);
+              bsl::exit(-1);
           }
       }
 
@@ -460,7 +460,7 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
       , d_size(bufferSize)
       , d_pageSize(pageSize)
       {
-          std::memset(buffer, UNUSED_BUFFER_BYTE, bufferSize);
+          bsl::memset(buffer, UNUSED_BUFFER_BYTE, bufferSize);
           d_cursor += bsls::AlignmentUtil::calculateAlignmentOffset(
                                       d_cursor,
                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
@@ -490,8 +490,8 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
           char *cursor = d_cursor;
 
           // Mark the bits to help with debugging
-          std::memset(cursor, HEADPADDING_BYTE, sizeof(Align));
-          std::memset(cursor + sizeof(Align), UNINITIALIZED_BYTE, actualSize);
+          bsl::memset(cursor, HEADPADDING_BYTE, sizeof(Align));
+          bsl::memset(cursor + sizeof(Align), UNINITIALIZED_BYTE, actualSize);
 
           // Initialize the header for the block we will return
           ((Align *)cursor)->d_header.d_allocated = ALLOCATED_FLAG;
@@ -519,7 +519,7 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
           VERIFY(align->d_header.d_protected == READWRITE_FLAG);
 
           align->d_header.d_allocated = DEALLOCATED_FLAG;
-          std::memset(block.address(), FREED_BYTE, block.size());
+          bsl::memset(block.address(), FREED_BYTE, block.size());
       }
 //..
 // In order to avoid any system dependencies, implement 'protect' and
@@ -575,15 +575,15 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
                   const bdlma::MemoryBlockDescriptor& block) const
       {
           void *align = ((char *)block.address()) - sizeof(Align);
-          std::printf("Header --------\n");
+          bsl::printf("Header --------\n");
           printBytes(align, sizeof(Align));
-          std::printf("Data ----------\n");
+          bsl::printf("Data ----------\n");
           printBytes(block.address(), block.size());
       }
 
       void DummyProtectableBufferBlockDispenser::print() const
       {
-          std::printf("Full Buffer -----\n");
+          bsl::printf("Full Buffer -----\n");
           printBytes(d_buffer, d_size);
       }
 //..
@@ -682,27 +682,27 @@ int main(int argc, char *argv[])
         NoopProtectableBlockDispenser  *dummyPtr =
             new (talloc) NoopProtectableBlockDispenser(&lastMethod);
         bdlma::ProtectableBlockDispenser *paPtr = dummyPtr;
-        ASSERT( 0 == std::strcmp("NoopProtectableBlockDispenser",
+        ASSERT( 0 == bsl::strcmp("NoopProtectableBlockDispenser",
                                  lastMethod));
 
         paPtr->minimumBlockSize();
-        ASSERT(0 == std::strcmp("minimumBlockSize", lastMethod));
+        ASSERT(0 == bsl::strcmp("minimumBlockSize", lastMethod));
 
         bdlma::MemoryBlockDescriptor desc;
         desc = paPtr->allocate(1);
-        ASSERT(0 == std::strcmp("allocate", lastMethod));
+        ASSERT(0 == bsl::strcmp("allocate", lastMethod));
 
         paPtr->protect(desc);
-        ASSERT(0 == std::strcmp("protect", lastMethod));
+        ASSERT(0 == bsl::strcmp("protect", lastMethod));
 
         paPtr->unprotect(desc);
-        ASSERT(0 == std::strcmp("unprotect", lastMethod));
+        ASSERT(0 == bsl::strcmp("unprotect", lastMethod));
 
         paPtr->deallocate(desc);
-        ASSERT(0 == std::strcmp("deallocate", lastMethod));
+        ASSERT(0 == bsl::strcmp("deallocate", lastMethod));
 
         talloc.deleteObjectRaw(paPtr);
-        ASSERT(0 == std::strcmp("~NoopProtectableBlockDispenser",
+        ASSERT(0 == bsl::strcmp("~NoopProtectableBlockDispenser",
                                 lastMethod));
       } break;
       default: {

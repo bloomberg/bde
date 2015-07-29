@@ -178,12 +178,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -224,7 +224,7 @@ class TestAllocator : public bslma::Allocator {
     // DATA
     bslma::TestAllocator d_imp;    // thread unsafe test allocator
 
-    mutable bdlmtt::Mutex  d_mutex;  // mutex used to synchronize access to this
+    mutable bdlqq::Mutex  d_mutex;  // mutex used to synchronize access to this
                                    // object
 
     // FRIENDS
@@ -532,14 +532,14 @@ TestAllocator::~TestAllocator()
 inline
 void *TestAllocator::allocate(size_type size)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_imp.allocate(size);
 }
 
 inline
 void TestAllocator::deallocate(void *address)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_imp.deallocate(address);
 }
 
@@ -637,7 +637,7 @@ bsls::Types::Int64 TestAllocator::numBoundsErrors() const
 inline
 int TestAllocator::status() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_imp.status();
 }
 
@@ -693,7 +693,7 @@ const char *TestAllocator::name() const
 
 inline void TestAllocator::print() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_imp.print();
 }
 

@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -170,7 +170,7 @@ MultiQueueThreadPool_QueueContext::
 
 // ACCESSORS
 inline
-bdlmtt::SpinLock& MultiQueueThreadPool_QueueContext::mutex() const
+bdlqq::SpinLock& MultiQueueThreadPool_QueueContext::mutex() const
 {
     return d_lock;
 }
@@ -210,7 +210,7 @@ void MultiQueueThreadPool::createQueueContextCb(void *memory)
 void MultiQueueThreadPool::deleteQueueCb(
         int                    id,
         const CleanupFunctor&  cleanupFunctor,
-        bdlmtt::Barrier         *barrier)
+        bdlqq::Barrier         *barrier)
 {
 
     d_registryLock.lockWrite();
@@ -237,13 +237,13 @@ void MultiQueueThreadPool::processQueueCb(
 {
     BSLS_ASSERT(context);
 
-    bdlmtt::LockGuard<bdlmtt::SpinLock> guard(&context->mutex());
+    bdlqq::LockGuard<bdlqq::SpinLock> guard(&context->mutex());
 
     BSLS_ASSERT(0 < context->d_queue.d_numPendingJobs);
 
     {
         Job functor(context->d_queue.popFront());
-        bdlmtt::SpinLock *mutex = guard.release();
+        bdlqq::SpinLock *mutex = guard.release();
         mutex->unlock();
         ++d_numDequeued;
 
@@ -278,7 +278,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int        id,
     d_registryLock.lockRead();
     if (STATE_RUNNING == d_state && 0 == d_queueRegistry.find(id, &context))
     {
-        bdlmtt::LockGuard<bdlmtt::SpinLock> guard(&context->mutex());
+        bdlqq::LockGuard<bdlqq::SpinLock> guard(&context->mutex());
         int                            status = -1;
         if (BCEP_ENQUEUE_FRONT == where) {
             // Only 'deleteQueue' requests are enqueued to the front of the
@@ -291,7 +291,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int        id,
         }
 
         if (0 == status) {
-            bdlmtt::SpinLock *mutex = guard.release();
+            bdlqq::SpinLock *mutex = guard.release();
             mutex->unlock();
 
             if (1 == ++context->d_queue.d_numPendingJobs) {
@@ -312,7 +312,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int        id,
 
 // CREATORS
 MultiQueueThreadPool::MultiQueueThreadPool(
-        const bdlmtt::ThreadAttributes& threadAttributes,
+        const bdlqq::ThreadAttributes& threadAttributes,
         int                    minThreads,
         int                    maxThreads,
         int                    maxIdleTime,
@@ -382,7 +382,7 @@ int MultiQueueThreadPool::deleteQueue(
                                      this),
                                 id,
                                 cleanupFunctor,
-                                (bdlmtt::Barrier*)0));
+                                (bdlqq::Barrier*)0));
 
     return enqueueJobImpl(id, job, BCEP_ENQUEUE_FRONT);
 }
@@ -390,7 +390,7 @@ int MultiQueueThreadPool::deleteQueue(
 int MultiQueueThreadPool::deleteQueue(
         int                id)
 {
-    bdlmtt::Barrier barrier(2);    // block in calling and execution threads
+    bdlqq::Barrier barrier(2);    // block in calling and execution threads
 
     Job job(bdlf::BindUtil::bind(bdlf::MemFnUtil::memFn(
                                      &MultiQueueThreadPool::deleteQueueCb,
@@ -444,7 +444,7 @@ int MultiQueueThreadPool::drainQueue(int id)
     if (0 == rc) {
         // Wait until the queue is emptied.
         while (0 < context->d_queue.d_numPendingJobs) {
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::yield();
         }
     }
 
@@ -453,7 +453,7 @@ int MultiQueueThreadPool::drainQueue(int id)
 
 int MultiQueueThreadPool::start()
 {
-    bdlmtt::LockGuard<bdlmtt::SpinLock> guard(&d_stateLock);
+    bdlqq::LockGuard<bdlqq::SpinLock> guard(&d_stateLock);
     if (STATE_RUNNING == d_state) {
         return 0;
     }
@@ -477,7 +477,7 @@ int MultiQueueThreadPool::start()
 
 void MultiQueueThreadPool::drain()
 {
-    bdlmtt::LockGuard<bdlmtt::SpinLock> guard(&d_stateLock);
+    bdlqq::LockGuard<bdlqq::SpinLock> guard(&d_stateLock);
     if (STATE_STOPPED == d_state) {
         return;
     }
@@ -486,7 +486,7 @@ void MultiQueueThreadPool::drain()
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
-        bdlmtt::ThreadUtil::yield();
+        bdlqq::ThreadUtil::yield();
     }
 
     if (d_threadPoolIsOwned) {
@@ -499,7 +499,7 @@ void MultiQueueThreadPool::drain()
 
 void MultiQueueThreadPool::stop()
 {
-    bdlmtt::LockGuard<bdlmtt::SpinLock> guard(&d_stateLock);
+    bdlqq::LockGuard<bdlqq::SpinLock> guard(&d_stateLock);
     if (STATE_STOPPED == d_state) {
         return;
     }
@@ -510,7 +510,7 @@ void MultiQueueThreadPool::stop()
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
-        bdlmtt::ThreadUtil::yield();
+        bdlqq::ThreadUtil::yield();
     }
 
     if (d_threadPoolIsOwned) {
@@ -522,14 +522,14 @@ void MultiQueueThreadPool::stop()
 
 void MultiQueueThreadPool::shutdown()
 {
-    bdlmtt::LockGuard<bdlmtt::SpinLock> guard(&d_stateLock);
+    bdlqq::LockGuard<bdlqq::SpinLock> guard(&d_stateLock);
     d_registryLock.lockWrite();
     d_state = STATE_STOPPED;    // disables all queues
     d_registryLock.unlock();
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
-        bdlmtt::ThreadUtil::yield();                                      // SPIN
+        bdlqq::ThreadUtil::yield();                                      // SPIN
     }
 
     // Delete all queues.  Since removing queues requires a write lock

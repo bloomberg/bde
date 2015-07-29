@@ -6,11 +6,11 @@
 #include <bslma_deallocatorproctor.h>
 #include <bslma_autodestructor.h>
 
-#include <bdlmtt_xxxthread.h>
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_xxxthread.h>
+#include <bdlqq_lockguard.h>
 
 #include <bslma_testallocator.h>                   // for testing only
-#include <bdlmtt_barrier.h>                         // for testing only
+#include <bdlqq_barrier.h>                         // for testing only
 #include <bslma_testallocator.h>                   // for testing only
 #include <bslma_testallocatorexception.h>          // for testing only
 #include <bdlma_xxxtestprotectableblockdispenser.h>   // for testing only
@@ -207,7 +207,7 @@ struct WorkerArgs {
 
 };
 
-bdlmtt::Barrier g_barrier(NUM_THREADS);
+bdlqq::Barrier g_barrier(NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, protect, unprotect, and deallocate
     // operations on the 'bdlmca::ProtectableBlockDispenserAdapter' and verify
@@ -299,7 +299,7 @@ extern "C" void *workerThread(void *arg) {
 
         bdlma::ProtectableBlockList  d_blockList;   // supplies free memory
 
-        bdlmtt::Mutex                 d_mutex;       // synchronize access to
+        bdlqq::Mutex                 d_mutex;       // synchronize access to
                                                    // non-const data
 
       private:
@@ -408,7 +408,7 @@ extern "C" void *workerThread(void *arg) {
     // MANIPULTORS
     void *ThreadEnabledProtectablePool::allocate()
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         if (!d_freeList_p) {
             replenish();
         }
@@ -419,7 +419,7 @@ extern "C" void *workerThread(void *arg) {
 
     void ThreadEnabledProtectablePool::deallocate(void *address)
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
         Link *link     = static_cast<Link *>(address);
         link->d_next_p = d_freeList_p;
         d_freeList_p   = link;
@@ -481,7 +481,7 @@ extern "C" void *workerThread(void *arg) {
         };
 
         // DATA
-        bdlmtt::Mutex               d_mutex;       // synchronize access to data
+        bdlqq::Mutex               d_mutex;       // synchronize access to data
 
         bdlmca::ProtectableBlockDispenserAdapter
                                   d_dispenser;   // adapter for dispenser,
@@ -813,12 +813,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlmtt::ThreadUtil::Handle threads[NUM_THREADS];
+        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
 
         const int   BLOCKSIZE = TestDisp::BDEMA_DEFAULT_PAGE_SIZE;
         const int   ALIGN     = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
         TestDisp    dispenser(BLOCKSIZE, false);
-        bdlmtt::Mutex mutex;
+        bdlqq::Mutex mutex;
         Obj         mX(&mutex, &dispenser);
 
         const int SIZES [] = { 1 , 2 , 4,  8, 16, 32, 64, 128, 256, 512,
@@ -833,12 +833,12 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
+                bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
         for (int i = 0; i < NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::join(threads[i]);
+                bdlqq::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
       } break;
@@ -865,7 +865,7 @@ int main(int argc, char *argv[])
                           << endl << "==============" << endl;
 
         const char *lastMethod = 0;
-        bdlmtt::Mutex mutex;
+        bdlqq::Mutex mutex;
         NoopProtectableBlockDispenser noopDispenser =
                                     NoopProtectableBlockDispenser(&lastMethod);
         {

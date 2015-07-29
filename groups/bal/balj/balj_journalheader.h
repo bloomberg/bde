@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 #include <balj_journalparameters.h>
 #endif
 
-#ifndef INCLUDED_BDLSU_XXXFILEUTIL
-#include <bdlsu_xxxfileutil.h>
+#ifndef INCLUDED_bdlsu_filesystemutil
+#include <bdlsu_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BDLB_BIGENDIAN
@@ -214,7 +214,7 @@ class JournalHeader {
     int blockSize() const;
     int blocksPerPage() const;
 
-    bdlsu::FileUtil::Offset calculateFileSize(int numPages);
+    bdlsu::FilesystemUtil::Offset calculateFileSize(int numPages);
     bsls::Types::Int64 creationTime() const;
     bsls::Types::Int64 currentTransactionId() const;
     bsls::Types::Int64 committedTransactionId() const;
@@ -443,12 +443,12 @@ int JournalHeader::headerSize() const
 }
 
 inline
-bdlsu::FileUtil::Offset JournalHeader::calculateFileSize(int numPages)
+bdlsu::FilesystemUtil::Offset JournalHeader::calculateFileSize(int numPages)
 {
-    bdlsu::FileUtil::Offset result =  d_persistent_p->d_headerSize
-        + (bdlsu::FileUtil::Offset) numPageSets(numPages)
+    bdlsu::FilesystemUtil::Offset result =  d_persistent_p->d_headerSize
+        + (bdlsu::FilesystemUtil::Offset) numPageSets(numPages)
         * d_persistent_p->d_pageHeaderSize * d_persistent_p->d_pagesPerSet * 2
-        + (bdlsu::FileUtil::Offset) numPages
+        + (bdlsu::FilesystemUtil::Offset) numPages
         * d_persistent_p->d_pageDataSize;
     return result;
 }

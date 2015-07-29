@@ -4,7 +4,7 @@
 #include <bdlf_memfn.h>                         // for testing only
 
 #ifdef WARNING
-// TBD removed the allocator to break a cylce bdlma --> bdlmtt --> bdlf --^
+// TBD removed the allocator to break a cylce bdlma --> bdlqq --> bdlf --^
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
 #endif
 

@@ -4,12 +4,11 @@
 #include <btls5_testserver.h>  // for testing only
 
 #include <bdlma_concurrentallocatoradapter.h>
-#include <bdlmtt_condition.h>
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_mutex.h>
+#include <bdlqq_condition.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
-#include <bdlb_xxxstringref.h>
 #include <bdlxxxx_bytestreamimputil.h>
 #include <bsl_iostream.h>
 #include <bslma_defaultallocatorguard.h>
@@ -141,10 +140,10 @@ namespace {
     void socks5Callback(btls5::Negotiator::NegotiationStatus  result,
                         const btls5::DetailedStatus&          error,
                         int                                 *state,
-                        bdlmtt::Mutex                         *stateLock,
-                        bdlmtt::Condition                     *stateChanged)
+                        bdlqq::Mutex                         *stateLock,
+                        bdlqq::Condition                     *stateChanged)
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(stateLock);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(stateLock);
         if (btls5::Negotiator::e_SUCCESS == result) {
             *state = 0;
         } else {
@@ -166,8 +165,8 @@ namespace {
 // Then, we declare the variable for communicating the response, with a mutex
 // and a condition variable to protect access to it from different threads:
 //..
-        bdlmtt::Mutex     stateLock;
-        bdlmtt::Condition stateChanged;
+        bdlqq::Mutex     stateLock;
+        bdlqq::Condition stateChanged;
         int             state = 1;
             // 'state == 1' means negotiation is still in progress.
 //..
@@ -197,7 +196,7 @@ namespace {
 // Now, we wait until the negotiation ends and 'socks5Callback' updates the
 // 'state' variable:
 //..
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&stateLock);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
         while (1 == state) {
             stateChanged.wait(&stateLock);
         }
@@ -333,8 +332,8 @@ int main(int argc, char *argv[]) {
 
         btls5::Credentials credentials;
 
-        bdlmtt::Mutex     stateLock;
-        bdlmtt::Condition stateChanged;
+        bdlqq::Mutex     stateLock;
+        bdlqq::Condition stateChanged;
         int             state = 0; // value > 0 indicates success, < 0 is error
         using namespace bdlf::PlaceHolders;
 
@@ -358,7 +357,7 @@ int main(int argc, char *argv[]) {
                                                                 &stateChanged),
                                             bsls::TimeInterval());
         negotiator.startNegotiation(handle);
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&stateLock);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
         while (1 == state) {
             veryVeryVerbose && cout << "waiting for state change" << endl;
             stateChanged.wait(&stateLock);

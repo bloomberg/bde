@@ -182,7 +182,7 @@ ProtectableSequentialAllocator::~ProtectableSequentialAllocator()
 // MANIPULATORS
 void *ProtectableSequentialAllocator::allocate(size_type numBytes)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return allocateWithoutLock(numBytes);
 }
 
@@ -192,7 +192,7 @@ void ProtectableSequentialAllocator::deallocate(void *)
 
 void ProtectableSequentialAllocator::release()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_blockList.release();
     d_cursor  = 0;
     d_buffer  = 0;
@@ -205,7 +205,7 @@ bsls::Types::size_type ProtectableSequentialAllocator::expand(
                                       bsls::Types::size_type  originalNumBytes,
                                       bsls::Types::size_type  maxNumBytes)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     size_type size = originalNumBytes;
     if ((char *)address + originalNumBytes == d_buffer + d_cursor) {
@@ -226,7 +226,7 @@ bsls::Types::size_type ProtectableSequentialAllocator::expand(
 
 void ProtectableSequentialAllocator::reserveCapacity(size_type numBytes)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     if (numBytes) {
         // Test if the current buffer has enough space for 'numBytes'.

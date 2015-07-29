@@ -35,8 +35,8 @@ using namespace BloombergLP;
 // [2] void setError(Severity               severity,
 //                   int                    lineNumber,
 //                   int                    columnNumber,
-//                   const bdlb::StringRef& source,
-//                   const bdlb::StringRef& errorMsg);
+//                   const bslstl::StringRef& source,
+//                   const bslstl::StringRef& errorMsg);
 // [2] void setError(const balxml::ErrorInfo& other);
 // [2] void reset();
 // [2] bool isNoError() const;
@@ -155,8 +155,8 @@ struct TestVector
     Obj::Severity   d_severity;
     int             d_lineNumber;
     int             d_columnNumber;
-    bdlb::StringRef d_source;
-    bdlb::StringRef d_message;
+    bslstl::StringRef d_source;
+    bslstl::StringRef d_message;
     bool            d_isNoError;
     bool            d_isWarning;
     bool            d_isError;
@@ -214,10 +214,10 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
     v->d_columnNumber = 7 * (index % NUM_COLUMN_NUMBERS);
     index /= NUM_COLUMN_NUMBERS;
 
-    v->d_source = bdlb::StringRef(SOURCES[index % NUM_SOURCES]);
+    v->d_source = bslstl::StringRef(SOURCES[index % NUM_SOURCES]);
     index /= NUM_SOURCES;
 
-    v->d_message = bdlb::StringRef(MESSAGES[index % NUM_MESSAGES]);
+    v->d_message = bslstl::StringRef(MESSAGES[index % NUM_MESSAGES]);
     index /= NUM_MESSAGES;
 
     // Severity is the high-order field.  This formula is designed so that
@@ -830,8 +830,8 @@ int main(int argc, char *argv[])
         //     void setError(Severity               severity,
         //                   int                    lineNumber,
         //                   int                    columnNumber,
-        //                   const bdlb::StringRef& source,
-        //                   const bdlb::StringRef& errorMsg);
+        //                   const bslstl::StringRef& source,
+        //                   const bslstl::StringRef& errorMsg);
         //     void setError(const balxml::ErrorInfo& other);
         //     void reset();
         //     bool isNoError() const;

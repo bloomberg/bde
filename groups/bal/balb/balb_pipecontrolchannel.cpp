@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <ball_log.h>
 
 #include <bdlf_bind.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlsu_pathutil.h>
 #include <bdlsu_pipeutil.h>
 
@@ -115,7 +115,7 @@ int PipeControlChannel::readNamedPipe()
                if (buffer[bytesRead - 1] == '\n') {
                    bytesRead--;
                }
-               bdlb::StringRef stringRef(buffer, bytesRead);
+               bslstl::StringRef stringRef(buffer, bytesRead);
                if (!stringRef.isEmpty()) {
                    d_callback(stringRef);
                }
@@ -337,7 +337,7 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         return -7;
     }
 
-    if (bdlsu::FileUtil::exists(pipeName)) {
+    if (bdlsu::FilesystemUtil::exists(pipeName)) {
        // The pipe already exists, but it may have been left over from a
        // previous crash.  Check whether there is a reader on the pipe, in
        // which case fail; otherwise unlink the pipe and continue.
@@ -348,13 +348,13 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
                           << BALL_LOG_END;
            return -2;
        }
-       bdlsu::FileUtil::remove(pipeName.c_str());
+       bdlsu::FilesystemUtil::remove(pipeName.c_str());
     }
 
     // TBD: USE BDEU_PATHUTIL
     bsl::string dirname;
     if (0 == bdlsu::PathUtil::getDirname(&dirname, pipeName)) {
-        if (!bdlsu::FileUtil::exists(dirname)) {
+        if (!bdlsu::FilesystemUtil::exists(dirname)) {
             BALL_LOG_ERROR << "Named pipe directory "
                               "'" << dirname << "' "
                               "does not exist"
@@ -423,7 +423,7 @@ PipeControlChannel::PipeControlChannel(
 : d_callback(callback, bslma::Default::allocator(basicAllocator))
 , d_pipeName(bslma::Default::allocator(basicAllocator))
 , d_buffer(bslma::Default::allocator(basicAllocator))
-, d_thread(bdlmtt::ThreadUtil::invalidHandle())
+, d_thread(bdlqq::ThreadUtil::invalidHandle())
 , d_isRunningFlag(false)
 , d_isPipeOpen(false)
 {
@@ -486,7 +486,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
     d_pipeName      = pipeName;
     d_isRunningFlag = d_isPipeOpen = true;
 
-    int rc = bdlmtt::ThreadUtil::create(
+    int rc = bdlqq::ThreadUtil::create(
                          &d_thread, bdlf::BindUtil::bind(
                                 &PipeControlChannel::backgroundProcessor,
                                 this));
@@ -508,7 +508,7 @@ void PipeControlChannel::shutdown()
         return;
     }
 
-    if (bdlmtt::ThreadUtil::self() == d_thread) {
+    if (bdlqq::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
         // thread perform a synchronous shutdown.
         d_isRunningFlag = false;
@@ -536,7 +536,7 @@ void PipeControlChannel::dispatchMessageUpTo(
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlb::StringRef stringRef(&(*d_buffer.begin()),
+    bslstl::StringRef stringRef(&(*d_buffer.begin()),
                               iter - d_buffer.begin());
     BALL_LOG_TRACE << "Assembled complete message '"
                    << (bsl::string)stringRef << "'"
@@ -550,9 +550,9 @@ void PipeControlChannel::dispatchMessageUpTo(
 
 void PipeControlChannel::stop()
 {
-    if (bdlmtt::ThreadUtil::invalidHandle() != d_thread) {
-        bdlmtt::ThreadUtil::join(d_thread);
-        d_thread = bdlmtt::ThreadUtil::invalidHandle();
+    if (bdlqq::ThreadUtil::invalidHandle() != d_thread) {
+        bdlqq::ThreadUtil::join(d_thread);
+        d_thread = bdlqq::ThreadUtil::invalidHandle();
     }
 
     d_isRunningFlag = false;

@@ -296,10 +296,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
@@ -378,8 +374,8 @@ class ErrorInfo
     void setError(Severity               severity,
                   int                    lineNumber,
                   int                    columnNumber,
-                  const bdlb::StringRef& source,
-                  const bdlb::StringRef& errorMsg);
+                  const bslstl::StringRef& source,
+                  const bslstl::StringRef& errorMsg);
         // If the specified 'severity' is greater than the current value of
         // 'this->severity()', then set this object's severity to the
         // specified 'severity', line number to the specified 'lineNumber',

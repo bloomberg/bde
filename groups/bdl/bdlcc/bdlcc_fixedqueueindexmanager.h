@@ -183,8 +183,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_PLATFORM
-#include <bdlmtt_platform.h>
+#ifndef INCLUDED_BDLQQ_PLATFORM
+#include <bdlqq_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -234,7 +234,7 @@ class FixedQueueIndexManager {
 
     // PRIVATE CONSTANTS
     enum {
-        e_PADDING = bdlmtt::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
+        e_PADDING = bdlqq::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
     };
 
 

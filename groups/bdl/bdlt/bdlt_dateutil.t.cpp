@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     (void)     veryVeryVerbose;
     (void) veryVeryVeryVerbose;
 
-    std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:
       case 17: {

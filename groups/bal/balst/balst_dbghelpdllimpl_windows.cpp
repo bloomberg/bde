@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(balst_dbghelpdllimpl_windows_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 
-#include <bdlmtt_qlock.h>
+#include <bdlqq_qlock.h>
 
 #include <windows.h>
 #include <intrin.h>
@@ -276,7 +276,7 @@ static Dbghelp_Util dbghelp_util = {};    // all zeroes
 namespace BloombergLP {
 
 // DATA
-bdlmtt::QLock balst::DbghelpDllImpl_Windows::s_qLock = BDLMTT_QLOCK_INITIALIZER;
+bdlqq::QLock balst::DbghelpDllImpl_Windows::s_qLock = BDLQQ_QLOCK_INITIALIZER;
 
 namespace balst {
 // CLASS METHODS

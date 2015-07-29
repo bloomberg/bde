@@ -40,14 +40,6 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsls_objectbuffer.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -107,12 +99,6 @@ class DecoderOptions {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -138,18 +124,6 @@ class DecoderOptions {
     // MANIPULATORS
     DecoderOptions& operator=(const DecoderOptions& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -211,15 +185,6 @@ class DecoderOptions {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -299,32 +264,7 @@ namespace balxml {
                             // class DecoderOptions
                             // ---------------------------
 
-// CLASS METHODS
-inline
-int DecoderOptions::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // MANIPULATORS
-template <class STREAM>
-STREAM& DecoderOptions::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_maxDepth, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_formattingMode, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_skipUnknownElements, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
-
 template <class MANIPULATOR>
 int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
@@ -404,19 +344,6 @@ void DecoderOptions::setSkipUnknownElements(bool value)
 }
 
 // ACCESSORS
-template <class STREAM>
-STREAM& DecoderOptions::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_maxDepth, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_formattingMode, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_skipUnknownElements, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
 {

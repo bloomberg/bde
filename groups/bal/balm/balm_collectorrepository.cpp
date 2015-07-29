@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_collectorrepository_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_readlockguard.h>
-#include <bdlmtt_writelockguard.h>
+#include <bdlqq_readlockguard.h>
+#include <bdlqq_writelockguard.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -445,7 +445,7 @@ void CollectorRepository::collectAndReset(
                                 bsl::vector<MetricRecord> *records,
                                 const Category            *category)
 {
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
 
     CategorizedCollectors::iterator catIt = d_categories.find(category);
     if (catIt != d_categories.end()) {
@@ -470,7 +470,7 @@ void CollectorRepository::collect(
                                 const Category            *category)
 {
     // PRIVATE TYPES
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
 
     CategorizedCollectors::iterator catIt = d_categories.find(category);
     if (catIt != d_categories.end()) {
@@ -496,7 +496,7 @@ Collector *CollectorRepository::getDefaultCollector(
     // First, obtain a read-lock, and test if the 'MetricCollectors' object
     // for 'metricId' already exists.
     {
-        bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+        bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
         Collectors::iterator it = d_collectors.find(metricId);
         if (it != d_collectors.end()) {
             return it->second->collectors().defaultCollector();
@@ -505,7 +505,7 @@ Collector *CollectorRepository::getDefaultCollector(
 
     // Use 'getMetricCollectors' to create the metrics collectors object (if
     // one has not been created since the read-lock was released).
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).collectors().defaultCollector();
 }
 
@@ -515,7 +515,7 @@ IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
     // First, obtain a read-lock, and test if the 'MetricCollectors' object
     // for 'metricId' already exists.
     {
-        bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+        bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
         Collectors::iterator it = d_collectors.find(metricId);
         if (it != d_collectors.end()) {
             return it->second->intCollectors().defaultCollector();
@@ -524,21 +524,21 @@ IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
 
     // Use 'getMetricCollectors' to create the metrics collectors object (if
     // one has not been created since the read-lock was released).
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).intCollectors().defaultCollector();
 }
 
 bsl::shared_ptr<Collector> CollectorRepository::addCollector(
                                                  const MetricId& metricId)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).collectors().addCollector();
 }
 
 bsl::shared_ptr<IntegerCollector>
 CollectorRepository::addIntegerCollector(const MetricId& metricId)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     return getMetricCollectors(metricId).intCollectors().addCollector();
 }
 
@@ -548,7 +548,7 @@ int CollectorRepository::getAddedCollectors(
          const MetricId&                                   metricId)
 {
     int numFound = 0;
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     Collectors::iterator cIt = d_collectors.find(metricId);
     if (cIt != d_collectors.end()) {
         numFound += cIt->second->collectors().getAddedCollectors(collectors);

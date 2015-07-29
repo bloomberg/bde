@@ -126,10 +126,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -223,7 +219,7 @@ class NamespaceRegistry {
         // 'lookup' by ID will produce different pointers that compare equal
         // using 'strcmp'.
 
-    int lookupOrRegister(const bdlb::StringRef& namespaceUri);
+    int lookupOrRegister(const bslstl::StringRef& namespaceUri);
         // Return the integer ID for the specified 'namespaceUri', assigning a
         // new ID if the 'namespaceUri' has not been registered before.  Note
         // that the IDs for pre-registered namespaces (including the empty
@@ -235,7 +231,7 @@ class NamespaceRegistry {
         // not removed.
 
     // ACCESSORS
-    int lookup(const bdlb::StringRef& namespaceUri) const;
+    int lookup(const bslstl::StringRef& namespaceUri) const;
         // Return the integer ID for the specified 'namespaceUri' or -1 if the
         // namespace has not been registered.  Note that not all negative
         // return values correspond to unregistered namespaces.  Preregistered

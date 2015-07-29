@@ -6,8 +6,8 @@
 #include <bdlma_deleter.h>          // for testing only
 #include <bslma_testallocator.h>    // for testing only
 
-#include <bdlmtt_lockguard.h>        // for testing only
-#include <bdlmtt_xxxthread.h>           // for testing only
+#include <bdlqq_lockguard.h>        // for testing only
+#include <bdlqq_xxxthread.h>           // for testing only
 
 #include <bsls_platform.h>          // for testing only
 #include <bsls_protocoltest.h>      // for testing only
@@ -218,7 +218,7 @@ void processRecord(const bsl::shared_ptr<ball::Record>& handle,
 class my_RecordBuffer : public ball::RecordBuffer {
 
     // DATA
-    mutable bdlmtt::RecursiveMutex               d_mutex;
+    mutable bdlqq::RecursiveMutex               d_mutex;
     bsl::vector<bsl::shared_ptr<ball::Record> > d_buffer;
 
     // NOT IMPLEMENTED
@@ -267,21 +267,21 @@ void my_RecordBuffer::endSequence()
 inline
 void my_RecordBuffer::popBack()
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     d_buffer.pop_back();
 }
 
 inline
 void my_RecordBuffer::popFront()
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     d_buffer.erase(d_buffer.begin());
 }
 
 inline
 int my_RecordBuffer::pushBack(const bsl::shared_ptr<ball::Record>& handle)
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     d_buffer.push_back(handle);
     return 0;
 }
@@ -289,7 +289,7 @@ int my_RecordBuffer::pushBack(const bsl::shared_ptr<ball::Record>& handle)
 inline
 int my_RecordBuffer::pushFront(const bsl::shared_ptr<ball::Record>& handle)
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     d_buffer.insert(d_buffer.begin(), handle);
     return 0;
 }
@@ -297,7 +297,7 @@ int my_RecordBuffer::pushFront(const bsl::shared_ptr<ball::Record>& handle)
 inline
 void my_RecordBuffer::removeAll()
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     d_buffer.clear();
 }
 
@@ -305,21 +305,21 @@ void my_RecordBuffer::removeAll()
 inline
 const bsl::shared_ptr<ball::Record>& my_RecordBuffer::back() const
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     return d_buffer.back();
 }
 
 inline
 const bsl::shared_ptr<ball::Record>& my_RecordBuffer::front() const
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     return d_buffer.front();
 }
 
 inline
 int my_RecordBuffer::length() const
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     return d_buffer.size();
 }
 

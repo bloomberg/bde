@@ -3,7 +3,7 @@
 
 #include <bsls_platform.h>
 #include <bdlsu_pathutil.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
                compare = tmpdirPtr;
            }
            else {
-               bdlsu::FileUtil::getWorkingDirectory(&compare);
+               bdlsu::FilesystemUtil::getWorkingDirectory(&compare);
            }
 
            ASSERT(0 == bdlsu::PathUtil::appendIfValid(&compare, "foo.bar"));

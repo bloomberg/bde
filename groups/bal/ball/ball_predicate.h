@@ -71,10 +71,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_attribute.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
 #include <bdlxxxx_instreamfunctions.h>
 #endif
@@ -135,7 +131,7 @@ class Predicate {
         // and containers.)
 
     // CREATORS
-    Predicate(const bdlb::StringRef&  name,
+    Predicate(const bslstl::StringRef&  name,
                    int                     value,
                    bslma::Allocator       *basicAllocator = 0 );
         // Create a 'Predicate' object having the specified 'name' and
@@ -143,7 +139,7 @@ class Predicate {
         // to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Predicate(const bdlb::StringRef&  name,
+    Predicate(const bslstl::StringRef&  name,
                    bsls::Types::Int64      value,
                    bslma::Allocator       *basicAllocator = 0 );
         // Create a 'Predicate' object having the specified 'name' and
@@ -151,7 +147,7 @@ class Predicate {
         // to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Predicate(const bdlb::StringRef&  name,
+    Predicate(const bslstl::StringRef&  name,
                    const char             *value,
                    bslma::Allocator       *basicAllocator = 0 );
         // Create a 'Predicate' object having the specified 'name' and
@@ -159,7 +155,7 @@ class Predicate {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    Predicate(const bdlb::StringRef&        name,
+    Predicate(const bslstl::StringRef&        name,
                    const Attribute::Value&  value,
                    bslma::Allocator             *basicAllocator = 0 );
         // Create a 'Attribute' object having the specified (literal)
@@ -189,7 +185,7 @@ class Predicate {
         // invalid and this object is unaltered.  Note that no version is read
         // from 'stream'.
 
-    void setName(const bdlb::StringRef& name);
+    void setName(const bslstl::StringRef& name);
         // Set the attribute name of this object to the specified (literal)
         // 'name'.
 
@@ -272,7 +268,7 @@ int Predicate::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Predicate::Predicate(const bdlb::StringRef&  name,
+Predicate::Predicate(const bslstl::StringRef&  name,
                                int                     value,
                                bslma::Allocator       *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
@@ -281,7 +277,7 @@ Predicate::Predicate(const bdlb::StringRef&  name,
 }
 
 inline
-Predicate::Predicate(const bdlb::StringRef&  name,
+Predicate::Predicate(const bslstl::StringRef&  name,
                                bsls::Types::Int64      value,
                                bslma::Allocator       *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
@@ -290,7 +286,7 @@ Predicate::Predicate(const bdlb::StringRef&  name,
 }
 
 inline
-Predicate::Predicate(const bdlb::StringRef&  name,
+Predicate::Predicate(const bslstl::StringRef&  name,
                                const char             *value,
                                bslma::Allocator       *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
@@ -299,7 +295,7 @@ Predicate::Predicate(const bdlb::StringRef&  name,
 }
 
 inline
-Predicate::Predicate(const bdlb::StringRef&        name,
+Predicate::Predicate(const bslstl::StringRef&        name,
                                const Attribute::Value&  value,
                                bslma::Allocator             *basicAllocator)
 : d_nameStr(name.data(), name.length(), basicAllocator)
@@ -326,7 +322,7 @@ Predicate& Predicate::operator=(const Predicate& rhs)
 }
 
 inline
-void Predicate::setName(const bdlb::StringRef& name)
+void Predicate::setName(const bslstl::StringRef& name)
 {
     d_nameStr.assign(name.data(), name.length());
     d_attribute.setName(d_nameStr.c_str());

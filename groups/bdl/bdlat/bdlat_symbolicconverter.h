@@ -262,10 +262,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_SWITCH
 #include <bslmf_switch.h>
 #endif
@@ -1182,7 +1178,7 @@ int bdeat_SymbolicConverter_StoreInSequence<SEQUENCE_TYPE>::operator()(
                                                           info.nameLength())) {
         d_imp_p->errorStream()
                              << "Failed to convert attribute '"
-                             << bdlb::StringRef(info.name(), info.nameLength())
+                             << bslstl::StringRef(info.name(), info.nameLength())
                              << "'" << bsl::endl;
 
         return BDEAT_FAILURE;
@@ -1224,7 +1220,7 @@ int bdeat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>::operator()(
                                                   info.nameLength())) {
         d_imp_p->errorStream()
                              << "Failed to make selection '"
-                             << bdlb::StringRef(info.name(), info.nameLength())
+                             << bslstl::StringRef(info.name(), info.nameLength())
                              << "'" << bsl::endl;
 
         return BDEAT_FAILURE;
@@ -1240,7 +1236,7 @@ int bdeat_SymbolicConverter_StoreInChoice<CHOICE_TYPE>::operator()(
                                                         loadSourceValue)) {
         d_imp_p->errorStream()
                              << "Failed to convert selection '"
-                             << bdlb::StringRef(info.name(), info.nameLength())
+                             << bslstl::StringRef(info.name(), info.nameLength())
                              << "'" << bsl::endl;
 
         return BDEAT_FAILURE;

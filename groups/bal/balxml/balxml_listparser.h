@@ -145,20 +145,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_chartype.h>
 #endif
 
-#ifndef INCLUDED_BDLAGGXXX_AGGREGATE
-#include <bdlaggxxx_aggregate.h>
-#endif
-
-#ifndef INCLUDED_BDLAGGXXX_AGGREGATERAW
-#include <bdlaggxxx_aggregateraw.h>
-#endif
-
-#ifndef INCLUDED_BDLAGGXXX_ERRORATTRIBUTES
-#include <bdlaggxxx_errorattributes.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -269,60 +261,6 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
     if (0 != bdeat_ArrayFunctions::manipulateElement(d_object_p,
                                                      parseElementFunctor,
                                                      i)) {
-        // remove the new object from the array
-        bdeat_ArrayFunctions::resize(d_object_p, i);
-
-        return BAEXML_FAILURE;
-    }
-
-     return BAEXML_SUCCESS;
-}
-
-template <>
-inline
-int ListParser<bdlaggxxx::Aggregate>::appendElement(const char *data,
-                                                     int         dataLength)
-{
-    BSLS_ASSERT_SAFE(data);
-    BSLS_ASSERT_SAFE(0 < dataLength);
-
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
-
-    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
-
-    bdeat_ArrayFunctions::resize(d_object_p, i + 1);
-
-    bdlaggxxx::Aggregate agg = (*d_object_p)[i];
-
-    if (0 != d_parseElementCallback(&agg, data, dataLength)) {
-        // remove the new object from the array
-        bdeat_ArrayFunctions::resize(d_object_p, i);
-
-        return BAEXML_FAILURE;
-    }
-
-     return BAEXML_SUCCESS;
-}
-
-template <>
-inline
-int ListParser<bdlaggxxx::AggregateRaw>::appendElement(const char *data,
-                                                        int         dataLength)
-{
-    BSLS_ASSERT_SAFE(data);
-    BSLS_ASSERT_SAFE(0 < dataLength);
-
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
-
-    const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
-
-    bdeat_ArrayFunctions::resize(d_object_p, i + 1);
-
-    bdlaggxxx::AggregateRaw    field;
-    bdlaggxxx::ErrorAttributes error;
-    int rc = d_object_p->getArrayItem(&field, &error, i);
-
-    if (rc || 0 != d_parseElementCallback(&field, data, dataLength)) {
         // remove the new object from the array
         bdeat_ArrayFunctions::resize(d_object_p, i);
 

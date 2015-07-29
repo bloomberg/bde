@@ -6,7 +6,7 @@
 #include <btlso_ioutil.h>
 #include <btlso_socketimputil.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -745,7 +745,7 @@ int buildOpDetails(
           // int flags = 0;  // not used
           bsls::TimeInterval deadline(bdlt::CurrentTime::now());
           enum { SLEEP_TIME = 200000 };
-          bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+          bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
 
           HelperEventManager::OperationDetails info;
           info.d_handle = HelperEventManager::UNSET;

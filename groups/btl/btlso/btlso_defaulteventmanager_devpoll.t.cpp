@@ -9,7 +9,7 @@
 #include <bslma_testallocator.h>
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
@@ -451,7 +451,7 @@ int main(int argc, char *argv[]) {
         // There seems to be a ~20ms latency between creation of a socket and
         // when it really starts working properly on HPUX.
 
-        bdlmtt::ThreadUtil::microSleep(40 * 1000);
+        bdlqq::ThreadUtil::microSleep(40 * 1000);
 #endif
 
         for (int i = 0; i < NUM_PAIRS; i++) {
@@ -861,7 +861,7 @@ int main(int argc, char *argv[]) {
                 // case 12 in btlso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
 
-                bdlmtt::ThreadUtil::microSleep(40 * 1000);
+                bdlqq::ThreadUtil::microSleep(40 * 1000);
 #endif
 
                 Obj mX(&timeMetric, &testAllocator);
@@ -959,7 +959,7 @@ int main(int argc, char *argv[]) {
                 // case 12 in btlso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
 
-                bdlmtt::ThreadUtil::microSleep(40 * 1000);
+                bdlqq::ThreadUtil::microSleep(40 * 1000);
 #endif
 
                 const int NUM_PAIR =
@@ -1555,7 +1555,7 @@ int main(int argc, char *argv[]) {
             // There seems to be a ~20ms latency between creation of a socket
             // and when it really starts working properly on HPUX.
 
-            bdlmtt::ThreadUtil::microSleep(40 * 1000);
+            bdlqq::ThreadUtil::microSleep(40 * 1000);
 #endif
 
             for (int j = 0; j < NUM_PAIR; j++) {

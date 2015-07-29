@@ -53,14 +53,14 @@ BSLS_IDENT("$Id: $")
 // Memory is unprotected when initially allocated from a protectable block
 // dispenser, so we can freely write to it:
 //..
-//        std::strcpy(static_cast<char *>(block.address()), "data");
+//        bsl::strcpy(static_cast<char *>(block.address()), "data");
 //
 //        dispenser->protect(block);
 //..
 // But now that the block is protected, it cannot be written to without causing
 // a memory fault:
 //..
-//        // std::strcpy(static_cast<char *>(block.address()), "BAD");
+//        // bsl::strcpy(static_cast<char *>(block.address()), "BAD");
 //        // WARNING: THIS WILL CAUSE A SEGMENTATION VIOLATION!
 //..
 // Note that the memory block must be *unprotected* before being deallocated:
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 //            d_data = d_dispenser_p->allocate(d_data.size() * 2);
 //            d_cursor_p = (int *)((char *)d_data.address() +
 //                         ((char *)d_cursor_p - (char *)oldData.address()));
-//            std::memcpy(d_data.address(), oldData.address(), oldData.size());
+//            bsl::memcpy(d_data.address(), oldData.address(), oldData.size());
 //            d_dispenser_p->deallocate(oldData);
 //        }
 //
@@ -243,7 +243,7 @@ BSLS_IDENT("$Id: $")
 //        if (condition) {
 //            bsl::cout << "Abort:" << stmnt << "  " << file << ":" << line
 //                      << bsl::endl;
-//            std::exit(-1);
+//            bsl::exit(-1);
 //        }
 //    }
 //
@@ -297,7 +297,7 @@ BSLS_IDENT("$Id: $")
 //    , d_size(bufferSize)
 //    , d_pageSize(pageSize)
 //    {
-//        std::memset(buffer, UNUSED_BUFFER_BYTE, bufferSize);
+//        bsl::memset(buffer, UNUSED_BUFFER_BYTE, bufferSize);
 //        d_cursor_p += bsls::Alignment::calculateAlignmentOffset(
 //                                 d_cursor_p, bsls::Alignment::MAX_ALIGNMENT);
 //    }
@@ -328,8 +328,8 @@ BSLS_IDENT("$Id: $")
 //        char *cursor = d_cursor_p;
 //
 //        // Mark the bits to help with debugging.
-//        std::memset(cursor, HEADPADDING_BYTE, sizeof(Align));
-//        std::memset(cursor + sizeof(Align), UNINITIALIZED_BYTE, actualSize);
+//        bsl::memset(cursor, HEADPADDING_BYTE, sizeof(Align));
+//        bsl::memset(cursor + sizeof(Align), UNINITIALIZED_BYTE, actualSize);
 //
 //        // Initialize the header for the block we will return.
 //        ((Align *)cursor)->d_header.d_allocatedState = ALLOCATED_FLAG;
@@ -356,7 +356,7 @@ BSLS_IDENT("$Id: $")
 //        VERIFY(align->d_header.d_protectedState == READWRITE_FLAG);
 //
 //        align->d_header.d_allocatedState = DEALLOCATED_FLAG;
-//        std::memset(block.address(), FREED_BYTE, block.size());
+//        bsl::memset(block.address(), FREED_BYTE, block.size());
 //    }
 //..
 // In order to avoid any system dependencies, implement 'protect' and

@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_threadutil.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
@@ -97,7 +97,7 @@ void FixedThreadPool::drainQueue()
 
 void FixedThreadPool::waitWorkerThreads()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
 
     while (d_numThreadsReady != d_numThreads) {
         d_threadsReadyCond.wait(&d_gateMutex);
@@ -106,7 +106,7 @@ void FixedThreadPool::waitWorkerThreads()
 
 void FixedThreadPool::releaseWorkerThreads()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
     d_numThreadsReady = 0;
     ++d_gateCount;
     d_gateCond.broadcast();
@@ -116,7 +116,7 @@ void FixedThreadPool::releaseWorkerThreads()
 
 void FixedThreadPool::interruptWorkerThreads()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex); // acquire barrier
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex); // acquire barrier
 
     int numThreadsWaiting = d_numThreadsWaiting;
 
@@ -133,7 +133,7 @@ void FixedThreadPool::workerThread()
 
     while (1) {
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex);
+            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
 
             ++d_numThreadsReady;
             d_threadsReadyCond.signal();
@@ -191,7 +191,7 @@ int FixedThreadPool::startNewThread()
 // CREATORS
 
 FixedThreadPool::FixedThreadPool(
-        const bdlmtt::ThreadAttributes&  threadAttributes,
+        const bdlqq::ThreadAttributes&  threadAttributes,
         int                     numThreads,
         int                     maxQueueSize,
         bslma::Allocator       *basicAllocator)
@@ -269,7 +269,7 @@ int FixedThreadPool::tryEnqueueJob(const Job& functor)
 
 void FixedThreadPool::drain()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
     if (BCEP_RUN == d_control.loadRelaxed()) {
         d_control = BCEP_DRAIN;
@@ -292,7 +292,7 @@ void FixedThreadPool::drain()
 
 void FixedThreadPool::shutdown()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
     if (BCEP_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
@@ -311,7 +311,7 @@ void FixedThreadPool::shutdown()
 
 int FixedThreadPool::start()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
     if (BCEP_STOP != d_control.loadRelaxed()) {
         return 0;
@@ -341,7 +341,7 @@ int FixedThreadPool::start()
 
 void FixedThreadPool::stop()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
     if (BCEP_RUN == d_control.loadRelaxed()) {
         d_queue.disable();

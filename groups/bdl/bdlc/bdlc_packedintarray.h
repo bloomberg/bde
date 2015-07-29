@@ -2118,9 +2118,9 @@ bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator<TYPE>& lhs,
     BSLS_ASSERT_SAFE(
           lhs.d_index >= rhs.d_index
         ? lhs.d_index - rhs.d_index <=
-                        bsl::size_t(std::numeric_limits<bsl::ptrdiff_t>::max())
+                        bsl::size_t(bsl::numeric_limits<bsl::ptrdiff_t>::max())
         : rhs.d_index - lhs.d_index <=
-                      bsl::size_t(std::numeric_limits<bsl::ptrdiff_t>::min()));
+                      bsl::size_t(bsl::numeric_limits<bsl::ptrdiff_t>::min()));
 
     return static_cast<bsl::ptrdiff_t>(lhs.d_index - rhs.d_index);
 }

@@ -189,7 +189,7 @@ namespace bdlsu {
 
 // CLASS METHODS
 int PathUtil::appendIfValid(bsl::string            *path,
-                                  const bdlb::StringRef&  filename)
+                                  const bslstl::StringRef&  filename)
 {
     BSLS_ASSERT(path);
 
@@ -281,7 +281,7 @@ int PathUtil::popLeaf(bsl::string *path, int rootEnd)
 }
 
 int PathUtil::getLeaf(bsl::string            *filename,
-                            const bdlb::StringRef&  path,
+                            const bslstl::StringRef&  path,
                             int                     rootEnd)
 {
     BSLS_ASSERT(filename);
@@ -310,7 +310,7 @@ int PathUtil::getLeaf(bsl::string            *filename,
 }
 
 int PathUtil::getDirname(bsl::string            *filename,
-                               const bdlb::StringRef&  path,
+                               const bslstl::StringRef&  path,
                                int                     rootEnd)
 {
     BSLS_ASSERT(filename);
@@ -336,7 +336,7 @@ int PathUtil::getDirname(bsl::string            *filename,
 }
 
 int PathUtil::getRoot(bsl::string            *root,
-                            const bdlb::StringRef&  path,
+                            const bslstl::StringRef&  path,
                             int                     rootEnd)
 {
     BSLS_ASSERT(root);
@@ -354,7 +354,7 @@ int PathUtil::getRoot(bsl::string            *root,
     return 0;
 }
 
-bool PathUtil::isAbsolute(const bdlb::StringRef& path, int rootEnd)
+bool PathUtil::isAbsolute(const bslstl::StringRef& path, int rootEnd)
 {
     if (0 > rootEnd) {
         findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
@@ -363,7 +363,7 @@ bool PathUtil::isAbsolute(const bdlb::StringRef& path, int rootEnd)
     return rootEnd > 0;
 }
 
-bool PathUtil::isRelative(const bdlb::StringRef& path, int rootEnd)
+bool PathUtil::isRelative(const bslstl::StringRef& path, int rootEnd)
 {
     if (0 > rootEnd) {
         findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
@@ -372,14 +372,14 @@ bool PathUtil::isRelative(const bdlb::StringRef& path, int rootEnd)
     return 0 == rootEnd;
 }
 
-int PathUtil::getRootEnd(const bdlb::StringRef& path)
+int PathUtil::getRootEnd(const bslstl::StringRef& path)
 {
     int result;
     findFirstNonSeparatorChar(&result, path.data(), path.length());
     return result;
 }
 
-bool PathUtil::hasLeaf(const bdlb::StringRef& path, int rootEnd)
+bool PathUtil::hasLeaf(const bslstl::StringRef& path, int rootEnd)
 {
     int length = path.length();
     if (0 > rootEnd) {

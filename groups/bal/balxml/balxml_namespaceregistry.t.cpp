@@ -5,6 +5,7 @@
 #include <bslma_defaultallocatorguard.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>  // for bsl::strcpy
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;

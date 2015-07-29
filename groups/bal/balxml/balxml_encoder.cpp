@@ -10,8 +10,8 @@ BSLS_IDENT_RCSID(balxml_encoder_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bdlat_formattingmode.h>
-#include <bdlb_xxxstringref.h>
 
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -63,7 +63,7 @@ Encoder::~Encoder()
 
 ErrorInfo::Severity  Encoder::logError(
                          const char             *text,
-                         const bdlb::StringRef&  tag,
+                         const bslstl::StringRef&  tag,
                          int                     formattingMode,
                          int                     index)
 {
@@ -104,7 +104,7 @@ Encoder_Context::Encoder_Context(
 
 int Encoder_EncodeObject::executeImp(
                                       const bsl::vector<char>&  object,
-                                      const bdlb::StringRef&    tag,
+                                      const bslstl::StringRef&    tag,
                                       int                       formattingMode,
                                       bdeat_TypeCategory::Array)
 {

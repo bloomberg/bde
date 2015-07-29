@@ -2,7 +2,7 @@
 
 #include <balb_testmessages.h>
 
-#include <cstdlib>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 

@@ -16,6 +16,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_sstream.h>
@@ -89,7 +90,7 @@ using namespace bsl;
 // MANIPULATORS
 // [13] baltzo::Zoneinfo& operator=(const baltzo::Zoneinfo& rhs);
 // [ 2] void addTransition(TimeT64 time, const baetzo::LTD& d);
-// [ 9] void setIdentifier(const bdlb::StringRef& identifier);
+// [ 9] void setIdentifier(const bslstl::StringRef& identifier);
 // [12] void swap(baltzo::Zoneinfo& other);
 
 // ACCESSORS
@@ -1789,7 +1790,7 @@ int main(int argc, char *argv[])
         //:       'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  (C-8)
         //
         // Testing:
-        //   void setIdentifier(const bdlb::StringRef& identifier);
+        //   void setIdentifier(const bslstl::StringRef& identifier);
         //   const bsl::string& identifier() const;
         // --------------------------------------------------------------------
 
@@ -3541,7 +3542,7 @@ int main(int argc, char *argv[])
 
                     expTransitions[TIME] = LTD;
 
-                    const std::size_t NT = EXP.size();
+                    const bsl::size_t NT = EXP.size();
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }

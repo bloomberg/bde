@@ -5,8 +5,8 @@
 BSLS_IDENT_RCSID(bdlmca_xxxprotectableblockdispenseradapter_cpp,"$Id$ $CSID$")
 
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_xxxthread.h>
 
 namespace BloombergLP {
 
@@ -25,28 +25,28 @@ ProtectableBlockDispenserAdapter::
 bdlma::MemoryBlockDescriptor ProtectableBlockDispenserAdapter::allocate(
                                                             size_type numBytes)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
     return d_dispenser_p->allocate(numBytes);
 }
 
 void ProtectableBlockDispenserAdapter::deallocate(
                                       const bdlma::MemoryBlockDescriptor& block)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
     d_dispenser_p->deallocate(block);
 }
 
 int ProtectableBlockDispenserAdapter::protect(
                                      const bdlma::MemoryBlockDescriptor& block)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
     return d_dispenser_p->protect(block);
 }
 
 int ProtectableBlockDispenserAdapter::unprotect(
                                       const bdlma::MemoryBlockDescriptor& block)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
     return d_dispenser_p->unprotect(block);
 }
 

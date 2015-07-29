@@ -102,7 +102,7 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 // 6. Assemble the double value from the mantissa, exponent, and sign values.
 #include <bdlt_serialdateimputil.h>
 
-#include <bdlpuxxx_iso8601.h>
+#include <bdlt_iso8601util.h>
 
 #include <bdlb_xxxbitutil.h>
 
@@ -313,7 +313,7 @@ int getValueUsingIso8601(bsl::streambuf *streamBuf,
         return FAILURE;                                               // RETURN
     }
 
-    return bdlpuxxx::Iso8601::parse(value, buf, length);
+    return bdlt::Iso8601Util::parse(value, buf, length);
 }
 
 template <typename TYPE>
@@ -324,8 +324,8 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
     // specified 'value' in the ISO 8601 format.  Return 0 on success and a
     // non-zero value otherwise.
 {
-    char buf[bdlpuxxx::Iso8601::BDEPU_MAX_DATETIME_STRLEN];
-    int len = bdlpuxxx::Iso8601::generate(buf, value, sizeof(buf));
+    char buf[bdlt::Iso8601Util::BDEPU_MAX_DATETIME_STRLEN];
+    int len = bdlt::Iso8601Util::generate(buf, value, sizeof(buf));
     return balber::BerUtil_Imp::putStringValue(streamBuf, buf, len);
 }
 
