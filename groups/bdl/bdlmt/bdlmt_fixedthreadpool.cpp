@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_lockguard.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadutil.h>
 
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
@@ -60,7 +60,7 @@ namespace bdlmt {
 void FixedThreadPool::processJobs()
 {
     while (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                        BCEP_RUN == d_control.relaxedLoad())) {
+                                        BCEP_RUN == d_control.loadRelaxed())) {
         Job functor;
 
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -73,7 +73,7 @@ void FixedThreadPool::processJobs()
                 d_queueSemaphore.wait();
             }
 
-            d_numThreadsWaiting.relaxedAdd(-1);
+            d_numThreadsWaiting.addRelaxed(-1);
         }
         else {
             functor();
@@ -83,7 +83,7 @@ void FixedThreadPool::processJobs()
 
 void FixedThreadPool::drainQueue()
 {
-    while (BCEP_DRAIN == d_control.relaxedLoad()) {
+    while (BCEP_DRAIN == d_control.loadRelaxed()) {
         Job functor;
 
         const int ret = d_queue.tryPopFront(&functor);
@@ -145,7 +145,7 @@ void FixedThreadPool::workerThread()
             gateCount = d_gateCount;
         }
 
-        int control = d_control.relaxedLoad();
+        int control = d_control.loadRelaxed();
 
         if (BCEP_RUN == control) {
             processJobs();
@@ -191,7 +191,7 @@ int FixedThreadPool::startNewThread()
 // CREATORS
 
 FixedThreadPool::FixedThreadPool(
-        const bcemt_Attribute&  threadAttributes,
+        const bdlmtt::ThreadAttributes&  threadAttributes,
         int                     numThreads,
         int                     maxQueueSize,
         bslma::Allocator       *basicAllocator)
@@ -271,7 +271,7 @@ void FixedThreadPool::drain()
 {
     bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.relaxedLoad()) {
+    if (BCEP_RUN == d_control.loadRelaxed()) {
         d_control = BCEP_DRAIN;
 
         // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
@@ -294,7 +294,7 @@ void FixedThreadPool::shutdown()
 {
     bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.relaxedLoad()) {
+    if (BCEP_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
         d_control = BCEP_STOP;
 
@@ -313,7 +313,7 @@ int FixedThreadPool::start()
 {
     bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_STOP != d_control.relaxedLoad()) {
+    if (BCEP_STOP != d_control.loadRelaxed()) {
         return 0;
     }
 
@@ -343,7 +343,7 @@ void FixedThreadPool::stop()
 {
     bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.relaxedLoad()) {
+    if (BCEP_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
         d_control = BCEP_DRAIN;
 

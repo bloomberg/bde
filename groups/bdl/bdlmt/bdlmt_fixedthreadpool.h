@@ -48,8 +48,8 @@ BSLS_IDENT("$Id: $")
 // threads and queue capacity, hence the name "fixed" thread pool.  An
 // application can, however, specify the attributes of the threads in the
 // pool (e.g., thread priority or stack size), by providing a
-// 'bcemt_Attribute' object with the desired values set.  See 'bdlmtt_xxxthread'
-// package documentation for a description of 'bcemt_Attribute'.
+// 'bdlmtt::ThreadAttributes' object with the desired values set.  See 'bdlmtt_threadutil'
+// package documentation for a description of 'bdlmtt::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.
 // A server need only package client requests to execute as jobs, and
@@ -161,7 +161,7 @@ BSLS_IDENT("$Id: $")
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlmtt_xxxthread' for information about the 'bdlmtt::Mutex' class, and
+// See 'bdlmtt_threadutil' for information about the 'bdlmtt::Mutex' class, and
 // component 'bdlmtt_lockguard' for information about the 'bdlmtt::LockGuard'
 // template class.
 //..
@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 //                      bsl::vector<bsl::string>&       outFileList)
 //   {
 //       bdlmtt::Mutex     mutex;
-//       bcemt_Attribute defaultAttributes;
+//       bdlmtt::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
@@ -296,20 +296,32 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
+#ifndef INCLUDED_BDLMTT_MUTEX
+#include <bdlmtt_mutex.h>
+#endif
+
 #ifndef INCLUDED_BDLMTT_SEMAPHORE
 #include <bdlmtt_semaphore.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
+#include <bdlmtt_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_THREADUTIL
+#include <bdlmtt_threadutil.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_CONDITION
+#include <bdlmtt_condition.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_THREADGROUP
 #include <bdlmtt_threadgroup.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLF_BIND
@@ -372,13 +384,13 @@ class FixedThreadPool {
     bdlmtt::Semaphore   d_queueSemaphore;    // used to implemented blocking
                                            // popping on the queue
 
-    bdlmtt::AtomicInt    d_numThreadsWaiting; // number of idle thread in the pool
+    bsls::AtomicInt    d_numThreadsWaiting; // number of idle thread in the pool
 
     bdlmtt::Mutex       d_metaMutex;         // mutex to ensure that there is
                                            // only one controlling thread at
                                            // any time
 
-    bdlmtt::AtomicInt    d_control;           // controls which action is to be
+    bsls::AtomicInt    d_control;           // controls which action is to be
                                            // performed by the worker threads
                                            // (i.e., BCEP_RUN, BCEP_DRAIN,
                                            // BCEP_STOP)
@@ -402,7 +414,7 @@ class FixedThreadPool {
 
     bdlmtt::ThreadGroup d_threadGroup;       // threads used by this pool
 
-    bcemt_Attribute   d_threadAttributes;  // thread attributes to be used when
+    bdlmtt::ThreadAttributes   d_threadAttributes;  // thread attributes to be used when
                                            // constructing processing threads
 
     const int         d_numThreads;        // number of configured processing
@@ -457,7 +469,7 @@ class FixedThreadPool {
         // undefined unless '1 <= numThreads' and
         // '1 <= maxPendingJobs <= 0x01FFFFFF'.
 
-    FixedThreadPool(const bcemt_Attribute& threadAttributes,
+    FixedThreadPool(const bdlmtt::ThreadAttributes& threadAttributes,
                          int                    numThreads,
                          int                    maxNumPendingJobs,
                          bslma::Allocator      *basicAllocator = 0);
@@ -615,7 +627,7 @@ int FixedThreadPool::numActiveThreads() const
 {
     int numStarted = d_threadGroup.numThreads();
     return d_numThreads == numStarted
-         ? numStarted - d_numThreadsWaiting.relaxedLoad()
+         ? numStarted - d_numThreadsWaiting.loadRelaxed()
          : 0;
 }
 

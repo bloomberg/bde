@@ -12,11 +12,13 @@
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
+#include <bsls_atomic.h>
 
 #include <bdlt_currenttime.h> // For test only
 #include <bdlmtt_barrier.h>    // For test only
 #include <bdlmtt_lockguard.h>  // For test only
-#include <bdlmtt_xxxthread.h>     // For test only
+#include <bdlmtt_threadattributes.h>     // For test only
+#include <bdlmtt_threadutil.h>     // For test only
 #include <bsl_c_stdio.h>            // For FILE in usage example
 #include <bsl_c_stdlib.h>           // for atoi
 #include <bsl_cstring.h>
@@ -143,7 +145,7 @@ struct TestJobFunctionArgs {
 struct TestJobFunctionArgs1 {
     bdlmtt::Barrier    *d_startBarrier_p;
     bdlmtt::Barrier    *d_stopBarrier_p;
-    bdlmtt::AtomicInt   d_count;
+    bsls::AtomicInt   d_count;
 };
 
 extern "C" {
@@ -351,7 +353,7 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlmtt_xxxthread' for information about the 'bdlmtt::Mutex' class, and
+// See 'bdlmtt_threadutil' for information about the 'bdlmtt::Mutex' class, and
 // component 'bdlmtt_lockguard' for information about the 'bdlmtt::LockGuard'
 // template class.
 //..
@@ -379,7 +381,7 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
                        bsl::vector<bsl::string>&       outFileList)
     {
         bdlmtt::Mutex     mutex;
-        bcemt_Attribute defaultAttributes;
+        bdlmtt::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
@@ -481,7 +483,7 @@ namespace BCEP_THREADPOOL_USAGE_EXAMPLE {
                                     )
     {
         bdlmtt::Mutex     mutex;
-        bcemt_Attribute defaultAttributes;
+        bdlmtt::ThreadAttributes defaultAttributes;
         bdlmt::ThreadPool pool(defaultAttributes,
                              MIN_SEARCH_THREADS,
                              MAX_SEARCH_THREADS,
@@ -555,7 +557,7 @@ Obj *xP;
 bdlmtt::Barrier barrier(DEPTH_LIMIT + 1); // to ensure that all the threads have
                                         // started
 
-bdlmtt::AtomicInt depthCounter;
+bsls::AtomicInt depthCounter;
 
 extern "C" {
 
@@ -684,7 +686,7 @@ int main(int argc, char *argv[])
                MAX_THREADS = 1,
                IDLE_TIME   = 0 };
 
-        bcemt_Attribute attr;
+        bdlmtt::ThreadAttributes attr;
         Obj mX(attr, MIN_THREADS, MAX_THREADS, IDLE_TIME);
 
         STARTPOOL(mX);
@@ -721,7 +723,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: cpu time not consumed when idle \n"
                           << "====================================" << endl ;
         {
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
 
             enum {
                 MIN_THREADS = 25,
@@ -856,7 +858,7 @@ int main(int argc, char *argv[])
                           << "===========================" << endl ;
         {
 
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
             enum {
                 MIN = 5,
                 MAX = 10,
@@ -900,7 +902,7 @@ int main(int argc, char *argv[])
                 IDLE_TIME      = 0
 
             };
-            bcemt_Attribute attributes;
+            bdlmtt::ThreadAttributes attributes;
             Obj mX(attributes, MIN_THREADS, MAX_THREADS, IDLE_TIME,
                    &testAllocator);
             const Obj& X = mX;
@@ -924,7 +926,7 @@ int main(int argc, char *argv[])
                 IDLE_TIME      = 0
 
             };
-            bcemt_Attribute attributes;
+            bdlmtt::ThreadAttributes attributes;
             Obj mX(attributes, MIN_THREADS, MAX_THREADS, IDLE_TIME);
 
             const Obj& X = mX;
@@ -1004,7 +1006,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING a job enqueuing other jobs" << endl
                           << "==================================" << endl;
         {
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
             Obj localX(attr, MIN, MAX, IDLE);
             xP = &localX;
             STARTPOOL(localX);
@@ -1056,7 +1058,7 @@ int main(int argc, char *argv[])
             args.d_stopBarrier_p = &stopBarrier;
             args.d_count = 0;
 
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             if (veryVerbose) {
@@ -1217,7 +1219,7 @@ int main(int argc, char *argv[])
                 args.d_stopCond = &stopCond;
                 args.d_count = 0;
 
-                bcemt_Attribute attr;
+                bdlmtt::ThreadAttributes attr;
                 Obj x(attr, MIN, MAX, IDLE);
 
                 const Obj& X = x;
@@ -1292,7 +1294,7 @@ int main(int argc, char *argv[])
                 args.d_stopCond = &stopCond;
                 args.d_count = 0;
 
-                bcemt_Attribute attr;
+                bdlmtt::ThreadAttributes attr;
                 Obj x(attr, MIN, MAX, IDLE);
 
                 const Obj& X = x;
@@ -1433,7 +1435,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             const Obj& X = x;
@@ -1490,7 +1492,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             const Obj& X = x;
@@ -1547,7 +1549,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
             Obj x(attr, MIN, MAX, IDLE);
 
             const Obj& X = x;
@@ -1637,7 +1639,7 @@ int main(int argc, char *argv[])
                 const int MAX  = VALUES[i].d_maxThreads;
                 const int IDLE = VALUES[i].d_maxIdle;
 
-                bcemt_Attribute attr;
+                bdlmtt::ThreadAttributes attr;
                 Obj x(attr, MIN, MAX, IDLE);
 
                 const Obj& X = x;
@@ -1690,7 +1692,7 @@ int main(int argc, char *argv[])
         //   This Test Case exercises basic value-semantic functionality.
         // --------------------------------------------------------------------
 
-        bcemt_Attribute attr;
+        bdlmtt::ThreadAttributes attr;
         const int MIN  = 10;
         const int MAX  = 50;
         const int IDLE = 1000;
@@ -1752,7 +1754,7 @@ int main(int argc, char *argv[])
             args.d_count = 0;
 
             bdlmtt::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bcemt_Attribute attributes;
+            bdlmtt::ThreadAttributes attributes;
 
             mutex.lock();
             for (int i=0; i<NITERATIONS; ++i) {
@@ -1794,7 +1796,7 @@ int main(int argc, char *argv[])
             args.d_count = 0;
 
             bdlmtt::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bcemt_Attribute attributes;
+            bdlmtt::ThreadAttributes attributes;
 
             for (int i=0; i<NITERATIONS; ++i) {
                 mutex.lock();
@@ -1855,7 +1857,7 @@ int main(int argc, char *argv[])
         for (int i = (SPEED < 25 ? 1 : 2); i < MAX_NTHREADS; ++i)
         {
             cout << "\tUsing " << i << " threads." << endl;
-            bcemt_Attribute attr;
+            bdlmtt::ThreadAttributes attr;
             const int NTHREADS = i;
             const int IDLE_TIME = 10000;
 

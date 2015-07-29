@@ -18,7 +18,8 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_barrier.h>    // for testing only
 #include <bdlmtt_lockguard.h>  // for testing only
-#include <bdlmtt_xxxthread.h>     // for testing only
+#include <bdlmtt_threadattributes.h>     // for testing only
+#include <bdlmtt_threadutil.h>     // for testing only
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
@@ -295,7 +296,7 @@ void ThreadPool::workerThread()
 }
 
 // CREATORS
-ThreadPool::ThreadPool(const bcemt_Attribute&  threadAttributes,
+ThreadPool::ThreadPool(const bdlmtt::ThreadAttributes&  threadAttributes,
                                  int                     minThreads,
                                  int                     maxThreads,
                                  int                     maxIdleTime,
@@ -316,7 +317,7 @@ ThreadPool::ThreadPool(const bcemt_Attribute&  threadAttributes,
     // Force all threads to be detached.
 
     d_threadAttributes.setDetachedState(
-                                       bcemt_Attribute::BCEMT_CREATE_DETACHED);
+                                       bdlmtt::ThreadAttributes::BCEMT_CREATE_DETACHED);
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     initBlockSet();

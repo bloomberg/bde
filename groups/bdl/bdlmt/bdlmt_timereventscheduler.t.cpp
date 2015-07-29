@@ -2,16 +2,16 @@
 #include <bdlmt_timereventscheduler.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadutil.h>
 #include <bdlmtt_threadgroup.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
-#include <bdlimpxxx_fuzzy.h>
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitstringutil.h>
+#include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 
@@ -352,15 +352,15 @@ class TestClass {
     bsls::TimeInterval d_expectedTimeAtExecution; // expected time at which
                                                  // callback should run
 
-    bdlmtt::AtomicInt    d_numExecuted;             // number of times callback
+    bsls::AtomicInt    d_numExecuted;             // number of times callback
                                                  // has been executed
 
-    bdlmtt::AtomicInt    d_executionTime;           // duration for which
+    bsls::AtomicInt    d_executionTime;           // duration for which
                                                  // callback executes
 
     int               d_line;                    // for error reporting
 
-    bdlmtt::AtomicInt    d_delayed;                 // will be set to true if
+    bsls::AtomicInt    d_delayed;                 // will be set to true if
                                                  // any execution of the
                                                  // callback is delayed from
                                                  // its expected execution time
@@ -377,7 +377,7 @@ class TestClass {
                                                  // failure unless it fails
                                                  // too many times
 
-    bdlmtt::AtomicInt     d_failures;               // timing failures
+    bsls::AtomicInt     d_failures;               // timing failures
 
     // FRIENDS
     friend bsl::ostream& operator << (bsl::ostream& os,
@@ -428,15 +428,15 @@ class TestClass {
       d_isClock(rhs.d_isClock),
       d_periodicInterval(rhs.d_periodicInterval),
       d_expectedTimeAtExecution(rhs.d_expectedTimeAtExecution),
-      d_numExecuted(rhs.d_numExecuted),
-      d_executionTime(rhs.d_executionTime),
       d_line(rhs.d_line),
-      d_delayed(rhs.d_delayed),
       d_referenceTime(rhs.d_referenceTime),
       d_globalLastExecutionTime(rhs.d_globalLastExecutionTime),
       d_assertOnFailure(rhs.d_assertOnFailure),
       d_failures(0)
     {
+        d_delayed      .storeRelaxed(rhs.d_delayed      .load());
+        d_executionTime.storeRelaxed(rhs.d_executionTime.load());
+        d_numExecuted  .storeRelaxed(rhs.d_numExecuted  .load());
     }
 
     // MANIPULATORS
@@ -536,8 +536,8 @@ struct TestClass1 {
     // for a clock or an event.  The class keeps track of number of times
     // the callback has been executed.
 
-    bdlmtt::AtomicInt  d_numStarted;
-    bdlmtt::AtomicInt  d_numExecuted;
+    bsls::AtomicInt  d_numStarted;
+    bsls::AtomicInt  d_numExecuted;
     int             d_executionTime; // in microseconds
 
     // CREATORS
@@ -588,7 +588,7 @@ struct TestPrintClass {
     // class is intended for use to verify changes to the system clock do or do
     // not affect the behavior of the scheduler (see Test Case -1).
 
-    bdlmtt::AtomicInt d_numExecuted;
+    bsls::AtomicInt d_numExecuted;
 
     // CREATORS
     TestPrintClass() :
@@ -996,7 +996,7 @@ namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14
 namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_13
 {
 
-void countInvoked(bdlmtt::AtomicInt *numInvoked)
+void countInvoked(bsls::AtomicInt *numInvoked)
 {
     if (numInvoked) {
         ++*numInvoked;
@@ -1004,8 +1004,8 @@ void countInvoked(bdlmtt::AtomicInt *numInvoked)
 }
 
 void scheduleEvent(Obj            *scheduler,
-                   bdlmtt::AtomicInt *numAdded,
-                   bdlmtt::AtomicInt *numInvoked,
+                   bsls::AtomicInt *numAdded,
+                   bsls::AtomicInt *numInvoked,
                    bdlmtt::Barrier  *barrier)
 {
     barrier->wait();
@@ -1023,8 +1023,8 @@ void scheduleEvent(Obj            *scheduler,
 }
 
 void startClock(Obj            *scheduler,
-                bdlmtt::AtomicInt *numAdded,
-                bdlmtt::AtomicInt *numInvoked,
+                bsls::AtomicInt *numAdded,
+                bsls::AtomicInt *numInvoked,
                 bdlmtt::Barrier  *barrier)
 {
     barrier->wait();
@@ -1045,7 +1045,11 @@ void startClock(Obj            *scheduler,
 // 'maxValue'.
 int numBitsRequired(int maxValue)
 {
-    return bdlb::BitUtil::find1AtLargestIndex(maxValue) + 1;
+    ASSERT(0 <= maxValue);                                               
+
+    return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
+                                                   &maxValue,
+                                                   CHAR_BIT * sizeof maxValue);
 }
 
 // Calculate the largest integer indentifiable using the specified 'numBits'.
@@ -2662,6 +2666,39 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 26: {
+        // FAST TRACK SCRATCH AREA
+
+        if (verbose) cout << endl
+                          << "FAST TRACK SCRATCH AREA" << endl
+                          << "=======================" << endl;
+
+        const int ARRAY[] = {
+            //  INT_MIN,
+            //       -1,
+                      0,
+                      1,
+                      2,
+                      3,
+                1 << 10,
+                INT_MAX
+        };
+        const int NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
+        
+        for (int i = 0; i < NUM_ELEMENTS; ++i) {
+            const int VALUE = ARRAY[i];
+        //  const int ret0 = bdlb::BitUtil::find1AtLargestIndex(VALUE);
+            const int ret1 = bdlb::BitstringUtil::find1AtLargestIndex(
+                                                      &VALUE,
+                                                      CHAR_BIT * sizeof VALUE);
+                                                          
+            P_(VALUE)
+            //P_(ret0)
+            P(ret1)
+            // ASSERT(ret1 == ret0);
+        }
+    
+      } break;
       case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:
@@ -3242,7 +3279,7 @@ int main(int argc, char *argv[])
             // to be testing the accuracy of the 'microSleep' method in this
             // component -- especially since it can be really unreasonably slow
             // on a heavily loaded machine (i.e., during the nighttime runs).
-            // Testing of that routine has been moved to bdlmtt_xxxthread.t.cpp.
+            // Testing of that routine has been moved to 'bdlmtt_threadutil.t.cpp'.
 
             // go through odd elements - they should be SLEEP_SECONDS later
             sfit = sf.timeList().begin();
@@ -3381,7 +3418,7 @@ int main(int argc, char *argv[])
         // be testing the accuracy of the 'microSleep' method in this component
         // -- especially since it can be really unreasonably slow on a heavily
         // loaded machine (i.e., during the nighttime runs).  Testing of that
-        // routine has been moved to bdlmtt_xxxthread.t.cpp.
+        // routine has been moved to 'bdlmtt_threadutil.t.cpp'.
 
         // go through odd elements - they should be SLEEP_SECONDS later
         it = sf.timeList().begin();
@@ -3438,14 +3475,14 @@ int main(int argc, char *argv[])
             Obj mX(NUM_OBJECTS, NUM_OBJECTS);
 
             for (int i = 0; i < 2; ++i) {
-                bdlmtt::AtomicInt    numAdded(0);
+                bsls::AtomicInt    numAdded(0);
                 bdlmtt::Barrier     barrier(NUM_THREADS + 1);
                 bdlmtt::ThreadGroup threadGroup;
 
                 threadGroup.addThreads(bdlf::BindUtil::bind(&scheduleEvent,
                                                            &mX,
                                                            &numAdded,
-                                                           (bdlmtt::AtomicInt*)0,
+                                                           (bsls::AtomicInt*)0,
                                                            &barrier),
                                        NUM_THREADS);
                 barrier.wait();
@@ -3459,7 +3496,7 @@ int main(int argc, char *argv[])
                 threadGroup.addThreads(bdlf::BindUtil::bind(&startClock,
                                                            &mX,
                                                            &numAdded,
-                                                           (bdlmtt::AtomicInt*)0,
+                                                           (bsls::AtomicInt*)0,
                                                            &barrier),
                                        NUM_THREADS);
                 barrier.wait();

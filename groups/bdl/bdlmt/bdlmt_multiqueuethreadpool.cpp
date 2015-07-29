@@ -312,7 +312,7 @@ int MultiQueueThreadPool::enqueueJobImpl(int        id,
 
 // CREATORS
 MultiQueueThreadPool::MultiQueueThreadPool(
-        const bcemt_Attribute& threadAttributes,
+        const bdlmtt::ThreadAttributes& threadAttributes,
         int                    minThreads,
         int                    maxThreads,
         int                    maxIdleTime,

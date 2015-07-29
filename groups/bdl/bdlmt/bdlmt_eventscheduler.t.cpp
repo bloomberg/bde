@@ -2,15 +2,15 @@
 #include <bdlmt_eventscheduler.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlmtt_threadutil.h>
 #include <bdlmtt_threadgroup.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitstringutil.h>
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 
@@ -104,7 +104,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-static bdlmtt::AtomicInt testStatus = 0;
+static bsls::AtomicInt testStatus;
 
 static void aSsErT(int c, const char *s, int i)
 {
@@ -1022,7 +1022,11 @@ void scheduleRecurringEvent(Obj            *scheduler,
 // 'maxValue'.
 int numBitsRequired(int maxValue)
 {
-    return bdlb::BitUtil::find1AtLargestIndex(maxValue) + 1;
+    ASSERT(0 <= maxValue);                                               
+
+    return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
+                                                   &maxValue,
+                                                   CHAR_BIT * sizeof maxValue);
 }
 
 // Calculate the largest integer identifiable using the specified 'numBits'.
@@ -2092,6 +2096,17 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // FAST TRACK SCRATCH AREA
+
+        if (verbose) cout << endl
+                          << "FAST TRACK SCRATCH AREA" << endl
+                          << "=======================" << endl;
+        
+        
+
+
+      }
       case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
@@ -2714,7 +2729,7 @@ int main(int argc, char *argv[])
 
 #if 0
         // We're commenting this out.  Testing the 'microSleep' method should
-        // really be done in bdlmtt_xxxthread.t.cpp.  Also, we have been having
+        // really be done in 'bdlmtt_threadutil.t.cpp'.  Also, we have been having
         // really annoying problems with this part of the test failing in the
         // nightly build but not reproducibly failing on test machines during
         // the day.  Perhaps testing the 'microSleep' method in bcemt rather
