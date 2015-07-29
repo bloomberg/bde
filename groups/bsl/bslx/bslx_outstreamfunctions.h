@@ -510,6 +510,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
+#endif
+
 namespace BloombergLP {
 namespace bslx {
 
@@ -938,7 +942,7 @@ STREAM& OutStreamFunctions::bdexStreamOutImp(STREAM&           stream,
     // 'OutStreamFunctions::bdexStreamOut' function, in the enumeration's
     // namespace, should be provided.
 
-    BSLMF_ASSERT(sizeof(TYPE) <= sizeof(int32_t));
+    BSLMF_ASSERT(sizeof(TYPE) <= sizeof(bsl::int32_t));
 
     // Stream the 'enum' value as a 32-bit 'int'.
     return stream.putInt32(static_cast<int>(value));
