@@ -254,9 +254,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main()
 //  {
-//      enum { NUM_POOLS = 3 };
+//      enum { k_NUM_POOLS = 3 };
 //
-//      bdlma::ConcurrentMultipoolAllocator basicAllocator(NUM_POOLS);
+//      bdlma::ConcurrentMultipoolAllocator basicAllocator(k_NUM_POOLS);
 //
 //      my_NamedGraphContainer container(&basicAllocator);
 //  }

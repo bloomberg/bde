@@ -18,7 +18,7 @@ namespace BloombergLP {
 namespace {
 
 enum {
-    DEFAULT_BACKOFF_LEVEL = 4
+    k_DEFAULT_BACKOFF_LEVEL = 4
 };
 
 // STATIC HELPER FUNCTIONS
@@ -28,10 +28,10 @@ void backoff(int *contentionCount, int backoffLevel)
         return;
     }
 
-    enum { MAX_SPIN_LEVEL = 10 };
+    enum { k_MAX_SPIN_LEVEL = 10 };
 
     int count = ++(*contentionCount);
-    if (count > MAX_SPIN_LEVEL) {
+    if (count > k_MAX_SPIN_LEVEL) {
         *contentionCount = 0;
         bdlmtt::ThreadUtil::yield();  // exhaust time slice
     }
@@ -46,9 +46,10 @@ void backoff(int *contentionCount, int backoffLevel)
 }  // close unnamed namespace
 
 namespace bdlma {
-                        // ---------------------
+
+                        // -------------------------
                         // class ConcurrentFixedPool
-                        // ---------------------
+                        // -------------------------
 
 // PRIVATE MANIPULATORS
 void *ConcurrentFixedPool::allocateNew()
@@ -88,7 +89,7 @@ ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
 , d_nodePool(d_nodeSize, bslma::Default::allocator(basicAllocator))
 , d_numNodes(0)
 , d_objectSize(objectSize)
-, d_backoffLevel(DEFAULT_BACKOFF_LEVEL)
+, d_backoffLevel(k_DEFAULT_BACKOFF_LEVEL)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < objectSize);

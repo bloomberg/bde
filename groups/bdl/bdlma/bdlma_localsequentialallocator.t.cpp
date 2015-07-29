@@ -13,6 +13,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
@@ -365,6 +366,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\nTesting subsequent allocations come"
                                  " first from the initial buffer." << endl;
             void *addr = mX.allocate(16);
+            ASSERT(0 != addr);
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
         }
@@ -397,12 +399,13 @@ int main(int argc, char *argv[])
 
         Obj mX(&objectAllocator);
 
-        int lastNumBytesInUse = objectAllocator.numBytesInUse();
+        bsls::Types::Int64 lastNumBytesInUse = objectAllocator.numBytesInUse();
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
             void *p = mX.allocate(SIZE);
-            const int numBytesInUse = objectAllocator.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse =
+                                               objectAllocator.numBytesInUse();
             mX.deallocate(p);
             LOOP_ASSERT(i, numBytesInUse == objectAllocator.numBytesInUse());
             LOOP_ASSERT(i, lastNumBytesInUse <=
@@ -460,7 +463,10 @@ int main(int argc, char *argv[])
                                                   &taA);
 
             void *addrA = mA.allocate(DATA[i]);
+            LOOP_ASSERT(i, 0 != addrA);
+
             void *addrV = mV.allocate(DATA[i]);
+            LOOP_ASSERT(i, 0 != addrV);
 
             // If one allocates from the provided allocator, the other should
             // too.
@@ -481,7 +487,10 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 void *addrA = mA.allocate(DATA[i]);
+                LOOP_ASSERT(i, 0 != addrA);
+
                 void *addrV = mV.allocate(DATA[i]);
+                LOOP_ASSERT(i, 0 != addrV);
 
                 // If one allocates from the provided allocator, the other
                 // should too.
@@ -560,11 +569,13 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nTesting allocate from buffer." << endl;
             void *addr1 = mX.allocate(ALLOC_SIZE1);
+            ASSERT(0 != addr1);
 
             // Allocation comes from within the buffer.
             ASSERT(0 == objectAllocator.numBlocksTotal());
 
             void *addr2 = mX.allocate(ALLOC_SIZE2);
+            ASSERT(0 != addr2);
 
             // Make sure no memory comes from the object, default, and global
             // allocators.
@@ -600,13 +611,16 @@ int main(int argc, char *argv[])
 
                 // Exhaust the local buffer.
                 char *addr0 = static_cast<char *>(mY.allocate(k_SIZE));
+                ASSERT(0 != addr0);
 
                 char *addr1 = static_cast<char *>(mY.allocate(1));
+                ASSERT(0 != addr1);
 
                 // Ensure that we're allocating from the supplied allocator.
                 LOOP_ASSERT(i, 0 != objectAllocator.numBlocksInUse());
 
                 char *addr2 = static_cast<char *>(mY.allocate(DATA[i]));
+                ASSERT(0 != addr2);
 
                 // We expect natural alignment.
                 const int expectedAlignment

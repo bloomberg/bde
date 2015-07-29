@@ -136,12 +136,12 @@
 //  // ...
 //
 //  // TYPES
-//  enum { INITIAL_CAPACITY = 1, GROWTH_FACTOR = 2 };
+//  enum { k_INITIAL_CAPACITY = 1, k_GROWTH_FACTOR = 2 };
 //
 //  // CREATORS
 //  DoubleStack::DoubleStack(bslma::Allocator *basicAllocator)
 //  : d_stack_p(0)
-//  , d_capacity(INITIAL_CAPACITY)
+//  , d_capacity(k_INITIAL_CAPACITY)
 //  , d_length(0)
 //  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
@@ -204,7 +204,7 @@
 //  // PRIVATE MANIPULATORS
 //  void DoubleStack::increaseCapacity()
 //  {
-//      const int newCapacity = d_capacity * GROWTH_FACTOR;
+//      const int newCapacity = d_capacity * k_GROWTH_FACTOR;
 //                                                      // reallocate can throw
 //      reallocate(&d_stack_p, newCapacity, d_length, d_allocator_p);
 //      d_capacity = newCapacity;                       // commit

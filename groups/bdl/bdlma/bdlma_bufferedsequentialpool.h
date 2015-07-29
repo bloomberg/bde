@@ -99,7 +99,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TYPES
-//      enum Type { MY_INT, MY_DOUBLE };
+//      enum Type { k_MY_INT, k_MY_DOUBLE };
 //
 //      // CREATORS
 //      my_BufferedIntDoubleArray(char             *buffer,
@@ -196,7 +196,7 @@ BSLS_IDENT("$Id: $")
 //      int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast<char>(MY_INT);
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
@@ -211,7 +211,7 @@ BSLS_IDENT("$Id: $")
 //      double *item = static_cast<double *>(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast<char>(MY_DOUBLE);
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_DOUBLE);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;

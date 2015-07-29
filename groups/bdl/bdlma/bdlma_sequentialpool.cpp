@@ -6,10 +6,10 @@
 #include <bsl_climits.h>  // 'INT_MAX'
 
 enum {
-    INITIAL_SIZE  = 256,  // default initial allocation size (in bytes)
+    k_INITIAL_SIZE  = 256,  // default initial allocation size (in bytes)
 
-    GROWTH_FACTOR =   2   // multiplicative factor by which to grow allocation
-                          // size
+    k_GROWTH_FACTOR =   2   // multiplicative factor by which to grow
+                            // allocation size
 };
 
 namespace BloombergLP {
@@ -32,7 +32,7 @@ int SequentialPool::calculateNextBufferSize(int size) const
     int oldSize;
     do {
         oldSize   = nextSize;
-        nextSize *= GROWTH_FACTOR;
+        nextSize *= k_GROWTH_FACTOR;
     } while (nextSize < size && oldSize < nextSize);
 
     // If 'nextSize' overflows, use 'oldSize'.
@@ -48,7 +48,7 @@ int SequentialPool::calculateNextBufferSize(int size) const
 SequentialPool::SequentialPool(bslma::Allocator *basicAllocator)
 : d_buffer()
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_initialSize(INITIAL_SIZE)
+, d_initialSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {
@@ -59,7 +59,7 @@ SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
                bslma::Allocator            *basicAllocator)
 : d_buffer()
 , d_growthStrategy(growthStrategy)
-, d_initialSize(INITIAL_SIZE)
+, d_initialSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {
@@ -70,7 +70,7 @@ SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
                bslma::Allocator          *basicAllocator)
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_initialSize(INITIAL_SIZE)
+, d_initialSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {
@@ -82,7 +82,7 @@ SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
                bslma::Allocator            *basicAllocator)
 : d_buffer(alignmentStrategy)
 , d_growthStrategy(growthStrategy)
-, d_initialSize(INITIAL_SIZE)
+, d_initialSize(k_INITIAL_SIZE)
 , d_maxBufferSize(INT_MAX)
 , d_blockList(basicAllocator)
 {

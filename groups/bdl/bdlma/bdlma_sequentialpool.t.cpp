@@ -10,6 +10,7 @@
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -187,7 +188,7 @@ static int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(Block) - 1;
+        numBytes += static_cast<int>(sizeof(Block)) - 1;
         numBytes &= ~(MAX_ALIGN - 1);
     }
 
@@ -298,7 +299,7 @@ static int calculateNextSize(int currSize, int size)
 //  // my_intdoublearray.cpp
 //  #include <my_intdoublearray.h>
 
-    enum { INITIAL_SIZE = 1, GROWTH_FACTOR = 2 };
+    enum { INITIAL_SIZE = 1 };
 
     // PRIVATE MANIPULATORS
     void my_IntDoubleArray::increaseSize()
@@ -569,7 +570,7 @@ int main(int argc, char *argv[])
 
         {
             Obj mX(INITIAL_SIZE, MAX_BUFFER, &objectAllocator);
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
             mX.reserveCapacity(INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
@@ -599,7 +600,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBytesInUse());
 
             mX.reserveCapacity(DEFAULT_SIZE);
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
             mX.allocate(DEFAULT_SIZE);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
@@ -761,7 +762,7 @@ int main(int argc, char *argv[])
             void *addr1 = mX.allocate(INITIALSIZE);
             ASSERT(0 != objectAllocator.numBytesInUse());
 
-            int used = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 used = objectAllocator.numBytesInUse();
 
             mX.truncate(addr1, INITIALSIZE, NEWSIZE);
             ASSERT(used == objectAllocator.numBytesInUse());
@@ -1352,10 +1353,10 @@ int main(int argc, char *argv[])
                     Obj mX(INITIAL_SIZE, STRATEGY, NAT, &tc);
                     Obj mY(INITIAL_SIZE, STRATEGY, BYT, &td);
 
-                    const int NA = ta.numBytesInUse();
-                    const int NB = tb.numBytesInUse();
-                    const int NC = tc.numBytesInUse();
-                    const int ND = td.numBytesInUse();
+                    const bsls::Types::Int64 NA = ta.numBytesInUse();
+                    const bsls::Types::Int64 NB = tb.numBytesInUse();
+                    const bsls::Types::Int64 NC = tc.numBytesInUse();
+                    const bsls::Types::Int64 ND = td.numBytesInUse();
 
                     mV.allocate(SIZE);
                     mW.allocate(SIZE);
@@ -1472,10 +1473,10 @@ int main(int argc, char *argv[])
                             Obj mX(INITIAL_SIZE, MAX_SIZE, STRATEGY, NAT, &tc);
                             Obj mY(INITIAL_SIZE, MAX_SIZE, STRATEGY, BYT, &td);
 
-                            const int NA = ta.numBytesInUse();
-                            const int NB = tb.numBytesInUse();
-                            const int NC = tc.numBytesInUse();
-                            const int ND = td.numBytesInUse();
+                            const bsls::Types::Int64 NA = ta.numBytesInUse();
+                            const bsls::Types::Int64 NB = tb.numBytesInUse();
+                            const bsls::Types::Int64 NC = tc.numBytesInUse();
+                            const bsls::Types::Int64 ND = td.numBytesInUse();
 
                             mV.allocate(ALLOC_SIZE);
                             mW.allocate(ALLOC_SIZE);
@@ -2102,7 +2103,9 @@ int main(int argc, char *argv[])
             // If the first 'SIZE' is 0, the allocator's 'allocate' is never
             // called; thus, 'lastAllocateddSize' will return -1 instead of 0.
 
-            const int EXP = i || SIZE ? a.lastAllocatedNumBytes() : 0;
+            const int EXP = i || SIZE
+                          ? static_cast<int>(a.lastAllocatedNumBytes())
+                          : 0;
 
             if (veryVerbose) { T_ P_(SIZE); T_ P_(blkSize); T_ P(EXP); }
             LOOP_ASSERT(i, EXP == blkSize);
@@ -2166,7 +2169,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
-            int oldNumBytesInUse = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 oldNumBytesInUse =
+                                               objectAllocator.numBytesInUse();
 
             if (verbose) cout << "\nTesting internal buffering." << endl;
             void *addr2 = mX.allocate(ALLOC_SIZE2);

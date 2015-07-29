@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TYPES
-//      enum Type { MY_INT, MY_DOUBLE };
+//      enum Type { k_MY_INT, k_MY_DOUBLE };
 //
 //      // CREATORS
 //      explicit my_IntDoubleArray(bslma::Allocator *basicAllocator = 0);
@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 //  // my_intdoublearray.cpp
 //  #include <my_intdoublearray.h>
 //
-//  enum { INITIAL_SIZE = 1, GROWTH_FACTOR = 2 };
+//  enum { k_INITIAL_SIZE = 1 };
 //
 //  // PRIVATE MANIPULATORS
 //  void my_IntDoubleArray::increaseSize()
@@ -158,7 +158,7 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  my_IntDoubleArray::my_IntDoubleArray(bslma::Allocator *basicAllocator)
 //  : d_length(0)
-//  , d_capacity(INITIAL_SIZE)
+//  , d_capacity(k_INITIAL_SIZE)
 //  , d_pool(basicAllocator)
 //  {
 //      d_typeArray_p  = static_cast<char *>(
@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 //      int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast<char>(MY_INT);
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
@@ -202,7 +202,7 @@ BSLS_IDENT("$Id: $")
 //      double *item = static_cast<double *>(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast<char>(MY_DOUBLE);
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_DOUBLE);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;

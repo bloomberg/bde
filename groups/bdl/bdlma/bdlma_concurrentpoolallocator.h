@@ -577,11 +577,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                         // =========================
-                         // class ConcurrentPoolAllocator
-                         // =========================
+
+                      // =============================
+                      // class ConcurrentPoolAllocator
+                      // =============================
 
 class ConcurrentPoolAllocator : public bslma::Allocator {
     // This class implements the 'bslma::Allocator' protocol to provide an
@@ -597,23 +597,22 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
 
     // PRIVATE TYPES
     enum {
-        BCEMA_MAGIC_NUMBER  = 0x111902,  // magic number that is inserted in
-                                         // header of items that are allocated
-                                         // from the underlying pool
+        k_MAGIC_NUMBER  = 0x111902,  // magic number that is inserted in header
+                                     // of items that are allocated from the
+                                     // underlying pool
 
-        BCEMA_UNINITIALIZED =  0,        // pool not yet initialized
+        k_UNINITIALIZED =  0,        // pool not yet initialized
 
-        BCEMA_INITIALIZED   =  1,        // pool is initialized
+        k_INITIALIZED   =  1,        // pool is initialized
 
-        BCEMA_INITIALIZING  = -1         // pool initialization in progress
+        k_INITIALIZING  = -1         // pool initialization in progress
     };
 
     union Header {
         // Leading header on each allocated memory block.  If the memory block
         // is allocated from the pool, 'd_magicNumber' is set to
-        // 'BCEMA_MAGIC_NUMBER'.  Otherwise, memory is allocated from the
-        // external allocator supplied at construction, and 'd_magicNumber' is
-        // set to 0.
+        // 'k_MAGIC_NUMBER'.  Otherwise, memory is allocated from the external
+        // allocator supplied at construction, and 'd_magicNumber' is set to 0.
 
         int                                 d_magicNumber; // allocation source
                                                            // and sanity check

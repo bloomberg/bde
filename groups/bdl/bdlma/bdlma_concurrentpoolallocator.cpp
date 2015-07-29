@@ -14,7 +14,7 @@ BSLS_IDENT_RCSID(bdlma_concurrentpoolallocator_cpp,"$Id$ $CSID$")
 
 // CONSTANTS
 enum {
-    MAX_CHUNK_SIZE = 32  // maximum number of blocks per chunk
+    k_MAX_CHUNK_SIZE = 32  // maximum number of blocks per chunk
 };
 
 // STATIC METHODS
@@ -40,10 +40,10 @@ namespace bdlma {
 // CREATORS
 ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                               bslma::Allocator *basicAllocator)
-: d_initialized(BCEMA_UNINITIALIZED)
+: d_initialized(k_UNINITIALIZED)
 , d_blockSize(0)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -51,20 +51,20 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
 ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
-: d_initialized(BCEMA_UNINITIALIZED)
+: d_initialized(k_UNINITIALIZED)
 , d_blockSize(0)
 , d_growthStrategy(growthStrategy)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 ConcurrentPoolAllocator::ConcurrentPoolAllocator(size_type         blockSize,
                                          bslma::Allocator *basicAllocator)
-: d_initialized(BCEMA_UNINITIALIZED)
+: d_initialized(k_UNINITIALIZED)
 , d_blockSize(blockSize)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
@@ -72,7 +72,7 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(size_type         blockSize,
                            calculateMaxAlignedSize(blockSize + sizeof(Header)),
                            d_growthStrategy,
                            d_allocator_p);
-        d_initialized = BCEMA_INITIALIZED;
+        d_initialized = k_INITIALIZED;
     }
 }
 
@@ -80,10 +80,10 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                    size_type                    blockSize,
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
-: d_initialized(BCEMA_UNINITIALIZED)
+: d_initialized(k_UNINITIALIZED)
 , d_blockSize(blockSize)
 , d_growthStrategy(growthStrategy)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
@@ -91,7 +91,7 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                            calculateMaxAlignedSize(blockSize + sizeof(Header)),
                            d_growthStrategy,
                            d_allocator_p);
-        d_initialized = BCEMA_INITIALIZED;
+        d_initialized = k_INITIALIZED;
     }
 }
 
@@ -99,7 +99,7 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 int                          maxBlocksPerChunk,
                                 bslma::Allocator            *basicAllocator)
-: d_initialized(BCEMA_UNINITIALIZED)
+: d_initialized(k_UNINITIALIZED)
 , d_blockSize(0)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
@@ -112,7 +112,7 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 int                          maxBlocksPerChunk,
                                 bslma::Allocator            *basicAllocator)
-: d_initialized(BCEMA_UNINITIALIZED)
+: d_initialized(k_UNINITIALIZED)
 , d_blockSize(blockSize)
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
@@ -124,13 +124,13 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                            d_growthStrategy,
                            d_maxBlocksPerChunk,
                            d_allocator_p);
-        d_initialized = BCEMA_INITIALIZED;
+        d_initialized = k_INITIALIZED;
     }
 }
 
 ConcurrentPoolAllocator::~ConcurrentPoolAllocator()
 {
-    if (BCEMA_INITIALIZED == d_initialized) {
+    if (k_INITIALIZED == d_initialized) {
         d_pool.object().~ConcurrentPool();
     }
 }
@@ -145,17 +145,17 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
 
     // TBD This should be replaced with a load with acquire semantics.
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(BCEMA_INITIALIZED !=
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(k_INITIALIZED !=
                                                               d_initialized)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         while (1) {
-            int res = d_initialized.testAndSwap(BCEMA_UNINITIALIZED,
-                                                BCEMA_INITIALIZING);
-            if (BCEMA_INITIALIZING == res) {
+            int res = d_initialized.testAndSwap(k_UNINITIALIZED,
+                                                k_INITIALIZING);
+            if (k_INITIALIZING == res) {
                 bdlmtt::ThreadUtil::yield();
                 continue; // initialization in progress
             }
-            else if (BCEMA_UNINITIALIZED != res) {
+            else if (k_UNINITIALIZED != res) {
                 break;    // initialized
             }
             d_blockSize = size;
@@ -164,7 +164,7 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
                                 d_growthStrategy,
                                 d_maxBlocksPerChunk,
                                 d_allocator_p);
-            d_initialized = BCEMA_INITIALIZED;
+            d_initialized = k_INITIALIZED;
             break;
         }
     }
@@ -180,7 +180,7 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
     else {
         ptr = static_cast<char *>(d_pool.object().allocate());
         static_cast<Header *>(static_cast<void *>(ptr))->d_magicNumber =
-                                                            BCEMA_MAGIC_NUMBER;
+                                                                k_MAGIC_NUMBER;
     }
     return ptr + sizeof(Header);
 }
@@ -196,7 +196,7 @@ void ConcurrentPoolAllocator::deallocate(void *ptr)
                         static_cast<void *>(
                             static_cast<char *>(ptr) - sizeof(Header)));
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                BCEMA_MAGIC_NUMBER == header->d_magicNumber)) {
+                                    k_MAGIC_NUMBER == header->d_magicNumber)) {
         d_pool.object().deallocate(header);
     }
     else {

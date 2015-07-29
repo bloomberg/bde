@@ -42,10 +42,10 @@ struct LLink {
                                 // ---------
 
 enum {
-    INITIAL_CHUNK_SIZE = 1,  // default 'numObjects' value
-    GROWTH_FACTOR      = 2,  // multiplicative factor to grow pool capacity
-    MAX_CHUNK_SIZE     = 32  // minimum 'd_numObjects' value beyond which
-                             // 'd_numObjects' becomes positive
+    k_INITIAL_CHUNK_SIZE =  1, // default 'numObjects' value
+
+    k_MAX_CHUNK_SIZE     = 32  // minimum 'd_numObjects' value beyond which
+                               // 'd_numObjects' becomes positive
 };
 
 }  // close unnamed namespace
@@ -150,8 +150,8 @@ void ConcurrentPool::replenish()
 // CREATORS
 ConcurrentPool::ConcurrentPool(int blockSize, bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+, d_chunkSize(k_INITIAL_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_freeList(0)
 , d_blockList(basicAllocator)
@@ -166,8 +166,8 @@ ConcurrentPool::ConcurrentPool(int                          blockSize,
                        bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
-              ? MAX_CHUNK_SIZE : INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+              ? k_MAX_CHUNK_SIZE : k_INITIAL_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_growthStrategy(growthStrategy)
 , d_freeList(0)
 , d_blockList(basicAllocator)
@@ -183,7 +183,7 @@ ConcurrentPool::ConcurrentPool(int                          blockSize,
                        bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
-              ? maxBlocksPerChunk : INITIAL_CHUNK_SIZE)
+              ? maxBlocksPerChunk : k_INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
 , d_growthStrategy(growthStrategy)
 , d_freeList(0)

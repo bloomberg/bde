@@ -10,8 +10,8 @@ BSLS_IDENT_RCSID(bdlma_bufferedsequentialpool_cpp,"$Id$ $CSID$")
 #include <bsl_climits.h>  // 'INT_MAX'
 
 enum {
-    GROWTH_FACTOR = 2  // multiplicative factor by which to grow allocation
-                       // size
+    k_GROWTH_FACTOR = 2  // multiplicative factor by which to grow allocation
+                         // size
 };
 
 namespace BloombergLP {
@@ -33,7 +33,7 @@ int BufferedSequentialPool::calculateNextBufferSize(int size) const
     int oldSize;
     do {
         oldSize   = nextSize;
-        nextSize *= GROWTH_FACTOR;
+        nextSize *= k_GROWTH_FACTOR;
     } while (nextSize < size && oldSize < nextSize);
 
     // If 'nextSize' overflows, use 'oldSize'.

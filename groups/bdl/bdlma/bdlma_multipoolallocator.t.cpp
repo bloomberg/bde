@@ -16,6 +16,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
@@ -880,8 +881,10 @@ int main(int argc, char *argv[])
                         stretchRemoveAll(&mX, EXTEND[ei], OBJ_SIZE);
                         mX.reserveCapacity(OBJ_SIZE, 0);
                         mX.reserveCapacity(OBJ_SIZE, NE);
-                        const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                        const int NUM_BYTES  = testAllocator.numBytesInUse();
+                        const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                        const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                         for (int i = 0; i < NE; ++i) {
                             mX.allocate(OBJ_SIZE);
                         }
@@ -941,8 +944,10 @@ int main(int argc, char *argv[])
         for (int i = 1; i <= MAX_POOLS; ++i) {
             if (veryVerbose) { T_ cout << "# pools: "; P(i); }
             Obj mX(i, Z);
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
             int its              = NITERS;
             while (its-- > 0) {  // exercise each pool, as well as "overflow"
                 char *p;
@@ -993,8 +998,8 @@ int main(int argc, char *argv[])
         const int OVERFLOW_SIZE = MAX_ALIGN * 5;
         const int NITERS        = MAX_ALIGN * 256;
 
-        int numBlocks;
-        int numBytes;
+        bsls::Types::Int64 numBlocks;
+        bsls::Types::Int64 numBytes;
 
         for (int i = 1; i <= MAX_POOLS; ++i) {
             if (veryVerbose) { T_ cout << "# pools: "; P(i); }
@@ -1123,8 +1128,9 @@ int main(int argc, char *argv[])
 
                 Obj mX(NUM_POOLS, SDATA[si], MDATA[mi], &oa);
 
-                int multipoolAllocations = mpta.numAllocations();
-                int objectAllocations    =   oa.numAllocations();
+                bsls::Types::Int64 multipoolAllocations =
+                                                         mpta.numAllocations();
+                bsls::Types::Int64 objectAllocations    = oa.numAllocations();
 
                 LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                              multipoolAllocations == objectAllocations);
@@ -1205,8 +1211,8 @@ int main(int argc, char *argv[])
 
             Obj mX(&oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1281,8 +1287,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1357,8 +1363,8 @@ int main(int argc, char *argv[])
 
             Obj mX(CON, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1410,8 +1416,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, CON, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1463,8 +1469,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, SDATA[si], &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1542,8 +1548,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, GEO, TEST_MAX_CHUNK_SIZE, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1620,8 +1626,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, GEO, MDATA[mi], &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1697,8 +1703,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, CON, TEST_MAX_CHUNK_SIZE, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1751,8 +1757,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, SDATA[si], TEST_MAX_CHUNK_SIZE, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1831,8 +1837,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, CON, MDATA[mi], &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -2054,8 +2060,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                     {
                         Obj mX(NUM_POOLS, Z);
@@ -2097,8 +2105,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(NUM_POOLS, Z);

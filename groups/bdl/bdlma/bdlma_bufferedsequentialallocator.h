@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 // (which triggers more allocations) by reserving for the specific capacity we
 // need:
 //..
-//      enum { SIZE = 3 * 100 * sizeof(double) };
+//      enum { k_SIZE = 3 * 100 * sizeof(double) };
 //..
 // In the above calculation, we assume that the only memory allocation
 // requested by the vector is the allocation for the array that stores the
@@ -121,7 +121,7 @@ BSLS_IDENT("$Id: $")
 // To avoid alignment issues described in the "Warning" section (above), we
 // create a 'bsls::AlignedBuffer':
 //..
-//      bsls::AlignedBuffer<SIZE> bufferStorage;
+//      bsls::AlignedBuffer<k_SIZE> bufferStorage;
 //
 //      bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(), SIZE);
 //
@@ -150,18 +150,18 @@ BSLS_IDENT("$Id: $")
 // stack:
 //..
 //  enum {
-//      NUM_SECURITIES = 100,
+//      k_NUM_SECURITIES = 100,
 //
-//      TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
+//      k_TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
 //                       + sizeof(void *) * 4,
 //
-//      AVERAGE_SECURITY_LENGTH = 5,
+//      k_AVERAGE_SECURITY_LENGTH = 5,
 //
-//      TOTAL_SIZE = NUM_SECURITIES *
-//                   (TREE_NODE_SIZE + AVERAGE_SECURITY_LENGTH )
+//      k_TOTAL_SIZE = NUM_SECURITIES * (TREE_NODE_SIZE
+//                                     + AVERAGE_SECURITY_LENGTH)
 //  };
 //
-//  bsls::AlignedBuffer<TOTAL_SIZE> bufferStorage;
+//  bsls::AlignedBuffer<k_TOTAL_SIZE> bufferStorage;
 //..
 // The calculation of the amount of memory needed is just an estimate, as we
 // used the average security size instead of the maximum security size.  We

@@ -96,12 +96,12 @@ BSLS_IDENT("$Id: $")
 //  // my_strpool.cpp
 //
 //  enum {
-//      INITIAL_SIZE  = 128,  // initial block size
+//      k_INITIAL_SIZE  = 128,  // initial block size
 //
-//      GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
+//      k_GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
 //
-//      THRESHOLD     = 128   // size beyond which an individual block may be
-//                            // allocated if it doesn't fit in current block
+//      k_THRESHOLD     = 128   // size beyond which an individual block may be
+//                              // allocated if it doesn't fit in current block
 //  };
 //
 //  // PRIVATE MANIPULATORS
@@ -109,13 +109,17 @@ BSLS_IDENT("$Id: $")
 //  {
 //      assert(0 < numBytes);
 //
-//      if (THRESHOLD < numBytes) { // Alloc separate block if above threshold.
+//      if (k_THRESHOLD < numBytes) {
+//          // Alloc separate block if above threshold.
+//
 //          return reinterpret_cast<char *>(
 //                                  d_blockList.allocate(numBytes));  // RETURN
 //      }
 //
-//      if (d_block_p) {  // Don't increase block size if no current block.
-//          d_blockSize *= GROWTH_FACTOR;
+//      if (d_block_p) {
+//          // Do not increase block size if no current block.
+//
+//          d_blockSize *= k_GROWTH_FACTOR;
 //      }
 //      d_block_p = reinterpret_cast<char*>(d_blockList.allocate(d_blockSize));
 //      d_cursor  = numBytes;
@@ -126,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
 //  : d_block_p(0)
-//  , d_blockSize(INITIAL_SIZE)
+//  , d_blockSize(k_INITIAL_SIZE)
 //  , d_cursor(0)
 //  , d_blockList(basicAllocator)  // the blocklist knows about 'bslma_default'
 //  {
@@ -134,7 +138,7 @@ BSLS_IDENT("$Id: $")
 //
 //  my_StrPool::~my_StrPool()
 //  {
-//      assert(INITIAL_SIZE <= d_blockSize);
+//      assert(k_INITIAL_SIZE <= d_blockSize);
 //      assert(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
 //  }
 //
@@ -157,11 +161,11 @@ BSLS_IDENT("$Id: $")
 //..
 // In the code shown above, the 'my_StrPool' memory manager allocates from its
 // 'bdlma::InfrequentDeleteBlockList' member object an initial memory block of
-// size 'INITIAL_SIZE'.  This size is multiplied by 'GROWTH_FACTOR' each time a
-// depleted memory block is replaced by a newly-allocated block.  The
+// size 'k_INITIAL_SIZE'.  This size is multiplied by 'k_GROWTH_FACTOR' each
+// time a depleted memory block is replaced by a newly-allocated block.  The
 // 'allocate' method distributes memory from the current memory block
 // piecemeal, except when the requested size (1) is not available in the
-// current block, or (2) exceeds the 'THRESHOLD', in which case a separate
+// current block, or (2) exceeds the 'k_THRESHOLD', in which case a separate
 // memory block is allocated and returned.  When the 'my_StrPool' memory
 // manager is destroyed, its 'bdlma::InfrequentDeleteBlockList' member object
 // is also destroyed, which in turn automatically deallocates all of its

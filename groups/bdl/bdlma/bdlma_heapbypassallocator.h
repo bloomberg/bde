@@ -42,26 +42,26 @@ BSLS_IDENT("$Id: $")
 //..
 //  {
 //      enum {
-//          LENGTH = 10 * 1000,
-//          NUM_SEGMENTS = 60
+//          k_LENGTH       = 10 * 1000,
+//          k_NUM_SEGMENTS = 60
 //      };
 //
 //      bdlma::HeapBypassAllocator hbpa;
 //..
 // First we allocate some segments
 //..
-//      char *segments[NUM_SEGMENTS];
-//      for (int i = 0; i < NUM_SEGMENTS; ++i) {
-//          segments[i] = static_cast<char *>(hbpa.allocate(LENGTH));
+//      char *segments[k_NUM_SEGMENTS];
+//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+//          segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
 //          BSLS_ASSERT(segments[i]);
 //      }
 //..
 // Next we write to the segments.
 //..
 //      char c = 'a';
-//      for (int i = 0; i < NUM_SEGMENTS; ++i) {
+//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
 //          char *segment = segments[i];
-//          for (int j = 0; j < LENGTH; ++j) {
+//          for (int j = 0; j < k_LENGTH; ++j) {
 //              c = (c + 1) & 0x7f;
 //              segment[j] = c;
 //          }
@@ -71,9 +71,9 @@ BSLS_IDENT("$Id: $")
 // there.
 //..
 //      c = 'a';
-//      for (int i = 0; i < NUM_SEGMENTS; ++i) {
+//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
 //          char *segment = segments[i];
-//          for (int j = 0; j < LENGTH; ++j) {
+//          for (int j = 0; j < k_LENGTH; ++j) {
 //              c = (c + 1) & 0x7f;
 //              BSLS_ASSERT(segment[j] == c);
 //          }
