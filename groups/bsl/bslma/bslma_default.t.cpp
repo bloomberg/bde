@@ -10,8 +10,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 #include <string.h>
 
 #include <new>
@@ -52,25 +52,34 @@ using namespace BloombergLP;
 // [11] USAGE EXAMPLE 2
 // [12] USAGE EXAMPLE 3
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -79,13 +88,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -492,10 +500,14 @@ typedef bslma::Default Obj;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVeryVerbose;       // suppress unused variable warning
+    (void)veryVeryVeryVerbose;   // suppress unused variable warning
 
     bslma::NewDeleteAllocator *NDA = &bslma::NewDeleteAllocator::singleton();
 
@@ -907,9 +919,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'defaultAllocator' in the first substantive line of the test
         //   case to lock the default allocator to its initial setting, namely
-        //   the 'bslma::NewDeleteAllocator' singleton.  Verify that the default
-        //   allocator is locked by calling 'setDefaultAllocator' and asserting
-        //   that the call fails.
+        //   the 'bslma::NewDeleteAllocator' singleton.  Verify that the
+        //   default allocator is locked by calling 'setDefaultAllocator' and
+        //   asserting that the call fails.
         //
         // Testing:
         //   bslma::Allocator *defaultAllocator();
@@ -936,10 +948,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'allocator', without an argument, in the first substantive
         //   line of the test case to verify that the default allocator is
-        //   initially the address of the 'bslma::NewDeleteAllocator' singleton.
-        //   Subsequently, use 'setDefaultAllocatorRaw' to set the default
-        //   allocator to various values and verify that 'allocator', when
-        //   called without an argument, returns the expected result.
+        //   initially the address of the 'bslma::NewDeleteAllocator'
+        //   singleton.  Subsequently, use 'setDefaultAllocatorRaw' to set the
+        //   default allocator to various values and verify that 'allocator',
+        //   when called without an argument, returns the expected result.
         //   Regularly call 'allocator' *with* an argument throughout the test
         //   case, and verify that the argument is returned and that the
         //   setting of the default allocator is not affected.  Note that
@@ -1032,7 +1044,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative testing\n");
 
-        bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard guard;
 
         ASSERT_FAIL(Obj::setDefaultAllocator(0));
         ASSERT_PASS(Obj::setDefaultAllocator(U));
@@ -1086,7 +1098,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative testing\n");
 
-        bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard guard;
 
         ASSERT_FAIL(Obj::setDefaultAllocatorRaw(0));
         ASSERT_PASS(Obj::setDefaultAllocatorRaw(U));
