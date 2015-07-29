@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
             segments[i] = static_cast<char *>(hbpa.allocate(LENGTH));
             char *pcB = segments[i];
 
-            const char C = 'a' + i;
+            const char C = static_cast<char>('a' + i);
             for (char *pcE = pcB + LENGTH, *pc = pcB; pc < pcE; ++pc) {
                 *pc = C;
             }
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_SEGMENTS; ++i) {
             const char *pcB = segments[i];
 
-            const char C = 'a' + i;
+            const char C = static_cast<char>('a' + i);
             for (const char *pcE = pcB + LENGTH, *pc = pcB; pc < pcE; ++pc) {
                 ASSERT(C == *pc);
             }

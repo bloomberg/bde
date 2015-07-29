@@ -235,16 +235,16 @@ void *SequentialPool::allocate(bsls::Types::size_type size)
         }
     }
 
-    const int nextSize = calculateNextBufferSize(size);
+    const int nextSize = calculateNextBufferSize(static_cast<int>(size));
 
     if (nextSize < static_cast<int>(size)) {
-        return d_blockList.allocate(size);                            // RETURN
+        return d_blockList.allocate(static_cast<int>(size));          // RETURN
     }
 
     d_buffer.replaceBuffer(static_cast<char *>(d_blockList.allocate(nextSize)),
                            nextSize);
 
-    return d_buffer.allocateRaw(size);
+    return d_buffer.allocateRaw(static_cast<int>(size));
 }
 
 void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
@@ -252,8 +252,8 @@ void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
     BSLS_ASSERT(size);
     BSLS_ASSERT(0 < *size);
 
-    void *result = allocate(*size);
-    *size = d_buffer.expand(result, *size);
+    void *result = allocate(static_cast<int>(*size));
+    *size = d_buffer.expand(result, static_cast<int>(*size));
 
     return result;
 }

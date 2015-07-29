@@ -9,10 +9,13 @@
 
 #include <bdlf_bind.h>
 #include <bdlma_infrequentdeleteblocklist.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cmath.h>       // 'log'
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -212,7 +215,7 @@ static int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(InfrequentDeleteBlock) - 1;
+        numBytes += static_cast<int>(sizeof(InfrequentDeleteBlock)) - 1;
         numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
@@ -234,7 +237,7 @@ inline static int poolObjectSize(int size)
 {
     const int HEADER_SIZE = offsetof(LLink, d_next_p);
     return roundUp(size + HEADER_SIZE < (int)sizeof(LLink)
-                   ? sizeof(LLink) : size + HEADER_SIZE,
+                        ? static_cast<int>(sizeof(LLink)) : size + HEADER_SIZE,
                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
@@ -345,7 +348,7 @@ void stretchRemoveAll(Obj *object, int numElements)
     inline
     int my_PooledArray<T>::length() const
     {
-        return d_array_p.size();
+        return static_cast<int>(d_array_p.size());
     }
 //
     template <class T>
@@ -597,7 +600,8 @@ void *workerThread(void *arg) {
     for (int i = 0; i < NUM_OBJECTS; ++i) {
         int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
-            printf("Thread %d: Allocated %p\n", bdlmtt::ThreadUtil::self(),
+            printf("Thread %d: Allocated %p\n",
+                   static_cast<int>(bdlmtt::ThreadUtil::self()),
                    buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
@@ -628,7 +632,7 @@ struct Control {
 
 void bench(Control *control)
 {
-    int threadId = bdlmtt::ThreadUtil::selfIdAsInt();
+    int threadId = static_cast<int>(bdlmtt::ThreadUtil::selfIdAsInt());
 
     bdlma::ConcurrentPool *pool = control->d_pool;
     int numObjects = control->d_numObjects;
@@ -881,15 +885,19 @@ int main(int argc, char *argv[]) {
                     mExp.allocate();
                 }
 
-                int numAllocations = TAX.numAllocations();
-                int numBytes       = TAX.lastAllocatedNumBytes();
+                bsls::Types::Int64 numAllocations = TAX.numAllocations();
+                bsls::Types::Int64 numBytes       =
+                                                   TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { TAB; P_(numAllocations); TAB; P(numBytes); }
-                LOOP2_ASSERT(numAllocations,
+                LOOP3_ASSERT(LINE,
+                             numAllocations,
                              TAEXP.numAllocations(),
                              TAEXP.numAllocations() == numAllocations);
-                LOOP2_ASSERT(numBytes,
+                LOOP3_ASSERT(LINE,
+                             numBytes,
                              TAEXP.lastAllocatedNumBytes(),
-                             TAEXP.lastAllocatedNumBytes() == numBytes);
+                             TAEXP.lastAllocatedNumBytes() ==
+                                   static_cast<bsls::Types::Uint64>(numBytes));
 
             }
         }
@@ -1212,8 +1220,10 @@ int main(int argc, char *argv[]) {
 
                         mX.reserveCapacity(NUM_BLOCKS);
                         mY.reserveCapacity(NUM_BLOCKS);
-                        const int ALLOC_BLOCKS = A.numBlocksTotal();
-                        const int ALLOC_BYTES  = A.numBytesInUse();
+                        const bsls::Types::Int64 ALLOC_BLOCKS =
+                                                            A.numBlocksTotal();
+                        const bsls::Types::Int64 ALLOC_BYTES  =
+                                                             A.numBytesInUse();
 
                         for (int i = 0; i < NUM_BLOCKS; ++i) {
                             mX.allocate();
@@ -1368,7 +1378,7 @@ int main(int argc, char *argv[]) {
                 p[ai] = mX.allocate();
             }
 
-            int numAllocations = TA.numAllocations();
+            bsls::Types::Int64 numAllocations = TA.numAllocations();
 
             for (int dd = NUM_REQUESTS - 1; dd >= 0; --dd) {
                 mX.deallocate(p[dd]);
@@ -1444,8 +1454,8 @@ int main(int argc, char *argv[]) {
                 mExp.allocate();
             }
 
-            int numAllocations = TAX.numAllocations();
-            int numBytes       = TAX.lastAllocatedNumBytes();
+            bsls::Types::Int64 numAllocations = TAX.numAllocations();
+            bsls::Types::Int64 numBytes       = TAX.lastAllocatedNumBytes();
             if (veryVerbose) { TAB; P_(numAllocations); TAB; P(numBytes); }
             LOOP3_ASSERT(blocksPerChunk,
                         numAllocations,
@@ -1454,7 +1464,8 @@ int main(int argc, char *argv[]) {
             LOOP3_ASSERT(blocksPerChunk,
                         numBytes,
                         TAEXP.lastAllocatedNumBytes(),
-                        TAEXP.lastAllocatedNumBytes() == numBytes);
+                        TAEXP.lastAllocatedNumBytes() ==
+                                   static_cast<bsls::Types::Uint64>(numBytes));
 
             blocksPerChunk = blocksPerChunk * 2 <= MAX_BLOCKS_PER_CHUNK
                              ? blocksPerChunk *2
@@ -1511,7 +1522,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
 
-                int numAllocations = TA.numAllocations();
+                bsls::Types::Int64 numAllocations = TA.numAllocations();
                 int blocksPerChunk = INITIAL_CHUNK_SIZE;
 
                 // Number of iterations is number of chunk allocations before
@@ -1528,7 +1539,7 @@ int main(int argc, char *argv[]) {
                     }
                     ++numAllocations;
                     ASSERT(numAllocations == TA.numAllocations());
-                    const int EXP_SIZE =
+                    const bsls::Types::Uint64 EXP_SIZE =
                                  blockSize(POOL_OBJECT_SIZE * blocksPerChunk);
                     LOOP3_ASSERT(blocksPerChunk,
                                  EXP_SIZE,
@@ -1589,14 +1600,15 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
 
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
-                    int numAllocations = TA.numAllocations();
+                    bsls::Types::Int64 numAllocations = TA.numAllocations();
 
                     // Allocate until current pool is deplete.
                     for (int oi = 0; oi < NUM_OBJECTS; ++oi) {
                         mX.allocate();
                     }
 
-                    const int EXP = blockSize(POOL_OBJECT_SIZE * NUM_OBJECTS);
+                    const bsls::Types::Uint64 EXP =
+                                     blockSize(POOL_OBJECT_SIZE * NUM_OBJECTS);
                     if (veryVerbose) { TAB; P_(numAllocations); TAB; P(EXP); }
 
                     LOOP2_ASSERT(di, ri,
@@ -1648,8 +1660,9 @@ int main(int argc, char *argv[]) {
                     char *p = static_cast<char *>(mX.allocate());
                     scribble(p, OBJECT_SIZE);
                     if (oi) {
-                        int size = p - lastP;
-                        const int EXP = poolObjectSize(OBJECT_SIZE);
+                        bsl::size_t size = p - lastP;
+                        const bsls::Types::Uint64 EXP =
+                                                   poolObjectSize(OBJECT_SIZE);
                         if (veryVerbose) { TAB; P_(size); TAB; P(EXP); }
                         LOOP2_ASSERT(di, oi, EXP == size);
                     }
@@ -1693,7 +1706,7 @@ int main(int argc, char *argv[]) {
                 int blkSize = blockSize(SIZE);
                 bl.allocate(SIZE);
 
-                const int EXP = a.lastAllocatedNumBytes();
+                const bsls::Types::Int64 EXP = a.lastAllocatedNumBytes();
 
                 if (veryVerbose) {TAB; P_(SIZE); P_(blkSize); P(EXP);}
                 LOOP_ASSERT(i, EXP == blkSize);
@@ -1712,9 +1725,9 @@ int main(int argc, char *argv[]) {
                 char *p = static_cast<char *>(mX.allocate());
                 char *q = static_cast<char *>(mX.allocate());
 
-                int EXP = q - p;
+                bsl::size_t EXP = q - p;
 
-                int objectSize = poolObjectSize(SIZE);
+                bsls::Types::Uint64 objectSize = poolObjectSize(SIZE);
                 if (veryVerbose) { TAB; P_(SIZE); P_(objectSize); P(EXP); }
                 LOOP3_ASSERT(di, EXP, objectSize, EXP == objectSize);
             }

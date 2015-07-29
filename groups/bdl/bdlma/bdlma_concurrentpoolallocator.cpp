@@ -59,19 +59,21 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
 {
 }
 
-ConcurrentPoolAllocator::ConcurrentPoolAllocator(size_type         blockSize,
-                                         bslma::Allocator *basicAllocator)
+ConcurrentPoolAllocator::ConcurrentPoolAllocator(
+                                              size_type         blockSize,
+                                              bslma::Allocator *basicAllocator)
 : d_initialized(k_UNINITIALIZED)
-, d_blockSize(blockSize)
+, d_blockSize(static_cast<int>(blockSize))
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
         new (d_pool.buffer()) ConcurrentPool(
-                           calculateMaxAlignedSize(blockSize + sizeof(Header)),
-                           d_growthStrategy,
-                           d_allocator_p);
+                     calculateMaxAlignedSize(static_cast<int>(blockSize
+                                                            + sizeof(Header))),
+                     d_growthStrategy,
+                     d_allocator_p);
         d_initialized = k_INITIALIZED;
     }
 }
@@ -81,16 +83,17 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
 : d_initialized(k_UNINITIALIZED)
-, d_blockSize(blockSize)
+, d_blockSize(static_cast<int>(blockSize))
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
         new (d_pool.buffer()) ConcurrentPool(
-                           calculateMaxAlignedSize(blockSize + sizeof(Header)),
-                           d_growthStrategy,
-                           d_allocator_p);
+                     calculateMaxAlignedSize(static_cast<int>(blockSize
+                                                            + sizeof(Header))),
+                     d_growthStrategy,
+                     d_allocator_p);
         d_initialized = k_INITIALIZED;
     }
 }
@@ -113,17 +116,18 @@ ConcurrentPoolAllocator::ConcurrentPoolAllocator(
                                 int                          maxBlocksPerChunk,
                                 bslma::Allocator            *basicAllocator)
 : d_initialized(k_UNINITIALIZED)
-, d_blockSize(blockSize)
+, d_blockSize(static_cast<int>(blockSize))
 , d_growthStrategy(growthStrategy)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     if (blockSize) {
         new (d_pool.buffer()) ConcurrentPool(
-                           calculateMaxAlignedSize(blockSize + sizeof(Header)),
-                           d_growthStrategy,
-                           d_maxBlocksPerChunk,
-                           d_allocator_p);
+                     calculateMaxAlignedSize(static_cast<int>(blockSize
+                                                            + sizeof(Header))),
+                     d_growthStrategy,
+                     d_maxBlocksPerChunk,
+                     d_allocator_p);
         d_initialized = k_INITIALIZED;
     }
 }
@@ -158,12 +162,13 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
             else if (k_UNINITIALIZED != res) {
                 break;    // initialized
             }
-            d_blockSize = size;
+            d_blockSize = static_cast<int>(size);
             new (d_pool.buffer()) ConcurrentPool(
-                                calculateMaxAlignedSize(size + sizeof(Header)),
-                                d_growthStrategy,
-                                d_maxBlocksPerChunk,
-                                d_allocator_p);
+                     calculateMaxAlignedSize(static_cast<int>(size
+                                                            + sizeof(Header))),
+                     d_growthStrategy,
+                     d_maxBlocksPerChunk,
+                     d_allocator_p);
             d_initialized = k_INITIALIZED;
             break;
         }

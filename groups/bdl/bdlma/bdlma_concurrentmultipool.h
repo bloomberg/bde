@@ -341,21 +341,21 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //  my_Message *my_MessageFactory::createMessage(const char *data)
 //  {
-//      enum { SMALL = 8, MEDIUM = 16, LARGE = 32 };
+//      enum { k_SMALL = 8, k_MEDIUM = 16, k_LARGE = 32 };
 //
-//      const int length = bsl::strlen(data);
+//      const int length = static_cast<int>(bsl::strlen(data));
 //
-//      if (length < SMALL) {
+//      if (length < k_SMALL) {
 //          return new(d_multipool.allocate(sizeof(my_SmallMessage)))
 //                                               my_SmallMessage(data, length);
 //      }
 //
-//      if (length < MEDIUM) {
+//      if (length < k_MEDIUM) {
 //          return new(d_multipool.allocate(sizeof(my_MediumMessage)))
 //                                              my_MediumMessage(data, length);
 //      }
 //
-//      if (length < LARGE) {
+//      if (length < k_LARGE) {
 //          return new(d_multipool.allocate(sizeof(my_LargeMessage)))
 //                                               my_LargeMessage(data, length);
 //      }

@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //          bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
 //          d_elements.push_back(value);
-//          return d_elements.size();
+//          return static_cast<int>(d_elements.size()) - 1;
 //      }
 //
 //      void set(int index, const T& value)
@@ -106,7 +106,7 @@ BSLS_IDENT("$Id: $")
 //          // Return the number of elements in this thread-enabled vector.
 //      {
 //          bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
-//          return d_elements.size();
+//          return static_cast<int>(d_elements.size());
 //      }
 //  };
 //..

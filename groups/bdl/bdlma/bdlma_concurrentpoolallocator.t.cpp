@@ -195,7 +195,7 @@ extern "C" void *my2_producer(void *arg)
 
         char b[100];
         sprintf(b, "%d", i);
-        int len = strlen(b);
+        int len = static_cast<int>(strlen(b));
 
         my2_WorkItem request;
         request.d_item = (char *)queue->d_alloc_p->allocate(len+1);
@@ -279,7 +279,7 @@ extern "C" void *my1_producer(void *arg)
 
         char b[100];
         sprintf(b, "%d", i);
-        int len = strlen(b);
+        int len = static_cast<int>(strlen(b));
 
         my1_WorkItem request;
         request.d_item = (char *)queue->d_alloc_p->allocate(100);
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -521,7 +521,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(100 == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -544,7 +544,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -567,7 +567,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -589,7 +589,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(100 == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -1048,7 +1048,7 @@ int main(int argc, char *argv[])
 
         void *p2 = x.allocate(33);
         ASSERT(33 == X.blockSize());
-        int bu1 = ta.numBytesInUse();
+        bsls::Types::Int64 bu1 = ta.numBytesInUse();
         x.deallocate(p2);
         ASSERT(bu1 == ta.numBytesInUse());
 

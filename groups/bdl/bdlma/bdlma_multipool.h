@@ -343,7 +343,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      enum { k_SMALL = 8, k_MEDIUM = 16, k_LARGE = 32 };
 //
-//      const int length = bsl::strlen(data);
+//      const int length = static_cast<int>(bsl::strlen(data));
 //
 //      if (length < k_SMALL) {
 //          return new(d_multipool.allocate(sizeof(my_SmallMessage)))
@@ -440,7 +440,7 @@ BSLS_IDENT("$Id: $")
 //          return 0;
 //      }
 //      else {
-//          return d_multiPool.allocate(size);
+//          return d_multiPool.allocate(static_cast<int>(size));
 //      }
 //  }
 //

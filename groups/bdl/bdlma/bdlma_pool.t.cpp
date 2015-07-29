@@ -12,6 +12,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -162,7 +163,7 @@ int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(InfrequentDeleteBlock) - 1;
+        numBytes += static_cast<int>(sizeof(InfrequentDeleteBlock)) - 1;
         numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
@@ -268,7 +269,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
             // Remove all elements from this array.
 
         // ACCESSORS
-        int length() const;
+        bsl::size_t length() const;
             // Return the number of elements in this array.
 
         const TYPE& operator[](int index) const;
@@ -296,7 +297,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
     // ACCESSORS
     template <class TYPE>
     inline
-    int my_PooledArray<TYPE>::length() const
+    bsl::size_t my_PooledArray<TYPE>::length() const
     {
         return d_array_p.size();
     }
@@ -306,7 +307,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
     const TYPE& my_PooledArray<TYPE>::operator[](int index) const
     {
         ASSERT(0     <= index);
-        ASSERT(index <  length());
+        ASSERT(index <  static_cast<int>(length()));
 
         return *d_array_p[index];
     }
@@ -358,7 +359,7 @@ template <class TYPE>
 ostream& operator<<(ostream& stream, const my_PooledArray<TYPE>& array)
 {
     stream << "[ ";
-    for (int i = 0; i < array.length(); ++i) {
+    for (int i = 0; i < static_cast<int>(array.length()); ++i) {
         stream << array[i] << " ";
     }
     return stream << ']' << flush;
@@ -523,7 +524,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const double VALUE = DATA[i];
                 array.append(VALUE);
-                LOOP_ASSERT(i, i + 1 == array.length());
+                LOOP_ASSERT(i, i + 1 == static_cast<int>(array.length()));
                 LOOP_ASSERT(i, VALUE == array[i]);
             }
             if (veryVerbose) { cout << '\t' << array << endl; }
@@ -1292,7 +1293,7 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::Types::Int64 numAllocations = TAX.numAllocations();
-                int numBytes = TAX.lastAllocatedNumBytes();
+                bsls::Types::Int64 numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize,
                             TAY.numAllocations() == numAllocations);
@@ -1329,7 +1330,7 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::Types::Int64 numAllocations = TAX.numAllocations();
-                int numBytes = TAX.lastAllocatedNumBytes();
+                bsls::Types::Int64 numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize, TAY.numAllocations() == numAllocations);
                 LOOP_ASSERT(chunkSize, (int)TAY.lastAllocatedNumBytes()
@@ -1502,7 +1503,7 @@ int main(int argc, char *argv[])
                             char *addr = (char *)mX.allocate();
                             if (j) {
                                 int EXP  = poolBlockSize(BLOCK_SIZE);
-                                int size = addr - lastAddr;
+                                int size = static_cast<int>(addr - lastAddr);
                                 LOOP2_ASSERT(EXP, size, EXP == size);
                             }
                             lastAddr = addr;
@@ -1525,8 +1526,9 @@ int main(int argc, char *argv[])
                     for (int j = 0; j < MAXBLOCKS; ++j) {
                         char *addr = (char *)mX.allocate();
                         if (j) {
-                            int EXP  = poolBlockSize(BLOCK_SIZE);
-                            int size = addr - lastAddr;
+                            bsls::Types::Int64 EXP  =
+                                                     poolBlockSize(BLOCK_SIZE);
+                            bsls::Types::Int64 size = addr - lastAddr;
                             LOOP2_ASSERT(EXP, size, EXP == size);
                         }
                         lastAddr = addr;
@@ -1602,8 +1604,9 @@ int main(int argc, char *argv[])
                     if (oi) {
                         ASSERT(lastP);
 
-                        int       size = p - lastP;
-                        const int EXP  = poolBlockSize(BLOCK_SIZE);
+                        bsls::Types::Int64       size = p - lastP;
+                        const bsls::Types::Int64 EXP  =
+                                                     poolBlockSize(BLOCK_SIZE);
 
                         if (veryVerbose) { T_ P_(size) T_ P(EXP) }
                         LOOP2_ASSERT(ti, oi, EXP == size);
@@ -1660,10 +1663,10 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
-                int blkSize = blockSize(SIZE);
+                bsls::Types::Int64 blkSize = blockSize(SIZE);
                 bl.allocate(SIZE);
 
-                const int EXP = a.lastAllocatedNumBytes();
+                const bsls::Types::Int64 EXP = a.lastAllocatedNumBytes();
 
                 if (veryVerbose) {T_ P_(SIZE); P_(blkSize); P(EXP);}
                 LOOP_ASSERT(i, EXP == blkSize);
@@ -1680,8 +1683,8 @@ int main(int argc, char *argv[])
                 Obj mX(SIZE, bsls::BlockGrowth::BSLS_CONSTANT, 2);
                 char *p = (char *)mX.allocate();
                 char *q = (char *)mX.allocate();
-                int EXP = q - p;
-                int blockSize = poolBlockSize(SIZE);
+                bsls::Types::Int64 EXP = q - p;
+                bsls::Types::Int64 blockSize = poolBlockSize(SIZE);
                 if (veryVerbose) { T_ P_(blockSize); P(EXP); }
                 LOOP_ASSERT(ti, EXP == blockSize);
             }

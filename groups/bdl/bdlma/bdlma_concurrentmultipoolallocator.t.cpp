@@ -1614,8 +1614,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, SDATA[si], TEST_MAX_CHUNK_SIZE, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1700,8 +1700,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, CON, MDATA[mi], &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.

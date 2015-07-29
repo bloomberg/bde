@@ -192,10 +192,10 @@ void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
         return result;                                                // RETURN
     }
 
-    const int nextSize = calculateNextBufferSize(size);
+    const int nextSize = calculateNextBufferSize(static_cast<int>(size));
 
     if (nextSize < static_cast<int>(size)) {
-        return d_blockList.allocate(size);                            // RETURN
+        return d_blockList.allocate(static_cast<int>(size));          // RETURN
     }
 
     // Manage the new buffer using 'BufferManager'.
@@ -203,7 +203,7 @@ void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
     d_buffer.replaceBuffer(static_cast<char *>(d_blockList.allocate(nextSize)),
                            nextSize);
 
-    return d_buffer.allocateRaw(size);
+    return d_buffer.allocateRaw(static_cast<int>(size));
 }
 
 }  // close package namespace

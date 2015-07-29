@@ -177,7 +177,7 @@ BSLS_IDENT("$Id: $")
 //          // Remove all elements from this array.
 //
 //      // ACCESSORS
-//      int length() const;
+//      bsl::size_t length() const;
 //          // Return the number of elements in this array.
 //
 //      const TYPE& operator[](int index) const;
@@ -205,7 +205,7 @@ BSLS_IDENT("$Id: $")
 //  // ACCESSORS
 //  template <class TYPE>
 //  inline
-//  int my_PooledArray<TYPE>::length() const
+//  bsl::size_t my_PooledArray<TYPE>::length() const
 //  {
 //      return d_array_p.size();
 //  }
@@ -215,7 +215,7 @@ BSLS_IDENT("$Id: $")
 //  const TYPE& my_PooledArray<TYPE>::operator[](int index) const
 //  {
 //      assert(0     <= index);
-//      assert(index <  length());
+//      assert(index <  static_cast<int>(length()));
 //
 //      return *d_array_p[index];
 //  }

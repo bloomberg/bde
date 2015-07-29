@@ -283,14 +283,14 @@ void overwritePadding(void *address, int size, Enum location, int pageSize)
     // Also note that this method is based on the implementation of 'allocate'.
 {
     const int roundedUpSize =
-                          bsls::AlignmentUtil::roundUpToMaximalAlignment(size);
+        static_cast<int>(bsls::AlignmentUtil::roundUpToMaximalAlignment(size));
 
     // Adjust for additional memory needed to stash reference addresses when
     // 'e_AFTER_USER_BLOCK' is in use.
 
     const int adjustedSize = Obj::e_AFTER_USER_BLOCK == location
-                             ? roundedUpSize + OFFSET * 2
-                             : roundedUpSize;
+                           ? roundedUpSize + static_cast<int>(OFFSET) * 2
+                           : roundedUpSize;
 
     // Calculate the number of pages required for 'adjustedSize'.
 

@@ -9,6 +9,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -442,7 +443,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, NUM_ALLOC == oa.numBlocksInUse());
 
             for (int i = 0; i < NUM_ALLOC; ++i) {
-                const int numBlocksInUse = oa.numBlocksInUse();
+                const bsls::Types::Int64 numBlocksInUse = oa.numBlocksInUse();
 
                 mX.deallocate(p[DEALLOC_SEQ[i]]);
                 LOOP_ASSERT(LINE, numBlocksInUse - 1 == oa.numBlocksInUse());
@@ -813,7 +814,7 @@ int main(int argc, char *argv[])
 
             const void *EXP_P = (char *)oa.lastAllocatedAddress() + HDRSZ;
 
-            int numBytes = oa.lastAllocatedNumBytes();
+            bsls::Types::Int64 numBytes = oa.lastAllocatedNumBytes();
 
             int offset = U::calculateAlignmentOffset(p, U::BSLS_MAX_ALIGNMENT);
 

@@ -12,6 +12,8 @@
 #include <bdlmtt_qlock.h>
 #include <bdlb_random.h>
 
+#include <bsls_types.h>
+
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
@@ -260,7 +262,8 @@ void *workerThread(void *arg) {
     for (int i = 0; i < NUM_OBJECTS; ++i) {
         int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
-            printf("Thread %d: Allocated %p\n", bdlmtt::ThreadUtil::self(),
+            printf("Thread %d: Allocated %p\n",
+                   static_cast<int>(bdlmtt::ThreadUtil::self()),
                    buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
@@ -301,7 +304,7 @@ void hardwork(Item *item, int load)
 
 void bench(Control *control)
 {
-    int threadId = bdlmtt::ThreadUtil::selfIdAsInt();
+    int threadId = static_cast<int>(bdlmtt::ThreadUtil::selfIdAsInt());
 
     bdlma::ConcurrentFixedPool *pool = control->d_fixedpool;
     int numObjects = control->d_numObjects;
@@ -797,7 +800,7 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
 
-            int baselineAllocations = 0;
+            bsls::Types::Int64 baselineAllocations = 0;
             int ret = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
 
@@ -960,7 +963,7 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
 
-            int baselineAllocations = 0;
+            bsls::Types::Int64  baselineAllocations = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
 
             const int N1 = 5;
@@ -990,8 +993,8 @@ int main(int argc, char *argv[]) {
         {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
-
-            int baselineAllocations = 0;
+            
+            bsls::Types::Int64 baselineAllocations = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
 
             const int N1 = NUM_OBJECTS;
@@ -1022,7 +1025,7 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
 
-            int baselineAllocations = 0;
+            bsls::Types::Int64 baselineAllocations = 0;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
 
             mX.release();

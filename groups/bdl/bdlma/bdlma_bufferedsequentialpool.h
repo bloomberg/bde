@@ -152,7 +152,7 @@ BSLS_IDENT("$Id: $")
 //  // my_bufferedintdoublearray.cpp
 //  #include <my_bufferedintdoublearray.h>
 //
-//  enum { INITIAL_SIZE = 1, GROWTH_FACTOR = 2 };
+//  enum { k_INITIAL_SIZE = 1 };
 //
 //  // PRIVATE MANIPULATORS
 //  void my_BufferedIntDoubleArray::increaseCapacity()
@@ -167,7 +167,7 @@ BSLS_IDENT("$Id: $")
 //                                            int               size,
 //                                            bslma::Allocator *basicAllocator)
 //  : d_length(0)
-//  , d_capacity(INITIAL_SIZE)
+//  , d_capacity(k_INITIAL_SIZE)
 //  , d_pool(buffer, size, basicAllocator)
 //  {
 //      d_typeArray_p  = static_cast<char *>(

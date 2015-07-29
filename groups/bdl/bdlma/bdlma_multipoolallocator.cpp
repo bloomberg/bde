@@ -28,7 +28,7 @@ void *MultipoolAllocator::allocate(size_type size)
         return 0;                                                     // RETURN
     }
 
-    return d_multipool.allocate(size);
+    return d_multipool.allocate(static_cast<int>(size));
 }
 
 void MultipoolAllocator::deallocate(void *address)
@@ -46,7 +46,8 @@ void MultipoolAllocator::reserveCapacity(size_type size, size_type numObjects)
         return;                                                       // RETURN
     }
 
-    d_multipool.reserveCapacity(size, numObjects);
+    d_multipool.reserveCapacity(static_cast<int>(size),
+                                static_cast<int>(numObjects));
 }
 
 }  // close package namespace

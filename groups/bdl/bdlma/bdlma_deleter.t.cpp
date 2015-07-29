@@ -62,7 +62,7 @@ class my_Deleter : public bdlma::Deleter<my_Obj> {
     my_Deleter(int *destructorFlag) : d_destructorFlag_p(destructorFlag) { }
     virtual ~my_Deleter() { *d_destructorFlag_p = 1; }
 
-    virtual void deleteObject(my_Obj *X)   { d_fun = 1; }
+    virtual void deleteObject(my_Obj *X)   { (void *)X;  d_fun = 1; }
 
     int fun() const { return d_fun; }
         // Return descriptive code for the function called.

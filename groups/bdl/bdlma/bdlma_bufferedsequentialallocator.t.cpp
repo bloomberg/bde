@@ -9,6 +9,7 @@
 
 #include <bsls_alignedbuffer.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
@@ -366,7 +367,7 @@ int main(int argc, char *argv[])
                              "destruction." << endl;
         {
             char bufferRef[BUFFER_SIZE];
-            int total = 0;
+            bsls::Types::Int64 total = 0;
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
             char *buffer = (char *)objectAllocator.allocate(BUFFER_SIZE);
@@ -458,7 +459,7 @@ int main(int argc, char *argv[])
             char *buffer = (char *)objectAllocator.allocate(BUFFER_SIZE);
             char bufferRef[BUFFER_SIZE];
 
-            int total = objectAllocator.numBlocksInUse();
+            bsls::Types::Int64 total = objectAllocator.numBlocksInUse();
 
             memset(buffer,    0xA, BUFFER_SIZE);
             memset(bufferRef, 0xA, BUFFER_SIZE);
@@ -545,12 +546,13 @@ int main(int argc, char *argv[])
 
         Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
 
-        int lastNumBytesInUse = objectAllocator.numBytesInUse();
+        bsls::Types::Int64 lastNumBytesInUse = objectAllocator.numBytesInUse();
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
             void *p = mX.allocate(SIZE);
-            const int numBytesInUse = objectAllocator.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse =
+                                               objectAllocator.numBytesInUse();
             mX.deallocate(p);
             LOOP_ASSERT(i, numBytesInUse == objectAllocator.numBytesInUse());
             LOOP_ASSERT(i, lastNumBytesInUse <=

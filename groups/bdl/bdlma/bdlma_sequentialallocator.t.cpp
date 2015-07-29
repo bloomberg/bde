@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
 
         {
             Obj mX(INITIAL_SIZE, MAX_BUFFER, &objectAllocator);
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
             mX.reserveCapacity(INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBytesInUse());
 
             mX.reserveCapacity(DEFAULT_SIZE);
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
             mX.allocate(DEFAULT_SIZE);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
             void *addr1 = mX.allocate(INITIALSIZE);
             ASSERT(0 != objectAllocator.numBytesInUse());
 
-            int used = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 used = objectAllocator.numBytesInUse();
 
             mX.truncate(addr1, INITIALSIZE, NEWSIZE);
             ASSERT(used == objectAllocator.numBytesInUse());
@@ -766,7 +766,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             void *addr1 = mX.allocate(INITIALSIZE);
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
             bsls::Types::size_type size = 1;
@@ -901,7 +901,7 @@ int main(int argc, char *argv[])
             ASSERT((char *)addr1 + MAX_ALIGN == (char *)addr2);
 
             // Testing growth strategy.
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
             mX.allocate(DEFAULT_SIZE / 2);
             ASSERT(objectAllocator.numBytesInUse() == numBytesUsed);
 
@@ -948,12 +948,13 @@ int main(int argc, char *argv[])
 
         Obj mX(&objectAllocator);
 
-        int lastNumBytesInUse = objectAllocator.numBytesInUse();
+        bsls::Types::Int64 lastNumBytesInUse = objectAllocator.numBytesInUse();
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
             void *p = mX.allocate(SIZE);
-            const int numBytesInUse = objectAllocator.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse =
+                                               objectAllocator.numBytesInUse();
             mX.deallocate(p);
             LOOP_ASSERT(i, numBytesInUse == objectAllocator.numBytesInUse());
             LOOP_ASSERT(i, lastNumBytesInUse <=
@@ -1098,7 +1099,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 != addr2);
 
                     ASSERT(tb.numBytesInUse() == ta.numBytesInUse());
-                    int numBytesUsed = tb.numBytesInUse();
+                    bsls::Types::Int64 numBytesUsed = tb.numBytesInUse();
 
                     void *addr1b = mX.allocate(2);
                     void *addr2b = pool.allocate(2);
@@ -1110,7 +1111,8 @@ int main(int argc, char *argv[])
                     // buffer.
 
                     if (numBytesUsed == tb.numBytesInUse()) {
-                        int alignmentOffset = (char *)addr2b - (char *)addr2;
+                        bsl::size_t alignmentOffset =
+                                                (char *)addr2b - (char *)addr2;
                         ASSERT((char *)addr1 + alignmentOffset
                                                             == (char *)addr1b);
                     }
@@ -1143,14 +1145,14 @@ int main(int argc, char *argv[])
                         ASSERT(0 != addr2);
 
                         ASSERT(tb.numBytesInUse() == ta.numBytesInUse());
-                        int numBytesUsed = tb.numBytesInUse();
+                        bsls::Types::Int64 numBytesUsed = tb.numBytesInUse();
 
                         void *addr1b = mX.allocate(2);
                         void *addr2b = pool.allocate(2);
 
                         if (numBytesUsed == tb.numBytesInUse()
                          && GS[k] != CON) {
-                            int alignmentOffset =
+                            bsl::size_t alignmentOffset =
                                                 (char *)addr2b - (char *)addr2;
 
                             ASSERT((char *)addr1 + alignmentOffset
@@ -1232,7 +1234,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 != addr2);
 
                     ASSERT(tb.numBytesInUse() == ta.numBytesInUse());
-                    int numBytesUsed = tb.numBytesInUse();
+                    bsls::Types::Int64 numBytesUsed = tb.numBytesInUse();
 
                     void *addr1b = mX.allocate(2);
                     void *addr2b = pool.allocate(2);
@@ -1244,7 +1246,8 @@ int main(int argc, char *argv[])
                     // buffer.
 
                     if (numBytesUsed == tb.numBytesInUse()) {
-                        int alignmentOffset = (char *)addr2b - (char *)addr2;
+                        bsl::size_t alignmentOffset =
+                                                (char *)addr2b - (char *)addr2;
                         ASSERT((char *)addr1 + alignmentOffset
                                                             == (char *)addr1b);
                     }
@@ -1283,14 +1286,14 @@ int main(int argc, char *argv[])
                         ASSERT(0 != addr2);
 
                         ASSERT(tb.numBytesInUse() == ta.numBytesInUse());
-                        int numBytesUsed = tb.numBytesInUse();
+                        bsls::Types::Int64 numBytesUsed = tb.numBytesInUse();
 
                         void *addr1b = mX.allocate(2);
                         void *addr2b = pool.allocate(2);
 
                         if (numBytesUsed == tb.numBytesInUse()
                          && GS[k] != CON) {
-                            int alignmentOffset =
+                            bsl::size_t alignmentOffset =
                                                 (char *)addr2b - (char *)addr2;
 
                             LOOP3_ASSERT(addr1, addr1b, alignmentOffset,
@@ -1377,7 +1380,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 != addr2);
 
                     ASSERT(tb.numBytesInUse() == ta.numBytesInUse());
-                    int numBytesUsed = tb.numBytesInUse();
+                    bsls::Types::Int64 numBytesUsed = tb.numBytesInUse();
 
                     void *addr1b = mX.allocate(2);
                     void *addr2b = pool.allocate(2);
@@ -1390,7 +1393,8 @@ int main(int argc, char *argv[])
 
                     if (numBytesUsed == tb.numBytesInUse()
                      && SIZE < MAX_BUFFER) {
-                        int alignmentOffset = (char *)addr2b - (char *)addr2;
+                        bsl::size_t alignmentOffset =
+                                                (char *)addr2b - (char *)addr2;
                         ASSERT((char *)addr1 + alignmentOffset
                                                             == (char *)addr1b);
                     }
@@ -1425,14 +1429,14 @@ int main(int argc, char *argv[])
                         ASSERT(0 != addr2);
 
                         ASSERT(tb.numBytesInUse() == ta.numBytesInUse());
-                        int numBytesUsed = tb.numBytesInUse();
+                        bsls::Types::Int64 numBytesUsed = tb.numBytesInUse();
 
                         void *addr1b = mX.allocate(2);
                         void *addr2b = pool.allocate(2);
 
                         if (numBytesUsed == tb.numBytesInUse()
                          && GS[k] != CON && SIZE < MAX_BUFFER) {
-                            int alignmentOffset =
+                            bsl::size_t alignmentOffset =
                                                 (char *)addr2b - (char *)addr2;
 
                             ASSERT((char *)addr1 + alignmentOffset
@@ -1612,7 +1616,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
-            int oldNumBytesInUse = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 oldNumBytesInUse =
+                                               objectAllocator.numBytesInUse();
 
             if (verbose) cout << "\nTesting internal buffering." << endl;
             void *addr2 = mX.allocate(ALLOC_SIZE2);

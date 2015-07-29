@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  int my_PooledArray<T>::length() const
 //  {
-//      return d_array_p.size();
+//      return static_cast<int>(d_array_p.size());
 //  }
 //
 //  template <class T>

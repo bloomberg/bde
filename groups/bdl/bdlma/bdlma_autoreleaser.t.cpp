@@ -426,7 +426,8 @@ my_FastCstrArray::~my_FastCstrArray()
             bdlma::AutoReleaser<my_StrPool> autoReleaser(&d_strPool);
 
             for (int i = 0; i < rhs.d_length; ++i) {
-                const int size = bsl::strlen(rhs.d_array_p[i]) + 1;
+                const int size =
+                           static_cast<int>(bsl::strlen(rhs.d_array_p[i])) + 1;
                 d_array_p[i] = (char *)d_strPool.allocate(size);
                 bsl::memcpy(d_array_p[i], rhs.d_array_p[i], size);
             }
@@ -451,7 +452,7 @@ void my_FastCstrArray::append(const char *item)
     if (d_length >= d_capacity) {
         this->increaseSize();
     }
-    const int sSize = bsl::strlen(item) + 1;
+    const int sSize = static_cast<int>(bsl::strlen(item)) + 1;
     char *elem = (char *)d_strPool.allocate(sSize);
     bsl::memcpy(elem, item, sSize * sizeof *item);
     d_array_p[d_length] = elem;

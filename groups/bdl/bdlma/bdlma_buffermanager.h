@@ -129,8 +129,9 @@ BSLS_IDENT("$Id: $")
 //  int my_IntegerCountingHashTable::calculateBufferSize(int tableLength,
 //                                                       int numNodes)
 //  {
-//      return tableLength * sizeof(my_Node *) + numNodes * sizeof(my_Node)
-//                                   + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+//      return static_cast<int>(tableLength * sizeof(my_Node *)
+//                            + numNodes * sizeof(my_Node)
+//                            + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 //  }
 //..
 // Note that, in case the allocated buffer is not aligned, the size calculation

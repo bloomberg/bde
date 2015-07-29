@@ -26,7 +26,7 @@ void *ConcurrentMultipoolAllocator::allocate(size_type size)
         return 0;                                                     // RETURN
     }
 
-    return d_multipool.allocate(size);
+    return d_multipool.allocate(static_cast<int>(size));
 }
 
 void ConcurrentMultipoolAllocator::deallocate(void *address)
@@ -43,14 +43,15 @@ void ConcurrentMultipoolAllocator::release()
 }
 
 void ConcurrentMultipoolAllocator::reserveCapacity(size_type size,
-                                               size_type numObjects)
+                                                   size_type numObjects)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return;                                                       // RETURN
     }
 
-    d_multipool.reserveCapacity(size, numObjects);
+    d_multipool.reserveCapacity(static_cast<int>(size),
+                                static_cast<int>(numObjects));
 }
 }  // close package namespace
 

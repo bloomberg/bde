@@ -143,12 +143,14 @@ NoopAllocator::~NoopAllocator()
 
 void *NoopAllocator::allocate(size_type size)
 {
+    (void)size;
     *d_lastMethod = "allocate";
     return 0;
 }
 
 void NoopAllocator::deallocate(void *address)
 {
+    (void *)address;
     *d_lastMethod = "deallocate";
 }
 
@@ -246,7 +248,7 @@ extern "C" void *workerThread(void *arg) {
         {
             bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
             d_elements.push_back(value);
-            return d_elements.size() - 1;
+            return static_cast<int>(d_elements.size()) - 1;
         }
 
         void set(int index, const T& value)
@@ -272,7 +274,7 @@ extern "C" void *workerThread(void *arg) {
             // Return the number elements in this vector object.
         {
             bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
-            return d_elements.size();
+            return static_cast<int>(d_elements.size());
         }
     };
 //..
@@ -385,10 +387,12 @@ extern "C" void *workerThread(void *arg) {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;
+    bool veryVeryVerbose = argc > 4;
+
+    (void)veryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

@@ -179,8 +179,6 @@ struct AlignedAllocatorTestImp :
     // MANIPULATORS
     void *MyAlignedAllocator::allocate(size_type size)
     {
-        BSLS_ASSERT_SAFE(0 <= size);
-
         if (0 == size) {
             return 0;                                                 // RETURN
         }
@@ -192,7 +190,6 @@ struct AlignedAllocatorTestImp :
     void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
                                               size_type   alignment)
     {
-        BSLS_ASSERT_SAFE(0 <= alignment);
         BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
         BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
 
@@ -250,11 +247,9 @@ struct AlignedAllocatorTestImp :
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -373,7 +368,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nTest 'bdlma::AlignedAllocator' derives from 'bslma::Allocator'"
                                                                        << endl;
-        bslma::Allocator *dummy = (bdlma::AlignedAllocator *) 0;
+        bslma::Allocator *dummy = (bdlma::AlignedAllocator *)0;
+        ASSERT(0 == dummy);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

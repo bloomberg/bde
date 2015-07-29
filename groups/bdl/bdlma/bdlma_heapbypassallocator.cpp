@@ -180,7 +180,7 @@ HeapBypassAllocator::~HeapBypassAllocator()
 void *HeapBypassAllocator::allocate(size_type size)
 {
     d_cursor_p = d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                      d_cursor_p, d_alignment);
+                                    d_cursor_p, static_cast<int>(d_alignment));
     if (d_endOfBuffer_p < d_cursor_p + size) {
         size_type blockSize = size + d_alignment + sizeof(BufferHeader);
         int sts = replenish(blockSize);    // 'replenish' will round up to
@@ -189,9 +189,9 @@ void *HeapBypassAllocator::allocate(size_type size)
             return 0;                                                 // RETURN
         }
 
-        d_cursor_p =
-                    d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                      d_cursor_p, d_alignment);
+        d_cursor_p = d_cursor_p
+                   + bsls::AlignmentUtil::calculateAlignmentOffset(
+                                    d_cursor_p, static_cast<int>(d_alignment));
     }
 
     BSLS_ASSERT(d_endOfBuffer_p >= d_cursor_p + size);

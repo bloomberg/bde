@@ -24,22 +24,23 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 enum {
-    DEFAULT_NUM_POOLS      = 10,
-    DEFAULT_MAX_CHUNK_SIZE = 32,
-    MIN_BLOCK_SIZE         = 8
+    k_DEFAULT_NUM_POOLS      = 10,
+    k_DEFAULT_MAX_CHUNK_SIZE = 32,
+    k_MIN_BLOCK_SIZE         = 8
 };
 
 namespace bdlma {
-                      // ---------------------
-                      // class ConcurrentMultipool
-                      // ---------------------
+
+                        // -------------------------
+                        // class ConcurrentMultipool
+                        // -------------------------
 
 // PRIVATE MANIPULATORS
 void ConcurrentMultipool::initialize(
                                  bsls::BlockGrowth::Strategy growthStrategy,
                                  int                         maxBlocksPerChunk)
 {
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<ConcurrentPool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
@@ -50,10 +51,11 @@ void ConcurrentMultipool::initialize(
     bslma::AutoDestructor<ConcurrentPool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) ConcurrentPool(d_maxBlockSize + sizeof(Header),
-                                       growthStrategy,
-                                       maxBlocksPerChunk,
-                                       &d_allocAdapter);
+        new (d_pools_p + i) ConcurrentPool(
+                             d_maxBlockSize + static_cast<int>(sizeof(Header)),
+                             growthStrategy,
+                             maxBlocksPerChunk,
+                             &d_allocAdapter);
 
         d_maxBlockSize *= 2;
         BSLS_ASSERT(d_maxBlockSize > 0);
@@ -69,7 +71,7 @@ void ConcurrentMultipool::initialize(
                         const bsls::BlockGrowth::Strategy *growthStrategyArray,
                         int                                maxBlocksPerChunk)
 {
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<ConcurrentPool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
@@ -80,10 +82,11 @@ void ConcurrentMultipool::initialize(
     bslma::AutoDestructor<ConcurrentPool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) ConcurrentPool(d_maxBlockSize + sizeof(Header),
-                                       growthStrategyArray[i],
-                                       maxBlocksPerChunk,
-                                       &d_allocAdapter);
+        new (d_pools_p + i) ConcurrentPool(
+                             d_maxBlockSize + static_cast<int>(sizeof(Header)),
+                             growthStrategyArray[i],
+                             maxBlocksPerChunk,
+                             &d_allocAdapter);
 
         d_maxBlockSize *= 2;
         BSLS_ASSERT(d_maxBlockSize > 0);
@@ -99,7 +102,7 @@ void ConcurrentMultipool::initialize(
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            const int                   *maxBlocksPerChunkArray)
 {
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<ConcurrentPool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
@@ -110,10 +113,11 @@ void ConcurrentMultipool::initialize(
     bslma::AutoDestructor<ConcurrentPool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) ConcurrentPool(d_maxBlockSize + sizeof(Header),
-                                       growthStrategy,
-                                       maxBlocksPerChunkArray[i],
-                                       &d_allocAdapter);
+        new (d_pools_p + i) ConcurrentPool(
+                             d_maxBlockSize + static_cast<int>(sizeof(Header)),
+                             growthStrategy,
+                             maxBlocksPerChunkArray[i],
+                             &d_allocAdapter);
 
         d_maxBlockSize *= 2;
         BSLS_ASSERT(d_maxBlockSize > 0);
@@ -129,7 +133,7 @@ void ConcurrentMultipool::initialize(
                      const bsls::BlockGrowth::Strategy *growthStrategyArray,
                      const int                         *maxBlocksPerChunkArray)
 {
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<ConcurrentPool *>(
                       d_allocAdapter.allocate(d_numPools * sizeof *d_pools_p));
@@ -140,10 +144,11 @@ void ConcurrentMultipool::initialize(
     bslma::AutoDestructor<ConcurrentPool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) ConcurrentPool(d_maxBlockSize + sizeof(Header),
-                                       growthStrategyArray[i],
-                                       maxBlocksPerChunkArray[i],
-                                       &d_allocAdapter);
+        new (d_pools_p + i) ConcurrentPool(
+                             d_maxBlockSize + static_cast<int>(sizeof(Header)),
+                             growthStrategyArray[i],
+                             maxBlocksPerChunkArray[i],
+                             &d_allocAdapter);
 
         d_maxBlockSize *= 2;
         BSLS_ASSERT(d_maxBlockSize > 0);
@@ -160,17 +165,17 @@ inline
 int ConcurrentMultipool::findPool(int size) const
 {
     return bdlb::BitUtil::find1AtLargestIndex(
-                                   ((size + MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1);
+                                 ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1);
 }
 
 // CREATORS
 ConcurrentMultipool::
 ConcurrentMultipool(bslma::Allocator *basicAllocator)
-: d_numPools(DEFAULT_NUM_POOLS)
+: d_numPools(k_DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
 {
-    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 ConcurrentMultipool::
@@ -180,46 +185,46 @@ ConcurrentMultipool(int               numPools,
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
 {
-    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 ConcurrentMultipool::
 ConcurrentMultipool(bsls::BlockGrowth::Strategy  growthStrategy,
-                bslma::Allocator            *basicAllocator)
-: d_numPools(DEFAULT_NUM_POOLS)
+                    bslma::Allocator            *basicAllocator)
+: d_numPools(k_DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
 {
-    initialize(growthStrategy, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(growthStrategy, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 ConcurrentMultipool::
 ConcurrentMultipool(int                          numPools,
-                bsls::BlockGrowth::Strategy  growthStrategy,
-                bslma::Allocator            *basicAllocator)
+                    bsls::BlockGrowth::Strategy  growthStrategy,
+                    bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
 {
-    initialize(growthStrategy, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(growthStrategy, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 ConcurrentMultipool::
 ConcurrentMultipool(int                                numPools,
-                const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                bslma::Allocator                  *basicAllocator)
+                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
 {
-    initialize(growthStrategyArray, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(growthStrategyArray, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 ConcurrentMultipool::
 ConcurrentMultipool(int                          numPools,
-                bsls::BlockGrowth::Strategy  growthStrategy,
-                int                          maxBlocksPerChunk,
-                bslma::Allocator            *basicAllocator)
+                    bsls::BlockGrowth::Strategy  growthStrategy,
+                    int                          maxBlocksPerChunk,
+                    bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -229,9 +234,9 @@ ConcurrentMultipool(int                          numPools,
 
 ConcurrentMultipool::
 ConcurrentMultipool(int                                numPools,
-                const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                int                                maxBlocksPerChunk,
-                bslma::Allocator                  *basicAllocator)
+                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    int                                maxBlocksPerChunk,
+                    bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -241,9 +246,9 @@ ConcurrentMultipool(int                                numPools,
 
 ConcurrentMultipool::
 ConcurrentMultipool(int                          numPools,
-                bsls::BlockGrowth::Strategy  growthStrategy,
-                const int                   *maxBlocksPerChunkArray,
-                bslma::Allocator            *basicAllocator)
+                    bsls::BlockGrowth::Strategy  growthStrategy,
+                    const int                   *maxBlocksPerChunkArray,
+                    bslma::Allocator            *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -253,9 +258,9 @@ ConcurrentMultipool(int                          numPools,
 
 ConcurrentMultipool::
 ConcurrentMultipool(int                                numPools,
-                const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                const int                         *maxBlocksPerChunkArray,
-                bslma::Allocator                  *basicAllocator)
+                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                    const int                         *maxBlocksPerChunkArray,
+                    bslma::Allocator                  *basicAllocator)
 : d_numPools(numPools)
 , d_blockList(basicAllocator)
 , d_allocAdapter(&d_mutex, basicAllocator)
@@ -299,7 +304,7 @@ void *ConcurrentMultipool::allocate(int size)
 
     bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     Header *p = static_cast<Header *>(
-                                  d_blockList.allocate(size + sizeof(Header)));
+                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
     p->d_header.d_poolIdx = -1;
     return p + 1;
 }

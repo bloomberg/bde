@@ -114,10 +114,9 @@ std::printf("\n");
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -215,7 +214,7 @@ int main(int argc, char *argv[])
             memset(buf, XX, BUF_SZ);
 
             snprintf(mExp, BUF_SZ, "[%p, %d]",
-                     VALUES[i].d_address, VALUES[i].d_size);
+                     VALUES[i].d_address, static_cast<int>(VALUES[i].d_size));
 
             // Because bdema is a low-level utility, MemoryBlockDescriptor does
             // not have a function to print to ostream, and thus cannot print
@@ -228,7 +227,7 @@ int main(int argc, char *argv[])
             pipe(pipes);
             if (fork()) {
                 // Parent process.  Read pipe[0] into memory
-                sz = read(pipes[0], buf, BUF_SZ);
+                sz = static_cast<int>(read(pipes[0], buf, BUF_SZ));
                 if (sz >= 0) { buf[sz] = '\0'; }
             }
             else {
@@ -247,7 +246,7 @@ int main(int argc, char *argv[])
                 cout << "\nEXPECTED FORMAT:"       << endl << EXP  << endl
                      << "\nACTUAL FORMAT (print):" << endl << buf << endl;
            }
-            const int EXP_SZ = strlen(EXP);
+            const int EXP_SZ = static_cast<int>(strlen(EXP));
             ASSERT(EXP_SZ < BUF_SZ);           // Check buffer is large enough.
             ASSERT(sz < BUF_SZ);               // Check buffer is large enough.
             ASSERT(0 < sz);                    // Check something was printed

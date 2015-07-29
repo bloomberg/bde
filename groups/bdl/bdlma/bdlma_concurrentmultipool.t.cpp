@@ -191,7 +191,9 @@ static int delta(char *address1, char *address2)
     // Return the number of bytes between the specified 'address1' and the
     // specified 'address2'.
 {
-    return address1 < address2 ? address2 - address1 : address1 - address2;
+    return address1 < address2
+         ? static_cast<int>(address2 - address1)
+         : static_cast<int>(address1 - address2);
 }
 
 static void scribble(char *address, int size)
@@ -264,7 +266,8 @@ extern "C" void *workerThread(void *arg) {
     }
 
     // perform a second set of allocations
-    unsigned char threadId = bdlmtt::ThreadUtil::selfIdAsInt();
+    unsigned char threadId =
+                 static_cast<unsigned char>(bdlmtt::ThreadUtil::selfIdAsInt());
     for (int i = 0; i < numAllocs; ++i) {
         blocks[i] = (char *)allocator->allocate(allocSizes[i]);
         memset(blocks[i], threadId, allocSizes[i]);
@@ -525,7 +528,7 @@ extern "C" void *workerThread(void *arg) {
     {
         enum { SMALL = 8, MEDIUM = 16, LARGE = 32 };
 //
-        const int length = bsl::strlen(data);
+        const int length = static_cast<int>(bsl::strlen(data));
 //
         if (length < SMALL) {
             return new(d_multipool.allocate(sizeof(my_SmallMessage)))
@@ -665,6 +668,7 @@ int main(int argc, char *argv[])
             my_MessageFactory factory(&ta);
 
             my_Message *msg = factory.createMessage("Hello");
+            ASSERT(0 != msg);
         }
 
         if (verbose) cout << endl << "Testing Old Usage Example"
@@ -962,8 +966,9 @@ int main(int argc, char *argv[])
                 Obj mp(NUM_POOLS, SDATA[si], MDATA[mi], &mpta);
 
                 // Allocate until we depleted the pool
-                int poolAllocations      = pta.numAllocations();
-                int multipoolAllocations = mpta.numAllocations();
+                bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+                bsls::Types::Int64 multipoolAllocations =
+                                                         mpta.numAllocations();
 
                 // multipool should have an extra allocation for the array of
                 // pools.
@@ -1065,8 +1070,8 @@ int main(int argc, char *argv[])
             Obj mp(&mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1166,8 +1171,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1267,8 +1272,8 @@ int main(int argc, char *argv[])
             Obj mp(CON, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1344,8 +1349,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, CON, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1421,8 +1426,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, SDATA[si], &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1535,8 +1540,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, CON, TEST_MAX_CHUNK_SIZE, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1612,8 +1617,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, SDATA[si], TEST_MAX_CHUNK_SIZE, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1716,8 +1721,8 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, CON, MDATA[mi], &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
             // multipool should have an extra allocation for the array of
             // pools.
@@ -1863,8 +1868,10 @@ int main(int argc, char *argv[])
                         stretchRemoveAll(&mX, EXTEND[ei], OBJ_SIZE);
                         mX.reserveCapacity(OBJ_SIZE, 0);
                         mX.reserveCapacity(OBJ_SIZE, NE);
-                        const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                        const int NUM_BYTES  = testAllocator.numBytesInUse();
+                        const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                        const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                         for (int i = 0; i < NE; ++i) {
                             mX.allocate(OBJ_SIZE);
                         }
@@ -1913,8 +1920,10 @@ int main(int argc, char *argv[])
         for (int i = 1; i <= MAX_POOLS; ++i) {
             if (veryVerbose) { TAB; cout << "# pools: "; P(i); }
             Obj mX(i, Z);
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
             int its              = NITERS;
             while (its-- > 0) {  // exercise each pool (including "overflow")
                 char *p;
@@ -1970,8 +1979,8 @@ int main(int argc, char *argv[])
         const int OVERFLOW_SIZE = MAX_ALIGN * 5;
         const int NITERS        = MAX_ALIGN * 256;
 
-        int numBlocks;
-        int numBytes;
+        bsls::Types::Int64 numBlocks;
+        bsls::Types::Int64 numBytes;
 
         for (int i = 1; i <= MAX_POOLS; ++i) {
             if (veryVerbose) { TAB; cout << "# pools: "; P(i); }
@@ -2280,8 +2289,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                     {
                         Obj mX(NUM_POOLS, Z);
@@ -2322,8 +2333,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(NUM_POOLS, Z);

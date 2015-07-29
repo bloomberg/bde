@@ -134,8 +134,6 @@ BSLS_IDENT("$Id$")
 //  // MANIPULATORS
 //  void *MyAlignedAllocator::allocate(size_type size)
 //  {
-//      BSLS_ASSERT_SAFE(0 <= size);
-//
 //      if (0 == size) {
 //          return 0;                                                 // RETURN
 //      }
@@ -147,7 +145,6 @@ BSLS_IDENT("$Id$")
 //  void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
 //                                            size_type   alignment)
 //  {
-//      BSLS_ASSERT_SAFE(0 <= alignment);
 //      BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 //      BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
 //
@@ -256,8 +253,7 @@ class AlignedAllocator : public bslma::Allocator {
 
   public:
     // MANIPULATORS
-    virtual void *allocateAligned(bsl::size_t size, size_type alignment)
-                                        BSLS_ANNOTATION_WARN_UNUSED_RESULT = 0;
+    virtual void *allocateAligned(bsl::size_t size, size_type alignment) = 0;
         // Return the address of a newly allocated block of memory of at least
         // the specified positive 'size' (in bytes), sufficiently aligned such
         // that the returned 'address' satisfies

@@ -214,8 +214,8 @@ void *GuardingAllocator::allocate(size_type size)
     // 'e_AFTER_USER_BLOCK' is in use.
 
     const int adjustedSize = e_AFTER_USER_BLOCK == d_guardPageLocation
-                             ? paddedSize + OFFSET * 2
-                             : paddedSize;
+                           ? static_cast<int>(paddedSize + OFFSET * 2)
+                           : static_cast<int>(paddedSize);
 
     // Calculate the number of pages to allocate, *not* counting the guard
     // page.
@@ -261,7 +261,7 @@ void *GuardingAllocator::allocate(size_type size)
 
     // Save 'totalSize' - we'll need it for 'systemFree' in 'deallocate'.
 
-    *(int *)(guardPage) = totalSize;
+    *(int *)(guardPage) = static_cast<int>(totalSize);
 
     // Protect the guard page from read/write access.
 

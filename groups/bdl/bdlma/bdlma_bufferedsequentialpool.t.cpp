@@ -189,7 +189,7 @@ static int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(Block) - 1;
+        numBytes += static_cast<int>(sizeof(Block)) - 1;
         numBytes &= ~(MAX_ALIGN - 1);
     }
 
@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
                              "destruction." << endl;
         {
             char bufferRef[BUFFER_SIZE];
-            int total = 0;
+            bsls::Types::Int64 total = 0;
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
             char *buffer = (char *)objectAllocator.allocate(BUFFER_SIZE);
@@ -716,7 +716,7 @@ int main(int argc, char *argv[])
             char *buffer = (char *)objectAllocator.allocate(BUFFER_SIZE);
             char bufferRef[BUFFER_SIZE];
 
-            int total = objectAllocator.numBlocksInUse();
+            bsls::Types::Int64 total = objectAllocator.numBlocksInUse();
 
             memset(buffer,    0xA, BUFFER_SIZE);
             memset(bufferRef, 0xA, BUFFER_SIZE);
@@ -1004,8 +1004,9 @@ int main(int argc, char *argv[])
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(blockSize(newSize) == objectAllocator.numBytesInUse());
 
-                int   bytesUsed  = objectAllocator.numBytesInUse();
-                char *tBuffer    = cBuffer;
+                bsls::Types::Int64 bytesUsed = objectAllocator.numBytesInUse();
+
+                char *tBuffer = cBuffer;
 
                 cBuffer          = (char *)mX.allocate(1);
                 ASSERT((cBuffer  <= buffer) || (cBuffer  >= buffer + 64));
@@ -1199,10 +1200,10 @@ int main(int argc, char *argv[])
                 mX.allocate(bufferSize);
                 mY.allocate(bufferSize);
 
-                int nA = ta.numBytesInUse();  ASSERT(0 == nA);
-                int nB = tb.numBytesInUse();  ASSERT(0 == nB);
-                int nC = tc.numBytesInUse();  ASSERT(0 == nC);
-                int nD = td.numBytesInUse();  ASSERT(0 == nD);
+                bsls::Types::Int64 nA = ta.numBytesInUse();  ASSERT(0 == nA);
+                bsls::Types::Int64 nB = tb.numBytesInUse();  ASSERT(0 == nB);
+                bsls::Types::Int64 nC = tc.numBytesInUse();  ASSERT(0 == nC);
+                bsls::Types::Int64 nD = td.numBytesInUse();  ASSERT(0 == nD);
 
                 // Loop until we hit the maximum buffer size.  Within the loop,
                 // the size of the internal buffers should double in size every
@@ -1210,10 +1211,10 @@ int main(int argc, char *argv[])
 
                 int j = 1;
 
-                int oldNA = 0;
-                int oldNB = 0;
-                int oldNC = 0;
-                int oldND = 0;
+                bsls::Types::Int64 oldNA = 0;
+                bsls::Types::Int64 oldNB = 0;
+                bsls::Types::Int64 oldNC = 0;
+                bsls::Types::Int64 oldND = 0;
 
                 for (; j * bufferSize + 1 <= MAXBUFFERSIZE; j <<= 1) {
                     mV.allocate(j * bufferSize + 1);
@@ -1390,7 +1391,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == globalAllocator.numBlocksTotal());
         }
         ASSERT(0 == objectAllocator.numBytesInUse());
-        int total = objectAllocator.numBlocksTotal();
+        bsls::Types::Int64 total = objectAllocator.numBlocksTotal();
 
         if (verbose) cout << "\nTesting default allocator argument." << endl;
         {
@@ -1725,7 +1726,9 @@ int main(int argc, char *argv[])
             // If the first 'SIZE' is 0, the allocator's 'allocate' is never
             // called; thus, 'lastAllocatedSize' will return -1 instead of 0.
 
-            const int EXP = i || SIZE ? a.lastAllocatedNumBytes() : 0;
+            const int EXP = i || SIZE
+                    ? static_cast<int>(a.lastAllocatedNumBytes())
+                    : 0;
 
             if (veryVerbose) { T_ P_(SIZE); T_ P_(blkSize); T_ P(EXP); }
             LOOP_ASSERT(i, EXP == blkSize);

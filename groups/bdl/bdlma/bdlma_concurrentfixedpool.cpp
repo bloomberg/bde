@@ -171,7 +171,8 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
 
     int contentionCount = 0;
 
-    const int poolSize = d_nodes.size();  // size of this pool
+    const int poolSize = static_cast<int>(d_nodes.size()); // size of this pool
+
     const int genCount = d_sizeMask + 1;  // generation count increment
 
     Node  reserved;              // head of the list of reserved nodes
