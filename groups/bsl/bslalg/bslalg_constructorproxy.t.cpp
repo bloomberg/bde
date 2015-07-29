@@ -7,8 +7,10 @@
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 
-#include <iostream>
-#include <cstdlib>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -51,61 +53,48 @@ using namespace std;
 // [ 2] USAGE EXAMPLE 1
 // [ 3] USAGE EXAMPLE 2
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -117,7 +106,7 @@ static int g_objectCount = 0;  // Global counter for number of objects
                                // the constructor proxy did not construct or
                                // destroy the objects correctly.
 
-template <typename TYPE>
+template <class TYPE>
 class TestType_Other_Template {
     // Template for generating the 'TestType_Other' type.  The 'TestType_Other'
     // type can be used to construct 'TestType_YesAllocator' and
@@ -168,7 +157,7 @@ class TestType_Other_Template {
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 class TestType_YesAllocator_Template {
     // Template for generating the 'TestType_YesAllocator' type.  The
     // 'TestType_YesAllocator' type simulates a class that uses 'bslma'
@@ -245,13 +234,13 @@ class TestType_YesAllocator_Template {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-template <typename TYPE>
+template <class TYPE>
 struct UsesBslmaAllocator<TestType_YesAllocator_Template<TYPE> >
     : bsl::true_type {};
 }
 }
 
-template <typename TYPE>
+template <class TYPE>
 class TestType_NoAllocator_Template {
     // Template for generating the 'TestType_NoAllocator' type.  The
     // 'TestType_NoAllocator' type simulates a class that does not use 'bslma'
@@ -460,7 +449,7 @@ namespace UsageExample2 {
 //
 // The 'MyContainer' class below contains an object of a templated 'TYPE':
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  class MyContainer {
 //      // A class that contains an object of the specified 'TYPE'.
 //
@@ -489,7 +478,7 @@ namespace UsageExample2 {
 // tricky without a constructor proxy.  One possible implementation is as
 // follows:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  {
 //  }
@@ -502,7 +491,7 @@ namespace UsageExample2 {
 // Another possible implementation for the 'MyContainer' constructor is as
 // follows:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  : d_object(basicAllocator)
 //  {
@@ -523,7 +512,7 @@ namespace UsageExample2 {
 
 namespace WithoutAllocatorTrait {
 
-template <typename TYPE>
+template <class TYPE>
 class MyContainer {
     // A class that contains an object of the specified 'TYPE'.
 
@@ -550,20 +539,20 @@ class MyContainer {
 //..
 // The constructor for 'MyContainer' can now be implemented as follows:
 //..
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 : d_proxy(basicAllocator)
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::~MyContainer()
 {
 }
 //..
 //  The 'getObject' method of 'MyContainer' can be implemented as follows:
 //..
-template <typename TYPE>
+template <class TYPE>
 const TYPE& MyContainer<TYPE>::getObject() const
 {
     return d_proxy.object();
@@ -685,7 +674,7 @@ namespace UsageExample2 {
 
 namespace WithAllocatorTrait {
 
-template <typename TYPE>
+template <class TYPE>
 class MyContainer {
     // A class that contains an object of the specified 'TYPE' and declares
     // the 'bslma::UsesBslmaAllocator' trait.
@@ -718,7 +707,7 @@ class MyContainer {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-template <typename TYPE>
+template <class TYPE>
 struct UsesBslmaAllocator<UsageExample2::
                           WithAllocatorTrait::MyContainer<TYPE> >
     : bsl::true_type {};
@@ -729,18 +718,18 @@ namespace UsageExample2 {
 
 namespace WithAllocatorTrait {
 
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 : d_proxy(basicAllocator)
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::~MyContainer()
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 const TYPE& MyContainer<TYPE>::getObject() const
 {
     return d_proxy.object();
@@ -774,11 +763,19 @@ void run()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
@@ -796,8 +793,8 @@ int main(int argc, char *argv[])
         //   Usage Example 2
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 2"
-                          << "\n=======================" << endl;
+        if (verbose) printf("\nTesting Usage Example 2"
+                            "\n=======================\n");
 
         UsageExample2::WithoutAllocatorTrait::run1();
         UsageExample2::WithoutAllocatorTrait::run2();
@@ -819,8 +816,8 @@ int main(int argc, char *argv[])
         //   Usage Example 1
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 1"
-                          << "\n=======================" << endl;
+        if (verbose) printf("\nTesting Usage Example 1"
+                            "\n=======================\n");
 
         UsageExample1::run();
       } break;
@@ -875,8 +872,8 @@ int main(int argc, char *argv[])
         //   const TYPE& object() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nConstructor Proxy Test"
-                          << "\n======================" << endl;
+        if (verbose) printf("\nConstructor Proxy Test"
+                            "\n======================\n");
 
         bslma::TestAllocator  testAllocator;
         bslma::Allocator     *ALLOCATOR = &testAllocator;
@@ -886,10 +883,10 @@ int main(int argc, char *argv[])
 
         ASSERT(VALUE != DEFAULT);
 
-        if (verbose) cout << "\n1. Constructing without value." << endl;
+        if (verbose) printf("\n1. Constructing without value." "\n");
         {
-            if (veryVerbose) cout << "\ta) 'TYPE' = 'TestType_YesAllocator'."
-                                  << endl;
+            if (veryVerbose) printf(
+                                   "\ta) 'TYPE' = 'TestType_YesAllocator'.\n");
             {
                 typedef Obj_YesAllocator Obj;
 
@@ -907,8 +904,7 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tb) 'TYPE' = 'TestType_NoAllocator'."
-                                  << endl;
+            if (veryVerbose) printf("\tb) 'TYPE' = 'TestType_NoAllocator'.\n");
             {
                 typedef Obj_NoAllocator Obj;
 
@@ -925,12 +921,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n2. Constructing with 'bslalg::ConstructorProxy"
-                          << "<OTHER>'." << endl;
+        if (verbose) printf(
+                "\n2. Constructing with 'bslalg::ConstructorProxy<OTHER>'.\n");
         {
-            if (veryVerbose) cout << "\ta) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_YesAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\ta) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_YesAllocator'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator Type;
                 typedef TestType_YesAllocator OtherType;
@@ -954,9 +950,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tb) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\tb) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator Type;
                 typedef TestType_Other        OtherType;
@@ -980,9 +976,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tc) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_NoAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\tc) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_NoAllocator'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator Type;
                 typedef TestType_NoAllocator OtherType;
@@ -1004,9 +1000,9 @@ int main(int argc, char *argv[])
                 ASSERT( X.object().value() == DEFAULT);
             }
 
-            if (veryVerbose) cout << "\td) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\td) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator Type;
                 typedef TestType_Other       OtherType;
@@ -1029,11 +1025,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n3. Constructing with 'OTHER'." << endl;
+        if (verbose) printf("\n3. Constructing with 'OTHER'." "\n");
         {
-            if (veryVerbose) cout << "\ta) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_YesAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\ta) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_YesAllocator'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator          Type;
                 typedef TestType_YesAllocator          OtherType;
@@ -1055,9 +1051,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tb) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\tb) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator          Type;
                 typedef TestType_Other                 OtherType;
@@ -1079,9 +1075,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tc) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_NoAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\tc) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_NoAllocator'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator           Type;
                 typedef TestType_NoAllocator           OtherType;
@@ -1101,9 +1097,9 @@ int main(int argc, char *argv[])
                 ASSERT( X.object().value() == DEFAULT);
             }
 
-            if (veryVerbose) cout << "\td) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\td) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator           Type;
                 typedef TestType_Other                 OtherType;
@@ -1125,7 +1121,7 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
@@ -1133,7 +1129,7 @@ int main(int argc, char *argv[])
     LOOP2_ASSERT(test, g_objectCount, 0 == g_objectCount);
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

@@ -2,6 +2,8 @@
 
 #include <bslalg_swaputil.h>
 
+#include <bsls_bsltestutil.h>
+
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 
@@ -19,49 +21,48 @@
 // [ 1] BREATHING TEST
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
-    void aSsErT(int c, const char *s, int i) {
-        if (c) {
-            printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-            if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
         }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and be called during exception testing.
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\n", #I, I, #J, J); \
-                aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %c\t%s: %c\n", #I, I, #J, J, #K, K); \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
-                #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  SEMI-STANDARD NEGATIVE-TESTING MACROS
@@ -186,14 +187,17 @@ void swap(Container& a, Container& b)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
-    (void) veryVerbose;
-    (void) veryVeryVerbose;
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -230,8 +234,8 @@ bslalg::SwapUtil::swap(&c1, &c2);
         //
         // Plan:
         //: 1 Create two objects of type 'SwapTester' which provides its own
-        //:   overload of 'swap'.  Call the 'bslalg::SwapUtil::swap' on them and
-        //:   verify that the overloaded 'swap' has been called.
+        //:   overload of 'swap'.  Call the 'bslalg::SwapUtil::swap' on them
+        //:   and verify that the overloaded 'swap' has been called.
         //: 2 Call 'bslalg::SwapUtil::swap' on two ints.  Since 'int' doesn't
         //:   have its own 'swap' overload, the generic 'swap' has to be found.
         //

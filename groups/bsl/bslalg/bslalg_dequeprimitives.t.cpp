@@ -17,13 +17,12 @@
 #include <bsls_stopwatch.h>               // for testing only
 #include <bsls_types.h>                   // for testing only
 
-#include <cstdio>
-#include <cstdlib>     // atoi()
-#include <cstring>     // strlen()
-#include <ctype.h>     // isalpha()
+#include <ctype.h>     // 'isalpha'
+#include <stdio.h>
+#include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'strlen'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -69,42 +68,48 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
-    void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-}
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and be called during exception testing.
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\n", #I, I, #J, J); \
-                aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %c\t%s: %c\n", #I, I, #J, J, #K, K); \
-                aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
-                #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  STANDARD bslma EXCEPTION TEST MACROS
@@ -114,11 +119,11 @@ namespace {
 #define BEGIN_bslma_EXCEPTION_TEST {                                         \
     {                                                                        \
         static int firstTime = 1;                                            \
-        if (veryVerbose && firstTime) printf(                                \
+        if (g_veryVerbose && firstTime) printf(                              \
             "### bslma EXCEPTION TEST -- (ENABLED) --\n");                   \
         firstTime = 0;                                                       \
     }                                                                        \
-    if (veryVeryVerbose) printf("### Begin bslma exception test.\n");        \
+    if (g_veryVeryVerbose) printf("### Begin bslma exception test.\n");      \
     int bslmaExceptionCounter = 0;                                           \
     static int bslmaExceptionLimit = 1000;                                   \
     testAllocator.setAllocationLimit(bslmaExceptionCounter);                 \
@@ -127,10 +132,10 @@ namespace {
 
 #define END_bslma_EXCEPTION_TEST                                             \
         } catch (bslma::TestAllocatorException& e) {                         \
-            if ((veryVerbose && bslmaExceptionLimit) || veryVeryVerbose) {   \
+            if ((g_veryVerbose && bslmaExceptionLimit) || g_veryVeryVerbose){\
                 --bslmaExceptionLimit;                                       \
                 printf("(*** %d)", bslmaExceptionCounter);                   \
-                if (veryVeryVerbose) {                                       \
+                if (g_veryVeryVerbose) {                                     \
                     printf(" bslma::EXCEPTION:"                              \
                            " alloc limit = %d,",                             \
                            bslmaExceptionCounter);                           \
@@ -148,13 +153,13 @@ namespace {
         testAllocator.setAllocationLimit(-1);                                \
         break;                                                               \
     } while (1);                                                             \
-    if (veryVeryVerbose) printf("### End bslma exception test.\n");          \
+    if (g_veryVeryVerbose) printf("### End bslma exception test.\n");        \
 }
 #else
 #define BEGIN_bslma_EXCEPTION_TEST                                           \
 {                                                                            \
     static int firstTime = 1;                                                \
-    if (verbose && firstTime) { printf(                                      \
+    if (g_verbose && firstTime) { printf(                                    \
         "### bslma EXCEPTION TEST -- (NOT ENABLED) --\n");                   \
         firstTime = 0;                                                       \
     }                                                                        \
@@ -163,17 +168,13 @@ namespace {
 #endif
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
+static bool             g_verbose = false;
+static bool         g_veryVerbose = false;
+static bool     g_veryVeryVerbose = false;
+static bool g_veryVeryVeryVerbose = false;;
+
 
 // TYPES
 class TestType;
@@ -190,8 +191,6 @@ typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
 
 // STATIC DATA
-static int verbose, veryVerbose, veryVeryVerbose;
-
 const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
@@ -858,7 +857,7 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -876,7 +875,7 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
             ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
             const int SIZE = static_cast<int>(std::strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "BEGIN = %d, NE = %d, EXP = %s, EB = %d\n",
                        LINE, SPEC, BEGIN, NE, EXP, EB);
@@ -884,7 +883,7 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -1035,7 +1034,7 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -1052,7 +1051,7 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
             ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
             const int SIZE = static_cast<int>(std::strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "END = %d, NE = %d, EXP = %s, EE = %d\n",
                        LINE, SPEC, END, NE, EXP, EE);
@@ -1060,7 +1059,7 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -1208,7 +1207,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -1225,7 +1224,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
             ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
             const int SIZE = static_cast<int>(std::strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "BEGIN = %d, NE = %d, EXP = %s, EB = %d\n",
                        LINE, SPEC, BEGIN, NE, EXP, EB);
@@ -1233,7 +1232,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -1383,7 +1382,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -1401,7 +1400,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
             ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
             const int SIZE = static_cast<int>(std::strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "END = %d, NE = %d, EXP = %s, EE = %d\n",
                        LINE, SPEC, END, NE, EXP, EE);
@@ -1409,7 +1408,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -1535,7 +1534,7 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -1551,7 +1550,7 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
             ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
             const int SIZE = static_cast<int>(std::strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "BEGIN = %d, NE = %d, EXP = %s, EB = %d\n",
                        LINE, SPEC, BEGIN, NE, EXP, EB);
@@ -1559,7 +1558,7 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -1679,7 +1678,7 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -1695,7 +1694,7 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
             ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
             const int SIZE = static_cast<int>(std::strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "END = %d, NE = %d, EXP = %s, EE = %d\n",
                        LINE, SPEC, END, NE, EXP, EE);
@@ -1703,7 +1702,7 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -1892,7 +1891,7 @@ void testErase(bool exceptionSafetyFlag = false)
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -1912,7 +1911,7 @@ void testErase(bool exceptionSafetyFlag = false)
             ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
             const int SIZE = static_cast<int>(strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "BEGIN = %d, FIRST = %d, LAST = %d, END = %d, "
                        "EXP = %s, EB = %d, EE = %d, EI = %d\n",
@@ -1921,7 +1920,7 @@ void testErase(bool exceptionSafetyFlag = false)
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -2042,7 +2041,7 @@ void testDestruct()
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("BLOCK_LENGTH = %d, BLOCK_NUM = %d\n",
                    BLOCK_LENGTH, numBlocks);
         }
@@ -2057,7 +2056,7 @@ void testDestruct()
 
             const int SIZE = static_cast<int>(std::strlen(SPEC));
 
-            if (veryVerbose) {
+            if (g_veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
                        "BEGIN = %d, NE = %d, EXP = %s\n",
                        LINE, SPEC, BEGIN, NE, EXP);
@@ -2065,7 +2064,7 @@ void testDestruct()
 
             for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
 
-                if (veryVerbose) {
+                if (g_veryVerbose) {
                     printf("INITIAL POSITION = %d\n", ip);
                 }
 
@@ -2089,17 +2088,22 @@ void testDestruct()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+                g_verbose =             verbose;
+            g_veryVerbose =         veryVerbose;
+        g_veryVeryVerbose =     veryVeryVerbose;
+    g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator  testAllocator(veryVeryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
