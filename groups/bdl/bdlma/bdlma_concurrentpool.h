@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_PooledArray(bslma::Allocator *basicAllocator = 0);
+//      explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
 //          // Create a pooled array that stores the parameterized values
 //          // "out-of-place".  Optionally specify a 'basicAllocator' used to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
@@ -216,7 +216,6 @@ BSLS_IDENT("$Id: $")
 // the default value:
 //..
 //  // my_poolarray.cpp
-//  #include <my_poolarray.h>
 //
 //  // CREATORS
 //  template <class T>

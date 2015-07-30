@@ -132,64 +132,96 @@ typedef bdlma::LocalSequentialAllocator<k_SIZE> Obj;
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-typedef bsl::string DatabaseKey;
-typedef bsl::string DatabaseValue;
+///Usage
+///-----
+///Example 1: Recommended Usage
+/// - - - - - - - - - - - - - -
+// Suppose we have a function which takes a map of items to update in some
+// database:
+//..
+    typedef bsl::string DatabaseKey;
+    typedef bsl::string DatabaseValue;
 
-void updateRecords_1(const bsl::map<DatabaseKey, DatabaseValue>& values)
-{
-    for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
-             it = values.begin(), end = values.end();
-         it != end;
-         ++it) {
-        bsl::stringbuf stringBuf;
-        bsl::ostream   ostr(&stringBuf);
-        ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
+    void updateRecords_1(const bsl::map<DatabaseKey, DatabaseValue>& values)
+    {
+        for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
+                 it = values.begin(), end = values.end();
+             it != end;
+             ++it) {
+            bsl::stringbuf stringBuf;
+            bsl::ostream   ostr(&stringBuf);
+            ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
                 "myKey = '" << it->second << "'";
-        // execute query using 'stringBuf.str()'
+            // execute query using 'stringBuf.str()'
+        }
     }
-}
+//..
+// We call this method a lot, and after profiling, we notice that it's
+// contributing a significant proportion of time, due to the allocations it is
+// making.  We decide to see whether a LocalSequentialAllocator would help.
+//
+// First, use a 'bslma::TestAllocator' to track the typical memory usage:
+//..
+    void updateRecords_2(const bsl::map<DatabaseKey, DatabaseValue>& values)
+    {
+        bslma::TestAllocator ta;
 
-void updateRecords_2(const bsl::map<DatabaseKey, DatabaseValue>& values)
-{
-    bslma::TestAllocator ta;
+        for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
+                 it = values.begin(), end = values.end();
+             it != end;
+             ++it) {
+            bsl::stringbuf stringBuf(&ta);
+            bsl::ostream   ostr(&stringBuf);
 
-    for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
-             it = values.begin(), end = values.end();
-         it != end;
-         ++it) {
-        bsl::stringbuf stringBuf(&ta);
-        bsl::ostream   ostr(&stringBuf);
+            ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
+                    "myKey = '" << it->second << "'";
 
-        ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
-                "myKey = '" << it->second << "'";
+            // execute query using 'stringBuf.str()'
 
-        // execute query using 'stringBuf.str()'
+            bsl::cout << "In use: " << ta.numBytesInUse() << '\n';
+        }
 
-        bsl::cout << "In use: " << ta.numBytesInUse() << '\n';
+        bsl::cout << "Max: " << ta.numBytesMax() << '\n';
     }
+//..
+// Then we run our program again, and observe the following output:
+//..
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  Max: 129
+//..
+// It looks like 129 is a good choice for the size of our allocator, so we go
+// with that:
+//..
+    void updateRecords_3(const bsl::map<DatabaseKey, DatabaseValue>& values)
+    {
+        bdlma::LocalSequentialAllocator<129> lsa;
 
-    bsl::cout << "Max: " << ta.numBytesMax() << '\n';
-}
+        for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
+                 it = values.begin(), end = values.end();
+             it != end;
+             ++it) {
+            lsa.release();
 
-void updateRecords_3(const bsl::map<DatabaseKey, DatabaseValue>& values)
-{
-    bdlma::LocalSequentialAllocator<129> lsa;
+            bsl::stringbuf stringBuf(&lsa);
+            bsl::ostream   ostr(&stringBuf);
 
-    for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
-             it = values.begin(), end = values.end();
-         it != end;
-         ++it) {
-        lsa.release();
+            ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
+                    "myKey = '" << it->second << "'";
 
-        bsl::stringbuf stringBuf(&lsa);
-        bsl::ostream   ostr(&stringBuf);
-
-        ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
-                "myKey = '" << it->second << "'";
-
-        // execute query using 'stringBuf.str()'
+            // execute query using 'stringBuf.str()'
+        }
     }
-}
+//..
+// Note that we release at the end of every iteration, as the deallocate method
+// is a no-op, so without this, subsequent memory would be allocated from the
+// default allocator (or the allocator passed to 'bsa' at construction).
+//
+// Finally, we re-profile our code to determine whether the addition of a
+// 'LocalSequentialAllocator' helped.
 
 //=============================================================================
 //           Additional Functionality Needed to Complete Usage Test Case
@@ -561,20 +593,20 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        enum { ALLOC_SIZE1 = 4, ALLOC_SIZE2 = 8 };
+        enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8 };
 
         if (verbose) cout << "\nTesting constructor." << endl;
         {
             Obj mX(&objectAllocator);
 
             if (verbose) cout << "\nTesting allocate from buffer." << endl;
-            void *addr1 = mX.allocate(ALLOC_SIZE1);
+            void *addr1 = mX.allocate(k_ALLOC_SIZE1);
             ASSERT(0 != addr1);
 
             // Allocation comes from within the buffer.
             ASSERT(0 == objectAllocator.numBlocksTotal());
 
-            void *addr2 = mX.allocate(ALLOC_SIZE2);
+            void *addr2 = mX.allocate(k_ALLOC_SIZE2);
             ASSERT(0 != addr2);
 
             // Make sure no memory comes from the object, default, and global

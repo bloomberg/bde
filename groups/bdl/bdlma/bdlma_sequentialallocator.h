@@ -147,10 +147,6 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //
 //  // my_doublestack.cpp
-//  #include <my_doublestack.h>
-//
-//  #include <bslma_allocator.h>
-//  #include <bslma_default.h>
 //
 //  // PRIVATE MANIPULATORS
 //  void my_DoubleStack::increaseCapacity()
@@ -190,12 +186,8 @@ BSLS_IDENT("$Id: $")
 // In 'main', users can create a 'bdlma::SequentialAllocator' and pass it to
 // the constructor of 'my_DoubleStack':
 //..
-//  int main()
-//  {
 //      bdlma::SequentialAllocator sequentialAlloc;
 //      my_DoubleStack dstack(&sequentialAlloc);
-//      // ...
-//  }
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

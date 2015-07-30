@@ -94,50 +94,55 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdlma::HeapBypassAllocator usage example\n"
                              "=======================================\n";
 
-        // Here we allocate some memory using a heap bypass allocator, then
-        // write to that memory, then read from it and verify the values
-        // written are preserved.
-
+///Usage
+///-----
+// Here we allocate some memory using a heap bypass allocator, then write to
+// that memory, then read from it and verify the values written are preserved.
+//..
+    {
         enum {
-            LENGTH = 10 * 1000,
-            NUM_SEGMENTS = 60
+            k_LENGTH       = 10 * 1000,
+            k_NUM_SEGMENTS = 60
         };
 
         bdlma::HeapBypassAllocator hbpa;
-
-        // First we allocate some segments
-
-        char *segments[NUM_SEGMENTS];
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
-            segments[i] = static_cast<char *>(hbpa.allocate(LENGTH));
+//..
+// First, we allocate some segments:
+//..
+        char *segments[k_NUM_SEGMENTS];
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+            segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
             BSLS_ASSERT(segments[i]);
         }
-
-        // Next we write to the segments.
-
+//..
+// Next, we write to the segments:
+//..
         char c = 'a';
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
             char *segment = segments[i];
-            for (int j = 0; j < LENGTH; ++j) {
+            for (int j = 0; j < k_LENGTH; ++j) {
                 c = (c + 1) & 0x7f;
                 segment[j] = c;
             }
         }
-
-        // Finally, we read from the segments and verify the written data is
-        // still there.
-
+//..
+// Finally, we read from the segments and verify the written data is still
+// there:
+//..
         c = 'a';
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
             char *segment = segments[i];
-            for (int j = 0; j < LENGTH; ++j) {
+            for (int j = 0; j < k_LENGTH; ++j) {
                 c = (c + 1) & 0x7f;
                 BSLS_ASSERT(segment[j] == c);
             }
         }
-
-        // Memory is released upon destruction of object 'hbpa' when it goes
-        // out of scope.
+//..
+// Memory is released upon destruction of object 'hbpa' when it goes out of
+// scope.
+//..
+    }
+//..
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -155,28 +160,28 @@ int main(int argc, char *argv[])
                              "========================================\n";
 
         enum {
-            LENGTH = 10 * 1000,
-            NUM_SEGMENTS = 20
+            k_LENGTH = 10 * 1000,
+            k_NUM_SEGMENTS = 20
         };
 
         bdlma::HeapBypassAllocator hbpa;
 
-        char *segments[NUM_SEGMENTS];
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
-            segments[i] = static_cast<char *>(hbpa.allocate(LENGTH));
+        char *segments[k_NUM_SEGMENTS];
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+            segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
             char *pcB = segments[i];
 
             const char C = static_cast<char>('a' + i);
-            for (char *pcE = pcB + LENGTH, *pc = pcB; pc < pcE; ++pc) {
+            for (char *pcE = pcB + k_LENGTH, *pc = pcB; pc < pcE; ++pc) {
                 *pc = C;
             }
         }
 
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
             const char *pcB = segments[i];
 
             const char C = static_cast<char>('a' + i);
-            for (const char *pcE = pcB + LENGTH, *pc = pcB; pc < pcE; ++pc) {
+            for (const char *pcE = pcB + k_LENGTH, *pc = pcB; pc < pcE; ++pc) {
                 ASSERT(C == *pc);
             }
         }

@@ -111,6 +111,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using a 'bdlma::ConcurrentMultipoolAllocator'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::ConcurrentMultipoolAllocator' can be used to supply memory to
 // node-based data structures such as 'bsl::set', 'bsl::list' or 'bsl::map'.
 // Suppose we are implementing a container of named graphs data structure,
@@ -252,14 +256,11 @@ BSLS_IDENT("$Id: $")
 // When solved for the above equation, the smallest 'N' that satisfies this
 // relationship is 3:
 //..
-//  int main()
-//  {
-//      enum { k_NUM_POOLS = 3 };
+//  enum { k_NUM_POOLS = 3 };
 //
-//      bdlma::ConcurrentMultipoolAllocator basicAllocator(k_NUM_POOLS);
+//  bdlma::ConcurrentMultipoolAllocator basicAllocator(k_NUM_POOLS);
 //
-//      my_NamedGraphContainer container(&basicAllocator);
-//  }
+//  my_NamedGraphContainer container(&basicAllocator);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

@@ -214,8 +214,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // 'allocateFromBufferImp', provides the bulk of the implementation of the
 // 'allocate' method:
 //..
-//  // my_bufferallocator.cpp
-//  #include <my_bufferallocator.h>
+    // my_bufferallocator.cpp
 
     // STATIC HELPER FUNCTIONS
     static

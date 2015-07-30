@@ -220,7 +220,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 }
 
 enum {
-    NUM_THREADS = 10
+    k_NUM_THREADS = 10
 };
 
 struct WorkerArgs {
@@ -230,7 +230,7 @@ struct WorkerArgs {
 
 };
 
-bdlmtt::Barrier g_barrier(NUM_THREADS);
+bdlmtt::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, protect, unprotect, and deallocate
     // operations on the 'bcema::TestProtectableMemoryBlockDispenser' and
@@ -307,125 +307,125 @@ extern "C" void *workerThread(void *arg) {
 // First, we define our message types as follows:
 //..
     class my_MessageFactory;
-//
+
     class my_Message {
         // This class represents a general message interface that provides
         // a 'getMessage' method for clients to retrieve the underlying
         // message.
-//
+
       public:
         // ACCESSORS
         virtual const char *getMessage() = 0;
             // Return the null-terminated message string.
     };
-//
+
     class my_SmallMessage : public my_Message {
         // This class represents an 8-byte message (including null terminator).
-//
+
         // DATA
         char d_buffer[8];
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_SmallMessage(const my_SmallMessage&);
         my_SmallMessage& operator=(const my_SmallMessage&);
-//
+
         // PRIVATE CREATORS
         my_SmallMessage(const char *msg, int length)
         {
             ASSERT(length <= 7);
-//
+
             bsl::memcpy(d_buffer, msg, length);
             d_buffer[length] = '\0';
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
             return d_buffer;
         }
     };
-//
+
     class my_MediumMessage : public my_Message {
         // This class represents a 16-byte message (including null
         // terminator).
-//
+
         // DATA
         char d_buffer[16];
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_MediumMessage(const my_MediumMessage&);
         my_MediumMessage& operator=(const my_MediumMessage&);
-//
+
         // PRIVATE CREATORS
         my_MediumMessage(const char *msg, int length)
         {
             ASSERT(length <= 15);
-//
+
             bsl::memcpy(d_buffer, msg, length);
             d_buffer[length] = '\0';
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
             return d_buffer;
         }
     };
-//
+
     class my_LargeMessage : public my_Message {
         // This class represents a 32-byte message (including null
         // terminator).
-//
+
         // DATA
         char d_buffer[32];
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_LargeMessage(const my_LargeMessage&);
         my_LargeMessage& operator=(const my_LargeMessage&);
-//
+
         // PRIVATE CREATORS
         my_LargeMessage(const char *msg, int length)
         {
             ASSERT(length <= 31);
-//
+
             bsl::memcpy(d_buffer, msg, length);
             d_buffer[length] = '\0';
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
             return d_buffer;
         }
     };
-//
+
     class my_GenericMessage : public my_Message {
         // This class represents a generic message.
-//
+
         // DATA
         char *d_buffer;
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_GenericMessage(const my_GenericMessage&);
         my_GenericMessage& operator=(const my_GenericMessage&);
-//
+
         // PRIVATE CREATORS
         my_GenericMessage(char *msg) : d_buffer(msg)
         {
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
@@ -439,29 +439,29 @@ extern "C" void *workerThread(void *arg) {
         // This class implements an efficient message factory that builds and
         // returns messages.  The life-time of the messages created by this
         // factory is the same as this factory.
-//
+
         // DATA
         bdlma::ConcurrentMultipool d_multipool;  // multipool used to supply
                                                  // memory
-//
+
       public:
         // CREATORS
         my_MessageFactory(bslma::Allocator *basicAllocator = 0);
             // Create a message factory.  Optionally specify a 'basicAllocator'
             // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
-//
+
         ~my_MessageFactory();
             // Destroy this factory and reclaim all messages created by it.
-//
+
         // MANIPULATORS
         my_Message *createMessage(const char *data);
             // Create a message storing the specified 'data'.  The behavior is
             // undefined unless 'data' is null-terminated.
-//
+
         void disposeAllMessages();
             // Dispose of all created messages.
-//
+
         void disposeMessage(my_Message *message);
             // Dispose of the specified 'message'.  The behavior is undefined
             // unless 'message' was created by this factory.
@@ -526,28 +526,28 @@ extern "C" void *workerThread(void *arg) {
     // MANIPULATORS
     my_Message *my_MessageFactory::createMessage(const char *data)
     {
-        enum { SMALL = 8, MEDIUM = 16, LARGE = 32 };
-//
+        enum { k_SMALL = 8, k_MEDIUM = 16, k_LARGE = 32 };
+
         const int length = static_cast<int>(bsl::strlen(data));
-//
-        if (length < SMALL) {
+
+        if (length < k_SMALL) {
             return new(d_multipool.allocate(sizeof(my_SmallMessage)))
                                                  my_SmallMessage(data, length);
         }
-//
-        if (length < MEDIUM) {
+
+        if (length < k_MEDIUM) {
             return new(d_multipool.allocate(sizeof(my_MediumMessage)))
                                                 my_MediumMessage(data, length);
         }
-//
-        if (length < LARGE) {
+
+        if (length < k_LARGE) {
             return new(d_multipool.allocate(sizeof(my_LargeMessage)))
                                                  my_LargeMessage(data, length);
         }
-//
+
         char *buffer = (char *)d_multipool.allocate(length + 1);
         bsl::memcpy(buffer, data, length + 1);
-//
+
         return new(d_multipool.allocate(sizeof(my_GenericMessage)))
                                                      my_GenericMessage(buffer);
     }
@@ -571,37 +571,37 @@ extern "C" void *workerThread(void *arg) {
         // allocator that manages a set of memory pools, each dispensing memory
         // blocks of a unique size, with each successive pool's block size
         // being twice that of the previous one.
-//
+
         // DATA
         bdlma::ConcurrentMultipool d_multiPool;  // memory manager for
                                                  // allocated memory blocks
-//
+
       public:
         // CREATORS
         my_MultipoolAllocator(bslma::Allocator *basicAllocator = 0);
             // Create a multipool allocator.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
-//
+
         // ...
-//
+
         virtual ~my_MultipoolAllocator();
             // Destroy this multipool allocator.  All memory allocated from
             // this memory pool is released.
-//
+
         // MANIPULATORS
         virtual void *allocate(int size);
             // Return the address of a contiguous block of maximally-aligned
             // memory of (at least) the specified 'size' (in bytes).  The
             // behavior is undefined unless '1 <= size'.
-//
+
         virtual void deallocate(void *address);
             // Relinquish the memory block at the specified 'address' back to
             // this multipool allocator for reuse.  The behavior is undefined
             // unless 'address' is non-zero, was allocated by this multipool
             // allocator, and has not already been deallocated.
     };
-//
+
     // CREATORS
     inline
     my_MultipoolAllocator::my_MultipoolAllocator(
@@ -609,18 +609,18 @@ extern "C" void *workerThread(void *arg) {
     : d_multiPool(basicAllocator)
     {
     }
-//
+
     my_MultipoolAllocator::~my_MultipoolAllocator()
     {
     }
-//
+
     // MANIPULATORS
     inline
     void *my_MultipoolAllocator::allocate(int size)
     {
         return d_multiPool.allocate(size);
     }
-//
+
     inline
     void my_MultipoolAllocator::deallocate(void *address)
     {
@@ -904,9 +904,9 @@ int main(int argc, char *argv[])
                           << endl << "======================================"
                           << endl;
 
-        enum { INITIAL_CHUNK_SIZE = 1,
-               DEFAULT_MAX_CHUNK_SIZE = 32,
-               DEFAULT_NUM_POOLS = 10 };
+        enum { k_INITIAL_CHUNK_SIZE = 1,
+               k_DEFAULT_MAX_CHUNK_SIZE = 32,
+               k_DEFAULT_NUM_POOLS = 10 };
 
         // For pool allocation.
         char buffer[1024];
@@ -991,7 +991,7 @@ int main(int argc, char *argv[])
 
                     // Testing geometric growth
                     if (GEO == SDATA[si][calcPoolNum]) {
-                        int ri = INITIAL_CHUNK_SIZE;
+                        int ri = k_INITIAL_CHUNK_SIZE;
                         while (ri < MDATA[mi][calcPoolNum]) {
                             poolAllocations      = pta.numAllocations();
                             multipoolAllocations = mpta.numAllocations();
@@ -1056,12 +1056,12 @@ int main(int argc, char *argv[])
                                       veryVeryVerbose);
 
             // Initialize the pools
-            bdlma::ConcurrentPool *pool[DEFAULT_NUM_POOLS];
+            bdlma::ConcurrentPool *pool[k_DEFAULT_NUM_POOLS];
             int INIT = 8;
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              GEO,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1080,7 +1080,7 @@ int main(int argc, char *argv[])
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS,
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
                                                  OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
@@ -1091,11 +1091,11 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing geometric growth
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
@@ -1123,7 +1123,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1140,7 +1140,7 @@ int main(int argc, char *argv[])
             }
 
             // Release all pooled memory.
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j]->release();
             }
         }
@@ -1162,7 +1162,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              GEO,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1195,8 +1195,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
@@ -1224,7 +1224,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1258,12 +1258,12 @@ int main(int argc, char *argv[])
                                       veryVeryVerbose);
 
             // Initialize the pools
-            bdlma::ConcurrentPool *pool[DEFAULT_NUM_POOLS];
+            bdlma::ConcurrentPool *pool[k_DEFAULT_NUM_POOLS];
             int INIT = 8;
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              CON,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1282,7 +1282,7 @@ int main(int argc, char *argv[])
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS,
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
                                                  OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
@@ -1293,7 +1293,7 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing constant growth
                 const int NUM_REPLENISH = 3;
@@ -1301,7 +1301,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1318,7 +1318,7 @@ int main(int argc, char *argv[])
             }
 
             // Release all pooled memory.
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j]->release();
             }
         }
@@ -1340,7 +1340,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              CON,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1378,7 +1378,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1417,7 +1417,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              SDATA[si][j],
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1450,8 +1450,8 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
-                    while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                    int ri = k_INITIAL_CHUNK_SIZE;
+                    while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                         poolAllocations      = pta.numAllocations();
                         multipoolAllocations = mpta.numAllocations();
 
@@ -1480,7 +1480,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1641,7 +1641,7 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
+                    int ri = k_INITIAL_CHUNK_SIZE;
                     while (ri < TEST_MAX_CHUNK_SIZE) {
                         poolAllocations      = pta.numAllocations();
                         multipoolAllocations = mpta.numAllocations();
@@ -1783,10 +1783,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlmtt::ThreadUtil::Handle threads[NUM_THREADS];
+        bdlmtt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
         bslma::TestAllocator ta;
-        Obj                 mX(4, &ta);
+        Obj                  mX(4, &ta);
 
         const int SIZES [] = { 1 , 2 , 4,  8, 16, 32, 64, 128, 256, 512,
                                1 , 2 , 4,  8, 16, 32, 64, 128, 256, 512};
@@ -1798,12 +1798,12 @@ int main(int argc, char *argv[])
         args.d_sizes     = (const int *)&SIZES;
         args.d_numSizes  = NUM_SIZES;
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlmtt::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);

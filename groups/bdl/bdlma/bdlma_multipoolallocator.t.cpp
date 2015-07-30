@@ -348,7 +348,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 //..
 //  int main()
 //  {
-//      enum { NUM_POOLS = 3 };
+//      enum { k_NUM_POOLS = 3 };
 //
 //      bdlma::MultipoolAllocator multipoolAllocator(NUM_POOLS);
 //
@@ -751,9 +751,9 @@ int main(int argc, char *argv[])
 //..
 //  int main()
 //  {
-        enum { NUM_POOLS = 3 };
+        enum { k_NUM_POOLS = 3 };
 
-        bdlma::MultipoolAllocator multipoolAllocator(NUM_POOLS);
+        bdlma::MultipoolAllocator multipoolAllocator(k_NUM_POOLS);
 
         my_NamedGraphContainer container(&multipoolAllocator);
 //  }
@@ -1081,9 +1081,9 @@ int main(int argc, char *argv[])
                                   << "=================" << endl;
 
         enum {
-            INITIAL_CHUNK_SIZE     =  1,
-            DEFAULT_MAX_CHUNK_SIZE = 32,
-            DEFAULT_NUM_POOLS      = 10
+            k_INITIAL_CHUNK_SIZE     =  1,
+            k_DEFAULT_MAX_CHUNK_SIZE = 32,
+            k_DEFAULT_NUM_POOLS      = 10
         };
 
         const int NUM_POOLS           =  5;
@@ -1151,7 +1151,7 @@ int main(int argc, char *argv[])
 
                     // Testing geometric growth.
                     if (GEO == SDATA[si][calcPoolNum]) {
-                        int ri = INITIAL_CHUNK_SIZE;
+                        int ri = k_INITIAL_CHUNK_SIZE;
                         while (ri < MDATA[mi][calcPoolNum]) {
                             multipoolAllocations = mpta.numAllocations();
                             objectAllocations    =   oa.numAllocations();
@@ -1219,7 +1219,8 @@ int main(int argc, char *argv[])
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE    = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS, OBJ_SIZE);
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
+                                                 OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
                     char *p = (char *) mX.allocate(OBJ_SIZE);
@@ -1229,11 +1230,11 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
@@ -1260,7 +1261,7 @@ int main(int argc, char *argv[])
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1308,8 +1309,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
@@ -1336,7 +1337,7 @@ int main(int argc, char *argv[])
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1371,7 +1372,8 @@ int main(int argc, char *argv[])
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE    = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS, OBJ_SIZE);
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
+                                                 OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
                     char *p = (char *) mX.allocate(OBJ_SIZE);
@@ -1381,7 +1383,7 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing constant growth.
                 const int NUM_REPLENISH = 3;
@@ -1389,7 +1391,7 @@ int main(int argc, char *argv[])
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1442,7 +1444,7 @@ int main(int argc, char *argv[])
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1491,8 +1493,8 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth.
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
-                    while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                    int ri = k_INITIAL_CHUNK_SIZE;
+                    while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                         multipoolAllocations = mpta.numAllocations();
                         objectAllocations    =   oa.numAllocations();
 
@@ -1520,7 +1522,7 @@ int main(int argc, char *argv[])
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1569,7 +1571,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
+                int ri = k_INITIAL_CHUNK_SIZE;
                 while (ri < TEST_MAX_CHUNK_SIZE) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
@@ -1647,7 +1649,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
+                int ri = k_INITIAL_CHUNK_SIZE;
                 while (ri < MDATA[mi][calcPoolNum]) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
@@ -1779,7 +1781,7 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth.
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
+                    int ri = k_INITIAL_CHUNK_SIZE;
                     while (ri < TEST_MAX_CHUNK_SIZE) {
                         multipoolAllocations = mpta.numAllocations();
                         objectAllocations    =   oa.numAllocations();

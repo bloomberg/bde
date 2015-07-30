@@ -144,9 +144,9 @@ typedef bdlma::SequentialPool     Obj;
 
 typedef bsls::Alignment::Strategy Strat;
 
-enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-enum { DEFAULT_SIZE = 256 };  // initial size of the buffer if none specified
+enum { k_DEFAULT_SIZE = 256 };  // initial size of the buffer if none specified
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -189,7 +189,7 @@ static int blockSize(int numBytes)
 
     if (numBytes) {
         numBytes += static_cast<int>(sizeof(Block)) - 1;
-        numBytes &= ~(MAX_ALIGN - 1);
+        numBytes &= ~(k_MAX_ALIGN - 1);
     }
 
     return numBytes;
@@ -255,7 +255,7 @@ static int calculateNextSize(int currSize, int size)
 
       public:
         // TYPES
-        enum Type { MY_INT, MY_DOUBLE };
+        enum Type { k_MY_INT, k_MY_DOUBLE };
 
         // CREATORS
         explicit my_IntDoubleArray(bslma::Allocator *basicAllocator = 0);
@@ -296,10 +296,9 @@ static int calculateNextSize(int currSize, int size)
 // dynamically-allocated buffers to supply memory.  This greatly reduces the
 // amount of dynamic allocation needed:
 //..
-//  // my_intdoublearray.cpp
-//  #include <my_intdoublearray.h>
+    // my_intdoublearray.cpp
 
-    enum { INITIAL_SIZE = 1 };
+    enum { k_INITIAL_SIZE = 1 };
 
     // PRIVATE MANIPULATORS
     void my_IntDoubleArray::increaseSize()
@@ -311,7 +310,7 @@ static int calculateNextSize(int currSize, int size)
     // CREATORS
     my_IntDoubleArray::my_IntDoubleArray(bslma::Allocator *basicAllocator)
     : d_length(0)
-    , d_capacity(INITIAL_SIZE)
+    , d_capacity(k_INITIAL_SIZE)
     , d_pool(basicAllocator)
     {
         d_typeArray_p  = static_cast<char *>(
@@ -340,7 +339,7 @@ static int calculateNextSize(int currSize, int size)
         int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
         *item = value;
 
-        d_typeArray_p[d_length]  = static_cast<char>(MY_INT);
+        d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
         d_valueArray_p[d_length] = item;
 
         ++d_length;
@@ -355,7 +354,7 @@ static int calculateNextSize(int currSize, int size)
         double *item = static_cast<double *>(d_pool.allocate(sizeof *item));
         *item = value;
 
-        d_typeArray_p[d_length]  = static_cast<char>(MY_DOUBLE);
+        d_typeArray_p[d_length]  = static_cast<char>(k_MY_DOUBLE);
         d_valueArray_p[d_length] = item;
 
         ++d_length;
@@ -563,33 +562,33 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'reserveCapacity' TEST" << endl
                                   << "======================" << endl;
 
-        enum { INITIAL_SIZE = 64, MAX_BUFFER = INITIAL_SIZE * 4 };
+        enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER = k_INITIAL_SIZE * 4 };
 
         if (verbose) cout << "\nTesting that 'reserveCapacity' does not "
                              "trigger dynamic memory allocation." << endl;
 
         {
-            Obj mX(INITIAL_SIZE, MAX_BUFFER, &objectAllocator);
+            Obj mX(k_INITIAL_SIZE, k_MAX_BUFFER, &objectAllocator);
             bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.reserveCapacity(INITIAL_SIZE / 2);
+            mX.reserveCapacity(k_INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.allocate(INITIAL_SIZE / 2);
+            mX.allocate(k_INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(INITIAL_SIZE * 2);
+            mX.reserveCapacity(k_INITIAL_SIZE * 2);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(INITIAL_SIZE * 2);
+            mX.allocate(k_INITIAL_SIZE * 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(MAX_BUFFER * 2);
+            mX.reserveCapacity(k_MAX_BUFFER * 2);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(MAX_BUFFER * 2);
+            mX.allocate(k_MAX_BUFFER * 2);
             ASSERT(numBytesUsed = objectAllocator.numBytesInUse());
         }
 
@@ -599,17 +598,17 @@ int main(int argc, char *argv[])
             Obj mX(&objectAllocator);
             ASSERT(0 == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(DEFAULT_SIZE);
+            mX.reserveCapacity(k_DEFAULT_SIZE);
             bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(DEFAULT_SIZE);
+            mX.allocate(k_DEFAULT_SIZE);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(DEFAULT_SIZE * 4);
+            mX.reserveCapacity(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(DEFAULT_SIZE * 4);
+            mX.allocate(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
         }
 
@@ -698,18 +697,18 @@ int main(int argc, char *argv[])
 
             // MAXIMUM ALIGNMENT
             {  L_,      MAX,           1,           0,           0 },
-            {  L_,      MAX,           1,           1,   MAX_ALIGN },
+            {  L_,      MAX,           1,           1, k_MAX_ALIGN },
             {  L_,      MAX,           2,           0,           0 },
-            {  L_,      MAX,           2,           1,   MAX_ALIGN },
-            {  L_,      MAX,           2,           2,   MAX_ALIGN },
+            {  L_,      MAX,           2,           1, k_MAX_ALIGN },
+            {  L_,      MAX,           2,           2, k_MAX_ALIGN },
             {  L_,      MAX,           3,           0,           0 },
-            {  L_,      MAX,           3,           1,   MAX_ALIGN },
-            {  L_,      MAX,           3,           2,   MAX_ALIGN },
-            {  L_,      MAX,           3,           3,   MAX_ALIGN },
-            {  L_,      MAX,           8,           4,   MAX_ALIGN },
+            {  L_,      MAX,           3,           1, k_MAX_ALIGN },
+            {  L_,      MAX,           3,           2, k_MAX_ALIGN },
+            {  L_,      MAX,           3,           3, k_MAX_ALIGN },
+            {  L_,      MAX,           8,           4, k_MAX_ALIGN },
             {  L_,      MAX,         511,         511,          -1 },  // *
             {  L_,      MAX,         512,           0,           0 },
-            {  L_,      MAX,         512,           1,   MAX_ALIGN },
+            {  L_,      MAX,         512,           1, k_MAX_ALIGN },
             {  L_,      MAX,         512,         511,          -1 },  // *
             {  L_,      MAX,         512,         512,          -1 },  // *
 
@@ -881,41 +880,41 @@ int main(int argc, char *argv[])
             // ----     -----       -----------       -------
 
             // NATURAL ALIGNMENT
-            {  L_,      NAT,           1,     DEFAULT_SIZE * 2 - 1           },
-            {  L_,      NAT,           2,     DEFAULT_SIZE * 2 - 2           },
-            {  L_,      NAT,           3,     DEFAULT_SIZE * 2 - 3           },
-            {  L_,      NAT,           4,     DEFAULT_SIZE * 2 - 4           },
-            {  L_,      NAT,           7,     DEFAULT_SIZE * 2 - 7           },
-            {  L_,      NAT,           8,     DEFAULT_SIZE * 2 - 8           },
-            {  L_,      NAT,          15,     DEFAULT_SIZE * 2 - 15          },
-            {  L_,      NAT,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      NAT,         100,     DEFAULT_SIZE * 2 - 100         },
-            {  L_,      NAT,         510,     DEFAULT_SIZE * 2 - 510         },
-            {  L_,      NAT,         511,     DEFAULT_SIZE * 2 - 511         },
+            {  L_,      NAT,           1,   k_DEFAULT_SIZE * 2 - 1           },
+            {  L_,      NAT,           2,   k_DEFAULT_SIZE * 2 - 2           },
+            {  L_,      NAT,           3,   k_DEFAULT_SIZE * 2 - 3           },
+            {  L_,      NAT,           4,   k_DEFAULT_SIZE * 2 - 4           },
+            {  L_,      NAT,           7,   k_DEFAULT_SIZE * 2 - 7           },
+            {  L_,      NAT,           8,   k_DEFAULT_SIZE * 2 - 8           },
+            {  L_,      NAT,          15,   k_DEFAULT_SIZE * 2 - 15          },
+            {  L_,      NAT,          16,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      NAT,         100,   k_DEFAULT_SIZE * 2 - 100         },
+            {  L_,      NAT,         510,   k_DEFAULT_SIZE * 2 - 510         },
+            {  L_,      NAT,         511,   k_DEFAULT_SIZE * 2 - 511         },
 
             // MAXIMUM ALIGNMENT
-            {  L_,      MAX,           1,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           2,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           3,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           4,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           7,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           8,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,          15,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,         108,     DEFAULT_SIZE * 2 - 112         },
+            {  L_,      MAX,           1,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           2,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           3,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           4,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           7,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           8,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,          15,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      MAX,          16,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      MAX,         108,   k_DEFAULT_SIZE * 2 - 112         },
 
             // 1-BYTE ALIGNMENT
-            {  L_,      BYT,           1,     DEFAULT_SIZE * 2 - 1           },
-            {  L_,      BYT,           2,     DEFAULT_SIZE * 2 - 2           },
-            {  L_,      BYT,           3,     DEFAULT_SIZE * 2 - 3           },
-            {  L_,      BYT,           4,     DEFAULT_SIZE * 2 - 4           },
-            {  L_,      BYT,           7,     DEFAULT_SIZE * 2 - 7           },
-            {  L_,      BYT,           8,     DEFAULT_SIZE * 2 - 8           },
-            {  L_,      BYT,          15,     DEFAULT_SIZE * 2 - 15          },
-            {  L_,      BYT,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      BYT,         100,     DEFAULT_SIZE * 2 - 100         },
-            {  L_,      BYT,         510,     DEFAULT_SIZE * 2 - 510         },
-            {  L_,      BYT,         511,     DEFAULT_SIZE * 2 - 511         },
+            {  L_,      BYT,           1,   k_DEFAULT_SIZE * 2 - 1           },
+            {  L_,      BYT,           2,   k_DEFAULT_SIZE * 2 - 2           },
+            {  L_,      BYT,           3,   k_DEFAULT_SIZE * 2 - 3           },
+            {  L_,      BYT,           4,   k_DEFAULT_SIZE * 2 - 4           },
+            {  L_,      BYT,           7,   k_DEFAULT_SIZE * 2 - 7           },
+            {  L_,      BYT,           8,   k_DEFAULT_SIZE * 2 - 8           },
+            {  L_,      BYT,          15,   k_DEFAULT_SIZE * 2 - 15          },
+            {  L_,      BYT,          16,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      BYT,         100,   k_DEFAULT_SIZE * 2 - 100         },
+            {  L_,      BYT,         510,   k_DEFAULT_SIZE * 2 - 510         },
+            {  L_,      BYT,         511,   k_DEFAULT_SIZE * 2 - 511         },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -944,7 +943,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             void *addr1 = mX.allocate(INITIALSIZE);
-            ASSERT(blockSize(DEFAULT_SIZE * 2) ==
+            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
                                               objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
@@ -958,7 +957,7 @@ int main(int argc, char *argv[])
             else {
                 int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                    (char *)addr1 + INITIALSIZE,
-                                                   MAX_ALIGN);
+                                                   k_MAX_ALIGN);
                 ASSERT((char *)addr1 + INITIALSIZE + offset == (char *)addr2);
             }
 
@@ -966,7 +965,7 @@ int main(int argc, char *argv[])
             ASSERT(EXPUSED == (int)size);
 
             // Check for no new allocations.
-            ASSERT(blockSize(DEFAULT_SIZE * 2) ==
+            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
                                               objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
@@ -984,7 +983,7 @@ int main(int argc, char *argv[])
 
             bsls::Types::size_type size = 1;
             mX.allocateAndExpand(&size);
-            ASSERT(blockSize(DEFAULT_SIZE * 2) ==
+            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
                                               objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
@@ -1197,7 +1196,7 @@ int main(int argc, char *argv[])
                     ASSERT((char *)addr1 +         2 == (char *)addr2);
                 }
                 else if (bsls::Alignment::BSLS_MAXIMUM == strategy) {
-                    ASSERT((char *)addr1 + MAX_ALIGN == (char *)addr2);
+                    ASSERT((char *)addr1 + k_MAX_ALIGN == (char *)addr2);
                 }
                 else {  // bsls::Alignment::BSLS_BYTEALIGNED == strategy
                     ASSERT((char *)addr1 +         1 == (char *)addr2);
@@ -1288,18 +1287,18 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                if (SIZE <= DEFAULT_SIZE * 2) {
+                if (SIZE <= k_DEFAULT_SIZE * 2) {
                     LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == ta.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE * 2) == ta.numBytesInUse());
                     LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == tb.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE * 2) == tb.numBytesInUse());
                     LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == tc.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE * 2) == tc.numBytesInUse());
                     LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == td.numBytesInUse());
+                          blockSize(k_DEFAULT_SIZE * 2) == td.numBytesInUse());
                 }
                 else {
-                    int nextSize = calculateNextSize(DEFAULT_SIZE, SIZE);
+                    int nextSize = calculateNextSize(k_DEFAULT_SIZE, SIZE);
                     LOOP4_ASSERT(i, SIZE, blockSize(nextSize),
                                  ta.numBytesInUse(),
                                  blockSize(nextSize) == ta.numBytesInUse());
@@ -1383,14 +1382,14 @@ int main(int argc, char *argv[])
                                                         == td.numBytesInUse());
                     }
                     else {
-                        if (0 == INITIAL_SIZE && SIZE < DEFAULT_SIZE) {
-                            LOOP_ASSERT(i, NA + blockSize(DEFAULT_SIZE)
+                        if (0 == INITIAL_SIZE && SIZE < k_DEFAULT_SIZE) {
+                            LOOP_ASSERT(i, NA + blockSize(k_DEFAULT_SIZE)
                                                         == ta.numBytesInUse());
-                            LOOP_ASSERT(i, NB + blockSize(DEFAULT_SIZE)
+                            LOOP_ASSERT(i, NB + blockSize(k_DEFAULT_SIZE)
                                                         == tb.numBytesInUse());
-                            LOOP_ASSERT(i, NC + blockSize(DEFAULT_SIZE)
+                            LOOP_ASSERT(i, NC + blockSize(k_DEFAULT_SIZE)
                                                         == tc.numBytesInUse());
-                            LOOP_ASSERT(i, ND + blockSize(DEFAULT_SIZE)
+                            LOOP_ASSERT(i, ND + blockSize(k_DEFAULT_SIZE)
                                                         == td.numBytesInUse());
                         }
                         else {
@@ -1718,13 +1717,13 @@ int main(int argc, char *argv[])
                 Obj mA;
 
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-                void *addr1 = mA.allocate(DEFAULT_SIZE + 1);
-                addr1 = mA.allocate(DEFAULT_SIZE + 1);  // triggers allocation
+                void *addr1 = mA.allocate(k_DEFAULT_SIZE + 1);
+                addr1 = mA.allocate(k_DEFAULT_SIZE + 1);  // triggers alloc.
                 (void)addr1;
 
-                ASSERT(blockSize(DEFAULT_SIZE * 2) +
-                       blockSize(calculateNextSize(DEFAULT_SIZE * 2,
-                                                   DEFAULT_SIZE + 1))
+                ASSERT(blockSize(k_DEFAULT_SIZE * 2) +
+                       blockSize(calculateNextSize(k_DEFAULT_SIZE * 2,
+                                                   k_DEFAULT_SIZE + 1))
                                         == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1733,13 +1732,13 @@ int main(int argc, char *argv[])
                 Obj mB(NAT);
 
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-                void *addr1 = mB.allocate(DEFAULT_SIZE + 1);
-                addr1 = mB.allocate(DEFAULT_SIZE + 1);  // triggers allocation
+                void *addr1 = mB.allocate(k_DEFAULT_SIZE + 1);
+                addr1 = mB.allocate(k_DEFAULT_SIZE + 1);  // triggers alloc.
                 (void)addr1;
 
-                ASSERT(blockSize(DEFAULT_SIZE * 2) +
-                       blockSize(calculateNextSize(DEFAULT_SIZE * 2,
-                                                   DEFAULT_SIZE + 1))
+                ASSERT(blockSize(k_DEFAULT_SIZE * 2) +
+                       blockSize(calculateNextSize(k_DEFAULT_SIZE * 2,
+                                                   k_DEFAULT_SIZE + 1))
                                         == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1844,34 +1843,34 @@ int main(int argc, char *argv[])
                 // ----     -----       ---------       ---------
 
                 // NATURAL ALIGNMENT
-                {  L_,      NAT,         1,             1         },
-                {  L_,      NAT,         2,             2         },
-                {  L_,      NAT,         3,             1         },
-                {  L_,      NAT,         4,             4         },
-                {  L_,      NAT,         7,             1         },
-                {  L_,      NAT,         8,             8         },
-                {  L_,      NAT,        15,             1         },
-                {  L_,      NAT,        16,             MAX_ALIGN },
+                {  L_,      NAT,         1,             1           },
+                {  L_,      NAT,         2,             2           },
+                {  L_,      NAT,         3,             1           },
+                {  L_,      NAT,         4,             4           },
+                {  L_,      NAT,         7,             1           },
+                {  L_,      NAT,         8,             8           },
+                {  L_,      NAT,        15,             1           },
+                {  L_,      NAT,        16,             k_MAX_ALIGN },
 
                 // MAXIMUM ALIGNMENT
-                {  L_,      MAX,         1,             MAX_ALIGN },
-                {  L_,      MAX,         2,             MAX_ALIGN },
-                {  L_,      MAX,         3,             MAX_ALIGN },
-                {  L_,      MAX,         4,             MAX_ALIGN },
-                {  L_,      MAX,         7,             MAX_ALIGN },
-                {  L_,      MAX,         8,             MAX_ALIGN },
-                {  L_,      MAX,        15,             MAX_ALIGN },
-                {  L_,      MAX,        16,             MAX_ALIGN },
+                {  L_,      MAX,         1,             k_MAX_ALIGN },
+                {  L_,      MAX,         2,             k_MAX_ALIGN },
+                {  L_,      MAX,         3,             k_MAX_ALIGN },
+                {  L_,      MAX,         4,             k_MAX_ALIGN },
+                {  L_,      MAX,         7,             k_MAX_ALIGN },
+                {  L_,      MAX,         8,             k_MAX_ALIGN },
+                {  L_,      MAX,        15,             k_MAX_ALIGN },
+                {  L_,      MAX,        16,             k_MAX_ALIGN },
 
                 // 1-BYTE ALIGNMENT
-                {  L_,      BYT,         1,             1         },
-                {  L_,      BYT,         2,             1         },
-                {  L_,      BYT,         3,             1         },
-                {  L_,      BYT,         4,             1         },
-                {  L_,      BYT,         7,             1         },
-                {  L_,      BYT,         8,             1         },
-                {  L_,      BYT,        15,             1         },
-                {  L_,      BYT,        16,             1         },
+                {  L_,      BYT,         1,             1           },
+                {  L_,      BYT,         2,             1           },
+                {  L_,      BYT,         3,             1           },
+                {  L_,      BYT,         4,             1           },
+                {  L_,      BYT,         7,             1           },
+                {  L_,      BYT,         8,             1           },
+                {  L_,      BYT,        15,             1           },
+                {  L_,      BYT,        16,             1           },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1920,16 +1919,16 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            mX.allocate(DEFAULT_SIZE + 1);
-            mX.allocate(DEFAULT_SIZE + 1);  // triggers allocation
+            mX.allocate(k_DEFAULT_SIZE + 1);
+            mX.allocate(k_DEFAULT_SIZE + 1);  // triggers allocation
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            int totalSize = blockSize(DEFAULT_SIZE * 2) +
-                            blockSize(calculateNextSize(DEFAULT_SIZE * 2,
-                                                        DEFAULT_SIZE + 1));
+            int totalSize = blockSize(k_DEFAULT_SIZE * 2) +
+                            blockSize(calculateNextSize(k_DEFAULT_SIZE * 2,
+                                                        k_DEFAULT_SIZE + 1));
 
             LOOP2_ASSERT(totalSize, objectAllocator.numBytesInUse(),
                                  totalSize == objectAllocator.numBytesInUse());
@@ -1949,15 +1948,15 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            mX.allocate(DEFAULT_SIZE / 2 + 1);
-            mX.allocate(DEFAULT_SIZE / 2 + 1);  // triggers allocation
+            mX.allocate(k_DEFAULT_SIZE / 2 + 1);
+            mX.allocate(k_DEFAULT_SIZE / 2 + 1);  // triggers allocation
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            int totalSize = blockSize(DEFAULT_SIZE) +
-                            blockSize(DEFAULT_SIZE);
+            int totalSize = blockSize(k_DEFAULT_SIZE) +
+                            blockSize(k_DEFAULT_SIZE);
 
             LOOP2_ASSERT(totalSize, objectAllocator.numBytesInUse(),
                                  totalSize == objectAllocator.numBytesInUse());
@@ -2150,7 +2149,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        enum { ALLOC_SIZE1 = 4, ALLOC_SIZE2 = 8, ALLOC_SIZE3 = 1024 };
+        enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8, k_ALLOC_SIZE3 = 1024 };
 
         {
             if (verbose) cout << "\nTesting construction of pool." << endl;
@@ -2163,7 +2162,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
             if (verbose) cout << "\nTesting allocation." << endl;
-            void *addr1 = mX.allocate(ALLOC_SIZE1);
+            void *addr1 = mX.allocate(k_ALLOC_SIZE1);
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
@@ -2173,7 +2172,7 @@ int main(int argc, char *argv[])
                                                objectAllocator.numBytesInUse();
 
             if (verbose) cout << "\nTesting internal buffering." << endl;
-            void *addr2 = mX.allocate(ALLOC_SIZE2);
+            void *addr2 = mX.allocate(k_ALLOC_SIZE2);
 
             ASSERT(oldNumBytesInUse == objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
@@ -2185,7 +2184,7 @@ int main(int argc, char *argv[])
             ASSERT((char *)addr1 + 8 == (char *)addr2);
 
             if (verbose) cout << "\nTesting large allocation." << endl;
-            void *addr3 = mX.allocate(ALLOC_SIZE3);
+            void *addr3 = mX.allocate(k_ALLOC_SIZE3);
             (void)addr3;
 
             ASSERT(oldNumBytesInUse < objectAllocator.numBytesInUse());

@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bdlma::HeapBypassAllocator hbpa;
 //..
-// First we allocate some segments
+// First, we allocate some segments:
 //..
 //      char *segments[k_NUM_SEGMENTS];
 //      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 //          BSLS_ASSERT(segments[i]);
 //      }
 //..
-// Next we write to the segments.
+// Next, we write to the segments:
 //..
 //      char c = 'a';
 //      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //..
 // Finally, we read from the segments and verify the written data is still
-// there.
+// there:
 //..
 //      c = 'a';
 //      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {

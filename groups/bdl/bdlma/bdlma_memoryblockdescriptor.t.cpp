@@ -144,22 +144,24 @@ int main(int argc, char *argv[])
                           << endl << "============="
                           << endl;
 
-// In this example we demonstrate creating and testing the state of a
+///Usage
+///-----
+// This example demonstrates how to create and test the state of a
 // 'bdlma::MemoryBlockDescriptor'.
 //..
      char buffer[100];
-//
+
      bdlma::MemoryBlockDescriptor a(buffer, sizeof buffer);
                                  ASSERT(!a.isNull());
                                  ASSERT(buffer         == a.address());
                                  ASSERT(sizeof buffer  == a.size());
-//
+
      bdlma::MemoryBlockDescriptor b;
                                  ASSERT( b.isNull());
                                  ASSERT(0              == b.address());
                                  ASSERT(0              == b.size());
                                  ASSERT(a              != b);
-//
+
      b = a;
                                  ASSERT(!b.isNull());
                                  ASSERT(buffer         == b.address());
@@ -167,7 +169,6 @@ int main(int argc, char *argv[])
                                  ASSERT(a              == b);
 
 //..
-
       } break;
       case 8: {
         // --------------------------------------------------------------------

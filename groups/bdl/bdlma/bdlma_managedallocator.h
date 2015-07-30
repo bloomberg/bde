@@ -129,7 +129,6 @@ BSLS_IDENT("$Id: $")
 // 'allocate' method:
 //..
 //  // my_bufferallocator.cpp
-//  #include <my_bufferallocator.h>
 //
 //  // STATIC HELPER FUNCTIONS
 //  static

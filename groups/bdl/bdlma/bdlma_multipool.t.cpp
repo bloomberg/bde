@@ -490,21 +490,21 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     // MANIPULATORS
     my_Message *my_MessageFactory::createMessage(const char *data)
     {
-        enum { SMALL = 8, MEDIUM = 16, LARGE = 32 };
+        enum { k_SMALL = 8, k_MEDIUM = 16, k_LARGE = 32 };
 
         const int length = static_cast<int>(bsl::strlen(data));
 
-        if (length < SMALL) {
+        if (length < k_SMALL) {
             return new(d_multipool.allocate(sizeof(my_SmallMessage)))
                                                  my_SmallMessage(data, length);
         }
 
-        if (length < MEDIUM) {
+        if (length < k_MEDIUM) {
             return new(d_multipool.allocate(sizeof(my_MediumMessage)))
                                                 my_MediumMessage(data, length);
         }
 
-        if (length < LARGE) {
+        if (length < k_LARGE) {
             return new(d_multipool.allocate(sizeof(my_LargeMessage)))
                                                  my_LargeMessage(data, length);
         }
@@ -862,9 +862,9 @@ int main(int argc, char *argv[])
                                   << "=================" << endl;
 
         enum {
-            INITIAL_CHUNK_SIZE     =  1,
-            DEFAULT_MAX_CHUNK_SIZE = 32,
-            DEFAULT_NUM_POOLS      = 10
+            k_INITIALCHUNK_SIZE     =  1,
+            k_DEFAULT_MAX_CHUNK_SIZE = 32,
+            k_DEFAULT_NUM_POOLS      = 10
         };
 
         // For pool allocation.
@@ -946,7 +946,7 @@ int main(int argc, char *argv[])
 
                     // Testing geometric growth.
                     if (GEO == SDATA[si][calcPoolNum]) {
-                        int ri = INITIAL_CHUNK_SIZE;
+                        int ri = k_INITIALCHUNK_SIZE;
                         while (ri < MDATA[mi][calcPoolNum]) {
                             poolAllocations      = pta.numAllocations();
                             multipoolAllocations =  oa.numAllocations();
@@ -1008,12 +1008,12 @@ int main(int argc, char *argv[])
             bslma::TestAllocator  oa("object", veryVeryVerbose);
 
             // Initialize the pools.
-            bdlma::Pool *pool[DEFAULT_NUM_POOLS];
+            bdlma::Pool *pool[k_DEFAULT_NUM_POOLS];
             int INIT = 8;
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::Pool(INIT,
                                               GEO,
-                                              DEFAULT_MAX_CHUNK_SIZE,
+                                              k_DEFAULT_MAX_CHUNK_SIZE,
                                               &pta);
                 INIT <<= 1;
             }
@@ -1031,7 +1031,8 @@ int main(int argc, char *argv[])
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE    = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS, OBJ_SIZE);
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
+                                                 OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
                     char *p = (char *) mX.allocate(OBJ_SIZE);
@@ -1041,11 +1042,11 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIALCHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
 
@@ -1072,7 +1073,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1088,7 +1089,7 @@ int main(int argc, char *argv[])
             }
 
             // Release all pooled memory.
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j]->release();
             }
         }
@@ -1106,7 +1107,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::Pool(INIT,
                                               GEO,
-                                              DEFAULT_MAX_CHUNK_SIZE,
+                                              k_DEFAULT_MAX_CHUNK_SIZE,
                                               &pta);
                 INIT <<= 1;
             }
@@ -1137,8 +1138,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIALCHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
 
@@ -1165,7 +1166,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1194,12 +1195,12 @@ int main(int argc, char *argv[])
             bslma::TestAllocator  oa("object", veryVeryVerbose);
 
             // Initialize the pools.
-            bdlma::Pool *pool[DEFAULT_NUM_POOLS];
+            bdlma::Pool *pool[k_DEFAULT_NUM_POOLS];
             int INIT = 8;
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::Pool(INIT,
                                               CON,
-                                              DEFAULT_MAX_CHUNK_SIZE,
+                                              k_DEFAULT_MAX_CHUNK_SIZE,
                                               &pta);
                 INIT <<= 1;
             }
@@ -1217,7 +1218,8 @@ int main(int argc, char *argv[])
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE    = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS, OBJ_SIZE);
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
+                                                 OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
                     char *p = (char *) mX.allocate(OBJ_SIZE);
@@ -1227,7 +1229,7 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing constant growth.
                 const int NUM_REPLENISH = 3;
@@ -1235,7 +1237,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1251,7 +1253,7 @@ int main(int argc, char *argv[])
             }
 
             // Release all pooled memory.
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j]->release();
             }
         }
@@ -1269,7 +1271,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::Pool(INIT,
                                               CON,
-                                              DEFAULT_MAX_CHUNK_SIZE,
+                                              k_DEFAULT_MAX_CHUNK_SIZE,
                                               &pta);
                 INIT <<= 1;
             }
@@ -1305,7 +1307,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1339,7 +1341,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::Pool(INIT,
                                               SDATA[si][j],
-                                              DEFAULT_MAX_CHUNK_SIZE,
+                                              k_DEFAULT_MAX_CHUNK_SIZE,
                                               &pta);
                 INIT <<= 1;
             }
@@ -1371,8 +1373,8 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth.
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
-                    while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                    int ri = k_INITIALCHUNK_SIZE;
+                    while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                         poolAllocations      = pta.numAllocations();
                         multipoolAllocations =  oa.numAllocations();
 
@@ -1401,7 +1403,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1466,7 +1468,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
+                int ri = k_INITIALCHUNK_SIZE;
                 while (ri < TEST_MAX_CHUNK_SIZE) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
@@ -1560,7 +1562,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
+                int ri = k_INITIALCHUNK_SIZE;
                 while (ri < MDATA[mi][calcPoolNum]) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations =  oa.numAllocations();
@@ -1724,7 +1726,7 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth.
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
+                    int ri = k_INITIALCHUNK_SIZE;
                     while (ri < TEST_MAX_CHUNK_SIZE) {
                         poolAllocations      = pta.numAllocations();
                         multipoolAllocations =  oa.numAllocations();

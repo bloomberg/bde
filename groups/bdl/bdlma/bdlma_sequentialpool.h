@@ -144,7 +144,6 @@ BSLS_IDENT("$Id: $")
 // amount of dynamic allocation needed:
 //..
 //  // my_intdoublearray.cpp
-//  #include <my_intdoublearray.h>
 //
 //  enum { k_INITIAL_SIZE = 1 };
 //

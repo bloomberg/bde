@@ -155,7 +155,7 @@ void NoopAllocator::deallocate(void *address)
 }
 
 enum {
-    NUM_THREADS = 10
+    k_NUM_THREADS = 10
 };
 struct WorkerArgs {
     Obj       *d_allocator; // allocator to perform allocations
@@ -164,7 +164,7 @@ struct WorkerArgs {
 
 };
 
-bdlmtt::Barrier g_barrier(NUM_THREADS);
+bdlmtt::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, and deallocate operations on the
     // 'bdlma::ConcurrentAllocatorAdapter' and verify their results.  This
@@ -209,41 +209,40 @@ extern "C" void *workerThread(void *arg) {
 
 ///Usage
 ///-----
-// In the following usage example we develop a simple containing two lists of
-// strings.  For the purpose of discussion we first define a simple thread
-// enabled vector:
+// In the following usage example, we develop a simple 'AddressBook' class
+// containing two thread-enabled vectors of strings: one for names, the other
+// for addresses.  We use a 'bdlma::ConcurrentAllocatorAdapter' to synchronize
+// memory allocations across our two thread-enabled vectors.  For the purpose
+// of this discussion, we first define a simple thread-enabled vector:
 //..
-    template <typename T>
+    template <typename TYPE>
     class ThreadEnabledVector {
-        // This class defines a trivial thread enabled vector.
+        // This class defines a trivial thread-enabled vector.
 
         // DATA
-        mutable bdlmtt::Mutex  d_mutex;       // synchronize access
-        bsl::vector<T>       d_elements;    // underlying list of strings
-        bslma::Allocator    *d_allocator_p; // allocator (held, not owned)
+        mutable bdlmtt::Mutex d_mutex;     // synchronize access
+        bsl::vector<TYPE>     d_elements;  // underlying list of strings
 
         // NOT IMPLEMENTED
         ThreadEnabledVector(const ThreadEnabledVector&);
         ThreadEnabledVector& operator=(const ThreadEnabledVector&);
 
       public:
-
         // CREATORS
         ThreadEnabledVector(bslma::Allocator *basicAllocator = 0)
-            // Create a thread enabled vector.  Optionally specify
-            // 'basicAllocator', used to supply memory.  If 'basicAllocator'
-            // is 0, the currently installed default allocator will be used.
+            // Create a thread-enabled vector.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator'
+            // is 0, the currently installed default allocator is used.
         : d_elements(basicAllocator)
-        , d_allocator_p(bslma::Default::allocator(basicAllocator))
         {
         }
 
         ~ThreadEnabledVector() {}
-            // Destroy this vector object.
+            // Destroy this thread-enabled vector object.
 
         // MANIPULATORS
-        int pushBack(const T& value)
-            // Append the specified 'value' to this vector of values and
+        int pushBack(const TYPE& value)
+            // Append the specified 'value' to this thread-enabled vector and
             // return the index of the new element.
         {
             bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
@@ -251,45 +250,46 @@ extern "C" void *workerThread(void *arg) {
             return static_cast<int>(d_elements.size()) - 1;
         }
 
-        void set(int index, const T& value)
-            // Set the element at the specified 'index' to the specified
-            // 'value'.  The behavior is undefined unless 'index < size()'.
+        void set(int index, const TYPE& value)
+            // Set the element at the specified 'index' in this thread-enabled
+            // vector to the specified 'value'.  The behavior is undefined
+            // unless '0 <= index < length()'.
         {
             bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
             d_elements[index] = value;
         }
 
         // ACCESSORS
-        T element(int index) const
-            // Return the value of the element at the specified 'index'.  Note
-            // that elements are returned *by* *value* because references to
-            // elements managed by this container may be invalidated by
-            // another thread of control.
+        TYPE element(int index) const
+            // Return the value of the element at the specified 'index' in this
+            // thread-enabled vector.  Note that elements are returned *by*
+            // *value* because references to elements managed by this container
+            // may be invalidated by another thread.
         {
             bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
             return d_elements[index];
         }
 
         int length() const
-            // Return the number elements in this vector object.
+            // Return the number of elements in this thread-enabled vector.
         {
             bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
             return static_cast<int>(d_elements.size());
         }
     };
 //..
-// We use this-thread enabled vector to create a Rolodex class.  However, we
-// use the 'bdlma::ConcurrentAllocatorAdapter' to prevent our two
+// We use this thread-enabled vector to create a AddressBook class.  However,
+// we use the 'bdlma::ConcurrentAllocatorAdapter' to prevent our two
 // (thread-enabled) vectors from attempting synchronous memory allocations from
 // our (potentially) non-thread safe 'bslma::Allocator'.  Note that we define a
-// local class 'Rolodex_PrivateData' in order to guarantee that
+// local class, 'AddressBook_PrivateData', in order to guarantee that
 // 'd_allocatorAdapter' and 'd_mutex' are initialized before the thread-enabled
-// vectors that depend on them.
+// vectors that depend on them:
 //..
-    struct Rolodex_PrivateData {
-        // Define a structure containing a mutex and an allocator adapter.  The
-        // 'Rolodex' class will inherit from this structure, ensuring that the
-        // mutex and adapter are initialized before the thread-enabled vectors
+    struct AddressBook_PrivateData {
+        // This 'struct' contains a mutex and an allocator adapter.  The
+        // 'AddressBook' class will inherit from this structure, ensuring that
+        // the mutex and adapter are initialized before other member variables
         // that depend on them.
 
         bdlmtt::Mutex           d_mutex;             // synchronize allocator
@@ -297,87 +297,85 @@ extern "C" void *workerThread(void *arg) {
         bdlma::ConcurrentAllocatorAdapter
                               d_allocatorAdapter;  // adapter for allocator
 
-        Rolodex_PrivateData(bslma::Allocator *basicAllocator = 0)
-            // Create an empty Rolodex private data object.  Optionally
-            // specify 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default
-            // allocator is used.
+        AddressBook_PrivateData(bslma::Allocator *basicAllocator = 0)
+            // Create a empty AddressBook private data object.  Optionally
+            // specify a 'basicAllocator' used to supply memory.  If
+            // 'basicAllocator' is 0, the currently installed default allocator
+            // is used.
         : d_allocatorAdapter(&d_mutex, basicAllocator)
         {
         }
     };
 
-    class Rolodex : private Rolodex_PrivateData{
-        // Define a thread-enabled Rolodex class containing a vector of
-        // names and addresses.  Note that this class uses private inheritance
-        // to ensure that the allocator adapter and mutex are initialized
-        // before the vectors of names and addresses.
+    class AddressBook : private AddressBook_PrivateData {
+        // This 'class' defines a thread-enabled AddressBook containing vectors
+        // of names and addresses.  Note that this class uses private
+        // inheritance to ensure that the allocator adapter and mutex are
+        // initialized before the vectors of names and addresses.
 
         // DATA
-        ThreadEnabledVector<bsl::string>
-                             d_names;             // list of names (owned)
-
-        ThreadEnabledVector<bsl::string>
-                             d_addresses;         // list of addresses (owned)
+        ThreadEnabledVector<bsl::string> d_names;      // list of names
+        ThreadEnabledVector<bsl::string> d_addresses;  // list of addresses
 
       public:
         // CREATORS
-        Rolodex(bslma::Allocator *basicAllocator = 0)
-            // Create an empty rolodex for storing names and addresses.
-            // Optionally specify 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default
-            // allocator is used.
-        : Rolodex_PrivateData(basicAllocator)
+        AddressBook(bslma::Allocator *basicAllocator = 0)
+            // Create an empty AddressBook for storing names and addresses.
+            // Optionally specify a 'basicAllocator' used to supply memory.  If
+            // 'basicAllocator' is 0, the currently installed default allocator
+            // is used.
+        : AddressBook_PrivateData(basicAllocator)
         , d_names(&d_allocatorAdapter)
         , d_addresses(&d_allocatorAdapter)
         {
         }
 
-        ~Rolodex()
-            // Destroy this Rolodex object.
+        ~AddressBook()
+            // Destroy this AddressBook.
         {
         }
 
         // MANIPULATORS
         int addName(const bsl::string& name)
-            // Add the specified 'name' to this Rolodex object.  Return the
-            // index of the element where 'name' is located.
+            // Add the specified 'name' to this AddressBook and return the
+            // index of the newly-added name.
         {
             return d_names.pushBack(name);
         }
 
         int addAddress(const bsl::string& address)
-            // Add the specified 'address' to this Rolodex object.  Return the
-            // index of the element where 'address' is located.
+            // Add the specified 'address' to this AddressBook and return the
+            // index of the newly-added address.
         {
             return d_addresses.pushBack(address);
         }
 
         // ACCESSORS
         bsl::string name(int index) const
-            // Return the value of the name at the specified 'index'.
+            // Return the value of the name at the specified 'index' in this
+            // AddressBook.
         {
             return d_names.element(index);
         }
 
         bsl::string address(int index) const
-            // Return the value of the address at the specified 'index'.
+            // Return the value of the address at the specified 'index' in this
+            // AddressBook.
         {
             return d_addresses.element(index);
         }
 
         int numNames() const
-            // Return the number of names in this rolodex.
+            // Return the number of names in this AddressBook.
         {
             return d_names.length();
         }
 
         int numAddresses() const
-            // Return the number of addresses in this rolodex.
+            // Return the number of addresses in this AddressBook.
         {
             return d_addresses.length();
         }
-
     };
 //..
 
@@ -419,23 +417,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example"
                           << endl << "=====================" << endl;
 
-        Rolodex rolodex(Z);
-        int nameIdx1 = rolodex.addName("Name1");
-        int addrIdx1 = rolodex.addAddress("Address1");
-        int nameIdx2 = rolodex.addName("Name2");
-        int addrIdx2 = rolodex.addAddress("Address2");
+        AddressBook addressBook(Z);
+        int nameIdx1 = addressBook.addName("Name1");
+        int addrIdx1 = addressBook.addAddress("Address1");
+        int nameIdx2 = addressBook.addName("Name2");
+        int addrIdx2 = addressBook.addAddress("Address2");
 
-        ASSERT(2 == rolodex.numNames());
-        ASSERT(2 == rolodex.numAddresses());
+        ASSERT(2 == addressBook.numNames());
+        ASSERT(2 == addressBook.numAddresses());
         ASSERT(0 == nameIdx1);
         ASSERT(0 == addrIdx1);
         ASSERT(1 == nameIdx2);
         ASSERT(1 == addrIdx2);
 
-        ASSERT("Name1"    == rolodex.name(nameIdx1));
-        ASSERT("Address1" == rolodex.address(addrIdx1));
-        ASSERT("Name2"    == rolodex.name(nameIdx2));
-        ASSERT("Address2" == rolodex.address(addrIdx2));
+        ASSERT("Name1"    == addressBook.name(nameIdx1));
+        ASSERT("Address1" == addressBook.address(addrIdx1));
+        ASSERT("Name2"    == addressBook.name(nameIdx2));
+        ASSERT("Address2" == addressBook.address(addrIdx2));
 
       } break;
       case 2: {
@@ -449,7 +447,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlmtt::ThreadUtil::Handle threads[NUM_THREADS];
+        bdlmtt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
         bslma::TestAllocator talloc(false);
         bdlmtt::Mutex         mutex;
@@ -465,12 +463,12 @@ int main(int argc, char *argv[])
         args.d_sizes     = (const int *)&SIZES;
         args.d_numSizes  = NUM_SIZES;
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlmtt::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);

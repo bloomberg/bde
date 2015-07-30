@@ -143,11 +143,11 @@ struct InfrequentDeleteBlock {
 // The following enumerator values must be kept in sync with 'bdlma_pool.cpp'.
 
 enum {
-    INITIAL_NUM_BLOCKS =  1,
-    MAX_NUM_BLOCKS     = 32,
+    k_INITIAL_NUM_BLOCKS =  1,
+    k_MAX_NUM_BLOCKS     = 32,
 
-    INITIAL_CHUNK_SIZE =  1,  // from 'bdlma_pool.cpp'
-    MAX_CHUNK_SIZE     = 32   // from 'bdlma_pool.cpp'
+    k_INITIAL_CHUNK_SIZE =  1,  // from 'bdlma_pool.cpp'
+    k_MAX_CHUNK_SIZE     = 32   // from 'bdlma_pool.cpp'
 };
 
 // ============================================================================
@@ -237,8 +237,8 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
 //
 // First, we define the interface of our 'my_PooledArray' template class:
 //..
-//  // my_poolarray.h
-//
+    // my_poolarray.h
+
     template <class TYPE>
     class my_PooledArray {
         // This class implements a container that stores values of (template
@@ -318,9 +318,8 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
 // Note that the growth strategy and maximum chunk size of the pool defaults to
 // those provided by 'bdlma::Pool':
 //..
-//  // my_poolarray.cpp
-//  #include <my_poolarray.h>
-//
+    // my_poolarray.cpp
+
     // CREATORS
     template <class TYPE>
     my_PooledArray<TYPE>::my_PooledArray(bslma::Allocator *basicAllocator)
@@ -1086,7 +1085,7 @@ int main(int argc, char *argv[])
             { L_,       5,                   10,            CON },
             { L_,      12,                    1,            GEO },
             { L_,      24,                    5,            GEO },
-            { L_,      32,       MAX_CHUNK_SIZE,            GEO }
+            { L_,      32,     k_MAX_CHUNK_SIZE,            GEO }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1168,14 +1167,14 @@ int main(int argc, char *argv[])
             Strategy d_strategy;
             int      d_availBlocks;
         } DATA[] = {
-            //    block                         avail
-            //LN  size   max chunk size  strat  blocks
-            //--  -----  --------------  -----  ------
-            { L_,     1,              5,   CON,      0 },
-            { L_,     5,             10,   CON,      0 },
-            { L_,    12,              1,   GEO,      0 },
-            { L_,    24,              5,   GEO,      2 },
-            { L_,    32, MAX_CHUNK_SIZE,   GEO,     27 }
+            //    block                           avail
+            //LN  size    max chunk size   strat  blocks
+            //--  -----  ----------------  -----  ------
+            { L_,     1,                5,   CON,      0 },
+            { L_,     5,               10,   CON,      0 },
+            { L_,    12,                1,   GEO,      0 },
+            { L_,    24,                5,   GEO,      2 },
+            { L_,    32, k_MAX_CHUNK_SIZE,   GEO,     27 }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1251,13 +1250,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   Initialize a pool with a chosen block size, default
         //   'maxBlocksPerChunk', and a test allocator.  Initialize a second
-        //   pool as a reference with the same block size, 'INITIAL_NUM_BLOCKS'
-        //   for 'maxBlocksPerChunk', and a second test allocator.  Invoke
-        //   'allocate' repeatedly on both pools so that the pools deplete and
-        //   replenish until the pools stop growing in size.  Verify that for
-        //   each replenishment the allocator for the pool under test contains
-        //   the same number of memory requests and the same request size as
-        //   the allocator for the reference pool.
+        //   pool as a reference with the same block size,
+        //   'k_INITIAL_NUM_BLOCKS' for 'maxBlocksPerChunk', and a second test
+        //   allocator.  Invoke 'allocate' repeatedly on both pools so that the
+        //   pools deplete and replenish until the pools stop growing in size.
+        //   Verify that for each replenishment the allocator for the pool
+        //   under test contains the same number of memory requests and the
+        //   same request size as the allocator for the reference pool.
         //
         // Testing:
         //   Pool(bs, basicAllocator = 0);
@@ -1280,11 +1279,11 @@ int main(int argc, char *argv[])
             const bslma::TestAllocator& TAY = taY;
             Obj mY(BLOCK_SIZE,
                    bsls::BlockGrowth::BSLS_GEOMETRIC,
-                   MAX_CHUNK_SIZE,
+                   k_MAX_CHUNK_SIZE,
                    &taY);
 
             int exceedMaxNumBlocksCount = 0;
-            int chunkSize = INITIAL_NUM_BLOCKS;
+            int chunkSize = k_INITIAL_NUM_BLOCKS;
             while (1) {
                 // Allocate until current pool is depleted.
                 for (int oi = 0; oi < myAbs(chunkSize); ++oi) {
@@ -1300,7 +1299,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(chunkSize,
                             (int)TAY.lastAllocatedNumBytes() == numBytes);
 
-                int newChunkSize = growNumBlocks(chunkSize, MAX_CHUNK_SIZE);
+                int newChunkSize = growNumBlocks(chunkSize, k_MAX_CHUNK_SIZE);
                 if (newChunkSize == chunkSize) ++exceedMaxNumBlocksCount;
                 if (2 < exceedMaxNumBlocksCount) break;
                 chunkSize = newChunkSize;
@@ -1317,11 +1316,11 @@ int main(int argc, char *argv[])
             const bslma::TestAllocator& TAY = taY;
             Obj mY(BLOCK_SIZE,
                    bsls::BlockGrowth::BSLS_GEOMETRIC,
-                   MAX_CHUNK_SIZE,
+                   k_MAX_CHUNK_SIZE,
                    &taY);
 
             int exceedMaxNumBlocksCount = 0;
-            int chunkSize = INITIAL_NUM_BLOCKS;
+            int chunkSize = k_INITIAL_NUM_BLOCKS;
             while (1) {
                 // Allocate until current pool is depleted.
                 for (int oi = 0; oi < myAbs(chunkSize); ++oi) {
@@ -1336,7 +1335,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(chunkSize, (int)TAY.lastAllocatedNumBytes()
                                                                   == numBytes);
 
-                int newChunkSize = growNumBlocks(chunkSize, MAX_CHUNK_SIZE);
+                int newChunkSize = growNumBlocks(chunkSize, k_MAX_CHUNK_SIZE);
                 if (newChunkSize == chunkSize) ++exceedMaxNumBlocksCount;
                 if (2 < exceedMaxNumBlocksCount) break;
                 chunkSize = newChunkSize;
@@ -1492,7 +1491,7 @@ int main(int argc, char *argv[])
 
                 // If geometric, grow till constant size first.
                 if (GEO == STRATEGY) {
-                    int ri = INITIAL_CHUNK_SIZE;
+                    int ri = k_INITIAL_CHUNK_SIZE;
 
                     while (ri < MAXBLOCKS) {
                         numAllocations = TA.numAllocations();

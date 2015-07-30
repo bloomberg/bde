@@ -152,16 +152,16 @@ static int veryVeryVerbose;
 // purposes.
 
 struct InfrequentDeleteBlock {
-    InfrequentDeleteBlock          *d_next_p;
+    InfrequentDeleteBlock               *d_next_p;
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
 // This type is copied from 'bdlma_concurrentpool.cpp' to determine the
 // internal limits of 'bdlma::ConcurrentPool'.
 enum {
-    INITIAL_CHUNK_SIZE   =  1,
-    GROW_FACTOR          =  2,
-    MAX_BLOCKS_PER_CHUNK =  32
+    k_INITIAL_CHUNK_SIZE  =   1,
+    k_GROW_FACTOR         =   2,
+    k_MAXBLOCKS_PER_CHUNK =  32
 };
 
 int numLeftChildren   = 0;
@@ -292,16 +292,16 @@ void stretchRemoveAll(Obj *object, int numElements)
 // the nodes to improve memory allocation efficiency:
 //..
     // my_poolarray.h
-//
+
     template <class T>
     class my_PooledArray {
         // This class implements a container that stores 'double' values
         // out-of-place.
-//
+
         // DATA
         bsl::vector<T *>      d_array_p;  // array of pooled elements
         bdlma::ConcurrentPool d_pool;     // memory manager for array elements
-//
+
       public:
         // CREATORS
         explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
@@ -309,21 +309,21 @@ void stretchRemoveAll(Obj *object, int numElements)
             // "out-of-place".  Optionally specify a 'basicAllocator' used to
             // supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
-//
+
         ~my_PooledArray();
             // Destroy this array and all elements held by it.
-//
+
         // MANIPULATORS
         void append(const T &value);
             // Append the specified 'value' to this array.
-//
+
         void removeAll();
             // Remove all elements from this array.
-//
+
         // ACCESSORS
         int length() const;
             // Return the number of elements in this array.
-//
+
         const T& operator[](int index) const;
             // Return a reference to the non-modifiable value at the specified
             // 'index' in this array.  The behavior is undefined unless
@@ -342,7 +342,7 @@ void stretchRemoveAll(Obj *object, int numElements)
         d_array_p.clear();
         d_pool.release();
     }
-//
+
     // ACCESSORS
     template <class T>
     inline
@@ -350,14 +350,14 @@ void stretchRemoveAll(Obj *object, int numElements)
     {
         return static_cast<int>(d_array_p.size());
     }
-//
+
     template <class T>
     inline
     const T& my_PooledArray<T>::operator[](int index) const
     {
         ASSERT(0 <= index);
         ASSERT(index < length());
-//
+
         return *d_array_p[index];
     }
 //..
@@ -365,8 +365,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 // the default value:
 //..
     // my_poolarray.cpp
-// #include <my_poolarray.h>
-//
+
     // CREATORS
     template <class T>
     my_PooledArray<T>::my_PooledArray(bslma::Allocator *basicAllocator)
@@ -437,14 +436,14 @@ ostream& operator<<(ostream& stream, const my_DoubleArray2& array);
 // my_doublearray2.cpp
 
 enum {
-    MY_INITIAL_SIZE = 1, // initial physical capacity
-    MY_GROW_FACTOR = 2   // multiplicative factor by which to grow 'd_size'
+    k_MY_INITIAL_SIZE = 1, // initial physical capacity
+    k_MY_GROW_FACTOR = 2   // multiplicative factor by which to grow 'd_size'
 };
 
 inline
 static int nextSize(int size)
 {
-    return size * MY_GROW_FACTOR;
+    return size * k_MY_GROW_FACTOR;
 }
 
 inline
@@ -485,7 +484,7 @@ void my_DoubleArray2::increaseSize()
 
 // CREATORS
 my_DoubleArray2::my_DoubleArray2(bslma::Allocator *basicAllocator)
-: d_size(MY_INITIAL_SIZE)
+: d_size(k_MY_INITIAL_SIZE)
 , d_length(0)
 , d_pool(sizeof(double), basicAllocator)
 , d_allocator_p(basicAllocator)
@@ -584,20 +583,20 @@ public:
 //-----------------------------------------------------------------------------
 
 enum {
-    OBJECT_SIZE = 56,
-    NUM_INTS = OBJECT_SIZE / sizeof(int),
-    NUM_OBJECTS = 10000,
-    NUM_THREADS = 4
+    k_OBJECT_SIZE = 56,
+    k_NUM_INTS = k_OBJECT_SIZE / sizeof(int),
+    k_NUM_OBJECTS = 10000,
+    k_NUM_THREADS = 4
 };
 
-bdlmtt::Barrier barrier(NUM_THREADS);
+bdlmtt::Barrier barrier(k_NUM_THREADS);
 extern "C"
 void *workerThread(void *arg) {
     Obj *mX = (Obj *) arg;
-    ASSERT(OBJECT_SIZE == mX->blockSize());
+    ASSERT(k_OBJECT_SIZE == mX->blockSize());
 
     barrier.wait();
-    for (int i = 0; i < NUM_OBJECTS; ++i) {
+    for (int i = 0; i < k_NUM_OBJECTS; ++i) {
         int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
             printf("Thread %d: Allocated %p\n",
@@ -773,15 +772,15 @@ int main(int argc, char *argv[]) {
                           << "BENCHMARK" << endl
                           << "=========" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 500,
-            NUM_OBJECTS = 50
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 500,
+            k_NUM_OBJECTS = 50
         };
 
-        int numIterations = NUM_ITERATIONS;
-        int numObjects = NUM_OBJECTS;
+        int numIterations = k_NUM_ITERATIONS;
+        int numObjects = k_NUM_OBJECTS;
 
-        for (int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
+        for (int numThreads=1; numThreads<=k_NUM_THREADS; numThreads++) {
             bench::runtest(numIterations, numObjects, numThreads);
         }
 
@@ -801,16 +800,16 @@ int main(int argc, char *argv[]) {
                           << "CONCURRENCY TEST" << endl
                           << "================" << endl;
 
-        bdlmtt::ThreadUtil::Handle threads[NUM_THREADS];
-        Obj mX(OBJECT_SIZE);
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            int rc =
-                bdlmtt::ThreadUtil::create(&threads[i], workerThread, &mX);
+        bdlmtt::ThreadUtil::Handle threads[k_NUM_THREADS];
+        Obj mX(k_OBJECT_SIZE);
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
+            int rc = bdlmtt::ThreadUtil::create(&threads[i],
+                                                workerThread,
+                                                &mX);
             LOOP_ASSERT(i, 0 == rc);
         }
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            int rc =
-                bdlmtt::ThreadUtil::join(threads[i]);
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
+            int rc = bdlmtt::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
       } break;
@@ -878,7 +877,7 @@ int main(int argc, char *argv[]) {
             {
 
                 Obj mX(OBJECT_SIZE,   strategy, &taX);
-                Obj mExp(OBJECT_SIZE, strategy, MAX_BLOCKS_PER_CHUNK, &taExp);
+                Obj mExp(OBJECT_SIZE, strategy, k_MAXBLOCKS_PER_CHUNK, &taExp);
 
                 for (int ai = 0; ai < NUM_REQUESTS; ++ai) {
                     mX.allocate();
@@ -1272,12 +1271,12 @@ int main(int argc, char *argv[]) {
             { L_,       5,                        10, false },
             { L_,      12,                         1, false },
             { L_,      24,                         5, false },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK, false },
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK, false },
             { L_,       1,                         5,  true },
             { L_,       5,                        10,  true },
             { L_,      12,                         1,  true },
             { L_,      24,                         5,  true },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK,  true }
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK,  true }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1349,12 +1348,12 @@ int main(int argc, char *argv[]) {
             { L_,       5,                        10, false },
             { L_,      12,                         1, false },
             { L_,      24,                         5, false },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK, false },
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK, false },
             { L_,       1,                         5,  true },
             { L_,       5,                        10,  true },
             { L_,      12,                         1,  true },
             { L_,      24,                         5,  true },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK,  true }
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK,  true }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1403,7 +1402,7 @@ int main(int argc, char *argv[]) {
         //   Initialize a pool with a chosen object size, default
         //   'maxBlocksPerChunk' and a test allocator.  Initialize a second
         //   pool as a reference with the same object size,
-        //   MAX_BLOCKS_PER_CHUNK for 'numObjects' and a second test
+        //   k_MAXBLOCKS_PER_CHUNK for 'numObjects' and a second test
         //   allocator.  Invoke 'allocate' repeatedly on both pools so that
         //   the pools deplete and replenish until the pools stop growing in
         //   size.  Verify that for each replenishment the allocator for the
@@ -1434,7 +1433,7 @@ int main(int argc, char *argv[]) {
         bslma::TestAllocator taexp;  const bslma::TestAllocator& TAEXP = taexp;
         Obj mExp(OBJECT_SIZE,
                  bsls::BlockGrowth::BSLS_GEOMETRIC,
-                 MAX_BLOCKS_PER_CHUNK,
+                 k_MAXBLOCKS_PER_CHUNK,
                  &taexp);
         ASSERT(OBJECT_SIZE == mExp.blockSize());
 
@@ -1443,10 +1442,10 @@ int main(int argc, char *argv[]) {
         // 'logBase2(CURRENT_MAX_BLOCKS_PER_CHUNK)', plus an arbitrary fudge
         // factor.
         const int NUM_ITERATIONS = 4 +
-                              (int)(bsl::log((double)MAX_BLOCKS_PER_CHUNK) /
+                              (int)(bsl::log((double)k_MAXBLOCKS_PER_CHUNK) /
                                     bsl::log(2.0));
 
-        int blocksPerChunk = INITIAL_CHUNK_SIZE;
+        int blocksPerChunk = k_INITIAL_CHUNK_SIZE;
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
             // Allocate until current pool is depleted.
             for (int j = 0; j < blocksPerChunk; ++j) {
@@ -1467,9 +1466,9 @@ int main(int argc, char *argv[]) {
                         TAEXP.lastAllocatedNumBytes() ==
                                    static_cast<bsls::Types::Uint64>(numBytes));
 
-            blocksPerChunk = blocksPerChunk * 2 <= MAX_BLOCKS_PER_CHUNK
+            blocksPerChunk = blocksPerChunk * 2 <= k_MAXBLOCKS_PER_CHUNK
                              ? blocksPerChunk *2
-                             : MAX_BLOCKS_PER_CHUNK;
+                             : k_MAXBLOCKS_PER_CHUNK;
         }
       } break;
       case 4: {
@@ -1493,12 +1492,12 @@ int main(int argc, char *argv[]) {
         const int DATA[] = {
             1,
             5,
-            MAX_BLOCKS_PER_CHUNK / GROW_FACTOR - 1,
-            MAX_BLOCKS_PER_CHUNK / GROW_FACTOR,
-            MAX_BLOCKS_PER_CHUNK / GROW_FACTOR + 1,
-            MAX_BLOCKS_PER_CHUNK - 1,
-            MAX_BLOCKS_PER_CHUNK,
-            MAX_BLOCKS_PER_CHUNK + 1
+            k_MAXBLOCKS_PER_CHUNK / k_GROW_FACTOR - 1,
+            k_MAXBLOCKS_PER_CHUNK / k_GROW_FACTOR,
+            k_MAXBLOCKS_PER_CHUNK / k_GROW_FACTOR + 1,
+            k_MAXBLOCKS_PER_CHUNK - 1,
+            k_MAXBLOCKS_PER_CHUNK,
+            k_MAXBLOCKS_PER_CHUNK + 1
         };
 
         const int NUM_DATA         = sizeof DATA / sizeof *DATA;
@@ -1523,7 +1522,7 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
 
                 bsls::Types::Int64 numAllocations = TA.numAllocations();
-                int blocksPerChunk = INITIAL_CHUNK_SIZE;
+                int blocksPerChunk = k_INITIAL_CHUNK_SIZE;
 
                 // Number of iterations is number of chunk allocations before
                 // the max chunk size is reached, that is,
@@ -1581,7 +1580,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
                              "positive 'numObjects'." << endl;
 
-        const int DATA[] = { 1, 2, 10, MAX_BLOCKS_PER_CHUNK };
+        const int DATA[] = { 1, 2, 10, k_MAXBLOCKS_PER_CHUNK };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         const int OBJECT_SIZE = 4;
         const int POOL_OBJECT_SIZE = poolObjectSize(OBJECT_SIZE);
@@ -1775,14 +1774,14 @@ int main(int argc, char *argv[]) {
                           << "BENCHMARK" << endl
                           << "=========" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50,
-            NUM_OBJECTS = 10
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50,
+            k_NUM_OBJECTS = 10
         };
 
-        int numThreads = argc > 2 ? atoi(argv[2]) : NUM_THREADS;
-        int numIterations = argc > 3 ? atoi(argv[3]) : NUM_ITERATIONS;
-        int numObjects = argc > 4 ? atoi(argv[4]) : NUM_OBJECTS;
+        int numThreads = argc > 2 ? atoi(argv[2]) : k_NUM_THREADS;
+        int numIterations = argc > 3 ? atoi(argv[3]) : k_NUM_ITERATIONS;
+        int numObjects = argc > 4 ? atoi(argv[4]) : k_NUM_OBJECTS;
 
         if (verbose) cout << endl
                           << "NUM THREADS: " << numThreads << endl

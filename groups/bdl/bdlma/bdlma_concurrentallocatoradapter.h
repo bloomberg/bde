@@ -23,12 +23,12 @@ BSLS_IDENT("$Id: $")
 // construction.
 //..
 //   ,-----------------------------------.
-//  ( bdlma::ConcurrentAllocatorAdapter )
+//  (  bdlma::ConcurrentAllocatorAdapter  )
 //   `-----------------------------------'
 //                     |                ctor/dtor
 //                     V
 //             ,-----------------.
-//            ( bslma::Allocator )
+//            ( bslma::Allocator  )
 //             `-----------------'
 //                            allocate
 //                            deallocate
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      mutable bdlmtt::Mutex d_mutex;     // synchronize access
-//      bsl::vector<TYPE>   d_elements;  // underlying list of strings
+//      bsl::vector<TYPE>     d_elements;  // underlying list of strings
 //
 //      // NOT IMPLEMENTED
 //      ThreadEnabledVector(const ThreadEnabledVector&);
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this thread-enabled vector object.
 //
 //      // MANIPULATORS
-//      int pushBack(const T& value)
+//      int pushBack(const TYPE& value)
 //          // Append the specified 'value' to this thread-enabled vector and
 //          // return the index of the new element.
 //      {
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 //          return static_cast<int>(d_elements.size()) - 1;
 //      }
 //
-//      void set(int index, const T& value)
+//      void set(int index, const TYPE& value)
 //          // Set the element at the specified 'index' in this thread-enabled
 //          // vector to the specified 'value'.  The behavior is undefined
 //          // unless '0 <= index < length()'.
@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      // ACCESSORS
-//      T element(int index) const
+//      TYPE element(int index) const
 //          // Return the value of the element at the specified 'index' in this
 //          // thread-enabled vector.  Note that elements are returned *by*
 //          // *value* because references to elements managed by this container
@@ -230,8 +230,8 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace bdlmtt { class Mutex; }
-
 namespace bdlma {
+
               // =========================================
               // class ConcurrentAllocatorAdapter
               // =========================================

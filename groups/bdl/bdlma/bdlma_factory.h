@@ -71,11 +71,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                        // ===================
-                        // class Factory
-                        // ===================
+
+                              // =============
+                              // class Factory
+                              // =============
 
 template <class TYPE>
 class Factory : public Deleter<TYPE> {

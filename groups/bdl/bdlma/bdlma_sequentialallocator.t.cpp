@@ -145,9 +145,9 @@ typedef bdlma::SequentialAllocator Obj;
 
 typedef bsls::Alignment::Strategy  Strat;
 
-enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-enum { DEFAULT_SIZE = 256 };
+enum { k_DEFAULT_SIZE = 256 };
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -209,11 +209,7 @@ enum { DEFAULT_SIZE = 256 };
 
     // ...
 
-//  // my_doublestack.cpp
-//  #include <my_doublestack.h>
-//
-//  #include <bslma_allocator.h>
-//  #include <bslma_default.h>
+    // my_doublestack.cpp
 
     // PRIVATE MANIPULATORS
     void my_DoubleStack::increaseCapacity()
@@ -307,12 +303,8 @@ int main(int argc, char *argv[])
 // In 'main', users can create a 'bdlma::SequentialAllocator' and pass it to
 // the constructor of 'my_DoubleStack':
 //..
-//  int main()
-//  {
         bdlma::SequentialAllocator sequentialAlloc;
         my_DoubleStack dstack(&sequentialAlloc);
-//      // ...
-//  }
 //..
 
       } break;
@@ -372,33 +364,33 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'reserveCapacity' TEST" << endl
                                   << "======================" << endl;
 
-        enum { INITIAL_SIZE = 64, MAX_BUFFER = INITIAL_SIZE * 4 };
+        enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER = k_INITIAL_SIZE * 4 };
 
         if (verbose) cout << "\nTesting that 'reserveCapacity' does not "
                              "trigger dynamic memory allocation." << endl;
 
         {
-            Obj mX(INITIAL_SIZE, MAX_BUFFER, &objectAllocator);
+            Obj mX(k_INITIAL_SIZE, k_MAX_BUFFER, &objectAllocator);
             bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.reserveCapacity(INITIAL_SIZE / 2);
+            mX.reserveCapacity(k_INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.allocate(INITIAL_SIZE / 2);
+            mX.allocate(k_INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(INITIAL_SIZE * 2);
+            mX.reserveCapacity(k_INITIAL_SIZE * 2);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(INITIAL_SIZE * 2);
+            mX.allocate(k_INITIAL_SIZE * 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(MAX_BUFFER * 2);
+            mX.reserveCapacity(k_MAX_BUFFER * 2);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(MAX_BUFFER * 2);
+            mX.allocate(k_MAX_BUFFER * 2);
             ASSERT(numBytesUsed = objectAllocator.numBytesInUse());
         }
 
@@ -408,17 +400,17 @@ int main(int argc, char *argv[])
             Obj mX(&objectAllocator);
             ASSERT(0 == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(DEFAULT_SIZE);
+            mX.reserveCapacity(k_DEFAULT_SIZE);
             bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(DEFAULT_SIZE);
+            mX.allocate(k_DEFAULT_SIZE);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(DEFAULT_SIZE * 4);
+            mX.reserveCapacity(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(DEFAULT_SIZE * 4);
+            mX.allocate(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
         }
 
@@ -517,18 +509,18 @@ int main(int argc, char *argv[])
 
             // MAXIMUM ALIGNMENT
             {  L_,      MAX,           1,           0,           0 },
-            {  L_,      MAX,           1,           1,   MAX_ALIGN },
+            {  L_,      MAX,           1,           1, k_MAX_ALIGN },
             {  L_,      MAX,           2,           0,           0 },
-            {  L_,      MAX,           2,           1,   MAX_ALIGN },
-            {  L_,      MAX,           2,           2,   MAX_ALIGN },
+            {  L_,      MAX,           2,           1, k_MAX_ALIGN },
+            {  L_,      MAX,           2,           2, k_MAX_ALIGN },
             {  L_,      MAX,           3,           0,           0 },
-            {  L_,      MAX,           3,           1,   MAX_ALIGN },
-            {  L_,      MAX,           3,           2,   MAX_ALIGN },
-            {  L_,      MAX,           3,           3,   MAX_ALIGN },
-            {  L_,      MAX,           8,           4,   MAX_ALIGN },
+            {  L_,      MAX,           3,           1, k_MAX_ALIGN },
+            {  L_,      MAX,           3,           2, k_MAX_ALIGN },
+            {  L_,      MAX,           3,           3, k_MAX_ALIGN },
+            {  L_,      MAX,           8,           4, k_MAX_ALIGN },
             {  L_,      MAX,         511,         511,          -1 },  // *
             {  L_,      MAX,         512,           0,           0 },
-            {  L_,      MAX,         512,           1,   MAX_ALIGN },
+            {  L_,      MAX,         512,           1, k_MAX_ALIGN },
             {  L_,      MAX,         512,         511,          -1 },  // *
             {  L_,      MAX,         512,         512,          -1 },  // *
 
@@ -699,45 +691,45 @@ int main(int argc, char *argv[])
             int   d_initialSize;  // size of initial allocation request
             int   d_expused;      // expected memory used after 'expand'
         } DATA[] = {
-            // LINE     STRAT       INITIALSIZE       EXPUSED
-            // ----     -----       -----------       -------
+            // LINE     STRAT    INITIALSIZE   EXPUSED
+            // ----     -----    -----------   -------
 
             // NATURAL ALIGNMENT
-            {  L_,      NAT,           1,     DEFAULT_SIZE * 2 - 1           },
-            {  L_,      NAT,           2,     DEFAULT_SIZE * 2 - 2           },
-            {  L_,      NAT,           3,     DEFAULT_SIZE * 2 - 3           },
-            {  L_,      NAT,           4,     DEFAULT_SIZE * 2 - 4           },
-            {  L_,      NAT,           7,     DEFAULT_SIZE * 2 - 7           },
-            {  L_,      NAT,           8,     DEFAULT_SIZE * 2 - 8           },
-            {  L_,      NAT,          15,     DEFAULT_SIZE * 2 - 15          },
-            {  L_,      NAT,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      NAT,         100,     DEFAULT_SIZE * 2 - 100         },
-            {  L_,      NAT,         510,     DEFAULT_SIZE * 2 - 510         },
-            {  L_,      NAT,         511,     DEFAULT_SIZE * 2 - 511         },
+            {  L_,      NAT,           1,   k_DEFAULT_SIZE * 2 - 1           },
+            {  L_,      NAT,           2,   k_DEFAULT_SIZE * 2 - 2           },
+            {  L_,      NAT,           3,   k_DEFAULT_SIZE * 2 - 3           },
+            {  L_,      NAT,           4,   k_DEFAULT_SIZE * 2 - 4           },
+            {  L_,      NAT,           7,   k_DEFAULT_SIZE * 2 - 7           },
+            {  L_,      NAT,           8,   k_DEFAULT_SIZE * 2 - 8           },
+            {  L_,      NAT,          15,   k_DEFAULT_SIZE * 2 - 15          },
+            {  L_,      NAT,          16,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      NAT,         100,   k_DEFAULT_SIZE * 2 - 100         },
+            {  L_,      NAT,         510,   k_DEFAULT_SIZE * 2 - 510         },
+            {  L_,      NAT,         511,   k_DEFAULT_SIZE * 2 - 511         },
 
             // MAXIMUM ALIGNMENT
-            {  L_,      MAX,           1,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           2,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           3,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           4,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           7,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           8,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,          15,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,         108,     DEFAULT_SIZE * 2 - 112         },
+            {  L_,      MAX,           1,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           2,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           3,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           4,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           7,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,           8,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
+            {  L_,      MAX,          15,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      MAX,          16,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      MAX,         108,   k_DEFAULT_SIZE * 2 - 112         },
 
             // 1-BYTE ALIGNMENT
-            {  L_,      BYT,           1,     DEFAULT_SIZE * 2 - 1           },
-            {  L_,      BYT,           2,     DEFAULT_SIZE * 2 - 2           },
-            {  L_,      BYT,           3,     DEFAULT_SIZE * 2 - 3           },
-            {  L_,      BYT,           4,     DEFAULT_SIZE * 2 - 4           },
-            {  L_,      BYT,           7,     DEFAULT_SIZE * 2 - 7           },
-            {  L_,      BYT,           8,     DEFAULT_SIZE * 2 - 8           },
-            {  L_,      BYT,          15,     DEFAULT_SIZE * 2 - 15          },
-            {  L_,      BYT,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      BYT,         100,     DEFAULT_SIZE * 2 - 100         },
-            {  L_,      BYT,         510,     DEFAULT_SIZE * 2 - 510         },
-            {  L_,      BYT,         511,     DEFAULT_SIZE * 2 - 511         },
+            {  L_,      BYT,           1,   k_DEFAULT_SIZE * 2 - 1           },
+            {  L_,      BYT,           2,   k_DEFAULT_SIZE * 2 - 2           },
+            {  L_,      BYT,           3,   k_DEFAULT_SIZE * 2 - 3           },
+            {  L_,      BYT,           4,   k_DEFAULT_SIZE * 2 - 4           },
+            {  L_,      BYT,           7,   k_DEFAULT_SIZE * 2 - 7           },
+            {  L_,      BYT,           8,   k_DEFAULT_SIZE * 2 - 8           },
+            {  L_,      BYT,          15,   k_DEFAULT_SIZE * 2 - 15          },
+            {  L_,      BYT,          16,   k_DEFAULT_SIZE * 2 - 16          },
+            {  L_,      BYT,         100,   k_DEFAULT_SIZE * 2 - 100         },
+            {  L_,      BYT,         510,   k_DEFAULT_SIZE * 2 - 510         },
+            {  L_,      BYT,         511,   k_DEFAULT_SIZE * 2 - 511         },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -779,7 +771,7 @@ int main(int argc, char *argv[])
             else {
                 int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                    (char *)addr1 + INITIALSIZE,
-                                                   MAX_ALIGN);
+                                                   k_MAX_ALIGN);
                 ASSERT((char *)addr1 + INITIALSIZE + offset == (char *)addr2);
             }
 
@@ -898,22 +890,22 @@ int main(int argc, char *argv[])
             void *addr1 = mX.allocate(1);
             void *addr2 = mX.allocate(2);
 
-            ASSERT((char *)addr1 + MAX_ALIGN == (char *)addr2);
+            ASSERT((char *)addr1 + k_MAX_ALIGN == (char *)addr2);
 
             // Testing growth strategy.
             bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
-            mX.allocate(DEFAULT_SIZE / 2);
+            mX.allocate(k_DEFAULT_SIZE / 2);
             ASSERT(objectAllocator.numBytesInUse() == numBytesUsed);
 
             // Because of alignment concerns, we just test that the number of
             // bytes used is within a small range.  If the memory growth is
             // outside of this range, the allocator is using geometric growth.
 
-            mX.allocate(DEFAULT_SIZE / 2);
+            mX.allocate(k_DEFAULT_SIZE / 2);
             ASSERT(objectAllocator.numBytesInUse()
-                                              >= numBytesUsed + DEFAULT_SIZE);
+                                            >= numBytesUsed + k_DEFAULT_SIZE);
             ASSERT(objectAllocator.numBytesInUse() <=
-                                      numBytesUsed + DEFAULT_SIZE + MAX_ALIGN);
+                                  numBytesUsed + k_DEFAULT_SIZE + k_MAX_ALIGN);
         }
 
 #undef CON
@@ -1009,7 +1001,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "CTOR / ALLOCATE TEST" << endl
                                   << "====================" << endl;
 
-        enum { INITIAL_SIZE = 64, MAX_BUFFER = 256 };
+        enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER = 256 };
 
         const int DATA[]   = { 2, 5, 7, 8, 15, 16, 24, 31, 32, 33, 48,
                                63, 64, 65, 66, 127, 128, 129, 255, 256,
@@ -1173,8 +1165,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P(SIZE) }
 
-                Obj                   mX(INITIAL_SIZE, &ta);
-                bdlma::SequentialPool pool(INITIAL_SIZE, &tb);
+                Obj                   mX(k_INITIAL_SIZE, &ta);
+                bdlma::SequentialPool pool(k_INITIAL_SIZE, &tb);
 
                 void *addr1 = mX.allocate(SIZE);
                 void *addr2 = pool.allocate(SIZE);
@@ -1198,8 +1190,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P(SIZE) }
 
                 for (int j = 0; j < NUM_GS; ++j) {
-                    Obj                   mX(INITIAL_SIZE, GS[j], &ta);
-                    bdlma::SequentialPool pool(INITIAL_SIZE, GS[j], &tb);
+                    Obj                   mX(k_INITIAL_SIZE, GS[j], &ta);
+                    bdlma::SequentialPool pool(k_INITIAL_SIZE, GS[j], &tb);
 
                     void *addr1 = mX.allocate(SIZE);
                     void *addr2 = pool.allocate(SIZE);
@@ -1224,8 +1216,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P(SIZE) }
 
                 for (int j = 0; j < NUM_AS; ++j) {
-                    Obj                   mX(INITIAL_SIZE, AS[j], &ta);
-                    bdlma::SequentialPool pool(INITIAL_SIZE, AS[j], &tb);
+                    Obj                   mX(k_INITIAL_SIZE, AS[j], &ta);
+                    bdlma::SequentialPool pool(k_INITIAL_SIZE, AS[j], &tb);
 
                     void *addr1 = mX.allocate(SIZE);
                     void *addr2 = pool.allocate(SIZE);
@@ -1274,10 +1266,12 @@ int main(int argc, char *argv[])
 
                         if (veryVerbose) { T_ T_ T_ P(k) }
 
-                        Obj mX(INITIAL_SIZE, GS[k], AS[j], &ta);
+                        Obj mX(k_INITIAL_SIZE, GS[k], AS[j], &ta);
 
-                        bdlma::SequentialPool pool(INITIAL_SIZE, GS[k], AS[j],
-                                                                          &tb);
+                        bdlma::SequentialPool pool(k_INITIAL_SIZE,
+                                                   GS[k],
+                                                   AS[j],
+                                                   &tb);
 
                         void *addr1 = mX.allocate(SIZE);
                         void *addr2 = pool.allocate(SIZE);
@@ -1315,8 +1309,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P(SIZE) }
 
-                Obj                   mX(INITIAL_SIZE, MAX_BUFFER, &ta);
-                bdlma::SequentialPool pool(INITIAL_SIZE, MAX_BUFFER, &tb);
+                Obj                   mX(k_INITIAL_SIZE, k_MAX_BUFFER, &ta);
+                bdlma::SequentialPool pool(k_INITIAL_SIZE, k_MAX_BUFFER, &tb);
 
                 void *addr1 = mX.allocate(SIZE);
                 void *addr2 = pool.allocate(SIZE);
@@ -1340,10 +1334,12 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P(SIZE) }
 
                 for (int j = 0; j < NUM_GS; ++j) {
-                    Obj mX(INITIAL_SIZE, MAX_BUFFER, GS[j], &ta);
+                    Obj mX(k_INITIAL_SIZE, k_MAX_BUFFER, GS[j], &ta);
 
-                    bdlma::SequentialPool pool(INITIAL_SIZE, MAX_BUFFER, GS[j],
-                                                                          &tb);
+                    bdlma::SequentialPool pool(k_INITIAL_SIZE,
+                                               k_MAX_BUFFER,
+                                               GS[j],
+                                               &tb);
 
                     void *addr1 = mX.allocate(SIZE);
                     void *addr2 = pool.allocate(SIZE);
@@ -1368,10 +1364,12 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P(SIZE) }
 
                 for (int j = 0; j < NUM_AS; ++j) {
-                    Obj mX(INITIAL_SIZE, MAX_BUFFER, AS[j], &ta);
+                    Obj mX(k_INITIAL_SIZE, k_MAX_BUFFER, AS[j], &ta);
 
-                    bdlma::SequentialPool pool(INITIAL_SIZE, MAX_BUFFER, AS[j],
-                                                                          &tb);
+                    bdlma::SequentialPool pool(k_INITIAL_SIZE,
+                                               k_MAX_BUFFER,
+                                               AS[j],
+                                               &tb);
 
                     void *addr1 = mX.allocate(SIZE);
                     void *addr2 = pool.allocate(SIZE);
@@ -1392,7 +1390,7 @@ int main(int argc, char *argv[])
                     // buffer.
 
                     if (numBytesUsed == tb.numBytesInUse()
-                     && SIZE < MAX_BUFFER) {
+                     && SIZE < k_MAX_BUFFER) {
                         bsl::size_t alignmentOffset =
                                                 (char *)addr2b - (char *)addr2;
                         ASSERT((char *)addr1 + alignmentOffset
@@ -1417,10 +1415,17 @@ int main(int argc, char *argv[])
 
                     for (int k = 0; k < NUM_GS; ++k) {  // growth strategy
 
-                        Obj mX(INITIAL_SIZE, MAX_BUFFER, GS[k], AS[j], &ta);
+                        Obj mX(k_INITIAL_SIZE,
+                               k_MAX_BUFFER,
+                               GS[k],
+                               AS[j],
+                               &ta);
 
-                        bdlma::SequentialPool pool(INITIAL_SIZE, MAX_BUFFER,
-                                                            GS[k], AS[j], &tb);
+                        bdlma::SequentialPool pool(k_INITIAL_SIZE,
+                                                   k_MAX_BUFFER,
+                                                   GS[k],
+                                                   AS[j],
+                                                   &tb);
 
                         void *addr1 = mX.allocate(SIZE);
                         void *addr2 = pool.allocate(SIZE);
@@ -1435,7 +1440,7 @@ int main(int argc, char *argv[])
                         void *addr2b = pool.allocate(2);
 
                         if (numBytesUsed == tb.numBytesInUse()
-                         && GS[k] != CON && SIZE < MAX_BUFFER) {
+                         && GS[k] != CON && SIZE < k_MAX_BUFFER) {
                             bsl::size_t alignmentOffset =
                                                 (char *)addr2b - (char *)addr2;
 
@@ -1596,7 +1601,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        enum { ALLOC_SIZE1 = 4, ALLOC_SIZE2 = 8, ALLOC_SIZE3 = 1024 };
+        enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8, k_ALLOC_SIZE3 = 1024 };
 
         {
             if (verbose) cout << "\nTesting construction of allocator."
@@ -1610,7 +1615,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
             if (verbose) cout << "\nTesting allocation." << endl;
-            void *addr1 = mX.allocate(ALLOC_SIZE1);
+            void *addr1 = mX.allocate(k_ALLOC_SIZE1);
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
@@ -1620,7 +1625,7 @@ int main(int argc, char *argv[])
                                                objectAllocator.numBytesInUse();
 
             if (verbose) cout << "\nTesting internal buffering." << endl;
-            void *addr2 = mX.allocate(ALLOC_SIZE2);
+            void *addr2 = mX.allocate(k_ALLOC_SIZE2);
 
             ASSERT(oldNumBytesInUse == objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
@@ -1632,7 +1637,7 @@ int main(int argc, char *argv[])
             ASSERT((char *)addr1 + 8 == (char *)addr2);
 
             if (verbose) cout << "\nTesting large allocation." << endl;
-            void *addr3 = mX.allocate(ALLOC_SIZE3);
+            void *addr3 = mX.allocate(k_ALLOC_SIZE3);
             (void)addr3;
 
             ASSERT(oldNumBytesInUse < objectAllocator.numBytesInUse());
