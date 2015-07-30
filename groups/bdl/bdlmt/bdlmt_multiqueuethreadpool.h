@@ -317,10 +317,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXATOMICTYPES
-#include <bdlqq_xxxatomictypes.h>  // for SpinLock
-#endif
-
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
 #endif
