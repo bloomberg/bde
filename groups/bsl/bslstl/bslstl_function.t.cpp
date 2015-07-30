@@ -1025,9 +1025,9 @@ class NTSmallFunctorWithAlloc : public NTSmallFunctor
     {
     }
     NTSmallFunctorWithAlloc(NTSmallFunctorWithAlloc&&  other,
-                                 bslma::Allocator               *alloc)
+                            bslma::Allocator          *alloc)
       : NTSmallFunctor(bslmf::MovableRefUtil::move(other))
-      , d_alloc_p(alloc) { --moveLimit; }
+      , d_alloc_p(alloc) { if (alloc != d_alloc_p) --moveLimit; }
 #else
     // Bitwise moveable -- use if 'noexcept' is not supported.
     BSLMF_NESTED_TRAIT_DECLARATION(NTSmallFunctorWithAlloc,
