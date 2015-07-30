@@ -94,7 +94,6 @@ BSLS_IDENT("$Id: $")
 // Finally, we provide the implementation of our 'my_StrPool' class:
 //..
 //  // my_strpool.cpp
-//  #include <my_strpool.h>
 //
 //  enum {
 //      k_INITIAL_SIZE  = 128,  // initial block size
@@ -118,6 +117,7 @@ BSLS_IDENT("$Id: $")
 //      else {
 //          if (d_block_p) {
 //              // Do not increase block size if no current block.
+//
 //              d_blockSize *= k_GROWTH_FACTOR;
 //          }
 //          d_block_p = (char *)d_blockList.allocate(d_blockSize);

@@ -90,7 +90,6 @@ BSLS_IDENT("$Id: $")
 // 'bdlma::AutoReleaser' proctor to preserve exception neutrality:
 //..
 //  // my_fastcstrarray.cpp
-//  #include <my_fastcstrarray.h>
 //
 //  // ...
 //

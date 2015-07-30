@@ -84,7 +84,7 @@ struct AlignedAllocatorTestImp :
 //-----------------------------------------------------------------------------
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'bdlma::AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -158,7 +158,7 @@ struct AlignedAllocatorTestImp :
             // behavior is undefined unless 'address' was allocated using this
             // allocator object and has not already been deallocated.
     };
-//  // ...
+    // ...
 //..
 // Then, we implement the creators, trivially, as this class contains no
 // instance data members.

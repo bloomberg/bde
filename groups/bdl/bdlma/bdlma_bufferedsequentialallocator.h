@@ -123,7 +123,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      bsls::AlignedBuffer<k_SIZE> bufferStorage;
 //
-//      bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(), SIZE);
+//      bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(),
+//                                               k_SIZE);
 //
 //      bsl::vector<double> v1(&alloc);     v1.reserve(100);
 //      bsl::vector<double> v2(&alloc);     v2.reserve(100);
@@ -157,8 +158,8 @@ BSLS_IDENT("$Id: $")
 //
 //      k_AVERAGE_SECURITY_LENGTH = 5,
 //
-//      k_TOTAL_SIZE = NUM_SECURITIES * (TREE_NODE_SIZE
-//                                     + AVERAGE_SECURITY_LENGTH)
+//      k_TOTAL_SIZE = k_NUM_SECURITIES *
+//                               (k_TREE_NODE_SIZE + k_AVERAGE_SECURITY_LENGTH)
 //  };
 //
 //  bsls::AlignedBuffer<k_TOTAL_SIZE> bufferStorage;
@@ -167,7 +168,9 @@ BSLS_IDENT("$Id: $")
 // used the average security size instead of the maximum security size.  We
 // also assume that a 'bsl::map's node size is roughly the size of 4 pointers.
 //..
-//  bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(), TOTAL_SIZE);
+//  bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(),
+//                                         k_TOTAL_SIZE,
+//                                         &objectAllocator);
 //  bsl::map<bsl::string, double> updateMap(&bsa);
 //
 //  receivePriceQuotes(&updateMap);

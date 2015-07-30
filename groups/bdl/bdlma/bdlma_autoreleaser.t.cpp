@@ -226,21 +226,21 @@ void my_StrPool::release()
 // my_strpool.cpp
 
 enum {
-    INITIAL_SIZE = 128,
-    GROW_FACTOR  =   2,
-    THRESHOLD    = 128
+    k_INITIAL_SIZE = 128,
+    k_GROW_FACTOR  =   2,
+    k_THRESHOLD    = 128
 };
 
 void *my_StrPool::allocateBlock(int numBytes)
 {
     ASSERT(0 < numBytes);
 
-    if (THRESHOLD < numBytes) {
+    if (k_THRESHOLD < numBytes) {
         return d_blockList.allocate(numBytes);
     }
     else {
         if (d_block_p) {
-            d_blockSize *= GROW_FACTOR;
+            d_blockSize *= k_GROW_FACTOR;
         }
         d_block_p = (char *)d_blockList.allocate(d_blockSize);
         d_cursor = numBytes;
@@ -249,7 +249,7 @@ void *my_StrPool::allocateBlock(int numBytes)
 }
 
 my_StrPool::my_StrPool()
-: d_blockSize(INITIAL_SIZE)
+: d_blockSize(k_INITIAL_SIZE)
 , d_block_p(0)
 , d_blockList()
 {
@@ -257,7 +257,7 @@ my_StrPool::my_StrPool()
 
 my_StrPool::~my_StrPool()
 {
-    ASSERT(INITIAL_SIZE <= d_blockSize);
+    ASSERT(k_INITIAL_SIZE <= d_blockSize);
     ASSERT(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
 }
 
@@ -287,8 +287,8 @@ my_StrPool::~my_StrPool()
 //
 // First, we define the interface of our 'my_FastStrArray' class:
 //..
-//  // my_fastcstrarray.h
-//
+    // my_fastcstrarray.h
+
     class my_FastCstrArray {
         // This class implements an array of C string elements.  Each C string
         // is allocated using the 'my_StrPool' member for fast memory
@@ -328,15 +328,15 @@ ostream& operator<<(ostream& stream, const my_FastCstrArray& array);
 // my_fastcstrarray.cpp
 
 enum {
-    MY_INITIAL_SIZE = 1, // initial physical capacity (number of elements)
-    MY_GROW_FACTOR  = 2  // multiplicative factor by which to grow 'd_capacity'
+    k_MY_INITIAL_SIZE = 1, // initial physical capacity (number of elements)
+    k_MY_GROW_FACTOR  = 2  // factor by which to grow 'd_capacity'
 };
 
 static inline
 int nextSize(int size)
-    // Return the specified 'size' multiplied by 'MY_GROW_FACTOR'.
+    // Return the specified 'size' multiplied by 'k_MY_GROW_FACTOR'.
 {
-    return size * MY_GROW_FACTOR;
+    return size * k_MY_GROW_FACTOR;
 }
 
 static inline
@@ -381,7 +381,7 @@ void my_FastCstrArray::increaseSize()
 
 // CREATORS
 my_FastCstrArray::my_FastCstrArray(bslma::Allocator *basicAllocator)
-: d_capacity(MY_INITIAL_SIZE)
+: d_capacity(k_MY_INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -402,11 +402,10 @@ my_FastCstrArray::~my_FastCstrArray()
 // Finally, we implement 'my_FastCstrArray::operator=' using a
 // 'bdlma::AutoReleaser' proctor to preserve exception neutrality:
 //..
-//  // my_fastcstrarray.cpp
-//  #include <my_fastcstrarray.h>
-//
-//  // ...
-//
+    // my_fastcstrarray.cpp
+
+    // ...
+
     // MANIPULATORS
     my_FastCstrArray&
     my_FastCstrArray::operator=(const my_FastCstrArray& rhs)
@@ -438,8 +437,8 @@ my_FastCstrArray::~my_FastCstrArray()
 
         return *this;
     }
-//
-//  // ...
+
+    // ...
 //..
 // Note that a 'bdlma::AutoReleaser' proctor is used to manage the array's C
 // string memory pool while allocating memory for the individual elements.  If

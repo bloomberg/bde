@@ -150,7 +150,6 @@ BSLS_IDENT("$Id: $")
 // efficiency:
 //..
 //  // my_bufferedintdoublearray.cpp
-//  #include <my_bufferedintdoublearray.h>
 //
 //  enum { k_INITIAL_SIZE = 1 };
 //
