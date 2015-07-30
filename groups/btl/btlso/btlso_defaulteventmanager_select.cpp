@@ -18,11 +18,10 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 #include <btlso_timemetrics.h>
 #include <btlso_flag.h>
 
-#include <bdlqq_xxxthread.h>  //ARB: Suspicious
-
 #include <bdlt_currenttime.h>
 
 #include <bsls_assert.h>
+#include <bsl_cerrno.h>
 #include <bsl_cstring.h>
 
 // EINTR does not have any exact equivalent on Windows, except WSAEINTR which
