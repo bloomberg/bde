@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(btlmt_channelqueuepool_cpp,"$Id$ $CSID$")
 
 #include <btlmt_message.h>
 #include <bdlmca_xxxpooledbufferchain.h>
+#include <bdlqq_threadattributes.h>
 #include <bsls_assert.h>
 
 #include <bdlf_function.h>
@@ -186,8 +187,8 @@ namespace btlmt {
 // MANIPULATORS
 int ChannelQueuePool::start() {
     d_channelPool_p->start();
-    bcemt_Attribute attributes;
-    attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
+    bdlqq::ThreadAttributes attributes;
+    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
     bsls::AtomicOperations::setInt(&d_runningFlag, 1);
     return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
                                     &queueProc, (void*)this);

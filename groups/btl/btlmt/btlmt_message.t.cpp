@@ -11,6 +11,7 @@
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bdlmca_xxxpooledbufferchain.h>
 #include <bdlmt_threadpool.h>
+#include <bdlqq_threadattributes.h>
 #include <bsls_atomic.h>
 
 #include <bdlf_function.h>
@@ -414,7 +415,7 @@ int main(int argc, char *argv[])
             NUM_SUB_MESSAGES = 30
         };
 
-        bcemt_Attribute defaultAttributes;
+        bdlqq::ThreadAttributes defaultAttributes;
         bdlmt::ThreadPool pool(defaultAttributes, 1, 2, 100);
         bdlcc::Queue<btlmt::Message> queue;
         pool.start();
@@ -467,7 +468,7 @@ int main(int argc, char *argv[])
             NUM_SUB_MESSAGES = 30
         };
 
-        bcemt_Attribute defaultAttributes;
+        bdlqq::ThreadAttributes defaultAttributes;
         bdlmt::ThreadPool pool(defaultAttributes, 1, 2, 100);
         bdlcc::Queue<btlmt::Message> queue;
         pool.start();

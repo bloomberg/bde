@@ -6,7 +6,7 @@
 #include <btlso_ioutil.h>
 #include <btlso_socketimputil.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only

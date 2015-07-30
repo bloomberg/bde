@@ -7,6 +7,7 @@
 #include <bdlma_concurrentpoolallocator.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
+#include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
 #include <bdlqq_xxxatomictypes.h>  // for SpinLock
 #include <bdlf_bind.h>
@@ -558,7 +559,7 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
 //=============================================================================
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-bcemt_Attribute attributes;
+bdlqq::ThreadAttributes attributes;
 void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i

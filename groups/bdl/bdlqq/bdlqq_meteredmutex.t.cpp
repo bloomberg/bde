@@ -2,7 +2,8 @@
 
 #include <bdlqq_meteredmutex.h>
 
-#include <bdlqq_xxxthread.h>      // for testing only
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_barrier.h>     // for testing only
 
 #include <bsls_timeutil.h>

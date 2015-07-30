@@ -20,7 +20,6 @@
 #include <bslma_testallocator.h>
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlqq_xxxthread.h>
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>

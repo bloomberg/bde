@@ -22,7 +22,10 @@
 #include <bdlqq_lockguard.h>
 #include <bdlqq_semaphore.h>
 #include <bdlqq_threadgroup.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_condition.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bdlmt_timereventscheduler.h>
 
 #include <bdlf_bind.h>
@@ -3111,9 +3114,9 @@ int main(int argc, char *argv[]) {
              ASSERT(0 == mX.create(filename, MODE_RW, 0, jp));
 
              Case4Data data(&mX);
-             bcemt_Attribute detached;
+             bdlqq::ThreadAttributes detached;
              bdlqq::ThreadUtil::Handle dummy;
-             detached.setDetachedState(bcemt_Attribute::BCEMT_CREATE_DETACHED);
+             detached.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 
              ASSERT(0 == bdlqq::ThreadUtil::create(&dummy, detached,
                        bdlf::BindUtil::bind(&Case4Data::confirmerThread,

@@ -14,6 +14,12 @@
 #include <bdlqq_threadgroup.h>
 #include <bdlqq_turnstile.h>
 
+#include <bdlqq_condition.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_recursivemutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
+
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
 #include <bdlt_currenttime.h>
@@ -2021,7 +2027,7 @@ int main(int argc, char *argv[])
           const int NTHREADS    = 5;
 
           ThreadArgs args(NITERATIONS);
-          bcemt_Attribute attr;
+          bdlqq::ThreadAttributes attr;
 
           bdlqq::ThreadUtil::Handle handles[NTHREADS*2];
 
@@ -2071,7 +2077,7 @@ int main(int argc, char *argv[])
           const int NTHREADS    = 10;
 
           ThreadArgs args(NITERATIONS);
-          bcemt_Attribute attr;
+          bdlqq::ThreadAttributes attr;
 
           bdlqq::ThreadUtil::Handle handles[NTHREADS*2];
 

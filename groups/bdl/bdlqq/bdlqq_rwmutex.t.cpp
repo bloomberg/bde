@@ -5,7 +5,8 @@
 #include <bdlqq_barrier.h>
 #include <bdlqq_readerwriterlock.h>
 #include <bdlqq_semaphore.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_threadgroup.h>
 #include <bdlqq_platform.h>
 #include <bdlf_bind.h>

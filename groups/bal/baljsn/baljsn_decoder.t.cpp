@@ -17,7 +17,7 @@
 #include <bdlb_printmethods.h>  // for printing vector
 #include <bdlb_chartype.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 
 // These header are for testing only and the hierarchy level of baejsn was
 // increase because of them.  They should be remove when possible.

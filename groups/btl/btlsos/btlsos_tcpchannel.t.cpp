@@ -12,7 +12,9 @@
 
 #include <btls_iovecutil.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bslma_testallocator.h>                // allocate memory
 #include <bsls_platform.h>
 
@@ -819,7 +821,7 @@ static int testExecutionHelper(
         info->d_signals = command->numToProcess.d_signals;
         info->d_signalIoFlag = command->flag.d_signalIoFlag;
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         int ret = bdlqq::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadSignalGenerator,
@@ -850,7 +852,7 @@ static int testExecutionHelper(
         info->d_signals = command->numToProcess.d_signals;
         info->d_signalIoFlag = command->flag.d_interruptFlags;
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         int ret = bdlqq::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,
@@ -882,7 +884,7 @@ static int testExecutionHelper(
         info->d_signals = command->numToProcess.d_signals;
         info->d_signalIoFlag = command->flag.d_interruptFlags;
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         int ret = bdlqq::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,

@@ -13,7 +13,7 @@
 #include <bdlt_currenttime.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 
 #include <bslma_newdeleteallocator.h>
 #include <bsls_platform.h>

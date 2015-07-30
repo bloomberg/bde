@@ -3,6 +3,7 @@
 #include <bdlqq_readerwriterlock.h>
 
 #include <bdlqq_barrier.h>     // for testing only
+#include <bdlqq_threadattributes.h>
 #include <bdlt_currenttime.h>  // for testing only
 #include <bdlt_datetime.h>     // for testing only
 #include <bsls_atomic.h>  // for testing only

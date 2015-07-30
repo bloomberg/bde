@@ -6,7 +6,7 @@
 #include <btlso_ipv4address.h>
 #include <btlso_platform.h>
 
-#include <bdlqq_xxxthread.h>     // bdlqq::ThreadUtil::microSleep()
+#include <bdlqq_threadutil.h>
 
 #include <bsls_platform.h>
 

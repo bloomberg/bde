@@ -379,7 +379,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  int my_Server::start()
 //  {
-//      bcemt_Attribute attr;
+//      bdlqq::ThreadAttributes attr;
 //
 //      if (bdlqq::ThreadUtil::create(&d_connectionThreadHandle, attr,
 //                                   &my_connectionMonitorThreadEntry,

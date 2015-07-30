@@ -13,7 +13,8 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <btlso_ioutil.h>
 #include <btlso_platform.h>
 
-#include <bdlqq_xxxthread.h>                       // thread management util
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -1225,7 +1226,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
         registerSignal(SIGSYS, signalHandler);  // a handler for SIGSYS.
                                             // Test the interrupt option in
                                             // the event manager.
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         pthread_t tid = pthread_self();
         enum { INFINITE = 0,  TIMEOUT };
 

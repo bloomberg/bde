@@ -31,7 +31,8 @@
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_readerwriterlock.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadutil.h>
 #include <bdlmca_xxxpooledbufferchainstreambuf.h>
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>

@@ -10,7 +10,7 @@
 #include <btlso_platform.h>
 #include <btlso_flag.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
