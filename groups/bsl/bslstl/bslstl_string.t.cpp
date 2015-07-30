@@ -9,6 +9,7 @@
 #include <bslma_allocator.h>               // for testing only
 #include <bslma_default.h>                 // for testing only
 #include <bslma_defaultallocatorguard.h>   // for testing only
+#include <bslma_newdeleteallocator.h>      // for testing only
 #include <bslma_testallocator.h>           // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
 #include <bslmf_issame.h>                  // for testing only
@@ -22,19 +23,23 @@
 #include <bsls_bsltestutil.h>
 
 #include <algorithm>
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <cstddef>
-#include <cstring>
+//#include <cctype>
+//#include <cstdio>
+//#include <cstdlib>
+//#include <cstddef>
+//#include <cstring>
 #include <iomanip>
-#include <ostream>
+#include <iostream>
 #include <istream>
+#include <limits>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
-#include <limits>
-#include <iostream>
+
+#include <stdlib.h>
+#include <string.h>
+#include <wchar.h>
 
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
@@ -183,6 +188,7 @@ using namespace std;
 // [ 4] const_reference at(size_type pos) const;
 // [15] const_reference front() const;
 // [15] const_reference back() const;
+// [  ] size_type length() const;
 // [ 4] size_type size() const;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
@@ -191,8 +197,13 @@ using namespace std;
 // [16] const_iterator end();
 // [16] const_reverse_iterator rbegin();
 // [16] const_reverse_iterator rend();
+// [  ] const_iterator cbegin();
+// [  ] const_iterator cend();
+// [  ] const_reverse_iterator crbegin();
+// [  ] const_reverse_iterator crend();
 // [  ] const C *c_str() const;
 // [  ] const C *data() const;
+// [  ] allocator_type get_allocator() const;
 // [22] size_type find(const string& str, pos = 0) const;
 // [22] size_type find(const C *s, pos, n) const;
 // [22] size_type find(const C *s, pos = 0) const;
@@ -297,9 +308,9 @@ using namespace std;
 // [ 8] string g(const char *spec);
 // [ 8] string g(size_t len, TYPE seed);
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 namespace {
 
@@ -329,8 +340,8 @@ void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
+// NOTE: This implementation of LOOP_ASSERT macros must use 'printf' since
+//       'cout' uses new and must not be called during exception testing.
 
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
@@ -539,17 +550,16 @@ size_t computeNewCapacity(size_t newLength,
     //  Obj mX(newLength, ' ', allocator);
     //  mX.reserve(capacity);
     //..
-    // and later modified to the specified 'newLength' by inserting characters
-    // (either by 'insert' or 'push_back', it should not matter), assignment
-    // (using 'assign), or replacement (using 'replace').  We assume that none
-    // of the intermediate quantities can overflow the range of 'size_t',
-    // although we accept the specified 'maxSize' as a ceiling for the new
-    // capacity.  Note that 'newLength' is not necessarily larger than
-    // 'initLength'.
+    // and later modified to the 'newLength' by inserting characters (either by
+    // 'insert' or 'push_back', it should not matter), assignment (using
+    // 'assign), or replacement (using 'replace').  We assume that none of the
+    // intermediate quantities can overflow the range of 'size_t', although we
+    // accept the specified 'maxSize' as a ceiling for the new capacity.  Note
+    // that 'newLength' is not necessarily larger than 'initLength'.
 {
-    // This implementation conforms to the one in the header, and is
-    // verified to provide constant amortized time per character for all
-    // manipulators (w.r.t. memory allocation).
+    // This implementation conforms to the one in the header, and is verified
+    // to provide constant amortized time per character for all manipulators
+    // (w.r.t. memory allocation).
 
     if (newLength <= capacity) {
         return capacity;                                              // RETURN
@@ -625,10 +635,10 @@ template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE>,
           class ALLOC = bsl::allocator<TYPE> >
 class CharList {
-    // This array class is a simple wrapper on a 'char' array offering an
-    // input iterator access via the 'begin' and 'end' accessors.  The
-    // iterator is specifically an *input* iterator and its value type
-    // is the parameterized 'TYPE'.
+    // This array class is a simple wrapper on a 'char' array offering an input
+    // iterator access via the 'begin' and 'end' accessors.  The iterator is
+    // specifically an *input* iterator and its value type is the parameterized
+    // 'TYPE'.
 
     typedef bsl::basic_string<TYPE,TRAITS,ALLOC> Obj;
 
@@ -683,10 +693,10 @@ template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE>,
           class ALLOC = bsl::allocator<TYPE> >
 class CharArray {
-    // This array class is a simple wrapper on a string offering an
-    // input iterator access via the 'begin' and 'end' accessors.  The
-    // iterator is specifically a *random-access* iterator and its value type
-    // is the parameterized 'TYPE'.
+    // This array class is a simple wrapper on a string offering an input
+    // iterator access via the 'begin' and 'end' accessors.  The iterator is
+    // specifically a *random-access* iterator and its value type is the
+    // parameterized 'TYPE'.
 
     typedef bsl::basic_string<TYPE,TRAITS,ALLOC> Obj;
 
@@ -1254,16 +1264,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
     // ------------------------------------------------------------------------
-    // TESTING 'to_string' and 'to_wstring'
+    // TESTING 'to_string' AND 'to_wstring'
     //
     // Concerns:
     //: 1 to_string and to_wstring create the a string that is the same as what
     //:   springf() and swprinf() would produce for sufficiently large buffers
     //
     // Plan:
-    //: 1 use sprintf and swpringf with an arbitarly large buffer, (in this
+    //: 1 use 'sprintf' and 'swprintf' with an arbitarly large buffer, (in this
     //:   test case the buffer size will be 500) and compare it to the output
-    //:   of to_string and to_wstring.  
+    //:   of 'to_string' and 'to_wstring'.
     //
     // Testing:
     //   string to_string(int value);
@@ -1336,11 +1346,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<int>::max()){
-            std::sprintf(tempBuf, "%d", static_cast<int>(VALUE));
+            sprintf(tempBuf, "%d", static_cast<int>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<int>(VALUE));
             ASSERT(str == spec);
-            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf,
                                                L"%d", static_cast<int>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<int>(VALUE));
@@ -1348,12 +1358,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
-            std::sprintf(tempBuf, "%u", static_cast<unsigned int>(VALUE));
+            sprintf(tempBuf, "%u", static_cast<unsigned int>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<unsigned int>(VALUE));
             ASSERT(str == spec);
 
-            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf,
                                       L"%u", static_cast<unsigned int>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<unsigned int>(VALUE));
@@ -1361,12 +1371,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<long>::max()){
-            std::sprintf(tempBuf, "%ld", static_cast<long>(VALUE));
+            sprintf(tempBuf, "%ld", static_cast<long>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<long>(VALUE));
             ASSERT(str == spec);
 
-            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf,
                                              L"%ld", static_cast<long>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<long>(VALUE));
@@ -1374,12 +1384,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<unsigned long>::max() && VALUE >=0){
-            std::sprintf(tempBuf, "%lu", static_cast<unsigned long>(VALUE));
+            sprintf(tempBuf, "%lu", static_cast<unsigned long>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<unsigned long>(VALUE));
             ASSERT(str == spec);
 
-            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf,
                                     L"%lu", static_cast<unsigned long>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<unsigned long>(VALUE));
@@ -1387,12 +1397,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<long long>::max()){
-            std::sprintf(tempBuf, "%lld", static_cast<long long>(VALUE));
+            sprintf(tempBuf, "%lld", static_cast<long long>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<long long>(VALUE));
             ASSERT(str == spec);
 
-            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf,
                                     L"%lld", static_cast<long long>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<long long>(VALUE));
@@ -1400,14 +1410,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<unsigned long long>::max()&&VALUE>=0){
-            std::sprintf(tempBuf, "%llu", 
+            sprintf(tempBuf, "%llu",
                                        static_cast<unsigned long long>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast
                                         <unsigned long long>(VALUE));
             ASSERT(str == spec);
 
-            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf,
                               L"%lld", static_cast<unsigned long long>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast
@@ -1473,12 +1483,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<float>::max()){
-            std::sprintf(tempBuf, "%f", static_cast<float>(VALUE));
+            sprintf(tempBuf, "%f", static_cast<float>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<float>(VALUE));
             ASSERT(str == spec);
 
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
                                                     static_cast<float>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<float>(VALUE));
@@ -1486,12 +1496,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<double>::max()){
-            std::sprintf(tempBuf, "%f", static_cast<double>(VALUE));
+            sprintf(tempBuf, "%f", static_cast<double>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<double>(VALUE));
             ASSERT(str == spec);
 
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
                                                    static_cast<double>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<double>(VALUE));
@@ -1499,12 +1509,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
 
         if (VALUE <= std::numeric_limits<float>::max()){
-            std::sprintf(tempBuf, "%Lf", static_cast<long double>(VALUE));
+            sprintf(tempBuf, "%Lf", static_cast<long double>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<long double>(VALUE));
             ASSERT(str == spec);
 
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%Lf",
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%Lf",
                                               static_cast<long double>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<long double>(VALUE));
@@ -1529,7 +1539,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
     // TESTING 'stod', 'stof', 'stold'
     //
     // Concerns:
-    //: 1 stof, stod, stold parse the string properly into proper floating 
+    //: 1 stof, stod, stold parse the string properly into proper floating
     //:   point number
     //:
     //: 2 The methods discard leading white space characters and create largest
@@ -1537,9 +1547,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
     //:
     //: 3 Detects the correct base with leading 0X or 0x
     //:
-    //: 4 The methods detect exponents correctly 
+    //: 4 The methods detect exponents correctly
     //:
-    //: 5 The methods correcly identifies INF/INFINITY appropriately
+    //: 5 The methods correctly identify INF/INFINITY as appropriate
     //
     // Plan:
     //: 1 Use stof, stod, and stold on a variety of valid value to ensure
@@ -1548,7 +1558,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
     //: 2 Try to convert partially valid strings, ie strings that contain
     //:   characters that are not valid in the base of the number.
     //:
-    //: 3 Test a varity of numbers in base 0 to check if they detect the 
+    //: 3 Test a variety of numbers in base 0 to check if they detect the
     //:   correct base
     //
     // Testing:
@@ -1563,14 +1573,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
     static const struct {
         int         d_lineNum;          // source line number
         const char *d_input;            // input
-        size_t      d_pos;              // position of character after the 
+        size_t      d_pos;              // position of character after the
                                         // numeric value
         double d_spec;             // specifications
     } DATA[] = {
         //line  input                      pos      spec
         //----  -----                      ---      ----
         { L_,   "0",                       1,       0},
-        { L_,   "-0",                      2,       0}, 
+        { L_,   "-0",                      2,       0},
         { L_,   "3.145gg",                 5,       3.145},
         { L_,   "    -5.9991",             11,     -5.9991},
         { L_,   "10e1",                    4,       1e2},
@@ -1661,7 +1671,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
     static const struct {
         int            d_lineNum;          // source line number
         const wchar_t *d_input;            // input
-        size_t         d_pos;              // position of character after the 
+        size_t         d_pos;              // position of character after the
                                            // numeric value
         double d_spec;                     // specifications
     } WDATA[] = {
@@ -1737,8 +1747,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         }
 #if !((defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800) \
     || defined(BSLS_PLATFORM_CMP_IBM))
-        // IBM has rounding issues in wcstold that stop
-        // value == (long double)SPEC from evaluating to true.
+        // IBM has rounding issues in 'wcstold' that stop
+        // 'value == (long double)SPEC' from evaluating to true.
         {
             double value;
             std::wstring::size_type *sz_null = NULL;
@@ -1773,14 +1783,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
     // TESTING 'stoi', 'stol', 'stoll'
     //
     // Concerns:
-    //: 1 stoi, stol, stoll parse the string properly in to proper interger
+    //: 1 'stoi', 'stol', 'stoll' parse the string properly into proper integer
     //:
     //: 2 The methods discard leading white space characters and create largest
     //:   valid integral number
     //:
     //: 3 Detects the correct base if the base is 0
     //:
-    //: 4 The stoX functions handels null pointers to 'pos' correctly
+    //: 4 The 'stoX' functions handle null pointers to 'pos' correctly
     //
     // Plan:
     //: 1 Use stoi, stol, and stoll on a variety of valid value to ensure
@@ -1789,7 +1799,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
     //: 2 Try to convert partially valid strings, ie strings that contain
     //:   characters that are not valid in the base of the number.
     //:
-    //: 3 Test a varity of numbers in base 0 to check if they detect the 
+    //: 3 Test a variety of numbers in base 0 to check if they detect the
     //:   correct base
     //
     // Testing:
@@ -1809,7 +1819,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         int         d_lineNum;          // source line number
         const char *d_input;            // input
         int         d_base;             // base of input
-        size_t      d_pos;              // position of character after the 
+        size_t      d_pos;              // position of character after the
                                         // numeric value
         long long   d_spec;             // specifications
     } DATA[] = {
@@ -1835,7 +1845,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         { L_,   " 3.14159",             10,    2,       3},
         { L_,   "0x555",                10,    1,       0},
 
-        //test different bases  
+        //test different bases
         { L_,   "111",                  2,     3,       7},
         { L_,   "101",                  2,     3,       5},
         { L_,   "100",                  2,     3,       4},
@@ -1846,7 +1856,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         { L_,   "77777",                8,     5,       32767},
         { L_,   "-77777",               8,     6,      -32767},
         { L_,   "7FFF",                 16,    4,       32767},
-        { L_,   "0x7FfF",               16,    6,       32767}, 
+        { L_,   "0x7FfF",               16,    6,       32767},
         { L_,   "-00000x7FFf",          16,    6,      -0},
         { L_,   "ZZZZ",                 36,    4,       1679615 },
 
@@ -1958,7 +1968,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             delete sz_valid_ptr;
         }
 
-        if (SPEC <= std::numeric_limits<unsigned long long>::max() 
+        if (SPEC <= std::numeric_limits<unsigned long long>::max()
                                                                  && SPEC >= 0){
             unsigned long long value;
             std::string::size_type *sz_null = NULL;
@@ -1986,7 +1996,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         int            d_lineNum;          // source line number
         const wchar_t *d_input;            // input
         int            d_base;             // base of input
-        size_t         d_pos;              // position of character after the 
+        size_t         d_pos;              // position of character after the
                                            // numeric value
         long long      d_spec;             // specifications
     } WDATA[] = {
@@ -2012,7 +2022,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         { L_,   L" 3.14159",             10,    2,       3},
         { L_,   L"0x555",                10,    1,       0},
 
-        //test different bases  
+        //test different bases
         { L_,   L"111",                  2,     3,       7},
         { L_,   L"101",                  2,     3,       5},
         { L_,   L"100",                  2,     3,       4},
@@ -2075,7 +2085,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             SPEC >= std::numeric_limits<long>::min()){
             long value;
             std::wstring::size_type *sz_null = NULL;
-            std::wstring::size_type *sz_valid_ptr = 
+            std::wstring::size_type *sz_valid_ptr =
                                                  new std::wstring::size_type();
             std::wstring::size_type sz_valid_nonptr;
 
@@ -2097,7 +2107,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         if (SPEC <= std::numeric_limits<unsigned long>::max() && SPEC >= 0){
             unsigned long value;
             std::wstring::size_type *sz_null = NULL;
-            std::wstring::size_type *sz_valid_ptr = 
+            std::wstring::size_type *sz_valid_ptr =
                                                  new std::wstring::size_type();
             std::wstring::size_type sz_valid_nonptr;
 
@@ -2423,8 +2433,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase28()
                 ASSERT(testAllocatorShort.numBlocksTotal() == 0);
             }
 
-            // check that the string is terminated properly with TYPE()
-            // value rather than just '\0'
+            // check that the string is terminated properly with 'TYPE()' value
+            // rather than just '\0'
             ASSERT(*(str.c_str() + str.size()) == TYPE());
         }
     }
@@ -9541,10 +9551,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
     //      value.
     //
     // Plan:
-    //   For string 'v' having various initial capacities, call
-    //   'v.reserve(n)' for various values of 'n'.  Verify that sufficient
-    //   capacity is allocated by filling 'v' with 'n' elements.  Perform
-    //   each test in the standard 'bslma' exception-testing macro block.
+    //   For string 'v' having various initial capacities, call 'v.reserve(n)'
+    //   for various values of 'n'.  Verify that sufficient capacity is
+    //   allocated by filling 'v' with 'n' elements.  Perform each test in the
+    //   standard 'bslma' exception-testing macro block.
     //
     // Testing:
     //   void string<C,CT,CA>::reserve(size_type n);
@@ -12718,8 +12728,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
                 const int NUM_TRIALS = 2;
 
                 // Check exception behavior for non-const version of at()
-                // Checking the behavior for pos == size() and
-                // pos > size().
+                // Checking the behavior for 'pos == size()' and
+                // 'pos > size()'.
 
                 for (exceptions = 0, trials = 0; trials < NUM_TRIALS
                                                ; ++trials) {
@@ -13648,9 +13658,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //      detected, which might be indicating missed optimizations or
     //      inadvertent loss of performance (e.g., by wrongly setting the
     //      capacity and triggering too frequent reallocations).
-    //   3) That small "improvements" can be tested w.r.t. to performance,
-    //      in a uniform benchmark (e.g., measuring the overhead of allocating
-    //      for empty strings).
+    //   3) That small "improvements" can be tested w.r.t. to performance, in a
+    //      uniform benchmark (e.g., measuring the overhead of allocating for
+    //      empty strings).
     //
     // Plan:  We follow a simple benchmark which performs the operation under
     //   timing test in a loop.  Specifically, we wish to measure the time
@@ -13672,23 +13682,23 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //   Also we wish to record the size of the various string
     //   instantiations.
     //
-    //   We create two tables, one containing long strings, and
-    //   another containing short strings.  All strings are preallocated so
-    //   that we do not measure the performance of the random generator.
-    //   In order not to measure the time overhead of the test allocator, we
-    //   use the default allocator throughout.  As for choosing the overloads
-    //   to use, we rely on the implementation and avoid those that are simple
-    //   inline forwarding calls (this might need to be adjusted for different
+    //   We create two tables, one containing long strings, and another
+    //   containing short strings.  All strings are preallocated so that we do
+    //   not measure the performance of the random generator.  In order not to
+    //   measure the time overhead of the test allocator, we use the default
+    //   allocator throughout.  As for choosing the overloads to use, we rely
+    //   on the implementation and avoid those that are simple inline
+    //   forwarding calls (this might need to be adjusted for different
     //   implementations, however most implementations rely on a single
     //   implementation and the other calls can reduce to it).
 
-    //   Note: This is a *synthetic* benchmark.  It does not replace
-    //   measuring real benchmarks (e.g., for strings, ADSP) whose
-    //   conclusions may differ due to different memory allocation and
-    //   access patterns, function call frequencies, etc.  Its main use is for
-    //   comparing two implementations (versions) against the same benchmark,
-    //   and to test that one improvement in one function does not translate
-    //   into a slow-down in another function.
+    //   Note: This is a *synthetic* benchmark.  It does not replace measuring
+    //   real benchmarks (e.g., for strings, ADSP) whose conclusions may differ
+    //   due to different memory allocation and access patterns, function call
+    //   frequencies, etc.  Its main use is for comparing two implementations
+    //   (versions) against the same benchmark, and to test that one
+    //   improvement in one function does not translate into a slow-down in
+    //   another function.
     //
     //   Also note, that this is spaghetti code but we make no attempt at
     //   shortening it with helper functions or macros, since we feel that
@@ -14058,8 +14068,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     // }
 
 #define COMPARE_WITH_NATIVE_SUNPRO_STL 1
-    // When comparing performance with the native Sunpro STL (based on
-    // Rogue Wave), a bug causes the native STL to reallocate every time after
+    // When comparing performance with the native Sunpro STL (based on Rogue
+    // Wave), a bug causes the native STL to reallocate every time after
     // push_back, instead of doubling the capacity.  This prohibits the testing
     // of P1, I1, and B1.
 
@@ -14831,9 +14841,9 @@ namespace UsageExample {
     inline
     bool operator==(const Employee& lhs, const Employee& rhs);
         // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-        // value, and 'false' otherwise.  Two 'Employee' objects have the
-        // same value if all of their corresponding values of their
-        // 'firstName', 'lastName', and 'id' attributes are the same.
+        // value, and 'false' otherwise.  Two 'Employee' objects have the same
+        // value if all of their corresponding values of their 'firstName',
+        // 'lastName', and 'id' attributes are the same.
 //
     inline
     bool operator!=(const Employee& lhs, const Employee& rhs);
@@ -15027,8 +15037,8 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator.
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -15267,7 +15277,7 @@ int main(int argc, char *argv[])
       } break;
       case 32: {
           // ------------------------------------------------------------------
-          // TESTING to_string and to_wstring
+          // TESTING 'to_string' AND 'to_wstring'
           //
           // Testing
           //   string to_string(int value);
@@ -15290,8 +15300,8 @@ int main(int argc, char *argv[])
           //   string to_wstring(long double value);
           // ------------------------------------------------------------------
 
-          if (verbose) printf("\nTESTING 'to_string' and 'to_wstring'"
-                  "\n====================================\n");
+          if (verbose) printf("\nTESTING 'to_string' AND 'to_wstring'"
+                              "\n====================================\n");
           TestDriver<char>::testCase32();
       }break;
       case 31: {
@@ -15308,7 +15318,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'stof', 'stod','stold'"
-                              "\n==============================\n");
+                            "\n==============================\n");
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase31();
       }break;
@@ -15316,28 +15326,29 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'stoi', 'stol','stoul', 'stoll', 'stoull'
         //
-        // Testing 
+        // Testing
         //   int stoi(const string& str, std::size_t* pos = 0, int base = 10);
         //   int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
         //   long stol(const string& str, std::size_t* pos = 0, int base = 10);
-        //   long stol(const wstring& str, std::size_t* pos = 0, 
+        //   long stol(const wstring& str, std::size_t* pos = 0,
         //                                                      int base = 10);
-        //   unsigned long stoul(const string& str, std::size_t* pos = 0, 
+        //   unsigned long stoul(const string& str, std::size_t* pos = 0,
         //                                                      int base = 10);
-        //   unsigned long stoul(const wstring& str, std::size_t* pos = 0, 
+        //   unsigned long stoul(const wstring& str, std::size_t* pos = 0,
         //                                                      int base = 10);
-        //   long long stoll(const string& str, std::size_t* pos = 0, 
+        //   long long stoll(const string& str, std::size_t* pos = 0,
         //                                                      int base = 10);
-        //   long long stoll(const wstring& str, std::size_t* pos = 0, 
+        //   long long stoll(const wstring& str, std::size_t* pos = 0,
         //                                                      int base = 10);
-        //   unsigned long long stoull(const string& str, 
+        //   unsigned long long stoull(const string& str,
         //                                std::size_t* pos = 0, int base = 10);
-        //   unsigned long long stoull(const wstring& str, 
+        //   unsigned long long stoull(const wstring& str,
         //                                std::size_t* pos = 0, int base = 10);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'stoi', 'stol','stoul', 'stoll', "
-                "'stoull'\n=============================================\n");
+        if (verbose)
+               printf("\nTESTING 'stoi', 'stol','stoul', 'stoll', 'stoull'"
+                      "\n=================================================\n");
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase30();
 
@@ -15386,7 +15397,7 @@ int main(int argc, char *argv[])
         //    make sure that the implementation always uses char_type() default
         //    constructor to terminate the string rather than a null literal.
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting the short string optimization"
+        if (verbose) printf("\nTESTING THE SHORT STRING OPTIMIZATION"
                             "\n=====================================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -16310,7 +16321,7 @@ int main(int argc, char *argv[])
         ostrm << myStr << '\0';
         ASSERT(ostrm.good());
         LOOP_ASSERT(ostrm.str().c_str(),
-                    0 == std::strcmp(ostrm.str().c_str(), "hello world"));
+                    0 == strcmp(ostrm.str().c_str(), "hello world"));
 
         // can operator<< handle negative width?
         ostrm.str("");
@@ -16341,7 +16352,7 @@ int main(int argc, char *argv[])
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
-        // We have the following concerns:
+        //   We have the following concerns:
         //   1) That performance does not regress between versions.
         //   2) That small "improvements" can be tested w.r.t. to performance,
         //      in a uniform benchmark.
@@ -16379,12 +16390,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Performance"
                             "\n===================\n");
 
-        const int NITER = (argc < 3) ? 1 : std::atoi(argv[2]);
+        const int NITER = (argc < 3) ? 1 : atoi(argv[2]);
 
         if (verbose)
           printf("\tUsing %d repetitions of the tests (default 1).\n", NITER);
 
-        const int RANDOM_SEED = (argc < 4) ? 0x12345678 : std::atoi(argv[3]);
+        const int RANDOM_SEED = (argc < 4) ? 0x12345678 : atoi(argv[3]);
 
         if (veryVerbose)
           printf("\tUsing %d random seed (of the tests (default 1).\n", NITER);
