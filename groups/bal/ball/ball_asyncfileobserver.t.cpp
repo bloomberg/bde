@@ -12,7 +12,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlpcre_regex.h>
 #include <bdlsu_filesystemutil.h>
 #include <bdlsu_processutil.h>
 #include <bdlt_date.h>
@@ -353,6 +352,8 @@ int countLoggedRecords(const bsl::string& fileName)
     return numLines / 2;
 }
 
+// Removed with bdlpcre_regex removal.
+#if 0
 int countMatchingRecords(const bsl::string&  fileName,
                          const char         *pattern,
                          bool                isNegativePattern = false)
@@ -412,6 +413,7 @@ int accumulateMatchingRecords(const bsl::string&  fileName,
     fs.close();
     return sum;
 }
+#endif
 
 
 class LogRotationCallbackTester {
@@ -742,12 +744,17 @@ int main(int argc, char *argv[])
 
             mX.disableFileLogging();
 
+// Removed with bdlpcre_regex removal.
+#if 0
+
             const int numLoggedRecords =
                 countMatchingRecords(fileName,
                                      "Dropped \\d+ log records", true);
-
+#endif
             mX.shutdownPublicationThread();
 
+// Removed with bdlpcre_regex removal.
+#if 0
             if (veryVeryVerbose) {
                 P_(numLoggedRecords); P_(queueLength);
                 P(MAX_QUEUE_LENGTH - queueLength);
@@ -764,6 +771,7 @@ int main(int argc, char *argv[])
                     MAX_QUEUE_LENGTH > queueLength);
             ASSERTV(numLoggedRecords, MAX_QUEUE_LENGTH, queueLength, fileName,
                     MAX_QUEUE_LENGTH - queueLength - 1 <= numLoggedRecords);
+#endif
 
             // After shutting down the publication thread, the queue should be
             // cleared.
@@ -1600,6 +1608,8 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             multiplexObserver.deregisterObserver(&mX);
 
+// Removed with bdlpcre_regex removal.
+#if 0
             // We should have got the warning
             int numRecords = countMatchingRecords(fileName, "will be dropped");
             int numDroppedRecords = accumulateMatchingRecords(
@@ -1622,6 +1632,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(
                      numDroppedRecordMessages, expectDroppedRecordMessages,
                      numDroppedRecordMessages == expectDroppedRecordMessages);
+#endif
 
             if (0 < test) {
                 removeFilesByPrefix(fileName.c_str());
