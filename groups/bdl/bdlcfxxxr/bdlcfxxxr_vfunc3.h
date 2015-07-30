@@ -146,8 +146,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BDLQQ_XXXATOMICUTIL
+#include <bdlqq_xxxatomicutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -173,7 +173,7 @@ class Vfunc3 {
     // which allows the derived classes to declare the destructor 'private',
     // and limit an object instantiation to the heap.
 
-    bdlmtt::AtomicUtil::Int d_count;    // dumb data (number of active references)
+    bdlqq::AtomicUtil::Int d_count;    // dumb data (number of active references)
     bslma::Allocator *d_allocator_p; // holds (but doesn't own) memory
                                      // allocator
 
@@ -240,20 +240,20 @@ template <class A1, class A2, class A3>
 inline Vfunc3<A1, A2, A3>::Vfunc3(bslma::Allocator *basicAllocator)
 : d_allocator_p(basicAllocator)
 {
-    bdlmtt::AtomicUtil::initInt(&d_count,0);
+    bdlqq::AtomicUtil::initInt(&d_count,0);
 }
 
 // MANIPULATORS
 template <class A1, class A2, class A3>
 inline void Vfunc3<A1, A2, A3>::increment()
 {
-    bdlmtt::AtomicUtil::incrementInt(&d_count);
+    bdlqq::AtomicUtil::incrementInt(&d_count);
 }
 
 template <class A1, class A2, class A3>
 inline int Vfunc3<A1, A2, A3>::decrement()
 {
-    return bdlmtt::AtomicUtil::decrementIntNv(&d_count);
+    return bdlqq::AtomicUtil::decrementIntNv(&d_count);
 }
 }  // close package namespace
 

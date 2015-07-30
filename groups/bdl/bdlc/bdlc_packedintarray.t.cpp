@@ -742,7 +742,7 @@ int main(int argc, char *argv[])
                 const UnsignedObj& UEXP = mUEXP;
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -876,7 +876,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -2538,7 +2538,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3079,7 +3079,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3169,7 +3169,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3241,7 +3241,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3393,7 +3393,7 @@ int main(int argc, char *argv[])
                 const UnsignedObj& UEXP = mUEXP;
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3454,7 +3454,7 @@ int main(int argc, char *argv[])
                 const UnsignedObj& UEXP = mUEXP;
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3619,7 +3619,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3702,7 +3702,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3786,7 +3786,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3851,7 +3851,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3933,7 +3933,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -4123,7 +4123,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -4200,7 +4200,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -4278,7 +4278,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -4335,7 +4335,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -4407,7 +4407,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -6518,7 +6518,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 for (int si = 0; si < NUM_INIT ; ++si) {
                     const int   LINE1 = DATA[ti].d_lineNum;
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[si].d_spec_p
                                          + DATA[ti].d_spec_p);
 
@@ -6527,7 +6527,7 @@ int main(int argc, char *argv[])
                     for (int tj = 0; tj < NUM_DATA; ++tj) {
                         for (int sj = 0; sj < NUM_INIT ; ++sj) {
                             const int   LINE2 = DATA[tj].d_lineNum;
-                            bsl::string SPEC2 = (std::string()
+                            bsl::string SPEC2 = (bsl::string()
                                                  + INIT[sj].d_spec_p
                                                  + DATA[tj].d_spec_p);
 
@@ -6592,7 +6592,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 for (int si = 0; si < NUM_INIT ; ++si) {
                     const int   LINE1 = DATA[ti].d_lineNum;
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[si].d_spec_p
                                          + DATA[ti].d_spec_p);
 
@@ -6602,7 +6602,7 @@ int main(int argc, char *argv[])
                     for (int tj = 0; tj < NUM_DATA; ++tj) {
                         for (int sj = 0; sj < NUM_INIT ; ++sj) {
                             const int   LINE2 = DATA[tj].d_lineNum;
-                            bsl::string SPEC2 = (std::string()
+                            bsl::string SPEC2 = (bsl::string()
                                                  + INIT[sj].d_spec_p
                                                  + DATA[tj].d_spec_p);
 

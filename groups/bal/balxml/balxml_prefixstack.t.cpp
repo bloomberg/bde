@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
         //   is associated with N1 and then verify the result.
         //
         // Testing:
-        //   int pushPrefix(const bdlb::StringRef& prefix,
-        //                  const bdlb::StringRef& namespaceUri);
+        //   int pushPrefix(const bslstl::StringRef& prefix,
+        //                  const bslstl::StringRef& namespaceUri);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'pushPrefix'"
@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
         //   and then verify the result.
         //
         // Testing:
-        //   int lookupNamespaceId(const bdlb::StringRef& namespaceUri);
+        //   int lookupNamespaceId(const bslstl::StringRef& namespaceUri);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'lookupNamespaceId'"

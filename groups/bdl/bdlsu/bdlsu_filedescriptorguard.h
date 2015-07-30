@@ -147,7 +147,7 @@ struct FileDescriptorGuard {
     FilesystemUtil::FileDescriptor descriptor() const;
         // If this guard is managing a file, return the file descriptor
         // referring to that file, and return
-        // 'FileSystemUtil::INVALID_FD' otherwise.
+        // 'FilesystemUtil::k_INVALID_FD' otherwise.
 };
 
 // ============================================================================

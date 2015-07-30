@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 #include <btlso_timemetrics.h>
 #include <btlso_flag.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlt_currenttime.h>
 

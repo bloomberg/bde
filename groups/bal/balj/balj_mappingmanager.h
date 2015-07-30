@@ -168,12 +168,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLSU_XXXFILEUTIL
-#include <bdlsu_xxxfileutil.h>
+#ifndef INCLUDED_bdlsu_filesystemutil
+#include <bdlsu_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -184,12 +184,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 namespace BloombergLP {
@@ -264,7 +264,7 @@ class MappingManager {
     typedef MappingManager_Page     Page;
 
     // INSTANCE DATA
-    bdlmtt::Mutex              d_mapLock;
+    bdlqq::Mutex              d_mapLock;
     bsl::size_t              d_totalMapped;
     bsl::size_t              d_mappingLimit;
     PageList                 d_usedPages;
@@ -296,8 +296,8 @@ class MappingManager {
         // are unmapped.
 
     // MANIPULATORS
-    Handle addPage(bdlsu::FileUtil::FileDescriptor   fileDescriptor,
-                   bdlsu::FileUtil::Offset           offset,
+    Handle addPage(bdlsu::FilesystemUtil::FileDescriptor   fileDescriptor,
+                   bdlsu::FilesystemUtil::Offset           offset,
                    bsl::size_t                      size,
                    bool                             isReadWrite,
                    int                              priorityLevel,

@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //       bsl::vector<bsl::string> d_messages;
 //
 //       // PRIVATE MANIPULATORS
-//       void onMessage(const bdlb::StringRef& message)
+//       void onMessage(const bslstl::StringRef& message)
 //       {
 //           if ("EXIT" != message) {
 //               d_messages.push_back(message);
@@ -141,8 +141,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -151,10 +151,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLF_FUNCTION
 #include <bdlf_function.h>
-#endif
-
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -183,7 +179,7 @@ class PipeControlChannel {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(const bdlb::StringRef& message)>
+    typedef bdlf::Function<void (*)(const bslstl::StringRef& message)>
                                                                ControlCallback;
         // This type of function is called to handle control messages received
         // on the pipe.  The 'message' is one complete message read from the
@@ -194,7 +190,7 @@ class PipeControlChannel {
     ControlCallback          d_callback;      // Callback for control messages
     bsl::string              d_pipeName;      // full path name of pipe
     bsl::vector<char>        d_buffer;        // message buffer
-    bdlmtt::ThreadUtil::Handle d_thread;        // background processing thread
+    bdlqq::ThreadUtil::Handle d_thread;        // background processing thread
     bool                     d_isRunningFlag; // true if the channel is running
     bool                     d_isPipeOpen;    // true if the pipe is still open
 

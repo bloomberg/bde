@@ -2,10 +2,10 @@
 
 #include <bdlma_concurrentmultipool.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bslma_testallocator.h>                // for testing only
-#include <bdlmtt_barrier.h>                      // for testing only
+#include <bdlqq_barrier.h>                      // for testing only
 #include <bdlma_concurrentpool.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
@@ -230,7 +230,7 @@ struct WorkerArgs {
 
 };
 
-bdlmtt::Barrier g_barrier(k_NUM_THREADS);
+bdlqq::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, protect, unprotect, and deallocate
     // operations on the 'bcema::TestProtectableMemoryBlockDispenser' and
@@ -267,7 +267,7 @@ extern "C" void *workerThread(void *arg) {
 
     // perform a second set of allocations
     unsigned char threadId =
-                 static_cast<unsigned char>(bdlmtt::ThreadUtil::selfIdAsInt());
+                  static_cast<unsigned char>(bdlqq::ThreadUtil::selfIdAsInt());
     for (int i = 0; i < numAllocs; ++i) {
         blocks[i] = (char *)allocator->allocate(allocSizes[i]);
         memset(blocks[i], threadId, allocSizes[i]);
@@ -1783,7 +1783,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlmtt::ThreadUtil::Handle threads[k_NUM_THREADS];
+        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
 
         bslma::TestAllocator ta;
         Obj                  mX(4, &ta);
@@ -1800,12 +1800,12 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
+                bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::join(threads[i]);
+                bdlqq::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
         mX.release();

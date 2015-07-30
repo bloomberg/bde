@@ -29,9 +29,9 @@
 #include <bdlxxxx_bytestreamimputil.h>
 #include <bdlmca_xxxpooledbufferchain.h>
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_readerwriterlock.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_readerwriterlock.h>
+#include <bdlqq_xxxthread.h>
 #include <bdlmca_xxxpooledbufferchainstreambuf.h>
 #include <btlso_ipv4address.h>
 #include <btlso_inetstreamsocketfactory.h>
@@ -195,7 +195,7 @@ static void aSsErT(int c, const char *s, int i)
 // The following macros facilitate thread-safe streaming to standard output.
 
 #define MTCOUT   coutMutex.lock(); { bsl::cout \
-                                           << bdlmtt::ThreadUtil::selfIdAsInt() \
+                                           << bdlqq::ThreadUtil::selfIdAsInt() \
                                            << ": "
 #define MTENDL   bsl::endl;  } coutMutex.unlock()
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -215,7 +215,7 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlmtt::Mutex coutMutex;
+static bdlqq::Mutex coutMutex;
 
 //=============================================================================
 //               GLOBAL CLASSES AND HELPER FUNCTIONS FOR TESTING
@@ -265,7 +265,7 @@ class my_ServerPool {
     DataReadCallback       d_dataCb;       // user data callback
     MapType                d_factories;    // map servers to pooled
                                            // buffer chain factories
-    bdlmtt::ReaderWriterLock d_lock;         // provide thread-safety
+    bdlqq::ReaderWriterLock d_lock;         // provide thread-safety
 
   private:
     // not implemented
@@ -637,7 +637,7 @@ void case13ChannelStateCallback(
     int                 state,
     void               *arg,
     btlmt::ChannelPool **poolAddr,
-    bdlmtt::Barrier      *barrier)
+    bdlqq::Barrier      *barrier)
 {
     // Monitor the channel state transitions of the specified channel
     // pool, pointed to by 'arg', which has type 'btlmt::ChannelPool'.
@@ -1031,13 +1031,13 @@ void case10DataCallback(
             LOOP_ASSERT(i, LOW_WATER_MARK - 1 == X.length());
             LOOP_ASSERT(i, 0 == buffersSent);
         }
-        bdlmtt::ThreadUtil::microSleep(PART_TIME % MICROSECS_PER_SEC,
+        bdlqq::ThreadUtil::microSleep(PART_TIME % MICROSECS_PER_SEC,
                                      PART_TIME / MICROSECS_PER_SEC);
         if (veryVerbose) { P_(X.length()); P(buffersSent); }
     }
     const int LEFTOVER = CACHE_LIFESPAN_US - NUM_ITERATIONS * PART_TIME
                        + 50000;
-    bdlmtt::ThreadUtil::microSleep(LEFTOVER % MICROSECS_PER_SEC,
+    bdlqq::ThreadUtil::microSleep(LEFTOVER % MICROSECS_PER_SEC,
                                  LEFTOVER / MICROSECS_PER_SEC);
 
     const bsls::Types::Int64 END = bsls::TimeUtil::getTimer() / RESOLUTION;
@@ -1832,7 +1832,7 @@ class my_DataServer {
     btlmt::ChannelPool     *d_pool_p;       // channel pool (owned)
     bdlmxxx::Schema            d_schema;       // protocol schema
     MapType                d_clients;      // map channel IDs to streambufs
-    bdlmtt::ReaderWriterLock d_lock;         // provide thread-safety
+    bdlqq::ReaderWriterLock d_lock;         // provide thread-safety
     bdlf::Function<void (*)()> d_dataCb;       // data generator callback
     bdlf::Function<void (*)()> d_pushCb;       // push timer callback
     bsls::TimeInterval      d_lastPush;     // last push timer expiry
@@ -2287,7 +2287,7 @@ void ue2ChannelStateCallback(
         void               *arg,
         btlmt::ChannelPool **poolAddr,
         bsl::vector<int>   *channels,
-        bdlmtt::Barrier      *barrier)
+        bdlqq::Barrier      *barrier)
 {
     ASSERT(poolAddr && *poolAddr);
     ASSERT(channels);
@@ -2532,7 +2532,7 @@ int main(int argc, char *argv[])
                 BACKLOG      = 1
             };
 
-            bdlmtt::Barrier      barrier(2);
+            bdlqq::Barrier      barrier(2);
             bsl::vector<int>   channels(&ta);
             btlmt::ChannelPool *poolAddr = 0;
 
@@ -2835,7 +2835,7 @@ int main(int argc, char *argv[])
             // This should be considered as a bug in the test driver.
             // The temporary fix -- put a delay so that all writes
             // are done.
-            bdlmtt::ThreadUtil::microSleep(10000, 0);
+            bdlqq::ThreadUtil::microSleep(10000, 0);
             channel.invalidate();
             factory.deallocate(socket);
             ASSERT(0 == sp.stop());
@@ -3137,7 +3137,7 @@ int main(int argc, char *argv[])
             // This should be considered as a bug in the test driver.
             // The temporary fix -- put a delay so that all writes
             // are done.
-            bdlmtt::ThreadUtil::microSleep(10000, 0);
+            bdlqq::ThreadUtil::microSleep(10000, 0);
             channel.invalidate();
             factory.deallocate(socket);
             ASSERT(0 == sp.stop());
@@ -3237,7 +3237,7 @@ int main(int argc, char *argv[])
             // This should be considered as a bug in the test driver.
             // The temporary fix -- put a delay so that all writes
             // are done.
-            bdlmtt::ThreadUtil::microSleep(10000, 0);
+            bdlqq::ThreadUtil::microSleep(10000, 0);
             channel.invalidate();
             factory.deallocate(socket);
             ASSERT(0 == sp.stop());
@@ -3341,7 +3341,7 @@ int main(int argc, char *argv[])
             // This should be considered as a bug in the test driver.
             // The temporary fix -- put a delay so that all writes
             // are done.
-            bdlmtt::ThreadUtil::microSleep(10000, 0);
+            bdlqq::ThreadUtil::microSleep(10000, 0);
             channel.invalidate();
             factory.deallocate(socket);
             ASSERT(0 == sp.stop());
@@ -3636,7 +3636,7 @@ int main(int argc, char *argv[])
             // This should be considered as a bug in the test driver.
             // The temporary fix -- put a delay so that all writes
             // are done.
-            bdlmtt::ThreadUtil::microSleep(10000, 0);
+            bdlqq::ThreadUtil::microSleep(10000, 0);
             channel.invalidate();
             factory.deallocate(socket);
             ASSERT(0 == sp.stop());
@@ -4019,7 +4019,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ds.start(SERVER_ID, ADDRESS, BACKLOG));
 
             btlmt::ChannelPool *poolAddr = 0;
-            bdlmtt::Barrier      barrier(2);
+            bdlqq::Barrier      barrier(2);
             bsl::vector<int>   channels(&ta);
 
             Pool::ChannelStateChangeCallback ccb(
@@ -4106,7 +4106,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == pool.write(msg.channelId(), msg));
             }
 
-            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(30.5));
+            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(30.5));
             for (int i = 0; i < (int)channels.size(); ++i) {
                 pool.shutdown(channels[i], btlmt::ChannelPool::BTEMT_IMMEDIATE);
             }

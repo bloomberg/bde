@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
-//@SEE_ALSO: bdlsu_xxxfileutil
+//@SEE_ALSO: bdlsu_filesystemutil
 //
 //@DESCRIPTION: This component provides utility methods for manipulating
 // strings that represent paths in the filesystem.  Class methods of
@@ -99,10 +99,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -125,7 +121,7 @@ struct PathUtil {
 
     // CLASS METHODS
     static int appendIfValid(bsl::string            *path,
-                             const bdlb::StringRef&  filename);
+                             const bslstl::StringRef&  filename);
         // Append the specified 'filename' to the end of the specified 'path'
         // if 'filename' represents a relative path.  Return 0 on success, and
         // a non-zero value otherwise.  Note that any filesystem separator
@@ -154,7 +150,7 @@ struct PathUtil {
         // does not have a leaf.
 
     static int getBasename(bsl::string            *leaf,
-                           const bdlb::StringRef&  path,
+                           const bslstl::StringRef&  path,
                            int                     rootEnd = -1);
         // Load into the specified 'leaf' the value of the rightmost
         // filename in 'path' that follows the root; that is, the leaf element.
@@ -165,7 +161,7 @@ struct PathUtil {
         // 'getBasename' is a synonym for 'getLeaf'.
 
     static int getDirname(bsl::string            *dirname,
-                          const bdlb::StringRef&  path,
+                          const bslstl::StringRef&  path,
                           int                     rootEnd = -1);
         // Load into the specified 'dirname' the value of the directory part
         // of the specified 'path', that is, the root if it exists and all the
@@ -178,7 +174,7 @@ struct PathUtil {
         // succeed and 'dirname' will be the empty string.
 
     static int getLeaf(bsl::string            *leaf,
-                       const bdlb::StringRef&  path,
+                       const bslstl::StringRef&  path,
                        int                     rootEnd = -1);
         // Load into the specified 'leaf' the value of the rightmost
         // filename in 'path' that follows the root; that is, the leaf element.
@@ -189,7 +185,7 @@ struct PathUtil {
         // 'getBasename' is a synonym for 'getLeaf'.
 
     static int getRoot(bsl::string            *root,
-                       const bdlb::StringRef&  path,
+                       const bslstl::StringRef&  path,
                        int                     rootEnd = -1);
         // Load into the specified 'root' the value of the root part of the
         // specified 'path'.  If the optionally specified 'rootEnd' offset is
@@ -199,25 +195,25 @@ struct PathUtil {
         // relative.  Note that the meaning of the root part is
         // platform-dependent.
 
-    static bool isAbsolute(const bdlb::StringRef& path, int rootEnd = -1);
+    static bool isAbsolute(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is absolute (has a root),
         // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
         // is non-negative, it is taken as the position in 'path' of the
         // character following the root.
 
-    static bool isRelative(const bdlb::StringRef& path, int rootEnd = -1);
+    static bool isRelative(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is relative (lacks a root),
         // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
         // is non-negative, it is taken as the position in 'path' of the
         // character following the root.
 
-    static bool hasLeaf(const bdlb::StringRef& path, int rootEnd = -1);
+    static bool hasLeaf(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified path has a filename following the
         // root, and 'false' otherwise.  If the optionally specified 'rootEnd'
         // offset is non-negative, it is taken as the position in 'path' of
         // the character following the root.
 
-    static int getRootEnd(const bdlb::StringRef& path);
+    static int getRootEnd(const bslstl::StringRef& path);
         // Return the 0-based position in 'path' of the character following
         // the root.  Note that a return value of 0 indicates a relative path.
 };
@@ -233,7 +229,7 @@ struct PathUtil {
 // CLASS METHODS
 inline
 int PathUtil::getBasename(bsl::string            *leaf,
-                                const bdlb::StringRef&  path,
+                                const bslstl::StringRef&  path,
                                 int                     rootEnd)
 {
     BSLS_ASSERT_SAFE(leaf);

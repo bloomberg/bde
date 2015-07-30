@@ -36,7 +36,7 @@ using namespace bsl;  // automatically added by script
 // constructor and the 'ptr' and 'size' operations.
 //-----------------------------------------------------------------------------
 // [ 3] bdlma::MemoryBlockDescriptor();
-// [ 3] bdlma::MemoryBlockDescriptor(void *, std::size_t);
+// [ 3] bdlma::MemoryBlockDescriptor(void *, bsl::size_t);
 // [ 5] bdlma::MemoryBlockDescriptor(const bdlma::MemoryBlockDescriptor&);
 // [ 2] ~bdlma::MemoryBlockDescriptor();
 // [ 6] bdlma::MemoryBlockDescriptor& operator=(rhs);
@@ -99,10 +99,10 @@ typedef bdlma::MemoryBlockDescriptor Obj;
 //-----------------------------------------------------------------------------
 
 #define PRINT(X)        \
-std::printf(#X);        \
-std::printf(" = ");     \
+bsl::printf(#X);        \
+bsl::printf(" = ");     \
 X.print();              \
-std::printf("\n");
+bsl::printf("\n");
 
 //=============================================================================
 //                              USAGE EXAMPLE

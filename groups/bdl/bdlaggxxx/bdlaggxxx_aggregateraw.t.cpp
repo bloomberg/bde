@@ -6257,7 +6257,7 @@ void testCase20() {
                             ? true : false;
                     }
                     else {
-                        IS_NULL = std::strstr(SPEC, "&NT")
+                        IS_NULL = bsl::strstr(SPEC, "&NT")
                           || RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()
                                 ? true : false;
                     }
@@ -15588,7 +15588,7 @@ void testCase1() {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;

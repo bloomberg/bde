@@ -9865,7 +9865,7 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                             ? true : false;
                     }
                     else {
-                        IS_NULL = std::strstr(SPEC, "&NT")
+                        IS_NULL = bsl::strstr(SPEC, "&NT")
                           || RecDef::BDEM_CHOICE_RECORD == RECORD->recordType()
                                 ? true : false;
                     }

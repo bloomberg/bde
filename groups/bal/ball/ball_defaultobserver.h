@@ -61,8 +61,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_observer.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -87,7 +87,7 @@ class DefaultObserver : public Observer {
 
     // DATA
     bsl::ostream *d_stream;  // output sink for log records
-    bdlmtt::Mutex   d_mutex;   // serializes concurrent calls to 'publish'
+    bdlqq::Mutex   d_mutex;   // serializes concurrent calls to 'publish'
 
     // NOT IMPLEMENTED
     DefaultObserver(const DefaultObserver&);

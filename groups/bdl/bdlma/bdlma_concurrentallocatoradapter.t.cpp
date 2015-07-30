@@ -2,11 +2,11 @@
 
 #include <bdlma_concurrentallocatoradapter.h>
 
-#include <bdlmtt_xxxthread.h>
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_xxxthread.h>
+#include <bdlqq_lockguard.h>
 
 #include <bslma_testallocator.h>            // for testing only
-#include <bdlmtt_barrier.h>                  // for testing only
+#include <bdlqq_barrier.h>                  // for testing only
 #include <bslma_testallocator.h>            // for testing only
 #include <bslma_testallocatorexception.h>   // for testing only
 
@@ -164,7 +164,7 @@ struct WorkerArgs {
 
 };
 
-bdlmtt::Barrier g_barrier(k_NUM_THREADS);
+bdlqq::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, and deallocate operations on the
     // 'bdlma::ConcurrentAllocatorAdapter' and verify their results.  This
@@ -220,7 +220,7 @@ extern "C" void *workerThread(void *arg) {
         // This class defines a trivial thread-enabled vector.
 
         // DATA
-        mutable bdlmtt::Mutex d_mutex;     // synchronize access
+        mutable bdlqq::Mutex d_mutex;      // synchronize access
         bsl::vector<TYPE>     d_elements;  // underlying list of strings
 
         // NOT IMPLEMENTED
@@ -245,7 +245,7 @@ extern "C" void *workerThread(void *arg) {
             // Append the specified 'value' to this thread-enabled vector and
             // return the index of the new element.
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
             d_elements.push_back(value);
             return static_cast<int>(d_elements.size()) - 1;
         }
@@ -255,7 +255,7 @@ extern "C" void *workerThread(void *arg) {
             // vector to the specified 'value'.  The behavior is undefined
             // unless '0 <= index < length()'.
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
             d_elements[index] = value;
         }
 
@@ -266,14 +266,14 @@ extern "C" void *workerThread(void *arg) {
             // *value* because references to elements managed by this container
             // may be invalidated by another thread.
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
             return d_elements[index];
         }
 
         int length() const
             // Return the number of elements in this thread-enabled vector.
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
             return static_cast<int>(d_elements.size());
         }
     };
@@ -292,7 +292,7 @@ extern "C" void *workerThread(void *arg) {
         // the mutex and adapter are initialized before other member variables
         // that depend on them.
 
-        bdlmtt::Mutex           d_mutex;             // synchronize allocator
+        bdlqq::Mutex           d_mutex;             // synchronize allocator
 
         bdlma::ConcurrentAllocatorAdapter
                               d_allocatorAdapter;  // adapter for allocator
@@ -447,10 +447,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlmtt::ThreadUtil::Handle threads[k_NUM_THREADS];
+        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
 
         bslma::TestAllocator talloc(false);
-        bdlmtt::Mutex         mutex;
+        bdlqq::Mutex         mutex;
         Obj                 mX(&mutex, &talloc);
 
         const int SIZES [] = { 1 , 2 , 4,  8, 16, 32, 64, 128, 256, 512,
@@ -465,12 +465,12 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::create(&threads[i], workerThread, &args);
+                bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
-                bdlmtt::ThreadUtil::join(threads[i]);
+                bdlqq::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
       } break;
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
                           << endl << "==============" << endl;
 
         const char   *lastMethod = 0;
-        bdlmtt::Mutex   mutex;
+        bdlqq::Mutex   mutex;
         NoopAllocator noopAllocator = NoopAllocator(&lastMethod);
         {
             bdlma::ConcurrentAllocatorAdapter mX(&mutex, &noopAllocator);

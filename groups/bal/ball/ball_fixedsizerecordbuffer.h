@@ -137,12 +137,12 @@ BSLS_IDENT("$Id: $")
 #include <ball_recordbuffer.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -181,7 +181,7 @@ class FixedSizeRecordBuffer: public RecordBuffer {
     // discarded.
 
     // DATA
-    mutable bdlmtt::RecursiveMutex d_mutex;        // synchronizes access to
+    mutable bdlqq::RecursiveMutex d_mutex;        // synchronizes access to
                                                  // the buffer
 
     int                          d_maxTotalSize; // maximum possible sum of
@@ -312,7 +312,7 @@ void FixedSizeRecordBuffer::endSequence()
 inline
 void FixedSizeRecordBuffer::removeAll()
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     d_deque.clear();
     d_currentTotalSize = 0;
 }
@@ -321,21 +321,21 @@ void FixedSizeRecordBuffer::removeAll()
 inline
 const bsl::shared_ptr<Record>& FixedSizeRecordBuffer::back() const
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     return d_deque.back();
 }
 
 inline
 const bsl::shared_ptr<Record>& FixedSizeRecordBuffer::front() const
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     return d_deque.front();
 }
 
 inline
 int FixedSizeRecordBuffer::length() const
 {
-    bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
     return static_cast<int>(d_deque.size());
 }
 }  // close package namespace

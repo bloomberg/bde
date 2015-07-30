@@ -313,12 +313,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BDLQQ_XXXATOMICTYPES
+#include <bdlqq_xxxatomictypes.h>  // for SpinLock
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -339,7 +343,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmtt { class Barrier; }
+namespace bdlqq { class Barrier; }
 
 namespace bdlmt {
                    // =====================================
@@ -367,13 +371,13 @@ class MultiQueueThreadPool_Queue {
 
   private:
     bsl::deque<Job>       d_list;
-    bdlmtt::AtomicInt        d_numPendingJobs; // number of unprocessed jobs
+    bsls::AtomicInt        d_numPendingJobs; // number of unprocessed jobs
     volatile int          d_state;          // maintains enqueue state
-    bdlmtt::AtomicInt        d_numEnqueued;    // the number of items enqueued
+    bsls::AtomicInt        d_numEnqueued;    // the number of items enqueued
                                             // into this queue since the
                                             // creation or the last time
                                             // it was reset.
-    bdlmtt::AtomicInt        d_numDequeued;    // the number of items dequeued
+    bsls::AtomicInt        d_numDequeued;    // the number of items dequeued
                                             // into this queue since the
                                             // creation or the last time
                                             // it was reset.
@@ -460,7 +464,7 @@ class MultiQueueThreadPool_QueueContext {
 
     // PUBLIC DATA MEMBERS
     MultiQueueThreadPool_Queue  d_queue;
-    mutable bdlmtt::SpinLock            d_lock;
+    mutable bdlqq::SpinLock            d_lock;
     QueueProcessorCb                 d_processingCb;
     bool                             d_destroyFlag;
 
@@ -495,7 +499,7 @@ class MultiQueueThreadPool_QueueContext {
         // new object.  Note that this method is not thread-safe.
 
     // ACCESSORS
-    bdlmtt::SpinLock& mutex() const;
+    bdlqq::SpinLock& mutex() const;
         // Return the lock that is used by this context.
 
 };
@@ -535,18 +539,18 @@ class MultiQueueThreadPool {
     bdlcc::ObjectCatalog<MultiQueueThreadPool_QueueContext*>
                      d_queueRegistry;      // registry of queue contexts
 
-    mutable bdlmtt::RWMutex
+    mutable bdlqq::RWMutex
                      d_registryLock;       // synchronizes registry access
-    bdlmtt::AtomicInt   d_numActiveQueues;    // number of non-empty queues
+    bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
     volatile int     d_state;              // maintains internal state
-    bdlmtt::SpinLock    d_stateLock;          // synchronizes internal state
+    bdlqq::SpinLock    d_stateLock;          // synchronizes internal state
 
-    bdlmtt::AtomicInt   d_numDequeued;        // the total number of request
+    bsls::AtomicInt   d_numDequeued;        // the total number of request
                                            // processed by this pool
                                            // since the last time this value
                                            // was reset
-    bdlmtt::AtomicInt   d_numEnqueued;        // the total number of request
+    bsls::AtomicInt   d_numEnqueued;        // the total number of request
                                            // enqueued into this pool
                                            // since the last time this value
                                            // was reset
@@ -561,7 +565,7 @@ class MultiQueueThreadPool {
 
     void deleteQueueCb(int                    id,
                        const CleanupFunctor&  cleanupFunctor,
-                       bdlmtt::Barrier         *barrier);
+                       bdlqq::Barrier         *barrier);
         // Remove the queue associated with the specified 'id' from the queue
         // registry, execute the specified 'cleanupFunctor', wait on the
         // specified 'barrier', and then delete the referenced queue.

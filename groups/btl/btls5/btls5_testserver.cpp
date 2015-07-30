@@ -5,9 +5,9 @@
 BSLS_IDENT_RCSID(btls5_testserver_cpp, "$Id$ $CSID$")
 
 #include <bdlmca_blobutil.h>
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_mutex.h>
-#include <bdlmtt_xxxthread.h>                   // thread management util
+#include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_xxxthread.h>                   // thread management util
 #include <bdlf_bind.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -32,7 +32,7 @@ namespace BloombergLP {
 
 namespace {
 
-static bdlmtt::Mutex g_logLock;  // serialize diagnostics
+static bdlqq::Mutex g_logLock;  // serialize diagnostics
 
 #define LOG_STREAM(severity, args)                                 \
     if (bool stop = false)                                         \

@@ -79,12 +79,12 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 #include <balm_metricrecord.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSL_ALGORITHM
@@ -112,7 +112,7 @@ class Collector {
 
     // DATA
     MetricRecord   d_record;  // the recorded metric information
-    mutable bdlmtt::Mutex d_lock;    // record synchronization mechanism
+    mutable bdlqq::Mutex d_lock;    // record synchronization mechanism
 
     // NOT IMPLEMENTED
     Collector(const Collector&);
@@ -205,7 +205,7 @@ Collector::~Collector()
 inline
 void Collector::reset()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_record.count() = 0;
     d_record.total() = 0.0;
     d_record.min()   = MetricRecord::DEFAULT_MIN;
@@ -215,7 +215,7 @@ void Collector::reset()
 inline
 void Collector::loadAndReset(MetricRecord *record)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     *record          = d_record;
     d_record.count() = 0;
     d_record.total() = 0.0;
@@ -226,7 +226,7 @@ void Collector::loadAndReset(MetricRecord *record)
 inline
 void Collector::update(double value)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     ++d_record.count();
     d_record.total() += value;
     d_record.min()   =  bsl::min(d_record.min(), value);
@@ -239,7 +239,7 @@ void Collector::accumulateCountTotalMinMax(int    count,
                                                 double min,
                                                 double max)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_record.count() += count;
     d_record.total() += total;
     d_record.min()   =  bsl::min(d_record.min(), min);
@@ -252,7 +252,7 @@ void Collector::setCountTotalMinMax(int    count,
                                          double min,
                                          double max)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_record.count() = count;
     d_record.total() = total;
     d_record.min()   = min;
@@ -269,7 +269,7 @@ const MetricId& Collector::metricId() const
 inline
 void Collector::load(MetricRecord *record) const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_lock);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     *record = d_record;
 }
 }  // close package namespace

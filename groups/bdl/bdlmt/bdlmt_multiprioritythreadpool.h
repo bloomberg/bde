@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //    bdlmt::MultipriorityThreadPool: mechanism to parallelize prioritized jobs
 //
-//@SEE_ALSO: bdlmtt_xxxthread
+//@SEE_ALSO: bdlqq_xxxthread
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //
 // Finally an application can specify the attributes of the worker threads in
 // a thread pool (e.g., guard size or stack size), by optionally supplying an
-// appropriately configured 'bcemt_Attribute' object.  (See the 'bdlmtt_xxxthread'
+// appropriately configured 'bcemt_Attribute' object.  (See the 'bdlqq_xxxthread'
 // component-level documentation for a description of the 'bcemt_Attribute'
 // class.)  Note that the field pertaining to whether the worker threads should
 // be detached or joinable is ignored.
@@ -107,12 +107,12 @@ BSLS_IDENT("$Id: $")
 // priority, while massively more numerous, does not impede the progress of
 // higher-priority jobs:
 //..
-//   bdlmtt::AtomicInt urgentJobsDone     = 0;
-//   bdlmtt::AtomicInt lessUrgentJobsDone = 0;
+//   bsls::AtomicInt urgentJobsDone     = 0;
+//   bsls::AtomicInt lessUrgentJobsDone = 0;
 //
 //   extern "C" void *urgentJob(void *)
 //   {
-//       bdlmtt::ThreadUtil::microSleep(10000);          // 10 mSec
+//       bdlqq::ThreadUtil::microSleep(10000);          // 10 mSec
 //
 //       ++urgentJobsDone;
 //
@@ -121,7 +121,7 @@ BSLS_IDENT("$Id: $")
 //
 //   extern "C" void *lessUrgentJob(void *)
 //   {
-//       bdlmtt::ThreadUtil::microSleep(10000);          // 10 mSec
+//       bdlqq::ThreadUtil::microSleep(10000);          // 10 mSec
 //
 //       ++lessUrgentJobsDone;
 //
@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //           pool.enqueueJob(&urgentJob, (void *) 0, 0);         // urgent
 //       }
 //
-//       bdlmtt::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
+//       bdlqq::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
 //       pool.shutdown();
 //
 //       bsl::cout << "Jobs done: urgent: " << urgentJobsDone <<
@@ -185,28 +185,28 @@ BSLS_IDENT("$Id: $")
 //   };
 //
 //   bool isStillPrime[TOP_NUMBER];
-//   bdlmtt::AtomicInt scannedTo[TOP_NUMBER];   // if 'P' is a prime, what is the
+//   bsls::AtomicInt scannedTo[TOP_NUMBER];   // if 'P' is a prime, what is the
 //                                           // highest multiple of 'P' that
 //                                           // we have marked
 //                                           // 'isStillPrime[P] = false'
 //
-//   bdlmtt::AtomicInt maxPrimeFound;           // maximum prime identified so far
+//   bsls::AtomicInt maxPrimeFound;           // maximum prime identified so far
 //   int primeNumbers[TOP_NUMBER];           // elements in the range
 //                                           // '0 .. numPrimeNumbers - 1' are
 //                                           // the prime numbers we have found
 //                                           // so far
-//   bdlmtt::AtomicInt numPrimeNumbers;
+//   bsls::AtomicInt numPrimeNumbers;
 //
 //   bdlmt::MultipriorityThreadPool *threadPool;
 //
 //   bool          doneFlag;                 // set this flag to signal
 //                                           // other jobs that we're done
-//   bdlmtt::Barrier doneBarrier(2);           // we wait on this barrier
+//   bdlqq::Barrier doneBarrier(2);           // we wait on this barrier
 //                                           // to signal the main thread
 //                                           // that we're done
 //
 //   struct Functor {
-//       static bdlmtt::Mutex s_mutex;
+//       static bdlqq::Mutex s_mutex;
 //       int                d_numToScan;
 //       int                d_priority;
 //       int                d_limit;
@@ -285,7 +285,7 @@ BSLS_IDENT("$Id: $")
 //           // Everything up to 'd_limit' that has not been marked
 //           // non-prime is prime.
 //
-//           bdlmtt::LockGuard<bdlmtt::Mutex> guard(&s_mutex);
+//           bdlqq::LockGuard<bdlqq::Mutex> guard(&s_mutex);
 //
 //           for (int i = maxPrimeFound + 1; d_limit > i; ++i) {
 //               if (isStillPrime[i]) {
@@ -305,7 +305,7 @@ BSLS_IDENT("$Id: $")
 //
 //       void operator()() {
 //           if (0 == d_priority) {
-//               bdlmtt::AtomicInt& rScannedTo = scannedTo[d_numToScan];
+//               bsls::AtomicInt& rScannedTo = scannedTo[d_numToScan];
 //
 //               for (int i = d_numToScan; i < d_limit; i += d_numToScan) {
 //                   isStillPrime[i] = false;
@@ -326,7 +326,7 @@ BSLS_IDENT("$Id: $")
 //           }
 //       }
 //   };
-//   bdlmtt::Mutex Functor::s_mutex;
+//   bdlqq::Mutex Functor::s_mutex;
 //..
 // and in the main program:
 //..
@@ -373,16 +373,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_multipriorityqueue.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_THREADGROUP
-#include <bdlmtt_threadgroup.h>
+#ifndef INCLUDED_BDLQQ_THREADGROUP
+#include <bdlqq_threadgroup.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -442,11 +442,11 @@ class MultipriorityThreadPool {
 
   private:
     // DATA
-    bdlmtt::Mutex      d_mutex;             // mutex for worker threads as they
+    bdlqq::Mutex      d_mutex;             // mutex for worker threads as they
                                           // analyze state, and for methods
                                           // that manipulate that state
 
-    bdlmtt::Mutex      d_metaMutex;         // mutex for '[start|stop]Threads',
+    bdlqq::Mutex      d_metaMutex;         // mutex for '[start|stop]Threads',
                                           // '[suspend|resume]Processing',
                                           // 'drainJobs'; this mutex gets
                                           // locked much less frequently than
@@ -459,41 +459,41 @@ class MultipriorityThreadPool {
     bcemt_Attribute  d_threadAttributes;  // user-supplied attributes of all
                                           // the threads this pool spawns
 
-    bdlmtt::ThreadGroup
+    bdlqq::ThreadGroup
                      d_threadGroup;       // thread group managing our threads
 
     const int        d_numThreads;        // user-supplied number of threads
                                           // to be used to process jobs
 
-    bdlmtt::AtomicInt   d_threadStartState;  // enum of type 'StartState' (local
+    bsls::AtomicInt   d_threadStartState;  // enum of type 'StartState' (local
                                           // to .cpp) regarding whether threads
                                           // are started
 
-    bdlmtt::AtomicInt   d_threadSuspendState;// enum of type 'ResumeState' (local
+    bsls::AtomicInt   d_threadSuspendState;// enum of type 'ResumeState' (local
                                           // to .cpp) regarding whether threads
                                           // are suspended
 
-    bdlmtt::AtomicInt   d_numStartedThreads; // number of threads currently
+    bsls::AtomicInt   d_numStartedThreads; // number of threads currently
                                           // started
 
-    bdlmtt::AtomicInt   d_numSuspendedThreads;
+    bsls::AtomicInt   d_numSuspendedThreads;
                                           // number of threads currently
                                           // suspended
 
-    bdlmtt::AtomicInt   d_numActiveThreads;  // number of threads currently
+    bsls::AtomicInt   d_numActiveThreads;  // number of threads currently
                                           // processing jobs
 
-    bdlmtt::Condition  d_allThreadsStartedCondition;
+    bdlqq::Condition  d_allThreadsStartedCondition;
                                           // broadcast when number of started
                                           // threads reaches 'd_numThreads',
                                           // watched during starting
 
-    bdlmtt::Condition  d_allThreadsSuspendedCondition;
+    bdlqq::Condition  d_allThreadsSuspendedCondition;
                                           // broadcast when number of started
                                           // threads reaches 'd_numThreads',
                                           // watched during starting
 
-    bdlmtt::Condition  d_resumeCondition;   // broadcast when suspended threads
+    bdlqq::Condition  d_resumeCondition;   // broadcast when suspended threads
                                           // are to resume
 
     // NOT IMPLEMENTED

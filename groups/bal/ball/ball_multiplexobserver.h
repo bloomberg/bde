@@ -130,16 +130,16 @@ BSLS_IDENT("$Id: $")
 #include <ball_observer.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_READLOCKGUARD
-#include <bdlmtt_readlockguard.h>
+#ifndef INCLUDED_BDLQQ_READLOCKGUARD
+#include <bdlqq_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_WRITELOCKGUARD
-#include <bdlmtt_writelockguard.h>
+#ifndef INCLUDED_BDLQQ_WRITELOCKGUARD
+#include <bdlqq_writelockguard.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -179,7 +179,7 @@ class MultiplexObserver : public Observer {
     // DATA
     bsl::set<Observer *> d_observerSet;  // observer registry
 
-    mutable bdlmtt::RWMutex     d_rwMutex;      // protects concurrent access
+    mutable bdlqq::RWMutex     d_rwMutex;      // protects concurrent access
                                               // to 'd_observerSet'
 
     // NOT IMPLEMENTED
@@ -267,7 +267,7 @@ MultiplexObserver::MultiplexObserver(
 inline
 int MultiplexObserver::numRegisteredObservers() const
 {
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> guard(&d_rwMutex);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_rwMutex);
     return static_cast<int>(d_observerSet.size());
 }
 }  // close package namespace

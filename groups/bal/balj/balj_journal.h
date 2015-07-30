@@ -214,7 +214,7 @@ BSLS_IDENT("$Id: $")
 // Close the journal and delete the underlying file:
 //..
 //  mX.close();
-//  bdlsu::FileUtil::remove(filename);
+//  bdlsu::FilesystemUtil::remove(filename);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -241,12 +241,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLSU_XXXFILEUTIL
-#include <bdlsu_xxxfileutil.h>
+#ifndef INCLUDED_bdlsu_filesystemutil
+#include <bdlsu_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIME
@@ -405,8 +405,8 @@ class balj_Journal {
         BAECS_RECORD_COMMITTED = 0x02
     };
 
-    typedef bdlsu::FileUtil::FileDescriptor FileDescriptor;
-    typedef bdlsu::FileUtil::Offset         Offset;
+    typedef bdlsu::FilesystemUtil::FileDescriptor FileDescriptor;
+    typedef bdlsu::FilesystemUtil::Offset         Offset;
 
     balj::MappingManager     *d_mappingManager_p;
 
@@ -416,7 +416,7 @@ class balj_Journal {
 
     unsigned                  d_mode;
 
-    bdlsu::FileUtil::Offset    d_fileSize;
+    bdlsu::FilesystemUtil::Offset    d_fileSize;
 
     FileDescriptor            d_fd;
 
@@ -430,16 +430,16 @@ class balj_Journal {
     bsl::vector<PageHandle>   d_pageSetHeaderHandles;
     bsl::vector<PageHandle>   d_pageHandles;
     mutable bsl::vector<int>  d_pageWorkIndexes;
-    mutable bdlmtt::Mutex       d_workIndexLock;
+    mutable bdlqq::Mutex       d_workIndexLock;
 
-    mutable bdlmtt::RWMutex     d_lock;
+    mutable bdlqq::RWMutex     d_lock;
 
     balj::MappingManager::PageListHandle
                               d_dirtyListHandle;
 
-    bdlsu::FileUtil::Offset    d_diskSpaceWarningThreshold;
+    bdlsu::FilesystemUtil::Offset    d_diskSpaceWarningThreshold;
 
-    bdlsu::FileUtil::Offset    d_diskSpaceErrorThreshold;
+    bdlsu::FilesystemUtil::Offset    d_diskSpaceErrorThreshold;
 
     mutable bdlma::ConcurrentPoolAllocator d_poolAllocator;
     bslma::Allocator         *d_allocator_p;
@@ -459,7 +459,7 @@ class balj_Journal {
     int growJournal(bool init);
 
     int growFile(FileDescriptor         fd,
-                 bdlsu::FileUtil::Offset size,
+                 bdlsu::FilesystemUtil::Offset size,
                  bool                   reserve);
         // Grow the file with the specified 'fd' file descriptor to the
         // specified 'size'.  Return 0 on success and a non-zero value
@@ -467,7 +467,7 @@ class balj_Journal {
         // a valid file descriptor.  If this method is successful,
         // 'd_fileSize' >= 'size'.
         // WARNING: This method MUST BE called under WRITE lock.
-    bdlsu::FileUtil::Offset getFileSize(FileDescriptor fd);
+    bdlsu::FilesystemUtil::Offset getFileSize(FileDescriptor fd);
 
     balj::JournalPageHeader* getAvailablePageHeader(
                                       unsigned *page, unsigned numPages);
@@ -635,8 +635,8 @@ class balj_Journal {
         // Validate the contents of the journal.  This method is for testing
         // only.
 
-    void setDiskSpaceLoggingThresholds(bdlsu::FileUtil::Offset warningThreshold,
-                                       bdlsu::FileUtil::Offset errorThreshold);
+    void setDiskSpaceLoggingThresholds(bdlsu::FilesystemUtil::Offset warningThreshold,
+                                       bdlsu::FilesystemUtil::Offset errorThreshold);
         // Set the minimum available space for journal growth, in bytes,
         // below which this journal object starts producing warning/error
         // messages every time the journal file is grown, to the specified

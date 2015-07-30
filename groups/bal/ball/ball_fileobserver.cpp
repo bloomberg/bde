@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 #include <ball_multiplexobserver.h>           // for testing only
 #endif
 
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_lockguard.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
@@ -88,7 +88,7 @@ FileObserver::~FileObserver()
 // MANIPULATORS
 void FileObserver::disableStdoutLoggingPrefix()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (false == d_useRegularFormatOnStdoutFlag) {
         return;                                                       // RETURN
     }
@@ -98,7 +98,7 @@ void FileObserver::disableStdoutLoggingPrefix()
 
 void FileObserver::disableUserFieldsLogging()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (false == d_userFieldsLoggingFlag) {
         return;                                                       // RETURN
     }
@@ -120,7 +120,7 @@ void FileObserver::disableUserFieldsLogging()
 
 void FileObserver::disablePublishInLocalTime()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_publishInLocalTime = false;
     d_stdoutFormatter.disablePublishInLocalTime();
     d_logFileFormatter.disablePublishInLocalTime();
@@ -134,7 +134,7 @@ void FileObserver::disablePublishInLocalTime()
 
 void FileObserver::enableStdoutLoggingPrefix()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (true == d_useRegularFormatOnStdoutFlag) {
         return;                                                       // RETURN
     }
@@ -144,7 +144,7 @@ void FileObserver::enableStdoutLoggingPrefix()
 
 void FileObserver::enableUserFieldsLogging()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (true == d_userFieldsLoggingFlag) {
         return;                                                       // RETURN
     }
@@ -166,7 +166,7 @@ void FileObserver::enableUserFieldsLogging()
 
 void FileObserver::enablePublishInLocalTime()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_publishInLocalTime = true;
     d_stdoutFormatter.enablePublishInLocalTime();
     d_logFileFormatter.enablePublishInLocalTime();
@@ -181,7 +181,7 @@ void FileObserver::enablePublishInLocalTime()
 void FileObserver::publish(const Record&  record,
                                 const Context& context)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     if (record.fixedFields().severity() <= d_stdoutThreshold) {
         bsl::ostringstream oss;
@@ -199,7 +199,7 @@ void FileObserver::publish(const Record&  record,
 void
 FileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_stdoutThreshold = stdoutThreshold;
 }
 
@@ -207,7 +207,7 @@ void
 FileObserver::setLogFormat(const char *logFileFormat,
                                 const char *stdoutFormat)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_stdoutLongFormat = stdoutFormat;
     d_logFileFormatter.setFormat(logFileFormat);
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
@@ -217,25 +217,25 @@ FileObserver::setLogFormat(const char *logFileFormat,
 // ACCESSORS
 Severity::Level FileObserver::stdoutThreshold() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_stdoutThreshold;
 }
 
 bool FileObserver::isStdoutLoggingPrefixEnabled() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_useRegularFormatOnStdoutFlag;
 }
 
 bool FileObserver::isUserFieldsLoggingEnabled() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_userFieldsLoggingFlag;
 }
 
 bool FileObserver::isPublishInLocalTimeEnabled() const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return d_publishInLocalTime;
 }
 
@@ -243,7 +243,7 @@ void
 FileObserver::getLogFormat(const char **logFileFormat,
                                 const char **stdoutFormat) const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     *logFileFormat = d_logFileFormatter.format();
     *stdoutFormat  = d_stdoutFormatter.format();
 }

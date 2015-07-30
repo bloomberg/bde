@@ -3,11 +3,11 @@
 
 #include <bdlcc_queue.h>
 #include <bslma_testallocator.h>       // for testing only
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_qlock.h>
-#include <bdlmtt_xxxthread.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_qlock.h>
+#include <bdlqq_xxxthread.h>
+#include <bsls_atomic.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -172,11 +172,11 @@ namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_13 {
 // where traffic of low priority, while massively more numerous, does not
 // impede the progress of higher priority jobs.
 
-bdlmtt::AtomicInt urgentJobsDone = 0;
-bdlmtt::AtomicInt lessUrgentJobsDone = 0;
+bsls::AtomicInt urgentJobsDone(0);
+bsls::AtomicInt lessUrgentJobsDone(0);
 
 extern "C" void *urgentJob(void *) {
-    bdlmtt::ThreadUtil::microSleep(10000);          // 10 mSec
+    bdlqq::ThreadUtil::microSleep(10000);          // 10 mSec
 
     ++urgentJobsDone;
 
@@ -184,7 +184,7 @@ extern "C" void *urgentJob(void *) {
 }
 
 extern "C" void *lessUrgentJob(void *) {
-    bdlmtt::ThreadUtil::microSleep(10000);          // 10 mSec
+    bdlqq::ThreadUtil::microSleep(10000);          // 10 mSec
 
     ++lessUrgentJobsDone;
 
@@ -220,29 +220,29 @@ enum {
 };
 
 bool isStillPrime[TOP_NUMBER];
-bdlmtt::AtomicInt scannedTo[TOP_NUMBER];   // is P is a prime, what is the
+bsls::AtomicInt scannedTo[TOP_NUMBER];   // is P is a prime, what is the
                                         // highest multiple of P that
                                         // we have marked
                                         // isStillPrime[P] = false;
 
-bdlmtt::AtomicInt maxPrimeFound;       // maximum prime we have identified
+bsls::AtomicInt maxPrimeFound;       // maximum prime we have identified
                                     // so far
 int primeNumbers[TOP_NUMBER];       // elements in the range
                                     // '0 .. numPrimeNumbers - 1' are
                                     // the prime numbers we have found
                                     // so far
-bdlmtt::AtomicInt numPrimeNumbers;
+bsls::AtomicInt numPrimeNumbers;
 
 bdlmt::MultipriorityThreadPool *threadPool;
 
 bool          doneFlag;                 // set this flag to signal
                                         // other jobs that we're done
-bdlmtt::Barrier doneBarrier(2);           // we wait on this barrier
+bdlqq::Barrier doneBarrier(2);           // we wait on this barrier
                                         // to signal the main thread
                                         // that we're done
 
 struct Functor {
-    static bdlmtt::Mutex s_mutex;
+    static bdlqq::Mutex s_mutex;
     int                d_numToScan;
     int                d_priority;
     int                d_limit;
@@ -321,7 +321,7 @@ struct Functor {
         // everything up to d_limit that has not been marked
         // nonPrime is prime
 
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&s_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&s_mutex);
 
         for (int i = maxPrimeFound + 1; d_limit > i; ++i) {
             if (isStillPrime[i]) {
@@ -341,7 +341,7 @@ struct Functor {
 
     void operator()() {
         if (0 == d_priority) {
-            bdlmtt::AtomicInt& rScannedTo = scannedTo[d_numToScan];
+            bsls::AtomicInt& rScannedTo(scannedTo[d_numToScan]);
 
             for (int i = d_numToScan; d_limit > i; i += d_numToScan) {
                 isStillPrime[i] = false;
@@ -362,7 +362,7 @@ struct Functor {
         }
     }
 };
-bdlmtt::Mutex Functor::s_mutex;
+bdlqq::Mutex Functor::s_mutex;
 
 }  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_12
 
@@ -373,14 +373,14 @@ bdlmtt::Mutex Functor::s_mutex;
 namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_11 {
 
 struct Functor {
-    bdlmtt::Barrier  *d_barrier;
-    bdlmtt::AtomicInt *d_jobsCompleted;
+    bdlqq::Barrier  *d_barrier;
+    bsls::AtomicInt *d_jobsCompleted;
     void operator()() {
         d_barrier->wait();
 
-        bdlmtt::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
-        bdlmtt::ThreadUtil::yield();
-        bdlmtt::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
+        bdlqq::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
+        bdlqq::ThreadUtil::yield();
+        bdlqq::ThreadUtil::microSleep(50 * 1000);       // 0.05 sec
 
         ++*d_jobsCompleted;
     }
@@ -408,7 +408,7 @@ struct Worker {
 
     static bdlmt::MultipriorityThreadPool *s_pool;
     static bdlcc::Queue<Worker>           *s_doneQueue;
-    static bdlmtt::AtomicInt                s_time;
+    static bsls::AtomicInt                s_time;
 
     Worker(int priority) {
         d_priority = priority;
@@ -430,12 +430,12 @@ struct Worker {
 };
 bdlmt::MultipriorityThreadPool *Worker::s_pool = 0;
 bdlcc::Queue<Worker>           *Worker::s_doneQueue = 0;
-bdlmtt::AtomicInt Worker::s_time = 0;
+bsls::AtomicInt Worker::s_time(0);
 
 struct ProducerThread {
     int                   d_workersPerProducer;
 
-    static bdlmtt::Barrier *s_barrier;
+    static bdlqq::Barrier *s_barrier;
 
     ProducerThread(int workersPerProducer)
     : d_workersPerProducer(workersPerProducer) {}
@@ -453,15 +453,15 @@ struct ProducerThread {
         }
 
         if (veryVerbose && d_workersPerProducer - i) {
-            static bdlmtt::Mutex mutex;
-            bdlmtt::LockGuard<bdlmtt::Mutex> lock(&mutex);
+            static bdlqq::Mutex mutex;
+            bdlqq::LockGuard<bdlqq::Mutex> lock(&mutex);
 
             cout << "Aborted with " << d_workersPerProducer - i <<
                                                     " submissions to go\n";
         }
     }
 };
-bdlmtt::Barrier *ProducerThread::s_barrier = 0;
+bdlqq::Barrier *ProducerThread::s_barrier = 0;
 
 }  // close namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_10
 
@@ -473,8 +473,8 @@ namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_8 {
 
 bool veryVerboseCase8;
 
-bdlmtt::Barrier barrier2(2);
-bdlmtt::Barrier barrier8(8);
+bdlqq::Barrier barrier2(2);
+bdlqq::Barrier barrier8(8);
 
 struct BlockFunctor {
     void operator()() {
@@ -482,16 +482,16 @@ struct BlockFunctor {
         barrier8.wait();
 
 #if 0
-        static bdlmtt::Mutex *mutex_p;
-        BDLMTT_ONCE_DO {
-            static bdlmtt::Mutex mutex;
+        static bdlqq::Mutex *mutex_p;
+        BDLQQ_ONCE_DO {
+            static bdlqq::Mutex mutex;
             mutex_p = &mutex;
         }
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(mutex_p);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(mutex_p);
 #endif
 
-        static bdlmtt::QLock mutex = BDLMTT_QLOCK_INITIALIZER;
-        bdlmtt::QLockGuard guard(&mutex);
+        static bdlqq::QLock mutex = BDLQQ_QLOCK_INITIALIZER;
+        bdlqq::QLockGuard guard(&mutex);
 
         if (veryVerboseCase8) cout << "Thread finishing\n";
     }
@@ -507,7 +507,7 @@ struct BlockFunctor {
 namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5 {
 
 long resultsVec[100];
-bdlmtt::AtomicInt resultsVecIdx;
+bsls::AtomicInt resultsVecIdx;
 
 extern "C" void *pushInt(void *arg)
 {
@@ -558,7 +558,7 @@ void checkOutPool(bdlmt::MultipriorityThreadPool *pool) {
             pool->enqueueJob(&pushInt, (void *) (i * i), 1);
         }
         ASSERT(0 == pool->numActiveThreads());
-        bdlmtt::ThreadUtil::microSleep(10 * 1000);
+        bdlqq::ThreadUtil::microSleep(10 * 1000);
         LOOP_ASSERT(pool->numPendingJobs(), 10 == pool->numPendingJobs());
         pool->removeJobs();
     }
@@ -578,7 +578,7 @@ long counter;
 
 extern "C" void *sleepAndAmassCounterBy(void *arg)
 {
-    bdlmtt::ThreadUtil::microSleep(50 * 1000);    // 50 mSeconds
+    bdlqq::ThreadUtil::microSleep(50 * 1000);    // 50 mSeconds
 
     counter += (char *) arg - (char *) 0;
     counter *= counter;
@@ -608,7 +608,7 @@ extern "C" void *amassCounterBy(void *arg)
 }
 
 extern "C" void *waiter(void *arg) {
-    static_cast<bdlmtt::Barrier *>(arg)->wait();
+    static_cast<bdlqq::Barrier *>(arg)->wait();
 
     return 0;
 }
@@ -621,7 +621,7 @@ extern "C" void *waiter(void *arg) {
 
 namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_1 {
 
-bdlmtt::AtomicInt counter;
+bsls::AtomicInt counter;
 
 extern "C" void *incCounter(void *)
 {
@@ -682,7 +682,7 @@ int main(int argc, char *argv[])
             pool.enqueueJob(&urgentJob, (void *) 0, 0); // urgent priority
         }
 
-        bdlmtt::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
+        bdlqq::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
         pool.shutdown();
 
         if (verbose) {
@@ -779,8 +779,8 @@ int main(int argc, char *argv[])
             ATTRIB_JOINABLE
         };
 
-        bdlmtt::Barrier barrier(NUM_THREADS + 1);
-        bdlmtt::AtomicInt jobsCompleted;
+        bdlqq::Barrier barrier(NUM_THREADS + 1);
+        bsls::AtomicInt jobsCompleted;
 
         Functor functor;
 
@@ -867,15 +867,15 @@ int main(int argc, char *argv[])
                                                                           &ta);
         Worker::s_pool = &pool;
 
-        bdlmtt::Barrier barrier(NUM_PRODUCER_THREADS + 1);
+        bdlqq::Barrier barrier(NUM_PRODUCER_THREADS + 1);
         ProducerThread::s_barrier = &barrier;
 
-        bdlmtt::ThreadUtil::Handle handles[NUM_PRODUCER_THREADS];
+        bdlqq::ThreadUtil::Handle handles[NUM_PRODUCER_THREADS];
 
         for (int i = 0; NUM_PRODUCER_THREADS > i; ++i) {
             ProducerThread producer(NUM_WORKERS_PER_PRODUCER);
 
-            bdlmtt::ThreadUtil::create(&handles[i], producer);
+            bdlqq::ThreadUtil::create(&handles[i], producer);
         }
 
         pool.startThreads();
@@ -888,7 +888,7 @@ int main(int argc, char *argv[])
         double startTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
 
         for (int i = 0; NUM_PRODUCER_THREADS > i; ++i) {
-            bdlmtt::ThreadUtil::join(handles[i]);
+            bdlqq::ThreadUtil::join(handles[i]);
         }
         pool.drainJobs();
         pool.stopThreads();
@@ -1235,8 +1235,8 @@ int main(int argc, char *argv[])
                     break;
                 }
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(pool.isStarted());
                 ASSERT(pool.isSuspended());
@@ -1246,8 +1246,8 @@ int main(int argc, char *argv[])
 
                 pool.stopThreads();
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(!pool.isStarted());
                 ASSERT(pool.isSuspended());
@@ -1257,8 +1257,8 @@ int main(int argc, char *argv[])
 
                 pool.resumeProcessing();
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(!pool.isStarted());
                 ASSERT(!pool.isSuspended());
@@ -1268,8 +1268,8 @@ int main(int argc, char *argv[])
 
                 pool.suspendProcessing();
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(!pool.isStarted());
                 ASSERT(pool.isSuspended());
@@ -1294,8 +1294,8 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(0 == pool.startThreads());
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(pool.isStarted());
                 ASSERT(pool.isSuspended());
@@ -1306,8 +1306,8 @@ int main(int argc, char *argv[])
                 pool.stopThreads();
                 pool.stopThreads();
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(!pool.isStarted());
                 ASSERT(pool.isSuspended());
@@ -1318,8 +1318,8 @@ int main(int argc, char *argv[])
                 pool.resumeProcessing();
                 pool.resumeProcessing();
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(!pool.isStarted());
                 ASSERT(!pool.isSuspended());
@@ -1330,8 +1330,8 @@ int main(int argc, char *argv[])
                 pool.suspendProcessing();
                 pool.suspendProcessing();
 
-                bdlmtt::ThreadUtil::yield();
-                bdlmtt::ThreadUtil::microSleep(10 * 1000);
+                bdlqq::ThreadUtil::yield();
+                bdlqq::ThreadUtil::microSleep(10 * 1000);
 
                 ASSERT(!pool.isStarted());
                 ASSERT(pool.isSuspended());
@@ -1716,7 +1716,7 @@ int main(int argc, char *argv[])
         static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
         const int incByLength = sizeof incBy / sizeof incBy[0];
 
-        bdlmtt::Barrier barrier(2);
+        bdlqq::Barrier barrier(2);
         bdlmt::MultipriorityThreadPool pool(1 /* threads */, 1 /* priorities */,
                                                                           &ta);
 
@@ -1775,7 +1775,7 @@ int main(int argc, char *argv[])
         static long incBy[] = { 473, 9384, 273, 132, 182, 191, 282, 934 };
         const int incByLength = sizeof incBy / sizeof incBy[0];
 
-        bdlmtt::Barrier barrier(2);
+        bdlqq::Barrier barrier(2);
         bdlmt::MultipriorityThreadPool pool(1 /* threads */, 1 /* priorities */,
                                                                           &ta);
 
@@ -1847,8 +1847,8 @@ int main(int argc, char *argv[])
             ASSERT(!pool->enqueueJob(&incCounter, 0, 0));
             ASSERT(!pool->enqueueJob(&incCounter, 0, 0));
 
-            bdlmtt::ThreadUtil::yield();
-            bdlmtt::ThreadUtil::microSleep(100 * 1000);       // 0.1 seconds
+            bdlqq::ThreadUtil::yield();
+            bdlqq::ThreadUtil::microSleep(100 * 1000);       // 0.1 seconds
 
             LOOP_ASSERT(counter, 5 == counter);
 

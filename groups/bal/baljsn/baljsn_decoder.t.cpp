@@ -17,7 +17,7 @@
 #include <bdlb_printmethods.h>  // for printing vector
 #include <bdlb_chartype.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 
 // These header are for testing only and the hierarchy level of baejsn was
 // increase because of them.  They should be remove when possible.
@@ -37562,16 +37562,16 @@ int main(int argc, char *argv[])
         threadData.d_veryVerbose   = veryVerbose;
 
         const int NUM_THREADS = 20;
-        bdlmtt::ThreadUtil::Handle handles[NUM_THREADS];
+        bdlqq::ThreadUtil::Handle handles[NUM_THREADS];
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlmtt::ThreadUtil::create(&handles[i],
+            ASSERT(0 == bdlqq::ThreadUtil::create(&handles[i],
                                                  &threadFunction,
                                                  &threadData));
         }
         
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlmtt::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
         }
       } break;
       case 4: {

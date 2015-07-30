@@ -102,8 +102,8 @@ BSLS_IDENT("$Id: $")
 #include <balm_publicationtype.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BDLB_CSTRINGLESS
@@ -243,7 +243,7 @@ class baem_MetricRegistry {
 
     int                    d_nextKey;        // next valid user data key
 
-    mutable bdlmtt::RWMutex  d_lock;           // read-write property lock
+    mutable bdlqq::RWMutex  d_lock;           // read-write property lock
 
     bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
 

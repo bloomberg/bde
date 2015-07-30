@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balm_publicationscheduler_cpp,"$Id$ $CSID$")
 
 #include <balm_metricsmanager.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 #include <bdlmt_timereventscheduler.h>
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
@@ -103,7 +103,7 @@ class PublicationScheduler_ClockData {
     // object supplied to 'bdlmt::TimerEventScheduler::startClock'.
 
     // DATA
-    bdlmtt::Mutex                d_mutex;       // synchronize access to data
+    bdlqq::Mutex                d_mutex;       // synchronize access to data
 
     bdlmt::TimerEventScheduler::Handle
                                d_handle;      // handle to the associated clock
@@ -143,8 +143,8 @@ class PublicationScheduler_ClockData {
         // Destroy this 'ClockData' object.
 
     // MANIPULATORS
-    bdlmtt::Mutex *mutex();
-        // Return the address of the modifiable 'bdlmtt::Mutex' used to
+    bdlqq::Mutex *mutex();
+        // Return the address of the modifiable 'bdlqq::Mutex' used to
         // synchronize access to the properties of this object.  Note that
         // access to 'handle()' does not need to be synchronized because
         // 'handle()' is only modified or accessed by the
@@ -192,7 +192,7 @@ PublicationScheduler_ClockData::~PublicationScheduler_ClockData()
 
 // MANIPULATORS
 inline
-bdlmtt::Mutex *PublicationScheduler_ClockData::mutex()
+bdlqq::Mutex *PublicationScheduler_ClockData::mutex()
 {
     return &d_mutex;
 }
@@ -327,7 +327,7 @@ void PublicationScheduler::publish(bsl::shared_ptr<ClockData> clockData)
     // (if 'clockData->defaultClock()' is 'false') this operation will publish
     // 'clockData->categories()'.
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(clockData->mutex());
+    bdlqq::LockGuard<bdlqq::Mutex> guard(clockData->mutex());
     if (clockData->defaultClock()) {
         d_manager_p->publishAll(clockData->nonDefaultCategories());
     }
@@ -350,7 +350,7 @@ void PublicationScheduler::cancelCategory(Categories::iterator categoryIt)
     d_categories.erase(categoryIt);
     bsl::shared_ptr<ClockData> clock = clockIt->second;
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(clock->mutex());
+        bdlqq::LockGuard<bdlqq::Mutex> guard(clock->mutex());
         BSLS_ASSERT(clock->categories().end() !=
                        clock->categories().find(category));
         clock->categories().erase(category);
@@ -375,7 +375,7 @@ void PublicationScheduler::cancelCategory(Categories::iterator categoryIt)
             BSLS_ASSERT(d_clocks.end() != dfltIt);
 
             bsl::shared_ptr<ClockData>& defaultClock = dfltIt->second;
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(defaultClock->mutex());
+            bdlqq::LockGuard<bdlqq::Mutex> guard(defaultClock->mutex());
             defaultClock->nonDefaultCategories().erase(category);
         }
     }
@@ -409,7 +409,7 @@ int PublicationScheduler::cancelDefaultSchedule()
         d_clocks.erase(clockIt);
     }
     else {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(clock->mutex());
+        bdlqq::LockGuard<bdlqq::Mutex> guard(clock->mutex());
         clock->defaultClock() = false;
         clock->nonDefaultCategories().clear();
     }
@@ -450,7 +450,7 @@ void PublicationScheduler::scheduleCategory(
 
     BSLS_ASSERT(bsls::TimeInterval(0, 0) < interval);
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     Categories::iterator catIt = d_categories.find(category);
     if (catIt != d_categories.end()) {
@@ -477,7 +477,7 @@ void PublicationScheduler::scheduleCategory(
         clock.createInplace(d_allocator_p, d_allocator_p);
         clock->categories().insert(category);
         d_clocks.insert(bsl::make_pair(interval, clock));
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(clock->mutex());
+        bdlqq::LockGuard<bdlqq::Mutex> guard(clock->mutex());
         clock->handle() = d_scheduler_p->startClock(
                      interval,
                      bdlf::BindUtil::bindA(d_allocator_p,
@@ -487,7 +487,7 @@ void PublicationScheduler::scheduleCategory(
     }
     else {
         clock = clockIt->second;
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(clock->mutex());
+        bdlqq::LockGuard<bdlqq::Mutex> guard(clock->mutex());
         clock->categories().insert(category);
     }
 
@@ -500,7 +500,7 @@ void PublicationScheduler::scheduleCategory(
         BSLS_ASSERT(d_clocks.end() != dfltIt);
 
         bsl::shared_ptr<ClockData>& defaultClock = dfltIt->second;
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(defaultClock->mutex());
+        bdlqq::LockGuard<bdlqq::Mutex> guard(defaultClock->mutex());
         defaultClock->nonDefaultCategories().insert(category);
     }
 
@@ -518,7 +518,7 @@ void PublicationScheduler::setDefaultSchedule(
 
     BSLS_ASSERT(bsls::TimeInterval(0, 0) < interval);
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     // If 'interval' equals the existing default schedule interval, return
     // immediately.
@@ -545,7 +545,7 @@ void PublicationScheduler::setDefaultSchedule(
         clock = clockIt->second;
     }
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> clockGuard(clock->mutex());
+    bdlqq::LockGuard<bdlqq::Mutex> clockGuard(clock->mutex());
     clock->defaultClock() = true;
 
     // Iterate over the map of scheduled categories 'd_categories', adding any
@@ -576,7 +576,7 @@ void PublicationScheduler::setDefaultSchedule(
 int PublicationScheduler::cancelCategorySchedule(
                                                  const Category *category)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     Categories::iterator cIt = d_categories.find(category);
     if (cIt == d_categories.end()) {
@@ -590,7 +590,7 @@ int PublicationScheduler::cancelCategorySchedule(
 
 void PublicationScheduler::cancelAll()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     Clocks::iterator it = d_clocks.begin();
     for (; it != d_clocks.end(); ++it) {
         d_scheduler_p->cancelClock(it->second->handle(), true);
@@ -602,7 +602,7 @@ void PublicationScheduler::cancelAll()
 
 int PublicationScheduler::clearDefaultSchedule()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return cancelDefaultSchedule();
 }
 
@@ -612,7 +612,7 @@ PublicationScheduler::findCategorySchedule(
                                          bsls::TimeInterval   *result,
                                          const Category *category) const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     Categories::const_iterator catIt = d_categories.find(category);
     if (catIt == d_categories.end()) {
         return false;
@@ -624,7 +624,7 @@ PublicationScheduler::findCategorySchedule(
 bool
 PublicationScheduler::getDefaultSchedule(bsls::TimeInterval *result) const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (d_defaultInterval == INVALID_INTERVAL()) {
         return false;
     }
@@ -636,7 +636,7 @@ int PublicationScheduler::getCategorySchedule(
                       bsl::vector<bsl::pair<const Category *,
                                            bsls::TimeInterval> > *result) const
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     result->clear();
     result->reserve(d_categories.size());
     Categories::const_iterator catIt = d_categories.begin();
@@ -658,7 +658,7 @@ PublicationScheduler::print(bsl::ostream&   stream,
     typedef bsl::pair<const Category *,bsls::TimeInterval> ScheduleElement;
     typedef bsl::vector<ScheduleElement>                       Schedule;
 
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
     Schedule schedule;
     Categories::const_iterator catIt = d_categories.begin();

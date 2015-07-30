@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // Since the functions in 'dbghelp.dll' are *not* thread-safe, this class
-// provides a static mutex (of type 'bdlmtt::QLock') which must be acquired
+// provides a static mutex (of type 'bdlqq::QLock') which must be acquired
 // before any of the '.dll'-invoking methods of this function are called.  In
 // multithreaded code, the mutex lock must be locked before any of the methods
 // other than 'isLoaded' or 'qLock' are called.  The library is loaded on a
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //..
 // First, we lock the mutex:
 //..
-//  bdlmtt::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
+//  bdlqq::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
 //..
 // Next, we set the options for the 'dbghelp.dll' library.  Note that any call
 // to any of the functions in 'balst::DbghelpDllImpl_Windows' other than 'qlock'
@@ -112,8 +112,8 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-#ifndef INCLUDED_BDLMTT_QLOCK
-#include <bdlmtt_qlock.h>
+#ifndef INCLUDED_BDLQQ_QLOCK
+#include <bdlqq_qlock.h>
 #endif
 
 #ifndef INCLUDED_WINDOWS
@@ -155,7 +155,7 @@ class DbghelpDllImpl_Windows {
     // invoking any other methods of this class.
 
     // DATA
-    static bdlmtt::QLock s_qLock;  // mutex to synchronize access to '.dll'
+    static bdlqq::QLock s_qLock;  // mutex to synchronize access to '.dll'
                                  // functions, which are not *thread* *safe*
 
   public:
@@ -164,7 +164,7 @@ class DbghelpDllImpl_Windows {
         // Return 'true' if 'dbghelp.dll' has already been successfully loaded
         // in this process, and 'false' otherwise.  For testing only.
 
-    static bdlmtt::QLock& qLock();
+    static bdlqq::QLock& qLock();
         // Return a reference providing modifiable access to static mutex
         // provided for synchronizing access to the 'dbghelp.dll' shared
         // library.
@@ -274,7 +274,7 @@ class DbghelpDllImpl_Windows {
 
 // CLASS METHODS
 inline
-bdlmtt::QLock& DbghelpDllImpl_Windows::qLock()
+bdlqq::QLock& DbghelpDllImpl_Windows::qLock()
 {
     return s_qLock;
 }

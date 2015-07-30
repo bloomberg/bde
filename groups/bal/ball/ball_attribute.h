@@ -83,10 +83,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_variant.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -174,7 +170,7 @@ class Attribute {
         // valid while in use by any 'Attribute' object.
 
     Attribute(const char             *name,
-                   const bdlb::StringRef&  value,
+                   const bslstl::StringRef&  value,
                    bslma::Allocator       *basicAllocator = 0 );
         // Create a 'Attribute' object having the specified (literal)
         // 'name' and (character string)'value'.  Optionally specify a
@@ -217,7 +213,7 @@ class Attribute {
     void setValue(const Value& value);
     void setValue(int value);
     void setValue(bsls::Types::Int64 value);
-    void setValue(const bdlb::StringRef& value);
+    void setValue(const bslstl::StringRef& value);
         // Set the attribute value of this object to the specified 'value'.
 
     // ACCESSORS
@@ -293,7 +289,7 @@ Attribute::Attribute(const char         *name,
 
 inline
 Attribute::Attribute(const char             *name,
-                               const bdlb::StringRef&  value,
+                               const bslstl::StringRef&  value,
                                bslma::Allocator       *basicAllocator)
 : d_name(name)
 , d_value(basicAllocator)
@@ -367,7 +363,7 @@ void Attribute::setValue(bsls::Types::Int64 value)
 }
 
 inline
-void Attribute::setValue(const bdlb::StringRef& value)
+void Attribute::setValue(const bslstl::StringRef& value)
 {
     d_value.assign(bsl::string(value.data(), value.length()));
     d_hashValue = -1;

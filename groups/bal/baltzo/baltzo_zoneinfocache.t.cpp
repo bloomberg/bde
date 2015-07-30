@@ -11,9 +11,9 @@
 #include <ball_severity.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_threadutil.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bdlqq_threadutil.h>
+#include <bdlqq_barrier.h>
+#include <bsls_atomic.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -86,7 +86,7 @@ using namespace std;
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static bdlmtt::AtomicInt testStatus = 0;
+static bsls::AtomicInt testStatus(0);
 static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
@@ -146,20 +146,20 @@ const int U = baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID;
 //-----------------------------------------------------------------------------
 
 void executeInParallel(int                               numThreads,
-                       bdlmtt::ThreadUtil::ThreadFunction  func,
+                       bdlqq::ThreadUtil::ThreadFunction  func,
                        void                             *threadArgs)
    // Create the specified 'numThreads', each executing the specified 'func'
    // on the specified 'threadArgs'.
 {
-    bdlmtt::ThreadUtil::Handle *threads =
-                                      new bdlmtt::ThreadUtil::Handle[numThreads];
+    bdlqq::ThreadUtil::Handle *threads =
+                                      new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::create(&threads[i], func, threadArgs);
+        bdlqq::ThreadUtil::create(&threads[i], func, threadArgs);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlmtt::ThreadUtil::join(threads[i]);
+        bdlqq::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -171,7 +171,7 @@ class ConcurrencyCounterGuard {
     // and is destroyed.   If the counter is greater than 1 after being
     // incremented on construction, the guard will assert.
 
-    bdlmtt::AtomicInt *d_counter;
+    bsls::AtomicInt *d_counter;
 
   private:
     // NOT IMPLEMENTED
@@ -180,7 +180,7 @@ class ConcurrencyCounterGuard {
 
   public:
 
-    explicit ConcurrencyCounterGuard(bdlmtt::AtomicInt *concurrenyCallCounter)
+    explicit ConcurrencyCounterGuard(bsls::AtomicInt *concurrenyCallCounter)
         // Increment the specified 'concurrentCallCounter' and assert if the
         // resulting count is greater than 1.
     : d_counter(concurrenyCallCounter)
@@ -213,7 +213,7 @@ class TestDriverTestLoader : public baltzo::Loader {
     bsl::string       d_lastRequestedTimeZone;
                                       // most recently requested time zone id
 
-    bdlmtt::AtomicInt    d_concurrentCallCount;
+    bsls::AtomicInt    d_concurrentCallCount;
                                       // number of concurrent function calls
                                       // currently being made to 'loadTimeZone'
                                       // (must be <= 1).
@@ -377,7 +377,7 @@ int TestDriverTestLoader::loadTimeZone(baltzo::Zoneinfo *result,
     d_lastRequestedTimeZone = timeZoneId;
 
     if (d_delayMicroseconds > 0) {
-        bdlmtt::ThreadUtil::microSleep(d_delayMicroseconds); }
+        bdlqq::ThreadUtil::microSleep(d_delayMicroseconds); }
 
     TimeZoneMap::const_iterator it = d_timeZones.find(timeZoneId);
 
@@ -410,36 +410,36 @@ struct TimeZoneData {
         const char *d_abbrev;     // abbreviation for descriptor, or 0 for
                                   // invalid time zones
 
-        bdlmtt::AtomicPointer<const Zone>
+        bsls::AtomicPointer<const Zone>
                     d_expectedAddress_p;
                                   // expected cache address of this id
 } VALUES[] = {
-    { L_,  "ID_A",  1, true,  "A" , 0 },
-    { L_,  "ID_B",  2, false, "B" , 0 },
-    { L_,  "ID_C",  3, true,  0   , 0 },
-    { L_,  "ID_D",  4, false, "A" , 0 },
-    { L_,  "ID_E",  5, true,  "B" , 0 },
-    { L_,  "ID_F",  6, false, 0   , 0 },
-    { L_,  "ID_G",  7, true,  "A" , 0 },
-    { L_,  "ID_H",  8, true,  "A" , 0 },
-    { L_,  "ID_I",  9, false, "B" , 0 },
-    { L_,  "ID_J", 10, true,  0   , 0 },
-    { L_,  "ID_K", 11, false, "A" , 0 },
-    { L_,  "ID_L", 12, true,  "B" , 0 },
-    { L_,  "ID_M", 13, false, 0   , 0 },
-    { L_,  "ID_N", 14, true,  "A" , 0 }
+    { L_,  "ID_A",  1, true,  "A" },
+    { L_,  "ID_B",  2, false, "B" },
+    { L_,  "ID_C",  3, true,  0   },
+    { L_,  "ID_D",  4, false, "A" },
+    { L_,  "ID_E",  5, true,  "B" },
+    { L_,  "ID_F",  6, false, 0   },
+    { L_,  "ID_G",  7, true,  "A" },
+    { L_,  "ID_H",  8, true,  "A" },
+    { L_,  "ID_I",  9, false, "B" },
+    { L_,  "ID_J", 10, true,  0   },
+    { L_,  "ID_K", 11, false, "A" },
+    { L_,  "ID_L", 12, true,  "B" },
+    { L_,  "ID_M", 13, false, 0   },
+    { L_,  "ID_N", 14, true,  "A" }
 };
 const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
 struct ThreadData {
     Obj           *d_cache_p;    // cache under test
-    bdlmtt::Barrier *d_barrier_p;  // testing barrier
+    bdlqq::Barrier *d_barrier_p;  // testing barrier
 };
 
 extern "C" void *workerThread(void *arg)
 {
     ThreadData *p = (ThreadData*)arg;
-    bdlmtt::Barrier& barrier = *p->d_barrier_p;
+    bdlqq::Barrier& barrier = *p->d_barrier_p;
 
     Obj &mX = *p->d_cache_p; const Obj &X = mX;
 
@@ -450,13 +450,13 @@ extern "C" void *workerThread(void *arg)
         // Add all the test values to the cache.
 
         const char *ID = VALUES[i].d_id;
-        bdlmtt::AtomicPointer<const Zone>& addr = VALUES[i].d_expectedAddress_p;
+        bsls::AtomicPointer<const Zone>& addr(VALUES[i].d_expectedAddress_p);
 
         // 'result' should either be 0, or the previously returned value (*IF*
         // the previously returned value has been set).
 
         const Zone *result   = X.lookupZoneinfo(ID);
-        const Zone *EXPECTED = addr.relaxedLoad();
+        const Zone *EXPECTED = addr.loadRelaxed();
         ASSERT(0 == result || EXPECTED == 0 || EXPECTED == result);
 
         result = mX.getZoneinfo(ID);
@@ -473,7 +473,7 @@ extern "C" void *workerThread(void *arg)
     for (int testRun = 0; testRun < 5; ++testRun) {
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *ID       = VALUES[i].d_id;
-            const Zone *EXPECTED = VALUES[i].d_expectedAddress_p.relaxedLoad();
+            const Zone *EXPECTED = VALUES[i].d_expectedAddress_p.loadRelaxed();
             ASSERT(EXPECTED == X.lookupZoneinfo(ID));
             ASSERT(EXPECTED == mX.getZoneinfo(ID));
             ASSERT(EXPECTED == X.lookupZoneinfo(ID));
@@ -816,7 +816,7 @@ int main(int argc, char *argv[])
             NUM_THREADS = 5
         };
 
-        bdlmtt::Barrier barrier(NUM_THREADS);
+        bdlqq::Barrier barrier(NUM_THREADS);
         Obj mX(&testLoader, &testAllocator); const Obj& X = mX;
         ThreadData args = { &mX, &barrier };
         executeInParallel(NUM_THREADS, workerThread, &args);

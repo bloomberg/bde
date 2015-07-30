@@ -193,12 +193,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typecategory.h>
 #endif
 
-#ifndef INCLUDED_BDLPUXXX_ISO8601
-#include <bdlpuxxx_iso8601.h>
-#endif
-
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BDLT_ISO8601UTIL
+#include <bdlt_iso8601util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -394,7 +390,7 @@ struct TypesPrintUtil_Imp {
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printBase64(
@@ -606,7 +602,7 @@ struct TypesPrintUtil_Imp {
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
@@ -663,7 +659,7 @@ struct TypesPrintUtil_Imp {
                                   const EncoderOptions *encoderOptions,
                                   bdeat_TypeCategory::Simple);
     static bsl::ostream& printHex(bsl::ostream&                stream,
-                                  const bdlb::StringRef&       object,
+                                  const bslstl::StringRef&       object,
                                   const EncoderOptions *encoderOptions,
                                   bdeat_TypeCategory::Simple);
     static bsl::ostream& printHex(bsl::ostream&                stream,
@@ -731,7 +727,7 @@ struct TypesPrintUtil_Imp {
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
@@ -1587,7 +1583,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple)
 {
@@ -1604,7 +1600,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1614,7 +1610,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1624,7 +1620,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1634,7 +1630,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                         const EncoderOptions *,
                                         bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1644,7 +1640,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1654,7 +1650,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline

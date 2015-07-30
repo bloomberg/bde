@@ -3,8 +3,8 @@
 
 #include <ball_log.h>
 
-#include <bdlmtt_readlockguard.h>
-#include <bdlmtt_writelockguard.h>
+#include <bdlqq_readlockguard.h>
+#include <bdlqq_writelockguard.h>
 
 #include <bslma_default.h>
 #include <bsls_assert.h>
@@ -66,7 +66,7 @@ int ControlManager::registerHandler(
         const bsl::string&                         description,
         const ControlManager::ControlHandler& handler)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_registryMutex);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_registryMutex);
 
     int rc = 0;
     ControlManager_Entry entry(handler, arguments, description);
@@ -85,7 +85,7 @@ int ControlManager::registerHandler(
 
 int ControlManager::deregisterHandler(const bsl::string& prefix)
 {
-    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> guard(&d_registryMutex);
+    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_registryMutex);
 
     return (0 == d_registry.erase(prefix));
 }
@@ -101,7 +101,7 @@ int ControlManager::dispatchMessage(const bsl::string& message) const
 
     messageStream >> token;
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> registryGuard(&d_registryMutex);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> registryGuard(&d_registryMutex);
     Registry::const_iterator it = d_registry.find(token);
 
     if (it != d_registry.end()) {
@@ -122,7 +122,7 @@ int ControlManager::dispatchMessage(
     BALL_LOG_TRACE << "Dispatching control message '" << prefix << "'"
                    << BALL_LOG_END;
 
-    bdlmtt::ReadLockGuard<bdlmtt::RWMutex> registryGuard(&d_registryMutex);
+    bdlqq::ReadLockGuard<bdlqq::RWMutex> registryGuard(&d_registryMutex);
     Registry::const_iterator it = d_registry.find(prefix);
 
     if (it != d_registry.end()) {

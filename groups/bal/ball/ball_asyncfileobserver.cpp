@@ -12,7 +12,7 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <ball_multiplexobserver.h>           // for testing only
 #endif
 
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -81,7 +81,7 @@ void AsyncFileObserver::publishThreadEntryPoint()
 {
     bool done = false;
     d_droppedRecordWarning.fixedFields().setThreadID(
-                                          bdlmtt::ThreadUtil::selfIdAsUint64());
+                                          bdlqq::ThreadUtil::selfIdAsUint64());
 
     while (!done) {
         AsyncRecord asyncRecord = d_recordQueue.popFront();
@@ -121,9 +121,9 @@ void AsyncFileObserver::publishThreadEntryPoint()
 
 int AsyncFileObserver::startThread()
 {
-    if (bdlmtt::ThreadUtil::invalidHandle() == d_threadHandle) {
-        bdlmtt::ThreadAttributes attr;
-        return bdlmtt::ThreadUtil::create(&d_threadHandle,
+    if (bdlqq::ThreadUtil::invalidHandle() == d_threadHandle) {
+        bdlqq::ThreadAttributes attr;
+        return bdlqq::ThreadUtil::create(&d_threadHandle,
                                         attr,
                                         d_publishThreadEntryPoint);   // RETURN
     }
@@ -132,7 +132,7 @@ int AsyncFileObserver::startThread()
 
 int AsyncFileObserver::stopThread()
 {
-    if (bdlmtt::ThreadUtil::invalidHandle() != d_threadHandle) {
+    if (bdlqq::ThreadUtil::invalidHandle() != d_threadHandle) {
         // Push an empty record with BAEL_END set in context.
 
         AsyncRecord asyncRecord;
@@ -144,8 +144,8 @@ int AsyncFileObserver::stopThread()
         asyncRecord.d_context = context;
         d_recordQueue.pushBack(asyncRecord);
 
-        int ret = bdlmtt::ThreadUtil::join(d_threadHandle);
-        d_threadHandle = bdlmtt::ThreadUtil::invalidHandle();
+        int ret = bdlqq::ThreadUtil::join(d_threadHandle);
+        d_threadHandle = bdlqq::ThreadUtil::invalidHandle();
         return ret;                                                   // RETURN
     }
     return 0;
@@ -171,7 +171,7 @@ int AsyncFileObserver::shutdownThread()
 
 void AsyncFileObserver::construct()
 {
-    d_threadHandle     = bdlmtt::ThreadUtil::invalidHandle();
+    d_threadHandle     = bdlqq::ThreadUtil::invalidHandle();
     d_shuttingDownFlag = 0;
     d_dropCount        = 0;
 
@@ -257,7 +257,7 @@ AsyncFileObserver::~AsyncFileObserver()
 // MANIPULATORS
 void AsyncFileObserver::releaseRecords()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     if (isPublicationThreadRunning()) {
         shutdownThread();
         startThread();
@@ -286,19 +286,19 @@ void AsyncFileObserver::publish(
 
 int AsyncFileObserver::startPublicationThread()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return startThread();
 }
 
 int AsyncFileObserver::stopPublicationThread()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return stopThread();
 }
 
 int AsyncFileObserver::shutdownPublicationThread()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     return shutdownThread();
 }
 }  // close package namespace

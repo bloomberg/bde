@@ -123,7 +123,7 @@ BSLS_IDENT("$Id: $")
 // method to store the value of a variable into an array, and set up a
 // scheduler to call that as a recurring event.
 //..
-//   bdlmtt::AtomicInt  g_data;  // Some global data we want to track
+//   bsls::AtomicInt  g_data;  // Some global data we want to track
 //   typedef pair<bdlt::Datetime, int> Value;
 //
 //   void saveData(vector<Value> *array)
@@ -282,20 +282,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_skiplist.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_CONDITION
-#include <bdlmtt_condition.h>
+#ifndef INCLUDED_BDLQQ_CONDITION
+#include <bdlqq_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
-#include <bdlmtt_threadattributes.h>
+#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
+#include <bdlqq_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_THREADUTIL
-#include <bdlmtt_threadutil.h>
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -324,18 +324,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDLMCA_POOL
-#include <bdlmca_pool.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>
-#endif
-
 #endif
 
 namespace BloombergLP {
@@ -399,19 +387,19 @@ class EventScheduler {
 
     Dispatcher            d_dispatcherFunctor;  // dispatch events
 
-    bdlmtt::ThreadUtil::Handle
+    bdlqq::ThreadUtil::Handle
                           d_dispatcherThread;   // dispatcher thread handle
 
-    bdlmtt::Mutex           d_mutex;              // synchronizes access to
+    bdlqq::Mutex           d_mutex;              // synchronizes access to
                                                 // condition variables
 
-    bdlmtt::Condition       d_queueCondition;     // condition variable used to
+    bdlqq::Condition       d_queueCondition;     // condition variable used to
                                                 // signal when the queues need
                                                 // to be checked again (when
                                                 // they become non-empty or get
                                                 // a new front member)
 
-    bdlmtt::Condition       d_iterationCondition; // condition variable used to
+    bdlqq::Condition       d_iterationCondition; // condition variable used to
                                                 // signal when the dispatcher
                                                 // is ready to enter next
                                                 // iteration (synchronizes
@@ -668,7 +656,7 @@ class EventScheduler {
         // before it is destroyed.  Note that any events scheduled in the past
         // will be dispatched immediately upon starting.
 
-    int start(const bdlmtt::ThreadAttributes& threadAttributes);
+    int start(const bdlqq::ThreadAttributes& threadAttributes);
         // Begin dispatching events on this scheduler, using the specified
         // 'threadAttributes' for the dispatcher thread, except the DETACHED
         // attribute will always be overridden to be joinable.  Return 0 on

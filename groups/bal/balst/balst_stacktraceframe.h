@@ -126,8 +126,8 @@ BSLS_IDENT("$Id: $")
 //  b.setSymbolName(a.symbolName());
 //  assert(true == a.isSymbolNameKnown());
 //  assert(true == b.isSymbolNameKnown());
-//  assert(0    == std::strcmp("woof", a.symbolName().c_str()));
-//  assert(0    == std::strcmp("woof", b.symbolName().c_str()));
+//  assert(0    == bsl::strcmp("woof", a.symbolName().c_str()));
+//  assert(0    == bsl::strcmp("woof", b.symbolName().c_str()));
 //  assert(a    == b);
 //
 //  a.setSourceFileName("woof.cpp");
@@ -135,17 +135,13 @@ BSLS_IDENT("$Id: $")
 //  b.setSourceFileName(a.sourceFileName());
 //  assert(a.isSourceFileNameKnown());
 //  assert(b.isSourceFileNameKnown());
-//  assert(0 == std::strcmp("woof.cpp", a.sourceFileName().c_str()));
-//  assert(0 == std::strcmp("woof.cpp", b.sourceFileName().c_str()));
+//  assert(0 == bsl::strcmp("woof.cpp", a.sourceFileName().c_str()));
+//  assert(0 == bsl::strcmp("woof.cpp", b.sourceFileName().c_str()));
 //  assert(a == b);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
-
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -256,12 +252,12 @@ class StackTraceFrame {
         // used.
 
     StackTraceFrame(const void             *address,
-                          const bdlb::StringRef&  libraryFileName,
+                          const bslstl::StringRef&  libraryFileName,
                           int                     lineNumber,
-                          const bdlb::StringRef&  mangledSymbolName,
+                          const bslstl::StringRef&  mangledSymbolName,
                           bsl::size_t             offsetFromSymbol,
-                          const bdlb::StringRef&  sourceFileName,
-                          const bdlb::StringRef&  symbolName,
+                          const bslstl::StringRef&  sourceFileName,
+                          const bslstl::StringRef&  symbolName,
                           bslma::Allocator       *basicAllocator = 0);
         // Create a local time descriptor object having the specified
         // 'address', 'libraryFileName', 'lineNumber', 'mangledSymbolName',
@@ -291,7 +287,7 @@ class StackTraceFrame {
         // Note that the value '(void *)0)' indicates that 'address' is
         // "unknown".
 
-    void setLibraryFileName(const bdlb::StringRef& value);
+    void setLibraryFileName(const bslstl::StringRef& value);
         // Set the 'libraryFileName' attribute of this object to the specified
         // 'value'.  Note that the empty string indicates the 'libraryFileName'
         // is "unknown".
@@ -301,7 +297,7 @@ class StackTraceFrame {
         // 'value'.  The behavior is undefined unless '-1 <= value'.  Note that
         // the value -1 indicates the 'lineNumber' is "unknown".
 
-    void setMangledSymbolName(const bdlb::StringRef& value);
+    void setMangledSymbolName(const bslstl::StringRef& value);
         // Set the 'mangledSymbolName' attribute of this object to the
         // specified 'value'.  Note that the empty string indicates that the
         // 'mangledSymbolName' is "unknown".
@@ -311,12 +307,12 @@ class StackTraceFrame {
         // 'value'.  Note that the value '(bsl::size_t)-1' indicates that
         // 'offsetFromSymbol' is "unknown".
 
-    void setSourceFileName(const bdlb::StringRef& value);
+    void setSourceFileName(const bslstl::StringRef& value);
         // Set the 'sourceFileName' attribute of this object to the specified
         // 'value'.  Note that the empty string indicates that 'sourceFileName'
         // is "unknown".
 
-    void setSymbolName(const bdlb::StringRef& value);
+    void setSymbolName(const bslstl::StringRef& value);
         // Set the 'symbolName' attribute of this object to the specified
         // 'value'.  Note that the empty string indicates that 'symbolName' is
         // "unknown".
@@ -478,12 +474,12 @@ StackTraceFrame::StackTraceFrame(bslma::Allocator *basicAllocator)
 inline
 StackTraceFrame::StackTraceFrame(
                                    const void             *address,
-                                   const bdlb::StringRef&  libraryFileName,
+                                   const bslstl::StringRef&  libraryFileName,
                                    int                     lineNumber,
-                                   const bdlb::StringRef&  mangledSymbolName,
+                                   const bslstl::StringRef&  mangledSymbolName,
                                    bsl::size_t             offsetFromSymbol,
-                                   const bdlb::StringRef&  sourceFileName,
-                                   const bdlb::StringRef&  symbolName,
+                                   const bslstl::StringRef&  sourceFileName,
+                                   const bslstl::StringRef&  symbolName,
                                    bslma::Allocator       *basicAllocator)
 : d_address(address)
 , d_libraryFileName(libraryFileName.begin(),
@@ -499,11 +495,11 @@ StackTraceFrame::StackTraceFrame(
                    basicAllocator)
 , d_symbolName(symbolName.begin(), symbolName.end(), basicAllocator)
 {
-    BSLS_ASSERT_SAFE(libraryFileName.isBound());
+    BSLS_ASSERT_SAFE(0 != libraryFileName.data());
     BSLS_ASSERT_SAFE(-1 <= lineNumber);
-    BSLS_ASSERT_SAFE(mangledSymbolName.isBound());
-    BSLS_ASSERT_SAFE(sourceFileName.isBound());
-    BSLS_ASSERT_SAFE(symbolName.isBound());
+    BSLS_ASSERT_SAFE(0 != mangledSymbolName.data());
+    BSLS_ASSERT_SAFE(0 != sourceFileName.data());
+    BSLS_ASSERT_SAFE(0 != symbolName.data());
 }
 
 
@@ -548,9 +544,9 @@ void StackTraceFrame::setAddress(const void *value)
 }
 
 inline
-void StackTraceFrame::setLibraryFileName(const bdlb::StringRef& value)
+void StackTraceFrame::setLibraryFileName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_libraryFileName.assign(value.begin(), value.end());
 }
@@ -564,9 +560,9 @@ void StackTraceFrame::setLineNumber(int value)
 }
 
 inline
-void StackTraceFrame::setMangledSymbolName(const bdlb::StringRef& value)
+void StackTraceFrame::setMangledSymbolName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_mangledSymbolName.assign(value.begin(), value.end());
 }
@@ -579,17 +575,17 @@ void StackTraceFrame::setOffsetFromSymbol(bsl::size_t value)
 }
 
 inline
-void StackTraceFrame::setSourceFileName(const bdlb::StringRef& value)
+void StackTraceFrame::setSourceFileName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_sourceFileName.assign(value.begin(), value.end());
 }
 
 inline
-void StackTraceFrame::setSymbolName(const bdlb::StringRef& value)
+void StackTraceFrame::setSymbolName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_symbolName.assign(value.begin(), value.end());
 }

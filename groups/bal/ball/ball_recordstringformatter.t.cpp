@@ -5,14 +5,14 @@
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlmxxx_elemtype.h>
 #include <bdlmxxx_list.h>
 
 #include <bdlt_currenttime.h>
 
-#include <bdlpuxxx_iso8601.h>
+#include <bdlt_iso8601util.h>
 #include <bdlxxxx_testinstream.h>           // for testing only
 #include <bdlxxxx_testoutstream.h>          // for testing only
 
@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
         const int   lineNum   = 542;
         const char *filename  = "subdir/process.cpp";
         const bsls::Types::Uint64
-                                threadID  = bdlmtt::ThreadUtil::selfIdAsUint64();
+                                threadID  = bdlqq::ThreadUtil::selfIdAsUint64();
 #ifdef BSLS_PLATFORM_OS_UNIX
         const pid_t processID = getpid();
 #else
@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
 
             // Is the resulting string parseable?
             bdlt::Datetime dt;
-            int           rc = bdlpuxxx::Iso8601::parse(
+            int           rc = bdlt::Iso8601Util::parse(
                                               &dt,
                                               oss1.str().c_str(),
                                               bsl::strlen(oss1.str().c_str()));
@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
 
             // Is the resulting string parseable?
             bdlt::Datetime dt;
-            int           rc = bdlpuxxx::Iso8601::parse(
+            int           rc = bdlt::Iso8601Util::parse(
                                               &dt,
                                               oss1.str().c_str(),
                                               bsl::strlen(oss1.str().c_str()));
@@ -630,7 +630,7 @@ int main(int argc, char *argv[])
 
             // Is the resulting string parseable?
             bdlt::Datetime dt;
-            int           rc = bdlpuxxx::Iso8601::parse(
+            int           rc = bdlt::Iso8601Util::parse(
                                               &dt,
                                               oss1.str().c_str(),
                                               bsl::strlen(oss1.str().c_str()));

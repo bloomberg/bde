@@ -12,7 +12,7 @@
 #include <bslma_testallocator.h>
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_xxxthread.h>
 #include <bsls_platform.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>

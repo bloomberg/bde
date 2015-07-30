@@ -53,8 +53,8 @@ BSLS_IDENT("$Id: $")
 //..
 // my_recordbuffer.h
 //
-//    #include <bdlmtt_lockguard.h>
-//    #include <bdlmtt_xxxthread.h>
+//    #include <bdlqq_lockguard.h>
+//    #include <bdlqq_xxxthread.h>
 //
 //    #include <vector>
 //
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //        // employs a vector to hold an unlimited number of record
 //        // handles.
 //
-//        mutable bdlmtt::RecursiveMutex d_mutex; // thread safety provider (see
+//        mutable bdlqq::RecursiveMutex d_mutex; // thread safety provider (see
 //                                              // the implementation notes for
 //                                              // the justification for using
 //                                              // recursive mutex rather a
@@ -128,14 +128,14 @@ BSLS_IDENT("$Id: $")
 //    inline
 //    void my_RecordBuffer::popBack()
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        d_buffer.pop_back();
 //    }
 //
 //    inline
 //    void my_RecordBuffer::popFront()
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        d_buffer.erase(d_buffer.begin());
 //    }
 //
@@ -143,7 +143,7 @@ BSLS_IDENT("$Id: $")
 //    int my_RecordBuffer::pushBack(
 //                                  const bsl::shared_ptr<ball::Record>& handle)
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        d_buffer.push_back(handle);
 //        return 0;
 //    }
@@ -152,7 +152,7 @@ BSLS_IDENT("$Id: $")
 //    int my_RecordBuffer::pushFront(
 //                                  const bsl::shared_ptr<ball::Record>& handle)
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        d_buffer.insert(d_buffer.begin(), handle);
 //        return 0;
 //    }
@@ -160,7 +160,7 @@ BSLS_IDENT("$Id: $")
 //    inline
 //    void my_RecordBuffer::removeAll()
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        d_buffer.clear();
 //    }
 //
@@ -168,21 +168,21 @@ BSLS_IDENT("$Id: $")
 //    inline
 //    const ball::Record& my_RecordBuffer::back() const
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        return *(d_buffer.back());
 //    }
 //
 //    inline
 //    const ball::Record& my_RecordBuffer::front() const
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        return *(d_buffer.front());
 //    }
 //
 //    inline
 //    int my_RecordBuffer::length() const
 //    {
-//        bdlmtt::LockGuard<bdlmtt::RecursiveMutex> guard(&d_mutex);
+//        bdlqq::LockGuard<bdlqq::RecursiveMutex> guard(&d_mutex);
 //        return d_buffer.size();
 //    }
 //    } // namespace BloombergLP
@@ -244,14 +244,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>
-#endif
-
 #endif
 
 namespace BloombergLP {

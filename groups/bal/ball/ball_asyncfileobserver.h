@@ -326,8 +326,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -380,7 +380,7 @@ class AsyncFileObserver : public Observer {
                                                      // method calls to this
                                                      // file observer member
 
-    bdlmtt::ThreadUtil::Handle      d_threadHandle;    // handle of asynchronous
+    bdlqq::ThreadUtil::Handle      d_threadHandle;    // handle of asynchronous
                                                      // publication thread
 
     bdlcc::FixedQueue<AsyncRecord>  d_recordQueue;     // queue transmitting
@@ -412,7 +412,7 @@ class AsyncFileObserver : public Observer {
                                                      // count of dropped log
                                                      // records
 
-    mutable bdlmtt::Mutex           d_mutex;           // serialize operations
+    mutable bdlqq::Mutex           d_mutex;           // serialize operations
 
     bslma::Allocator             *d_allocator_p;     // memory allocator (held,
                                                      // not owned)
@@ -921,7 +921,7 @@ bool AsyncFileObserver::isPublishInLocalTimeEnabled() const
 inline
 bool AsyncFileObserver::isPublicationThreadRunning() const
 {
-    return bdlmtt::ThreadUtil::invalidHandle() != d_threadHandle;
+    return bdlqq::ThreadUtil::invalidHandle() != d_threadHandle;
 }
 
 inline

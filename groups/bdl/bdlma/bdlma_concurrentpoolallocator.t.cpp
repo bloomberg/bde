@@ -2,8 +2,8 @@
 
 #include <bdlma_concurrentpoolallocator.h>
 
-#include <bdlmtt_condition.h>
-#include <bdlmtt_threadutil.h>
+#include <bdlqq_condition.h>
+#include <bdlqq_threadutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -94,7 +94,7 @@ static void aSsErT(int c, const char *s, int i)
 
 #define MTCOUT \
 coutMutex.lock(); \
-{ bsl::cout << bdlmtt::ThreadUtil::selfIdAsInt() << ": "
+{ bsl::cout << bdlqq::ThreadUtil::selfIdAsInt() << ": "
 
 #define MTCOUT_UNLOCK \
 } \
@@ -110,7 +110,7 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlmtt::Mutex coutMutex;
+static bdlqq::Mutex coutMutex;
 
 typedef bdlma::ConcurrentPoolAllocator Obj;
 
@@ -180,8 +180,8 @@ struct my2_WorkItem {
 
 struct my2_WorkQueue {
     list<my2_WorkItem>        d_queue;   // queue of work requests
-    bdlmtt::Mutex               d_mx;      // protects the shared queue
-    bdlmtt::Condition           d_cv;      // signals existence of new work
+    bdlqq::Mutex               d_mx;      // protects the shared queue
+    bdlqq::Condition           d_cv;      // signals existence of new work
     bslma::Allocator         *d_alloc_p; // pooled allocator
 
     my2_WorkQueue(bslma::Allocator *a) : d_queue(a), d_alloc_p(a) {}
@@ -264,8 +264,8 @@ struct my1_WorkItem {
 
 struct my1_WorkQueue {
     list<my1_WorkItem>        d_queue;   // queue of work requests
-    bdlmtt::Mutex               d_mx;      // protects the shared queue
-    bdlmtt::Condition           d_cv;      // signals existence of new work
+    bdlqq::Mutex               d_mx;      // protects the shared queue
+    bdlqq::Condition           d_cv;      // signals existence of new work
     bslma::Allocator         *d_alloc_p; // pooled allocator
 
     my1_WorkQueue(bslma::Allocator *a) : d_alloc_p(a) {}
@@ -373,24 +373,24 @@ int main(int argc, char *argv[])
         bdlma::ConcurrentPoolAllocator poolAlloc(100);
         my2_WorkQueue queue(&poolAlloc);
 
-        bdlmtt::ThreadAttributes attributes;
+        bdlqq::ThreadAttributes attributes;
 
-        bdlmtt::ThreadUtil::Handle producerHandle;
-        int status = bdlmtt::ThreadUtil::create(&producerHandle,
+        bdlqq::ThreadUtil::Handle producerHandle;
+        int status = bdlqq::ThreadUtil::create(&producerHandle,
                                                attributes,
                                               &my2_producer,
                                               &queue);
         ASSERT(0 == status);
 
-        bdlmtt::ThreadUtil::Handle consumerHandle;
-        status = bdlmtt::ThreadUtil::create(&consumerHandle,
+        bdlqq::ThreadUtil::Handle consumerHandle;
+        status = bdlqq::ThreadUtil::create(&consumerHandle,
                                            attributes,
                                           &my2_consumer,
                                           &queue);
         ASSERT(0 == status);
-        status = bdlmtt::ThreadUtil::join(consumerHandle);
+        status = bdlqq::ThreadUtil::join(consumerHandle);
         ASSERT(0 == status);
-        status = bdlmtt::ThreadUtil::join(producerHandle);
+        status = bdlqq::ThreadUtil::join(producerHandle);
         ASSERT(0 == status);
 
       } break;
@@ -415,24 +415,24 @@ int main(int argc, char *argv[])
         bdlma::ConcurrentPoolAllocator poolAlloc;
         my1_WorkQueue queue(&poolAlloc);
 
-        bdlmtt::ThreadAttributes attributes;
+        bdlqq::ThreadAttributes attributes;
 
-        bdlmtt::ThreadUtil::Handle producerHandle;
-        int status = bdlmtt::ThreadUtil::create(&producerHandle,
+        bdlqq::ThreadUtil::Handle producerHandle;
+        int status = bdlqq::ThreadUtil::create(&producerHandle,
                                                attributes,
                                               &my1_producer,
                                               &queue);
         ASSERT(0 == status);
 
-        bdlmtt::ThreadUtil::Handle consumerHandle;
-        status = bdlmtt::ThreadUtil::create(&consumerHandle,
+        bdlqq::ThreadUtil::Handle consumerHandle;
+        status = bdlqq::ThreadUtil::create(&consumerHandle,
                                            attributes,
                                           &my1_consumer,
                                           &queue);
         ASSERT(0 == status);
-        status = bdlmtt::ThreadUtil::join(consumerHandle);
+        status = bdlqq::ThreadUtil::join(consumerHandle);
         ASSERT(0 == status);
-        status = bdlmtt::ThreadUtil::join(producerHandle);
+        status = bdlqq::ThreadUtil::join(producerHandle);
         ASSERT(0 == status);
 
       } break;
@@ -997,24 +997,24 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard g(&ta);
             Obj a[NUM_ALLOCATORS];
 
-            bdlmtt::ThreadAttributes attributes;
+            bdlqq::ThreadAttributes attributes;
 
-            bdlmtt::ThreadUtil::Handle upHandle;
-            int status = bdlmtt::ThreadUtil::create(&upHandle,
+            bdlqq::ThreadUtil::Handle upHandle;
+            int status = bdlqq::ThreadUtil::create(&upHandle,
                                                   attributes,
                                                   &my3_up,
                                                   a);
             ASSERT(0 == status);
 
-            bdlmtt::ThreadUtil::Handle downHandle;
-            status = bdlmtt::ThreadUtil::create(&downHandle,
+            bdlqq::ThreadUtil::Handle downHandle;
+            status = bdlqq::ThreadUtil::create(&downHandle,
                                               attributes,
                                               &my3_down,
                                               a);
             ASSERT(0 == status);
-            status = bdlmtt::ThreadUtil::join(upHandle);
+            status = bdlqq::ThreadUtil::join(upHandle);
             ASSERT(0 == status);
-            status = bdlmtt::ThreadUtil::join(downHandle);
+            status = bdlqq::ThreadUtil::join(downHandle);
             ASSERT(0 == status);
         }
       } break;

@@ -20,7 +20,7 @@ namespace BloombergLP {
 
 // ACCESSORS
 #ifdef BDE_BUILD_TARGET_SAFE2
-bool balxml::Formatter::ElemContext::matchTag(const bdlb::StringRef& tag) const
+bool balxml::Formatter::ElemContext::matchTag(const bslstl::StringRef& tag) const
 {
     if (d_tagLen != bsl::min(tag.length(), 255)) {
         // Lengths don't match
@@ -102,8 +102,8 @@ void Formatter::indent()
     d_column = d_indentLevel * d_spacesPerLevel;
 }
 
-void Formatter::doAddAttribute(const bdlb::StringRef& name,
-                                      const bdlb::StringRef& value)
+void Formatter::doAddAttribute(const bslstl::StringRef& name,
+                                      const bslstl::StringRef& value)
 {
     BSLS_ASSERT(BAEXML_IN_TAG == d_state);
     BSLS_ASSERT(0 != name.length());
@@ -124,7 +124,7 @@ void Formatter::doAddAttribute(const bdlb::StringRef& name,
     d_column += attrLen;
 }
 
-void Formatter::doAddData(const bdlb::StringRef& value, bool addSpace)
+void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
 {
     BSLS_ASSERT(BAEXML_BETWEEN_TAGS == d_state);
 
@@ -176,7 +176,7 @@ void Formatter::doAddData(const bdlb::StringRef& value, bool addSpace)
 }
 
 // MANIPULATORS
-void Formatter::openElement(const bdlb::StringRef& name,
+void Formatter::openElement(const bslstl::StringRef& name,
                                    WhitespaceType         ws)
 {
 // TBD: Why ?
@@ -197,7 +197,7 @@ void Formatter::openElement(const bdlb::StringRef& name,
     d_isFirstDataAtLine = true;
 }
 
-void Formatter::closeElement(const bdlb::StringRef& name)
+void Formatter::closeElement(const bslstl::StringRef& name)
 {
     BSLS_ASSERT(BAEXML_IN_TAG == d_state || BAEXML_BETWEEN_TAGS == d_state);
     BSLS_ASSERT(d_wrapColumn < 0 || ! d_elementNesting.empty());
@@ -247,7 +247,7 @@ void Formatter::closeElement(const bdlb::StringRef& name)
     }
 }
 
-void Formatter::addHeader(const bdlb::StringRef& encoding)
+void Formatter::addHeader(const bslstl::StringRef& encoding)
 {
     BSLS_ASSERT(BAEXML_AT_START == d_state);
     // TBD escape encoding?
@@ -265,7 +265,7 @@ void Formatter::addHeader(const bdlb::StringRef& encoding)
     d_state = BAEXML_AFTER_START_NO_TAG;
 }
 
-void Formatter::addComment(const bdlb::StringRef& comment,
+void Formatter::addComment(const bslstl::StringRef& comment,
                                   bool                   forceNewline)
 {
     if (BAEXML_AT_START == d_state) {

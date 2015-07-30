@@ -6,7 +6,7 @@
 #include <balm_publisher.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
@@ -281,7 +281,7 @@ class StandardMacroConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -429,7 +429,7 @@ class DynamicMacroConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -537,9 +537,9 @@ class TlsMacroConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
-    bdlmtt::Mutex            d_mutex;
+    bdlqq::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
         // Execute a single test.
@@ -737,7 +737,7 @@ class StandardIntMacroConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -886,7 +886,7 @@ class DynamicIntMacroConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -1015,9 +1015,9 @@ class TlsIntMacroConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
-    bdlmtt::Mutex            d_mutex;
+    bdlqq::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
         // Execute a single test.
@@ -1930,7 +1930,7 @@ int main(int argc, char *argv[])
                 BALM_METRICS_TIME_BLOCK("C", "Us", TU::BAEM_MICROSECONDS);
                 BALM_METRICS_TIME_BLOCK("C", "Ns", TU::BAEM_NANOSECONDS);
 
-                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
+                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
 
                 sw.stop();
             }
@@ -2021,7 +2021,7 @@ int main(int argc, char *argv[])
                 BALM_METRICS_TIME_BLOCK("A", "1", TU::BAEM_SECONDS);
                 ASSERT(balm::MetricRecord(idA) == recordVal(cA));
 
-                bdlmtt::ThreadUtil::microSleep(50000, 0);
+                bdlqq::ThreadUtil::microSleep(50000, 0);
                 timer.stop();
             }
 
@@ -2037,9 +2037,9 @@ int main(int argc, char *argv[])
 
                 BALM_METRICS_DYNAMIC_TIME_BLOCK("B", "2", TU::BAEM_SECONDS);
                 ASSERT(balm::MetricRecord(idB) == recordVal(cB));
-                bdlmtt::ThreadUtil::microSleep(500, 0);
+                bdlqq::ThreadUtil::microSleep(500, 0);
 
-                bdlmtt::ThreadUtil::microSleep(50000, 0);
+                bdlqq::ThreadUtil::microSleep(50000, 0);
                 timer.stop();
             }
 

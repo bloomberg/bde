@@ -303,7 +303,7 @@ int main(int argc, char **argv)
         //
         //   bad_override: Method
         //   BloombergLP::bdlsb::FixedMemInStreamBuf::setbuf hides but does not
-        //   override std::basic_streambuf<char, std::char_traits<char>
+        //   override bsl::basic_streambuf<char, bsl::char_traits<char>
         //   >::setbuf because some type qualifiers do not match.
         //
         //   This test case confirms that the override actually does work.

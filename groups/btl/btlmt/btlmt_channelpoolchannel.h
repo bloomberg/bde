@@ -43,12 +43,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_blob.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BDLB_VARIANT
@@ -136,7 +136,7 @@ class ChannelPoolChannel: public AsyncChannel {
 
     const bool            d_useBlobForDataReads;  // use blob for data reads
 
-    bdlmtt::Mutex           d_mutex;                // mutex used to control
+    bdlqq::Mutex           d_mutex;                // mutex used to control
                                                   // access to this channel
 
     volatile bool         d_callbackInProgress;   // indicates when a callback

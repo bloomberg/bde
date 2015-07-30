@@ -59,8 +59,8 @@ void
 ErrorInfo::setError(Severity               severity,
                            int                    lineNumber,
                            int                    columnNumber,
-                           const bdlb::StringRef& source,
-                           const bdlb::StringRef& errorMsg)
+                           const bslstl::StringRef& source,
+                           const bslstl::StringRef& errorMsg)
 {
     if (severity > d_severity) {
         d_severity = severity;

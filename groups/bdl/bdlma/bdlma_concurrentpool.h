@@ -249,8 +249,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
@@ -345,7 +345,7 @@ class ConcurrentPool {
     bdlma::InfrequentDeleteBlockList
                      d_blockList;  // memory manager for allocated memory
 
-    bdlmtt::Mutex      d_mutex;      // protects access to the block list
+    bdlqq::Mutex      d_mutex;      // protects access to the block list
 
     // PRIVATE MANIPULATORS
     void replenish();

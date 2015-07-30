@@ -2,7 +2,7 @@
 
 #include <bdlb_strtokenrefiter.h>
 
-#include <bdlb_xxxstringref.h>
+#include <bsl_string.h>
 
 #include <bsl_cstdlib.h>                  // 'bsl::atoi()'
 #include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
@@ -29,9 +29,9 @@ using namespace bsl;  // automatically added by script
 // [ 6] void reset(const char *input);
 // [ 6] void reset(const StringRef& input);
 // [ 1] operator const void *() const;
-// [ 1] bdlb::StringRef operator()() const;
-// [ 1] bdlb::StringRef delimiter() const;
-// [ 1] bdlb::StringRef previousDelimiter() const;
+// [ 1] bslstl::StringRef operator()() const;
+// [ 1] bslstl::StringRef delimiter() const;
+// [ 1] bslstl::StringRef previousDelimiter() const;
 // [ 1] bool isHard() const;
 // [ 1] bool isPreviousHard() const;
 // [ 1] bool hasSoft() const;
@@ -75,7 +75,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef bdlb::StrTokenRefIter Obj;
-typedef bdlb::StringRef       Ref;
+typedef bslstl::StringRef       Ref;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -3008,13 +3008,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a 'StrTokenRefIter(const char*, const char*, const char*)'
         //   and verify basic correctness.  Repeat for the three-argument
-        //   constructor that takes a 'const bdlb::StringRef&'.
+        //   constructor that takes a 'const bslstl::StringRef&'.
         //
         // Testing:
         //   operator const void *() const;
-        //   bdlb::StringRef operator()() const;
-        //   bdlb::StringRef delimiter() const;
-        //   bdlb::StringRef previousDelimiter() const;
+        //   bslstl::StringRef operator()() const;
+        //   bslstl::StringRef delimiter() const;
+        //   bslstl::StringRef previousDelimiter() const;
         //   bool isHard() const;
         //   bool isPreviousHard() const;
         //   bool hasSoft() const;

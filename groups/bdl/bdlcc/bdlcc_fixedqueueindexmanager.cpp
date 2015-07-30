@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_threadutil.h>
+#include <bdlqq_threadutil.h>
 
 #include <bslalg_arraydestructionprimitives.h>
 #include <bslalg_arrayprimitives.h>
@@ -428,7 +428,7 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
                 // processor, reload the pushIndex, and return to the top of
                 // the loop.
 
-                bdlmtt::ThreadUtil::yield();
+                bdlqq::ThreadUtil::yield();
                 loadedPushIndex = d_pushIndex.loadRelaxed();
                 continue;
             }
@@ -442,7 +442,7 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
             if (savedPushIndex != loadedPushIndex) {
                 // Make two attempts before returning that the queue is full.
 
-                bdlmtt::ThreadUtil::yield();
+                bdlqq::ThreadUtil::yield();
                 savedPushIndex = loadedPushIndex;
                 loadedPushIndex = d_pushIndex.loadRelaxed();
                 continue;
@@ -570,7 +570,7 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
             if (savedPopIndex != loadedPopIndex) {
                 // Make two attempts before returning that the queue is empty.
 
-                bdlmtt::ThreadUtil::yield();
+                bdlqq::ThreadUtil::yield();
                 savedPopIndex = loadedPopIndex;
                 loadedPopIndex = d_popIndex.loadRelaxed();
                 continue;
@@ -582,7 +582,7 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
             // The cell is currently being written, or our pop index is very
             // out of date. Delay and try and reserve it again.
 
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::yield();
             loadedPopIndex = d_popIndex.loadRelaxed();
             continue;
         }
@@ -727,7 +727,7 @@ int FixedQueueIndexManager::reservePopIndexForClear (
             // has been asleep for an entire generation.  Re-load the pop index
             // and return to the top of the loop.
 
-            bdlmtt::ThreadUtil::yield();
+            bdlqq::ThreadUtil::yield();
             loadedCombinedIndex = d_popIndex.loadRelaxed();
             continue;
         }

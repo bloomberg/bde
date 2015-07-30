@@ -6,7 +6,7 @@
 #include <balm_publisher.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
+#include <bdlqq_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
@@ -45,14 +45,14 @@ using bsl::flush;
 // directly on the "oracle" 'balm::IntegerCollector'.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 9] static balm::IntegerCollector *lookupCollector(const bdlb::StringRef&  ,
-//                                             const bdlb::StringRef&  ,
+// [ 9] static balm::IntegerCollector *lookupCollector(const bslstl::StringRef&  ,
+//                                             const bslstl::StringRef&  ,
 //                                             balm::MetricsManager    *);
 // [ 9] static balm::IntegerCollector *lookupCollector(const balm::MetricId&  ,
 //                                             balm::MetricsManager  *);
 // CREATORS
-// [ 2] balm::IntegerMetric(const bdlb::StringRef&  ,
-//                  const bdlb::StringRef&  ,
+// [ 2] balm::IntegerMetric(const bslstl::StringRef&  ,
+//                  const bslstl::StringRef&  ,
 //                  balm::MetricsManager    *);
 // [ 2] explicit balm::IntegerMetric(const balm::MetricId&,
 //                                  balm::MetricsManager*);
@@ -164,7 +164,7 @@ class MetricConcurrencyTest {
     bdlmt::FixedThreadPool   d_pool;
     balm::IntegerMetric    *d_metric;
     baem_MetricRegistry   *d_registry;
-    bdlmtt::Barrier          d_barrier;
+    bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -482,8 +482,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   static balm::IntegerCollector *lookupCollector(
-        //                                const bdlb::StringRef&  ,
-        //                                const bdlb::StringRef&  ,
+        //                                const bslstl::StringRef&  ,
+        //                                const bslstl::StringRef&  ,
         //                                balm::MetricsManager    *);
         //   static balm::IntegerCollector *lookupCollector(
         //                                          const balm::MetricId&  ,
@@ -1023,8 +1023,8 @@ int main(int argc, char *argv[])
         //   value is the correct collector from the default metrics manager.
         //
         // Testing:
-        //    balm::IntegerMetric(const bdlb::StringRef&  ,
-        //                const bdlb::StringRef&  ,
+        //    balm::IntegerMetric(const bslstl::StringRef&  ,
+        //                const bslstl::StringRef&  ,
         //                balm::MetricsManager    *);
         //    explicit balm::IntegerMetric(const balm::MetricId&  ,
         //                         balm::MetricsManager  *);

@@ -101,7 +101,7 @@ static void aSsErT(int c, const char *s, int i)
                       aSsErT(1, #X, __LINE__); } }
 
 //----------------------------------------------------------------------------
-bdlmtt::Mutex  d_mutex;   // for i/o synchronization in all threads
+bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 //============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -133,8 +133,8 @@ struct ConnectionInfo {
      btlso::IPv4Address                            *d_server;
      int                                           d_numConnections;
      int                                           d_sleepTime;
-  //  bdlmtt::Mutex                                  *d_mutex_p;
-  //  bdlmtt::Condition    *d_cv_p;
+  //  bdlqq::Mutex                                  *d_mutex_p;
+  //  bdlqq::Condition    *d_cv_p;
 };
 
 enum {
@@ -881,7 +881,7 @@ static void *threadToConnect(void *arg)
         P_T(info.d_numConnections);
         PT(info.d_sleepTime);
     }
-    bdlmtt::ThreadUtil::microSleep(info.d_sleepTime);
+    bdlqq::ThreadUtil::microSleep(info.d_sleepTime);
     // bslma::TestAllocator is not thread-safe, so need to provide a new one
     // for the thread.
     bslma::TestAllocator threadTestAllocator;
@@ -1131,7 +1131,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -1143,7 +1143,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 10000000);
@@ -1304,7 +1304,7 @@ int main(int argc, char *argv[])
                     }
                     // Now expected number of channels are still valid.
                     LOOP_ASSERT(i, totalConnections == acceptor.numChannels());
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1352,7 +1352,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 10000000);
@@ -1507,7 +1507,7 @@ int main(int argc, char *argv[])
                     }
                     // Now expected number of channels have been established.
                     LOOP_ASSERT(i, connections == acceptor.numChannels());
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1555,7 +1555,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -1569,7 +1569,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 10000000);
@@ -1725,7 +1725,7 @@ int main(int argc, char *argv[])
                     // Now expected number of channels have been established.
                     LOOP_ASSERT(i, VALUES[i].d_numConnections + 1 ==
                                    acceptor.numChannels());
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1810,7 +1810,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
                     int connections = 0;
 
@@ -1823,7 +1823,7 @@ int main(int argc, char *argv[])
                           DEFAULT_SLEEP_TIME,
                         };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout1(0,  10),
@@ -1901,7 +1901,7 @@ int main(int argc, char *argv[])
                         } break;
                         case 'D': {
                             manager.dispatch(0);
-                            bdlmtt::ThreadUtil::microSleep(
+                            bdlqq::ThreadUtil::microSleep(
                                                     DEFAULT_SLEEP_TIME * 2);
                         } break;
                         default:
@@ -1924,7 +1924,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
 
@@ -1969,7 +1969,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
                     int connections = 0;
 
@@ -1981,7 +1981,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 100000);
@@ -2042,7 +2042,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2086,7 +2086,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
                     int connections = 0;
 
@@ -2098,7 +2098,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    int ret = bdlmtt::ThreadUtil::create(&threadHandle,
+                    int ret = bdlqq::ThreadUtil::create(&threadHandle,
                                                        attributes,
                                                        threadToConnect,
                                                        &connectInfo);
@@ -2162,7 +2162,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2206,7 +2206,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
                     int connections = 0;
 
@@ -2218,7 +2218,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     for (int j = 0; j < VALUES[i].d_initRequests; ++j) {
@@ -2275,7 +2275,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2319,7 +2319,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
                     int connections = 0;
 
@@ -2331,7 +2331,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     for (int j = 0; j < VALUES[i].d_initRequests; ++j) {
@@ -2387,7 +2387,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2435,7 +2435,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               DEFAULT_EQUEUE_SIZE));
 
-                    bdlmtt::ThreadUtil::Handle threadHandle;
+                    bdlqq::ThreadUtil::Handle threadHandle;
                     bcemt_Attribute attributes;
                     int connections = 0;
 
@@ -2447,7 +2447,7 @@ int main(int argc, char *argv[])
                                                    DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     for (int j = 0; j < VALUES[i].d_initRequests; ++j) {
@@ -2509,7 +2509,7 @@ int main(int argc, char *argv[])
                     if (verbose) {
                         PT(acceptor.address().ipAddress());
                     }
-                     bdlmtt::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                     bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;

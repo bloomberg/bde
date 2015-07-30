@@ -171,7 +171,7 @@ BSLS_IDENT("$Id: $")
 //      btlmt::ChannelPool     *d_pool_p;       // channel pool (owned)
 //      bdlmxxx::Schema            d_schema;       // protocol schema
 //      MapType                d_clients;      // map channel IDs to streambufs
-//      bdlmtt::ReaderWriterLock d_lock;         // provide thread-safety
+//      bdlqq::ReaderWriterLock d_lock;         // provide thread-safety
 //      bdlf::Function<void (*)()> d_dataCb;    // data generator callback
 //      bdlf::Function<void (*)()> d_pushCb;    // push timer callback
 //      bsls::TimeInterval      d_lastPush;     // last push timer expiry

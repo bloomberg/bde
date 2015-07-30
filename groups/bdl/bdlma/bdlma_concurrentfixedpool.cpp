@@ -2,7 +2,7 @@
 
 #include <bdlma_concurrentfixedpool.h>
 
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlb_xxxbitutil.h>
 
@@ -33,7 +33,7 @@ void backoff(int *contentionCount, int backoffLevel)
     int count = ++(*contentionCount);
     if (count > k_MAX_SPIN_LEVEL) {
         *contentionCount = 0;
-        bdlmtt::ThreadUtil::yield();  // exhaust time slice
+        bdlqq::ThreadUtil::yield();  // exhaust time slice
     }
     else {
         int maxSpin = backoffLevel << count;
@@ -58,7 +58,7 @@ void *ConcurrentFixedPool::allocateNew()
     int   numNodes;
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_nodePoolMutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_nodePoolMutex);
 
         numNodes = d_numNodes;
         if (numNodes == (int)d_nodes.size()) {
@@ -118,7 +118,7 @@ void *ConcurrentFixedPool::allocate()
     Node *node;
 
     while (1) {
-        head = d_freeList.relaxedLoad();
+        head = d_freeList.loadRelaxed();
         if (!head) {
             return allocateNew();
         }
@@ -145,7 +145,7 @@ void ConcurrentFixedPool::deallocate(void *address)
     int index = node->d_next;  // 'd_next' contains the link index of this link
                                // node advanced by one generation.
     while (1) {
-        int old = d_freeList.relaxedLoad();
+        int old = d_freeList.loadRelaxed();
         node->d_next = old;
         if (old == d_freeList.testAndSwap(old, index)) {
             break;
@@ -157,7 +157,7 @@ void ConcurrentFixedPool::deallocate(void *address)
 
 void ConcurrentFixedPool::release()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_nodePoolMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_nodePoolMutex);
 
     d_freeList = 0;
     d_numNodes = 0;
@@ -180,7 +180,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
 
     // Reserve nodes using the free list.
     while (numObjects) {
-        int head = d_freeList.relaxedLoad();
+        int head = d_freeList.loadRelaxed();
         if (!head) {
             break;
         }
@@ -203,7 +203,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
         int numNodes;
 
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_nodePoolMutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_nodePoolMutex);
 
             numNodes = d_numNodes;
             if (numNodes == poolSize) {
@@ -226,7 +226,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
     if (lastNode != &reserved) {
         int head = reserved.d_next;
         while (1) {
-            int old = d_freeList.relaxedLoad();
+            int old = d_freeList.loadRelaxed();
             lastNode->d_next = old;
             if (old == d_freeList.testAndSwap(old, head)) {
                 break;

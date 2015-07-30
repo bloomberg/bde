@@ -5,16 +5,9 @@
 BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 
 #include <balxml_elementattribute.h>
-
-#ifdef TEST
 #include <balxml_minireader.h>      // for testing purposes only
-#include <balxml_xxxschemaparser.h>    // for testing purposes only
-#endif
 
 #include <bslalg_typetraits.h>
-
-#include <bdlb_string.h>
-#include <bdlb_xxxstringref.h>
 
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -330,8 +323,8 @@ Decoder::readTopElement()
 }
 
 void
-Decoder::setDecoderError(ErrorInfo::Severity  severity,
-                                bdlb::StringRef             msg)
+Decoder::setDecoderError(ErrorInfo::Severity severity,
+                         bslstl::StringRef   msg)
 {
     ErrorInfo errInfo;
     errInfo.setError(severity,
@@ -548,13 +541,13 @@ ErrorInfo::Severity Decoder::errorSeverity() const
     return ErrorInfo::BAEXML_NO_ERROR;
 }
 
-bdlb::StringRef Decoder::loggedMessages() const
+bslstl::StringRef Decoder::loggedMessages() const
 {
     if (d_logStream) {
-        return bdlb::StringRef(d_logStream->data(),
+        return bslstl::StringRef(d_logStream->data(),
                                d_logStream->length());
     }
-    return bdlb::StringRef();
+    return bslstl::StringRef();
 }
 
                      // ------------------------------------

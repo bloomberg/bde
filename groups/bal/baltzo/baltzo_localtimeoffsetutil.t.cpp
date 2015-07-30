@@ -12,10 +12,10 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
-#include <bdlmtt_barrier.h>       // case -1
-#include <bdlmtt_configuration.h> // case -1
-#include <bdlmtt_threadutil.h>    // case -1
-#include <bdlpuxxx_iso8601.h>                // case 5
+#include <bdlqq_barrier.h>       // case -1
+#include <bdlqq_configuration.h> // case -1
+#include <bdlqq_threadutil.h>    // case -1
+#include <bdlt_iso8601util.h>                // case 5
 #include <bslma_defaultallocatorguard.h>  // case 5
 #include <bslma_testallocator.h>          // case 5
 
@@ -1078,7 +1078,7 @@ struct LogVerbosityGuard {
 struct ThreadArg {
     int            d_offset;
     bdlt::Datetime  d_utcDatetime;
-    bdlmtt::Barrier *d_barrier_p;
+    bdlqq::Barrier *d_barrier_p;
 };
 
 typedef bsl::vector<struct ThreadArg> ThreadArgs;
@@ -1094,7 +1094,7 @@ extern "C" void *workerThread(void *arg)
     return 0;
 }
 
-typedef bsl::vector<bdlmtt::ThreadUtil::Handle> Handles;
+typedef bsl::vector<bdlqq::ThreadUtil::Handle> Handles;
 
 bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
     // Return the interval in seconds from UNIX epoch time of the specified
@@ -1108,10 +1108,10 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
     // Return the datetime value indicated by the specified
     // 'iso8601TimeString'.  The behavior is undefined unless
     // 'iso8601TimeString' is a null-terminated C-string containing a time
-    // description matching the iso8601 specification (see 'bdlpuxxx_iso8601').
+    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
-    int rc = bdlpuxxx::Iso8601::parse(&time,
+    int rc = bdlt::Iso8601Util::parse(&time,
                                   iso8601TimeString,
                                   bsl::strlen(iso8601TimeString));
     BSLS_ASSERT(0 == rc);
@@ -2073,8 +2073,8 @@ int main(int argc, char *argv[])
         P(numThreads)
         P(numIterations)
 
-        bdlmtt::Configuration::setDefaultThreadStackSize(
-                     bdlmtt::Configuration::recommendedDefaultThreadStackSize());
+        bdlqq::Configuration::setDefaultThreadStackSize(
+                     bdlqq::Configuration::recommendedDefaultThreadStackSize());
 
         const bdlt::Datetime newYearsDay(2013, 1,  1);
         const bdlt::Datetime  startOfDst(2013, 3, 10, 7);
@@ -2098,7 +2098,7 @@ int main(int argc, char *argv[])
             Handles       handles(numThreads);
             ThreadArgs threadArgs(numThreads);
 
-            bdlmtt::Barrier   barrier(numThreads);
+            bdlqq::Barrier   barrier(numThreads);
 
             // Setup and launch threads.
 
@@ -2107,7 +2107,7 @@ int main(int argc, char *argv[])
                 threadArgs[j].d_utcDatetime = startOfDst;
                 threadArgs[j].d_barrier_p   = &barrier;
 
-                int status = bdlmtt::ThreadUtil::create(&handles[j],
+                int status = bdlqq::ThreadUtil::create(&handles[j],
                                                       workerThread,
                                                       &threadArgs[j]);
                 ASSERT(0 == status);
@@ -2119,7 +2119,7 @@ int main(int argc, char *argv[])
             for (Handles::iterator itr  = handles.begin(),
                                    end  = handles.end();
                                    end != itr; ++itr) {
-                bdlmtt::ThreadUtil::join(*itr);
+                bdlqq::ThreadUtil::join(*itr);
             }
 
 

@@ -736,7 +736,7 @@ TypesPrintUtil_Imp::printBase64(bsl::ostream&                stream,
 
 bsl::ostream&
 TypesPrintUtil_Imp::printBase64(bsl::ostream&                 stream,
-                                       const bdlb::StringRef&        object,
+                                       const bslstl::StringRef&        object,
                                        const EncoderOptions  *,
                                        bdeat_TypeCategory::Simple)
 {
@@ -767,7 +767,7 @@ TypesPrintUtil_Imp::printHex(bsl::ostream&                stream,
 
 bsl::ostream&
 TypesPrintUtil_Imp::printHex(bsl::ostream&                 stream,
-                                    const bdlb::StringRef&        object,
+                                    const bslstl::StringRef&        object,
                                     const EncoderOptions  *,
                                     bdeat_TypeCategory::Simple)
 {
@@ -823,7 +823,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
 
 bsl::ostream&
 TypesPrintUtil_Imp::printText(bsl::ostream&                stream,
-                                     const bdlb::StringRef&       object,
+                                     const bslstl::StringRef&       object,
                                      const EncoderOptions *options,
                                      bdeat_TypeCategory::Simple)
 {

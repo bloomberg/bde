@@ -53,7 +53,7 @@
 //
 //    private:
 //      // DATA
-//      bdlmtt::Mutex        d_lock;
+//      bdlqq::Mutex        d_lock;
 //      bsl::deque<Job *>  d_queue;
 //      bdlma::ConcurrentFixedPool    d_pool;
 //      bslma::Allocator  *d_allocator_p;
@@ -119,12 +119,12 @@
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_POOL
@@ -185,40 +185,40 @@ class ConcurrentFixedPool {
     // (but see the documentation for the 'release' method).
 
     // PRIVATE TYPES
-    typedef ConcurrentFixedPool_Node Node;     // type of memory block "header"
+    typedef ConcurrentFixedPool_Node Node;  // type of memory block "header"
 
     // DATA
-    bdlmtt::AtomicInt       d_freeList;       // head of free list
+    bsls::AtomicInt      d_freeList;        // head of free list
 
-    const unsigned       d_sizeMask;       // mask corresponding to max size of
-                                           // pool; rounded up to power of 2
+    const unsigned       d_sizeMask;        // mask corresponding to max size of
+                                            // pool; rounded up to power of 2
 
-    bsl::vector<Node *>  d_nodes;          // holds nodes currently being
-                                           // pooled; enables index <-> address
-                                           // mapping
+    bsl::vector<Node *>  d_nodes;           // holds nodes currently being
+                                            // pooled; enables index <-> address
+                                            // mapping
 
-    const int            d_dataOffset;     // offset (in bytes) to memory block
-                                           // within a 'Node'
+    const int            d_dataOffset;      // offset (in bytes) to memory block
+                                            // within a 'Node'
 
-    const int            d_nodeSize;       // size of blocks pooled by
-                                           // 'd_nodePool'
+    const int            d_nodeSize;        // size of blocks pooled by
+                                            // 'd_nodePool'
 
-    bdlmtt::Mutex          d_nodePoolMutex;  // mutex for access to
-                                             // 'd_nodePool'
+    bdlqq::Mutex         d_nodePoolMutex;   // mutex for access to
+                                            // 'd_nodePool'
 
-    bdlma::Pool           d_nodePool;       // underlying memory pool
+    bdlma::Pool          d_nodePool;        // underlying memory pool
 
-    int                  d_numNodes;       // number of nodes in 'd_nodes' that
-                                           // are currently being pooled
+    int                  d_numNodes;        // number of nodes in 'd_nodes' that
+                                            // are currently being pooled
 
-    const int            d_objectSize;     // size of pooled objects as
-                                           // specified at construction
+    const int            d_objectSize;      // size of pooled objects as
+                                            // specified at construction
 
-    int                  d_backoffLevel;   // determines amount of spinning
-                                           // when under contention
+    int                  d_backoffLevel;    // determines amount of spinning
+                                            // when under contention
 
-    bslma::Allocator    *d_allocator_p;    // memory allocator (held, not
-                                           // owned)
+    bslma::Allocator    *d_allocator_p;     // memory allocator (held, not
+                                            // owned)
 
     // NOT IMPLEMENTED
     ConcurrentFixedPool(const ConcurrentFixedPool&);

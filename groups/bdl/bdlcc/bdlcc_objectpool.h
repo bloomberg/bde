@@ -151,17 +151,17 @@ BSLS_IDENT("$Id: $")
 //          : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //          , d_connectionId(connectionId)
 //        {
-//            bdlmtt::ThreadUtil::microSleep(CONNECTION_OPEN_TIME);
+//            bdlqq::ThreadUtil::microSleep(CONNECTION_OPEN_TIME);
 //        }
 //
 //        ~my_DatabaseConnection()
 //        {
-//            bdlmtt::ThreadUtil::microSleep(CONNECTION_CLOSE_TIME);
+//            bdlqq::ThreadUtil::microSleep(CONNECTION_CLOSE_TIME);
 //        }
 //
 //        void executeQuery(Query *query)
 //        {
-//            bdlmtt::ThreadUtil::microSleep(QUERY_EXECUTION_TIME);
+//            bdlqq::ThreadUtil::microSleep(QUERY_EXECUTION_TIME);
 //        }
 //    };
 //..
@@ -169,7 +169,7 @@ BSLS_IDENT("$Id: $")
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-//    void serverThread(bdlmtt::AtomicInt *queries, int max,
+//    void serverThread(bsls::AtomicInt *queries, int max,
 //                      void(*queryHandler)(Query*))
 //    {
 //        while (++(*queries) <= max) {
@@ -185,8 +185,8 @@ BSLS_IDENT("$Id: $")
 //       NUM_QUERIES = 10000
 //    };
 //
-//    bdlmtt::AtomicInt numQueries = 0;
-//    bdlmtt::ThreadGroup tg;
+//    bsls::AtomicInt numQueries = 0;
+//    bdlqq::ThreadGroup tg;
 //
 //    tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
 //                                      NUM_QUERIES, &queryHandler1),
@@ -270,10 +270,10 @@ BSLS_IDENT("$Id: $")
 //
 //    for (int i = 0; i < NUM_QUERIES; ++i) {
 //        my_Query *query = getClientQuery();
-//        bdlmtt::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//        bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
 //    }
 //    for (int i = 0; i < NUM_QUERIES; ++i) {
-//        bdlmtt::ThreadUtil::join(threads[i]);
+//        bdlqq::ThreadUtil::join(threads[i]);
 //    }
 //..
 ///Modified 'queryHandler'
@@ -312,20 +312,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_factory.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -627,7 +627,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
         struct {
             ObjectNode           *d_next_p;
-            bdlmtt::AtomicUtil::Int  d_refCount;
+            bsls::AtomicOperations::AtomicTypes::Int  d_refCount;
         } d_inUse;
         typename bsls::AlignmentFromType<TYPE>::Type d_dummy;
                                      // padding provider for proper alignment
@@ -742,7 +742,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     };
 
     // DATA
-    bdlmtt::AtomicPointer<ObjectNode>
+    bsls::AtomicPointer<ObjectNode>
                            d_freeObjectsList;      // list of free objects
 
     ObjectPool_CreatorProxy<CREATOR, TYPE>
@@ -755,10 +755,10 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     int                    d_numReplenishObjects;  // pool growth behavior
                                                    // option (see above)
 
-    bdlmtt::AtomicInt         d_numAvailableObjects;  // number of available
+    bsls::AtomicInt         d_numAvailableObjects;  // number of available
                                                    // objects
 
-    bdlmtt::AtomicInt         d_numObjects;           // number of objects
+    bsls::AtomicInt         d_numObjects;           // number of objects
                                                    // created by this pool
 
     BlockNode             *d_blockList;            // list of memory blocks
@@ -768,7 +768,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     bslma::Allocator      *d_allocator_p;          // held, not owned
 
-    bdlmtt::Mutex            d_mutex;                // pool replenishment
+    bdlqq::Mutex            d_mutex;                // pool replenishment
                                                    // serializer
 
     // NOT IMPLEMENTED
@@ -984,12 +984,12 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
 
     for (int i = 0; i < numObjects; ++i, ++startGuard) {
         last->d_inUse.d_next_p = last + BCEC_NUM_OBJECTS_PER_FRAME;
-        bdlmtt::AtomicUtil::initInt(&last->d_inUse.d_refCount, 0);
+        bsls::AtomicOperations::initInt(&last->d_inUse.d_refCount, 0);
         d_objectCreator.object()(last + 1, d_allocator_p);
         last += BCEC_NUM_OBJECTS_PER_FRAME;
     }
     last -= BCEC_NUM_OBJECTS_PER_FRAME;
-    bdlmtt::AtomicUtil::initInt(&last->d_inUse.d_refCount, 0);
+    bsls::AtomicOperations::initInt(&last->d_inUse.d_refCount, 0);
 
     // If all went well (no exceptions), attach it to 'd_blockList'
 
@@ -1005,8 +1005,8 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
         last->d_inUse.d_next_p = old;
     } while (old != d_freeObjectsList.testAndSwap(old, (ObjectNode *)start));
 
-    d_numObjects.relaxedAdd(numObjects);
-    d_numAvailableObjects.relaxedAdd(numObjects);
+    d_numObjects.addRelaxed(numObjects);
+    d_numAvailableObjects.addRelaxed(numObjects);
 }
 
 // CREATORS
@@ -1136,11 +1136,11 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 {
     ObjectNode *p;
     do {
-        p = d_freeObjectsList.relaxedLoad();
+        p = d_freeObjectsList.loadRelaxed();
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!p)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
             p = d_freeObjectsList;
             if (!p) {
                 replenish();
@@ -1148,7 +1148,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
             }
         }
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                   2 != bdlmtt::AtomicUtil::addIntNv(&p->d_inUse.d_refCount,2))) {
+                   2 != bsls::AtomicOperations::addIntNv(&p->d_inUse.d_refCount,2))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             for (int i = 0; i < 3; ++i) {
                 // To avoid unnecessary contention, assume that if we did
@@ -1168,7 +1168,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         // checked the 'refCount' *before* we incremented it.  Either we can
         // observe the new free list value (== p) and because of the release
         // barrier, we can observe the new 'd_next_p' value (this relies on a
-        // dependent load) or 'relaxedLoad' will the "old" (!= p) and the
+        // dependent load) or 'loadRelaxed' will the "old" (!= p) and the
         // condition will fail.
         // Note that 'h' is made volatile so that the compiler does not replace
         // the 'h->d_inUse' load with 'p->d_inUse' (and thus removing the data
@@ -1176,7 +1176,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         // TBD to be completely thorough 'h->d_inUse.d_next_p' needs a load
         // dependent barrier (no-op on all current architectures though).
 
-        const ObjectNode * volatile h = d_freeObjectsList.relaxedLoad();
+        const ObjectNode * volatile h = d_freeObjectsList.loadRelaxed();
 
         // Split the likely into 2 to workaround gcc 4.2 to gcc 4.4 bugs
         // documented in 'bsls_performancehint'.
@@ -1191,24 +1191,24 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 
         int refCount;
         for (;;) {
-            refCount = bdlmtt::AtomicUtil::getInt(p->d_inUse.d_refCount);
+            refCount = bsls::AtomicOperations::getInt(&p->d_inUse.d_refCount);
 
             if (refCount & 1) {
                 // The node is now free but not on the free list.
                 // Try to take it.
 
-                if (refCount == bdlmtt::AtomicUtil::testAndSwapInt(
+                if (refCount == bsls::AtomicOperations::testAndSwapInt(
                                                     &p->d_inUse.d_refCount,
                                                     refCount,
                                                     refCount^1)) {
                     // Taken!
                     p->d_inUse.d_next_p = 0;  // not strictly necessary
-                    d_numAvailableObjects.relaxedAdd(-1);
+                    d_numAvailableObjects.addRelaxed(-1);
                     return (TYPE*)(p + 1);
 
                 }
             }
-            else if (refCount == bdlmtt::AtomicUtil::testAndSwapInt(
+            else if (refCount == bsls::AtomicOperations::testAndSwapInt(
                                                     &p->d_inUse.d_refCount,
                                                     refCount,
                                                     refCount - 2)) {
@@ -1218,7 +1218,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
     } while(1);
 
     p->d_inUse.d_next_p = 0;  // not strictly necessary
-    d_numAvailableObjects.relaxedAdd(-1);
+    d_numAvailableObjects.addRelaxed(-1);
     return (TYPE *)(p+1);
 }
 
@@ -1226,7 +1226,7 @@ template <class TYPE, class CREATOR, class RESETTER>
 void ObjectPool<TYPE, CREATOR, RESETTER>::increaseCapacity(int numObjects)
 {
     if (numObjects > 0) {
-       bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+       bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
        addObjects(numObjects);
     }
 }
@@ -1237,11 +1237,11 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
     ObjectNode *current = (ObjectNode *)(void *)objPtr - 1;
     d_objectResetter.object()(objPtr);
 
-    int refCount = bdlmtt::AtomicUtil::getIntRelaxed(current->d_inUse.d_refCount);
+    int refCount = bsls::AtomicOperations::getIntRelaxed(&current->d_inUse.d_refCount);
     do {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
             refCount =
-                bdlmtt::AtomicUtil::testAndSwapInt(&current->d_inUse.d_refCount,
+                bsls::AtomicOperations::testAndSwapInt(&current->d_inUse.d_refCount,
                                                 2, 0);
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
                 break;
@@ -1251,7 +1251,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
         const int oldRefCount = refCount;
-        refCount = bdlmtt::AtomicUtil::testAndSwapInt(
+        refCount = bsls::AtomicOperations::testAndSwapInt(
                                                 &current->d_inUse.d_refCount,
                                                 refCount,
                                                 refCount - 1);
@@ -1259,13 +1259,13 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
             // Someone else is still trying to pop this item.  Just let them
             // have it.
 
-            d_numAvailableObjects.relaxedAdd(1);
+            d_numAvailableObjects.addRelaxed(1);
             return;
         }
 
     } while(1);
 
-    ObjectNode *head = d_freeObjectsList.relaxedLoad();
+    ObjectNode *head = d_freeObjectsList.loadRelaxed();
     for (;;) {
         current->d_inUse.d_next_p = head;
         ObjectNode * const oldHead = head;
@@ -1275,13 +1275,13 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
         }
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     }
-    d_numAvailableObjects.relaxedAdd(1);
+    d_numAvailableObjects.addRelaxed(1);
 }
 
 template <class TYPE, class CREATOR, class RESETTER>
 void ObjectPool<TYPE, CREATOR, RESETTER>::reserveCapacity(int numObjects)
 {
-   bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+   bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
    numObjects -= d_numObjects;
    if (numObjects > 0) {
       addObjects(numObjects);

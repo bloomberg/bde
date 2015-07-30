@@ -215,14 +215,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h> // for size_t
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDEMA_MANAGEDPTR
-#include <bslma_managedptr.h>
-#endif
-
-#endif
-
 namespace BloombergLP  {
 
 

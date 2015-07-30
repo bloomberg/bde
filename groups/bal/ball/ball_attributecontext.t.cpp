@@ -9,8 +9,8 @@
 #include <ball_testobserver.h>            // for testing only
 
 #include <bdlmca_blob.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>
@@ -61,12 +61,12 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-bdlmtt::Mutex coutMutex;                    // mutex for output
+bdlqq::Mutex coutMutex;                    // mutex for output
 
 void aSsErT(int c, const char *s, int i)
 {
     if (c) {
-        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
+        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
@@ -98,7 +98,7 @@ void aSsErT(int c, const char *s, int i)
 // The following macros facilitate thread-safe streaming to standard output.
 
 #define MTCOUT   { coutMutex.lock(); cout \
-                                           << bdlmtt::ThreadUtil::selfIdAsInt() \
+                                           << bdlqq::ThreadUtil::selfIdAsInt() \
                                            << ": "
 #define MTENDL   endl << bsl::flush ;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -337,7 +337,7 @@ namespace BAEL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
 namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_6
 {
 
-bdlmtt::Barrier barrier(2);
+bdlqq::Barrier barrier(2);
 
 struct WorkerThreadArgs {
     ball::CategoryManager *d_categoryManager;
@@ -516,7 +516,7 @@ enum {
 };
 
 
-bdlmtt::Barrier barrier(NUM_THREADS);   // synchronizing threads
+bdlqq::Barrier barrier(NUM_THREADS);   // synchronizing threads
 
 struct WorkerThreadArgs {
     ball::CategoryManager *d_categoryManager;
@@ -932,7 +932,7 @@ namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2
 const int NUM_THREADS =  6;           // number of threads
 const int NUM_TESTS   = 10;           // number of tests
 
-bdlmtt::Barrier barrier(NUM_THREADS);   // synchronizing threads
+bdlqq::Barrier barrier(NUM_THREADS);   // synchronizing threads
 
 extern "C" void *case2ContextThread(void *arg)
 {
@@ -1201,13 +1201,13 @@ int main(int argc, char *argv[])
         BAEL_ATTRIBUTECONTEXT_TEST_CASE_6::WorkerThreadArgs args =
                                                                  { &manager };
 
-        bdlmtt::ThreadUtil::Handle threads[3];
-        bdlmtt::ThreadUtil::create(&threads[0], workerThread1, NULL);
-        bdlmtt::ThreadUtil::create(&threads[1], workerThread2, NULL);
-        bdlmtt::ThreadUtil::create(&threads[2], workerThread3, &args);
-        bdlmtt::ThreadUtil::join(threads[0]);
-        bdlmtt::ThreadUtil::join(threads[1]);
-        bdlmtt::ThreadUtil::join(threads[2]);
+        bdlqq::ThreadUtil::Handle threads[3];
+        bdlqq::ThreadUtil::create(&threads[0], workerThread1, NULL);
+        bdlqq::ThreadUtil::create(&threads[1], workerThread2, NULL);
+        bdlqq::ThreadUtil::create(&threads[2], workerThread3, &args);
+        bdlqq::ThreadUtil::join(threads[0]);
+        bdlqq::ThreadUtil::join(threads[1]);
+        bdlqq::ThreadUtil::join(threads[2]);
 
 
         const ball::Category *cat1 =
@@ -1449,8 +1449,8 @@ int main(int argc, char *argv[])
         unsigned int ruleThreadSeeds[NUM_RULETHREADS];
         ContextThreadData contextThreadData[NUM_CONTEXTTHREADS];
 
-        bdlmtt::ThreadUtil::Handle ruleThreads[NUM_RULETHREADS];
-        bdlmtt::ThreadUtil::Handle contextThreads[NUM_CONTEXTTHREADS];
+        bdlqq::ThreadUtil::Handle ruleThreads[NUM_RULETHREADS];
+        bdlqq::ThreadUtil::Handle contextThreads[NUM_CONTEXTTHREADS];
 
         ball::CategoryManager manager;
         ball::AttributeContext::initialize(&manager);
@@ -1466,7 +1466,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_RULETHREADS; ++j) {
                 ruleThreadArgs[j].d_categoryManager = &manager;
                 ruleThreadArgs[j].d_seed = seed;
-                bdlmtt::ThreadUtil::create(&ruleThreads[j],
+                bdlqq::ThreadUtil::create(&ruleThreads[j],
                                          case4RuleThread,
                                          (void*)&ruleThreadArgs[j]);
             }
@@ -1475,17 +1475,17 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_CONTEXTTHREADS; ++j) {
                 contextThreadArgs[j].d_categoryManager = &manager;
                 contextThreadArgs[j].d_seed = seed;
-                bdlmtt::ThreadUtil::create(&contextThreads[j],
+                bdlqq::ThreadUtil::create(&contextThreads[j],
                                          case4ContextThread,
                                          (void*)&contextThreadArgs[j]);
             }
 
             for (int j = 0; j < NUM_RULETHREADS; ++j) {
-                bdlmtt::ThreadUtil::join(ruleThreads[j]);
+                bdlqq::ThreadUtil::join(ruleThreads[j]);
             }
 
             for (int j = 0; j < NUM_CONTEXTTHREADS; ++j) {
-                bdlmtt::ThreadUtil::join(contextThreads[j]);
+                bdlqq::ThreadUtil::join(contextThreads[j]);
             }
         }
       } break;
@@ -1511,12 +1511,12 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_3;
 
-        bdlmtt::ThreadUtil::Handle Threads[NUM_THREADS];
+        bdlqq::ThreadUtil::Handle Threads[NUM_THREADS];
 
         for (int i = 0; i < NUM_TESTS; ++i)
         {
             for (int j = 0; j < NUM_THREADS; ++j) {
-                bdlmtt::ThreadUtil::create(&Threads[j],
+                bdlqq::ThreadUtil::create(&Threads[j],
                                          case3ContextThread,
                                          (void*)0);
             }
@@ -1524,7 +1524,7 @@ int main(int argc, char *argv[])
             void* contexts[NUM_THREADS];
 
             for (int j = 0; j < NUM_THREADS; ++j) {
-                bdlmtt::ThreadUtil::join(Threads[j], NULL);
+                bdlqq::ThreadUtil::join(Threads[j], NULL);
             }
 
         }
@@ -1558,7 +1558,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(globalAllocator);
         using namespace BAEL_ATTRIBUTECONTEXT_TEST_CASE_2;
 
-        bdlmtt::ThreadUtil::Handle Threads[NUM_THREADS];
+        bdlqq::ThreadUtil::Handle Threads[NUM_THREADS];
         Obj* contexts[NUM_THREADS];
 
         if (verbose) cout << "\n\tWithout passing an allocator" << endl;
@@ -1566,7 +1566,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_TESTS; ++i)
         {
             for (int j = 0; j < NUM_THREADS; ++j) {
-                bdlmtt::ThreadUtil::create(&Threads[j],
+                bdlqq::ThreadUtil::create(&Threads[j],
                                          case2ContextThread,
                                          (void*)0);
             }
@@ -1574,7 +1574,7 @@ int main(int argc, char *argv[])
             void* contexts[NUM_THREADS];
 
             for (int j = 0; j < NUM_THREADS; ++j) {
-                bdlmtt::ThreadUtil::join(Threads[j], &contexts[j]);
+                bdlqq::ThreadUtil::join(Threads[j], &contexts[j]);
             }
 
             for (int j = 0; j < NUM_THREADS; ++j) {
@@ -1592,7 +1592,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocators[NUM_THREADS];
 
             for (int j = 0; j < NUM_THREADS; ++j) {
-                bdlmtt::ThreadUtil::create(&Threads[j],
+                bdlqq::ThreadUtil::create(&Threads[j],
                                          case2ContextThread,
                                          (void*)&testAllocators[j]);
             }
@@ -1600,7 +1600,7 @@ int main(int argc, char *argv[])
             void* contexts[NUM_THREADS];
 
             for (int j = 0; j < NUM_THREADS; ++j) {
-                bdlmtt::ThreadUtil::join(Threads[j], &contexts[j]);
+                bdlqq::ThreadUtil::join(Threads[j], &contexts[j]);
             }
 
             for (int j = 0; j < NUM_THREADS; ++j) {

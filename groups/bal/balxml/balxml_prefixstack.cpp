@@ -31,7 +31,7 @@ const PredefinedPrefix predefinedPrefixes[] =
 
 const PredefinedPrefix nullPrefix = { "", -1 };
 
-const PredefinedPrefix& lookupPredefinedPrefix(const bdlb::StringRef& prefix)
+const PredefinedPrefix& lookupPredefinedPrefix(const bslstl::StringRef& prefix)
     // Return the namespace ID for the specified predefined 'prefix' or -1 if
     // 'prefix' is not predefined.  The behavior is undefined unless
     // 'prefix.data()' is non-null.
@@ -57,8 +57,8 @@ PrefixStack::PrefixStack(
 {
 }
 
-int PrefixStack::pushPrefix(const bdlb::StringRef& prefix,
-                                   const bdlb::StringRef& namespaceUri)
+int PrefixStack::pushPrefix(const bslstl::StringRef& prefix,
+                                   const bslstl::StringRef& namespaceUri)
 {
     int nsId = d_namespaceRegistry->lookupOrRegister(namespaceUri);
 
@@ -93,7 +93,7 @@ int PrefixStack::popPrefixes(int count)
 }
 
 int
-PrefixStack::lookupNamespaceId(const bdlb::StringRef& prefix) const
+PrefixStack::lookupNamespaceId(const bslstl::StringRef& prefix) const
 {
     // Prefix registry is typically small, so linear search is appropriate.
     PrefixVector::const_iterator i = d_prefixes.begin() + d_numPrefixes;
@@ -108,7 +108,7 @@ PrefixStack::lookupNamespaceId(const bdlb::StringRef& prefix) const
 }
 
 const char *
-PrefixStack::lookupNamespacePrefix(const bdlb::StringRef& prefix) const
+PrefixStack::lookupNamespacePrefix(const bslstl::StringRef& prefix) const
 {
     PrefixVector::const_iterator i = d_prefixes.begin() + d_numPrefixes;
     while (i != d_prefixes.begin()) {
@@ -122,7 +122,7 @@ PrefixStack::lookupNamespacePrefix(const bdlb::StringRef& prefix) const
 }
 
 const char *
-PrefixStack::lookupNamespaceUri(const bdlb::StringRef& prefix) const
+PrefixStack::lookupNamespaceUri(const bslstl::StringRef& prefix) const
 {
     int id = lookupNamespaceId(prefix);
     return  d_namespaceRegistry->lookup(id);

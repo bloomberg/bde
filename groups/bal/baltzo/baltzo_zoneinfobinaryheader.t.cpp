@@ -2,7 +2,7 @@
 
 #include <baltzo_zoneinfobinaryheader.h>
 
-#include <bdlb_xxxstringref.h>
+#include <bsl_string.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>

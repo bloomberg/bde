@@ -4,11 +4,11 @@
 #include <balst_stacktrace.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_threadutil.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 #include <bdlb_random.h>
 #include <bdlb_string.h>
 
@@ -768,8 +768,8 @@ struct Functor {
     static const unsigned int  s_freeSomeIdx = 6;
 
     static bsls::AtomicInt  s_threadRand;
-    static bdlmtt::Barrier    s_startBarrier;
-    static bdlmtt::Barrier    s_underwayBarrier;
+    static bdlqq::Barrier    s_startBarrier;
+    static bdlqq::Barrier    s_underwayBarrier;
 
     bsl::vector<int *>      d_alloced;
     int                     d_randNum;
@@ -858,8 +858,8 @@ struct Functor {
 };
 Functor::FuncPtr Functor::s_funcPtrs[10];
 bsls::AtomicInt  Functor::s_threadRand(0);
-bdlmtt::Barrier    Functor::s_startBarrier(NUM_THREADS);
-bdlmtt::Barrier    Functor::s_underwayBarrier(NUM_THREADS + 1);
+bdlqq::Barrier    Functor::s_startBarrier(NUM_THREADS);
+bdlqq::Barrier    Functor::s_underwayBarrier(NUM_THREADS + 1);
 
 void Functor::allocOne()
 {
@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
     veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    cout << "TEST CASE " << test << endl;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator da;
     bslma::DefaultAllocatorGuard guard(&da);
@@ -1183,7 +1183,7 @@ int main(int argc, char *argv[])
 // of the code shows that we neglected to free 'd_cook' in the destructor and
 // we can now easily fix our leak.
 
-        bdlsu::FileUtil::remove("shipscrew.txt");
+        bdlsu::FilesystemUtil::remove("shipscrew.txt");
       }  break;
       case 21: {
         //---------------------------------------------------------------------
@@ -2529,7 +2529,7 @@ int main(int argc, char *argv[])
 
         namespace TC = MultiThreadedTest;
 
-        typedef bdlmtt::ThreadUtil Util;
+        typedef bdlqq::ThreadUtil Util;
 
         bslma::TestAllocator bslta("bsl_ta");
         TC::TouchyAllocator  touchy(&bslta);

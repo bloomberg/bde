@@ -241,10 +241,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_epochutil.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -524,7 +520,7 @@ class Zoneinfo {
         // 'utcTime' is already present, replace it's local-time descriptor
         // with 'descriptor'.
 
-    void setIdentifier(const bdlb::StringRef& value);
+    void setIdentifier(const bslstl::StringRef& value);
         // Set the 'identifier' attribute of this object to the specified
         // 'value'.
 
@@ -713,9 +709,9 @@ Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 }
 
 inline
-void Zoneinfo::setIdentifier(const bdlb::StringRef& value)
+void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(value.isBound());
+    BSLS_ASSERT_SAFE(0 != value.data());
 
     d_identifier.assign(value.begin(), value.end());
 }

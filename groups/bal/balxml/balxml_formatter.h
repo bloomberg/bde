@@ -215,10 +215,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlsb_memoutstreambuf.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
-#endif
-
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
@@ -333,12 +329,12 @@ class Formatter {
         char          d_tag[BAEXML_TRUNCATED_TAG_LEN]; // truncated tag
 #endif
       public:
-        ElemContext(const bdlb::StringRef& tag, WhitespaceType ws);
+        ElemContext(const bslstl::StringRef& tag, WhitespaceType ws);
         // Use compiler-generated copy constructor, assignment, and destructor.
         void setWs(WhitespaceType ws);
         WhitespaceType ws() const;
 #ifdef BDE_BUILD_TARGET_SAFE_2
-        bool matchTag(const bdlb::StringRef& tag) const;
+        bool matchTag(const bslstl::StringRef& tag) const;
 #endif
     };
 
@@ -369,13 +365,13 @@ class Formatter {
 
   private:
     // PRIVATE MANIPULATORS
-    void doAddAttribute(const bdlb::StringRef& name,
-                        const bdlb::StringRef& value);
+    void doAddAttribute(const bslstl::StringRef& name,
+                        const bslstl::StringRef& value);
         // Add an attribute of the specified 'name' that with the specified
         // 'value'.  Line is wrapped if the length of name="value" is too
         // long to fit on the current line.
 
-    void doAddData(const bdlb::StringRef& value, bool addSpace);
+    void doAddData(const bslstl::StringRef& value, bool addSpace);
         // Add the specified 'value' in the current element.  If the 'value'
         // is not the first data on a line, prefix the 'value' with a
         // space('0x20') if 'addSpace' is true.  In case adding the data makes
@@ -423,7 +419,7 @@ class Formatter {
 
     // MANIPULATORS
     template <typename TYPE>
-    void addAttribute(const bdlb::StringRef& name,
+    void addAttribute(const bslstl::StringRef& name,
                       const TYPE&            value,
                       int                    formattingMode = 0);
         // Add an attribute the specified 'name' and specified 'value' to the
@@ -449,7 +445,7 @@ class Formatter {
         // following a call to 'openElement', or 'addAttribute', add a closing
         // '>' to the opened tag.
 
-    void addComment(const bdlb::StringRef& comment, bool forceNewline = true);
+    void addComment(const bslstl::StringRef& comment, bool forceNewline = true);
         // Write the specified 'comment' into the stream.  The specified
         // 'forceNewLine', if true, forces to start a new line solely
         // for the comment if it's not on a new line already.  Otherwise,
@@ -484,14 +480,14 @@ class Formatter {
         // '[ -128 .. 127 ]'.
 
     template <typename TYPE>
-    void addElementAndData(const bdlb::StringRef& name,
+    void addElementAndData(const bslstl::StringRef& name,
                            const TYPE&            value,
                            int                    formattingMode = 0);
         // Add element of the specified 'name' and the specified 'value' as the
         // data content.  This has the same effect as calling the following
         // sequence: 'openElement(name); addData(value), closeElement(name);'.
 
-    void addHeader(const bdlb::StringRef& encoding = "UTF-8");
+    void addHeader(const bslstl::StringRef& encoding = "UTF-8");
         // Add XML header with specified 'encoding'.  Version is always "1.0".
         // Behavior is undefined unless 'addHeader' is the first manipulator
         // (with the exception of 'rawOutputStream') after construction or
@@ -502,7 +498,7 @@ class Formatter {
         // to 'openElement', or 'addAttribute', add a closing '>' to the opened
         // tag.
 
-    void closeElement(const bdlb::StringRef& name);
+    void closeElement(const bslstl::StringRef& name);
         // Decrement the indent level and add the closing tag for the element
         // of the specified 'name'.  If the element does not have content,
         // write '/>' and a newline into stream.  Otherwise, write '</name>'
@@ -516,7 +512,7 @@ class Formatter {
         // Insert the closing '>' if there is an incomplete tag, and flush
         // the output stream.
 
-    void openElement(const bdlb::StringRef& name,
+    void openElement(const bslstl::StringRef& name,
                      WhitespaceType         ws = BAEXML_PRESERVE_WHITESPACE);
         // Open an element of the 'name' at current indent level with
         // the whitespace constraint 'ws' for its textual data and increment
@@ -567,7 +563,7 @@ class Formatter {
 // CREATORS
 #ifdef BDE_BUILD_TARGET_SAFE_2
 inline
-balxml::Formatter::ElemContext::ElemContext(const bdlb::StringRef& tag,
+balxml::Formatter::ElemContext::ElemContext(const bslstl::StringRef& tag,
                                            WhitespaceType         ws)
 : d_ws(ws), d_tagLen(bsl::min(tag.length(), 255))
 {
@@ -576,7 +572,7 @@ balxml::Formatter::ElemContext::ElemContext(const bdlb::StringRef& tag,
 }
 #else
 inline
-balxml::Formatter::ElemContext::ElemContext(const bdlb::StringRef& ,
+balxml::Formatter::ElemContext::ElemContext(const bslstl::StringRef& ,
                                            WhitespaceType         ws)
 : d_ws(ws)
 {
@@ -617,7 +613,7 @@ Formatter::~Formatter()
 
 // MANIPULATORS
 template <typename TYPE>
-void Formatter::addAttribute(const bdlb::StringRef& name,
+void Formatter::addAttribute(const bslstl::StringRef& name,
                                     const TYPE&            value,
                                     int                    formattingMode)
 {
@@ -638,7 +634,7 @@ void Formatter::addAttribute(const bdlb::StringRef& name,
             return;                                                   // RETURN
         }
 
-        doAddAttribute(name, bdlb::StringRef(sb.data(), (int)sb.length()));
+        doAddAttribute(name, bslstl::StringRef(sb.data(), (int)sb.length()));
     }
     else {
         // Blast attribute to stream without line-wrapping
@@ -670,7 +666,7 @@ void Formatter::addData(const TYPE& value, int formattingMode)
             return;                                                   // RETURN
         }
 
-        doAddData(bdlb::StringRef(sb.data(), (int)sb.length()), false);
+        doAddData(bslstl::StringRef(sb.data(), (int)sb.length()), false);
     }
     else {
         // Blast data to stream without line-wrapping
@@ -702,7 +698,7 @@ void Formatter::addListData(const TYPE& value, int formattingMode)
             return;                                                   // RETURN
         }
 
-        doAddData(bdlb::StringRef(sb.data(), (int)sb.length()), true);
+        doAddData(bslstl::StringRef(sb.data(), (int)sb.length()), true);
     }
     else {
         // Blast data to stream without line-wrapping
@@ -718,7 +714,7 @@ void Formatter::addListData(const TYPE& value, int formattingMode)
 
 template <typename TYPE>
 inline
-void Formatter::addElementAndData(const bdlb::StringRef& name,
+void Formatter::addElementAndData(const bslstl::StringRef& name,
                                          const TYPE&            value,
                                          int                    formattingMode)
 {

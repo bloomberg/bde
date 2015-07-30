@@ -137,12 +137,12 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// The 'myConsumerThread' function below is a callback for 'bdlmtt::ThreadUtil',
-// which requires a "C" signature.  'bdlmtt::ThreadUtil::create()' expects
+// The 'myConsumerThread' function below is a callback for 'bdlqq::ThreadUtil',
+// which requires a "C" signature.  'bdlqq::ThreadUtil::create()' expects
 // a pointer to this function, and provides that function pointer to the
 // newly-created thread.  The new thread then executes this function.
 //
-// Since 'bdlmtt::ThreadUtil::create()' uses the familiar "C" convention of
+// Since 'bdlqq::ThreadUtil::create()' uses the familiar "C" convention of
 // passing a 'void' pointer, our function simply casts that pointer to our
 // required type ('bdlcc::MultipriorityQueue<MyWorkRequest> *'), and then
 // delegates to the queue-specific function 'myConsumer' (above):
@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //
 // Finally, the 'myProducer' function "joins" each consumer thread, which
 // ensures that the thread itself will terminate correctly (see the
-// 'bdlmtt_xxxthread' component-level documentation for details):
+// 'bdlqq_xxxthread' component-level documentation for details):
 //..
 //  void myProducer(int numThreads)
 //  {
@@ -185,10 +185,10 @@ BSLS_IDENT("$Id: $")
 //      // Start the specified number of threads.
 //
 //      assert(0 < NUM_THREADS && NUM_THREADS <= MAX_CONSUMER_THREADS);
-//      bdlmtt::ThreadUtil::Handle consumerHandles[MAX_CONSUMER_THREADS];
+//      bdlqq::ThreadUtil::Handle consumerHandles[MAX_CONSUMER_THREADS];
 //
 //      for (int i = 0; i < NUM_THREADS; ++i) {
-//          bdlmtt::ThreadUtil::create(&consumerHandles[i],
+//          bdlqq::ThreadUtil::create(&consumerHandles[i],
 //                                   myConsumerThread,
 //                                   &queue);
 //      }
@@ -215,7 +215,7 @@ BSLS_IDENT("$Id: $")
 //      // Join all of the consumer threads back with the main thread.
 //
 //      for (int i = 0; i < NUM_THREADS; ++i) {
-//          bdlmtt::ThreadUtil::join(consumerHandles[i]);
+//          bdlqq::ThreadUtil::join(consumerHandles[i]);
 //      }
 //  }
 //..
@@ -263,7 +263,7 @@ BSLS_IDENT("$Id: $")
 //      char      d_eventText[MAX_EVENT_TEXT];
 //  };
 //..
-// As noted in the previous example, 'bdlmtt::ThreadUtil::create()' spawns
+// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns
 // a new thread, which invokes a simple "C" function taking a 'void' pointer.
 // In the previous example, we simply converted that 'void' pointer into a
 // pointer to 'bdlcc::MultipriorityQueue<MyWorkRequest>'.
@@ -315,7 +315,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // The callback function 'myWorkerThread' (below) invoked by
-// 'bdlmtt::ThreadUtil::create' takes the traditional 'void' pointer.  The
+// 'bdlqq::ThreadUtil::create' takes the traditional 'void' pointer.  The
 // expected data is the composite structure 'MyWorkerData'.  The callback
 // function casts the 'void' pointer to the application-specific data type
 // and then uses the referenced object to construct a call to the 'myWorker'
@@ -348,7 +348,7 @@ BSLS_IDENT("$Id: $")
 //      bdlcc::MultipriorityQueue<MyEvent> queue(NUM_PRIORITIES);
 //
 //      assert(0 < NUM_THREADS && NUM_THREADS <= MAX_CONSUMER_THREADS);
-//      bdlmtt::ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
+//      bdlqq::ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
 //
 //      // Create 'NUM_THREADS' threads, each having a unique "worker id".
 //
@@ -356,7 +356,7 @@ BSLS_IDENT("$Id: $")
 //      for (int i = 0; i < NUM_THREADS; ++i) {
 //          workerData[i].d_queue = &queue;
 //          workerData[i].d_workerId = i;
-//          bdlmtt::ThreadUtil::create(&workerHandles[i],
+//          bdlqq::ThreadUtil::create(&workerHandles[i],
 //                                   myWorkerThread,
 //                                   &workerData[i]);
 //      }
@@ -374,7 +374,7 @@ BSLS_IDENT("$Id: $")
 //                    << ev.d_eventText << bsl::endl;
 //          if (MyEvent::TASK_COMPLETE == ev.d_type) {
 //              ++nStop;
-//              bdlmtt::ThreadUtil::join(workerHandles[ev.d_workerId]);
+//              bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
 //          }
 //      }
 //  }
@@ -388,12 +388,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BDLB_XXXBITUTIL
@@ -531,10 +531,10 @@ class MultipriorityQueue {
         // The type of the vectors of list head and tail pointers.
 
     // DATA
-    mutable bdlmtt::Mutex d_mutex;          // used to synchronize access
+    mutable bdlqq::Mutex d_mutex;          // used to synchronize access
                                           // (including 'const' access)
 
-    bdlmtt::Condition     d_notEmptyCondition;
+    bdlqq::Condition     d_notEmptyCondition;
                                           // signaled on each push
 
     NodePtrVector       d_heads;          // pointers to heads of linked
@@ -764,7 +764,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
     BSLS_ASSERT(item);
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
         while (0 == d_length) {
             // Note that if we get a spurious signal, we will check the
@@ -885,7 +885,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
                                         d_allocator_p);
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
         if (!d_enabledFlag) {
             return BCEC_FAILURE;
@@ -922,7 +922,7 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(
     const int mask = 1 << itemPriority;
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
@@ -961,7 +961,7 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(
     const int mask = 1 << itemPriority;
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
@@ -1010,7 +1010,7 @@ void MultipriorityQueue<TYPE>::removeAll()
     Node *condemnedList = 0;
 
     {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
         while (d_notEmptyFlags) {
             const int priority =
@@ -1046,7 +1046,7 @@ template <typename TYPE>
 inline
 void MultipriorityQueue<TYPE>::enable()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     d_enabledFlag = true;
 }
@@ -1055,7 +1055,7 @@ template <typename TYPE>
 inline
 void MultipriorityQueue<TYPE>::disable()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
     d_enabledFlag = false;
 }

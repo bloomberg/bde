@@ -11,7 +11,7 @@
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bdlmca_xxxpooledbufferchain.h>
 #include <bdlmt_threadpool.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -108,7 +108,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 static
 void processMessages(bdlcc::Queue<btlmt::Message> *queue,
-                     bdlmtt::AtomicInt *count)
+                     bsls::AtomicInt *count)
 {
     ASSERT(queue);
     btlmt::Message msg = queue->popFront();
@@ -119,7 +119,7 @@ void processMessages(bdlcc::Queue<btlmt::Message> *queue,
 
 static
 void processBlobMessages(bdlcc::Queue<btlmt::Message> *queue,
-                         bdlmtt::AtomicInt *count)
+                         bsls::AtomicInt *count)
 {
     ASSERT(queue);
     btlmt::Message msg = queue->popFront();
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
         bdlmt::ThreadPool pool(defaultAttributes, 1, 2, 100);
         bdlcc::Queue<btlmt::Message> queue;
         pool.start();
-        bdlmtt::AtomicInt count = 0;
+        bsls::AtomicInt count(0);
         bdlf::Function<void (*)()> functor(
                 bdlf::BindUtil::bind(&processMessages, &queue, &count));
         for (int i = 0; i < NUM_MESSAGES; ++i) {
@@ -471,7 +471,7 @@ int main(int argc, char *argv[])
         bdlmt::ThreadPool pool(defaultAttributes, 1, 2, 100);
         bdlcc::Queue<btlmt::Message> queue;
         pool.start();
-        bdlmtt::AtomicInt count = 0;
+        bsls::AtomicInt count(0);
         bdlf::Function<void (*)()>functor(
                 bdlf::BindUtil::bind(&processMessages, &queue, &count));
         for (int i = 0; i < NUM_MESSAGES; ++i) {

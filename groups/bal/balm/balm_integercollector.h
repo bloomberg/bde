@@ -82,12 +82,12 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricrecord.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -117,7 +117,7 @@ class IntegerCollector {
     bsls::Types::Int64  d_total;     // total of values across events
     int                 d_min;       // minimum value across events
     int                 d_max;       // maximum value across events
-    mutable bdlmtt::Mutex d_mutex;     // synchronizes access to data
+    mutable bdlqq::Mutex d_mutex;     // synchronizes access to data
 
     // NOT IMPLEMENTED
     IntegerCollector(const IntegerCollector&);
@@ -224,7 +224,7 @@ IntegerCollector::~IntegerCollector()
 inline
 void IntegerCollector::reset()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_count = 0;
     d_total = 0;
     d_min   = DEFAULT_MIN;
@@ -234,7 +234,7 @@ void IntegerCollector::reset()
 inline
 void IntegerCollector::update(int value)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     ++d_count;
     d_total += value;
     d_min = bsl::min(value, d_min);
@@ -247,7 +247,7 @@ void IntegerCollector::accumulateCountTotalMinMax(int count,
                                                        int min,
                                                        int max)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_count += count;
     d_total += total;
     d_min   = bsl::min(min, d_min);
@@ -260,7 +260,7 @@ void IntegerCollector::setCountTotalMinMax(int count,
                                                 int min,
                                                 int max)
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_count = count;
     d_total = total;
     d_min   = min;

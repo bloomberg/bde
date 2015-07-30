@@ -1126,7 +1126,7 @@ struct Enumerated {
         // (i.e., 'string' does not match any enumerator).
 
     static int fromString(Value              *result,
-                          const std::string&  string);
+                          const bsl::string&  string);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' otherwise (i.e., 'string' does not match any
@@ -1152,7 +1152,7 @@ struct Enumerated {
         // read from 'stream'.  (See the package-group-level documentation for
         // more information on 'bdex' streaming of container types.)
 
-    static std::ostream& print(std::ostream& stream, Value value);
+    static bsl::ostream& print(bsl::ostream& stream, Value value);
         // Write to the specified 'stream' the string representation of
         // the specified enumeration 'value'.  Return a reference to
         // the modifiable 'stream'.
@@ -1173,7 +1173,7 @@ struct Enumerated {
 
 // FREE OPERATORS
 inline
-std::ostream& operator<<(std::ostream& stream, Enumerated::Value rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, Enumerated::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1275,7 +1275,7 @@ class CustomizedType {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -1309,7 +1309,7 @@ bool operator!=(const CustomizedType& lhs, const CustomizedType& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const CustomizedType& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedType& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1930,13 +1930,13 @@ int Enumerated::maxSupportedBdexVersion()
 }
 
 inline
-int Enumerated::fromString(Value *result, const std::string& string)
+int Enumerated::fromString(Value *result, const bsl::string& string)
 {
     return fromString(result, string.c_str(), string.length());
 }
 
 inline
-std::ostream& Enumerated::print(std::ostream&     stream,
+bsl::ostream& Enumerated::print(bsl::ostream&     stream,
                                 Enumerated::Value value)
 {
     return stream << toString(value);
@@ -2075,7 +2075,7 @@ int CustomizedType::maxSupportedBdexVersion() const
 }
 
 inline
-std::ostream& CustomizedType::print(std::ostream& stream,
+bsl::ostream& CustomizedType::print(bsl::ostream& stream,
                                  int           level,
                                  int           spacesPerLevel) const
 {

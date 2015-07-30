@@ -139,8 +139,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_currenttime.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -189,7 +189,7 @@ struct LocalTimeOffsetUtil {
         // Return the address of the current local time period information.
         // This method is *not* thread-safe.
 
-    static bdlmtt::RWMutex *privateLock();
+    static bdlqq::RWMutex *privateLock();
         // Return the address of the lock controlling access to the local time
         // period information.  This method is *not* thread-safe.
 

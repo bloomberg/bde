@@ -2,7 +2,7 @@
 
 #include <btls_ratelimiter.h>
 
-#include <bdlmtt_threadutil.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlt_currenttime.h>
 
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
                                         rateLimiter.calculateTimeToSubmit(now);
             bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
                                    (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
-            bdlmtt::ThreadUtil::microSleep(uS);
+            bdlqq::ThreadUtil::microSleep(uS);
         }
     }
 //..

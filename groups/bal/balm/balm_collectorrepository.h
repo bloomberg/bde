@@ -120,12 +120,12 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricregistry.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_RWMUTEX
-#include <bdlmtt_rwmutex.h>
+#ifndef INCLUDED_BDLQQ_RWMUTEX
+#include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_XXXTHREAD
+#include <bdlqq_xxxthread.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -196,7 +196,7 @@ class CollectorRepository {
     baem_MetricRegistry   *d_registry_p;   // registry of ids (held, not owned)
     Collectors             d_collectors;   // collectors (owned)
     CategorizedCollectors  d_categories;   // map of category => collectors
-    mutable bdlmtt::RWMutex  d_rwMutex;      // data lock
+    mutable bdlqq::RWMutex  d_rwMutex;      // data lock
     bslma::Allocator      *d_allocator_p;  // allocator (held, not owned)
 
     // NOT IMPLEMENTED

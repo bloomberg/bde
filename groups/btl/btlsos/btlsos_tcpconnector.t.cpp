@@ -15,7 +15,7 @@
 #include <btlso_streamsocket.h>
 
 #include <bslma_testallocator.h>            // thread-safe allocator
-#include <bdlmtt_xxxthread.h>                   // thread management util
+#include <bdlqq_xxxthread.h>                   // thread management util
 
 #include <bsls_timeinterval.h>
 
@@ -110,7 +110,7 @@ static void aSsErT(int c, const char *s, int i)
                       aSsErT(1, #X, __LINE__); } }
 
 //----------------------------------------------------------------------------
-static bdlmtt::Mutex  g_mutex;   // for i/o synchronization in all threads
+static bdlqq::Mutex  g_mutex;   // for i/o synchronization in all threads
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -160,7 +160,7 @@ enum {
 struct ConnectionInfo {
      // Use this struct to pass information to the helper thread.
 
-     bdlmtt::ThreadUtil::Handle d_tid;        // the id of the thread to
+     bdlqq::ThreadUtil::Handle d_tid;        // the id of the thread to
                                             // which a signal's delivered
 
      btlso::StreamSocket<btlso::IPv4Address>              *d_serverSocket_p;
@@ -233,10 +233,10 @@ void* threadAsServer(void *arg)
     int signals = info.d_signals;    // This flag also indicates the number
                                      // of signals to be generated.
     while (signals-- > 0) {
-        bdlmtt::ThreadUtil::microSleep(2 * SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(2 * SLEEP_TIME);
         pthread_kill(info.d_tid, SIGSYS);
         if (verbose) {
-            P_T(bdlmtt::ThreadUtil::self());
+            P_T(bdlqq::ThreadUtil::self());
             QT(" generated a SIGSYS signal to the thread:");
             PT(info.d_tid);
         }
@@ -387,7 +387,7 @@ static int testExecutionHelper(btlsos::TcpConnector         *connector,
 
 static
 int processTest(btlsos::TcpConnector                            *connector,
-          bdlmtt::ThreadUtil::ThreadFunction                      threadFunction,
+          bdlqq::ThreadUtil::ThreadFunction                      threadFunction,
           btlso::StreamSocket<btlso::IPv4Address>                *serverSocket,
           bsl::vector<btlsc::Channel*>                          *channels,
           bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> *connList,
@@ -407,10 +407,10 @@ int processTest(btlsos::TcpConnector                            *connector,
     // in the specified 'commands'.  Return 0 on success, and a non-zero
     // value otherwise.
 {
-    bdlmtt::ThreadUtil::Handle threadHandle;
+    bdlqq::ThreadUtil::Handle threadHandle;
 
     // Create a thread to be a client.
-    bdlmtt::ThreadUtil::Handle tid = bdlmtt::ThreadUtil::self();
+    bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
 
     ConnectionInfo connectInfo = { tid,
                                    serverSocket,
@@ -421,7 +421,7 @@ int processTest(btlsos::TcpConnector                            *connector,
                                  };
 
     bcemt_Attribute attributes;
-    int ret = bdlmtt::ThreadUtil::create(&threadHandle, attributes,
+    int ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                        threadFunction, &connectInfo);
     ASSERT(0 == ret);
     if (ret) {
@@ -431,7 +431,7 @@ int processTest(btlsos::TcpConnector                            *connector,
         }
     }
     if (!signals) {
-        bdlmtt::ThreadUtil::microSleep(2 * SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(2 * SLEEP_TIME);
     }
 
     for (int i = 0; i < numCommands; i++) { // different test data
@@ -471,9 +471,9 @@ int processTest(btlsos::TcpConnector                            *connector,
             P_T(commands[i].d_expNumChannels);
             PT(connector->numChannels());
         }
-        bdlmtt::ThreadUtil::microSleep(SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
     }
-    bdlmtt::ThreadUtil::join(threadHandle);
+    bdlqq::ThreadUtil::join(threadHandle);
     return ret;
 }
 

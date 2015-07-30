@@ -2,9 +2,9 @@
 #include <bdlcc_objectcatalog.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_barrier.h>
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_barrier.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -141,12 +141,12 @@ void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
-typedef bdlmtt::LockGuard<bdlmtt::Mutex> LockGuard;
-static bdlmtt::Mutex printMutex;  // mutex to protect output macros
+typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
+static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { LockGuard guard(&printMutex); P(X); }
 #define PT_(X) { LockGuard guard(&printMutex); P_(X); }
 
-static bdlmtt::Mutex &assertMutex = printMutex; // mutex to protect assert macros
+static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert macros
 
 #define ASSERTT(X) {                                                          \
        LockGuard guard(&assertMutex);                                        \
@@ -489,8 +489,8 @@ namespace BCEC_OBJECTCATALOG_TEST_USAGE_EXAMPLE
 typedef bsl::queue<int> *RemoteAddress;
 static bsl::queue<int>   server;
 static RemoteAddress     serverAddress = &server;
-static bdlmtt::Mutex       serverMutex;
-static bdlmtt::Condition   serverNotEmptyCondition;
+static bdlqq::Mutex       serverMutex;
+static bdlqq::Condition   serverNotEmptyCondition;
 
 const int NUM_QUERIES_TO_PROCESS   = 128; // for testing purposes
 const int CALLBACK_PROCESSING_TIME = 10;  // in microseconds
@@ -589,7 +589,7 @@ void queryCallBack(const QueryResult& result)
     // a given time to process a query.
 {
     (void) result; // unused for testing, to silence warnings
-    bdlmtt::ThreadUtil::microSleep(CALLBACK_PROCESSING_TIME);
+    bdlqq::ThreadUtil::microSleep(CALLBACK_PROCESSING_TIME);
 }
 
 void getQueryAndCallback(Query                                * /*query*/,
@@ -699,7 +699,7 @@ enum {
 bslma::TestAllocator ta(veryVeryVerbose);
 bdlcc::ObjectCatalog<int> catalog(&ta);
 
-bdlmtt::Barrier barrier(NUM_THREADS + 3);
+bdlqq::Barrier barrier(NUM_THREADS + 3);
 
 int getObjectFromPair(Iter &it)
 {
@@ -1081,16 +1081,16 @@ int main(int argc, char *argv[])
             if (verbose) bsl::cout << "\n\tCatalog usage"
                                    << "\n\t-------------" << bsl::endl;
 
-            bdlmtt::ThreadUtil::Handle clientThreadResponse;
-            bdlmtt::ThreadUtil::create(&clientThreadResponse,
+            bdlqq::ThreadUtil::Handle clientThreadResponse;
+            bdlqq::ThreadUtil::create(&clientThreadResponse,
                                      testClientProcessResponse, NULL);
 
-            bdlmtt::ThreadUtil::Handle clientThreadQuery;
-            bdlmtt::ThreadUtil::create(&clientThreadQuery,
+            bdlqq::ThreadUtil::Handle clientThreadQuery;
+            bdlqq::ThreadUtil::create(&clientThreadQuery,
                                      testClientProcessQuery, NULL);
 
-            bdlmtt::ThreadUtil::join(clientThreadQuery);
-            bdlmtt::ThreadUtil::join(clientThreadResponse);
+            bdlqq::ThreadUtil::join(clientThreadQuery);
+            bdlqq::ThreadUtil::join(clientThreadResponse);
         }
 
         {
@@ -1133,22 +1133,22 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTCATALOG_TEST_CASE_13;
 
-        bdlmtt::ThreadUtil::Handle threads[NUM_THREADS + 3];
+        bdlqq::ThreadUtil::Handle threads[NUM_THREADS + 3];
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            bdlmtt::ThreadUtil::create(&threads[i],
+            bdlqq::ThreadUtil::create(&threads[i],
                                      testAddFindReplaceRemove,
                                      (void*)(bsls::Types::IntPtr)i);
         }
 
-        bdlmtt::ThreadUtil::create(&threads[NUM_THREADS + 0], testLength, NULL);
-        bdlmtt::ThreadUtil::create(&threads[NUM_THREADS + 1],
+        bdlqq::ThreadUtil::create(&threads[NUM_THREADS + 0], testLength, NULL);
+        bdlqq::ThreadUtil::create(&threads[NUM_THREADS + 1],
                                  testIteration, NULL);
-        bdlmtt::ThreadUtil::create(&threads[NUM_THREADS + 2],
+        bdlqq::ThreadUtil::create(&threads[NUM_THREADS + 2],
                                  verifyStateThread, NULL);
 
         for (int i = 0; i < NUM_THREADS + 3; ++i) {
-            bdlmtt::ThreadUtil::join(threads[i]);
+            bdlqq::ThreadUtil::join(threads[i]);
         }
 
       } break;

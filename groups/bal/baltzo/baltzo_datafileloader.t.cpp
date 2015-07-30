@@ -4,7 +4,7 @@
 #include <baltzo_zoneinfo.h>
 #include <baltzo_errorcode.h>
 
-#include <bdlsu_xxxfileutil.h>
+#include <bdlsu_filesystemutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -458,7 +458,7 @@ static const unsigned char AMERICA_NEW_YORK_DATA[] = {
 
 static void writeData(const char *fileName, const char *data, int numBytes)
 {
-    int rc = bdlsu::FileUtil::createDirectories(fileName, false);
+    int rc = bdlsu::FilesystemUtil::createDirectories(fileName, false);
     ASSERT(0 == rc);
 //..
 // Then we create a file for Bangkok and write the binary time zone data to
@@ -484,17 +484,17 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    if (!bdlsu::FileUtil::exists(TEST_DIRECTORY)) {
-        ASSERT(0 == bdlsu::FileUtil::createDirectories(TEST_DIRECTORY, true));
+    if (!bdlsu::FilesystemUtil::exists(TEST_DIRECTORY)) {
+        ASSERT(0 == bdlsu::FilesystemUtil::createDirectories(TEST_DIRECTORY, true));
     }
 
-    if (!bdlsu::FileUtil::exists(TEST_GMT_FILE)) {
+    if (!bdlsu::FilesystemUtil::exists(TEST_GMT_FILE)) {
         bsl::ofstream outputFile(TEST_GMT_FILE, bsl::ofstream::binary);
         ASSERT(outputFile.is_open());
         outputFile.close();
     }
 
-    if (!bdlsu::FileUtil::exists(AMERICA_NEW_YORK_FILE)) {
+    if (!bdlsu::FilesystemUtil::exists(AMERICA_NEW_YORK_FILE)) {
         writeData(AMERICA_NEW_YORK_FILE,
                   reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
                   sizeof(AMERICA_NEW_YORK_DATA));
@@ -502,8 +502,8 @@ int main(int argc, char *argv[])
 
     // Remove GMT file for usage example.
 
-    if (bdlsu::FileUtil::exists("test/GMT")) {
-        bdlsu::FileUtil::remove("test/GMT");
+    if (bdlsu::FilesystemUtil::exists("test/GMT")) {
+        bdlsu::FilesystemUtil::remove("test/GMT");
     }
 
     bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
     const char *TIME_ZONE_DIRECTORY = "test/Asia";
     const char *TIME_ZONE_FILE      = "test/Asia/Bangkok";
 #endif
-    int rc = bdlsu::FileUtil::createDirectories(TIME_ZONE_DIRECTORY, true);
+    int rc = bdlsu::FilesystemUtil::createDirectories(TIME_ZONE_DIRECTORY, true);
     ASSERT(0 == rc);
 //..
 // Finally we create a file for Bangkok and write the binary time zone data to
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
         timeZone.print(bsl::cout, 1, 3);
     }
 
-    bdlsu::FileUtil::remove("test", true); // TIME_ZONE_DIRECTORY/.. i.e. "test"
+    bdlsu::FilesystemUtil::remove("test", true); // TIME_ZONE_DIRECTORY/.. i.e. "test"
 
       } break;
       case 6: {
@@ -1317,7 +1317,7 @@ int main(int argc, char *argv[])
     // TBD: multiple test cases use the same path and so cleanup can not occur
     //      after each test case ends, or else there is a race condition when
     //      multiple test cases are run in parallel
-    //bdlsu::FileUtil::remove(TEST_DIRECTORY, true);
+    //bdlsu::FilesystemUtil::remove(TEST_DIRECTORY, true);
 
     return testStatus;
 }

@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
-#include <bdlmtt_lockguard.h>
-#include <bdlmtt_xxxthread.h>
+#include <bdlqq_lockguard.h>
+#include <bdlqq_xxxthread.h>
 
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
@@ -60,7 +60,7 @@ namespace bdlmt {
 void FixedThreadPool::processJobs()
 {
     while (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                        BCEP_RUN == d_control.relaxedLoad())) {
+                                        BCEP_RUN == d_control.loadRelaxed())) {
         Job functor;
 
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -73,7 +73,7 @@ void FixedThreadPool::processJobs()
                 d_queueSemaphore.wait();
             }
 
-            d_numThreadsWaiting.relaxedAdd(-1);
+            d_numThreadsWaiting.addRelaxed(-1);
         }
         else {
             functor();
@@ -83,7 +83,7 @@ void FixedThreadPool::processJobs()
 
 void FixedThreadPool::drainQueue()
 {
-    while (BCEP_DRAIN == d_control.relaxedLoad()) {
+    while (BCEP_DRAIN == d_control.loadRelaxed()) {
         Job functor;
 
         const int ret = d_queue.tryPopFront(&functor);
@@ -97,7 +97,7 @@ void FixedThreadPool::drainQueue()
 
 void FixedThreadPool::waitWorkerThreads()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
 
     while (d_numThreadsReady != d_numThreads) {
         d_threadsReadyCond.wait(&d_gateMutex);
@@ -106,7 +106,7 @@ void FixedThreadPool::waitWorkerThreads()
 
 void FixedThreadPool::releaseWorkerThreads()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
     d_numThreadsReady = 0;
     ++d_gateCount;
     d_gateCond.broadcast();
@@ -116,7 +116,7 @@ void FixedThreadPool::releaseWorkerThreads()
 
 void FixedThreadPool::interruptWorkerThreads()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex); // acquire barrier
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex); // acquire barrier
 
     int numThreadsWaiting = d_numThreadsWaiting;
 
@@ -133,7 +133,7 @@ void FixedThreadPool::workerThread()
 
     while (1) {
         {
-            bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_gateMutex);
+            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
 
             ++d_numThreadsReady;
             d_threadsReadyCond.signal();
@@ -145,7 +145,7 @@ void FixedThreadPool::workerThread()
             gateCount = d_gateCount;
         }
 
-        int control = d_control.relaxedLoad();
+        int control = d_control.loadRelaxed();
 
         if (BCEP_RUN == control) {
             processJobs();
@@ -269,9 +269,9 @@ int FixedThreadPool::tryEnqueueJob(const Job& functor)
 
 void FixedThreadPool::drain()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.relaxedLoad()) {
+    if (BCEP_RUN == d_control.loadRelaxed()) {
         d_control = BCEP_DRAIN;
 
         // 'interruptWorkerThreads' emits an initial acquire barrier (mutex
@@ -292,9 +292,9 @@ void FixedThreadPool::drain()
 
 void FixedThreadPool::shutdown()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.relaxedLoad()) {
+    if (BCEP_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
         d_control = BCEP_STOP;
 
@@ -311,9 +311,9 @@ void FixedThreadPool::shutdown()
 
 int FixedThreadPool::start()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_STOP != d_control.relaxedLoad()) {
+    if (BCEP_STOP != d_control.loadRelaxed()) {
         return 0;
     }
 
@@ -341,9 +341,9 @@ int FixedThreadPool::start()
 
 void FixedThreadPool::stop()
 {
-    bdlmtt::LockGuard<bdlmtt::Mutex> lock(&d_metaMutex);
+    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
 
-    if (BCEP_RUN == d_control.relaxedLoad()) {
+    if (BCEP_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
         d_control = BCEP_DRAIN;
 
