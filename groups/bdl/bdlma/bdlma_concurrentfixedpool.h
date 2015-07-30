@@ -53,10 +53,10 @@
 //
 //    private:
 //      // DATA
-//      bdlqq::Mutex        d_lock;
-//      bsl::deque<Job *>  d_queue;
-//      bdlma::ConcurrentFixedPool    d_pool;
-//      bslma::Allocator  *d_allocator_p;
+//      bdlqq::Mutex                d_lock;
+//      bsl::deque<Job *>           d_queue;
+//      bdlma::ConcurrentFixedPool  d_pool;
+//      bslma::Allocator           *d_allocator_p;
 //
 //    public:
 //      // CREATORS

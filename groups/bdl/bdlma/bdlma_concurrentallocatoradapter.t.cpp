@@ -220,8 +220,8 @@ extern "C" void *workerThread(void *arg) {
         // This class defines a trivial thread-enabled vector.
 
         // DATA
-        mutable bdlqq::Mutex d_mutex;      // synchronize access
-        bsl::vector<TYPE>     d_elements;  // underlying list of strings
+        mutable bdlqq::Mutex d_mutex;     // synchronize access
+        bsl::vector<TYPE>    d_elements;  // underlying list of strings
 
         // NOT IMPLEMENTED
         ThreadEnabledVector(const ThreadEnabledVector&);

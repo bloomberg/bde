@@ -96,8 +96,8 @@ BSLS_IDENT("$Id: $")
 //  struct my1_WorkQueue {
 //      // DATA
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //      for (int i = 0; i < 50; ++i) {
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my1_WorkItem request;
 //
@@ -206,7 +206,7 @@ BSLS_IDENT("$Id: $")
 //
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my1_WorkItem request;
 //          request.d_item = (char *)queue->d_alloc_p->allocate(100);
@@ -272,26 +272,27 @@ BSLS_IDENT("$Id: $")
 //
 //      return 0;
 //  }
-//
-//  int main()
+//..
+// In the application 'main':
+//..
 //  {
 //      bdlma::ConcurrentPoolAllocator poolAlloc;
 //      my1_WorkQueue queue(&poolAlloc);
 //
-//      bcemt_Attribute attributes;
+//      bdlqq::ThreadAttributes attributes;
 //
 //      bdlqq::ThreadUtil::Handle producerHandle;
 //      int status = bdlqq::ThreadUtil::create(&producerHandle,
-//                                            attributes,
-//                                            &my1_producer,
-//                                            &queue);
+//                                             attributes,
+//                                             &my1_producer,
+//                                             &queue);
 //      assert(0 == status);
 //
 //      bdlqq::ThreadUtil::Handle consumerHandle;
 //      status = bdlqq::ThreadUtil::create(&consumerHandle,
-//                                        attributes,
-//                                        &my1_consumer,
-//                                        &queue);
+//                                         attributes,
+//                                         &my1_consumer,
+//                                         &queue);
 //      assert(0 == status);
 //      status = bdlqq::ThreadUtil::join(consumerHandle);
 //      assert(0 == status);
@@ -369,7 +370,7 @@ BSLS_IDENT("$Id: $")
 //
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my2_WorkItem request;
 //
@@ -434,14 +435,14 @@ BSLS_IDENT("$Id: $")
 //  struct my2_WorkQueue {
 //      // DATA
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
 //      explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
-//      : d_queue(basic_Allocator)
-//      , d_alloc_p(basic_Allocator)
+//      : d_queue(basicAllocator)
+//      , d_alloc_p(basicAllocator)
 //      {
 //      }
 //  };
@@ -454,7 +455,7 @@ BSLS_IDENT("$Id: $")
 //
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my2_WorkItem request;
 //          request.d_item = (char *)queue->d_alloc_p->allocate(len+1);
@@ -520,13 +521,14 @@ BSLS_IDENT("$Id: $")
 //
 //      return 0;
 //  }
-//
-//  int main()
+//..
+// In the application's 'main':
+//..
 //  {
 //      bdlma::ConcurrentPoolAllocator poolAlloc(100);
 //      my2_WorkQueue queue(&poolAlloc);
 //
-//      bcemt_Attribute attributes;
+//      bdlqq::ThreadAttributes attributes;
 //
 //      bdlqq::ThreadUtil::Handle producerHandle;
 //      int status = bdlqq::ThreadUtil::create(&producerHandle,
