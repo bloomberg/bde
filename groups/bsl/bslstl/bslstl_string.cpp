@@ -348,13 +348,13 @@ float bsl::stof(const wstring& str, std::size_t *pos) {
 float bsl::stof(const string& str, std::size_t *pos) {
     BSLS_ASSERT(pos);
 
-    return static_cast<float>(stod(str, pos);
+    return static_cast<float>(stod(str, pos));
 }
 
 float bsl::stof(const wstring& str, std::size_t *pos) {
     BSLS_ASSERT(pos);
 
-    return static_cast<float>(stod(str, pos);
+    return static_cast<float>(stod(str, pos));
 }
 #endif
 
