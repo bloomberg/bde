@@ -43,19 +43,18 @@ BSLS_IDENT("$Id: $")
 // 'basicAllocator'.  Note that we assume that 'my_Obj' does not require an
 // allocator for any of its members:
 //..
-//  void f(bslma::Allocator *basicAllocator)
-//  {
-//      my_Obj *object = new(*basicAllocator) my_Obj;
+//  bslma::NewDeleteAllocator basicAllocator;
+//  my_Obj *object = new(basicAllocator) my_Obj;
 //..
 // Next, create a concrete deleter for 'object' using the same allocator as was
 // used to allocate its footprint:
 //..
-//      bdlma::DefaultDeleter<my_Obj> deleter(basicAllocator);
+//  bdlma::DefaultDeleter<my_Obj> deleter(&basicAllocator);
 //..
 // Finally, create a shared pointer passing to it 'object' and the address of
 // 'deleter':
 //..
-//      bsl::shared_ptr<my_Obj> handle(object, &deleter, basicAllocator);
+//  bsl::shared_ptr<my_Obj> handle(object, &deleter, &basicAllocator);
 //..
 // Now the 'handle' can be passed to another thread or enqueued efficiently.
 // When the reference count of 'handle' goes to 0, 'object' is automatically
@@ -65,9 +64,6 @@ BSLS_IDENT("$Id: $")
 // deleter that implements this protocol can be passed.  Also note, on the
 // downside, that the lifetime of 'deleter' must be longer than the lifetime of
 // all associated instances.
-//..
-//  }
-//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>

@@ -4,10 +4,12 @@
 #include <bsl_memory.h>
 
 #include <bslma_default.h>
+#include <bslma_newdeleteallocator.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -49,8 +51,11 @@ static void aSsErT(int c, const char *s, int i)
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 class my_Obj {
+    int d_flag;
     int *d_destructorFlag_p;
   public:
+    my_Obj() : d_destructorFlag_p(&d_flag) {}
+
     my_Obj(int *destructorFlag) : d_destructorFlag_p(destructorFlag) {
         *d_destructorFlag_p = 0;
     }
@@ -74,15 +79,35 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // TEST USAGE
         // --------------------------------------------------------------------
-
-        bslma::TestAllocator ta;
-
-        int destructorFlag;
-        my_Obj *object = new(ta) my_Obj(&destructorFlag);
-
-        bdlma::DefaultDeleter<my_Obj> deleter(&ta);
-
-        bsl::shared_ptr<my_Obj> handle(object, &deleter, &ta);
+///Usage
+///-----
+// Suppose that we would like to transfer ownership of an object between
+// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
+// this object is 'my_Obj' and we will suppose that it is created using a given
+// 'basicAllocator'.  Note that we assume that 'my_Obj' does not require an
+// allocator for any of its members:
+//..
+    bslma::NewDeleteAllocator basicAllocator;
+    my_Obj *object = new(basicAllocator) my_Obj;
+//..
+// Next, create a concrete deleter for 'object' using the same allocator as was
+// used to allocate its footprint:
+//..
+    bdlma::DefaultDeleter<my_Obj> deleter(&basicAllocator);
+//..
+// Finally, create a shared pointer passing to it 'object' and the address of
+// 'deleter':
+//..
+    bsl::shared_ptr<my_Obj> handle(object, &deleter, &basicAllocator);
+//..
+// Now the 'handle' can be passed to another thread or enqueued efficiently.
+// When the reference count of 'handle' goes to 0, 'object' is automatically
+// deleted via the 'deleteObject' method of 'deleter', which in turn will
+// invoke the destructor of 'object'.  Note that since the type of the deleter
+// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of
+// deleter that implements this protocol can be passed.  Also note, on the
+// downside, that the lifetime of 'deleter' must be longer than the lifetime of
+// all associated instances.
       } break;
       case 1: {
         // --------------------------------------------------------------------

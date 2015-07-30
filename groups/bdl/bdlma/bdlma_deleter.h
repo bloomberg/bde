@@ -26,23 +26,23 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Suppose that we would like to transfer ownership of an object between
 // threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
-// this object is 'my_Obj' and we will suppose that it is created using a given
-// 'basicAllocator'.  Note that we assume that 'my_Obj' does not require an
-// allocator for any of its members:
+// this object is 'my_Obj', we will suppose that it is created using a given
+// 'basicAllocator', and that a concrete implementation of 'bdlma::Deleter',
+// say 'my_Deleter', is to be used.  Note that we assume that 'my_Obj' does not
+// require an allocator for any of its members:
 //..
-//  void f(bslma::Allocator *basicAllocator)
-//  {
-//      my_Obj *object = new(*basicAllocator) my_Obj;
+//  bslma::NewDeleteAllocator basicAllocator;
+//  my_Obj *object = new(basicAllocator) my_Obj;
 //..
 // Next, create a concrete deleter for 'object' using the same allocator as was
 // used to allocate its footprint:
 //..
-//      bdlma::DefaultDeleter<my_Obj> deleter(basicAllocator);
+//  my_Deleter deleter(&basicAllocator);
 //..
 // Finally, create a shared pointer passing to it 'object' and the address of
 // 'deleter':
 //..
-//      bsl::shared_ptr<my_Obj> handle(object, &deleter, basicAllocator);
+//  bsl::shared_ptr<my_Obj> handle(object, &deleter, &basicAllocator);
 //..
 // Now the 'handle' can be passed to another thread or enqueued efficiently.
 // When the reference count of 'handle' goes to 0, 'object' is automatically
@@ -52,20 +52,17 @@ BSLS_IDENT("$Id: $")
 // deleter that implements this protocol can be passed.  Also note, on the
 // downside, that the lifetime of 'deleter' must be longer than the lifetime of
 // all associated instances.
-//..
-//  }
-//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                            // ===================
-                            // class Deleter
-                            // ===================
+
+                              // =============
+                              // class Deleter
+                              // =============
 
 template <class TYPE>
 class Deleter {
@@ -92,8 +89,8 @@ template <class TYPE>
 Deleter<TYPE>::~Deleter()
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
