@@ -6,7 +6,6 @@
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_qlock.h>
-#include <bdlqq_xxxthread.h>
 #include <bsls_atomic.h>
 
 #include <bslma_default.h>

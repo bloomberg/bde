@@ -5,7 +5,6 @@
 BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
 
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
