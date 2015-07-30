@@ -273,7 +273,7 @@ extern "C" void *workerThread(void *arg) {
         int length() const
             // Return the number of elements in this thread-enabled vector.
         {
-            bdlqq::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
             return static_cast<int>(d_elements.size());
         }
     };

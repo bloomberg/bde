@@ -143,10 +143,10 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 
       private:
         // DATA
-        bdlmtt::Mutex        d_lock;
-        bsl::deque<Job *>  d_queue;
-        bdlma::ConcurrentFixedPool    d_pool;
-        bslma::Allocator  *d_allocator_p;
+        bdlqq::Mutex                d_lock;
+        bsl::deque<Job *>           d_queue;
+        bdlma::ConcurrentFixedPool  d_pool;
+        bslma::Allocator           *d_allocator_p;
 
       public:
         // CREATORS
@@ -275,7 +275,7 @@ enum {
     k_NUM_THREADS = 4
 };
 
-bdlmqq::Barrier barrier(k_NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 extern "C"
 void *workerThread(void *arg) {
     Obj *mX = (Obj *) arg;

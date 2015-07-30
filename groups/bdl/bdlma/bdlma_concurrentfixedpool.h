@@ -190,26 +190,26 @@ class ConcurrentFixedPool {
     // DATA
     bsls::AtomicInt      d_freeList;        // head of free list
 
-    const unsigned       d_sizeMask;        // mask corresponding to max size of
-                                            // pool; rounded up to power of 2
+    const unsigned       d_sizeMask;        // mask corresponding to max size
+                                            // of pool; rounded up to power of
+                                            // 2
 
     bsl::vector<Node *>  d_nodes;           // holds nodes currently being
-                                            // pooled; enables index <-> address
-                                            // mapping
+                                            // pooled; enables index <->
+                                            // address mapping
 
-    const int            d_dataOffset;      // offset (in bytes) to memory block
-                                            // within a 'Node'
+    const int            d_dataOffset;      // offset (in bytes) to memory
+                                            // block within a 'Node'
 
     const int            d_nodeSize;        // size of blocks pooled by
                                             // 'd_nodePool'
 
-    bdlqq::Mutex         d_nodePoolMutex;   // mutex for access to
-                                            // 'd_nodePool'
+    bdlqq::Mutex         d_nodePoolMutex;   // mutex for access to 'd_nodePool'
 
     bdlma::Pool          d_nodePool;        // underlying memory pool
 
-    int                  d_numNodes;        // number of nodes in 'd_nodes' that
-                                            // are currently being pooled
+    int                  d_numNodes;        // number of nodes in 'd_nodes'
+                                            // that are currently being pooled
 
     const int            d_objectSize;      // size of pooled objects as
                                             // specified at construction

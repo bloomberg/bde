@@ -233,9 +233,9 @@ namespace bdlqq { class Mutex; }
 
 namespace bdlma {
 
-              // =========================================
-              // class ConcurrentAllocatorAdapter
-              // =========================================
+                     // ================================
+                     // class ConcurrentAllocatorAdapter
+                     // ================================
 
 class ConcurrentAllocatorAdapter : public bslma::Allocator {
     // This class defines an implementation of the 'bslma::Allocator' protocol
