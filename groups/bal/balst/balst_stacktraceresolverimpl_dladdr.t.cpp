@@ -5,7 +5,7 @@
 
 #include <balst_objectfileformat.h>
 
-#include <bdlb_xxxbitutil.h>
+#include <bdlt_dateutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
             // Global inline in another file
 
             stackTrace[5].setAddress(addFixedOffset((UintPtr)
-                                                       &bdlb::BitUtil::eqMask));
+                                                &bdlt::DateUtil::nextDayOfWeek));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
@@ -583,14 +583,14 @@ int main(int argc, char *argv[])
             SM(stackTrace[2].mangledSymbolName(), "funcStaticInlineOne");
             SM(stackTrace[3].mangledSymbolName(), "qsort");
             SM(stackTrace[4].mangledSymbolName(), "resolve");
-            SM(stackTrace[5].mangledSymbolName(), "eqMask");
+            SM(stackTrace[5].mangledSymbolName(), "nextDayOfWeek");
 
             SM(stackTrace[0].symbolName(), "funcGlobalOne");
             SM(stackTrace[1].symbolName(), "funcStaticOne");
             SM(stackTrace[2].symbolName(), "funcStaticInlineOne");
             SM(stackTrace[3].symbolName(), "qsort");
             SM(stackTrace[4].symbolName(), "resolve");
-            SM(stackTrace[5].symbolName(), "eqMask");
+            SM(stackTrace[5].symbolName(), "nextDayOfWeek");
 
             if (demangle) {
 #undef  SM
@@ -614,7 +614,7 @@ int main(int argc, char *argv[])
                 const char *name4 = stackTrace[4].symbolName().c_str();
                 LOOP2_ASSERT(name4, resName,
                                           safeCmp(name4, resName, resNameLen));
-                resName = "BloombergLP::bdlb::BitUtil::eqMask(";
+                resName = "BloombergLP::bdlt::DateUtil:nextDayOfWeek(";
                 resNameLen = (int) bsl::strlen(resName);
                 const char *name5 = stackTrace[5].symbolName().c_str();
                 LOOP2_ASSERT(name5, resName,

@@ -9,7 +9,7 @@
 #include <bdlb_random.h>
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -2899,8 +2899,8 @@ int main(int argc, char *argv[])
         // pop, then performs a push or pop and verify results against an
         // oracle.
         {
-            int maxOp = bdlb::BitUtil::base2Log(4096);
-            ASSERT(12 == maxOp);
+            int maxOp = 12;
+            ASSERT(4096 == 1 << maxOp);
 
             for (int capacity = 1; capacity < 6; ++capacity) {
                 const unsigned int CAPACITY = capacity;
@@ -2915,7 +2915,7 @@ int main(int argc, char *argv[])
                     Obj x(CAPACITY, &oa); const Obj &X = x;
 
                     for (int op = 0; op < maxOp; ++op) {
-                        bool isPush = bdlb::BitUtil::isSetOne(opSequence, op);
+                        bool isPush = bdlb::BitUtil::isBitSet((uint32_t) opSequence, op);
                         unsigned int index, gen;
                         bool SUCCESS = isPush ? LENGTH < CAPACITY : LENGTH > 0;
                         if (isPush) {

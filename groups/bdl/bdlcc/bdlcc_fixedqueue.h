@@ -186,10 +186,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXBITUTIL
-#include <bdlb_xxxbitutil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif

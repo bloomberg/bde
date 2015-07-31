@@ -404,8 +404,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXBITUTIL
-#include <bdlb_xxxbitutil.h>
+#ifndef INCLUDED_BDLB_BITUTIL
+#include <bdlb_bitutil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
@@ -789,9 +789,10 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
             }
         }
 
-        priority = bdlb::BitUtil::find1AtSmallestIndex(d_notEmptyFlags);
-        BSLS_ASSERT((unsigned)priority < (unsigned)BCEC_MAX_NUM_PRIORITIES);
-            // verifies 0 <= priority < BCEC_MAX_NUM_PRIORITIES
+        priority = bdlb::BitUtil::numTrailingUnsetBits((uint32_t) d_notEmptyFlags);
+        BSLS_ASSERT(priority < BCEC_MAX_NUM_PRIORITIES);
+            // verifies there is at least one priority bit set.
+            // Note that 'numTrailingUnsetBits' cannot return a negative value.
 
         Node *& head = d_heads[priority];
         condemned = head;
@@ -1022,7 +1023,7 @@ void MultipriorityQueue<TYPE>::removeAll()
 
         while (d_notEmptyFlags) {
             const int priority =
-                           bdlb::BitUtil::find1AtSmallestIndex(d_notEmptyFlags);
+                           bdlb::BitUtil::numTrailingUnsetBits((uint32_t) d_notEmptyFlags);
 
             Node *& head = d_heads[priority];
             BSLS_ASSERT(head);
