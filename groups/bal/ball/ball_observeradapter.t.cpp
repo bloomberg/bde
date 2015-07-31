@@ -111,7 +111,7 @@ my_OstreamObserver::~my_OstreamObserver()
 }
 
 void my_OstreamObserver::publish(const ball::Record&  record,
-                                 const ball::Context& context)
+                                 const ball::Context& )
 {
     const ball::RecordAttributes& fixedFields = record.fixedFields();
 
@@ -125,7 +125,7 @@ void my_OstreamObserver::publish(const ball::Record&  record,
               << fixedFields.category()                << ' '
               << fixedFields.message()                 << ' ';
 
-    const bdlmxxx::List& userFields = record.userFields();
+    const ball::UserFieldValues& userFields = record.userFieldValues();
     const int numUserFields = userFields.length();
     for (int i = 0; i < numUserFields; ++i) {
         *d_stream << userFields[i] << ' ';
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
             bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            bdlmxxx::List             emptyList;
+            ball::UserFieldValues  userFields;
 
             if (verbose)
                 cout << "Publish a sequence of three messages." << endl;
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
 
                     bsl::shared_ptr<const ball::Record> handle(
                               new (testAllocator) ball::Record(fixed,
-                                                              emptyList,
+                                                              userFields,
                                                               &testAllocator),
                               &testAllocator);
                     adapter->publish(

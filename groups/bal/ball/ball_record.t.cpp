@@ -2,20 +2,20 @@
 
 #include <ball_record.h>
 
-#include <ball_severity.h>                      // for testing only
+#include <ball_severity.h>                                 // for testing only
+#include <ball_userfieldvalues.h>
 
-#include <bdlmxxx_row.h>                           // for testing only
-#include <bdlmxxx_table.h>                         // for testing only
-
-#include <bdlt_datetimeutil.h>                     // for testing only
-#include <bdlt_epochutil.h>                     // for testing only
-#include <bdltuxxx_unset.h>                        // for testing only
+#include <bdlt_datetimeutil.h>
+#include <bdlt_epochutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bdlsu_processutil.h>
+
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
 
 #include <bsl_iostream.h>
 #include <bsl_new.h>          // placement 'new' syntax
@@ -50,16 +50,16 @@ using namespace bsl;  // automatically added by script
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
 // [ 2] ball::Record(bslma::Allocator *ba = 0);
-// [ 2] ball::Record(const ball::RecordAttributes&, const bdlmxxx::List&, *ba = 0);
+// [ 2] ball::Record(const ball::RecordAttributes&, const ball::UserFieldValues&, *ba = 0);
 // [ 7] ball::Record(const ball::Record& original, *ba = 0);
 // [ 2] ~ball::Record();
 // [ 8] ball::Record& operator=(const ball::Record& rhs);
 // [ 1] ball::RecordAttributes& fixedFields();
 // [ 2] void setFixedFields(const ball::RecordAttributes& fixedFields);
-// [ 2] void setUserFields(const bdlmxxx::List& userFields);
-// [ 1] bdlmxxx::List& userFields();
+// [ 2] void setUserFieldValues(const ball::UserFieldValues& userFields);
+// [ 1] ball::UserFieldValues& userFields();
 // [ 4] const ball::RecordAttributes& fixedFields() const;
-// [ 4] const bdlmxxx::List& userFields() const;
+// [ 4] const ball::UserFieldValues& userFields() const;
 // [ 9] int numAllocatedBytes() const;
 // [  ] bsl::ostream& print(bsl::ostream& stream, int level, int spl) const;
 // [ 6] bool operator==(const ball::Record& lhs, const ball::Record& rhs);
@@ -68,7 +68,7 @@ using namespace bsl;  // automatically added by script
 // [ 9] STREAM& operator<<(STREAM& stream, const ball::Record& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('bdlmxxx::List')
+// [ 3] TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFieldValues')
 // [10] USAGE EXAMPLE 1
 // [11] USAGE EXAMPLE 2
 //=============================================================================
@@ -131,444 +131,11 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::Record                      Obj;
-typedef ball::RecordAttributes            Record_Attr;
-typedef bdlmxxx::List                        List;
-typedef bdlmxxx::Row                         Row;
-typedef bsls::Types::Int64               Int64;
-typedef bsl::vector<bdlmxxx::ElemType::Type> my_ElemTypeArray;
+typedef ball::Record           Obj;
+typedef ball::RecordAttributes Record_Attr;
+typedef ball::UserFieldValues  Values;
+typedef bsls::Types::Int64     Int64;
 
-const int NUM_TYPES = bdlmxxx::ElemType::BDEM_NUM_TYPES;
-
-void getElemTypes(my_ElemTypeArray *types, const bdlmxxx::Row& row)
-    // Fill types with element types from row
-{
-    int numTypes = row.length();
-    types->clear();
-    types->reserve(numTypes);
-    for (int i = 0; i < numTypes; ++i)
-    {
-        types->push_back(row.elemType(i));
-    }
-}
-
-//=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-//=============================================================================
-//          HELPER FUNCTIONS OPERATING ON 'g' AND 'h' 'spec' CHARACTERS
-//
-// These functions identify the 'type' and 'value' characters of the 'g' and
-// 'h' languages, and convert to and from 'char' (string) and 'int' (index)
-// representations.  Some of these are used by 'ggg' and/or 'hhh' directly, but
-// the complete set is made available for general use.
-//-----------------------------------------------------------------------------
-
-static int isTypeChar(char c)
-    // Return 1 if the specified character 'c' is in "ABCDEFGHIJKLMNOPQRSTUV",
-    // and 0 otherwise.
-{
-    static const char TYPE_CHARS[] = "ABCDEFGHIJKLMNOPQRSTUV";
-    return 0 != c && 0 != strchr(TYPE_CHARS, c);
-}
-
-static int isValChar(char c)
-    // Return 1 if the specified character, 'c', is in "xyu", and 0 otherwise.
-{
-    return 'x' == c || 'y' == c || 'u' == c;
-}
-
-static int typeCharToIndex(char type)
-    // Return the integer index of the specified 'type' character.  The
-    // behavior is undefined unless 'type' is one of "ABCDEFGHIJKLMNOPQRSTUV".
-{
-    ASSERT(isTypeChar(type));
-    static const char TYPE_CHARS[] = "ABCDEFGHIJKLMNOPQRSTUV";
-    return strchr(TYPE_CHARS, type) - TYPE_CHARS;
-}
-
-static int valCharToIndex(char val)
-    // Return the integer index of the specified 'val' character.  The behavior
-    // is undefined unless 'val' is one of "xyu".
-{
-    ASSERT(isValChar(val));
-    static const char VAL_CHARS[] = "xyu";
-    return strchr(VAL_CHARS, val) - VAL_CHARS;
-}
-
-static int getPid()
-{
-#ifdef BSLS_PLATFORM_OS_UNIX
-    return getpid();
-#else
-    return 0;
-#endif
-}
-//=============================================================================
-//                        TEST DATA POINTER ARRAYS
-//
-// This set of 66 pointers (22 array-of-3 types) are defined here at global
-// scope because they are used by the 'ggg' helper 'appendElement'.  They are
-// populated in 'main' after the definition of the specific test values, but
-// are available as needed to various additional helper functions.
-//-----------------------------------------------------------------------------
-
-static const char                      *G_VALUES_A[3];  // { &XA, &YA, &UA }
-static const short                     *G_VALUES_B[3];  // { &XB, &YB, &UB }
-static const int                       *G_VALUES_C[3];  // { &XC, &YC, &UC }
-static const Int64                     *G_VALUES_D[3];  // ...
-static const float                     *G_VALUES_E[3];
-static const double                    *G_VALUES_F[3];
-static const bsl::string               *G_VALUES_G[3];
-static const bdlt::Datetime             *G_VALUES_H[3];
-static const bdlt::Date                 *G_VALUES_I[3];
-static const bdlt::Time                 *G_VALUES_J[3];
-static const bsl::vector<char>          *G_VALUES_K[3];
-static const bsl::vector<short>         *G_VALUES_L[3];
-static const bsl::vector<int>           *G_VALUES_M[3];
-static const bsl::vector<Int64>         *G_VALUES_N[3];
-static const bsl::vector<float>         *G_VALUES_O[3];
-static const bsl::vector<double>        *G_VALUES_P[3];
-static const bsl::vector<bsl::string>   *G_VALUES_Q[3];
-static const bsl::vector<bdlt::Datetime> *G_VALUES_R[3];
-static const bsl::vector<bdlt::Date>     *G_VALUES_S[3];
-static const bsl::vector<bdlt::Time>     *G_VALUES_T[3];
-static const bdlmxxx::List                 *G_VALUES_U[3];
-static const bdlmxxx::Table                *G_VALUES_V[3];  // { &XV, &YV, &UV }
-
-//=============================================================================
-//                     HELPER FUNCTIONS FOR 'ggg', 'hhh'
-//
-// These functions are used by 'ggg' and/or 'hhh' directly.  They are also
-// available as general-purpose helpers.
-//-----------------------------------------------------------------------------
-
-static void
-bug(const char *spec, int position, const char *description, int showErrorFlag)
-    // Write the specified 'spec' and the specified error 'description' to
-    // 'cout', identifying the specified 'position' of the errant character in
-    // 'spec', only if the specified 'showErrorFlag' is non-zero.
-{
-    if (showErrorFlag) {
-        cout << "spec : " << spec << endl;
-        cout << description << " at position " << position;
-        if ('\0' != spec[position]) {
-            cout << " ('" << spec[position] << "')." << endl;
-        }
-        else {
-            cout << " ('')." << endl;
-        }
-    }
-    return;
-}
-
-static void appendElement(List *address, char val, char type)
-    // Append an element of the 'bdlmxxx::ElemType::Type' corresponding to the
-    // specified 'type' character and having the value corresponding to the
-    // specified 'val' character to the 'bdlmxxx::List' at the specified 'address'.
-{
-    ASSERT('x' == val ||'y' == val ||'u' == val)
-    int i = valCharToIndex(val);
-
-    switch (type) {
-      case 'A': address->appendChar(*G_VALUES_A[i]);             break;
-      case 'B': address->appendShort(*G_VALUES_B[i]);            break;
-      case 'C': address->appendInt(*G_VALUES_C[i]);              break;
-      case 'D': address->appendInt64(*G_VALUES_D[i]);            break;
-      case 'E': address->appendFloat(*G_VALUES_E[i]);            break;
-      case 'F': address->appendDouble(*G_VALUES_F[i]);           break;
-      case 'G': address->appendString(*G_VALUES_G[i]);           break;
-      case 'H': address->appendDatetime(*G_VALUES_H[i]);         break;
-      case 'I': address->appendDate(*G_VALUES_I[i]);             break;
-      case 'J': address->appendTime(*G_VALUES_J[i]);             break;
-
-      case 'K': address->appendCharArray(*G_VALUES_K[i]);        break;
-      case 'L': address->appendShortArray(*G_VALUES_L[i]);       break;
-      case 'M': address->appendIntArray(*G_VALUES_M[i]);         break;
-      case 'N': address->appendInt64Array(*G_VALUES_N[i]);       break;
-      case 'O': address->appendFloatArray(*G_VALUES_O[i]);       break;
-      case 'P': address->appendDoubleArray(*G_VALUES_P[i]);      break;
-      case 'Q': address->appendStringArray(*G_VALUES_Q[i]);      break;
-      case 'R': address->appendDatetimeArray(*G_VALUES_R[i]);    break;
-      case 'S': address->appendDateArray(*G_VALUES_S[i]);        break;
-      case 'T': address->appendTimeArray(*G_VALUES_T[i]);        break;
-
-      case 'U': address->appendList(*G_VALUES_U[i]);             break;
-      case 'V': address->appendTable(*G_VALUES_V[i]);            break;
-
-      default:  P(val);  P(type);  ASSERT(!"Bad type character");
-    }
-    return;
-}
-
-static void appendToElemTypeArray(my_ElemTypeArray *e, const char *spec)
-    // Append to the specified 'bdet::ElemTypeArray' 'e' the sequence of types
-    // in the specified 'spec'.
-{
-    for (; *spec; ++spec) {
-        e->push_back(bdlmxxx::ElemType::Type(typeCharToIndex(*spec)));
-    }
-    return;
-}
-
-//=============================================================================
-//       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING LISTS
-//-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'bdlmxxx::List' object for testing.
-// They, along with their helpers, interpret a given 'spec' (from left to
-// right) to configure the list according to a custom language.  The 22
-// characters [A-V] represent the 22 'bdlmxxx::ElemType' types.  'x', 'y', and
-// 'u' respectively represent two arbitrary but unique values and the 'unset'
-// value (of the appropriate type).  Value and type characters must occur in
-// pairs and generate the appropriate 'append'.  A tilde ('~') removes all
-// elements, leaving the list in the logical (empty and unset) default creation
-// state.  The full language specification follows.
-//
-// LANGUAGE SPECIFICATION:
-// -----------------------
-//
-// <SPEC>        ::= <INSTRUCTION> | <INSTRUCTION><SPEC>
-//
-// <INSTRUCTION> ::= <VALUE><TYPE> | <REMOVE_ALL> | <EMPTY>
-//
-// <VALUE>       ::= = 'x' | 'y' | 'u'  // two arbitrary values plus "unset"
-//
-// <TYPE>        ::= 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' |
-//                   'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' |
-//                   'S' | 'T' | 'U' | 'V' |    //the 22 'bdlmxxx::ElemType' types
-//
-// <REMOVE_ALL>  ::= '~'
-//
-// Spec String  Description
-// -----------  ---------------------------------------------------------------
-// ""           Has no effect; leaves the object unaltered.
-// "xC"         Produces: LIST { INT 103 }
-// "xCyF"       Produces: LIST { INT 103 DOUBLE 206.006 }
-// "xCyFuG"     Produces: LIST { INT 103 DOUBLE 206.006 STRING NULL }
-// "xCyFuG~"    Produces: LIST { INT 103 DOUBLE 206.006 STRING NULL }, and then
-//              removes all elements.
-//-----------------------------------------------------------------------------
-
-enum {
-    // 'enum' of parse errors for 'ggg'.
-    GGG_SUCCESS = 0,
-    GGG_EXPECTED_TYPE_CHARACTER,
-    GGG_INAPPROPRIATE_CHARACTER
-};
-
-static int ggg(List *address, const char *spec, int showErrorFlag)
-    // Configure the modifiable 'bdlmxxx::List' at the specified 'address'
-    // according to the specified 'spec'.  Report errors to 'cout' only if the
-    // specified 'showErrorFlag' is non-zero.  Return 0 on success, and a
-    // unique non-zero global error code otherwise.  Note that this function
-    // uses only the primary manipulators of the test plan.  Note also that
-    // neither pointer argument may be null.
-{
-    for (const char *p = spec; *p; ++p) {
-        if ('~' == *p) {
-            address->removeAll();
-            continue;
-        }
-        if (isValChar(*p)) {
-            char valChar = *p++;
-            if (isTypeChar(*p)) {
-                appendElement(address, valChar, *p);
-                continue;
-            }
-            bug(spec, p - spec, "Expected type character", showErrorFlag);
-            return GGG_EXPECTED_TYPE_CHARACTER;
-        }
-        bug(spec, p - spec, "Inappropriate character", showErrorFlag);
-        return GGG_INAPPROPRIATE_CHARACTER;
-    }
-    return GGG_SUCCESS;
-}
-
-List& gg(List *address, const char *spec)
-    // Configure the modifiable 'bdlmxxx::List' object at the specified 'address'
-    // according to the specified 'spec', and return a reference to the
-    // modifiable list.  Note that this function uses only the primary
-    // manipulators of the test plan.  Note also that neither argument may be
-    // null.
-{
-    enum { SHOW_ERROR_FLAG = 1 };
-    int status = ggg(address, spec, SHOW_ERROR_FLAG);
-    ASSERT(GGG_SUCCESS == status);
-    return *address;
-}
-
-List g(const char *spec)
-    // Return by value a new 'bdlmxxx::List' object corresponding to the specified
-    // 'spec'.
-{
-    List object;
-    return gg(&object, spec);
-}
-
-//=============================================================================
-//              Miscellaneous helpers following the general pattern
-//-----------------------------------------------------------------------------
-
-static int areEqual(const Row& a, int i, const Row& b, int j)
-    // Return 1 if the two elements in the two specified rows 'a' and 'b' at
-    // the specified indices 'i, and 'j', respectively, have the same type and
-    // value, and zero otherwise.
-{
-    ASSERT(0 <= i);
-    ASSERT(i < a.length());
-    ASSERT(0 <= j);
-    ASSERT(j < b.length());
-
-    if (a.elemType(i) != b.elemType(j)) {
-        return 0;
-    }
-
-    typedef bdlmxxx::ElemType T;
-
-    switch(a.elemType(i)) {
-      case T::BDEM_CHAR:
-        return a.theChar(i)          == b.theChar(j);
-      case T::BDEM_SHORT:
-        return a.theShort(i)         == b.theShort(j);
-      case T::BDEM_INT:
-        return a.theInt(i)           == b.theInt(j);
-      case T::BDEM_INT64:
-        return a.theInt64(i)         == b.theInt64(j);
-      case T::BDEM_FLOAT:
-        return a.theFloat(i)         == b.theFloat(j);
-      case T::BDEM_DOUBLE:
-        return a.theDouble(i)        == b.theDouble(j);
-      case T::BDEM_STRING:
-        return a.theString(i)        == b.theString(j);
-      case T::BDEM_DATETIME:
-        return a.theDatetime(i)      == b.theDatetime(j);
-      case T::BDEM_DATE:
-        return a.theDate(i)          == b.theDate(j);
-      case T::BDEM_TIME:
-        return a.theTime(i)          == b.theTime(j);
-      case T::BDEM_CHAR_ARRAY:
-        return a.theCharArray(i)     == b.theCharArray(j);
-      case T::BDEM_SHORT_ARRAY:
-        return a.theShortArray(i)    == b.theShortArray(j);
-      case T::BDEM_INT_ARRAY:
-        return a.theIntArray(i)      == b.theIntArray(j);
-      case T::BDEM_INT64_ARRAY:
-        return a.theInt64Array(i)    == b.theInt64Array(j);
-      case T::BDEM_FLOAT_ARRAY:
-        return a.theFloatArray(i)    == b.theFloatArray(j);
-      case T::BDEM_DOUBLE_ARRAY:
-        return a.theDoubleArray(i)   == b.theDoubleArray(j);
-      case T::BDEM_STRING_ARRAY:
-        return a.theStringArray(i)   == b.theStringArray(j);
-      case T::BDEM_DATETIME_ARRAY:
-        return a.theDatetimeArray(i) == b.theDatetimeArray(j);
-      case T::BDEM_DATE_ARRAY:
-        return a.theDateArray(i)     == b.theDateArray(j);
-      case T::BDEM_TIME_ARRAY:
-        return a.theTimeArray(i)     == b.theTimeArray(j);
-      case T::BDEM_LIST:
-        return a.theList(i)          == b.theList(j);
-      case T::BDEM_TABLE:
-        return a.theTable(i)         == b.theTable(j);
-
-      default:
-        ASSERT(!"ERROR");
-        return 0;
-    }
-}
-
-//=============================================================================
-//                              USAGE EXAMPLE 2
-//-----------------------------------------------------------------------------
-class Information
-{
-  private:
-    bsl::string d_heading;
-    bsl::string d_contents;
-
-  public:
-    Information(const char *heading, const char *contents);
-    const bsl::string& heading() const;
-    const bsl::string& contents() const;
-};
-
-Information::Information(const char *heading, const char *contents)
-: d_heading(heading)
-, d_contents(contents)
-{
-}
-
-const bsl::string& Information::heading() const
-{
-    return d_heading;
-}
-
-const bsl::string& Information::contents() const
-{
-    return d_contents;
-}
-
-bsl::ostream& operator<<(bsl::ostream& stream, const Information& information)
-{
-    stream << information.heading() << endl;
-    stream << '\t';
-    stream << information.contents() << endl;
-    return stream;
-}
-
-void logInformation(ostream& logStream,
-                    const Information& information,
-                    ball::Severity::Level severity,
-                    const char *category,
-                    const char* fileName,
-                    int lineNumber)
-{
-    ball::Record record;
-
-    // get the modifiable reference to the fixed fields
-    ball::RecordAttributes& attributes = record.fixedFields();
-
-    // set various attributes
-    bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
-    attributes.setTimestamp(now);
-
-    attributes.setProcessID(getPid());
-
-    attributes.setThreadID(0);
-
-    attributes.setFileName(fileName);
-
-    attributes.setLineNumber(lineNumber);
-
-    attributes.setCategory(category);
-
-    attributes.setSeverity(severity);
-
-    // create an 'ostream' from message stream buffer
-    ostream os(&attributes.messageStreamBuf());
-
-    // now stream the information object into the created ostream, this will
-    // set the message attribute of 'attributes' to the streamed contents.
-    os << information;
-
-    // finally log the record into the log stream
-    logStream << record;
-}
-
-//=============================================================================
-//                              USAGE EXAMPLE 1
-//-----------------------------------------------------------------------------
-
-static bdlmxxx::ElemType::Type listSchema[5] = { bdlmxxx::ElemType::BDEM_STRING,
-                                             bdlmxxx::ElemType::BDEM_DOUBLE,
-                                             bdlmxxx::ElemType::BDEM_DOUBLE,
-                                             bdlmxxx::ElemType::BDEM_DOUBLE,
-                                             bdlmxxx::ElemType::BDEM_DOUBLE
-};
-
-//=============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
-//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -594,251 +161,17 @@ int main(int argc, char *argv[])
     testAllocator.setQuiet(1);
     bslma::Allocator     *Z = &testAllocator;
 
-    const char                       UA = bdltuxxx::Unset<char>::unsetValue();
-    const short                      UB = bdltuxxx::Unset<short>::unsetValue();
-    const int                        UC = bdltuxxx::Unset<int>::unsetValue();
-    const Int64                      UD = bdltuxxx::Unset<Int64>::unsetValue();
-    const float                      UE = bdltuxxx::Unset<float>::unsetValue();
-    const double                     UF = bdltuxxx::Unset<double>::unsetValue();
-    const bsl::string                UG;
-    const bdlt::Datetime              UH;
-    const bdlt::Date                  UI;
-    const bdlt::Time                  UJ;
+    Values VALUES_A(Z);
+    Values VALUES_B(Z);
+    VALUES_B.appendInt64(1);
+    Values VALUES_C(Z);
+    VALUES_C.appendInt64(1);
+    VALUES_C.appendDouble(2.0);
+    VALUES_C.appendString("A");
+    VALUES_C.appendDatetimeTz(bdlt::DatetimeTz(bdlt::Datetime(1970,1,1), -10));
 
-    // Empty arrays, lists, and tables make fine null values, so no special
-    // provisions are necessary.
-    const bsl::vector<char>           UK;
-    const bsl::vector<short>          UL;
-    const bsl::vector<int>            UM;
-    const bsl::vector<Int64>          UN;
-    const bsl::vector<float>          UO;
-    const bsl::vector<double>         UP;
-    const bsl::vector<bsl::string>    UQ;
-    const bsl::vector<bdlt::Datetime>  UR;
-    const bsl::vector<bdlt::Date>      US;
-    const bsl::vector<bdlt::Time>      UT;
-
-    const bdlmxxx::List                  UU;
-    const bdlmxxx::Table                 UV;
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    const char                       XA = 'x';   // = 120 decimal (ascii only)
-    const short                      XB = 12;
-    const int                        XC = 103;
-    const Int64                      XD = 10004;
-    const float                      XE = 105.5;
-    const double                     XF = 106.006;
-    const bsl::string                XG = "one-seven---";   // not in-place
-    const bdlt::Datetime              XH(bdlt::Date(108, 8, 8),
-                                        bdlt::Time(8, 8, 8, 108));
-    const bdlt::Date                  XI(109, 9, 9);
-    const bdlt::Time                  XJ(10, 10, 10, 110);
-
-    bsl::vector<char>                 XK_;
-    const bsl::vector<char>&          XK = XK_;
-    XK_.push_back(XA);
-    XK_.push_back('N');
-    XK_.push_back(XA);
-    XK_.push_back('N');
-    XK_.push_back(XA);
-
-    bsl::vector<short>                XL_;
-    const bsl::vector<short>&         XL = XL_;
-    XL_.push_back(XB);
-    XL_.push_back(UB);
-
-    bsl::vector<int>                  XM_;
-    const bsl::vector<int>&           XM = XM_;
-    XM_.push_back(XC);
-    XM_.push_back(UC);
-
-    bsl::vector<Int64>                XN_;
-    const bsl::vector<Int64>&         XN = XN_;
-    XN_.push_back(XD);
-    XN_.push_back(UD);
-
-    bsl::vector<float>                XO_;
-    const bsl::vector<float>&         XO = XO_;
-    XO_.push_back(XE);
-    XO_.push_back(UE);
-
-    bsl::vector<double>               XP_;
-    const bsl::vector<double>&        XP = XP_;
-    XP_.push_back(XF);
-    XP_.push_back(UF);
-
-    bsl::vector<bsl::string>          XQ_;
-    const bsl::vector<bsl::string>&   XQ = XQ_;
-    XQ_.push_back(XG);
-    XQ_.push_back(UG);
-
-    bsl::vector<bdlt::Datetime>        XR_;
-    const bsl::vector<bdlt::Datetime>& XR = XR_;
-    XR_.push_back(XH);
-    XR_.push_back(UH);
-
-    bsl::vector<bdlt::Date>            XS_;
-    const bsl::vector<bdlt::Date>&     XS = XS_;
-    XS_.push_back(XI);
-    XS_.push_back(UI);
-
-    bsl::vector<bdlt::Time>            XT_;
-    const bsl::vector<bdlt::Time>&     XT = XT_;
-    XT_.push_back(XJ);
-    XT_.push_back(UJ);
-
-    bdlmxxx::List                        XU_(Z);
-    const bdlmxxx::List&                 XU = XU_;
-    XU_.appendInt(XC);
-    XU_.appendString(XG);
-
-    my_ElemTypeArray e;
-    getElemTypes(&e, XU.row());
-    bdlmxxx::Table                       XV_(e.begin(), e.size(), Z);
-    const bdlmxxx::Table&                XV = XV_;
-    XV_.appendNullRow();
-    XV_.theModifiableRow(0)[0].theModifiableInt()    = XC;
-    XV_.theModifiableRow(0)[1].theModifiableString() = XG;
-    XV_.appendNullRow();
-    XV_.theModifiableRow(1)[0].theModifiableInt()    = UC;
-    XV_.theModifiableRow(1)[1].theModifiableString() = UG;
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    const char                       YA = 'y';    // = 121 decimal (ascii only)
-    const short                      YB = 22;
-    const int                        YC = 203;
-    const Int64                      YD = 20004;
-    const float                      YE = 205.5;
-    const double                     YF = 206.006;
-    const bsl::string                YG = "two-seven";
-    const bdlt::Datetime              YH(bdlt::Date(208, 8, 8),
-                                        bdlt::Time(8, 8, 8, 208));
-    const bdlt::Date                  YI(209, 9, 9);
-    const bdlt::Time                  YJ(10, 10, 10, 210);
-
-    bsl::vector<char>                 YK_;
-    const bsl::vector<char>&          YK = YK_;
-    YK_.push_back(YA);
-    YK_.push_back('n');
-
-    bsl::vector<short>                YL_;
-    const bsl::vector<short>&         YL = YL_;
-    YL_.push_back(YB);
-    YL_.push_back(UB);
-
-    bsl::vector<int>                  YM_;
-    const bsl::vector<int>&           YM = YM_;
-    YM_.push_back(YC);
-    YM_.push_back(UC);
-
-    bsl::vector<Int64>                YN_;
-    const bsl::vector<Int64>&         YN = YN_;
-    YN_.push_back(YD);
-    YN_.push_back(UD);
-
-    bsl::vector<float>                YO_;
-    const bsl::vector<float>&         YO = YO_;
-    YO_.push_back(YE);
-    YO_.push_back(UE);
-
-    bsl::vector<double>               YP_;
-    const bsl::vector<double>&        YP = YP_;
-    YP_.push_back(YF);
-    YP_.push_back(UF);
-
-    bsl::vector<bsl::string>          YQ_;
-    const bsl::vector<bsl::string>&   YQ = YQ_;
-    YQ_.push_back(YG);
-    YQ_.push_back(UG);
-
-    bsl::vector<bdlt::Datetime>        YR_;
-    const bsl::vector<bdlt::Datetime>& YR = YR_;
-    YR_.push_back(YH);
-    YR_.push_back(UH);
-
-    bsl::vector<bdlt::Date>            YS_;
-    const bsl::vector<bdlt::Date>&     YS = YS_;
-    YS_.push_back(YI);
-    YS_.push_back(UI);
-
-    bsl::vector<bdlt::Time>            YT_;
-    const bsl::vector<bdlt::Time>&     YT = YT_;
-    YT_.push_back(YJ);
-    YT_.push_back(UJ);
-
-    bdlmxxx::List                        YU_(Z);
-    const bdlmxxx::List&                 YU = YU_;
-    YU_.appendInt(YC);
-    YU_.appendString(YG);
-
-    getElemTypes(&e, YU.row());
-    bdlmxxx::Table                       YV_(e.begin(), e.size(), Z);
-    const bdlmxxx::Table&                YV = YV_;
-    YV_.appendNullRow();
-    YV_.theModifiableRow(0)[0].theModifiableInt()    = YC;
-    YV_.theModifiableRow(0)[1].theModifiableString() = YG;
-    YV_.appendNullRow();
-    YV_.theModifiableRow(1)[0].theModifiableInt()    = UC;
-    YV_.theModifiableRow(1)[1].theModifiableString() = UG;
-
-    //-------------------------------------------------------------------------
-    // Two more convenient test objects populated with the 22 bdem types
-    //-------------------------------------------------------------------------
-
-    List LX_(Z);  const List& LX = LX_;
-    LX_.appendChar(XA);
-    LX_.appendShort(XB);
-    LX_.appendInt(XC);
-    LX_.appendInt64(XD);
-    LX_.appendFloat(XE);
-    LX_.appendDouble(XF);
-    LX_.appendString(XG);
-    LX_.appendDatetime(XH);
-    LX_.appendDate(XI);
-    LX_.appendTime(XJ);
-    LX_.appendCharArray(XK);
-    LX_.appendShortArray(XL);
-    LX_.appendIntArray(XM);
-    LX_.appendInt64Array(XN);
-    LX_.appendFloatArray(XO);
-    LX_.appendDoubleArray(XP);
-    LX_.appendStringArray(XQ);
-    LX_.appendDatetimeArray(XR);
-    LX_.appendDateArray(XS);
-    LX_.appendTimeArray(XT);
-    LX_.appendList(XU);
-    LX_.appendTable(XV);
-
-    getElemTypes(&e, LX.row());
-    const my_ElemTypeArray BDEM_TYPES = e;
-
-    // ------------------------------------------------------------------------
-    // populate global element pointers for generator function g("...")
-
-    G_VALUES_A[0] = &XA;    G_VALUES_A[1] = &YA;    G_VALUES_A[2] = &UA;
-    G_VALUES_B[0] = &XB;    G_VALUES_B[1] = &YB;    G_VALUES_B[2] = &UB;
-    G_VALUES_C[0] = &XC;    G_VALUES_C[1] = &YC;    G_VALUES_C[2] = &UC;
-    G_VALUES_D[0] = &XD;    G_VALUES_D[1] = &YD;    G_VALUES_D[2] = &UD;
-    G_VALUES_E[0] = &XE;    G_VALUES_E[1] = &YE;    G_VALUES_E[2] = &UE;
-    G_VALUES_F[0] = &XF;    G_VALUES_F[1] = &YF;    G_VALUES_F[2] = &UF;
-    G_VALUES_G[0] = &XG;    G_VALUES_G[1] = &YG;    G_VALUES_G[2] = &UG;
-    G_VALUES_H[0] = &XH;    G_VALUES_H[1] = &YH;    G_VALUES_H[2] = &UH;
-    G_VALUES_I[0] = &XI;    G_VALUES_I[1] = &YI;    G_VALUES_I[2] = &UI;
-    G_VALUES_J[0] = &XJ;    G_VALUES_J[1] = &YJ;    G_VALUES_J[2] = &UJ;
-    G_VALUES_K[0] = &XK;    G_VALUES_K[1] = &YK;    G_VALUES_K[2] = &UK;
-    G_VALUES_L[0] = &XL;    G_VALUES_L[1] = &YL;    G_VALUES_L[2] = &UL;
-    G_VALUES_M[0] = &XM;    G_VALUES_M[1] = &YM;    G_VALUES_M[2] = &UM;
-    G_VALUES_N[0] = &XN;    G_VALUES_N[1] = &YN;    G_VALUES_N[2] = &UN;
-    G_VALUES_O[0] = &XO;    G_VALUES_O[1] = &YO;    G_VALUES_O[2] = &UO;
-    G_VALUES_P[0] = &XP;    G_VALUES_P[1] = &YP;    G_VALUES_P[2] = &UP;
-    G_VALUES_Q[0] = &XQ;    G_VALUES_Q[1] = &YQ;    G_VALUES_Q[2] = &UQ;
-    G_VALUES_R[0] = &XR;    G_VALUES_R[1] = &YR;    G_VALUES_R[2] = &UR;
-    G_VALUES_S[0] = &XS;    G_VALUES_S[1] = &YS;    G_VALUES_S[2] = &US;
-    G_VALUES_T[0] = &XT;    G_VALUES_T[1] = &YT;    G_VALUES_T[2] = &UT;
-    G_VALUES_U[0] = &XU;    G_VALUES_U[1] = &YU;    G_VALUES_U[2] = &UU;
-    G_VALUES_V[0] = &XV;    G_VALUES_V[1] = &YV;    G_VALUES_V[2] = &UV;
+    Values *VALUES_DATA[] = { &VALUES_A, &VALUES_B, &VALUES_C };
+    const int NUM_VALUES_DATA = sizeof(VALUES_DATA) / sizeof(*VALUES_DATA);
 
     struct {
         int d_pid;  int d_tid;   int d_lineNum;   int d_severity;
@@ -902,9 +235,9 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
+        // TESTING USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example-2 provided in the component header file must
@@ -915,68 +248,13 @@ int main(int argc, char *argv[])
         //   leading comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
-        //   USAGE EXAMPLE 2
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing Usage Example-2" << endl
                                   << "=======================" << endl;
 
-        Information info("MY-HEADING", "MY-CONTENTS");
-        if (verbose) {
-            logInformation(cout,
-                           info,
-                           ball::Severity::BAEL_INFO,
-                           "my-category",
-                           __FILE__,
-                           __LINE__);
-        }
 
-      } break;
-      case 10: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1:
-        //
-        // Concerns:
-        //   The usage example-1 provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
-        //
-        // Plan:
-        //   Incorporate usage example-1 from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE 1
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "Testing Usage Example-1" << endl
-                                  << "=======================" << endl;
-
-        {
-            static ball::RecordAttributes fixedFields(bdlt::Datetime(),
-                                                     getPid(),
-                                                     0,  // threadID
-                                                     __FILE__, __LINE__,
-                                                     "EQUITY.NASD",
-                                                     ball::Severity::BAEL_INFO,
-                                                     "Ticker Summary");
-
-            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
-            fixedFields.setTimestamp(now);
-
-            static bdlmxxx::List userFields(listSchema, 5);
-
-            userFields.theModifiableString(0) = "SUNW";   // ticker
-            userFields.theModifiableDouble(1) = 5.43;     // high
-            userFields.theModifiableDouble(2) = 5.17;     // low
-            userFields.theModifiableDouble(3) = 5.25;     // open
-            userFields.theModifiableDouble(4) = 5.35;     // close
-
-            ball::Record message(fixedFields, userFields);
-            ostream &os = cout;
-            if (veryVerbose) {
-                os << message << endl;
-            }
-        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -996,17 +274,15 @@ int main(int argc, char *argv[])
             "\nTesting 'numAllocatedBytes'." << endl
           << "=======================================================" << endl;
 
-        const Obj VU(AU, UU);
-        const Obj VA(AA, XU);
-        const Obj VB(AB, YU);
-        const Obj VC(AC, LX);
-        const Obj VD(AD, UU);
-        const Obj VE(AE, XU);
-        const Obj VF(AF, YU);
-        const Obj VG(AG, LX);
+        const Obj VU(AU, VALUES_A);
+        const Obj VA(AA, VALUES_B);
+        const Obj VB(AB, VALUES_C);
+        const Obj VC(AC, VALUES_A);
+        const Obj VD(AD, VALUES_B);
+        const Obj VE(AE, VALUES_C);
 
         const int NUM_VALUES = 8;
-        const Obj VALUES[NUM_VALUES] = { VU, VA, VB, VC, VD, VE, VF, VG };
+        const Obj VALUES[NUM_VALUES] = { VU, VA, VB, VC, VD, VE };
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         bslma::TestAllocator localTestAllocator;
@@ -1045,19 +321,19 @@ int main(int argc, char *argv[])
                           << "\n===========================" << endl;
         {
             const int NUM_RECATTRS = sizeof REC_ATTRS / sizeof REC_ATTRS[0];
-            const int NUM_LISTS = sizeof G_VALUES_U / sizeof G_VALUES_U[0];
 
             int i;
             for (i = 0; i < NUM_RECATTRS; ++i) {
                 Obj v;  const Obj& V = v;
-                int ii = i % NUM_LISTS;
+                int ii = i % NUM_VALUES_DATA;
+
                 v.setFixedFields(REC_ATTRS[i]);
-                v.setUserFields(*G_VALUES_U[ii]);
+                v.setUserFieldValues(*VALUES_DATA[ii]);
                 for (int j = 0; j < NUM_RECATTRS; ++j) {
                     Obj u;  const Obj& U = u;
-                    int jj = j % NUM_LISTS;
+                    int jj = j % NUM_VALUES_DATA;
                     u.setFixedFields(REC_ATTRS[j]);
-                    u.setUserFields(*G_VALUES_U[jj]);
+                    u.setUserFieldValues(*VALUES_DATA[jj]);
                     if (veryVerbose) { T_();  P_(V);  P_(U); }
                     Obj w(V);  const Obj &W = w;          // control
                     u = V;
@@ -1072,9 +348,9 @@ int main(int argc, char *argv[])
 
             for (i = 0; i < NUM_RECATTRS; ++i) {
                 Obj u;  const Obj& U = u;
-                int ii = i % NUM_LISTS;
+                int ii = i % NUM_VALUES_DATA;
                 u.setFixedFields(REC_ATTRS[i]);
-                u.setUserFields(*G_VALUES_U[ii]);
+                u.setUserFieldValues(*VALUES_DATA[ii]);
                 Obj w(U);  const Obj &W = w;              // control
                 u = u;
                 if (veryVerbose) { T_();  P_(U);  P(W); }
@@ -1104,16 +380,16 @@ int main(int argc, char *argv[])
                           << "\n========================" << endl;
         {
             const int NUM_RECATTRS = sizeof REC_ATTRS / sizeof REC_ATTRS[0];
-            const int NUM_LISTS = sizeof G_VALUES_U / sizeof G_VALUES_U[0];
+
             for (int i = 0; i < NUM_RECATTRS; ++i) {
                 Obj w;  const Obj& W = w;           // control
-                int j = i % NUM_LISTS;
+                int j = i % NUM_VALUES_DATA;
                 w.setFixedFields(REC_ATTRS[i]);
-                w.setUserFields(*G_VALUES_U[j]);
+                w.setUserFieldValues(*VALUES_DATA[j]);
 
                 Obj x;  const Obj& X = x;
                 x.setFixedFields(REC_ATTRS[i]);
-                x.setUserFields(*G_VALUES_U[j]);
+                x.setUserFieldValues(*VALUES_DATA[j]);
 
                 Obj y(X);  const Obj &Y = y;
                 if (veryVerbose) { T_();  P_(W);  P_(X);  P(Y); }
@@ -1148,11 +424,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 3; ++i) {
                 Obj u;  const Obj& U = u;
                 u.setFixedFields(REC_ATTRS[i]);
-                u.setUserFields(*G_VALUES_U[i]);
+                u.setUserFieldValues(*VALUES_DATA[i]);
                 for (int j = 0; j < 3; ++j) {
                     Obj v;  const Obj& V = v;
                     v.setFixedFields(REC_ATTRS[j]);
-                    v.setUserFields(*G_VALUES_U[j]);
+                    v.setUserFieldValues(*VALUES_DATA[j]);
                     int isSame = i == j;
                     if (veryVerbose) { T_();  P_(i);  P_(j);  P_(U);  P(V); }
                     LOOP2_ASSERT(i, j,  isSame == (U == V));
@@ -1193,40 +469,34 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   const ball::RecordAttributes& fixedFields();
-        //   const bdlmxxx::List& userFields();
+        //   const ball::UserFieldValues& userFields();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
             << "Testing Basic Accessors" << endl
             << "=======================" << endl;
 
-        const char *SPECS[]  = {
-            "xA", "xAyA", "xAxB", "xAxU", "xUxA", "xAxBxC", "xGxHxI",
-            "xAxBxCxD", "xAxDxCxBxE", "xAxBxCxDxExF",
-            "xMxNxOxPxQxRxSxTxUxVxAxBxCxDxExFxGxHxIxJxKxL"
-        };
-        const int NUM_SPECS  = sizeof(SPECS) / sizeof(*SPECS);
 
-        for (int ii = 0; ii < NUM_SPECS; ++ii) {
-            List mX;  const List& X = mX;  // control
-            gg(&mX, SPECS[ii]);
+        for (int ii = 0; ii < NUM_VALUES_DATA; ++ii) {
+            const Values& X = *VALUES_DATA[ii];
 
-            if (verbose) { cout << "\t"; P_(SPECS[ii]); P(X); }
+            if (verbose) { cout << "\t"; P(X); }
+
             for (int jj = 0; jj < NUM_ATTRS; ++jj) {
 
                 const Record_Attr& Y = REC_ATTRS[jj];
 
-                Obj mT(Y, mX, &testAllocator);
+                Obj mT(Y, X, &testAllocator);
 
                 if (veryVeryVerbose) { P(mT); }
                 LOOP2_ASSERT(ii, jj, mT.fixedFields() == Y);
-                LOOP2_ASSERT(ii, jj, mT.userFields()  == X);
+                LOOP2_ASSERT(ii, jj, mT.userFieldValues()  == X);
             }
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('bdlmxxx::List')
+        // TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFieldValues')
         // Plan:
         //   Test the behavior of 'gg' and 'ggg'.
         //   * Verify that all test values are distinct.
@@ -1238,349 +508,13 @@ int main(int argc, char *argv[])
         //   * Test 'ggg' syntax checking with syntactically illegal inputs.
         //
         // Testing:
-        //   bdlmxxx::List& gg(bdlmxxx::List *address, const char *spec);
-        //   int ggg(bdlmxxx::List *address, const char *spec, int showErrorFlag);
+        //   ball::UserFieldValues& gg(ball::UserFieldValues *address, const char *spec);
+        //   int ggg(ball::UserFieldValues *address, const char *spec, int showErrorFlag);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
             << "Testing 'gg' and 'ggg' generator functions" << endl
             << "==========================================" << endl;
 
-        if (verbose) cout <<
-            "\nTesting that all test values are distinct." << endl;
-
-        ASSERT(0 == (XA == UA));
-        ASSERT(0 == (XA == YA));
-        ASSERT(0 == (UA == YA));
-        ASSERT(0 == (XB == UB));
-        ASSERT(0 == (XB == YB));
-        ASSERT(0 == (UB == YB));
-        ASSERT(0 == (XC == UC));
-        ASSERT(0 == (XC == YC));
-        ASSERT(0 == (UC == YC));
-        ASSERT(0 == (XD == UD));
-        ASSERT(0 == (XD == YD));
-        ASSERT(0 == (UD == YD));
-        ASSERT(0 == (XE == UE));
-        ASSERT(0 == (XE == YE));
-        ASSERT(0 == (UE == YE));
-        ASSERT(0 == (XF == UF));
-        ASSERT(0 == (XF == YF));
-        ASSERT(0 == (UF == YF));
-        ASSERT(0 == (XG == UG));
-        ASSERT(0 == (XG == YG));
-        ASSERT(0 == (UG == YG));
-        ASSERT(0 == (XH == UH));
-        ASSERT(0 == (XH == YH));
-        ASSERT(0 == (UH == YH));
-        ASSERT(0 == (XI == UI));
-        ASSERT(0 == (XI == YI));
-        ASSERT(0 == (UI == YI));
-        ASSERT(0 == (XJ == UJ));
-        ASSERT(0 == (XJ == YJ));
-        ASSERT(0 == (UJ == YJ));
-        ASSERT(0 == (XK == UK));
-        ASSERT(0 == (XK == YK));
-        ASSERT(0 == (UK == YK));
-        ASSERT(0 == (XL == UL));
-        ASSERT(0 == (XL == YL));
-        ASSERT(0 == (UL == YL));
-        ASSERT(0 == (XM == UM));
-        ASSERT(0 == (XM == YM));
-        ASSERT(0 == (UM == YM));
-        ASSERT(0 == (XN == UN));
-        ASSERT(0 == (XN == YN));
-        ASSERT(0 == (UN == YN));
-        ASSERT(0 == (XO == UO));
-        ASSERT(0 == (XO == YO));
-        ASSERT(0 == (UO == YO));
-        ASSERT(0 == (XP == UP));
-        ASSERT(0 == (XP == YP));
-        ASSERT(0 == (UP == YP));
-        ASSERT(0 == (XQ == UQ));
-        ASSERT(0 == (XQ == YQ));
-        ASSERT(0 == (UQ == YQ));
-        ASSERT(0 == (XR == UR));
-        ASSERT(0 == (XR == YR));
-        ASSERT(0 == (UR == YR));
-        ASSERT(0 == (XS == US));
-        ASSERT(0 == (XS == YS));
-        ASSERT(0 == (US == YS));
-        ASSERT(0 == (XT == UT));
-        ASSERT(0 == (XT == YT));
-        ASSERT(0 == (UT == YT));
-        ASSERT(0 == (XU == UU));
-        ASSERT(0 == (XU == YU));
-        ASSERT(0 == (UU == YU));
-        ASSERT(0 == (XV == UV));
-        ASSERT(0 == (XV == YV));
-        ASSERT(0 == (UV == YV));
-
-        if (verbose) cout <<
-            "\nTesting 'gg' (list) generator function:" << endl;
-
-        static const struct {
-            int         d_lineNum;  // source line number
-            const char *d_spec;     // input 'spec' string for 'gg'
-            const char *d_types;    // expected element types (encoded)
-            int         d_length;   // expected length of returned list
-        } DATA[] = {
-            ///line          spec    elemType  length
-            ///----          ----    --------  ------
-            {   L_,            "",      "",    0, },
-            {   L_,           "~",      "",    0, },
-            {   L_,          "~~",      "",    0, },
-
-            {   L_,          "xA",     "A",    1, },
-            {   L_,          "yB",     "B",    1, },
-            {   L_,          "uC",     "C",    1, },
-            {   L_,          "xD",     "D",    1, },
-            {   L_,          "yE",     "E",    1, },
-            {   L_,          "uF",     "F",    1, },
-            {   L_,          "xG",     "G",    1, },
-            {   L_,          "yH",     "H",    1, },
-            {   L_,          "uI",     "I",    1, },
-            {   L_,          "xJ",     "J",    1, },
-            {   L_,          "yK",     "K",    1, },
-            {   L_,          "uL",     "L",    1, },
-            {   L_,          "xM",     "M",    1, },
-            {   L_,          "yN",     "N",    1, },
-            {   L_,          "uO",     "O",    1, },
-            {   L_,          "xP",     "P",    1, },
-            {   L_,          "yQ",     "Q",    1, },
-            {   L_,          "uR",     "R",    1, },
-            {   L_,          "xS",     "S",    1, },
-            {   L_,          "yT",     "T",    1, },
-            {   L_,          "uU",     "U",    1, },
-            {   L_,          "xV",     "V",    1, },
-
-            {   L_,         "xB~",      "",    0, },
-            {   L_,         "~uC",     "C",    1, },
-            {   L_,         "~xD",     "D",    1, },
-
-            {   L_,        "~~yF",     "F",    1, },
-            {   L_,        "uG~~",      "",    0, },
-            {   L_,        "yHuI",    "HI",    2, },
-
-            {   L_,       "~yUuV",    "UV",    2, },
-            {   L_,       "xB~uA",     "A",    1, },
-            {   L_,       "yBuC~",      "",    0, },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        if (verbose) cout << "\tEnumerated 'spec' ordered by length." << endl;
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE = DATA[i].d_lineNum;
-            List mL(Z);
-            const List& RL = gg(&mL, DATA[i].d_spec);
-            my_ElemTypeArray e;  appendToElemTypeArray(&e, DATA[i].d_types);
-            LOOP_ASSERT(LINE, &RL == &mL);    // Test 'gg' return value
-            my_ElemTypeArray e1;
-            getElemTypes(&e1, mL.row());
-            LOOP_ASSERT(LINE, e == e1);
-            LOOP_ASSERT(LINE, mL.length() == DATA[i].d_length);
-        }
-
-        // Testing all possible one-element lists (that 'gg' can generate),
-        // Note that this tests type as well as value.
-        if (verbose) cout << "\tAll available one-element lists." << endl;
-        List mL(Z);
-        ASSERT( gg(&mL, "~xA").theChar(0) == XA );
-        ASSERT( gg(&mL, "~yA").theChar(0) == YA );
-        ASSERT( gg(&mL, "~uA").theChar(0) == UA );
-
-        ASSERT( gg(&mL, "~xB").theShort(0) == XB );
-        ASSERT( gg(&mL, "~yB").theShort(0) == YB );
-        ASSERT( gg(&mL, "~uB").theShort(0) == UB );
-
-        ASSERT( gg(&mL, "~xC").theInt(0) == XC );
-        ASSERT( gg(&mL, "~yC").theInt(0) == YC );
-        ASSERT( gg(&mL, "~uC").theInt(0) == UC );
-
-        ASSERT( gg(&mL, "~xD").theInt64(0) == XD );
-        ASSERT( gg(&mL, "~yD").theInt64(0) == YD );
-        ASSERT( gg(&mL, "~uD").theInt64(0) == UD );
-
-        ASSERT( gg(&mL, "~xE").theFloat(0) == XE );
-        ASSERT( gg(&mL, "~yE").theFloat(0) == YE );
-        ASSERT( gg(&mL, "~uE").theFloat(0) == UE );
-
-        ASSERT( gg(&mL, "~xF").theDouble(0) == XF );
-        ASSERT( gg(&mL, "~yF").theDouble(0) == YF );
-        ASSERT( gg(&mL, "~uF").theDouble(0) == UF );
-
-        ASSERT( gg(&mL, "~xG").theString(0) == XG );
-        ASSERT( gg(&mL, "~yG").theString(0) == YG );
-        ASSERT( gg(&mL, "~uG").theString(0) == UG );
-
-        ASSERT( gg(&mL, "~xH").theDatetime(0) == XH );
-        ASSERT( gg(&mL, "~yH").theDatetime(0) == YH );
-        ASSERT( gg(&mL, "~uH").theDatetime(0) == UH );
-
-        ASSERT( gg(&mL, "~xI").theDate(0) == XI );
-        ASSERT( gg(&mL, "~yI").theDate(0) == YI );
-        ASSERT( gg(&mL, "~uI").theDate(0) == UI );
-
-        ASSERT( gg(&mL, "~xJ").theTime(0) == XJ );
-        ASSERT( gg(&mL, "~yJ").theTime(0) == YJ );
-        ASSERT( gg(&mL, "~uJ").theTime(0) == UJ );
-
-        ASSERT( gg(&mL, "~xK").theCharArray(0) == XK );
-        ASSERT( gg(&mL, "~yK").theCharArray(0) == YK );
-        ASSERT( gg(&mL, "~uK").theCharArray(0) == UK );
-
-        ASSERT( gg(&mL, "~xL").theShortArray(0) == XL );
-        ASSERT( gg(&mL, "~yL").theShortArray(0) == YL );
-        ASSERT( gg(&mL, "~uL").theShortArray(0) == UL );
-
-        ASSERT( gg(&mL, "~xM").theIntArray(0) == XM );
-        ASSERT( gg(&mL, "~yM").theIntArray(0) == YM );
-        ASSERT( gg(&mL, "~uM").theIntArray(0) == UM );
-
-        ASSERT( gg(&mL, "~xN").theInt64Array(0) == XN );
-        ASSERT( gg(&mL, "~yN").theInt64Array(0) == YN );
-        ASSERT( gg(&mL, "~uN").theInt64Array(0) == UN );
-
-        ASSERT( gg(&mL, "~xO").theFloatArray(0) == XO );
-        ASSERT( gg(&mL, "~yO").theFloatArray(0) == YO );
-        ASSERT( gg(&mL, "~uO").theFloatArray(0) == UO );
-
-        ASSERT( gg(&mL, "~xP").theDoubleArray(0) == XP );
-        ASSERT( gg(&mL, "~yP").theDoubleArray(0) == YP );
-        ASSERT( gg(&mL, "~uP").theDoubleArray(0) == UP );
-
-        ASSERT( gg(&mL, "~xQ").theStringArray(0) == XQ );
-        ASSERT( gg(&mL, "~yQ").theStringArray(0) == YQ );
-        ASSERT( gg(&mL, "~uQ").theStringArray(0) == UQ );
-
-        ASSERT( gg(&mL, "~xR").theDatetimeArray(0) == XR );
-        ASSERT( gg(&mL, "~yR").theDatetimeArray(0) == YR );
-        ASSERT( gg(&mL, "~uR").theDatetimeArray(0) == UR );
-
-        ASSERT( gg(&mL, "~xS").theDateArray(0) == XS );
-        ASSERT( gg(&mL, "~yS").theDateArray(0) == YS );
-        ASSERT( gg(&mL, "~uS").theDateArray(0) == US );
-
-        ASSERT( gg(&mL, "~xT").theTimeArray(0) == XT );
-        ASSERT( gg(&mL, "~yT").theTimeArray(0) == YT );
-        ASSERT( gg(&mL, "~uT").theTimeArray(0) == UT );
-
-        ASSERT( gg(&mL, "~xU").theList(0) == XU );
-        ASSERT( gg(&mL, "~yU").theList(0) == YU );
-        ASSERT( gg(&mL, "~uU").theList(0) == UU );
-
-        ASSERT( gg(&mL, "~xV").theTable(0) == XV );
-        ASSERT( gg(&mL, "~yV").theTable(0) == YV );
-        ASSERT( gg(&mL, "~uV").theTable(0) == UV );
-
-        if (verbose) cout << "\tLarge 'spec'." << endl;
-        const int NUM_PASSES = 10;
-        const int SPEC_SIZE  = 44 * NUM_PASSES + 31;
-        char bigSpec[SPEC_SIZE] = "~~xDxCxBxA~~yDyCyByA~uDuCuBuA~";
-        for (int j = 0; j < NUM_PASSES; ++j) {
-            strcat(bigSpec, "xAxBxCxDxExFxGxHxIxJxKxLxMxNxOxPxQxRxSxTxUxV");
-            gg(&mL, bigSpec);
-            LOOP_ASSERT( j, 22 * (j + 1) == mL.length() );
-            LOOP_ASSERT( j, XA  == mL.theChar(22 * j) );
-            LOOP_ASSERT( j, XV  == mL.theTable(22 * (j + 1) - 1) );
-        }
-
-        if (verbose) cout << "\nTesting error reporting in 'ggg'." << endl;
-        static const struct {
-            int         d_lineNum;   // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
-            int         d_errorCode; // expected 'enum' error code
-        } E_DATA[] = {
-            // line    spec                error code
-            // ----    ----                ----------
-            {   L_,    "."             ,   GGG_INAPPROPRIATE_CHARACTER, },
-            {   L_,    ","             ,   GGG_INAPPROPRIATE_CHARACTER, },
-            {   L_,    "z"             ,   GGG_INAPPROPRIATE_CHARACTER, },
-            {   L_,    ";"             ,   GGG_INAPPROPRIATE_CHARACTER, },
-            {   L_,    "A"             ,   GGG_INAPPROPRIATE_CHARACTER, },
-
-            {   L_,    "Ax"            ,   GGG_INAPPROPRIATE_CHARACTER, },
-            {   L_,    "A~"            ,   GGG_INAPPROPRIATE_CHARACTER, },
-
-            {   L_,    "Ax;"           ,   GGG_INAPPROPRIATE_CHARACTER, },
-            {   L_,    "Axx"           ,   GGG_INAPPROPRIATE_CHARACTER, },
-
-            {   L_,    "x~"            ,   GGG_EXPECTED_TYPE_CHARACTER, },
-            {   L_,    "x;"            ,   GGG_EXPECTED_TYPE_CHARACTER, },
-            {   L_,    "xx"            ,   GGG_EXPECTED_TYPE_CHARACTER, },
-
-            {   L_,    "xAx~"          ,   GGG_EXPECTED_TYPE_CHARACTER, },
-            {   L_,    "xBxx"          ,   GGG_EXPECTED_TYPE_CHARACTER, },
-            {   L_,    "xxxC"          ,   GGG_EXPECTED_TYPE_CHARACTER, },
-            {   L_,    "x;xD"          ,   GGG_EXPECTED_TYPE_CHARACTER, },
-
-            {   L_,    ""              ,   GGG_SUCCESS,                 },
-            {   L_,    "~xAyB~xCyDuE~" ,   GGG_SUCCESS,                 }
-        };
-        int numEData = sizeof E_DATA / sizeof E_DATA[0]; // E_DATA[] length
-        for (int k = 0; k < numEData; ++k) {
-            const int LINE = E_DATA[k].d_lineNum;
-            List mL(Z);
-            const int SHOW_ERRORS = veryVerbose;
-            const int ERROR_CODE  = ggg(&mL, E_DATA[k].d_spec, SHOW_ERRORS);
-            LOOP_ASSERT(LINE, ERROR_CODE == E_DATA[k].d_errorCode);
-        }
-
-        // verify the operation of the areEqual helper function.
-
-        if (verbose) cout << "\nTesting 'areEqual' helper function:" << endl;
-        static const struct {
-            int          d_lineNum;  // source line number
-            const char  *d_lspec;    // lhs spec
-            int          d_lpos;     // lhs position
-            const char  *d_rspec;    // rhs spec
-            int          d_rpos;     // rhs position
-            int          d_result;   // result
-        } Q_DATA[] = {
-            {  L_,  "xA",         0,     "xA",          0,     1     },
-            {  L_,  "xA",         0,     "yA",          0,     0     },
-            {  L_,  "xA",         0,     "uA",          0,     0     },
-            {  L_,  "uA",         0,     "xA",          0,     0     },
-            {  L_,  "xA",         0,     "xB",          0,     0     },
-            {  L_,  "xB",         0,     "xB",          0,     1     },
-            {  L_,  "xC",         0,     "xC",          0,     1     },
-            {  L_,  "xD",         0,     "xD",          0,     1     },
-            {  L_,  "xE",         0,     "xE",          0,     1     },
-            {  L_,  "xAxA",       0,     "xAxB",        0,     1     },
-            {  L_,  "xAxA",       0,     "xAxB",        1,     0     },
-            {  L_,  "xAxA",       1,     "xAxB",        0,     1     },
-            {  L_,  "xAxA",       1,     "xAxB",        1,     0     },
-            {  L_,  "xBxA",       0,     "xAxB",        0,     0     },
-            {  L_,  "xBxA",       0,     "xAxB",        1,     1     },
-            {  L_,  "xBxA",       1,     "xAxB",        0,     1     },
-            {  L_,  "xBxA",       1,     "xAxB",        1,     0     },
-            {  L_,  "xAxA",       0,     "xAyA",        0,     1     },
-            {  L_,  "xAxA",       0,     "xAyA",        1,     0     },
-            {  L_,  "xAxA",       1,     "xAyA",        0,     1     },
-            {  L_,  "xAxA",       1,     "xAyA",        1,     0     },
-            {  L_,  "yAxA",       0,     "xAyA",        0,     0     },
-            {  L_,  "yAxA",       0,     "xAyA",        1,     1     },
-            {  L_,  "yAxA",       1,     "xAyA",        0,     1     },
-            {  L_,  "yAxA",       1,     "xAyA",        1,     0     },
-            {  L_,  "xAxBxC",     0,     "xCxAxB",      0,     0     },
-            {  L_,  "xAxBxC",     0,     "xCxAxB",      1,     1     },
-            {  L_,  "xAxBxC",     2,     "xCxAxB",      0,     1     },
-            {  L_,  "xAxBxC",     1,     "xCxAxB",      2,     1     },
-            {  L_,  "xAxBxC",     2,     "xCxAxB",      2,     0     },
-        };
-
-        int numQData = sizeof Q_DATA / sizeof Q_DATA[0]; // Q_DATA[] length
-        for (int m = 0; m < numQData; ++m) {
-            const int LINE = Q_DATA[m].d_lineNum;
-
-            List mL(Z);
-            gg(&mL, Q_DATA[m].d_lspec);
-            List mR(Z);
-            gg(&mR, Q_DATA[m].d_rspec);
-
-            LOOP_ASSERT(LINE, areEqual (mL.row(), Q_DATA[m].d_lpos,
-                                        mR.row(), Q_DATA[m].d_rpos) ==
-                                        Q_DATA[m].d_result);
-        }
 
       } break;
       case 2: {
@@ -1591,7 +525,7 @@ int main(int argc, char *argv[])
         //   the member fields correctly.
         //
         // Plan:
-        //   Create three ball::RecordAttributes and bdlmxxx::List objects with
+        //   Create three ball::RecordAttributes and ball::UserFieldValues objects with
         //   different values - one unset value and two distinct values.
         //   Construct ball::Record objects with these values and with default
         //   constructor, verify the values with the basic accessors, verify
@@ -1601,10 +535,10 @@ int main(int argc, char *argv[])
         //   scope.
         //
         // Testing:
-        //   ball::Record(const ball::RecordAttributes &, const bdlmxxx::List &);
+        //   ball::Record(const ball::RecordAttributes &, const ball::UserFieldValues &);
         //   ball::Record();
         //   void setFixedFields(const ball::RecordAttributes &);
-        //   void setUserFields(const bdlmxxx::List &);
+        //   void setUserFieldValues(const ball::UserFieldValues &);
         //   ~ball::Record();
         // --------------------------------------------------------------------
 
@@ -1613,7 +547,7 @@ int main(int argc, char *argv[])
 
         Record_Attr FA;
         Record_Attr FB(bdlt::Datetime(2004, 1, 21, 12, 30, 25, 150),
-                       getPid(),
+                       bdlsu::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__,
                        __LINE__,
@@ -1621,7 +555,7 @@ int main(int argc, char *argv[])
                        ball::Severity::BAEL_INFO,
                        "Distinct Message 1");
         Record_Attr FC(bdlt::Datetime(2000, 2, 29, 10, 13, 55, 111),
-                       getPid(),
+                       bdlsu::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__,
                        __LINE__,
@@ -1663,7 +597,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
-            const Obj X(FB, XU, (bslma::Allocator *)0);
+            const Obj X(FB, *VALUES_DATA[0], (bslma::Allocator *)0);
             if (veryVerbose) { cout << "\t\t"; P(X); }
         }
 
@@ -1671,7 +605,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tWith no exceptions." << endl;
         {
-            const Obj X(FB, XU, &testAllocator);
+            const Obj X(FB, *VALUES_DATA[1], &testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
         }
 
@@ -1682,7 +616,7 @@ int main(int argc, char *argv[])
 #endif
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Ctor" << endl;
-            const Obj X(FB, XU, &testAllocator);
+            const Obj X(FB, *VALUES_DATA[1], &testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -1693,8 +627,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
             Obj mX;
-            Obj mY(FB, XU);
-            Obj mZ(FC, YU);
+            Obj mY(FB, *VALUES_DATA[1]);
+            Obj mZ(FC, *VALUES_DATA[2]);
 
             if (veryVeryVerbose) { P(mX); P(mY); P(mZ); }
 
@@ -1702,32 +636,46 @@ int main(int argc, char *argv[])
             ASSERT(0 == (mX == mY)); ASSERT(0 == (mX == mZ));
             ASSERT(0 == (mY == mZ));
 
-            ASSERT(mX.fixedFields() == FA);    ASSERT(mX.userFields()  == UU);
-            ASSERT(mY.fixedFields() == FB);    ASSERT(mY.userFields()  == XU);
-            ASSERT(mZ.fixedFields() == FC);    ASSERT(mZ.userFields()  == YU);
+            ASSERT(mX.fixedFields() == FA); 
+            ASSERT(mY.fixedFields() == FB);    
+            ASSERT(mZ.fixedFields() == FC);    
+
+            ASSERT(mX.userFieldValues()  == Values());
+            ASSERT(mY.userFieldValues()  == *VALUES_DATA[1]);
+            ASSERT(mZ.userFieldValues()  == *VALUES_DATA[2]);
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
-                            << endl;
-            mX.setFixedFields(FB);             ASSERT(mX.fixedFields() == FB);
-            mX.setUserFields(XU);              ASSERT(mX.userFields() == XU);
+                                  << endl;
+            mX.setFixedFields(FB);     
+            ASSERT(mX.fixedFields() == FB);
+            
+            mX.setUserFieldValues(*VALUES_DATA[1]);
+            ASSERT(mX.userFieldValues() == *VALUES_DATA[1]);
+
             ASSERT(mX == mY);
 
             if (veryVerbose) cout << "\tSetting mX with mZ's initializer."
-                            << endl;
-            mX.setFixedFields(FC);             ASSERT(mX.fixedFields() == FC);
-            mX.setUserFields(YU);              ASSERT(mX.userFields()  == YU);
+                                  << endl;
+            mX.setFixedFields(FC);           
+            ASSERT(mX.fixedFields() == FC);
+            
+            mX.setUserFieldValues(*VALUES_DATA[2]);         
+            ASSERT(mX.userFieldValues()  == *VALUES_DATA[2]);
+
             ASSERT(mX == mZ);
         }
 
         if (verbose) cout << "\tWith an allocator." << endl;
         if (verbose) cout << "\t\tWithout exceptions." << endl;
         {
+
+
             bslma::TestAllocator testAllocatorX(veryVeryVerbose);
             bslma::TestAllocator testAllocatorY(veryVeryVerbose);
             bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
             Obj mX(&testAllocatorX);
-            Obj mY(FB, XU, &testAllocatorY);
-            Obj mZ(FC, YU, &testAllocatorZ);
+            Obj mY(FB, *VALUES_DATA[1], &testAllocatorY);
+            Obj mZ(FC, *VALUES_DATA[2], &testAllocatorZ);
 
             if (veryVeryVerbose) { P(mX); P(mY); P(mZ); }
 
@@ -1735,20 +683,32 @@ int main(int argc, char *argv[])
             ASSERT(0 == (mX == mY)); ASSERT(0 == (mX == mZ));
             ASSERT(0 == (mY == mZ));
 
-            ASSERT(mX.fixedFields() == FA);    ASSERT(mX.userFields()  == UU);
-            ASSERT(mY.fixedFields() == FB);    ASSERT(mY.userFields()  == XU);
-            ASSERT(mZ.fixedFields() == FC);    ASSERT(mZ.userFields()  == YU);
+            ASSERT(mX.fixedFields() == FA);   
+            ASSERT(mY.fixedFields() == FB);   
+            ASSERT(mZ.fixedFields() == FC);   
+ 
+            ASSERT(mX.userFieldValues()  == Values());
+            ASSERT(mY.userFieldValues()  == *VALUES_DATA[1]);
+            ASSERT(mZ.userFieldValues()  == *VALUES_DATA[2]);
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
-                            << endl;
-            mX.setFixedFields(FB);             ASSERT(mX.fixedFields() == FB);
-            mX.setUserFields(XU);              ASSERT(mX.userFields() == XU);
+                                  << endl;
+            mX.setFixedFields(FB);       
+            ASSERT(mX.fixedFields() == FB);
+            
+            mX.setUserFieldValues(*VALUES_DATA[1]);     
+            ASSERT(mX.userFieldValues() == *VALUES_DATA[1]);
+
             ASSERT(mX == mY);
 
             if (veryVerbose) cout << "\tSetting mX with mZ's initializer."
-                            << endl;
-            mX.setFixedFields(FC);             ASSERT(mX.fixedFields() == FC);
-            mX.setUserFields(YU);              ASSERT(mX.userFields()  == YU);
+                                  << endl;
+            mX.setFixedFields(FC);   
+            ASSERT(mX.fixedFields() == FC);
+
+            mX.setUserFieldValues(*VALUES_DATA[2]);   
+            ASSERT(mX.userFieldValues()  == *VALUES_DATA[2]);
+
             ASSERT(mX == mZ);
         }
         if (verbose) cout << "\t\tWith exceptions." << endl;
@@ -1762,8 +722,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Primary Manipulator" << endl;
             Obj mX(&testAllocatorX);
-            Obj mY(FB, XU, &testAllocatorY);
-            Obj mZ(FC, YU, &testAllocatorZ);
+            Obj mY(FB, *VALUES_DATA[1], &testAllocatorY);
+            Obj mZ(FC, *VALUES_DATA[2], &testAllocatorZ);
 
             if (veryVeryVerbose) { P(mX); P(mY); P(mZ); }
 
@@ -1771,20 +731,32 @@ int main(int argc, char *argv[])
             ASSERT(0 == (mX == mY)); ASSERT(0 == (mX == mZ));
             ASSERT(0 == (mY == mZ));
 
-            ASSERT(mX.fixedFields() == FA);    ASSERT(mX.userFields()  == UU);
-            ASSERT(mY.fixedFields() == FB);    ASSERT(mY.userFields()  == XU);
-            ASSERT(mZ.fixedFields() == FC);    ASSERT(mZ.userFields()  == YU);
+            ASSERT(mX.fixedFields() == FA); 
+            ASSERT(mY.fixedFields() == FB); 
+            ASSERT(mZ.fixedFields() == FC);
+
+            ASSERT(mX.userFieldValues()  == Values());
+            ASSERT(mY.userFieldValues()  == *VALUES_DATA[1]);
+            ASSERT(mZ.userFieldValues()  == *VALUES_DATA[2]);
 
             if (veryVerbose) cout << "\tSetting mX with mY's initializer."
-                            << endl;
-            mX.setFixedFields(FB);             ASSERT(mX.fixedFields() == FB);
-            mX.setUserFields(XU);              ASSERT(mX.userFields() == XU);
+                                  << endl;
+            mX.setFixedFields(FB);    
+            ASSERT(mX.fixedFields() == FB);
+
+            mX.setUserFieldValues(*VALUES_DATA[1]);  
+            ASSERT(mX.userFieldValues() == *VALUES_DATA[1]);
+
             ASSERT(mX == mY);
 
             if (veryVerbose) cout << "\tSetting mX with mZ's initializer."
                             << endl;
-            mX.setFixedFields(FC);             ASSERT(mX.fixedFields() == FC);
-            mX.setUserFields(YU);              ASSERT(mX.userFields()  == YU);
+            mX.setFixedFields(FC);    
+            ASSERT(mX.fixedFields() == FC);
+
+            mX.setUserFieldValues(*VALUES_DATA[2]); 
+            ASSERT(mX.userFieldValues()  == *VALUES_DATA[2]);
+
             ASSERT(mX == mZ);
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
           } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -1801,9 +773,9 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //     - constructor/destructor
         //     - assignment operator
-        //     - userFields()/fixedFields() (non-const versions)
-        //     - userFields()/fixedFields() (const versions)
-        //     - setUserFields()/setFixedFields()
+        //     - userFieldValues()/fixedFields() (non-const versions)
+        //     - userFieldValues()/fixedFields() (const versions)
+        //     - setUserFieldValues()/setFixedFields()
         //     - numAllocatedBytes()
         //     - equality/inequality operator (== and !=)
         //     - etc.
@@ -1816,9 +788,9 @@ int main(int argc, char *argv[])
         //   their equality.  Use manipulators to set RA to values hold by RB,
         //   verify RA's inequality with RC, and equality with RB.  Reset RA
         //   original values.  Get the dynamic memory usage.  To test
-        //   non-const versions of the 'userFields' and 'fixedFields' methods,
-        //   create a record RA from FA and XU, get modifiables references
-        //   to fixed field and user field and assign them FB and YU and
+        //   non-const versions of the 'userFieldValues' and 'fixedFields' methods,
+        //   create a record RA from FA and *VALUES_DATA[1], get modifiables references
+        //   to fixed field and user field and assign them FB and *VALUES_DATA[2] and
         //   finally verify that record is appropriately modified.
         //
         // Testing:
@@ -1832,7 +804,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         Record_Attr FA(bdlt::Datetime(),
-                       getPid(),
+                       bdlsu::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__, __LINE__,
                        "EQUITY.NASD",
@@ -1843,11 +815,13 @@ int main(int argc, char *argv[])
 
         if (verbose) { P(FA) ; }
 
-        Obj RA(FA, XU);
-        ASSERT(FA == RA.fixedFields()); ASSERT(XU == RA.userFields());
+        Obj RA(FA, *VALUES_DATA[1]);
+        
+        ASSERT(FA == RA.fixedFields()); 
+        ASSERT(*VALUES_DATA[1] == RA.userFieldValues());
 
         Record_Attr FB(bdlt::Datetime(),
-                       getPid(),
+                       bdlsu::ProcessUtil::getProcessId(),
                        0,  // threadID
                        __FILE__, __LINE__,
                        "USER_SESSION",
@@ -1859,24 +833,28 @@ int main(int argc, char *argv[])
 
         if (verbose) { P(FB) ; }
 
-        Obj RB(FB, YU);
-        ASSERT(FB == RB.fixedFields()); ASSERT(YU == RB.userFields());
+        Obj RB(FB, *VALUES_DATA[2]);
+        ASSERT(FB == RB.fixedFields()); 
+        ASSERT(*VALUES_DATA[2] == RB.userFieldValues());
 
         Obj RC(RA);
         ASSERT(RC == RA);               ASSERT(RC != RB);
 
         RA.setFixedFields(FB);
-        RA.setUserFields(YU);
-        ASSERT(FB == RA.fixedFields()); ASSERT(YU == RA.userFields());
+        RA.setUserFieldValues(*VALUES_DATA[2]);
+        ASSERT(FB == RA.fixedFields()); 
+        ASSERT(*VALUES_DATA[2] == RA.userFieldValues());
         ASSERT(RA == RB);               ASSERT(RA != RC);
 
         RA.setFixedFields(FA);
-        RA.setUserFields(XU);
-        ASSERT(FA == RA.fixedFields()); ASSERT(XU == RA.userFields());
+        RA.setUserFieldValues(*VALUES_DATA[1]);
+        ASSERT(FA == RA.fixedFields()); 
+        ASSERT(*VALUES_DATA[1] == RA.userFieldValues());
         ASSERT(RA != RB);               ASSERT(RA == RC);
 
         RC = RB;
-        ASSERT(FB == RC.fixedFields()); ASSERT(YU == RC.userFields());
+        ASSERT(FB == RC.fixedFields()); 
+        ASSERT(*VALUES_DATA[2] == RC.userFieldValues());
         ASSERT(RA != RC);               ASSERT(RB == RC);
 
         const int sizea = RA.numAllocatedBytes();
@@ -1887,21 +865,22 @@ int main(int argc, char *argv[])
         {
             if (verbose) {
                 cout << "testing const versions of 'fixedFields'"
-                     << "and 'userFields'"
+                     << "and 'userFieldValues'"
                      << endl;
             }
 
-            Obj RA(FA, XU);
+            Obj RA(FA, *VALUES_DATA[1]);
             Record_Attr &ff = RA.fixedFields();
             ff = FB;
-            List &uf = RA.userFields();
-            uf = YU;
+            Values &uf = RA.userFieldValues();
+            uf = *VALUES_DATA[2];
             const Obj &CRA = RA;
             LOOP_ASSERT(CRA.fixedFields(), CRA.fixedFields() == FB);
-            LOOP_ASSERT(CRA.userFields(), CRA.userFields() == YU);
+            LOOP_ASSERT(CRA.userFieldValues(), 
+                        CRA.userFieldValues() == *VALUES_DATA[2]);
             if (verbose) {
                 cout << "tested const versions of 'fixedFields'"
-                     << "and 'userFields'"
+                     << "and 'userFieldValues'"
                      << endl;
             }
         }

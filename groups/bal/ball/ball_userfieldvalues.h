@@ -25,26 +25,18 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLB_VARIANT
-#include <bdlb_variant.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
-#include <bdlt_datetimetz.h>
+#ifndef INCLUDED_BALL_USERFIELDVALUE
+#include <ball_userfieldvalue.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_STDINT
-#include <stdint.h>
-#define INCLUDED_STDINT
-#endif
-
 namespace BloombergLP {
 
 namespace ball {
+
 
                         // =====================
                         // class UserFieldValues
@@ -52,19 +44,16 @@ namespace ball {
 
 class UserFieldValues {
 
-  public:
-    // TYPES
-    typedef bdlb::Variant<int64_t, bsl::string, bdlt::DatetimeTz> Value;
-
+  private:
     // DATA
-    bsl::vector<Value>  d_values;      
+    bsl::vector<ball::UserFieldValue>  d_values;      
 
     // FRIENDS
     friend bool operator==(const UserFieldValues&, const UserFieldValues&);
 
   public:
     // TYPES
-    typedef bsl::vector<Value>::const_iterator ValueConstIterator;
+    typedef bsl::vector<ball::UserFieldValue>::const_iterator ConstIterator;
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(UserFieldValues,
@@ -79,24 +68,26 @@ class UserFieldValues {
     // MANIPULATORS
     UserFieldValues& operator=(const UserFieldValues& rhs);
 
-    void setLength(int length);
-    
-    void setValue(int index, int64_t value);
-    void setValue(int index, bslstl::StringRef value);
-    void setValue(int index, const bdlt::DatetimeTz& value);
+    void removeAll();
+
+    void appendInt64(int64_t value);
+    void appendDouble(double value);
+    void appendString(bslstl::StringRef value);
+    void appendDatetimeTz(const bdlt::DatetimeTz& value);
 
     void swap(UserFieldValues& other);
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
 
-    ValueConstIterator begin() const;
-    ValueConstIterator end() const;
+    ConstIterator begin() const;
+    ConstIterator end() const;
 
     int length () const;
 
-    Value value(int index) const;
-
+    const ball::UserFieldValue& operator[](int index) const;
+    const ball::UserFieldValue& value(int index) const;
+        
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -178,27 +169,33 @@ UserFieldValues& UserFieldValues::operator=(const UserFieldValues& rhs)
 }
 
 inline
-void UserFieldValues::setLength(int length)
+void UserFieldValues::removeAll()
 {
-    d_values.resize(length);
+    d_values.clear();
 }
-    
+        
 inline
-void UserFieldValues::setValue(int index, int64_t value)
+void UserFieldValues::appendInt64(int64_t value)
 {
-    d_values[index] = value;
-}
-
-inline
-void UserFieldValues::setValue(int index, bslstl::StringRef value)
-{
-    d_values[index].assign<bsl::string>(value);
+    d_values.push_back(UserFieldValue(value));
 }
 
 inline
-void UserFieldValues::setValue(int index, const bdlt::DatetimeTz& value)
+void UserFieldValues::appendDouble(double value)
 {
-    d_values[index] = value;
+    d_values.push_back(UserFieldValue(value));
+}
+
+inline
+void UserFieldValues::appendString(bslstl::StringRef value)
+{
+    d_values.push_back(UserFieldValue(value));
+}
+
+inline
+void UserFieldValues::appendDatetimeTz(const bdlt::DatetimeTz& value)
+{
+    d_values.push_back(UserFieldValue(value));
 }
 
 inline
@@ -215,13 +212,13 @@ bslma::Allocator *UserFieldValues::allocator() const
 }
 
 inline
-UserFieldValues::ValueConstIterator UserFieldValues::begin() const
+UserFieldValues::ConstIterator UserFieldValues::begin() const
 {
     return d_values.begin();
 }
 
 inline
-UserFieldValues::ValueConstIterator UserFieldValues::end() const
+UserFieldValues::ConstIterator UserFieldValues::end() const
 {
     return d_values.end();
 }
@@ -233,7 +230,13 @@ int UserFieldValues::length() const
 }
 
 inline
-UserFieldValues::Value UserFieldValues::value(int index) const
+const UserFieldValue& UserFieldValues::operator[](int index) const
+{
+    return d_values[index];
+}
+
+inline
+const UserFieldValue& UserFieldValues::value(int index) const
 {
     return d_values[index];
 }

@@ -4,13 +4,11 @@
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
-
-#include <bdlqq_xxxthread.h>
-
-#include <bdlmxxx_elemtype.h>
-#include <bdlmxxx_list.h>
+#include <ball_userfieldvalues.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlt_currenttime.h>
+#include <bdls_testutil.h>
 
 #include <bdlt_iso8601util.h>
 
@@ -82,53 +80,68 @@ using bsl::string;
 // ---------------------------------------------------------------------------
 // [ 1] breathing test
 // [12] USAGE example
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cerr << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline.
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 //=============================================================================
 //              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
@@ -184,7 +197,38 @@ const char *MSG_550BYTE =
 "01234567890123456789012345678901234567890123456789"
 "01234567890123456789012345678901234567890123456789";
 
+bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
+{
+    for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
+        if (lhs[i] != rhs[i]) {
+            cout << "Strings differ at index (" << i << ") "
+                 << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                 << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
+                 << endl;
+            return false;
+        }
+    }
 
+    if (lhs.length() < rhs.length()) {
+        unsigned int i = lhs.length();
+        cout << "Strings differ at index (" << i << ") "
+                 << "lhs[i] = END-OF-STRING "
+                 << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")" 
+                 << endl;
+        return false;
+
+    }
+    if (lhs.length() > rhs.length()) {
+        unsigned int i = rhs.length();
+        cout << "Strings differ at index (" << i << ") "
+                 << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
+                 << "rhs[i] = END-OF-STRING"
+                 << endl;
+        return false;
+    }
+    return true;
+
+}
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -318,7 +362,7 @@ int main(int argc, char *argv[])
                                               "",
                                               ball::Severity::BAEL_OFF,
                                               "");
-            ball::Record           mRecord(fixedFields, bdlmxxx::List());
+            ball::Record           mRecord(fixedFields, ball::UserFieldValues());
             const ball::Record&    record = mRecord;
 
             bdlt::Datetime dtWithOffset(dtUtc); dtWithOffset.addDays(10);
@@ -342,7 +386,7 @@ int main(int argc, char *argv[])
             ostringstream ossActual;
             mX(ossActual, record);
 
-            if (veryVerbose) { T_() P_(ossExpected.str()) P(ossActual.str()) }
+            if (veryVerbose) { T_ P_(ossExpected.str()) P(ossActual.str()) }
             ASSERT((ossExpected.str() == ossActual.str()));
 
             ossExpected.str(""); ossActual.str("");
@@ -375,7 +419,7 @@ int main(int argc, char *argv[])
             ASSERT( mX.isPublishInLocalTimeEnabled());
 
             mX(ossActual, record);
-            if (veryVerbose) { T_() P_(ossExpected.str()) P(ossActual.str()) }
+            if (veryVerbose) { T_ P_(ossExpected.str()) P(ossActual.str()) }
             ASSERT((ossExpected.str() == ossActual.str()));
         }
 
@@ -456,13 +500,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Initialization Constructors"
                           << "\n===================================" << endl;
 
-        bdlmxxx::ElemType::Type listTypes[] = {
-            bdlmxxx::ElemType::BDEM_STRING,
-            bdlmxxx::ElemType::BDEM_DOUBLE,
-            bdlmxxx::ElemType::BDEM_INT,
-            bdlmxxx::ElemType::BDEM_CHAR
-        };
-
         const int   lineNum   = 542;
         const char *filename  = "subdir/process.cpp";
         const bsls::Types::Uint64
@@ -484,11 +521,10 @@ int main(int argc, char *argv[])
 
         fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-        bdlmxxx::List userFields(listTypes, sizeof listTypes / sizeof *listTypes);
-        userFields.theModifiableString(0) = "string";
-        userFields.theModifiableDouble(1) = 3.14159265l;
-        userFields.theModifiableInt(2)    = 1000000;
-        userFields.theModifiableChar(3)   = 'b';
+        ball::UserFieldValues userFields;
+        userFields.appendString("string");
+        userFields.appendDouble(3.14159265);
+        userFields.appendInt64(1000000);
 
         ball::Record mRecord(fixedFields, userFields);
         const ball::Record& record = mRecord;
@@ -829,9 +865,10 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("%u");
             X(oss1, record);
-            oss2 << "string " << 3.14159265l << " " << 1000000 << " b ";
+            oss2 << "string " << 3.14159265l << " " << 1000000;
             if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+            ASSERTV(oss1.str(), oss2.str(), 
+                    compareText(oss1.str(),oss2.str()));
         }
 
         if (verbose) cout << "\n  Testing \"\\n\"." << endl;
@@ -904,7 +941,7 @@ int main(int argc, char *argv[])
                                                   &oa);
                 fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-                bdlmxxx::List   userFields(&oa);
+                ball::UserFieldValues   userFields(&oa);
                 ball::Record record(fixedFields, userFields);
 
                 bsl::ostringstream stream;

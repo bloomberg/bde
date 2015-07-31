@@ -65,6 +65,7 @@ BSLS_IDENT("$Id: $")
 // testing observer's purpose is simply to report what has been presented to
 // its 'publish' method.
 //..
+#warning TBD: Fix List reference
 //     ball::RecordAttributes attributes;
 //     bdlmxxx::List             list;
 //     ball::Record           record(attributes, list);
@@ -134,10 +135,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BDLMXXX_LIST
-#include <bdlmxxx_list.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR

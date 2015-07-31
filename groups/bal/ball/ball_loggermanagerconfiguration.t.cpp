@@ -26,10 +26,10 @@ using namespace bsl;  // automatically added by script
 //..
 //    bael::LMC   ball::LoggerManagerConfiguration
 //    bael::LMD   ball::LoggerManagerDefaults
-//    Schema     bdlmxxx::Schema
-//    Populator  bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>
-//    CNF        bdlf::Function<void (*)(bsl::string *, const char *)>
-//    DTC        bdlf::Function<
+//    Descriptors ball::UserFieldDescriptors
+//    Populator   bdlf::Function<void(*)(UserFieldValues*,const Descriptors&)>
+//    CNF         bdlf::Function<void (*)(bsl::string *, const char *)>
+//    DTC         bdlf::Function<
 //                           void (*)(int *, int *, int *, int *, const char*)>
 //..
 //-----------------------------------------------------------------------------
@@ -41,15 +41,15 @@ using namespace bsl;  // automatically added by script
 // [ 1] void setDefaultValues(const bael::LMD& defaults);
 // [ 5] void setLogOrder(LogOrder value);
 // [ 6] void setTriggerMarkers(TriggerMarkers value);
-// [ 1] void setUserFields(const Schema& schema, const Populator& populator);
+// [ 1] void setUserFieldDescriptors(const Schema& schema, const Populator& populator);
 // [ 1] void setCategoryNameFilterCallback(const CNF& nameFilter);
 // [ 1] void setDefaultThresholdLevelsCallback(const DTC& );
 // [ 2] void setDefaultThresholdLevelsIfValid(int)
 // [ 1] const bael::LMD& defaults() const;
-// [ 1] const bdlmxxx::Schema& userSchema() const;
+// [ 1] const ball::UserFieldDescriptors& userFieldDescriptors() const;
 // [ 5] const LogOrder logOrder() const;
 // [ 6] const TriggerMarkers triggerMarkers() const;
-// [ 1] const Populator& userPopulatorCallback() const;
+// [ 1] const Populator& userFieldsPopulatorCallback() const;
 // [ 1] const CNF& categoryNameFilterCallback() const;
 // [ 1] const DTC& defaultThresholdLevelsCallback() const;
 // [ 1] bsl::ostream& print(bsl::ostream& stream, int level, int spacesPerLev)
@@ -106,18 +106,20 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef ball::LoggerManagerConfiguration Obj;
 typedef ball::LoggerManagerDefaults      Defs;
-typedef bdlmxxx::Schema                     Schema;
+typedef ball::UserFieldDescriptors       Descriptors;
 
 
 // Functor typedefs
-typedef bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>                PopCb;
-typedef bdlf::Function<void (*)(bsl::string *, const char *)>             CnfCb;
+typedef bdlf::Function<void (*)(ball::UserFieldValues *, 
+                                const ball::UserFieldDescriptors&)> PopCb;
+
+typedef bdlf::Function<void (*)(bsl::string *, const char *)> CnfCb;
 typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
 
 //-----------------------------------------------------------------------------
 //          Dummy functions to populate each of the three functors
 //-----------------------------------------------------------------------------
-void pop(bdlmxxx::List *, bdlmxxx::Schema )
+void pop(ball::UserFieldValues *, ball::UserFieldDescriptors )
 {
 }
 
@@ -176,10 +178,8 @@ int main(int argc, char *argv[])
     d1.setDefaultThresholdLevelsIfValid(RECORD_LEVEL[1], PASS_LEVEL[1],
                                         TRIGGER_LEVEL[1],TRIGGER_ALL_LEVEL[1]);
 
-    // Build up a non-default 'bdlmxxx::Schema'.
-    Schema s1;
-    s1.createRecord("A");
-    s1.createRecord("B");
+    // Build up a non-default 'ball::UserFieldDescriptors'.
+    Descriptors s1;
 
     // Populate the three functors (from functions defined above)
     PopCb pCb1(&pop);
@@ -192,8 +192,8 @@ int main(int argc, char *argv[])
     const Defs   D0;
     const Defs   D1(d1);
 
-    const Schema S0;
-    const Schema S1(s1);
+    const Descriptors S0;
+    const Descriptors S1(s1);
 
     const PopCb  PCB0;
     const PopCb  PCB1(pCb1);
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 // Also, to illustrate a non-null functor, we will create a trivial function
 // payload 'pop' for the populator functor attribute:
 //..
-//    void pop(bdlmxxx::List *list, bdlmxxx::Schema schema);
+//    void pop(ball::UserFieldValues *list, ball::UserFieldDescriptors schema);
 //    {
 //    }
 //..
@@ -262,10 +262,9 @@ int main(int argc, char *argv[])
 // need a schema and three functors, two of which will be default-constructed
 // and not populated, resulting in "null" functors:
 //..
-       bdlmxxx::Schema schema;
-       schema.createRecord("A");
+       ball::UserFieldDescriptors descriptors;
 //
-       bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>    populator(&pop);
+       bdlf::Function<void (*)(ball::UserFieldValues *, ball::UserFieldDescriptors)>    populator(&pop);
        bdlf::Function<void (*)(bsl::string *, const char *)> nameFilter;
        bdlf::Function<void (*)(int *, int *, int *, int *, const char*)>
                                                             defaultThresholds;
@@ -280,15 +279,15 @@ int main(int argc, char *argv[])
 // that the "set" methods called in this example cannot fail, so they return
 // 'void':
 //..
-       config.setUserFields(schema, populator);
+       config.setUserFieldDescriptors(descriptors, populator);
        config.setCategoryNameFilterCallback(nameFilter);
        config.setDefaultThresholdLevelsCallback(defaultThresholds);
        config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
        config.setTriggerMarkers(
                       ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
 //
-       ASSERT(           schema == config.userSchema());
-//       ASSERT(        populator == config.userPopulatorCallback());
+       ASSERT(           descriptors == config.userFieldDescriptors());
+//       ASSERT(        populator == config.userFieldsPopulatorCallback());
 //       ASSERT(       nameFilter == config.categoryNameFilterCallback());
 //       ASSERT(defaultThresholds == config.defaultThresholdLevelsCallback());
        ASSERT(ball::LoggerManagerConfiguration::BAEL_FIFO == config.logOrder());
@@ -298,66 +297,6 @@ int main(int argc, char *argv[])
 // The configuration object is now validly configured with our choice of
 // parameters.  We can now print the configuration value to 'stdout':
 //..
-if (veryVerbose)
-      bsl::cout << config << bsl::endl;
-//..
-// This produces the following (multi-line) output:
-//..
-//  [
-//      Defaults:
-//      [
-//          recordBufferSize : 32768
-//          loggerBufferSize : 1024
-//          recordLevel      : 192
-//          passLevel        : 64
-//          triggerLevel     : 48
-//          triggerAllLevel  : 32
-//      ]
-//      User Fields Schema:
-//      {
-//          SEQUENCE RECORD "A" {
-//          }
-//      }
-//      User Fields Populator functor is not null
-//      Category Name Filter functor is null
-//      Default Threshold Callback functor is null
-//      Logging order is FIFO
-//  ]
-//..
-
-        // Programmatically verify the output format
-        {
-            bsl::ostringstream o;
-            o << config;
-
-            static const char EXPECTED[] =
-                "["                                              NL
-                "    Defaults:"                                  NL
-                "    ["                                          NL
-                "        recordBufferSize : 32768"               NL
-                "        loggerBufferSize : 1024"                NL
-                "        recordLevel      : 192"                 NL
-                "        passLevel        : 64"                  NL
-                "        triggerLevel     : 48"                  NL
-                "        triggerAllLevel  : 32"                  NL
-                "    ]"                                          NL
-                "    User Fields Schema:"                        NL
-                "    {"                                          NL
-                "        SEQUENCE RECORD \"A\" {"                NL
-                "        }"                                      NL
-                "    }"                                          NL
-                "    User Fields Populator functor is not null"  NL
-                "    Category Name Filter functor is null"       NL
-                "    Default Threshold Callback functor is null" NL
-                "    Logging order is FIFO"                      NL
-                "    Trigger markers are NO_MARKERS"             NL
-                "]"                                              NL
-                ;
-
-            if (veryVerbose) { P(EXPECTED);  P(o.str()); }
-
-            ASSERT(EXPECTED == o.str());
-        }
 
       } break;
       case 6: {
@@ -663,16 +602,8 @@ if (veryVerbose)
         if (verbose) cout << "\nCheck default ctor. " << endl;
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userSchema());
-#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
-        ASSERT(  PCB0 == X1.userPopulatorCallback());
-        ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
-        ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
-#else
-        ASSERT(!X1.userPopulatorCallback());
-        ASSERT(!X1.categoryNameFilterCallback());
-        ASSERT(!X1.defaultThresholdLevelsCallback());
-#endif
+        ASSERT(    S0 == X1.userFieldDescriptors());
+
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
         ASSERT(1 == (Z1 == Y1));          ASSERT(0 == (Z1 != Y1));
@@ -681,21 +612,12 @@ if (veryVerbose)
         if (verbose) cout << "\tSetting default values explicitly." <<endl;
 
         mX1.setDefaultValues(D0);
-        mX1.setUserFields(S0, PCB0);
+        mX1.setUserFieldDescriptors(S0, PCB0);
         mX1.setCategoryNameFilterCallback(CNFCB0);
         mX1.setDefaultThresholdLevelsCallback(DTCB0);
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userSchema());
-#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
-        ASSERT(  PCB0 == X1.userPopulatorCallback());
-        ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
-        ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
-#else
-        ASSERT(!X1.userPopulatorCallback());
-        ASSERT(!X1.categoryNameFilterCallback());
-        ASSERT(!X1.defaultThresholdLevelsCallback());
-#endif
+        ASSERT(    S0 == X1.userFieldDescriptors());
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -712,16 +634,10 @@ if (veryVerbose)
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D1 == X1.defaults());
-        ASSERT(    S0 == X1.userSchema());
-#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
-        ASSERT(  PCB0 == X1.userPopulatorCallback());
-        ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
-        ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
-#else
-        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(    S0 == X1.userFieldDescriptors());
+        ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
         ASSERT(!X1.defaultThresholdLevelsCallback());
-#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
@@ -751,21 +667,16 @@ if (veryVerbose)
 
         if (verbose) cout << "\t\tChange attribute 1." << endl;
 
-        mX1.setUserFields(S1, PCB1);
+        mX1.setUserFieldDescriptors(S1, PCB1);
 
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S1 == X1.userSchema());
-#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
-        ASSERT(  PCB1 == X1.userPopulatorCallback());
-        ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
-        ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
-#else
-        ASSERT(X1.userPopulatorCallback());
+        ASSERT(    S1 == X1.userFieldDescriptors());
+
+        ASSERT(X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
         ASSERT(!X1.defaultThresholdLevelsCallback());
-#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
@@ -781,7 +692,7 @@ if (veryVerbose)
         ASSERT(1 == (Y1 == X1));          ASSERT(0 == (Y1 != X1));
         ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
 
-        mX1.setUserFields(S0, PCB0);
+        mX1.setUserFieldDescriptors(S0, PCB0);
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -801,16 +712,11 @@ if (veryVerbose)
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userSchema());
-#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
-        ASSERT(  PCB0 == X1.userPopulatorCallback());
-        ASSERT(CNFCB1 == X1.categoryNameFilterCallback());
-        ASSERT( DTCB0 == X1.defaultThresholdLevelsCallback());
-#else
-        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(    S0 == X1.userFieldDescriptors());
+
+        ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(X1.categoryNameFilterCallback());
         ASSERT(!X1.defaultThresholdLevelsCallback());
-#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
@@ -846,16 +752,11 @@ if (veryVerbose)
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
         ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userSchema());
-#if defined(BDEF_FUNCTION_IS_EQUALITY_COMPARABLE)
-        ASSERT(  PCB0 == X1.userPopulatorCallback());
-        ASSERT(CNFCB0 == X1.categoryNameFilterCallback());
-        ASSERT( DTCB1 == X1.defaultThresholdLevelsCallback());
-#else
-        ASSERT(!X1.userPopulatorCallback());
+        ASSERT(    S0 == X1.userFieldDescriptors());
+
+        ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
         ASSERT(X1.defaultThresholdLevelsCallback());
-#endif
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
@@ -887,76 +788,10 @@ if (veryVerbose)
         if (verbose) cout << "Testing output operator<<." << endl;
 
         mY1.setDefaultValues(D1);
-        mY1.setUserFields(S1, PCB1);
+        mY1.setUserFieldDescriptors(S1, PCB1);
         mY1.setCategoryNameFilterCallback(CNFCB1);
         mY1.setDefaultThresholdLevelsCallback(DTCB1);
 
-        if (verbose) cout << "\tOn a default object:" << endl;
-        {
-            ostringstream o;
-            o << X1;
-
-            static const char EXPECTED[] =
-                "["                                NL
-                "    Defaults:"                    NL
-                "    ["                            NL
-                "        recordBufferSize : 32768" NL
-                "        loggerBufferSize : 8192"  NL
-                "        recordLevel      : 0"     NL
-                "        passLevel        : 64"    NL
-                "        triggerLevel     : 0"     NL
-                "        triggerAllLevel  : 0"     NL
-                "    ]"                            NL
-                "    User Fields Schema:"          NL
-                "    {"                            NL
-                "    }"                            NL
-                "    User Fields Populator functor is null"      NL
-                "    Category Name Filter functor is null"       NL
-                "    Default Threshold Callback functor is null" NL
-                "    Logging order is LIFO"                      NL
-                "    Trigger markers are BEGIN_END_MARKERS"      NL
-                "]"                                              NL
-                ;
-
-            ASSERT(EXPECTED == o.str());
-            if (veryVerbose) cout << "EXPECTED:\n" << EXPECTED
-                                  << "\noutput:\n" << o.str() << endl;
-        }
-
-        if (verbose) cout << "\tOn a non-default object:" << endl;
-        {
-            ostringstream o;
-            o << Y1;
-
-            static const char EXPECTED[] =
-                "["                               NL
-                "    Defaults:"                   NL
-                "    ["                           NL
-                "        recordBufferSize : 10"   NL
-                "        loggerBufferSize : 11"   NL
-                "        recordLevel      : 12"   NL
-                "        passLevel        : 13"   NL
-                "        triggerLevel     : 14"   NL
-                "        triggerAllLevel  : 15"   NL
-                "    ]"                           NL
-                "    User Fields Schema:"         NL
-                "    {"                           NL
-                "        SEQUENCE RECORD \"A\" {" NL
-                "        }"                       NL
-                "        SEQUENCE RECORD \"B\" {" NL
-                "        }"                       NL
-                "    }"                           NL
-                "    User Fields Populator functor is not null"      NL
-                "    Category Name Filter functor is not null"       NL
-                "    Default Threshold Callback functor is not null" NL
-                "    Logging order is LIFO"                          NL
-                "    Trigger markers are BEGIN_END_MARKERS"          NL
-                "]"                                                  NL
-                ;
-            ASSERT(EXPECTED == o.str());
-            if (veryVerbose) cout << "EXPECTED:\n" << EXPECTED
-                                  << "\noutput:\n" << o.str() << endl;
-        }
 
       } break;
       default: {

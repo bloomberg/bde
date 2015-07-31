@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                                       dynamic_cast<ball::Observer&>(myObserver);
             bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            bdlmxxx::List             emptyList;
+            ball::UserFieldValues  userValues;
 
 
             if (verbose)
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
                 fixed.setThreadID(0);
 
                 bsl::shared_ptr<const ball::Record> handle(
-                             new (testAllocator) ball::Record(fixed, emptyList),
+                             new (testAllocator) ball::Record(fixed, userValues),
                              &testAllocator);
                 observer.publish(
                             handle,
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
                     fixed.setThreadID(31 + n);
 
                     bsl::shared_ptr<const ball::Record> handle(
-                             new (testAllocator) ball::Record(fixed, emptyList),
+                             new (testAllocator) ball::Record(fixed, userValues),
                              &testAllocator);
                     observer.publish(
                                 handle,

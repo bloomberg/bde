@@ -38,5 +38,6 @@ ball_testobserver
 ball_thresholdaggregate
 ball_transmission
 ball_userfieldtype
+ball_userfieldvalue
 ball_userfieldvalues
 ball_userfielddescriptors

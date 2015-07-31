@@ -280,7 +280,7 @@ BSLS_IDENT("$Id: $")
 //     severity       int              severity of logged record
 //     message        string           log message text
 //..
-// The user-defined fields, if any, are described by a 'bdlmxxx::Schema' optionally
+// The user-defined fields, if any, are described by a 'ball::UserFieldDescriptors' optionally
 // supplied by the client when the logger manager singleton is created.  If a
 // schema is supplied by the client, a corresponding
 // 'ball::Logger::UserPopulatorCallback' functor must also be supplied.
@@ -872,10 +872,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-#ifndef INCLUDED_BDLMXXX_SCHEMA
-#include <bdlmxxx_schema.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -902,7 +898,6 @@ class Observer;
 class RecordBuffer;
 }  // close package namespace
 
-namespace bdlmxxx { class List; }
 
 namespace ball {
                            // =================
@@ -917,9 +912,9 @@ class Logger {
 
   public:
     // TYPES
-    typedef LoggerManagerConfiguration::UserPopulatorCallback
-                                                         UserPopulatorCallback;
-        // 'UserPopulatorCallback' is the type of a user-supplied callback
+    typedef LoggerManagerConfiguration::UserFieldsPopulatorCallback
+                                                         UserFieldsPopulatorCallback;
+        // 'UserFieldsPopulatorCallback' is the type of a user-supplied callback
         // functor used to populate the user-defined fields in each log record.
         // Note that the user-defined fields of each record must be
         // type-consistent with the schema of the user populator callback.
@@ -939,10 +934,10 @@ class Logger {
     RecordBuffer    *d_recordBuffer_p;     // holds log record buffer
                                                 // (not owned)
 
-    const bdlmxxx::Schema    *d_userSchema_p;       // holds schema for user-
+    const ball::UserFieldDescriptors  *d_userFieldDescriptors_p;       // holds schema for user-
                                                 // defined fields (not owned)
 
-    UserPopulatorCallback d_populator;          // user populator functor
+    UserFieldsPopulatorCallback d_populator;          // user populator functor
 
     PublishAllTriggerCallback
                           d_publishAll;         // publishAll callback functor
@@ -975,8 +970,8 @@ class Logger {
     Logger(
            Observer                                   *observer,
            RecordBuffer                               *recordBuffer,
-           const bdlmxxx::Schema                               *schema,
-           const UserPopulatorCallback&                     populator,
+           const ball::UserFieldDescriptors                               *schema,
+           const UserFieldsPopulatorCallback&                     populator,
            const PublishAllTriggerCallback&                 publishAllCallback,
            int                                              scratchBufferSize,
            LoggerManagerConfiguration::LogOrder        logOrder,
@@ -1235,10 +1230,10 @@ class LoggerManager {
                                                  // factory default threshold
                                                  // levels
 
-    bdlmxxx::Schema            d_userSchema;         // schema for user-defined
+    ball::UserFieldDescriptors              d_userFieldDescriptors;         // schema for user-defined
                                                  // fields
 
-    Logger::UserPopulatorCallback
+    Logger::UserFieldsPopulatorCallback
                            d_populator;          // populator functor
 
     Logger           *d_logger_p;           // holds default logger
@@ -1387,8 +1382,8 @@ class LoggerManager {
 
     static void initSingleton(
                Observer                             *observer,
-               const bdlmxxx::Schema&                         userSchema,
-               const Logger::UserPopulatorCallback&  populator,
+               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
 
     static void initSingleton(
@@ -1400,23 +1395,23 @@ class LoggerManager {
     static void initSingleton(
                Observer                             *observer,
                const DefaultThresholdLevelsCallback&      defaultThresholds,
-               const bdlmxxx::Schema&                         userSchema,
-               const Logger::UserPopulatorCallback&  populator,
+               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
 
     static void initSingleton(
                Observer                             *observer,
                const FactoryDefaultThresholds&            factoryThresholds,
-               const bdlmxxx::Schema&                         userSchema,
-               const Logger::UserPopulatorCallback&  populator,
+               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
 
     static void initSingleton(
                Observer                             *observer,
                const DefaultThresholdLevelsCallback&      defaultThresholds,
                const FactoryDefaultThresholds&            factoryThresholds,
-               const bdlmxxx::Schema&                         userSchema,
-               const Logger::UserPopulatorCallback&  populator,
+               const ball::UserFieldDescriptors&                         userFieldDescriptors,
+               const Logger::UserFieldsPopulatorCallback&  populator,
                bslma::Allocator                          *globalAllocator = 0);
         // Initialize (once!) the logger manager singleton having the specified
         // 'observer' that receives published log records.  Optionally specify
@@ -1426,7 +1421,7 @@ class LoggerManager {
         // for categories added to the registry by 'setCategory(const char *)'.
         // Optionally specify 'factoryThresholds' to override the
         // "factory-supplied" initial default threshold levels.  Optionally
-        // specify a 'userSchema' that describes the structure of the
+        // specify a 'userFieldDescriptors' that describes the structure of the
         // user-defined fields of log records and a corresponding 'populator'
         // functor that populates those user-defined fields.  Optionally
         // specify a 'globalAllocator' used to supply memory.  If
@@ -1694,7 +1689,8 @@ class LoggerManager {
         // Return the address of the non-modifiable observer registered with
         // this logger manager.
 
-    const Logger::UserPopulatorCallback *userPopulatorCallback() const;
+    const Logger::UserFieldsPopulatorCallback *userFieldsPopulatorCallback() 
+                                                                         const;
         // Return the address of the non-modifiable user populator functor
         // registered with this logger manager, or 0 if there is no registered
         // user populator functor.

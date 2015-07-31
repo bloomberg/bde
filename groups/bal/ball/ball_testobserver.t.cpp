@@ -145,8 +145,8 @@ int main(int argc, char *argv[])
 
         {
             ball::RecordAttributes attributes;
-            bdlmxxx::List             list;
-            ball::Record           record(attributes, list);
+            ball::UserFieldValues  fieldValues;
+            ball::Record           record(attributes, fieldValues);
             ball::Context          context;
 
                                               ASSERT(0 == Obj::numInstances());
@@ -192,8 +192,8 @@ int main(int argc, char *argv[])
 
         {
             ball::RecordAttributes attributes;
-            bdlmxxx::List             list;
-            ball::Record           record(attributes, list);
+            ball::UserFieldValues  fieldValues;
+            ball::Record           record(attributes, fieldValues);
             ball::Context          context;
 
             ASSERT(0 == Obj::numInstances());

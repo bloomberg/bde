@@ -87,6 +87,7 @@ class UserFieldDescriptors {
 
     int length () const;
 
+    int indexOf(bslstl::StringRef name) const;
     bslstl::StringRef   name(int index) const;
     ball::UserFieldType::Enum type(int index) const;   
 
@@ -180,7 +181,7 @@ inline
 UserFieldDescriptors& UserFieldDescriptors::operator=(
                                        const UserFieldDescriptors& rhs)
 {
-    UserFieldDescriptors tmp(rhs);
+    UserFieldDescriptors tmp(rhs, allocator());
     swap(tmp);
     return *this;
 }
@@ -224,6 +225,13 @@ inline
 bslma::Allocator *UserFieldDescriptors::allocator() const
 {
     return d_names.get_allocator().mechanism();
+}
+
+inline
+int UserFieldDescriptors::indexOf(bslstl::StringRef name) const
+{
+    NameToIndex::const_iterator it = d_nameToIndex.find(name);
+    return it == d_nameToIndex.end() ? -1 : it->second;
 }
 
 inline
