@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // C++ standard [21.4].  The 'basic_string' implemented here adheres to the
 // C++11 standard, except that it does not have interfaces that take rvalue
 // references or 'initializer_lists', the 'shrink_to_fit' method,and template
-// specializations 'std::u16string' and 'std::u32string'. Note that excluded
+// specializations 'std::u16string' and 'std::u32string'.  Note that excluded
 // C++11 features are those that require (or are greatly simplified by) C++11
 // compiler support.
 //
@@ -632,6 +632,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_matcharithmetictype.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
 #endif
@@ -668,9 +672,9 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_ERRNO_H
-#include <errno.h>
-#define INCLUDED_ERRNO_H
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>
+#define INCLUDED_ALGORITHM
 #endif
 
 #ifndef INCLUDED_ISTREAM
@@ -693,15 +697,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STRING
 #endif
 
-#ifndef INCLUDED_CSTRING
-#include <cstring>
-#define INCLUDED_CSTRING
-#endif
-
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
 
 namespace bsl {
 
@@ -1009,14 +1004,14 @@ class basic_string
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
         // These types satisfy the 'ReversibleSequence' requirements.
 
-  // to_string functions are made friends to allow access to internal short
-  // string buffer.
-  friend string to_string(int);
-  friend string to_string(long);
-  friend string to_string(long long);
-  friend string to_string(unsigned);
-  friend string to_string(unsigned long);
-  friend string to_string(unsigned long long);
+    // 'to_string' functions are made friends to allow access to the internal
+    // short string buffer.
+    friend string to_string(int);
+    friend string to_string(long);
+    friend string to_string(long long);
+    friend string to_string(unsigned);
+    friend string to_string(unsigned long);
+    friend string to_string(unsigned long long);
 
   private:
     // PRIVATE TYPES
@@ -1055,9 +1050,9 @@ class basic_string
         // (which can also match an integral type).  In the first two cases,
         // use 'privateAppendRaw'.  In the last case, forward to
         // 'privateReplaceDispatch' to separate the integral type from iterator
-        // types.  The behavior is undefined unless 'begin' and 'end' refer to
-        // a sequence of valid values where 'begin' is at a position at or
-        // before 'end'.
+        // types.  The behavior is undefined unless the specified 'begin' and
+        // 'end' refer to a sequence of valid values where 'begin' is at a
+        // position at or before 'end'.
 
     basic_string& privateAssign(const CHAR_TYPE *characterString,
                                 size_type        numChars);
@@ -1305,7 +1300,7 @@ class basic_string
 
     basic_string(const basic_string& original);
     basic_string(const basic_string& original,
-                 const ALLOCATOR& basicAllocator);
+                 const ALLOCATOR&    basicAllocator);
         // Create a string that has the same value as the specified 'original'
         // string.  Optionally specify the 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is not specified, then a
@@ -1498,7 +1493,7 @@ class basic_string
         // return a reference providing modifiable access to this string.
 
     basic_string& operator+=(
-        const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
+                  const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
         // Append the specified 'strRef' at the end of this string.  Return a
         // reference providing modifiable access to this string.
 
@@ -2090,10 +2085,10 @@ class basic_string
 
     basic_string substr(size_type position = 0,
                         size_type numChars = npos) const;
-        // Return a string whose value is the substring of length the
+        // Return a string whose value is the substring  starting at the
+        // optionally specified 'position' in this string, of length the
         // optionally specified 'numChars' or 'length() - position', whichever
-        // is smaller, starting at the optionally specified 'position' in this
-        // string.  If 'position' is not specified, 0 is used (i.e., the
+        // is smaller.  If 'position' is not specified, 0 is used (i.e., the
         // substring is from the beginning of this string).  If 'numChars' is
         // not specified, 'npos' is used (i.e., the entire suffix from
         // 'position' to the end of the string is returned).
@@ -2393,142 +2388,143 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
     // because because the stream is at eof), 'str' will become empty and
     // 'is.fail()' will become true.
 
-int stoi(const string& str, std::size_t* pos = 0, int base = 10);
-int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
-long stol(const string& str, std::size_t* pos = 0, int base = 10);
+int  stoi(const string&  str, std::size_t* pos = 0, int base = 10);
+int  stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
+long stol(const string&  str, std::size_t* pos = 0, int base = 10);
 long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
-unsigned long stoul(const string& str, std::size_t* pos = 0, int base = 10);
+unsigned long stoul(const string&  str, std::size_t* pos = 0, int base = 10);
 unsigned long stoul(const wstring& str, std::size_t* pos = 0, int base = 10);
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
+long long stoll(const string&  str, std::size_t* pos = 0, int base = 10);
 long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
-unsigned long long stoull(const string& str, std::size_t* pos = 0,
-                                                                int base = 10);
-unsigned long long stoull(const wstring& str, std::size_t* pos = 0,
-                                                                int base = 10);
+unsigned long long stoull(const string&   str,
+                          std::size_t    *pos = 0,
+                          int             base = 10);
+unsigned long long stoull(const wstring&  str,
+                          std::size_t    *pos = 0,
+                          int             base = 10);
 #endif
     // Parses 'str' interpreting its content as an integral number. Optionally
     // specify 'pos' whose value is set to the position of the next character
-    // after the numerical value. Optionally specify 'base' used to change the
+    // after the numerical value.  Optionally specify 'base' used to change the
     // interpretation of 'str' to a integral number written in the specified
-    // 'base'. Valid bases are in the range of [0,35] where base 0 
+    // 'base'.  Valid bases are in the range of [0,35] where base 0
     // automatically determines the base of the string; The base will be 16 if
-    // the number is prefixed with '0x' or '0X', base 8 if the number is 
-    // prefixed with a '0' and base 10 otherwise. The function ignores leading
+    // the number is prefixed with '0x' or '0X', base 8 if the number is
+    // prefixed with a '0' and base 10 otherwise.  The function ignores leading
     // white space characters and interprets as many characters possible to
-    // form a valid base n integral number. If no conversion could be
-    // performed, then an invalid_argument exception is thrown. If the value
+    // form a valid base n integral number.  If no conversion could be
+    // performed, then an invalid_argument exception is thrown.  If the value
     // read is out of range of the return type, then an out_of_range exception
     // is thrown.
 
-float stof(const string& str, std::size_t* pos =0);
-float stof(const wstring& str, std::size_t* pos =0);
-double stod(const string& str, std::size_t* pos =0);
+float  stof(const string&  str, std::size_t* pos =0);
+float  stof(const wstring& str, std::size_t* pos =0);
+double stod(const string&  str, std::size_t* pos =0);
 double stod(const wstring& str, std::size_t* pos =0);
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-long double stold(const string& str, std::size_t* pos =0);
+long double stold(const string&  str, std::size_t* pos =0);
 long double stold(const wstring& str, std::size_t* pos =0);
 #endif
     // Parses 'str' interpreting its contents as a floating point number. In
-    // C++11 if the number in the str is prefixed with '0x' or '0X' the string
-    // will be interpreted as a hex number. If there is no leading 0x or 0X the
-    // string will be interpreted as a decimal number. Optionally specify 'pos'
-    // whose value is set to the position of the next character after the
-    // numerical value. The function ignores leading white space characters and
-    // interprets as many characters possible to form a valid floating point
-    // number. If no conversion could be performed, then an invalid_argument
-    // exception is thrown. If the value read is out of range of the return
-    // type, then an out_of_range exception is thrown.
+    // C++11 if the number in 'str' is prefixed with '0x' or '0X' the string
+    // will be interpreted as a hex number.  If there is no leading 0x or 0X
+    // the string will be interpreted as a decimal number.  Optionally specify
+    // 'pos' whose value is set to the position of the next character after the
+    // numerical value.  The function ignores leading white space characters
+    // and interprets as many characters possible to form a valid floating
+    // point number.  If no conversion could be performed, then an
+    // 'invalid_argument' exception is thrown.  If the value read is out of
+    // range of the return type, then an out_of_range exception is thrown.
 
 string to_string(int value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::sprintf(buf,"%d", value) would produce with a sufficiently large
+    // 'std::sprintf(buf,"%d", value)' would produce with a sufficiently large
     // buffer.
 string to_string(long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::sprintf(buf,"%ld", value) would produce with a sufficiently large
+    // 'std::sprintf(buf,"%ld", value)' would produce with a sufficiently large
     // buffer.
 string to_string(long long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::sprintf(buf,"%lld", value) would produce with a sufficiently large
-    // buffer.
+    // 'std::sprintf(buf,"%lld", value)' would produce with a sufficiently
+    // large buffer.
 string to_string(unsigned value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::sprintf(buf,"%u", value) would produce with a sufficiently large
+    // 'std::sprintf(buf,"%u", value)' would produce with a sufficiently large
     // buffer.
 string to_string(unsigned long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::sprintf(buf,"%lu", value) would produce with a sufficiently large
+    // 'std::sprintf(buf,"%lu", value)' would produce with a sufficiently large
     // buffer.
 string to_string(unsigned long long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::sprintf(buf,"%llu", value) would produce with a sufficiently large
-    // buffer.
+    // 'std::sprintf(buf,"%llu", value)' would produce with a sufficiently
+    // large buffer.
 string to_string(float value);
 string to_string(double value);
     // converts a floating point value to a string with the same contents as
-    // what std::sprintf(buf, "%f", value) would produce for a suficiently
+    // what 'std::sprintf(buf, "%f", value)' would produce for a suficiently
     // large buffer.
 string to_string(long double value);
     // converts a floating point value to a string with the same contents as
-    // what std::sprintf(buf, "%Lf", value) would produce for a suficiently
+    // what 'std::sprintf(buf, "%Lf", value)' would produce for a suficiently
     // large buffer.
 
 wstring to_wstring(int value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::swprintf(buf,L"%d", value) would produce with a sufficiently large
-    // buffer.
+    // 'std::swprintf(buf,L"%d", value)' would produce with a sufficiently
+    // large buffer.
 wstring to_wstring(long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::swprintf(buf,L"%ld", value) would produce with a sufficiently large
-    // buffer.
+    // 'std::swprintf(buf,L"%ld", value)' would produce with a sufficiently
+    // large buffer.
 wstring to_wstring(long long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::swprintf(buf,L"%lld", value) would produce with a sufficiently
+    // 'std::swprintf(buf,L"%lld", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(unsigned value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::swprintf(buf,L"%u", value) would produce with a sufficiently large
-    // buffer.
+    // 'std::swprintf(buf,L"%u", value)' would produce with a sufficiently
+    // large buffer.
 wstring to_wstring(unsigned long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::swprintf(buf,L"%lu", value) would produce with a sufficiently large
-    // buffer.
+    // 'std::swprintf(buf,L"%lu", value)' would produce with a sufficiently
+    // large buffer.
 wstring to_wstring(unsigned long long value);
     // Constructs a string with contents equal to the specified 'value'. The
     // contents of the string will be the same as what
-    // std::swprintf(buf,L"%llu", value) would produce with a sufficiently
+    // 'std::swprintf(buf,L"%llu", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(float value);
 wstring to_wstring(double value);
     // converts a floating point value to a string with the same contents as
-    // what std::sprintf(buf, sz, L"%f", value) would produce for a suficiently
-    // large buffer.
+    // what 'std::sprintf(buf, sz, L"%f", value)' would produce for a
+    // suficiently large buffer.
 wstring to_wstring(long double value);
     // converts a floating point value to a string with the same contents as
-    // what std::sprintf(buf, sz, L"%Lf", value) would produce for a
+    // 'what std::sprintf(buf, sz, L"%Lf", value)' would produce for a
     // suficiently large buffer.
 
 enum MaxDecimalStringLengths{
-    // This 'enum' give upper bounds on the maximum string lengths storing
-    // each scalar numerical type.  It is safe to use stack-allocated
-    // buffers of these sizes for generating decimal representations of the
-    // corresponding type, including sign and terminating null character,
-    // using the default precision of 6 significant digits for floating
-    // point types.
+    // This 'enum' give upper bounds on the maximum string lengths storing each
+    // scalar numerical type.  It is safe to use stack-allocated buffers of
+    // these sizes for generating decimal representations of the corresponding
+    // type, including sign and terminating null character, using the default
+    // precision of 6 significant digits for floating point types.
 
     e_MAX_SHORT_STRLEN10      = 2 + sizeof(short) * 3,
     e_MAX_INT_STRLEN10        = 2 + sizeof(int) * 3,
@@ -3090,8 +3086,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
                                               newLength,
                                               outPosition);
 
-    const CHAR_TYPE *tail = this->dataPtr() + outPosition + outNumChars;
-    size_type tailLen = this->d_length - outPosition - outNumChars;
+    const CHAR_TYPE *tail    = this->dataPtr() + outPosition + outNumChars;
+    size_type        tailLen = this->d_length  - outPosition - outNumChars;
 
     if (newBuffer) {
         // Source and destination cannot overlap, order of next two copies is
@@ -3804,7 +3800,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
-               const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
+                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
 {
     return append(strRef.begin(),strRef.end());
 }
@@ -4194,7 +4190,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator position)
     BSLS_ASSERT_SAFE(position < cend());
 
     const_iterator postPosition = position;
-    iterator dstPosition = begin() + (position - cbegin());
+    iterator       dstPosition  = begin() + (position - cbegin());
 
     ++postPosition;
     CHAR_TRAITS::move(&*dstPosition, &*postPosition, cend() - postPosition);
@@ -5653,14 +5649,14 @@ bsl::operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS>
 bool bslstl_string_fill(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&   os,
                         std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> *buf,
-                        size_t n)
+                        std::size_t                                   n)
     // Do not use, for internal use by 'operator<<' only.
 {
     BSLS_ASSERT_SAFE(buf);
 
     CHAR_TYPE fillChar = os.fill();
 
-    for (size_t i = 0; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         if (CHAR_TRAITS::eq_int_type(buf->sputc(fillChar), CHAR_TRAITS::eof()))
         {
             return false;                                             // RETURN
@@ -5681,14 +5677,14 @@ bsl::operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&          os,
 
     if (sentry) {
         ok = true;
-        size_t n = str.size();
-        size_t padLen = 0;
+        std::size_t n = str.size();
+        std::size_t padLen = 0;
         bool left = (os.flags() & Ostrm::left) != 0;
         std::streamsize w = os.width(0);
         std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = os.rdbuf();
 
-        if (w > 0 && size_t(w) > n) {
-            padLen = size_t(w) - n;
+        if (w > 0 && std::size_t(w) > n) {
+            padLen = std::size_t(w) - n;
         }
 
         if (!left) {
@@ -5776,7 +5772,7 @@ bsl::getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&    is,
              CHAR_TYPE                                      delim)
 {
     typedef std::basic_istream<CHAR_TYPE, CHAR_TRAITS> Istrm;
-    size_t nread = 0;
+    std::size_t nread = 0;
     typename Istrm::sentry sentry(is, true);
     if (sentry) {
         std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = is.rdbuf();
