@@ -258,7 +258,7 @@
 //      // use data in alternate style
 //  }
 //..
-// Suppose that after performing a brief post mortem on the resulting core
+// Suppose that after performing a brief post-mortem on the resulting core
 // file, we strongly suspect that a buffer overrun is the root cause, but the
 // program crashed in a context far removed from that of the source of the
 // problem (which is often the case with buffer overrun issues).

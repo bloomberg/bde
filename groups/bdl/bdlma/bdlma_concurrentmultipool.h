@@ -347,17 +347,17 @@ BSLS_IDENT("$Id: $")
 //
 //      if (length < k_SMALL) {
 //          return new(d_multipool.allocate(sizeof(my_SmallMessage)))
-//                                               my_SmallMessage(data, length);
+//                                    my_SmallMessage(data, length);  // RETURN
 //      }
 //
 //      if (length < k_MEDIUM) {
 //          return new(d_multipool.allocate(sizeof(my_MediumMessage)))
-//                                              my_MediumMessage(data, length);
+//                                   my_MediumMessage(data, length);  // RETURN
 //      }
 //
 //      if (length < k_LARGE) {
 //          return new(d_multipool.allocate(sizeof(my_LargeMessage)))
-//                                               my_LargeMessage(data, length);
+//                                    my_LargeMessage(data, length);  // RETURN
 //      }
 //
 //      char *buffer = (char *)d_multipool.allocate(length + 1);
@@ -451,10 +451,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentallocatoradapter.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_BLOCKLIST
 #include <bdlma_blocklist.h>
 #endif
@@ -465,6 +461,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DELETERHELPER
 #include <bslma_deleterhelper.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
@@ -563,16 +563,16 @@ class ConcurrentMultipool {
     // CREATORS
     ConcurrentMultipool(bslma::Allocator                 *basicAllocator = 0);
     ConcurrentMultipool(int                               numPools,
-                    bslma::Allocator                 *basicAllocator = 0);
+                        bslma::Allocator                 *basicAllocator = 0);
     ConcurrentMultipool(bsls::BlockGrowth::Strategy       growthStrategy,
-                    bslma::Allocator                 *basicAllocator = 0);
+                        bslma::Allocator                 *basicAllocator = 0);
     ConcurrentMultipool(int                               numPools,
-                    bsls::BlockGrowth::Strategy       growthStrategy,
-                    bslma::Allocator                 *basicAllocator = 0);
+                        bsls::BlockGrowth::Strategy       growthStrategy,
+                        bslma::Allocator                 *basicAllocator = 0);
     ConcurrentMultipool(int                               numPools,
-                    bsls::BlockGrowth::Strategy       growthStrategy,
-                    int                               maxBlocksPerChunk,
-                    bslma::Allocator                 *basicAllocator = 0);
+                        bsls::BlockGrowth::Strategy       growthStrategy,
+                        int                               maxBlocksPerChunk,
+                        bslma::Allocator                 *basicAllocator = 0);
         // Create a multipool memory manager.  Optionally specify 'numPools',
         // indicating the number of internally created 'Pool' objects; the
         // block size of the first pool is 8 bytes, with the block size of each
@@ -604,20 +604,21 @@ class ConcurrentMultipool {
         // size is capped at that value).
 
     ConcurrentMultipool(int                                numPools,
-                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                    bslma::Allocator                  *basicAllocator = 0);
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        bslma::Allocator                  *basicAllocator = 0);
     ConcurrentMultipool(int                                numPools,
-                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                    int                                maxBlocksPerChunk,
-                    bslma::Allocator                  *basicAllocator = 0);
-    ConcurrentMultipool(int                                numPools,
-                    bsls::BlockGrowth::Strategy        growthStrategy,
-                    const int                         *maxBlocksPerChunkArray,
-                    bslma::Allocator                  *basicAllocator = 0);
-    ConcurrentMultipool(int                                numPools,
-                    const bsls::BlockGrowth::Strategy *growthStrategyArray,
-                    const int                         *maxBlocksPerChunkArray,
-                    bslma::Allocator                  *basicAllocator = 0);
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        int                                maxBlocksPerChunk,
+                        bslma::Allocator                  *basicAllocator = 0);
+    ConcurrentMultipool(int                           numPools,
+                        bsls::BlockGrowth::Strategy   growthStrategy,
+                        const int                    *maxBlocksPerChunkArray,
+                        bslma::Allocator             *basicAllocator = 0);
+    ConcurrentMultipool(
+                     int                                numPools,
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     const int                         *maxBlocksPerChunkArray,
+                     bslma::Allocator                  *basicAllocator = 0);
         // Create a multipool memory manager having the specified 'numPools',
         // indicating the number of internally created 'Pool' objects; the
         // block size of the first pool is 8 bytes, with the block size of each

@@ -652,10 +652,10 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
     ConcurrentPoolAllocator(bslma::Allocator            *basicAllocator = 0);
     explicit
     ConcurrentPoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bslma::Allocator            *basicAllocator = 0);
     ConcurrentPoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
-                        int                          maxBlocksPerChunk,
-                        bslma::Allocator            *basicAllocator = 0);
+                            int                          maxBlocksPerChunk,
+                            bslma::Allocator            *basicAllocator = 0);
         // Create a pool allocator that returns blocks of contiguous memory of
         // uniform size for each 'allocate' method invocation, where the size
         // is determined by the first invocation of 'allocate'.  Optionally
@@ -677,14 +677,14 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
 
     explicit
     ConcurrentPoolAllocator(size_type                    blockSize,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bslma::Allocator            *basicAllocator = 0);
     ConcurrentPoolAllocator(size_type                    blockSize,
-                        bsls::BlockGrowth::Strategy  growthStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bsls::BlockGrowth::Strategy  growthStrategy,
+                            bslma::Allocator            *basicAllocator = 0);
     ConcurrentPoolAllocator(size_type                    blockSize,
-                        bsls::BlockGrowth::Strategy  growthStrategy,
-                        int                          maxBlocksPerChunk,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bsls::BlockGrowth::Strategy  growthStrategy,
+                            int                          maxBlocksPerChunk,
+                            bslma::Allocator            *basicAllocator = 0);
         // Create a pool allocator that returns blocks of contiguous memory of
         // the specified 'blockSize' (in bytes) for each 'allocate' method
         // invocation.  Optionally specify a 'growthStrategy' used to control

@@ -243,12 +243,12 @@ void *guardPageAddress(void *address, Enum location, int pageSize)
         AfterUserBlockDeallocationData *deallocData =
             getDataBlockAddress(address);
 
-        return deallocData->d_guardPage;
+        return deallocData->d_guardPage;                              // RETURN
     }
     else {
         ASSERT(Obj::e_BEFORE_USER_BLOCK == location);
 
-        return static_cast<char *>(address) - pageSize;
+        return static_cast<char *>(address) - pageSize;               // RETURN
     }
 }
 
@@ -749,7 +749,7 @@ int main(int argc, char *argv[])
 //      // use data in alternate style
 //  }
 //..
-// Suppose that after performing a brief post mortem on the resulting core
+// Suppose that after performing a brief post-mortem on the resulting core
 // file, we strongly suspect that a buffer overrun is the root cause, but the
 // program crashed in a context far removed from that of the source of the
 // problem (which is often the case with buffer overrun issues).

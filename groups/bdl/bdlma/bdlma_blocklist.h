@@ -146,13 +146,13 @@ BSLS_IDENT("$Id: $")
 //      assert(0 <= numBytes);
 //
 //      if (0 == numBytes) {
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //
 //      if (d_block_p && numBytes + d_cursor <= d_blockSize) {
 //          char *p = d_block_p + d_cursor;
 //          d_cursor += numBytes;
-//          return p;
+//          return p;                                                 // RETURN
 //      }
 //      else {
 //          return allocateBlock(numBytes);
@@ -181,14 +181,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
-#include <bslma_usesbslmaallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
@@ -238,9 +230,6 @@ class BlockList {
     BlockList& operator=(const BlockList&);
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(BlockList, bslma::UsesBslmaAllocator);
-
     // CREATORS
     explicit
     BlockList(bslma::Allocator *basicAllocator = 0);

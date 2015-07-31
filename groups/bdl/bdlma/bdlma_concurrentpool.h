@@ -362,14 +362,14 @@ class ConcurrentPool {
   public:
     // CREATORS
     explicit ConcurrentPool(int                 blockSize,
-                        bslma::Allocator   *basicAllocator = 0);
+                            bslma::Allocator   *basicAllocator = 0);
     ConcurrentPool(int                          blockSize,
-               bsls::BlockGrowth::Strategy  growthStrategy,
-               bslma::Allocator            *basicAllocator = 0);
+                   bsls::BlockGrowth::Strategy  growthStrategy,
+                   bslma::Allocator            *basicAllocator = 0);
     ConcurrentPool(int                          blockSize,
-               bsls::BlockGrowth::Strategy  growthStrategy,
-               int                          maxBlocksPerChunk,
-               bslma::Allocator            *basicAllocator = 0);
+                   bsls::BlockGrowth::Strategy  growthStrategy,
+                   int                          maxBlocksPerChunk,
+                   bslma::Allocator            *basicAllocator = 0);
         // Create a memory pool that returns blocks of contiguous memory of the
         // specified 'blockSize' (in bytes) for each 'allocate' method
         // invocation.  Optionally specify a 'growthStrategy' used to control

@@ -5,11 +5,12 @@
 BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 
 #include <bdlma_concurrentpool.h>
-#include <bdlqq_barrier.h>                  // for testing only
-#include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
 
 #include <bdlb_xxxbitutil.h>
+
+#include <bdlqq_barrier.h>                  // for testing only
+#include <bdlqq_lockguard.h>
+#include <bdlqq_condition.h>
 
 #include <bslma_deallocatorproctor.h>
 #include <bslma_autodestructor.h>
@@ -20,6 +21,8 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 #include <bsls_performancehint.h>
 
 #include <bsl_cstdio.h>  // 'fprintf'
+
+#include <new>           // placement 'new'
 
 namespace BloombergLP {
 
@@ -290,7 +293,7 @@ void *ConcurrentMultipool::allocate(int size)
                          "Error: Allocating 0 bytes in %s\n", __FILE__);
         }
         ++count;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     if (size <= d_maxBlockSize) {
@@ -350,7 +353,7 @@ void ConcurrentMultipool::reserveCapacity(int size, int numBlocks)
                          __FILE__);
         }
         ++count;
-        return;
+        return;                                                       // RETURN
     }
 
     const int pool = findPool(size);

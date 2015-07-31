@@ -203,12 +203,12 @@ class my_StrPool {
 void *my_StrPool::allocate(int numBytes)
 {
     if (numBytes <= 0) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     if (d_block_p && numBytes + d_cursor <= d_blockSize) {
         char *p = d_block_p + d_cursor;
         d_cursor += numBytes;
-        return p;
+        return p;                                                     // RETURN
     }
     else {
         return allocateBlock(numBytes);
@@ -691,7 +691,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

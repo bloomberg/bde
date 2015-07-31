@@ -195,14 +195,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
-#include <bslma_usesbslmaallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
 #endif
@@ -240,10 +232,6 @@ class BufferedSequentialAllocator : public ManagedAllocator {
     BufferedSequentialAllocator& operator=(const BufferedSequentialAllocator&);
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(BufferedSequentialAllocator,
-                                   bslma::UsesBslmaAllocator);
-
     // CREATORS
     BufferedSequentialAllocator(
                               char                        *buffer,

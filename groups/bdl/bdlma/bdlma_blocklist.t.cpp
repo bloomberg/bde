@@ -249,13 +249,13 @@ int roundUp(int x, int y)
         ASSERT(0 <= numBytes);
 
         if (0 == numBytes) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (d_block_p && numBytes + d_cursor <= d_blockSize) {
             char *p = d_block_p + d_cursor;
             d_cursor += numBytes;
-            return p;
+            return p;                                                 // RETURN
         }
         else {
             return allocateBlock(numBytes);

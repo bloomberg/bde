@@ -5,9 +5,11 @@
 BSLS_IDENT_RCSID(bdlma_concurrentpoolallocator_cpp,"$Id$ $CSID$")
 
 #include <bslma_testallocator.h>    // for testing only
-#include <bdlqq_xxxthread.h>
 
 #include <bslma_default.h>
+
+#include <bdlqq_threadutil.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
@@ -144,7 +146,7 @@ void *ConcurrentPoolAllocator::allocate(size_type size)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     // TBD This should be replaced with a load with acquire semantics.
@@ -194,7 +196,7 @@ void ConcurrentPoolAllocator::deallocate(void *ptr)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!ptr)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return;
+        return;                                                       // RETURN
     }
 
     Header *header = static_cast<Header *>(

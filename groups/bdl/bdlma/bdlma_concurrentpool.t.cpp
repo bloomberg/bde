@@ -2,16 +2,16 @@
 
 #include <bdlma_concurrentpool.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_qlock.h>
-#include <bdlqq_xxxthread.h>
-#include <bdlqq_threadgroup.h>
-
 #include <bdlf_bind.h>
 #include <bdlma_infrequentdeleteblocklist.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
+#include <bdlqq_barrier.h>
+#include <bdlqq_qlock.h>
+#include <bdlqq_threadgroup.h>
+#include <bdlqq_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>

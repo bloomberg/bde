@@ -288,7 +288,7 @@ class my_Class {
                 tmp = &((*tmp)->d_next_p);
             }
             else {
-                return ++((*tmp)->d_count);
+                return ++((*tmp)->d_count);                           // RETURN
             }
         }
 
@@ -1862,7 +1862,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

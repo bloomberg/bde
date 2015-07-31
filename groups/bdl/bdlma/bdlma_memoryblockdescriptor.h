@@ -133,14 +133,12 @@ class MemoryBlockDescriptor {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const MemoryBlockDescriptor& lhs,
                 const MemoryBlockDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' memory block descriptors
     // have the same value and 'false' otherwise.  Two descriptors have the
     // same value if and only if they have the same address and size.
 
-inline
 bool operator!=(const MemoryBlockDescriptor& lhs,
                 const MemoryBlockDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' memory block descriptors
@@ -157,8 +155,7 @@ bool operator!=(const MemoryBlockDescriptor& lhs,
 
 // CREATORS
 inline
-MemoryBlockDescriptor::
-MemoryBlockDescriptor()
+MemoryBlockDescriptor::MemoryBlockDescriptor()
 : d_address_p(0)
 , d_size(0)
 {
@@ -166,7 +163,7 @@ MemoryBlockDescriptor()
 
 inline
 MemoryBlockDescriptor::MemoryBlockDescriptor(void      *address,
-                                                         size_type  size)
+                                             size_type  size)
 : d_address_p(address)
 , d_size(size)
 {
@@ -175,7 +172,7 @@ MemoryBlockDescriptor::MemoryBlockDescriptor(void      *address,
 
 inline
 MemoryBlockDescriptor::MemoryBlockDescriptor(
-                                 const MemoryBlockDescriptor& original)
+                                         const MemoryBlockDescriptor& original)
 : d_address_p(original.d_address_p)
 , d_size(original.d_size)
 {
@@ -184,7 +181,7 @@ MemoryBlockDescriptor::MemoryBlockDescriptor(
 // MANIPULATORS
 inline
 MemoryBlockDescriptor& MemoryBlockDescriptor::operator=(
-                                        const MemoryBlockDescriptor& rhs)
+                                              const MemoryBlockDescriptor& rhs)
 {
     d_address_p = rhs.d_address_p;
     d_size      = rhs.d_size;
@@ -194,7 +191,7 @@ MemoryBlockDescriptor& MemoryBlockDescriptor::operator=(
 
 inline
 void MemoryBlockDescriptor::setAddressAndSize(void      *address,
-                                                    size_type  size)
+                                              size_type  size)
 {
     BSLS_ASSERT_SAFE(address || 0 == size);
 
@@ -226,14 +223,14 @@ bool MemoryBlockDescriptor::isNull() const
 // FREE OPERATORS
 inline
 bool bdlma::operator==(const MemoryBlockDescriptor& lhs,
-                const MemoryBlockDescriptor& rhs)
+                       const MemoryBlockDescriptor& rhs)
 {
     return lhs.address() == rhs.address() && lhs.size() == rhs.size();
 }
 
 inline
 bool bdlma::operator!=(const MemoryBlockDescriptor& lhs,
-                const MemoryBlockDescriptor& rhs)
+                       const MemoryBlockDescriptor& rhs)
 {
     return !(lhs == rhs);
 }

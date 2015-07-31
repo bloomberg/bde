@@ -2,8 +2,6 @@
 
 #include <bdlma_concurrentmultipool.h>
 
-#include <bdlqq_xxxthread.h>
-
 #include <bslma_testallocator.h>                // for testing only
 #include <bdlqq_barrier.h>                      // for testing only
 #include <bdlma_concurrentpool.h>
@@ -13,6 +11,8 @@
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
+#include <bdlqq_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_stopwatch.h>
@@ -532,17 +532,17 @@ extern "C" void *workerThread(void *arg) {
 
         if (length < k_SMALL) {
             return new(d_multipool.allocate(sizeof(my_SmallMessage)))
-                                                 my_SmallMessage(data, length);
+                                      my_SmallMessage(data, length);  // RETURN
         }
 
         if (length < k_MEDIUM) {
             return new(d_multipool.allocate(sizeof(my_MediumMessage)))
-                                                my_MediumMessage(data, length);
+                                     my_MediumMessage(data, length);  // RETURN
         }
 
         if (length < k_LARGE) {
             return new(d_multipool.allocate(sizeof(my_LargeMessage)))
-                                                 my_LargeMessage(data, length);
+                                      my_LargeMessage(data, length);  // RETURN
         }
 
         char *buffer = (char *)d_multipool.allocate(length + 1);

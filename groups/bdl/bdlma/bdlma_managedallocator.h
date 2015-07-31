@@ -14,10 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_bufferedsequentialallocator
 //
-//@DESCRIPTION: This component extends the 'bslma::Allocator' protocol to
-// allocators that support the ability to 'release' all memory currently
-// allocated through the protocol back to the memory supplier of the derived
-// concrete allocator object.
+//@DESCRIPTION: This component provides a 'class', 'bdlma::ManagedAllocator',
+// that extends the 'bslma::Allocator' protocol to allocators that support the
+// ability to 'release' all memory currently allocated through the protocol
+// back to the memory supplier of the derived concrete allocator object.
 //..
 //   ,-----------------------.
 //  ( bdlma::ManagedAllocator )

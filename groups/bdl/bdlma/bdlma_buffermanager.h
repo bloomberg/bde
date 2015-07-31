@@ -167,7 +167,7 @@ BSLS_IDENT("$Id: $")
 //              tmp = &((*tmp)->d_next_p);
 //          }
 //          else {
-//              return ++((*tmp)->d_count);
+//              return ++((*tmp)->d_count);                           // RETURN
 //          }
 //      }
 //

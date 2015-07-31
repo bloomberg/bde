@@ -119,8 +119,8 @@
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -236,8 +236,8 @@ class ConcurrentFixedPool {
   public:
     // CREATORS
     ConcurrentFixedPool(int               objectSize,
-                    int               poolSize,
-                    bslma::Allocator *basicAllocator = 0);
+                        int               poolSize,
+                        bslma::Allocator *basicAllocator = 0);
         // Create a memory pool that returns memory of the specified
         // 'objectSize' for each invocation of the 'allocate' method.
         // Configure this pool to support allocation of up to the specified
@@ -339,12 +339,12 @@ class ConcurrentFixedPool {
 inline
 void *operator new(bsl::size_t                              size,
                    BloombergLP::bdlma::ConcurrentFixedPool& pool);
-    // Allocate memory of 'size' bytes from the specified 'pool', and return
-    // the address of the allocated memory.  The behavior is undefined unless
-    // 'size' is the same as the 'objectSize' with which 'pool' was
-    // constructed.  Note that an object may allocate additional memory
-    // internally within its constructor, requiring the allocator to be passed
-    // in as a constructor argument:
+    // Allocate memory of the specified 'size' bytes from the specified 'pool',
+    // and return the address of the allocated memory.  The behavior is
+    // undefined unless 'size' is the same as the 'objectSize' with which
+    // 'pool' was constructed.  Note that an object may allocate additional
+    // memory internally within its constructor, requiring the allocator to be
+    // passed in as a constructor argument:
     //..
     //  my_Type *newMyType(bdlma::ConcurrentFixedPool  *pool,
     //                     bslma::Allocator *basicAllocator) {

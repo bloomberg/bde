@@ -2,11 +2,12 @@
 
 #include <bdlma_concurrentfixedpool.h>
 
-#include <bdlqq_lockguard.h>
-
 #include <bdlb_xxxbitutil.h>
 
 #include <bslma_default.h>
+
+#include <bdlqq_lockguard.h>
+#include <bdlqq_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -24,7 +25,7 @@ enum {
 void backoff(int *contentionCount, int backoffLevel)
 {
     if (0 == backoffLevel) {
-        return;
+        return;                                                       // RETURN
     }
 
     enum { k_MAX_SPIN_LEVEL = 10 };
@@ -61,7 +62,7 @@ void *ConcurrentFixedPool::allocateNew()
 
         numNodes = d_numNodes;
         if (numNodes == (int)d_nodes.size()) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         ++d_numNodes;
@@ -119,7 +120,7 @@ void *ConcurrentFixedPool::allocate()
     while (1) {
         head = d_freeList.loadRelaxed();
         if (!head) {
-            return allocateNew();
+            return allocateNew();                                     // RETURN
         }
 
         node = d_nodes[((unsigned)head & d_sizeMask) - 1];

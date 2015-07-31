@@ -1,16 +1,19 @@
 // bdlma_concurrentfixedpool.t.cpp                                    -*-C++-*-
 
 #include <bdlma_concurrentfixedpool.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_xxxthread.h>
+
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
+
 #include <bsls_alignment.h>
 #include <bsls_platform.h>
-#include <bdlqq_threadgroup.h>
+
 #include <bdlf_bind.h>
-#include <bdlqq_qlock.h>
 #include <bdlb_random.h>
+
+#include <bdlqq_barrier.h>
+#include <bdlqq_threadgroup.h>
+#include <bdlqq_qlock.h>
 
 #include <bsls_types.h>
 

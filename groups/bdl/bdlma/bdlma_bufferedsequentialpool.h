@@ -309,14 +309,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
-#include <bslma_usesbslmaallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
 #endif
@@ -385,10 +377,6 @@ class BufferedSequentialPool {
         // bytes), or the maximum buffer size if the buffer can no longer grow.
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(BufferedSequentialPool,
-                                   bslma::UsesBslmaAllocator);
-
     // CREATORS
     BufferedSequentialPool(char                        *buffer,
                            int                          size,

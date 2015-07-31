@@ -2,13 +2,14 @@
 
 #include <bdlma_concurrentallocatoradapter.h>
 
-#include <bdlqq_xxxthread.h>
 #include <bdlqq_lockguard.h>
 
 #include <bslma_testallocator.h>            // for testing only
 #include <bdlqq_barrier.h>                  // for testing only
 #include <bslma_testallocator.h>            // for testing only
 #include <bslma_testallocatorexception.h>   // for testing only
+
+#include <bdlqq_threadutil.h>
 
 #include <bsls_alignment.h>
 #include <bsls_stopwatch.h>

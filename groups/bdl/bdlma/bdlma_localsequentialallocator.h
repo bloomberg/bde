@@ -197,7 +197,7 @@ class LocalSequentialAllocator : public BufferedSequentialAllocator {
     // DATA
     union {
         // This anonymous union is 'bsls::AlignedBuffer', but typed out again
-        // so that extra template instantations are avoided.
+        // so that extra template instantiations are avoided.
         char          d_buffer[t_SIZE];
         AlignmentType d_align;
     };

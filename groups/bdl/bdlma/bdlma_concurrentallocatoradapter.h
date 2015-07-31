@@ -222,14 +222,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
-#include <bslma_usesbslmaallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BDLQQ_MUTEX
 #include <bdlqq_mutex.h>
 #endif
@@ -259,10 +251,6 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
     ConcurrentAllocatorAdapter& operator=(
                                    const ConcurrentAllocatorAdapter&);
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(ConcurrentAllocatorAdapter,
-                                   bslma::UsesBslmaAllocator);
-
     // CREATORS
     ConcurrentAllocatorAdapter(bdlqq::Mutex     *mutex,
                                bslma::Allocator *basicAllocator);
