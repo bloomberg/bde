@@ -47,13 +47,12 @@ std::size_t bsl::hashBasicString(const string& str)
 
 std::size_t bsl::hashBasicString(const wstring& str)
 {
-    return hashBasicString<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >(
-                                                                          str);
+    return
+      hashBasicString<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >(str);
 }
 
-int bsl::stoi(const string& str, std::size_t *pos, int base) {
-    BSLS_ASSERT(pos);
-
+int bsl::stoi(const string& str, std::size_t *pos, int base)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -75,9 +74,8 @@ int bsl::stoi(const string& str, std::size_t *pos, int base) {
     return value;
 }
 
-int bsl::stoi(const wstring& str, std::size_t *pos, int base) {
-    BSLS_ASSERT(pos);
-
+int bsl::stoi(const wstring& str, std::size_t *pos, int base)
+{
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -99,9 +97,8 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base) {
     return value;
 }
 
-long bsl::stol(const string& str, std::size_t* pos, int base){
-    BSLS_ASSERT(pos);
-
+long bsl::stol(const string& str, std::size_t* pos, int base)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -123,9 +120,8 @@ long bsl::stol(const string& str, std::size_t* pos, int base){
     return value;
 }
 
-long bsl::stol(const wstring& str, std::size_t *pos, int base) {
-    BSLS_ASSERT(pos);
-
+long bsl::stol(const wstring& str, std::size_t *pos, int base)
+{
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -147,9 +143,8 @@ long bsl::stol(const wstring& str, std::size_t *pos, int base) {
     return value;
 }
 
-unsigned long bsl::stoul(const string& str, std::size_t *pos, int base) {
-    BSLS_ASSERT(pos);
-
+unsigned long bsl::stoul(const string& str, std::size_t *pos, int base)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -175,8 +170,6 @@ unsigned long bsl::stoul(const wstring&  str,
                          std::size_t    *pos,
                          int             base)
 {
-    BSLS_ASSERT(pos);
-
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -199,9 +192,8 @@ unsigned long bsl::stoul(const wstring&  str,
 }
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-long long bsl::stoll(const string& str, std::size_t *pos, int base) {
-    BSLS_ASSERT(pos);
-
+long long bsl::stoll(const string& str, std::size_t *pos, int base)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -223,9 +215,8 @@ long long bsl::stoll(const string& str, std::size_t *pos, int base) {
     return value;
 }
 
-long long bsl::stoll(const wstring& str, std::size_t *pos, int base) {
-    BSLS_ASSERT(pos);
-
+long long bsl::stoll(const wstring& str, std::size_t *pos, int base)
+{
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -247,9 +238,8 @@ long long bsl::stoll(const wstring& str, std::size_t *pos, int base) {
     return value;
 }
 
-unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base) {
-    BSLS_ASSERT(pos);
-
+unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -273,8 +263,6 @@ unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base) {
 
 unsigned long long bsl::stoull(const wstring& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT(pos);
-
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -296,9 +284,8 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t *pos, int base)
     return value;
 }
 
-float bsl::stof(const string& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+float bsl::stof(const string& str, std::size_t *pos)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -321,9 +308,8 @@ float bsl::stof(const string& str, std::size_t *pos) {
     return value;
 }
 
-float bsl::stof(const wstring& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+float bsl::stof(const wstring& str, std::size_t *pos)
+{
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -345,22 +331,19 @@ float bsl::stof(const wstring& str, std::size_t *pos) {
     return value;
 }
 #else
-float bsl::stof(const string& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+float bsl::stof(const string& str, std::size_t *pos)
+{
     return static_cast<float>(stod(str, pos));
 }
 
-float bsl::stof(const wstring& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+float bsl::stof(const wstring& str, std::size_t *pos)
+{
     return static_cast<float>(stod(str, pos));
 }
 #endif
 
-double bsl::stod(const string& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+double bsl::stod(const string& str, std::size_t *pos)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -382,9 +365,8 @@ double bsl::stod(const string& str, std::size_t *pos) {
     return value;
 }
 
-double bsl::stod(const wstring& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+double bsl::stod(const wstring& str, std::size_t *pos)
+{
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -407,9 +389,8 @@ double bsl::stod(const wstring& str, std::size_t *pos) {
 }
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-long double bsl::stold(const string& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+long double bsl::stold(const string& str, std::size_t *pos)
+{
     char *ptr;
     int   original_errno = errno;
 
@@ -431,9 +412,8 @@ long double bsl::stold(const string& str, std::size_t *pos) {
     return value;
 }
 
-long double bsl::stold(const wstring& str, std::size_t *pos) {
-    BSLS_ASSERT(pos);
-
+long double bsl::stold(const wstring& str, std::size_t *pos)
+{
     wchar_t *ptr;
     int      original_errno = errno;
 
