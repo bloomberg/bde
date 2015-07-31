@@ -38,7 +38,7 @@
 #include <bdlf_memfn.h>
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
-#include <bdlb_xxxstrtokeniter.h>
+#include <bdlb_strtokenrefiter.h>
 #include <bdlxxxx_instreamfunctions.h>             // for testing only
 #include <bdlxxxx_outstreamfunctions.h>            // for testing only
 #include <bdlxxxx_byteoutstream.h>
@@ -55,6 +55,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
@@ -3112,8 +3113,8 @@ int createData(bsl::vector<bsl::vector<char> > *data,
 {
     int length = 0;
     bsl::vector<int> lengths;
-    for (bdlb::StrTokenIter it(description, " "); it; ++it) {
-        lengths.push_back(atoi(it()));
+    for (bdlb::StrTokenRefIter it(description, " "); it; ++it) {
+        lengths.push_back(atoi(it().data()));
         length += lengths.back();
     }
     data->resize(lengths.size());
@@ -3268,8 +3269,8 @@ int loadTestVector(bsl::vector<IOVEC>  *vector,
     // [0, 'srcData.size()').
 {
     int length = 0;
-    for (bdlb::StrTokenIter it(description, " "); it; ++it) {
-        int index = atoi(it());
+    for (bdlb::StrTokenRefIter it(description, " "); it; ++it) {
+        int index = atoi(it().data());
         vector->push_back(srcData[index]);
         length += srcData[index].length();
     }
