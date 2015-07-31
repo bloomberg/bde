@@ -183,6 +183,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
@@ -230,6 +238,9 @@ class BlockList {
     BlockList& operator=(const BlockList&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(BlockList, bslma::UsesBslmaAllocator);
+
     // CREATORS
     explicit
     BlockList(bslma::Allocator *basicAllocator = 0);

@@ -175,7 +175,7 @@ class HeapBypassAllocator : public bslma::Allocator {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

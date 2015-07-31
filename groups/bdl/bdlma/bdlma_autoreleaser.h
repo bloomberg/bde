@@ -14,13 +14,14 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_deallocatorproctor, bdlma_managedallocator
 //
-//@DESCRIPTION: This component provides a proctor object to manage memory
-// allocated from a managed allocator or pool.  The proctor's destructor
-// invokes the 'release' method of its managed allocator or pool unless the
-// proctor's own 'release' method has been called.  Note that after a proctor
-// releases management of its managed allocator or pool, the proctor can be
-// reused by invoking its 'reset' method with another allocator or pool object
-// (of the same (template parameter) type 'ALLOCATOR').
+//@DESCRIPTION: This component provides a proctor object,
+// 'bdlma::AutoReleaser', to manage memory allocated from a managed allocator
+// or pool.  The proctor's destructor invokes the 'release' method of its
+// managed allocator or pool unless the proctor's own 'release' method has been
+// called.  Note that after a proctor releases management of its managed
+// allocator or pool, the proctor can be reused by invoking its 'reset' method
+// with another allocator or pool object (of the same (template parameter) type
+// 'ALLOCATOR').
 //
 ///REQUIREMENTS
 ///------------

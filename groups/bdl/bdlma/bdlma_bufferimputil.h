@@ -14,14 +14,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_buffermanager
 //
-//@DESCRIPTION: This component provides pure procedures for allocating memory
-// from a buffer using an indicated memory alignment strategy.  Each of the
-// procedures take a buffer, the size of the buffer, a cursor pointing to the
-// free memory within the buffer, and the allocation size.  Two of the
-// procedures, 'allocateFromBuffer' and 'allocateFromBufferRaw', take an
-// additional argument that specifies the memory alignment strategy to apply.
-// The other six procedures apply a specific memory alignment strategy as
-// indicated by their names (e.g., 'allocateNaturallyAlignedFromBuffer' and
+//@DESCRIPTION: This component provides a 'struct', 'bdlma::BufferImpUtil',
+// that implements procedures for allocating memory from a buffer using an
+// indicated memory alignment strategy.  Each of the procedures take a buffer,
+// the size of the buffer, a cursor pointing to the free memory within the
+// buffer, and the allocation size.  Two of the procedures,
+// 'allocateFromBuffer' and 'allocateFromBufferRaw', take an additional
+// argument that specifies the memory alignment strategy to apply.  The other
+// six procedures apply a specific memory alignment strategy as indicated by
+// their names (e.g., 'allocateNaturallyAlignedFromBuffer' and
 // 'allocateMaximallyAlignedFromBufferRaw').  In all cases, a pointer to the
 // allocated memory is returned, and the cursor passed in is updated to point
 // to the portion of the buffer that contains the next available free memory.

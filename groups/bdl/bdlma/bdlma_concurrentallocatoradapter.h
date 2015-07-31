@@ -222,6 +222,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BDLQQ_MUTEX
 #include <bdlqq_mutex.h>
 #endif
@@ -251,9 +259,13 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
     ConcurrentAllocatorAdapter& operator=(
                                    const ConcurrentAllocatorAdapter&);
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ConcurrentAllocatorAdapter,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
-    ConcurrentAllocatorAdapter(bdlqq::Mutex      *mutex,
-                                        bslma::Allocator *basicAllocator);
+    ConcurrentAllocatorAdapter(bdlqq::Mutex     *mutex,
+                               bslma::Allocator *basicAllocator);
         // Create a thread-enabled allocator adapter that uses the specified
         // 'mutex' to synchronize access to the specified 'basicAllocator'.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -271,7 +283,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
         // exception-enabled build, or else will abort the program in a
         // non-exception build.  Note that the alignment of the address
         // returned conforms to the platform requirement for any object of the
-        // specified 'numBytes'.
+        // 'numBytes'.
 
     virtual void deallocate(void *address);
         // Return the memory at the specified 'address' back to this allocator.
@@ -291,7 +303,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
 // CREATORS
 inline
 ConcurrentAllocatorAdapter::ConcurrentAllocatorAdapter(
-                                              bdlqq::Mutex      *mutex,
+                                              bdlqq::Mutex     *mutex,
                                               bslma::Allocator *basicAllocator)
 : d_mutex_p(mutex)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))

@@ -238,7 +238,7 @@ bool bdlma::operator!=(const MemoryBlockDescriptor& lhs,
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

@@ -16,7 +16,8 @@ BSLS_IDENT("$Id$")
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component extends the base-level protocol (pure abstract
+//@DESCRIPTION: This component provides an implementation,
+// 'bdlma::AlignedAllocator', of the base-level protocol (pure abstract
 // interface) class, 'bslma::Allocator', providing the ability to allocate raw
 // memory with a specified alignment.  The following inheritance diagram shows
 // the classes involved and their methods:
@@ -256,10 +257,10 @@ class AlignedAllocator : public bslma::Allocator {
     virtual void *allocateAligned(bsl::size_t size, size_type alignment) = 0;
         // Return the address of a newly allocated block of memory of at least
         // the specified positive 'size' (in bytes), sufficiently aligned such
-        // that the returned 'address' satisfies
-        // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null pointer
-        // is returned with no other effect.  If the requested number of
-        // appropriately aligned bytes cannot be returned, then a
+        // that the returned 'address' satisfies, for the specified
+        // 'alignment', '0 == (address & (alignment - 1))'.  If 'size' is 0, a
+        // null pointer is returned with no other effect.  If the requested
+        // number of appropriately aligned bytes cannot be returned, then a
         // 'bsl::bad_alloc' exception is thrown, or in a non-exception build
         // the program is terminated.  The behavior is undefined unless
         // 'alignment' is both a multiple of 'sizeof(void *)' and an integral
@@ -267,7 +268,7 @@ class AlignedAllocator : public bslma::Allocator {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
