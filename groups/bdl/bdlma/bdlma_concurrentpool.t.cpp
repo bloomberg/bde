@@ -3,7 +3,10 @@
 #include <bdlma_concurrentpool.h>
 
 #include <bdlf_bind.h>
+
 #include <bdlma_infrequentdeleteblocklist.h>
+
+#include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -79,64 +82,45 @@ using namespace bsl;  // automatically added by script
 // [-1] MEMORY EXHAUSTION TEST
 // [-2] BENCHMARK
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static bdlqq::QLock coutMutex;
+int testStatus = 0;
 
-static void rEpOrT(const char *s, int i) {
-    cout << "Error " << __FILE__ << "(" << i << "): " << s
-         << "    (failed)" << endl;
-    if (testStatus >= 0 && testStatus <= 100) ++testStatus;
-}
-
-static void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
-        bdlqq::QLockGuard guard(&coutMutex);
-        rEpOrT(s, i);
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                        \
-                cout << #I << ": " << I << "\n";                             \
-                rEpOrT(#X, __LINE__); }}
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                        \
-                cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";  \
-                rEpOrT(#X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                         \
-               cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
-                    << #K << ": " << K << "\n";                              \
-               rEpOrT(#X, __LINE__); }}
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                         \
-               cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";   \
-               rEpOrT(#X, __LINE__); }}
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS, CONSTANTS, AND VARIABLES
@@ -888,7 +872,7 @@ int main(int argc, char *argv[]) {
                 bsls::Types::Int64 numAllocations = TAX.numAllocations();
                 bsls::Types::Int64 numBytes       =
                                                    TAX.lastAllocatedNumBytes();
-                if (veryVerbose) { TAB; P_(numAllocations); TAB; P(numBytes); }
+                if (veryVerbose) { T_; P_(numAllocations); T_; P(numBytes); }
                 LOOP3_ASSERT(LINE,
                              numAllocations,
                              TAEXP.numAllocations(),
@@ -1303,14 +1287,14 @@ int main(int argc, char *argv[]) {
                     mY.allocate();
                 }
 
-                if (veryVerbose) { TAB; P_(TAX.numBytesInUse()); }
+                if (veryVerbose) { T_; P_(TAX.numBytesInUse()); }
                 mX.release();
-                if (veryVerbose) { TAB; P(TAX.numBytesInUse()); }
+                if (veryVerbose) { T_; P(TAX.numBytesInUse()); }
 
-                if (veryVerbose) { TAB; P_(TAY.numBytesInUse()); }
+                if (veryVerbose) { T_; P_(TAY.numBytesInUse()); }
                 // Let 'mY' go out of scope.
             }
-            if (veryVerbose) { TAB; P(TAY.numBytesInUse()); }
+            if (veryVerbose) { T_; P(TAY.numBytesInUse()); }
 
             LOOP2_ASSERT(LINE, di, 0 == TAX.numBytesInUse());
             LOOP2_ASSERT(LINE, di, 0 == TAY.numBytesInUse());
@@ -1384,7 +1368,7 @@ int main(int argc, char *argv[]) {
                 mX.deallocate(p[dd]);
             }
 
-            if (veryVerbose) { TAB; P_(NUM_OBJECTS); P(numAllocations); }
+            if (veryVerbose) { T_; P_(NUM_OBJECTS); P(numAllocations); }
 
             // Ensure memory was deallocated in expected sequence
             for (int aj = 0; aj < NUM_REQUESTS; ++aj) {
@@ -1456,7 +1440,7 @@ int main(int argc, char *argv[]) {
 
             bsls::Types::Int64 numAllocations = TAX.numAllocations();
             bsls::Types::Int64 numBytes       = TAX.lastAllocatedNumBytes();
-            if (veryVerbose) { TAB; P_(numAllocations); TAB; P(numBytes); }
+            if (veryVerbose) { T_; P_(numAllocations); T_; P(numBytes); }
             LOOP3_ASSERT(blocksPerChunk,
                         numAllocations,
                         TAEXP.numAllocations(),
@@ -1609,7 +1593,7 @@ int main(int argc, char *argv[]) {
 
                     const bsls::Types::Uint64 EXP =
                                      blockSize(POOL_OBJECT_SIZE * NUM_OBJECTS);
-                    if (veryVerbose) { TAB; P_(numAllocations); TAB; P(EXP); }
+                    if (veryVerbose) { T_; P_(numAllocations); T_; P(EXP); }
 
                     LOOP2_ASSERT(di, ri,
                                  TA.numAllocations() == numAllocations + 1);
@@ -1663,7 +1647,7 @@ int main(int argc, char *argv[]) {
                         bsl::size_t size = p - lastP;
                         const bsls::Types::Uint64 EXP =
                                                    poolObjectSize(OBJECT_SIZE);
-                        if (veryVerbose) { TAB; P_(size); TAB; P(EXP); }
+                        if (veryVerbose) { T_; P_(size); T_; P(EXP); }
                         LOOP2_ASSERT(di, oi, EXP == size);
                     }
                     lastP = p;
@@ -1708,7 +1692,7 @@ int main(int argc, char *argv[]) {
 
                 const bsls::Types::Int64 EXP = a.lastAllocatedNumBytes();
 
-                if (veryVerbose) {TAB; P_(SIZE); P_(blkSize); P(EXP);}
+                if (veryVerbose) {T_; P_(SIZE); P_(blkSize); P(EXP);}
                 LOOP_ASSERT(i, EXP == blkSize);
             }
         }
@@ -1728,7 +1712,7 @@ int main(int argc, char *argv[]) {
                 bsl::size_t EXP = q - p;
 
                 bsls::Types::Uint64 objectSize = poolObjectSize(SIZE);
-                if (veryVerbose) { TAB; P_(SIZE); P_(objectSize); P(EXP); }
+                if (veryVerbose) { T_; P_(SIZE); P_(objectSize); P(EXP); }
                 LOOP3_ASSERT(di, EXP, objectSize, EXP == objectSize);
             }
         }
