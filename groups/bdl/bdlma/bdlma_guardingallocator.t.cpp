@@ -581,9 +581,7 @@ extern "C" void *threadFunction3(void *arg)
         int altLength = my_DataTranslationUtil::outputSize(alternateStyle,
                                                            d_inStyle,
                                                            d_inCapacity);
-// Start Usage example augmentation.
         (void)altLength;
-// End Usage example augmentation.
 
         // Oops!  Should have used 'altLength'.
         char *tmpAltBuffer = (char *)d_allocator_p->allocate(d_inCapacity);

@@ -117,6 +117,8 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+class my_SecurityAttributes;
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -300,7 +302,6 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // For the collection of securities comprising an index we use a vector of
 // 'my_SecurityAttributes':
 //..
-class my_SecurityAttributes;
     typedef bsl::vector<my_SecurityAttributes> SecurityCollection;
 //..
 // Since some indices are quite large (e.g., Russell 3000, Wilshire 5000), for

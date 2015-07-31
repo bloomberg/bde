@@ -217,6 +217,7 @@
 //      int altLength = my_DataTranslationUtil::outputSize(alternateStyle,
 //                                                         d_inStyle,
 //                                                         d_inCapacity);
+//      (void)altLength;
 //
 //      // Oops!  Should have used 'altLength'.
 //      char *tmpAltBuffer = (char *)d_allocator_p->allocate(d_inCapacity);

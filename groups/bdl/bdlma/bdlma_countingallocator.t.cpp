@@ -276,10 +276,9 @@ extern "C" void *threadFunction3(void *arg)
 // track the amount of dynamic memory used by a container.  The container used
 // for illustration is 'DoubleStack', a stack of out-of-place 'double' values.
 //
-// First, we show the (elided) interface of the 'DoubleStack' class:
+// First, we show the interface of the 'DoubleStack' class:
 //..
     // doublestack.h
-    // ...
 
     class DoubleStack {
         // This class implements a stack of out-of-place 'double' values.
@@ -296,8 +295,6 @@ extern "C" void *threadFunction3(void *arg)
 
         bslma::Allocator  *d_allocator_p;  // memory allocator (held, not
                                            // owned)
-
-      // ...
 
         // NOT IMPLEMENTED
         DoubleStack(const DoubleStack&);

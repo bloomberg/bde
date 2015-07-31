@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<double> v2(&alloc);     v2.reserve(100);
 //      bsl::vector<double> v3(&alloc);     v3.reserve(100);
 //
-//      // ...
+//      return data.empty() ? 0.0 : data.front();
 //  }
 //..
 // By making use of a 'bdlma::BufferedSequentialAllocator', *all* dynamic
