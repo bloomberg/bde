@@ -15,8 +15,8 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // memcpy()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_map.h>

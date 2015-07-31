@@ -20,8 +20,8 @@
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
-#include <bsl_cstdlib.h>                         // atoi()
-#include <bsl_cstring.h>                         // memcpy(), memset()
+#include <bsl_cstdlib.h>                         // 'atoi'
+#include <bsl_cstring.h>                         // 'memcpy', 'memset'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

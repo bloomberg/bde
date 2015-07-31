@@ -11,13 +11,13 @@
 #include <bsl_sstream.h>
 
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>   // atoi()
-#include <bsl_cstring.h>   // memcpy()
+#include <bsl_cstdlib.h>   // 'atoi'
+#include <bsl_cstring.h>   // 'memcpy'
 
-#include <bsl_c_stdio.h>   // snprintf() (<cstdio> doesn't declare 'snprintf')
+#include <bsl_c_stdio.h>   // 'snprintf' (<cstdio> doesn't declare 'snprintf')
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>             // pipe(), close() and dup().
+#include <unistd.h>             // 'pipe', 'close' and 'dup'.
 #endif
 
 using namespace BloombergLP;

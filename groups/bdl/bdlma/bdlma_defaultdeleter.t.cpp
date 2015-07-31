@@ -6,8 +6,8 @@
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // memcpy()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 

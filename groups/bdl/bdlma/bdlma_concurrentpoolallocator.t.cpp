@@ -10,8 +10,8 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_types.h>
 
-#include <bsl_cstring.h>  // strcmp()
-#include <bsl_cstdlib.h>  // atoi()
+#include <bsl_cstring.h>  // 'strcmp'
+#include <bsl_cstdlib.h>  // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 
