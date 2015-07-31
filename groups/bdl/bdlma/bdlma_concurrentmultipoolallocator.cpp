@@ -7,11 +7,11 @@ BSLS_IDENT_RCSID(bdlma_concurrentmultipoolallocator_cpp,"$Id$ $CSID$")
 #include <bsls_performancehint.h>
 
 namespace BloombergLP {
-
 namespace bdlma {
-                     // ------------------------------
-                     // class ConcurrentMultipoolAllocator
-                     // ------------------------------
+
+                    // ----------------------------------
+                    // class ConcurrentMultipoolAllocator
+                    // ----------------------------------
 
 // CREATORS
 ConcurrentMultipoolAllocator::~ConcurrentMultipoolAllocator()

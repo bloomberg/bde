@@ -94,11 +94,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                        // ==========================
-                        // class DefaultDeleter
-                        // ==========================
+
+                           // ====================
+                           // class DefaultDeleter
+                           // ====================
 
 template <class TYPE>
 class DefaultDeleter : public Deleter<TYPE> {
@@ -165,6 +165,7 @@ void DefaultDeleter<TYPE>::deleteObject(TYPE *instance)
 }  // close enterprise namespace
 
 // TRAITS
+
 namespace BloombergLP {
 namespace bslma {
 

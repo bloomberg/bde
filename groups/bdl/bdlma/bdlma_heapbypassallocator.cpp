@@ -22,11 +22,11 @@ BSLS_IDENT_RCSID(bdlma_heapbypassallocator_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                // ==============================================
-                // struct HeapBypassAllocator::BufferHeader
-                // ==============================================
+
+                 // ========================================
+                 // struct HeapBypassAllocator::BufferHeader
+                 // ========================================
 
 struct HeapBypassAllocator::BufferHeader {
     // This struct defines a link in a linked list of buffers allocated by
@@ -51,6 +51,7 @@ struct HeapBypassAllocator::BufferHeader {
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
 namespace bdlma {char *HeapBypassAllocator::map(size_type size)
+
 {
     // Note that passing 'MAP_ANONYMOUS' and a null file descriptor tells
     // 'mmap' to use a special system file to map to.
@@ -78,6 +79,7 @@ void HeapBypassAllocator::unmap(void *address, size_type size) {
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
 namespace bdlma {char *HeapBypassAllocator::map(size_type size)
+
 {
     char *address =
            (char *)VirtualAlloc(0,  // 'VirtualAlloc' chooses what address to
@@ -98,6 +100,7 @@ void HeapBypassAllocator::unmap(void *address, size_type size)
 #endif
 
 namespace bdlma {
+
 // PRIVATE MANIPULATORS
 int HeapBypassAllocator::replenish(size_type size)
 {

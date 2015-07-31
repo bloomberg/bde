@@ -17,10 +17,9 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component provides an adapter,
-// 'bdlma::ConcurrentAllocatorAdapter', that implements the
-// 'bslma::Allocator' protocol and provides synchronization for operations on
-// an allocator supplied at construction using a mutex also supplied at
-// construction.
+// 'bdlma::ConcurrentAllocatorAdapter', that implements the 'bslma::Allocator'
+// protocol and provides synchronization for operations on an allocator
+// supplied at construction using a mutex also supplied at construction.
 //..
 //   ,-----------------------------------.
 //  (  bdlma::ConcurrentAllocatorAdapter  )
@@ -228,9 +227,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq { class Mutex; }
-
 namespace bdlma {
 
                      // ================================

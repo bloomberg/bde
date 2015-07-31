@@ -17,11 +17,11 @@ BSLS_IDENT_RCSID(bdlma_concurrentpool_cpp,"$Id$ $CSID$")
 #include <bsl_cstdlib.h>
 
 namespace BloombergLP {
-
 namespace {
-                        // -----
-                        // TYPES
-                        // -----
+
+                                  // -----
+                                  // TYPES
+                                  // -----
 
 struct LLink {
     // This 'struct' implements a link data structure that stores the address
@@ -123,9 +123,10 @@ void replenishImp(bsls::AtomicPointer<LLink>       *nextList,
 }
 
 namespace bdlma {
-                        // ----------------
-                        // class ConcurrentPool
-                        // ----------------
+
+                           // --------------------
+                           // class ConcurrentPool
+                           // --------------------
 
 // PRIVATE MANIPULATORS
 void ConcurrentPool::replenish()

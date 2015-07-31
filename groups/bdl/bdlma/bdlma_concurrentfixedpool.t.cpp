@@ -302,6 +302,7 @@ void *workerThread(void *arg) {
 //=============================================================================
 //                     BENCHMARKS
 //-----------------------------------------------------------------------------
+
 namespace bench {
 
 struct Item {
@@ -387,6 +388,7 @@ void runtest(int numIterations, int numObjects, int numThreads,
 //=============================================================================
 //                    fill and release concurrently
 //-----------------------------------------------------------------------------
+
 namespace fill_and_release {
 
 struct Item {

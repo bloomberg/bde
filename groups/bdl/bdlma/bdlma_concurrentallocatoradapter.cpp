@@ -8,11 +8,11 @@ BSLS_IDENT_RCSID(bdlma_concurrentallocatoradapter_cpp,"$Id$ $CSID$")
 #include <bdlqq_xxxthread.h>
 
 namespace BloombergLP {
-
 namespace bdlma {
-            // -----------------------------------------
-            // class ConcurrentAllocatorAdapter
-            // -----------------------------------------
+
+                     // --------------------------------
+                     // class ConcurrentAllocatorAdapter
+                     // --------------------------------
 
 // CREATORS
 ConcurrentAllocatorAdapter::~ConcurrentAllocatorAdapter()

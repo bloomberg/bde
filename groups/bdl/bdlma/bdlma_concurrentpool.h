@@ -510,11 +510,11 @@ void operator delete(void *address, BloombergLP::bdlma::ConcurrentPool& pool);
 // ============================================================================
 
 namespace BloombergLP {
-
 namespace bdlma {
-                        // ----------------
-                        // class ConcurrentPool
-                        // ----------------
+
+                           // --------------------
+                           // class ConcurrentPool
+                           // --------------------
 
 // MANIPULATORS
 template<class TYPE>

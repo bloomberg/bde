@@ -61,11 +61,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                   // =================================
-                   // class MemoryBlockDescriptor
-                   // =================================
+
+                       // ===========================
+                       // class MemoryBlockDescriptor
+                       // ===========================
 
 class MemoryBlockDescriptor {
     // This is an in-core value-semantic class describing the size and address

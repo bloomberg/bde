@@ -13,11 +13,11 @@ BSLS_IDENT_RCSID(bdlma_memoryblockdescriptor_cpp,"$Id$ $CSID$")
 #include <cstdio>                          // for 'std::printf'
 
 namespace BloombergLP {
-
 namespace bdlma {
-              // ---------------------------------
-              // class MemoryBlockDescriptor
-              // ---------------------------------
+
+                       // ---------------------------
+                       // class MemoryBlockDescriptor
+                       // ---------------------------
 
 // ACCESSORS
 void MemoryBlockDescriptor::print() const

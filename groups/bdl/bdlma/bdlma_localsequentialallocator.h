@@ -170,9 +170,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bslma { class Allocator; }
-
 namespace bdlma {
 
                       // ==============================

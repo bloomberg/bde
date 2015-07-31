@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a fast sequential memory pool,
 // 'bdlma::SequentialPool', that dispenses heterogeneous memory blocks (of
-// varying, user-specified sizes) from a dynamically-allocated internal
-// buffer.  If an allocation request exceeds the remaining free memory space in
-// the internal buffer, the pool either replenishes its buffer with new memory
-// to satisfy the request, or returns a separate memory block, depending on
+// varying, user-specified sizes) from a dynamically-allocated internal buffer.
+// If an allocation request exceeds the remaining free memory space in the
+// internal buffer, the pool either replenishes its buffer with new memory to
+// satisfy the request, or returns a separate memory block, depending on
 // whether the request size exceeds an optionally-specified maximum buffer
 // size.  The 'release' method releases all memory allocated through the pool,
 // as does the destructor.  Note that individually allocated memory blocks

@@ -10,7 +10,6 @@ BSLS_IDENT_RCSID(bdlma_pool_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlma {
-
 namespace {
 
 // TYPES

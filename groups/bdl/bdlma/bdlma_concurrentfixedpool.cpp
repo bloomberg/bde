@@ -14,7 +14,6 @@
 #include <bsl_algorithm.h>
 
 namespace BloombergLP {
-
 namespace {
 
 enum {

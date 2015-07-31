@@ -17,9 +17,9 @@ BSLS_IDENT("$Id$")
 //@AUTHOR: Andrew Paprocki (apaprock), Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component extends the base-level protocol (pure abstract
-// interface) class, 'bslma::Allocator', providing the ability to allocate
-// raw memory with a specified alignment.  The following inheritance diagram
-// shows the classes involved and their methods:
+// interface) class, 'bslma::Allocator', providing the ability to allocate raw
+// memory with a specified alignment.  The following inheritance diagram shows
+// the classes involved and their methods:
 //..
 //   ,----------------------.
 //  ( bdlma::AlignedAllocator )
@@ -239,11 +239,11 @@ BSLS_IDENT("$Id$")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                        // ============================
-                        // class AlignedAllocator
-                        // ============================
+
+                          // ======================
+                          // class AlignedAllocator
+                          // ======================
 
 class AlignedAllocator : public bslma::Allocator {
     // This protocol provides a pure abstract interface and contract for

@@ -66,6 +66,7 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
+
 namespace {
 
 struct AlignedAllocatorTestImp :
