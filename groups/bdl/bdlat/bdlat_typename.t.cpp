@@ -1,4 +1,4 @@
-// bdlat_typename.t.cpp    -*-C++-*-
+// bdlat_typename.t.cpp                                               -*-C++-*-
 
 #include <bdlat_typename.h>
 
@@ -96,7 +96,7 @@ static void aSsErT(int c, const char *s, int i)
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
 //=============================================================================
-//                  USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 #include <bdlat_typename.h>
@@ -207,7 +207,7 @@ static void aSsErT(int c, const char *s, int i)
             return "MyClass";
         }
 
-    } // Close MyNamespace
+    }  // close namespace MyNamespace
 //..
 // Note that 'bdeat_TypeName_className' must return a string that is
 // valid and does not change for remaining duration the program.  The
@@ -241,13 +241,13 @@ bool streq(const char* s1, const char* s2)
     // otherwise.  Returns 'true' if both 's1' and 's2' are null pointers.
 {
     if (s1 == s2) {
-        return true;
+        return true;                                                  // RETURN
     }
     else if (0 == s1 || 0 == s2) {
-        return false;
+        return false;                                                 // RETURN
     }
     else {
-        return 0 == bsl::strcmp(s1, s2);
+        return 0 == bsl::strcmp(s1, s2);                              // RETURN
     }
 }
 
@@ -635,7 +635,7 @@ void MyChoice::makeSelection2(const bsl::string& value)
     }
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CREATORS
 inline
@@ -703,7 +703,7 @@ STREAM& MyChoice::bdexStreamIn(STREAM& stream, int version)
             short selectionId;
             stream.getInt16(selectionId);
             if (!stream) {
-                return stream;                                      // RETURN
+                return stream;                                        // RETURN
             }
             switch (selectionId) {
               case SELECTION_ID_SELECTION1: {
@@ -747,7 +747,7 @@ int MyChoice::makeSelection(int selectionId)
         reset();
       } break;
       default:
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
     return SUCCESS;
 }
@@ -760,7 +760,7 @@ int MyChoice::makeSelection(const char *name, int nameLength)
     const bdeat_SelectionInfo *selectionInfo =
            lookupSelectionInfo(name, nameLength);
     if (0 == selectionInfo) {
-       return NOT_FOUND;                                            // RETURN
+       return NOT_FOUND;                                              // RETURN
     }
 
     return makeSelection(selectionInfo->d_id);
@@ -784,7 +784,7 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
       default:
         BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -850,7 +850,7 @@ int MyChoice::accessSelection(ACCESSOR& accessor) const
                                                                       // RETURN
       default:
         BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 }
 
@@ -868,7 +868,7 @@ const bsl::string& MyChoice::selection2() const
     return d_selection2.object();
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(test::MyChoice)
@@ -888,11 +888,11 @@ bool test::operator==(const test::MyChoice& lhs, const test::MyChoice& rhs)
           default:
             BSLS_ASSERT_SAFE(test::MyChoice::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
-            return true;                                            // RETURN
+            return true;                                              // RETURN
         }
     }
     else {
-        return false;
+        return false;                                                 // RETURN
    }
 }
 
@@ -908,11 +908,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream, const test::MyChoice& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -976,10 +976,12 @@ const bdeat_SelectionInfo *MyChoice::lookupSelectionInfo(
                     case '1': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -1075,10 +1077,10 @@ bsl::ostream& MyChoice::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -1219,9 +1221,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, MyEnumeration::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // The following inlined functions are invoked from other inline functions.
 
@@ -1240,9 +1242,9 @@ int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
       case MyEnumeration::VALUE1:
       case MyEnumeration::VALUE2:
         *result = (MyEnumeration::Value)number;
-        return SUCCESS;                                         // RETURN
+        return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1253,7 +1255,7 @@ bsl::ostream& MyEnumeration::print(bsl::ostream&      stream,
     return stream << toString(value);
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CLASS METHODS
 inline
@@ -1261,10 +1263,10 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
 {
     switch (value) {
       case VALUE1: {
-        return "VALUE1";
+        return "VALUE1";                                              // RETURN
       } break;
       case VALUE2: {
-        return "VALUE2";
+        return "VALUE2";                                              // RETURN
       } break;
       default:
         BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
@@ -1310,7 +1312,7 @@ STREAM& MyEnumeration::bdexStreamOut(STREAM&              stream,
     return stream;
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 STREAM& streamIn(STREAM&                              stream,
                  test::MyEnumeration::Value& value,
@@ -1325,7 +1327,7 @@ int maxSupportedVersion(test::MyEnumeration::Value)
     return test::MyEnumeration::maxSupportedBdexVersion();
 }
 
-template <typename STREAM>
+template <class STREAM>
 inline
 STREAM& streamOut(STREAM& stream,
                   const test::MyEnumeration::Value& value,
@@ -1334,7 +1336,7 @@ STREAM& streamOut(STREAM& stream,
     return test::MyEnumeration::bdexStreamOut(stream, value, version);
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_ENUMERATION_TRAITS(test::MyEnumeration)
@@ -1347,11 +1349,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return test::MyEnumeration::print(stream, rhs);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -1437,10 +1439,10 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -1723,7 +1725,7 @@ int MySequence::maxSupportedBdexVersion()
     return 1;  // versions start at 1.
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // CREATORS
 inline
@@ -1796,13 +1798,13 @@ int MySequence::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(&d_attribute1,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_attribute2,
                       ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1818,15 +1820,15 @@ int MySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return manipulator(&d_attribute1,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return manipulator(&d_attribute2,
                            ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1841,7 +1843,7 @@ int MySequence::manipulateAttribute(MANIPULATOR&  manipulator,
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -1882,13 +1884,13 @@ int MySequence::accessAttributes(ACCESSOR& accessor) const
     ret = accessor(d_attribute1,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     ret = accessor(d_attribute2,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
     if (ret) {
-        return ret;                                                 // RETURN
+        return ret;                                                   // RETURN
     }
 
     return ret;
@@ -1904,15 +1906,15 @@ int MySequence::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ATTRIBUTE1: {
         return accessor(d_attribute1,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       case ATTRIBUTE_ID_ATTRIBUTE2: {
         return accessor(d_attribute2,
                         ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
-                                                                    // RETURN
+                                                                      // RETURN
       } break;
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -1927,7 +1929,7 @@ int MySequence::accessAttribute(ACCESSOR&   accessor,
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
      if (0 == attributeInfo) {
-        return NOT_FOUND;                                           // RETURN
+        return NOT_FOUND;                                             // RETURN
      }
 
      return accessAttribute(accessor, attributeInfo->d_id);
@@ -1945,7 +1947,7 @@ const bsl::string& MySequence::attribute2() const
     return d_attribute2;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::MySequence)
@@ -1972,11 +1974,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -2040,10 +2042,12 @@ const bdeat_AttributeInfo *MySequence::lookupAttributeInfo(
                     case '1': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+                                                                      // RETURN
                     } break;
                     case '2': {
                         return
                              &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+                                                                      // RETURN
                     } break;
                 }
             }
@@ -2129,10 +2133,10 @@ bsl::ostream& MySequence::print(
     return stream << bsl::flush;
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -2316,9 +2320,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MyCustomizedType& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -2364,7 +2368,7 @@ STREAM& MyCustomizedType::bdexStreamIn(STREAM& stream, int version)
     streamIn(stream, temp, version);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     if (fromString(temp)!=0) {
@@ -2386,7 +2390,7 @@ int MyCustomizedType::fromString(const bsl::string& value)
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (5 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -2422,7 +2426,7 @@ const bsl::string& MyCustomizedType::toString() const
     return d_value;
 }
 
-}  // close namespace test;
+}  // close namespace test
 
 // TRAITS
 
@@ -2451,11 +2455,11 @@ bsl::ostream& test::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -2489,10 +2493,10 @@ const char MyCustomizedType::CLASS_NAME[] = "MyCustomizedType";
                                 // ACCESSORS
                                 // ---------
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
@@ -2538,8 +2542,8 @@ const char* bdeat_TypeName_xsdName(const MyIntWrapper& object, int format)
     return "integer";
 }
 
-}  // close namespace test;
-}  // close namespace BloombergLP;
+}  // close namespace test
+}  // close enterprise namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -2782,11 +2786,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlat_enumeratorinfo.t.cpp                  -*-C++-*-
+// bdlat_enumeratorinfo.t.cpp                                         -*-C++-*-
 
 #include <bdlat_enumeratorinfo.h>
 
@@ -15,7 +15,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 // [ 2]
 //-----------------------------------------------------------------------------
@@ -184,11 +184,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlat_enumeratorinfo.cpp                  -*-C++-*-
+// bdlat_enumeratorinfo.cpp                                           -*-C++-*-
 #include <bdlat_enumeratorinfo.h>
 
 #include <bsls_ident.h>
@@ -9,12 +9,12 @@ BSLS_IDENT_RCSID(bdlat_enumeratorinfo_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
                         // ---------------------------
-                        // struct bdeat_EnumeratorInfo
+                        // struct bdlat_EnumeratorInfo
                         // ---------------------------
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&               stream,
-                         const bdeat_EnumeratorInfo& enumeratorInfo)
+                         const bdlat_EnumeratorInfo& enumeratorInfo)
 {
     stream << "( " << enumeratorInfo.value()
            << ", ";
@@ -42,13 +42,13 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for functions on value types.
 //
 //@CLASSES:
-//  bdeat_ValueTypeFunctions: namespace for functions on value types
+//  bdlat_ValueTypeFunctions: namespace for functions on value types
 //
 //@SEE_ALSO:
 //
@@ -21,24 +21,24 @@ BSLS_IDENT("$Id: $")
 // TBD: update this documentation to reflect the new overloaded functions
 //
 //@DESCRIPTION: This component provides a 'namespace',
-// 'bdeat_ValueTypeFunctions', defining functions that may be called on "value
+// 'bdlat_ValueTypeFunctions', defining functions that may be called on "value
 // types".  This namespace contains two functions: 'assign' that performs a
 // value assignment from 'rhs' to an object pointed to by 'lhs' (i.e., as if
 // by using the assignment operator '*lhs = rhs';) and 'reset' that puts an
 // object's black-box state to its default state (i.e., as if the object was
 // just constructed using its default constructor).
 //
-// This component implements 'bdeat_ValueTypeFunctions' for:
+// This component implements 'bdlat_ValueTypeFunctions' for:
 //..
 //      o any type with a default constructor and assignment operator
-//      o any type with the 'bdeat_TypeTraitBasicSequence' trait
-//      o any type with the 'bdeat_TypeTraitBasicChoice' trait
-//      o any type with the 'bdeat_TypeTraitBasicCustomizedType' trait
+//      o any type with the 'bdlat_TypeTraitBasicSequence' trait
+//      o any type with the 'bdlat_TypeTraitBasicChoice' trait
+//      o any type with the 'bdlat_TypeTraitBasicCustomizedType' trait
 //      o types instantiated from the 'bdlb::NullableValue' template
 //      o types instantiated from the 'bsl::vector' template
 //      o types instantiated from the 'bsl::basic_string' template
 //..
-// Third-party types may overload the 'bdeat_valueTypeReset' function to
+// Third-party types may overload the 'bdlat_valueTypeReset' function to
 // perform something more optimal than simply assigning the default value.
 //
 ///Usage
@@ -68,12 +68,12 @@ BSLS_IDENT("$Id: $")
 //
 //      vecVal2 = vecVal;
 //
-//      // assert(0 == bdeat_ValueTypeFunctions::assign(&vecVal3, vecVal2));
+//      // assert(0 == bdlat_ValueTypeFunctions::assign(&vecVal3, vecVal2));
 //
-//      bdeat_ValueTypeFunctions::reset(&intVal);
-//      bdeat_ValueTypeFunctions::reset(&floatVal);
-//      bdeat_ValueTypeFunctions::reset(&stringVal);
-//      bdeat_ValueTypeFunctions::reset(&vecVal);
+//      bdlat_ValueTypeFunctions::reset(&intVal);
+//      bdlat_ValueTypeFunctions::reset(&floatVal);
+//      bdlat_ValueTypeFunctions::reset(&stringVal);
+//      bdlat_ValueTypeFunctions::reset(&vecVal);
 //
 //      assert(0 == intVal);
 //      assert(0 == floatVal);
@@ -86,6 +86,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
 #endif
 
 #ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
@@ -127,21 +131,21 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
                       // ==================================
-                      // namespace bdeat_ValueTypeFunctions
+                      // namespace bdlat_ValueTypeFunctions
                       // ==================================
 
-namespace bdeat_ValueTypeFunctions {
+namespace bdlat_ValueTypeFunctions {
     // The functions provided in this 'namespace' may be applied to value
     // types.  See the component-level documentation for what is meant by
     // "value type".
 
-    template <typename LHS_TYPE, typename RHS_TYPE>
+    template <class LHS_TYPE, class RHS_TYPE>
     int assign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
         // Assign the value of the specified 'rhs' to the object specified its
         // address 'lhs'.  Return 0 if successful, and a non-zero value
         // otherwise.
 
-    template <typename TYPE>
+    template <class TYPE>
     void reset(TYPE *object);
         // Reset the value of the specified 'object' to its default value.
 
@@ -152,22 +156,22 @@ namespace bdeat_ValueTypeFunctions {
     // these functions directly.  Use the functions above instead.
 
 #if ! defined(BSLS_PLATFORM_CMP_IBM)
-    template <typename LHS_TYPE, typename RHS_TYPE>
-    int bdeat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
+    template <class LHS_TYPE, class RHS_TYPE>
+    int bdlat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
 
-    template <typename TYPE>
-    void bdeat_valueTypeReset(TYPE *object);
+    template <class TYPE>
+    void bdlat_valueTypeReset(TYPE *object);
 #endif
 
-}  // close namespace bdeat_ValueTypeFunctions
+}  // close namespace bdlat_ValueTypeFunctions
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 
                     // ===================================
-                    // struct bdeat_ValueTypeFunctions_Imp
+                    // struct bdlat_ValueTypeFunctions_Imp
                     // ===================================
 
-struct bdeat_ValueTypeFunctions_Imp {
+struct bdlat_ValueTypeFunctions_Imp {
     // This 'struct' contains functions used by the implementation of this
     // component.
 
@@ -178,123 +182,123 @@ struct bdeat_ValueTypeFunctions_Imp {
     struct UseDefaultCtor   { };
 
     // FUNCTIONS
-    template <typename LHS_TYPE>
+    template <class LHS_TYPE>
     static int assign(LHS_TYPE    *lhs,
-                      bdeat_TypeCategory::Enumeration,
+                      bdlat_TypeCategory::Enumeration,
                       const char&  rhs,
-                      bdeat_TypeCategory::Simple);
+                      bdlat_TypeCategory::Simple);
 
-    template <typename LHS_TYPE>
+    template <class LHS_TYPE>
     static int assign(LHS_TYPE     *lhs,
-                      bdeat_TypeCategory::Enumeration,
+                      bdlat_TypeCategory::Enumeration,
                       const short&  rhs,
-                      bdeat_TypeCategory::Simple);
+                      bdlat_TypeCategory::Simple);
 
-    template <typename LHS_TYPE>
+    template <class LHS_TYPE>
     static int assign(LHS_TYPE   *lhs,
-                      bdeat_TypeCategory::Enumeration,
+                      bdlat_TypeCategory::Enumeration,
                       const int&  rhs,
-                      bdeat_TypeCategory::Simple);
+                      bdlat_TypeCategory::Simple);
 
-    template <typename LHS_TYPE>
+    template <class LHS_TYPE>
     static int assign(LHS_TYPE           *lhs,
-                      bdeat_TypeCategory::Enumeration,
+                      bdlat_TypeCategory::Enumeration,
                       const bsl::string&  rhs,
-                      bdeat_TypeCategory::Simple);
+                      bdlat_TypeCategory::Simple);
 
-    template <typename RHS_TYPE>
+    template <class RHS_TYPE>
     static int assign(char            *lhs,
-                      bdeat_TypeCategory::Simple,
+                      bdlat_TypeCategory::Simple,
                       const RHS_TYPE&  rhs,
-                      bdeat_TypeCategory::Enumeration);
+                      bdlat_TypeCategory::Enumeration);
 
-    template <typename RHS_TYPE>
+    template <class RHS_TYPE>
     static int assign(short           *lhs,
-                      bdeat_TypeCategory::Simple,
+                      bdlat_TypeCategory::Simple,
                       const RHS_TYPE&  rhs,
-                      bdeat_TypeCategory::Enumeration);
+                      bdlat_TypeCategory::Enumeration);
 
-    template <typename RHS_TYPE>
+    template <class RHS_TYPE>
     static int assign(int             *lhs,
-                      bdeat_TypeCategory::Simple,
+                      bdlat_TypeCategory::Simple,
                       const RHS_TYPE&  rhs,
-                      bdeat_TypeCategory::Enumeration);
+                      bdlat_TypeCategory::Enumeration);
 
-    template <typename RHS_TYPE>
+    template <class RHS_TYPE>
     static int assign(bsl::string     *lhs,
-                      bdeat_TypeCategory::Simple,
+                      bdlat_TypeCategory::Simple,
                       const RHS_TYPE&  rhs,
-                      bdeat_TypeCategory::Enumeration);
+                      bdlat_TypeCategory::Enumeration);
 
-    template <typename LHS_TYPE, typename RHS_TYPE>
+    template <class LHS_TYPE, class RHS_TYPE>
     static int assign(LHS_TYPE        *lhs,
-                      bdeat_TypeCategory::Simple,
+                      bdlat_TypeCategory::Simple,
                       const RHS_TYPE&  rhs,
-                      bdeat_TypeCategory::Simple);
+                      bdlat_TypeCategory::Simple);
 
-    template <typename LHS_TYPE, typename LHS_CATEGORY,
-              typename RHS_TYPE, typename RHS_CATEGORY>
+    template <class LHS_TYPE, class LHS_CATEGORY,
+              class RHS_TYPE, class RHS_CATEGORY>
     static int assign(LHS_TYPE        *lhs,
                       LHS_CATEGORY,
                       const RHS_TYPE&  rhs,
                       RHS_CATEGORY);
 
-    template <typename LHS_TYPE, typename RHS_TYPE>
+    template <class LHS_TYPE, class RHS_TYPE>
     static int assignSimpleTypes(LHS_TYPE *lhs, const RHS_TYPE& rhs,
                                  IsConvertible);
 
-    template <typename LHS_TYPE, typename RHS_TYPE>
+    template <class LHS_TYPE, class RHS_TYPE>
     static int assignSimpleTypes(LHS_TYPE *lhs, const RHS_TYPE& rhs,
                                  IsNotConvertible);
 
-    template <typename TYPE>
+    template <class TYPE>
     static void reset(TYPE *object);
 
-    template <typename TYPE>
+    template <class TYPE>
     static void reset(bdlb::NullableValue<TYPE> *object);
 
-    template <typename TYPE, typename ALLOC>
+    template <class TYPE, class ALLOC>
     static void reset(bsl::vector<TYPE, ALLOC> *object);
 
-    template <typename CHAR_T, typename CHAR_TRAITS, typename ALLOC>
+    template <class CHAR_T, class CHAR_TRAITS, class ALLOC>
     static void reset(bsl::basic_string<CHAR_T, CHAR_TRAITS, ALLOC> *object);
 
-    template <typename TYPE>
+    template <class TYPE>
     static void reset(TYPE *object, UseResetMethod);
 
-    template <typename TYPE>
+    template <class TYPE>
     static void reset(TYPE *object, UseDefaultCtor);
 
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                       // ----------------------------------
-                      // namespace bdeat_ValueTypeFunctions
+                      // namespace bdlat_ValueTypeFunctions
                       // ----------------------------------
 
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 inline
-int bdeat_ValueTypeFunctions::assign(LHS_TYPE *lhs, const RHS_TYPE& rhs)
+int bdlat_ValueTypeFunctions::assign(LHS_TYPE *lhs, const RHS_TYPE& rhs)
 {
-    return bdeat_valueTypeAssign(lhs, rhs);
+    return bdlat_valueTypeAssign(lhs, rhs);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_ValueTypeFunctions::reset(TYPE *object)
+void bdlat_ValueTypeFunctions::reset(TYPE *object)
 {
-    return bdeat_valueTypeReset(object);
+    return bdlat_valueTypeReset(object);
 }
 
         // -----------------------------------------------------------
-        // namespace bdeat_ValueTypeFunctions (OVERLOADABLE FUNCTIONS)
+        // namespace bdlat_ValueTypeFunctions (OVERLOADABLE FUNCTIONS)
         // -----------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-namespace bdeat_ValueTypeFunctions {
+namespace bdlat_ValueTypeFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of
     // the template function *definition* (not instantiation).  We work around
@@ -302,154 +306,154 @@ namespace bdeat_ValueTypeFunctions {
     // definitions that call them.
 
     template <typename LHS_TYPE, typename RHS_TYPE>
-    int bdeat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
+    int bdlat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
 
     template <typename TYPE>
-    void bdeat_valueTypeReset(TYPE *object);
+    void bdlat_valueTypeReset(TYPE *object);
 
-}  // close namespace bdeat_ValueTypeFunctions
+}  // close namespace bdlat_ValueTypeFunctions
 #endif
 
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 inline
-int bdeat_ValueTypeFunctions::bdeat_valueTypeAssign(LHS_TYPE        *lhs,
+int bdlat_ValueTypeFunctions::bdlat_valueTypeAssign(LHS_TYPE        *lhs,
                                                     const RHS_TYPE&  rhs)
 {
-    typedef typename bdeat_TypeCategory::Select<LHS_TYPE>::Type LhsCategory;
-    typedef typename bdeat_TypeCategory::Select<RHS_TYPE>::Type RhsCategory;
+    typedef typename bdlat_TypeCategory::Select<LHS_TYPE>::Type LhsCategory;
+    typedef typename bdlat_TypeCategory::Select<RHS_TYPE>::Type RhsCategory;
 
-    return bdeat_ValueTypeFunctions_Imp::assign(lhs,
+    return bdlat_ValueTypeFunctions_Imp::assign(lhs,
                                                 LhsCategory(),
                                                 rhs,
                                                 RhsCategory());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_ValueTypeFunctions::bdeat_valueTypeReset(TYPE *object)
+void bdlat_ValueTypeFunctions::bdlat_valueTypeReset(TYPE *object)
 {
-    bdeat_ValueTypeFunctions_Imp::reset(object);
+    bdlat_ValueTypeFunctions_Imp::reset(object);
 }
 
                     // -----------------------------------
-                    // struct bdeat_ValueTypeFunctions_Imp
+                    // struct bdlat_ValueTypeFunctions_Imp
                     // -----------------------------------
 
-template <typename LHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
-                                         bdeat_TypeCategory::Enumeration,
+template <class LHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::Enumeration,
                                          const char&                       rhs,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
-    return bdeat_EnumFunctions::fromInt(lhs, rhs);
+    return bdlat_EnumFunctions::fromInt(lhs, rhs);
 }
 
-template <typename LHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
-                                         bdeat_TypeCategory::Enumeration,
+template <class LHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::Enumeration,
                                          const short&                      rhs,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
-    return bdeat_EnumFunctions::fromInt(lhs, rhs);
+    return bdlat_EnumFunctions::fromInt(lhs, rhs);
 }
 
-template <typename LHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
-                                         bdeat_TypeCategory::Enumeration,
+template <class LHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::Enumeration,
                                          const int&                        rhs,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
-    return bdeat_EnumFunctions::fromInt(lhs, rhs);
+    return bdlat_EnumFunctions::fromInt(lhs, rhs);
 }
 
-template <typename LHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
-                                         bdeat_TypeCategory::Enumeration,
+template <class LHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::Enumeration,
                                          const bsl::string&                rhs,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
-    return bdeat_EnumFunctions::fromString(lhs, rhs.data(), (int)rhs.length());
+    return bdlat_EnumFunctions::fromString(lhs, rhs.data(), (int)rhs.length());
 }
 
-template <typename RHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(char                             *lhs,
-                                         bdeat_TypeCategory::Simple,
+template <class RHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(char                             *lhs,
+                                         bdlat_TypeCategory::Simple,
                                          const RHS_TYPE&                   rhs,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
-    enum { BDEAT_SUCCESS = 0, BDEAT_FAILURE = -1 };
+    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };
 
     const int MIN_CHAR = -128;
     const int MAX_CHAR = 127;
 
     int proxy;
 
-    bdeat_EnumFunctions::toInt(&proxy, rhs);
+    bdlat_EnumFunctions::toInt(&proxy, rhs);
 
     if (proxy < MIN_CHAR || proxy > MAX_CHAR) {
-        return BDEAT_FAILURE;
+        return BDLAT_FAILURE;                                         // RETURN
     }
 
     *lhs = static_cast<char>(proxy);
 
-    return BDEAT_SUCCESS;
+    return BDLAT_SUCCESS;
 }
 
-template <typename RHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(short                            *lhs,
-                                         bdeat_TypeCategory::Simple,
+template <class RHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(short                            *lhs,
+                                         bdlat_TypeCategory::Simple,
                                          const RHS_TYPE&                   rhs,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
-    enum { BDEAT_SUCCESS = 0, BDEAT_FAILURE = -1 };
+    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };
 
     const int MIN_SHORT = -32768;
     const int MAX_SHORT = 32767;
 
     int proxy;
 
-    bdeat_EnumFunctions::toInt(&proxy, rhs);
+    bdlat_EnumFunctions::toInt(&proxy, rhs);
 
     if (proxy < MIN_SHORT || proxy > MAX_SHORT) {
-        return BDEAT_FAILURE;
+        return BDLAT_FAILURE;                                         // RETURN
     }
 
     *lhs = static_cast<short>(proxy);
 
-    return BDEAT_SUCCESS;
+    return BDLAT_SUCCESS;
 }
 
-template <typename RHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(int                              *lhs,
-                                         bdeat_TypeCategory::Simple,
+template <class RHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(int                              *lhs,
+                                         bdlat_TypeCategory::Simple,
                                          const RHS_TYPE&                   rhs,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
-    enum { BDEAT_SUCCESS = 0 };
+    enum { BDLAT_SUCCESS = 0 };
 
-    bdeat_EnumFunctions::toInt(lhs, rhs);
+    bdlat_EnumFunctions::toInt(lhs, rhs);
 
-    return BDEAT_SUCCESS;
+    return BDLAT_SUCCESS;
 }
 
-template <typename RHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(bsl::string                      *lhs,
-                                         bdeat_TypeCategory::Simple,
+template <class RHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(bsl::string                      *lhs,
+                                         bdlat_TypeCategory::Simple,
                                          const RHS_TYPE&                   rhs,
-                                         bdeat_TypeCategory::Enumeration)
+                                         bdlat_TypeCategory::Enumeration)
 {
-    enum { BDEAT_SUCCESS = 0 };
+    enum { BDLAT_SUCCESS = 0 };
 
-    bdeat_EnumFunctions::toString(lhs, rhs);
+    bdlat_EnumFunctions::toString(lhs, rhs);
 
-    return BDEAT_SUCCESS;
+    return BDLAT_SUCCESS;
 }
 
-template <typename LHS_TYPE, typename RHS_TYPE>
-int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE                    *lhs,
-                                         bdeat_TypeCategory::Simple,
+template <class LHS_TYPE, class RHS_TYPE>
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                    *lhs,
+                                         bdlat_TypeCategory::Simple,
                                          const RHS_TYPE&              rhs,
-                                         bdeat_TypeCategory::Simple)
+                                         bdlat_TypeCategory::Simple)
 {
     enum {
         IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
@@ -461,114 +465,112 @@ int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE                    *lhs,
     return assignSimpleTypes(lhs, rhs, Selector());
 }
 
-template <typename LHS_TYPE, typename LHS_CATEGORY,
-          typename RHS_TYPE, typename RHS_CATEGORY>
-int bdeat_ValueTypeFunctions_Imp::assign(LHS_TYPE        *lhs,
+template <class LHS_TYPE, class LHS_CATEGORY,
+          class RHS_TYPE, class RHS_CATEGORY>
+int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE        *lhs,
                                          LHS_CATEGORY,
                                          const RHS_TYPE&  rhs,
                                          RHS_CATEGORY)
 {
-    enum { BDEAT_FAILURE = -1 };
+    enum { BDLAT_FAILURE = -1 };
 
     (void)lhs;  // quell warning
     (void)rhs;  // quell warning
-    return BDEAT_FAILURE;
+    return BDLAT_FAILURE;
 }
 
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 inline
-int bdeat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
+int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
                                                     const RHS_TYPE&  rhs,
                                                     IsConvertible)
 {
-    enum { BDEAT_SUCCESS = 0 };
+    enum { BDLAT_SUCCESS = 0 };
 
     *lhs = static_cast<LHS_TYPE>(rhs);
 
-    return BDEAT_SUCCESS;
+    return BDLAT_SUCCESS;
 }
 
-template <typename LHS_TYPE, typename RHS_TYPE>
+template <class LHS_TYPE, class RHS_TYPE>
 inline
-int bdeat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
+int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
                                                     const RHS_TYPE&  rhs,
                                                     IsNotConvertible)
 {
-    enum { BDEAT_FAILURE = -1 };
+    enum { BDLAT_FAILURE = -1 };
 
     (void)lhs;  // quell warning
     (void)rhs;  // quell warning
-    return BDEAT_FAILURE;
+    return BDLAT_FAILURE;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_ValueTypeFunctions_Imp::reset(TYPE *object)
+void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object)
 {
     enum {
-        HAS_TRAIT = bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
-                 || bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
+        HAS_TRAIT = bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
+                 || bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
                  || bslalg::HasTrait<TYPE,
-                                    bdeat_TypeTraitBasicCustomizedType>::VALUE
+                                    bdlat_TypeTraitBasicCustomizedType>::VALUE
     };
 
     typedef typename
     bslmf::If<HAS_TRAIT,
-             bdeat_ValueTypeFunctions_Imp::UseResetMethod,
-             bdeat_ValueTypeFunctions_Imp::UseDefaultCtor>::Type Selector;
+             bdlat_ValueTypeFunctions_Imp::UseResetMethod,
+             bdlat_ValueTypeFunctions_Imp::UseDefaultCtor>::Type Selector;
 
-    bdeat_ValueTypeFunctions_Imp::reset(object, Selector());
+    bdlat_ValueTypeFunctions_Imp::reset(object, Selector());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_ValueTypeFunctions_Imp::reset(bdlb::NullableValue<TYPE> *object)
+void bdlat_ValueTypeFunctions_Imp::reset(bdlb::NullableValue<TYPE> *object)
 {
     object->reset();
 }
 
-template <typename TYPE, typename ALLOC>
+template <class TYPE, class ALLOC>
 inline
-void bdeat_ValueTypeFunctions_Imp::reset(bsl::vector<TYPE, ALLOC> *object)
+void bdlat_ValueTypeFunctions_Imp::reset(bsl::vector<TYPE, ALLOC> *object)
 {
     object->clear();
 }
 
-template <typename CHAR_T, typename CHAR_TRAITS, typename ALLOC>
+template <class CHAR_T, class CHAR_TRAITS, class ALLOC>
 inline
-void bdeat_ValueTypeFunctions_Imp::reset(
+void bdlat_ValueTypeFunctions_Imp::reset(
                          bsl::basic_string<CHAR_T, CHAR_TRAITS, ALLOC> *object)
 {
     object->erase();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_ValueTypeFunctions_Imp::reset(TYPE            *object,
+void bdlat_ValueTypeFunctions_Imp::reset(TYPE            *object,
                                          UseResetMethod)
 {
     object->reset();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_ValueTypeFunctions_Imp::reset(TYPE            *object,
+void bdlat_ValueTypeFunctions_Imp::reset(TYPE            *object,
                                          UseDefaultCtor)
 {
     *object = TYPE();
 }
 
-}  // close namespace BloombergLP
-
-
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

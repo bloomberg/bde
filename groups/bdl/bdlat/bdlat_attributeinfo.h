@@ -1,4 +1,4 @@
-// bdlat_attributeinfo.h                  -*-C++-*-
+// bdlat_attributeinfo.h                                              -*-C++-*-
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #define INCLUDED_BDLAT_ATTRIBUTEINFO
 
@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container for attribute information.
 //
 //@CLASSES:
-//  bdeat_AttributeInfo: container for attribute information
+//  bdlat_AttributeInfo: container for attribute information
 //
 //@SEE_ALSO: bdlat_sequencefunctions
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@DESCRIPTION: This component provides the 'bdeat_AttributeInfo' 'struct',
+//@DESCRIPTION: This component provides the 'bdlat_AttributeInfo' 'struct',
 // which is a container for holding information (properties) about a sequence
 // attribute.  The properties of an attribute include its name and the length
 // of its name, its distinct id within its containing type, its formatting
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // accessible, a manipulator and accessor is also supplied for each.
 //
 // When accessing or manipulating an attribute of a "sequence" type (using one
-// of the functions from the 'bdeat_SequenceFunctions' namespace), an instance
+// of the functions from the 'bdlat_SequenceFunctions' namespace), an instance
 // of this 'struct' will be passed as the second argument to the accessor or
 // manipulator.
 //
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //      // OPERATIONS
 //      template <typename TYPE>
 //      int operator()(const TYPE&                attribute,
-//                     const bdeat_AttributeInfo& info)
+//                     const bdlat_AttributeInfo& info)
 //      {
 //          (*d_stream_p) << attribute << " ("
 //                        << bsl::string(info.name(),
@@ -70,6 +70,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -92,10 +96,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
                         // ==========================
-                        // struct bdeat_AttributeInfo
+                        // struct bdlat_AttributeInfo
                         // ==========================
 
-struct bdeat_AttributeInfo {
+struct bdlat_AttributeInfo {
     // This 'struct' holds information about an attribute.  Its data members
     // are 'public' by design so that instances may be statically initialized.
 
@@ -108,24 +112,24 @@ struct bdeat_AttributeInfo {
     int         d_formattingMode;  // formatting mode
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_AttributeInfo,
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_AttributeInfo,
                                    bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_AttributeInfo,
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_AttributeInfo,
                                    bsl::is_trivially_default_constructible);
 
     // CREATORS
     // The following methods are not defined by design:
     //..
-    //   bdeat_AttributeInfo();
-    //   bdeat_AttributeInfo(const bdeat_AttributeInfo& original);
-    //   ~bdeat_AttributeInfo();
+    //   bdlat_AttributeInfo();
+    //   bdlat_AttributeInfo(const bdlat_AttributeInfo& original);
+    //   ~bdlat_AttributeInfo();
     //..
     // The corresponding methods supplied by the compiler are sufficient.
 
     // MANIPULATORS
     // The following method is not defined by design:
     //..
-    //   bdeat_AttributeInfo& operator=(const bdeat_AttributeInfo& rhs);
+    //   bdlat_AttributeInfo& operator=(const bdlat_AttributeInfo& rhs);
     //..
     // The assignment operator supplied by the compiler is sufficient.
 
@@ -170,58 +174,58 @@ struct bdeat_AttributeInfo {
 
 // FREE OPERATORS
 inline
-bool operator==(const bdeat_AttributeInfo& lhs,
-                                               const bdeat_AttributeInfo& rhs);
+bool operator==(const bdlat_AttributeInfo& lhs,
+                                               const bdlat_AttributeInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute info objects
     // have the same value, and 'false' otherwise.  Two attribute info objects
     // have the same value if each of their respective properties are
     // identical.
 
 inline
-bool operator!=(const bdeat_AttributeInfo& lhs,
-                                               const bdeat_AttributeInfo& rhs);
+bool operator!=(const bdlat_AttributeInfo& lhs,
+                                               const bdlat_AttributeInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' attribute info objects do
     // not have the same value, and 'false' otherwise.  Two attribute info
     // objects do not have the same value if at least one of their respective
     // properties is not identical.
 
 bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bdeat_AttributeInfo& attributeInfo);
+                         const bdlat_AttributeInfo& attributeInfo);
     // Write the value of the specified 'attributeInfo' to the specified
     // 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 
 inline
-const char *& bdeat_AttributeInfo::annotation()
+const char *& bdlat_AttributeInfo::annotation()
 {
     return d_annotation_p;
 }
 
 inline
-int& bdeat_AttributeInfo::formattingMode()
+int& bdlat_AttributeInfo::formattingMode()
 {
     return d_formattingMode;
 }
 
 inline
-int& bdeat_AttributeInfo::id()
+int& bdlat_AttributeInfo::id()
 {
     return d_id;
 }
 
 inline
-const char *& bdeat_AttributeInfo::name()
+const char *& bdlat_AttributeInfo::name()
 {
     return d_name_p;
 }
 
 inline
-int& bdeat_AttributeInfo::nameLength()
+int& bdlat_AttributeInfo::nameLength()
 {
     return d_nameLength;
 }
@@ -229,31 +233,31 @@ int& bdeat_AttributeInfo::nameLength()
 // ACCESSORS
 
 inline
-const char *bdeat_AttributeInfo::annotation() const
+const char *bdlat_AttributeInfo::annotation() const
 {
     return d_annotation_p;
 }
 
 inline
-int bdeat_AttributeInfo::formattingMode() const
+int bdlat_AttributeInfo::formattingMode() const
 {
     return d_formattingMode;
 }
 
 inline
-int bdeat_AttributeInfo::id() const
+int bdlat_AttributeInfo::id() const
 {
     return d_id;
 }
 
 inline
-const char *bdeat_AttributeInfo::name() const
+const char *bdlat_AttributeInfo::name() const
 {
     return d_name_p;
 }
 
 inline
-int bdeat_AttributeInfo::nameLength() const
+int bdlat_AttributeInfo::nameLength() const
 {
     return d_nameLength;
 }
@@ -261,7 +265,7 @@ int bdeat_AttributeInfo::nameLength() const
 // FREE OPERATORS
 
 inline
-bool operator==(const bdeat_AttributeInfo& lhs, const bdeat_AttributeInfo& rhs)
+bool operator==(const bdlat_AttributeInfo& lhs, const bdlat_AttributeInfo& rhs)
 {
     return lhs.formattingMode() == rhs.formattingMode()
         && lhs.id()             == rhs.id()
@@ -271,22 +275,20 @@ bool operator==(const bdeat_AttributeInfo& lhs, const bdeat_AttributeInfo& rhs)
 }
 
 inline
-bool operator!=(const bdeat_AttributeInfo& lhs, const bdeat_AttributeInfo& rhs)
+bool operator!=(const bdlat_AttributeInfo& lhs, const bdlat_AttributeInfo& rhs)
 {
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
-
-
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlat_sequencefunctions.t.cpp                  -*-C++-*-
+// bdlat_sequencefunctions.t.cpp                                      -*-C++-*-
 
 #include <bdlat_sequencefunctions.h>
 
@@ -20,7 +20,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 // [ 2] bdeat_AttributeInfo Obj::attributeInfo(const TYPE&, int);
 // [ 2] const char *Obj::className(const TYPE&);
@@ -191,7 +191,7 @@ class Point {
         return *this;
     }
 
-    template<typename MANIPULATOR>
+    template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& m, const char *name, int nameLength)
         // visit the modifiable attribute with a given name
     {
@@ -199,7 +199,7 @@ class Point {
         return globalFlag;
     }
 
-    template<typename MANIPULATOR>
+    template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& m, int id)
         // visit the modifiable attribute with a given id
     {
@@ -207,7 +207,7 @@ class Point {
         return globalFlag;
     }
 
-    template<typename MANIPULATOR>
+    template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& m)
         // visits modifiable attributes
     {
@@ -228,7 +228,7 @@ class Point {
     }
 
     // ACCESSORS
-    template<typename ACCESSOR>
+    template<class ACCESSOR>
     int accessAttribute(ACCESSOR& a, const char *name, int nameLength) const
         // visit the non-modifiable attribute with a given name
     {
@@ -236,7 +236,7 @@ class Point {
         return globalFlag;
     }
 
-    template<typename ACCESSOR>
+    template<class ACCESSOR>
     int accessAttribute(ACCESSOR& a, int id) const
         // visit the non-modifiable attribute with a given id
     {
@@ -244,7 +244,7 @@ class Point {
         return globalFlag;
     }
 
-    template<typename ACCESSOR>
+    template<class ACCESSOR>
     int accessAttributes(ACCESSOR& a) const
         // visits non-modifiable attributes
     {
@@ -288,10 +288,10 @@ const bdeat_AttributeInfo *Point::lookupAttributeInfo(
         case 1: {
             switch(name[0]) {
                 case 'X': {
-                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_X];
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_X];  // RETURN
                 } break;
                 case 'Y': {
-                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_Y];
+                    return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_Y];  // RETURN
                 } break;
             }
         } break;
@@ -311,7 +311,7 @@ const bdeat_AttributeInfo *Point::lookupAttributeInfo(int id)
     }
 }
 
-}  // end namespace geom
+}  // close namespace geom
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -349,7 +349,7 @@ struct MySequence {
     float       d_salary;
 };
 
-}  // close namespace 'mine'
+}  // close namespace mine
 //..
 // We can now make 'mine::MySequence' expose "sequence" behavior by
 // implementing the necessary 'bdeat_sequence*' functions for 'MySequence'
@@ -358,28 +358,28 @@ struct MySequence {
 //..
 namespace mine {
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_sequenceManipulateAttribute(MySequence   *object,
                                       MANIPULATOR&  manipulator,
                                       const char   *attributeName,
                                       int           attributeNameLength);
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_sequenceManipulateAttribute(MySequence   *object,
                                       MANIPULATOR&  manipulator,
                                       int           attributeId);
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_sequenceManipulateAttributes(MySequence   *object,
                                        MANIPULATOR&  manipulator);
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_sequenceAccessAttribute(const MySequence&  object,
                                   ACCESSOR&          accessor,
                                   const char        *attributeName,
                                   int                attributeNameLength);
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_sequenceAccessAttribute(const MySequence& object,
                                   ACCESSOR&         accessor,
                                   int               attributeId);
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_sequenceAccessAttributes(const MySequence& object,
                                    ACCESSOR&         accessor);
 bool bdeat_sequenceHasAttribute(const MySequence&  object,
@@ -388,7 +388,7 @@ bool bdeat_sequenceHasAttribute(const MySequence&  object,
 bool bdeat_sequenceHasAttribute(const MySequence& object,
                                 int               attributeId);
 
-}  // close namespace 'mine'
+}  // close namespace mine
 //..
 // Now, we will implement these functions.  Note that for this implementation,
 // we will create a temporary 'bdeat_AttributeInfo' object and pass it along
@@ -396,7 +396,7 @@ bool bdeat_sequenceHasAttribute(const MySequence& object,
 // component-level documentation for more information.  The implementation of
 // the functions are as follows:
 //..
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int mine::bdeat_sequenceManipulateAttribute(
                                       MySequence   *object,
                                       MANIPULATOR&  manipulator,
@@ -435,7 +435,7 @@ int mine::bdeat_sequenceManipulateAttribute(
     return NOT_FOUND;
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int mine::bdeat_sequenceManipulateAttribute(MySequence   *object,
                                             MANIPULATOR&  manipulator,
                                             int           attributeId)
@@ -452,7 +452,7 @@ int mine::bdeat_sequenceManipulateAttribute(MySequence   *object,
         info.name()           = "name";
         info.nameLength()     = 4;
 
-        return manipulator(&object->d_name, info);
+        return manipulator(&object->d_name, info);                    // RETURN
       }
       case MySequence::AGE_ATTRIBUTE_ID: {
         bdeat_AttributeInfo info;
@@ -463,7 +463,7 @@ int mine::bdeat_sequenceManipulateAttribute(MySequence   *object,
         info.name()           = "age";
         info.nameLength()     = 3;
 
-        return manipulator(&object->d_age, info);
+        return manipulator(&object->d_age, info);                     // RETURN
       }
       case MySequence::SALARY_ATTRIBUTE_ID: {
         bdeat_AttributeInfo info;
@@ -474,15 +474,15 @@ int mine::bdeat_sequenceManipulateAttribute(MySequence   *object,
         info.name()           = "salary";
         info.nameLength()     = 6;
 
-        return manipulator(&object->d_salary, info);
+        return manipulator(&object->d_salary, info);                  // RETURN
       }
       default: {
-          return NOT_FOUND;
+          return NOT_FOUND;                                           // RETURN
       }
     }
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int mine::bdeat_sequenceManipulateAttributes(MySequence   *object,
                                              MANIPULATOR&  manipulator)
 {
@@ -494,7 +494,7 @@ int mine::bdeat_sequenceManipulateAttributes(MySequence   *object,
                                             MySequence::NAME_ATTRIBUTE_ID);
 
     if (0 != retVal) {
-        return retVal;
+        return retVal;                                                // RETURN
     }
 
     retVal = bdeat_sequenceManipulateAttribute(
@@ -503,7 +503,7 @@ int mine::bdeat_sequenceManipulateAttributes(MySequence   *object,
                                              MySequence::AGE_ATTRIBUTE_ID);
 
     if (0 != retVal) {
-        return retVal;
+        return retVal;                                                // RETURN
     }
 
     retVal = bdeat_sequenceManipulateAttribute(
@@ -516,7 +516,7 @@ int mine::bdeat_sequenceManipulateAttributes(MySequence   *object,
 
 // ACCESSORS
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int mine::bdeat_sequenceAccessAttribute(
                                     const MySequence&  object,
                                     ACCESSOR&          accessor,
@@ -554,7 +554,7 @@ int mine::bdeat_sequenceAccessAttribute(
     return NOT_FOUND;
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int mine::bdeat_sequenceAccessAttribute(const MySequence& object,
                                         ACCESSOR&         accessor,
                                         int               attributeId)
@@ -571,7 +571,7 @@ int mine::bdeat_sequenceAccessAttribute(const MySequence& object,
         info.name()           = "name";
         info.nameLength()     = 4;
 
-        return accessor(object.d_name, info);
+        return accessor(object.d_name, info);                         // RETURN
       }
       case MySequence::AGE_ATTRIBUTE_ID: {
         bdeat_AttributeInfo info;
@@ -582,7 +582,7 @@ int mine::bdeat_sequenceAccessAttribute(const MySequence& object,
         info.name()           = "age";
         info.nameLength()     = 3;
 
-        return accessor(object.d_age, info);
+        return accessor(object.d_age, info);                          // RETURN
       }
       case MySequence::SALARY_ATTRIBUTE_ID: {
         bdeat_AttributeInfo info;
@@ -593,15 +593,15 @@ int mine::bdeat_sequenceAccessAttribute(const MySequence& object,
         info.name()           = "salary";
         info.nameLength()     = 6;
 
-        return accessor(object.d_salary, info);
+        return accessor(object.d_salary, info);                       // RETURN
       }
       default: {
-          return NOT_FOUND;
+          return NOT_FOUND;                                           // RETURN
       }
     }
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int mine::bdeat_sequenceAccessAttributes(const MySequence& object,
                                          ACCESSOR&         accessor)
 {
@@ -612,7 +612,7 @@ int mine::bdeat_sequenceAccessAttributes(const MySequence& object,
                                            MySequence::NAME_ATTRIBUTE_ID);
 
     if (0 != retVal) {
-        return retVal;
+        return retVal;                                                // RETURN
     }
 
     retVal = bdeat_sequenceAccessAttribute(object,
@@ -620,7 +620,7 @@ int mine::bdeat_sequenceAccessAttributes(const MySequence& object,
                                            MySequence::AGE_ATTRIBUTE_ID);
 
     if (0 != retVal) {
-        return retVal;
+        return retVal;                                                // RETURN
     }
 
     retVal = bdeat_sequenceAccessAttribute(object,
@@ -666,8 +666,8 @@ namespace bdeat_SequenceFunctions {
         enum { VALUE = 1 };
     };
 
-}  // close namespace 'bdeat_SequenceFunctions'
-}  // close namespace 'BloombergLP'
+}  // close namespace bdeat_SequenceFunctions
+}  // close enterprise namespace
 //..
 // The 'bdeat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'mine::MySequence' as a "sequence" type.  For example,
@@ -716,7 +716,7 @@ struct PrintAttribute {
     // DATA MEMBERS
     bsl::ostream *d_stream_p;
 
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& object, const INFO& info)
     {
         (*d_stream_p) << info.name() << ": " << object << bsl::endl;
@@ -724,7 +724,7 @@ struct PrintAttribute {
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 void printSequenceAttributes(bsl::ostream& stream, const TYPE& object)
 {
     PrintAttribute accessor;
@@ -890,11 +890,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

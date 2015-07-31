@@ -1,4 +1,4 @@
-// bdlat_attributeinfo.cpp                  -*-C++-*-
+// bdlat_attributeinfo.cpp                                            -*-C++-*-
 #include <bdlat_attributeinfo.h>
 
 #include <bsls_ident.h>
@@ -9,12 +9,12 @@ BSLS_IDENT_RCSID(bdlat_attributeinfo_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
                         // --------------------------
-                        // struct bdeat_AttributeInfo
+                        // struct bdlat_AttributeInfo
                         // --------------------------
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bdeat_AttributeInfo& attributeInfo)
+                         const bdlat_AttributeInfo& attributeInfo)
 {
     stream << "( "  << attributeInfo.formattingMode()
            << ", "  << attributeInfo.id()
@@ -44,13 +44,13 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

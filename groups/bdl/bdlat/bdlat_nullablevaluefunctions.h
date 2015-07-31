@@ -1,4 +1,4 @@
-// bdlat_nullablevaluefunctions.h                  -*-C++-*-
+// bdlat_nullablevaluefunctions.h                                     -*-C++-*-
 #ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 #define INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace defining nullable value functions.
 //
 //@CLASSES:
-//  bdeat_NullableValueFunctions: namespace for nullable value functions
+//  bdlat_NullableValueFunctions: namespace for nullable value functions
 //
 //@SEE_ALSO: bdlb_nullablevalue
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 // TBD: update this documentation to reflect the new overloaded functions
 //
-//@DESCRIPTION: The 'bdeat_NullableValueFunctions' 'namespace' provided in this
+//@DESCRIPTION: The 'bdlat_NullableValueFunctions' 'namespace' provided in this
 // component defines parameterized functions that expose "nullable" behavior
 // for "nullable" types.  See the package-level documentation for a full
 // description of "nullable" types.  The functions in this namespace allow
@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Also, the meta-function 'IsNullableValue' contains a compile-time constant
 // 'VALUE' that is non-zero if the parameterized 'TYPE' exposes "nullable"
-// behavior through the 'bdeat_NullableValueFunctions' 'namespace'.
+// behavior through the 'bdlat_NullableValueFunctions' 'namespace'.
 //
 // The 'ValueType' meta-function contains a typedef 'Type' that specifies the
 // type of the value that can be stored in the parameterized "nullable" type.
@@ -44,20 +44,20 @@ BSLS_IDENT("$Id: $")
 // 'bdlb::NullableValue<TYPE>'.
 //
 // Other "nullable" types may expose "nullable" behavior by overloading the
-// 'bdeat_nullableValue*' functions inside the namespace of the plugged in
+// 'bdlat_nullableValue*' functions inside the namespace of the plugged in
 // type.  For example, suppose there is a type called 'mine::MyNullable'.  In
-// order to plug this type into the 'bdeat' framework as a "nullable", the
+// order to plug this type into the 'bdlat' framework as a "nullable", the
 // following functions must be declared and implemented in the 'mine'
 // namespace:
 //..
 //  // MANIPULATORS
 //  template <typename TYPE>
-//  void bdeat_nullableValueMakeValue(TYPE *object);
+//  void bdlat_nullableValueMakeValue(TYPE *object);
 //      // Assign to the specified "nullable" 'object' the default value for
 //      // the contained type.
 //
 //  template <typename TYPE, typename MANIPULATOR>
-//  int bdeat_nullableValueManipulateValue(TYPE         *object,
+//  int bdlat_nullableValueManipulateValue(TYPE         *object,
 //                                         MANIPULATOR&  manipulator);
 //      // Invoke the specified 'manipulator' on the address of the value
 //      // stored in the specified "nullable" 'object'.  Return the value from
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // ACCESSORS
 //  template <typename TYPE, typename ACCESSOR>
-//  int bdeat_nullableValueAccessValue(const TYPE& object,
+//  int bdlat_nullableValueAccessValue(const TYPE& object,
 //                                     ACCESSOR&   accessor);
 //      // Invoke the specified 'accessor' on the non-modifiable value stored
 //      // in the specified "nullable" 'object'.  Return the value from the
@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 //      // does not contain a null value.
 //
 //  template <typename TYPE>
-//  bool bdeat_nullableValueIsNull(const TYPE& object);
+//  bool bdlat_nullableValueIsNull(const TYPE& object);
 //      // Return 'true' if the specified "nullable" 'object' contains a null
 //      // value, and 'false' otherwise.
 //..
@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 // For the nullable type implementation, first we need to check if the value is
 // null.  If so, simply print 'NULL' and return 'SUCCESS':
 //..
-//          if (bdeat_NullableValueFunctions::isNull(value)) {
+//          if (bdlat_NullableValueFunctions::isNull(value)) {
 //              (*d_stream_p) << "NULL";
 //
 //              return SUCCESS;
@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 // Otherwise, since the value is not null, we will access the value using a
 // reference to 'this' object as the parameterized accessor:
 //..
-//          return bdeat_NullableValueFunctions::accessValue(value, *this);
+//          return bdlat_NullableValueFunctions::accessValue(value, *this);
 //      }
 //..
 // Since '*this' is used as the parameterized accessor, the 'accessValue'
@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //          typedef typename
 //          bslmf::If<
-//              bdeat_NullableValueFunctions::IsNullableValueType<TYPE>::VALUE,
+//              bdlat_NullableValueFunctions::IsNullableValueType<TYPE>::VALUE,
 //              IsNullableValueType,
 //              IsNotNullableValueType>::Type Toggle;
 //
@@ -203,13 +203,13 @@ BSLS_IDENT("$Id: $")
 //      {
 //          enum { SUCCESS = 0 };
 //
-//          if (bdeat_NullableValueFunctions::isNull(value)) {
+//          if (bdlat_NullableValueFunctions::isNull(value)) {
 //              (*d_stream_p) << "NULL";
 //
 //              return SUCCESS;
 //          }
 //
-//          return bdeat_NullableValueFunctions::accessValue(value, *this);
+//          return bdlat_NullableValueFunctions::accessValue(value, *this);
 //      }
 //
 //    public:
@@ -225,7 +225,7 @@ BSLS_IDENT("$Id: $")
 //      {
 //          typedef typename
 //          bslmf::If<
-//              bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+//              bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
 //              IsNullableValueType,
 //              IsNotNullableValueType>::Type Toggle;
 //
@@ -234,7 +234,7 @@ BSLS_IDENT("$Id: $")
 //  };  // end 'class PrintValue'
 //..
 // The 'PrintValue' function class can be used for types that expose "nullable"
-// behavior through the 'bdeat_NullableValueFunctions' 'namespace' (e.g.,
+// behavior through the 'bdlat_NullableValueFunctions' 'namespace' (e.g.,
 // 'bdlb::NullableValue') and any other type that has 'operator<<' defined for
 // it.  For example:
 //..
@@ -271,6 +271,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
+#endif
+
 #ifndef INCLUDED_BDLB_NULLABLEVALUE
 #include <bdlb_nullablevalue.h>
 #endif
@@ -287,10 +291,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
                    // ======================================
-                   // namespace bdeat_NullableValueFunctions
+                   // namespace bdlat_NullableValueFunctions
                    // ======================================
 
-namespace bdeat_NullableValueFunctions {
+namespace bdlat_NullableValueFunctions {
     // This 'namespace' provides functions that expose "nullable" behavior for
     // "nullable" types.  See the component-level documentation for more
     // information.
@@ -298,7 +302,7 @@ namespace bdeat_NullableValueFunctions {
     // META-FUNCTIONS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     bslmf::MetaInt<0> isNullableValueMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
@@ -309,7 +313,7 @@ namespace bdeat_NullableValueFunctions {
         // 'IsNullableValue' meta-function.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-    template <typename TYPE>
+    template <class TYPE>
     struct IsNullableValue {
         // This 'struct' should be specialized for third-party types that need
         // to expose "nullable" behavior.  See the component-level
@@ -324,19 +328,19 @@ namespace bdeat_NullableValueFunctions {
         };
     };
 
-    template <typename TYPE>
+    template <class TYPE>
     struct ValueType;
         // This meta-function should contain a typedef 'Type' that specifies
         // the type of value stored in a nullable type of the parameterized
         // 'TYPE'.
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     void makeValue(TYPE *object);
         // Assign to the specified "nullable" 'object' the default value for
         // the contained type.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateValue(TYPE         *object,
                         MANIPULATOR&  manipulator);
         // Invoke the specified 'manipulator' on the address of the value
@@ -345,7 +349,7 @@ namespace bdeat_NullableValueFunctions {
         // 'object' does not contain a null value.
 
     // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessValue(const TYPE& object,
                     ACCESSOR&   accessor);
         // Invoke the specified 'accessor' on the non-modifiable value stored
@@ -353,7 +357,7 @@ namespace bdeat_NullableValueFunctions {
         // invocation of 'accessor'.  The behavior is undefined unless 'object'
         // does not contain a null value.
 
-    template <typename TYPE>
+    template <class TYPE>
     bool isNull(const TYPE& object);
         // Return 'true' if the specified "nullable" 'object' contains a null
         // value, and 'false' otherwise.
@@ -372,26 +376,26 @@ namespace bdeat_NullableValueFunctions {
 #if 0
     // MANIPULATORS
     template <typename TYPE>
-    void bdeat_nullableValueMakeValue(TYPE *object);
+    void bdlat_nullableValueMakeValue(TYPE *object);
     template <typename TYPE, typename MANIPULATOR>
-    int bdeat_nullableValueManipulateValue(TYPE         *object,
+    int bdlat_nullableValueManipulateValue(TYPE         *object,
                                            MANIPULATOR&  manipulator);
 
     // ACCESSORS
     template <typename TYPE, typename ACCESSOR>
-    int bdeat_nullableValueAccessValue(const TYPE& object,
+    int bdlat_nullableValueAccessValue(const TYPE& object,
                                        ACCESSOR&   accessor);
     template <typename TYPE>
-    bool bdeat_nullableValueIsNull(const TYPE& object);
+    bool bdlat_nullableValueIsNull(const TYPE& object);
 #endif
 
-}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace bdlat_NullableValueFunctions
 
                   // =======================================
                   // Specializations for bdlb::NullableValue
                   // =======================================
 
-namespace bdeat_NullableValueFunctions {
+namespace bdlat_NullableValueFunctions {
 
     // META-FUNCTIONS
     template <typename TYPE>
@@ -405,30 +409,30 @@ namespace bdeat_NullableValueFunctions {
     };
 
     // MANIPULATORS
-    template <typename TYPE>
-    void bdeat_nullableValueMakeValue(bdlb::NullableValue<TYPE> *object);
+    template <class TYPE>
+    void bdlat_nullableValueMakeValue(bdlb::NullableValue<TYPE> *object);
 
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_nullableValueManipulateValue(
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_nullableValueManipulateValue(
                                        bdlb::NullableValue<TYPE> *object,
                                        MANIPULATOR&               manipulator);
 
     // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_nullableValueAccessValue(
+    template <class TYPE, class ACCESSOR>
+    int bdlat_nullableValueAccessValue(
                                     const bdlb::NullableValue<TYPE>& object,
                                     ACCESSOR&                        accessor);
 
-    template <typename TYPE>
-    bool bdeat_nullableValueIsNull(const bdlb::NullableValue<TYPE>& object);
+    template <class TYPE>
+    bool bdlat_nullableValueIsNull(const bdlb::NullableValue<TYPE>& object);
 
-}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace bdlat_NullableValueFunctions
 
               // ================================================
               // Specializations for bdlb::NullableAllocatedValue
               // ================================================
 
-namespace bdeat_NullableValueFunctions {
+namespace bdlat_NullableValueFunctions {
 
     // META-FUNCTIONS
     template <typename TYPE>
@@ -442,65 +446,65 @@ namespace bdeat_NullableValueFunctions {
     };
 
     // MANIPULATORS
-    template <typename TYPE>
-    void bdeat_nullableValueMakeValue(
+    template <class TYPE>
+    void bdlat_nullableValueMakeValue(
                                    bdlb::NullableAllocatedValue<TYPE> *object);
     template <typename TYPE, typename MANIPULATOR>
-    int bdeat_nullableValueManipulateValue(
+    int bdlat_nullableValueManipulateValue(
                                     bdlb::NullableAllocatedValue<TYPE> *object,
                                     MANIPULATOR&               manipulator);
 
     // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_nullableValueAccessValue(
+    template <class TYPE, class ACCESSOR>
+    int bdlat_nullableValueAccessValue(
                               const bdlb::NullableAllocatedValue<TYPE>& object,
                               ACCESSOR&                        accessor);
-    template <typename TYPE>
-    bool bdeat_nullableValueIsNull(
+    template <class TYPE>
+    bool bdlat_nullableValueIsNull(
                              const bdlb::NullableAllocatedValue<TYPE>& object);
 
-}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace bdlat_NullableValueFunctions
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                    // --------------------------------------
-                   // namespace bdeat_NullableValueFunctions
+                   // namespace bdlat_NullableValueFunctions
                    // --------------------------------------
 
 // MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_NullableValueFunctions::makeValue(TYPE *object)
+void bdlat_NullableValueFunctions::makeValue(TYPE *object)
 {
-    bdeat_nullableValueMakeValue(object);
+    bdlat_nullableValueMakeValue(object);
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_NullableValueFunctions::manipulateValue(TYPE         *object,
+int bdlat_NullableValueFunctions::manipulateValue(TYPE         *object,
                                                   MANIPULATOR&  manipulator)
 {
-    return bdeat_nullableValueManipulateValue(object, manipulator);
+    return bdlat_nullableValueManipulateValue(object, manipulator);
 }
 
 // ACCESSORS
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_NullableValueFunctions::accessValue(const TYPE& object,
+int bdlat_NullableValueFunctions::accessValue(const TYPE& object,
                                               ACCESSOR&   accessor)
 {
-    return bdeat_nullableValueAccessValue(object, accessor);
+    return bdlat_nullableValueAccessValue(object, accessor);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-bool bdeat_NullableValueFunctions::isNull(const TYPE& object)
+bool bdlat_NullableValueFunctions::isNull(const TYPE& object)
 {
-    return bdeat_nullableValueIsNull(object);
+    return bdlat_nullableValueIsNull(object);
 }
 
                   // ---------------------------------------
@@ -509,9 +513,9 @@ bool bdeat_NullableValueFunctions::isNull(const TYPE& object)
 
 // MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_NullableValueFunctions::bdeat_nullableValueMakeValue(
+void bdlat_NullableValueFunctions::bdlat_nullableValueMakeValue(
                                              bdlb::NullableValue<TYPE> *object)
 {
     object->makeValue();
@@ -519,7 +523,7 @@ void bdeat_NullableValueFunctions::bdeat_nullableValueMakeValue(
 
 template <typename TYPE, typename MANIPULATOR>
 inline
-int bdeat_NullableValueFunctions::bdeat_nullableValueManipulateValue(
+int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
                                         bdlb::NullableValue<TYPE> *object,
                                         MANIPULATOR&               manipulator)
 {
@@ -530,9 +534,9 @@ int bdeat_NullableValueFunctions::bdeat_nullableValueManipulateValue(
 
 // ACCESSORS
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_NullableValueFunctions::bdeat_nullableValueAccessValue(
+int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(
                                      const bdlb::NullableValue<TYPE>& object,
                                      ACCESSOR&                        accessor)
 {
@@ -541,9 +545,9 @@ int bdeat_NullableValueFunctions::bdeat_nullableValueAccessValue(
     return accessor(object.value());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-bool bdeat_NullableValueFunctions::bdeat_nullableValueIsNull(
+bool bdlat_NullableValueFunctions::bdlat_nullableValueIsNull(
                                        const bdlb::NullableValue<TYPE>& object)
 {
     return object.isNull();
@@ -555,9 +559,9 @@ bool bdeat_NullableValueFunctions::bdeat_nullableValueIsNull(
 
 // MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_NullableValueFunctions::bdeat_nullableValueMakeValue(
+void bdlat_NullableValueFunctions::bdlat_nullableValueMakeValue(
                                     bdlb::NullableAllocatedValue<TYPE> *object)
 {
     object->makeValue();
@@ -565,7 +569,7 @@ void bdeat_NullableValueFunctions::bdeat_nullableValueMakeValue(
 
 template <typename TYPE, typename MANIPULATOR>
 inline
-int bdeat_NullableValueFunctions::bdeat_nullableValueManipulateValue(
+int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
                                     bdlb::NullableAllocatedValue<TYPE> *object,
                                     MANIPULATOR&               manipulator)
 {
@@ -576,9 +580,9 @@ int bdeat_NullableValueFunctions::bdeat_nullableValueManipulateValue(
 
 // ACCESSORS
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_NullableValueFunctions::bdeat_nullableValueAccessValue(
+int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(
                               const bdlb::NullableAllocatedValue<TYPE>& object,
                               ACCESSOR&                        accessor)
 {
@@ -587,25 +591,23 @@ int bdeat_NullableValueFunctions::bdeat_nullableValueAccessValue(
     return accessor(object.value());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-bool bdeat_NullableValueFunctions::bdeat_nullableValueIsNull(
+bool bdlat_NullableValueFunctions::bdlat_nullableValueIsNull(
                               const bdlb::NullableAllocatedValue<TYPE>& object)
 {
     return object.isNull();
 }
 
-}  // close namespace BloombergLP
-
-
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

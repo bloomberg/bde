@@ -1,4 +1,4 @@
-// bdlat_enumfunctions.t.cpp                  -*-C++-*-
+// bdlat_enumfunctions.t.cpp                                          -*-C++-*-
 
 #include <bdlat_enumfunctions.h>
 
@@ -25,7 +25,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 // [ 4] int lookupEnumeratorInfo(bdeat_EnumeratorInfo *info, TYPE value);
 // [ 3] struct IsEnumeration
@@ -148,9 +148,9 @@ struct PolygonType {
         // name corresponding to the specified enumeration 'value'.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CLASS METHODS
 
@@ -213,7 +213,7 @@ struct bdeat_BasicEnumerationWrapper<geom::PolygonType::Value> :
     typedef geom::PolygonType Wrapper;
 };
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 //=============================================================================
 //                    BAS_CODEGEN.PL-GENERATED ENUMERATION
@@ -348,7 +348,7 @@ int PrimaryColor::fromInt(PrimaryColor::Value *result, int number)
         *result = (PrimaryColor::Value)number;
         return SUCCESS;                                               // RETURN
       default:
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
     }
 }
 
@@ -364,19 +364,19 @@ const char *PrimaryColor::toString(PrimaryColor::Value value)
 {
     switch (value) {
       case BLUE: {
-        return "BLUE";
+        return "BLUE";                                                // RETURN
       } break;
       case GREEN: {
-        return "GREEN";
+        return "GREEN";                                               // RETURN
       } break;
       case RED: {
-        return "RED";
+        return "RED";                                                 // RETURN
       } break;
       default:
-        return "(* INVALID ENUMERATOR *)";
+        return "(* INVALID ENUMERATOR *)";                            // RETURN
     }
 
-    return 0;
+    return 0;                                                         // RETURN
     BSLS_ASSERT_SAFE(!"unreachable");
 }
 
@@ -428,7 +428,7 @@ bsl::ostream& test::operator<<(
     return test::PrimaryColor::print(stream, rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 namespace BloombergLP {
 namespace test {
@@ -508,7 +508,7 @@ int PrimaryColor::fromString(PrimaryColor::Value *result,
 }
 
 }  // close namespace test
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 //=============================================================================
@@ -569,20 +569,20 @@ int mine::bdeat_enumFromInt(MyEnum *result, int number)
       case RED: {
         *result = RED;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
       }
       case GREEN: {
         *result = GREEN;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
       }
       case BLUE: {
         *result = BLUE;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
       }
       default: {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
       }
     }
 }
@@ -657,8 +657,8 @@ namespace bdeat_EnumFunctions {
         enum { VALUE = 1 };
     };
 
-}  // close namespace 'bdeat_EnumFunctions'
-}  // close namespace 'BloombergLP'
+}  // close namespace bdeat_EnumFunctions
+}  // close enterprise namespace
 //..
 // The 'bdeat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'MyEnum' as an "enumeration" type.  For example, suppose
@@ -695,7 +695,7 @@ namespace bdeat_EnumFunctions {
 // For example, the following snippets of code will convert a string from a
 // stream and load it into a 'mine::MyEnum' object:
 //..
-template <typename TYPE>
+template <class TYPE>
 int readMyEnum(bsl::istream& stream, TYPE *object)
 {
     bsl::string value;
@@ -864,11 +864,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
