@@ -347,17 +347,17 @@ BSLS_IDENT("$Id: $")
 //
 //      if (length < k_SMALL) {
 //          return new(d_multipool.allocate(sizeof(my_SmallMessage)))
-//                                               my_SmallMessage(data, length);
+//                                    my_SmallMessage(data, length);  // RETURN
 //      }
 //
 //      if (length < k_MEDIUM) {
 //          return new(d_multipool.allocate(sizeof(my_MediumMessage)))
-//                                              my_MediumMessage(data, length);
+//                                   my_MediumMessage(data, length);  // RETURN
 //      }
 //
 //      if (length < k_LARGE) {
 //          return new(d_multipool.allocate(sizeof(my_LargeMessage)))
-//                                               my_LargeMessage(data, length);
+//                                    my_LargeMessage(data, length);  // RETURN
 //      }
 //
 //      char *buffer = (char *)d_multipool.allocate(length + 1);
@@ -437,10 +437,10 @@ BSLS_IDENT("$Id: $")
 //  void *my_MultipoolAllocator::allocate(size_type size)
 //  {
 //      if (0 == size) {
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //      else {
-//          return d_multiPool.allocate(static_cast<int>(size));
+//          return d_multiPool.allocate(static_cast<int>(size));      // RETURN
 //      }
 //  }
 //

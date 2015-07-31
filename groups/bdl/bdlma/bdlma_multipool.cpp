@@ -336,7 +336,7 @@ void *Multipool::allocate(int size)
         const int pool = findPool(size);
         Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
         p->d_header.d_poolIdx = pool;
-        return p + 1;
+        return p + 1;                                                 // RETURN
     }
 
     // The requested size is large and will not be pooled.

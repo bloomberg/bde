@@ -240,7 +240,7 @@ class my_SecurityAttributes;
                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
         if (*cursor + offset + size > bufferSize) {  // insufficient space
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         void *result = &buffer[*cursor + offset];

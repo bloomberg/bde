@@ -169,8 +169,8 @@ int roundUp(int x, int y)
       public:
         // CREATORS
         my_StrPool(bslma::Allocator *basicAllocator = 0);
-            // Create a memory manager using the specified 'basicAllocator' to
-            // supply memory.  If 'basicAllocator' is 0, the currently
+            // Create a memory manager.  Optionally specify a 'basicAllocator'
+            // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
 
         ~my_StrPool();
@@ -215,7 +215,7 @@ int roundUp(int x, int y)
         if (k_THRESHOLD < numBytes) {
             // Alloc separate block if above threshold.
 
-            return (char *)d_blockList.allocate(numBytes);
+            return (char *)d_blockList.allocate(numBytes);            // RETURN
         }
         else {
             if (d_block_p) {
@@ -225,7 +225,7 @@ int roundUp(int x, int y)
             }
             d_block_p = (char *)d_blockList.allocate(d_blockSize);
             d_cursor = numBytes;
-            return d_block_p;
+            return d_block_p;                                         // RETURN
         }
     }
 
@@ -258,7 +258,7 @@ int roundUp(int x, int y)
             return p;                                                 // RETURN
         }
         else {
-            return allocateBlock(numBytes);
+            return allocateBlock(numBytes);                           // RETURN
         }
     }
 //..

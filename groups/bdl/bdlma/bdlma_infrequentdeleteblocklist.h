@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //          return p;                                                 // RETURN
 //      }
 //      else {
-//          return allocateBlock(size);
+//          return allocateBlock(size);                               // RETURN
 //      }
 //  }
 //..

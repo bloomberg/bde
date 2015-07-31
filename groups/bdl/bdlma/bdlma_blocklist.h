@@ -66,8 +66,8 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      my_StrPool(bslma::Allocator *basicAllocator = 0);
-//          // Create a memory manager using the specified 'basicAllocator' to
-//          // supply memory.  If 'basicAllocator' is 0, the currently
+//          // Create a memory manager.  Optionally specify a 'basicAllocator'
+//          // used to supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
 //
 //      ~my_StrPool();
@@ -112,7 +112,7 @@ BSLS_IDENT("$Id: $")
 //      if (k_THRESHOLD < numBytes) {
 //          // Alloc separate block if above threshold.
 //
-//          return (char *)d_blockList.allocate(numBytes);
+//          return (char *)d_blockList.allocate(numBytes);            // RETURN
 //      }
 //      else {
 //          if (d_block_p) {
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //          }
 //          d_block_p = (char *)d_blockList.allocate(d_blockSize);
 //          d_cursor = numBytes;
-//          return d_block_p;
+//          return d_block_p;                                         // RETURN
 //      }
 //  }
 //
@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //          return p;                                                 // RETURN
 //      }
 //      else {
-//          return allocateBlock(numBytes);
+//          return allocateBlock(numBytes);                           // RETURN
 //      }
 //  }
 //..

@@ -74,8 +74,8 @@ BSLS_IDENT("$Id$")
 //    public:
 //      // CREATORS
 //      MyAlignedAllocator();
-//          // Create a 'MyAlignedAllocator' object.  Note that all
-//          // objects of this class share the same underlying resource.
+//          // Create a 'MyAlignedAllocator' object.  Note that all objects of
+//          // this class share the same underlying resource.
 //
 //      virtual ~MyAlignedAllocator();
 //          // Destroy this object.  Note that destroying this object has no
@@ -91,22 +91,22 @@ BSLS_IDENT("$Id$")
 //          // else it will abort the program in a non-exception build.  The
 //          // behavior is undefined unless '0 <= size'.   Note that the
 //          // alignment of the address returned conforms to the platform
-//          // requirement for any object of the specified 'size'.  Also note
-//          // that global 'operator new' is *not* called when 'size' is 0 (in
-//          // order to avoid having to acquire a lock, and potential
-//          // contention in multi-threaded programs).
+//          // requirement for any object of the 'size'.  Also note that global
+//          // 'operator new' is *not* called when 'size' is 0 (in order to
+//          // avoid having to acquire a lock, and potential contention in
+//          // multi-threaded programs).
 //
 //      virtual void *allocateAligned(bsl::size_t size, size_type alignment);
 //          // Return the address of a newly allocated block of memory of at
 //          // least the specified positive 'size' (in bytes), sufficiently
-//          // aligned such that the returned 'address' satisfies
-//          // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null
-//          // pointer is returned with no other effect.  If the requested
-//          // number of appropriately aligned bytes cannot be returned, then a
-//          // 'bsl::bad_alloc' exception is thrown, or in a non-exception
-//          // build the program is terminated.  The behavior is undefined
-//          // unless 'alignment' is both a multiple of 'sizeof(void *)' and an
-//          // integral non-negative power of two.
+//          // aligned such that the returned 'address' satisfies, for the
+//          // specified 'alignment', '0 == (address & (alignment - 1))'.  If
+//          // 'size' is 0, a null pointer is returned with no other effect.
+//          // If the requested number of appropriately aligned bytes cannot be
+//          // returned, then a 'bsl::bad_alloc' exception is thrown, or in a
+//          // non-exception build the program is terminated.  The behavior is
+//          // undefined unless 'alignment' is both a multiple of
+//          // 'sizeof(void *)' and an integral non-negative power of two.
 //
 //      virtual void deallocate(void *address);
 //          // Return the memory block at the specified 'address' back to this

@@ -2266,7 +2266,7 @@ int main(int argc, char *argv[])
             growth = argv[3][0];
             if (growth != 'g' && growth != 'c') {
                 printf("[g]eometric or [c]onstant growth must be used\n");
-                return -1;
+                return -1;                                            // RETURN
             }
         }
 

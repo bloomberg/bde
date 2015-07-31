@@ -51,7 +51,7 @@ void *BlockList::allocate(int size)
     BSLS_ASSERT(0 <= size);
 
     if (0 == size) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     size = alignedAllocationSize(size, sizeof(Block));
