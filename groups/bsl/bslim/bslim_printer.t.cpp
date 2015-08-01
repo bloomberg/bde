@@ -129,26 +129,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                      HELPER CLASSES AND FUNCTIONS
-// ----------------------------------------------------------------------------
-
-namespace BloombergLP {
-namespace bsls {
-
-template<>
-void BslTestUtil::callDebugprint(const bsl::string&  object,
-                                 const char         *leadingString,
-                                 const char         *trailingString)
-    // Forward printing of the specified string 'object' to the 'char *'
-    // printer, along with the specified 'leadingString' and 'trailingString'.
-{
-    callDebugprint(object.c_str(), leadingString, trailingString);
-}
-
-}  // close namespace bsls
-}  // close enterprise namespace
-
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------

@@ -313,7 +313,7 @@ enum {
 #endif
 };
 
-static int verbose, veryVerbose, veryVeryVerbose;
+static bool verbose, veryVerbose, veryVeryVerbose;
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
@@ -1007,11 +1007,11 @@ int main(int argc, char *argv[])
              << "====================================================" << endl;
 
         enum {
-            BUFFER_SIZE         = 1024,  // size of the buffer used to store
-                                         // captured output
+            BUFFER_SIZE    = 1024,  // size of the buffer used to store
+                                    // captured output
 
-            NUM_LOOP_ITERATIONS =   10   // number of iterations to use when
-                                         // testing loop assert macros
+            NUM_ITERATIONS =   10   // number of iterations to use when testing
+                                    // loop assert macros
         };
 
         static char s_expectedOutput[BUFFER_SIZE];  // scratch area for
@@ -1023,15 +1023,14 @@ int main(int argc, char *argv[])
         // 'BSLIM_TESTUTIL_LOOP_ASSERT(I,X)'
         {
             ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
+
                 output.reset();
-                BSLIM_TESTUTIL_LOOP_ASSERT(I, idx < NUM_LOOP_ITERATIONS);
-                BSLIM_TESTUTIL_ASSERTV(I, idx < NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_LOOP_ASSERT(I, idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, idx < NUM_ITERATIONS);
 
                 REALLOOP_ASSERT(testStatus, 0 == testStatus);
                 ASSERT(output.load());
@@ -1039,22 +1038,20 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_LOOP_ASSERT(I, idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_LOOP_ASSERT(I, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I,
                          __FILE__,
                          LINE);
@@ -1062,27 +1059,25 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_ASSERTV(I, idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I,
                          __FILE__,
                          LINE);
@@ -1090,47 +1085,43 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLIM_TESTUTIL_LOOP2_ASSERT(I,J,X)'
         {
             ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
+
                 output.reset();
-                BSLIM_TESTUTIL_LOOP2_ASSERT(I, J, idx < NUM_LOOP_ITERATIONS);
-                BSLIM_TESTUTIL_ASSERTV(I, J, idx < NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_LOOP2_ASSERT(I, J, idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, idx < NUM_ITERATIONS);
                 REALLOOP_ASSERT(testStatus, 0 == testStatus);
                 ASSERT(output.load());
-                REALLOOP_ASSERT(output.buffer(),
-                                0 == output.compare(""));
+                REALLOOP_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_LOOP2_ASSERT(I, J, idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_LOOP2_ASSERT(I, J, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J,
                          __FILE__,
                          LINE);
@@ -1138,28 +1129,26 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_ASSERTV(I, J, idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J,
                          __FILE__,
                          LINE);
@@ -1167,51 +1156,46 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLIM_TESTUTIL_LOOP3_ASSERT(I,J,K,X)'
         {
             ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
+
                 output.reset();
                 BSLIM_TESTUTIL_LOOP3_ASSERT(I, J, K,
-                                            idx < NUM_LOOP_ITERATIONS);
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, idx < NUM_LOOP_ITERATIONS);
+                                            idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, idx < NUM_ITERATIONS);
                 REALLOOP_ASSERT(testStatus, 0 == testStatus);
                 ASSERT(output.load());
-                REALLOOP_ASSERT(output.buffer(),
-                                0 == output.compare(""));
+                REALLOOP_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_LOOP3_ASSERT(I, J, K,
-                                            idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_LOOP3_ASSERT(I, J, K, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K,
                          __FILE__,
                          LINE);
@@ -1219,29 +1203,27 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K,
                          __FILE__,
                          LINE);
@@ -1249,53 +1231,48 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLIM_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)'
         {
             ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
                 const int L = idx + 3;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
+
                 output.reset();
                 BSLIM_TESTUTIL_LOOP4_ASSERT(I, J, K, L,
-                                            idx < NUM_LOOP_ITERATIONS);
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, idx < NUM_LOOP_ITERATIONS);
+                                            idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, idx < NUM_ITERATIONS);
                 REALLOOP_ASSERT(testStatus, 0 == testStatus);
                 ASSERT(output.load());
-                REALLOOP_ASSERT(output.buffer(),
-                                0 == output.compare(""));
+                REALLOOP_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
                 const int L = idx + 3;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_LOOP4_ASSERT(I, J, K, L,
-                                            idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_LOOP4_ASSERT(I, J, K, L, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L,
                          __FILE__,
                          LINE);
@@ -1303,30 +1280,28 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
                 const int L = idx + 3;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L,
                          __FILE__,
                          LINE);
@@ -1334,56 +1309,51 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLIM_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)'
         {
             ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
                 const int L = idx + 3;
                 const int M = idx + 4;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
+
                 output.reset();
                 BSLIM_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
-                                            idx < NUM_LOOP_ITERATIONS);
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M,
-                                       idx < NUM_LOOP_ITERATIONS);
+                                            idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, idx < NUM_ITERATIONS);
                 REALLOOP_ASSERT(testStatus, 0 == testStatus);
                 ASSERT(output.load());
-                REALLOOP_ASSERT(output.buffer(),
-                                0 == output.compare(""));
+                REALLOOP_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
                 const int L = idx + 3;
                 const int M = idx + 4;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 2;
                 BSLIM_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
-                                            idx > NUM_LOOP_ITERATIONS);
+                                            idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
                          LINE);
@@ -1391,21 +1361,19 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
                 const int L = idx + 3;
                 const int M = idx + 4;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
 
@@ -1421,14 +1389,13 @@ int main(int argc, char *argv[])
                 // on all platforms.
 
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M,
-                                       idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
                          LINE);
@@ -1436,14 +1403,14 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLIM_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)'
         {
             ASSERT(0 == testStatus);
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1451,22 +1418,19 @@ int main(int argc, char *argv[])
                 const int M = idx + 4;
                 const int N = idx + 5;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
+
                 output.reset();
                 BSLIM_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
-                                            idx < NUM_LOOP_ITERATIONS);
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, N,
-                                       idx < NUM_LOOP_ITERATIONS);
+                                            idx < NUM_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx < NUM_ITERATIONS);
                 REALLOOP_ASSERT(testStatus, 0 == testStatus);
                 ASSERT(output.load());
-                REALLOOP_ASSERT(output.buffer(),
-                                0 == output.compare(""));
+                REALLOOP_ASSERT(output.buffer(), 0 == output.compare(""));
             }
             ASSERT(0 == testStatus);
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1474,21 +1438,19 @@ int main(int argc, char *argv[])
                 const int M = idx + 4;
                 const int N = idx + 5;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 2;
                 BSLIM_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
-                                           idx > NUM_LOOP_ITERATIONS);
+                                            idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
                          "Error %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N,
                          __FILE__,
                          LINE);
@@ -1496,12 +1458,12 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
 
-            for (int idx = 0; idx < NUM_LOOP_ITERATIONS; ++idx) {
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
                 const int K = idx + 2;
@@ -1509,21 +1471,18 @@ int main(int argc, char *argv[])
                 const int M = idx + 4;
                 const int N = idx + 5;
 
-                if (veryVerbose) {
-                    REALP(idx);
-                }
+                if (veryVerbose) { REALP(idx); }
 
                 output.reset();
                 const int LINE = __LINE__ + 1;
-                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, N,
-                                       idx > NUM_LOOP_ITERATIONS);
+                BSLIM_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
                 ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
                          "Error %s(%d):"
-                         " idx > NUM_LOOP_ITERATIONS    (failed)\n",
+                         " idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M, N,
                          __FILE__,
                          LINE);
@@ -1531,7 +1490,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_LOOP_ITERATIONS == testStatus);
+            ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
       } break;
@@ -1889,7 +1848,7 @@ int main(int argc, char *argv[])
             // Reset verbosity levels to suppress expected error output.
             const bool tempVeryVerbose     = veryVerbose;
             const bool tempVeryVeryVerbose = veryVeryVerbose;
-            veryVerbose = false;
+            veryVerbose     = false;
             veryVeryVerbose = false;
 
             const char *testString = "This is good output";
@@ -1909,7 +1868,7 @@ int main(int argc, char *argv[])
             output.reset();
             ASSERT(0 != output.compare("", 0));
 
-            veryVerbose = tempVeryVerbose;
+            veryVerbose     = tempVeryVerbose;
             veryVeryVerbose = tempVeryVeryVerbose;
         }
 
