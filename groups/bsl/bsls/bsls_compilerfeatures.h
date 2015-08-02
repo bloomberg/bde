@@ -22,6 +22,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'.
 //  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: flag for 'noexcept' keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_BUILTIN_TRAITS: Language support traits
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
 //
@@ -120,6 +121,11 @@ BSLS_IDENT("$Id: $")
 //:    This macro is defined if the 'noexcept' keyword is supported by the
 //:    current compiler settings for this platform, both for designating a
 //:    function as not throwing and for testing if an expression may throw.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_BUILTIN_TRAITS'
+//:    This macro is defined if language support traits like
+//:    'is_trivially_copyable' and 'is_nothrow_destructible' are supported by
+//:    the current compiler settings for this platform.
 //
 ///Usage
 ///-----
@@ -416,7 +422,9 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
 #endif
-
+#if BSLS_PLATFORM_CMP_VERSION >= 40900
+#define BSLS_COMPILERFEATURES_SUPPORT_BUILTIN_TRAITS
+#endif
 
 // clang
 // http://clang.llvm.org/cxx_status.html

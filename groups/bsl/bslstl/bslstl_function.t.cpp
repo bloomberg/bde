@@ -559,15 +559,15 @@ struct EmptyFunctor : FunctorBase
     EmptyFunctor(const EmptyFunctor&) : FunctorBase()
         { --copyLimit; memset(this, 0xdd, sizeof(*this)); }
 
-#if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
-    defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    // Nothrow moveable
-    EmptyFunctor(EmptyFunctor&&) noexcept
-        { memset(this, 0xdd, sizeof(*this)); }
-#else
-    // Bitwise moveable
-    BSLMF_NESTED_TRAIT_DECLARATION(EmptyFunctor, bslmf::IsBitwiseMoveable);
-#endif
+// #if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
+//     defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+//     // Nothrow moveable
+//     EmptyFunctor(EmptyFunctor&&) noexcept
+//         { memset(this, 0xdd, sizeof(*this)); }
+// #else
+//     // Bitwise moveable
+//     BSLMF_NESTED_TRAIT_DECLARATION(EmptyFunctor, bslmf::IsBitwiseMoveable);
+// #endif
 
     enum { IS_STATELESS = true };
 
@@ -876,6 +876,17 @@ bool operator!=(const ThrowingEmptyFunctor&, const ThrowingEmptyFunctor&)
 {
     return false;
 }
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <>
+struct IsBitwiseMoveable<ThrowingEmptyFunctor> : false_type
+{
+};
+
+} // close namespace bslmf
+} // close namespace BloombergLP
 
 class ThrowingSmallFunctor : public FunctorBase
 {
@@ -5893,6 +5904,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Testing 'result_type', 'argument_type',\n"
                                 "'first_argument_type', and "
                                 "'second_argument_type'\n");
+
         {
             typedef bsl::function<void()> Obj;
             ASSERT(  (bsl::is_same<void, Obj::result_type>::value));
