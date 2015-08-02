@@ -83,6 +83,32 @@ cuchar          cuchar.SUNWCCh
 cwchar          cwchar.SUNWCCh
 cwctype         cwctype.SUNWCCh
 
+# C++11 headers
+array               array.SUNWCCh
+atomic              atomic.SUNWCCh
+chrono              chrono.SUNWCCh
+condition_variable  condition_variable.SUNWCCh
+future              future.SUNWCCh
+initializer_list    initializer_list.SUNWCCh
+mutex               mutex.SUNWCCh
+random              random.SUNWCCh
+ratio               ratio.SUNWCCh
+regex               regex.SUNWCCh
+scoped_allocator    scoped_allocator.SUNWCCh
+system_error        system_error.SUNWCCh
+thread              thread.SUNWCCh
+tuple               tuple.SUNWCCh
+typeindex           typeindex.SUNWCCh
+
+#C11 headers
+cfenv  cfenv
+cinttypes       cinttypes.SUNWCCh
+ciso646         ciso646.SUNWCCh
+cstdbool        cstdbool.SUNWCCh
+cstdint         cstdint.SUNWCCh
+ctgmath         ctgmath.SUNWCCh
+cuchar          cuchar.SUNWCCh
+
 # Package headers
 bsl_stdhdrs_epilogue.h
 bsl_stdhdrs_epilogue_recursive.h
