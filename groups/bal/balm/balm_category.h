@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 // category is currently enabled.  The 'balm::Category' class suppresses
 // copy construction and assignment, and does not provide equality operators;
 // applications should use a *single* 'balm::Category' object instance per
-// category (such as one provided by the *'balm_MetricRegistry'* component).
+// category (such as one provided by the *'balm::MetricRegistry'* component).
 //
 // IMPORTANT: The category name, whose type is 'const char *', must remain
 // constant and valid throughout the lifetime of the 'balm::Category' object.

@@ -131,7 +131,7 @@ class PublicationScheduler_ClockData {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(PublicationScheduler_ClockData,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit PublicationScheduler_ClockData(

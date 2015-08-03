@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 // to retrieve the format specification for a publication type (or null if no
 // format specification has been provided for the indicated publication type).
 //
-// 'beam_MetricFormatSpec' is an unconstrainted pure-attribute class that
+// 'balm::MetricFormatSpec' is an unconstrainted pure-attribute class that
 // represents the specification for formatting a particular publication type of
 // a metric (e.g., total, count, min, max, etc.).  The attributes held by
 // 'balm::MetricFormatSpec' are given in the following table:
@@ -117,10 +117,6 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 #include <bdlb_nullablevalue.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -154,7 +150,7 @@ class MetricFormatSpec {
                            // single floating-point numeric value
 
     // PRIVATE CONSTANTS
-    static const char *DEFAULT_FORMAT;  // default format ("%f")
+    static const char *k_DEFAULT_FORMAT;  // default format ("%f")
 
   public:
     // CLASS METHODS
@@ -279,8 +275,7 @@ class MetricFormat {
 
   public:
     // PUBLIC TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MetricFormat,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricFormat, bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricFormat(bslma::Allocator *basicAllocator = 0);
@@ -376,7 +371,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MetricFormat& rhs);
 inline
 MetricFormatSpec::MetricFormatSpec()
 : d_scale(1.0f)
-, d_format(DEFAULT_FORMAT)
+, d_format(k_DEFAULT_FORMAT)
 {
 }
 

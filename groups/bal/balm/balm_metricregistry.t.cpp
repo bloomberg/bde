@@ -38,15 +38,15 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'baem_MetricRegistry' is a mechanism for registering category and
+// The 'balm::MetricRegistry' is a mechanism for registering category and
 // metric identifiers.  This test must ensure that values can be added and
 // found and that the container is thread safe.  Finally, this container
 // guarantees a single address is provided for each unique string value
 // returned (in either a metric name or category name).
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2]  baem_MetricRegistry(bslma::Allocator *);
-// [ 2]  ~baem_MetricRegistry();
+// [ 2]  balm::MetricRegistry(bslma::Allocator *);
+// [ 2]  ~balm::MetricRegistry();
 // MANIPULATORS
 // [ 2]  balm::MetricId addId(const bslstl::StringRef& , const bslstl::StringRef& );
 // [ 3]  balm::MetricId getId(const bslstl::StringRef& , const bslstl::StringRef& );
@@ -134,7 +134,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef balm::Category         Cat;
 typedef balm::MetricId         Id;
-typedef baem_MetricRegistry   Obj;
+typedef balm::MetricRegistry   Obj;
 typedef balm::PublicationType  Type;
 typedef balm::MetricFormat     Format;
 typedef balm::MetricFormatSpec Spec;
@@ -180,7 +180,7 @@ class ConcurrencyTest {
     // DATA
     bdlmt::FixedThreadPool      d_pool;
     bdlqq::Barrier             d_barrier;
-    baem_MetricRegistry      *d_registry_p;
+    balm::MetricRegistry      *d_registry_p;
     bslma::Allocator         *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -191,7 +191,7 @@ class ConcurrencyTest {
 
     // CREATORS
     ConcurrencyTest(int                  numThreads,
-                    baem_MetricRegistry *registry,
+                    balm::MetricRegistry *registry,
                     bslma::Allocator    *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
@@ -491,13 +491,13 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example illustrates how to create and use a
-// 'baem_MetricRegistry'.  We start by creating a 'baem_MetricRegistry' object,
+// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry' object,
 // 'registry', and then using this registry to create a 'balm::MetricId' for a
 // metric "MetricA" belonging to the category "MyCategory" (i.e.,
 // "MyCategory.MetricA").
 //..
     bslma::Allocator    *allocator = bslma::Default::allocator(0);
-    baem_MetricRegistry  registry(allocator);
+    balm::MetricRegistry  registry(allocator);
 
     balm::MetricId idA = registry.addId("MyCategory", "MetricA");
 //..
@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bslma::TestAllocator testAllocator;
-        baem_MetricRegistry registry(&testAllocator);;
+        balm::MetricRegistry registry(&testAllocator);;
         {
             ConcurrencyTest tester(10, &registry, &defaultAllocator);
             tester.runTest();
@@ -1732,14 +1732,14 @@ int main(int argc, char *argv[])
         //   the modification.
         //
         // Testing:
-        //   baem_MetricRegistry(bslma::Allocator *);
-        //   ~baem_MetricRegistry();
-        //   balm::MetricId addId(const bslstl::StringRef& ,
+        //   MetricRegistry(bslma::Allocator *);
+        //   ~MetricRegistry();
+        //   MetricId addId(const bslstl::StringRef& ,
         //                       const bslstl::StringRef& );
-        //   const balm::Category *addCategory(const bslstl::StringRef& );
+        //   const Category *addCategory(const bslstl::StringRef& );
         //   bsl::size_t numMetrics() const;
         //   bsl::size_t numCategories() const;
-        //   balm::MetricId findId(const bslstl::StringRef& ,
+        //   MetricId findId(const bslstl::StringRef& ,
         //                        const bslstl::StringRef& ) const;
         //   const balm::Category *findCategory(const bslstl::StringRef& ) const;
         // --------------------------------------------------------------------

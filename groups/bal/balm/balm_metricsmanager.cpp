@@ -223,7 +223,7 @@ namespace balm {
 class MetricsManager_PublisherRegistry {
     // This class provides a mechanism for associating a 'Publisher'
     // object with one or more categories, or associating a 'Publisher'
-    // with every category.  The 'balm_Metricsmanager_PublisherRegistry' is
+    // with every category.  The 'balm::Metricsmanager_PublisherRegistry' is
     // responsible for managing the registration of 'Publisher' objects
     // for a 'MetricsManager' object.
 
@@ -289,7 +289,7 @@ class MetricsManager_PublisherRegistry {
 
     // PUBLIC TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_PublisherRegistry,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_PublisherRegistry(bslma::Allocator *basicAllocator);
@@ -375,7 +375,7 @@ class MetricsManager_PublisherRegistry {
 class MetricsManager_CallbackRegistry {
     // This class provides a mechanism for associating a
     // 'MetricsCollectionCallback' functor with a category.  The
-    // 'balm_Metricsmanager_CallbackRegistry' is responsible for managing the
+    // 'balm::Metricsmanager_CallbackRegistry' is responsible for managing the
     // registration of 'MetricsCollectionCallback' objects for a
     // 'MetricsManager' object.
 
@@ -412,7 +412,7 @@ class MetricsManager_CallbackRegistry {
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_CallbackRegistry,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_CallbackRegistry(bslma::Allocator *basicAllocator = 0);

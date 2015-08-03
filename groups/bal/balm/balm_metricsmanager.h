@@ -393,10 +393,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -476,7 +472,7 @@ class MetricsManager {
         // collected.
 
     // DATA
-    balm_MetricRegistry       d_metricRegistry;  // registry of metrics
+    MetricRegistry       d_metricRegistry;  // registry of metrics
 
     CollectorRepository  d_collectors;      // repository of metric
                                                  // collectors
@@ -519,8 +515,7 @@ class MetricsManager {
     };
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager, bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricsManager(bslma::Allocator *basicAllocator = 0);
@@ -627,7 +622,7 @@ class MetricsManager {
         // Return a reference to the modifiable repository of collectors
         // managed by this object.
 
-    balm_MetricRegistry& metricRegistry();
+    MetricRegistry& metricRegistry();
         // Return a reference to the modifiable registry of metrics managed by
         // this object.
 
@@ -856,7 +851,7 @@ class MetricsManager {
         // Return a reference to the non-modifiable repository of collectors
         // managed by this object.
 
-    const balm_MetricRegistry& metricRegistry() const;
+    const MetricRegistry& metricRegistry() const;
         // Return a reference to the non-modifiable registry of metrics managed
         // by this object.
 };
@@ -919,7 +914,7 @@ CollectorRepository& MetricsManager::collectorRepository()
 }
 
 inline
-balm_MetricRegistry& MetricsManager::metricRegistry()
+MetricRegistry& MetricsManager::metricRegistry()
 {
     return d_metricRegistry;
 }
@@ -943,7 +938,7 @@ MetricsManager::collectorRepository() const
 }
 
 inline
-const balm_MetricRegistry& MetricsManager::metricRegistry() const
+const MetricRegistry& MetricsManager::metricRegistry() const
 {
     return d_metricRegistry;
 }

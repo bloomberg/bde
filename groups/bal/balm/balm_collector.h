@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 // collects a 'balm::MetricRecord'.
 //
 // We start by creating a 'balm::MetricId' object by hand, but in
-// practice, an id should be obtained from a 'balm_MetricRegistry' object
+// practice, an id should be obtained from a 'balm::MetricRegistry' object
 // (such as the one owned by a 'balm::MetricsManager'):
 //..
 //  balm::Category           myCategory("MyCategory");
@@ -107,8 +107,8 @@ class Collector {
     // collected, the number of times an event occurred, and the total,
     // minimum, and maximum aggregates of the associated measurement value.
     // The default value for the count is 0, the default value for the total
-    // is 0.0, the default minimum value is 'MetricRecord::DEFAULT_MIN',
-    // and the default maximum value is 'MetricRecord::DEFAULT_MAX'.
+    // is 0.0, the default minimum value is 'MetricRecord::k_DEFAULT_MIN',
+    // and the default maximum value is 'MetricRecord::k_DEFAULT_MAX'.
 
     // DATA
     MetricRecord   d_record;  // the recorded metric information
@@ -123,8 +123,8 @@ class Collector {
     Collector(const MetricId& metricId);
         // Create a collector for a metric having the specified 'metricId',
         // and having an initial count of 0, total of 0.0, min of
-        // 'MetricRecord::DEFAULT_MIN', and max of
-        // 'MetricRecord::DEFAULT_MAX'.
+        // 'MetricRecord::k_DEFAULT_MIN', and max of
+        // 'MetricRecord::k_DEFAULT_MAX'.
 
     ~Collector();
         // Destroy this object.
@@ -134,8 +134,8 @@ class Collector {
         // Reset the count, total, minimum, and maximum values of the metric
         // being collected to their default states.  After this operation, the
         // count and total values will be 0, the minimum value will be
-        // 'MetricRecord::DEFAULT_MIN', and the maximum value will be
-        // 'MetricRecord::DEFAULT_MAX'.
+        // 'MetricRecord::k_DEFAULT_MIN', and the maximum value will be
+        // 'MetricRecord::k_DEFAULT_MAX'.
 
     void loadAndReset(MetricRecord *record);
         // Load into the specified 'record' the id of the metric being
@@ -143,8 +143,8 @@ class Collector {
         // aggregated values for that metric; then reset the count, total,
         // minimum, and maximum values to their default states.  After this
         // operation, the count and total values will be 0, the minimum value
-        // will be 'MetricRecord::DEFAULT_MIN', and the maximum value
-        // will be 'MetricRecord::DEFAULT_MAX'.  Note that this operation
+        // will be 'MetricRecord::k_DEFAULT_MIN', and the maximum value
+        // will be 'MetricRecord::k_DEFAULT_MAX'.  Note that this operation
         // is logically equivalent to calling the 'load' and then the 'reset'
         // methods except that it is performed as a single atomic operation.
 
@@ -208,8 +208,8 @@ void Collector::reset()
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_lock);
     d_record.count() = 0;
     d_record.total() = 0.0;
-    d_record.min()   = MetricRecord::DEFAULT_MIN;
-    d_record.max()   = MetricRecord::DEFAULT_MAX;
+    d_record.min()   = MetricRecord::k_DEFAULT_MIN;
+    d_record.max()   = MetricRecord::k_DEFAULT_MAX;
 }
 
 inline
@@ -219,8 +219,8 @@ void Collector::loadAndReset(MetricRecord *record)
     *record          = d_record;
     d_record.count() = 0;
     d_record.total() = 0.0;
-    d_record.min()   = MetricRecord::DEFAULT_MIN;
-    d_record.max()   = MetricRecord::DEFAULT_MAX;
+    d_record.min()   = MetricRecord::k_DEFAULT_MIN;
+    d_record.max()   = MetricRecord::k_DEFAULT_MAX;
 }
 
 inline

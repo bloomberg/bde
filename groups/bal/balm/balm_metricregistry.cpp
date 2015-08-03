@@ -58,12 +58,14 @@ bool isPrefix(const char *candidatePrefix, const char *string)
 }  // close unnamed namespace
 
                           // -------------------------
-                          // class balm_MetricRegistry
+                          // class balm::MetricRegistry
                           // -------------------------
 
+namespace balm {
+
 // PRIVATE MANIPULATORS
-bsl::pair<balm::MetricId, bool>
-balm_MetricRegistry::insertId(const char *category, const char *name)
+bsl::pair<MetricId, bool>
+MetricRegistry::insertId(const char *category, const char *name)
 {
     // Insert the strings for 'category' and 'name' into the unique strings
     // table 'd_uniqueStrings' (if they are already in the table, this simply
@@ -73,9 +75,9 @@ balm_MetricRegistry::insertId(const char *category, const char *name)
     const char *nameStr     = d_uniqueStrings.insert(name).first->c_str();
     CategoryAndName id(categoryStr, nameStr);
 
-    MetricRegistry::const_iterator mIt = d_metrics.find(id);
+    MetricMap::const_iterator mIt = d_metrics.find(id);
     if (mIt != d_metrics.end()) {
-        return bsl::make_pair(balm::MetricId(mIt->second.get()), false);
+        return bsl::make_pair(MetricId(mIt->second.get()), false);
                                                                       // RETURN
     }
 
@@ -84,8 +86,8 @@ balm_MetricRegistry::insertId(const char *category, const char *name)
 
     CategoryRegistry::const_iterator catIt = d_categories.find(categoryStr);
     if (catIt == d_categories.end()) {
-        bsl::shared_ptr<balm::Category> categoryPtr(
-                       new (*d_allocator_p) balm::Category(categoryStr,
+        bsl::shared_ptr<Category> categoryPtr(
+                       new (*d_allocator_p) Category(categoryStr,
                                                           d_defaultEnabled),
                        d_allocator_p);
 
@@ -93,8 +95,8 @@ balm_MetricRegistry::insertId(const char *category, const char *name)
                                bsl::make_pair(categoryStr, categoryPtr)).first;
     }
 
-    bsl::shared_ptr<balm::MetricDescription> metricPtr(
-                     new (*d_allocator_p) balm::MetricDescription(
+    bsl::shared_ptr<MetricDescription> metricPtr(
+                     new (*d_allocator_p) MetricDescription(
                              catIt->second.get(), 
                              nameStr, 
                              d_allocator_p),
@@ -105,16 +107,16 @@ balm_MetricRegistry::insertId(const char *category, const char *name)
     }
 
     d_metrics.insert(bsl::make_pair(id, metricPtr));
-    return bsl::make_pair(balm::MetricId(metricPtr.get()), true);
+    return bsl::make_pair(MetricId(metricPtr.get()), true);
 }
 
-void balm_MetricRegistry::setCurrentUserData(
+void MetricRegistry::setCurrentUserData(
                                  const char                          *category,
-                                 balm::MetricDescription::UserDataKey  key,
+                                 MetricDescription::UserDataKey  key,
                                  const void                          *value)
 {
     CategoryAndName catAndName(category, "");
-    MetricRegistry::iterator it = d_metrics.lower_bound(catAndName);
+    MetricMap::iterator it = d_metrics.lower_bound(catAndName);
     while (it != d_metrics.end()
        && 0 == bsl::strcmp(it->first.first, category)) {
         it->second->setUserData(key, value);
@@ -123,7 +125,7 @@ void balm_MetricRegistry::setCurrentUserData(
 }
 
 // PRIVATE ACCESSORS
-void balm_MetricRegistry::defaultUserData(
+void MetricRegistry::defaultUserData(
                                  bsl::vector<const void *> *result,
                                  const char                *categoryName) const
 {
@@ -152,7 +154,7 @@ void balm_MetricRegistry::defaultUserData(
 }
 
 // CREATORS
-balm_MetricRegistry::balm_MetricRegistry(bslma::Allocator *basicAllocator)
+MetricRegistry::MetricRegistry(bslma::Allocator *basicAllocator)
 : d_uniqueStrings(basicAllocator)
 , d_categories(basicAllocator)
 , d_metrics(basicAllocator)
@@ -165,27 +167,27 @@ balm_MetricRegistry::balm_MetricRegistry(bslma::Allocator *basicAllocator)
 {
 }
 
-balm_MetricRegistry::~balm_MetricRegistry()
+MetricRegistry::~MetricRegistry()
 {
 }
 
 // MANIPULATORS
-balm::MetricId balm_MetricRegistry::addId(const char *category,
+MetricId MetricRegistry::addId(const char *category,
                                          const char *name)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
-    bsl::pair<balm::MetricId, bool> ret = insertId(category, name);
-    return ret.second ? ret.first : balm::MetricId();
+    bsl::pair<MetricId, bool> ret = insertId(category, name);
+    return ret.second ? ret.first : MetricId();
 }
 
-balm::MetricId balm_MetricRegistry::getId(const char *category,
+MetricId MetricRegistry::getId(const char *category,
                                          const char *name)
 {
     // Lookup the 'category' and 'name' using 'findId', as that uses only a
     // read-lock on 'd_lock'.
 
-    balm::MetricId result = findId(category, name);
+    MetricId result = findId(category, name);
     if (result.isValid()) {
         return result;                                                // RETURN
     }
@@ -199,7 +201,7 @@ balm::MetricId balm_MetricRegistry::getId(const char *category,
     return insertId(category, name).first;
 }
 
-const balm::Category *balm_MetricRegistry::addCategory(const char *category)
+const Category *MetricRegistry::addCategory(const char *category)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
@@ -211,8 +213,8 @@ const balm::Category *balm_MetricRegistry::addCategory(const char *category)
 
     CategoryRegistry::const_iterator catIt = d_categories.find(categoryStr);
     if (catIt == d_categories.end()) {
-        bsl::shared_ptr<balm::Category> categoryPtr(
-                       new (*d_allocator_p) balm::Category(categoryStr,
+        bsl::shared_ptr<Category> categoryPtr(
+                       new (*d_allocator_p) Category(categoryStr,
                                                           d_defaultEnabled),
                        d_allocator_p);
 
@@ -223,12 +225,12 @@ const balm::Category *balm_MetricRegistry::addCategory(const char *category)
     return 0;
 }
 
-const balm::Category *balm_MetricRegistry::getCategory(const char *category)
+const Category *MetricRegistry::getCategory(const char *category)
 {
     // Lookup the 'category' using 'findCategory', as that uses only a
     // read-lock on 'd_lock'
 
-    const balm::Category *result = findCategory(category);
+    const Category *result = findCategory(category);
     if (0 != result) {
         return result;                                                // RETURN
     }
@@ -247,8 +249,8 @@ const balm::Category *balm_MetricRegistry::getCategory(const char *category)
 
     CategoryRegistry::const_iterator catIt = d_categories.find(categoryStr);
     if (catIt == d_categories.end()) {
-        bsl::shared_ptr<balm::Category> categoryPtr(
-                       new (*d_allocator_p) balm::Category(categoryStr,
+        bsl::shared_ptr<Category> categoryPtr(
+                       new (*d_allocator_p) Category(categoryStr,
                                                           d_defaultEnabled),
                        d_allocator_p);
 
@@ -259,15 +261,15 @@ const balm::Category *balm_MetricRegistry::getCategory(const char *category)
 }
 
 // MANIPULATORS
-void balm_MetricRegistry::setCategoryEnabled(const balm::Category* category,
+void MetricRegistry::setCategoryEnabled(const Category* category,
                                              bool                 value)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
-    const_cast<balm::Category *>(category)->setEnabled(value);
+    const_cast<Category *>(category)->setEnabled(value);
 }
 
-void balm_MetricRegistry::setAllCategoriesEnabled(bool value)
+void MetricRegistry::setAllCategoriesEnabled(bool value)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
@@ -283,17 +285,18 @@ void balm_MetricRegistry::setAllCategoriesEnabled(bool value)
     }
 }
 
-void balm_MetricRegistry::setPreferredPublicationType(
-                                           const balm::MetricId&        metric,
-                                           balm::PublicationType::Value type)
+void MetricRegistry::setPreferredPublicationType(
+                                           const MetricId&        metric,
+                                           PublicationType::Value type)
 {
-    balm::MetricDescription *desc =
-                 const_cast<balm::MetricDescription *>(metric.description());
+    MetricDescription *desc =
+                 const_cast<MetricDescription *>(metric.description());
     desc->setPreferredPublicationType(type);
 }
 
-void balm_MetricRegistry::registerCategoryHolder(const balm::Category *category,
-                                                 balm::CategoryHolder *holder)
+void MetricRegistry::registerCategoryHolder(
+                                                const Category *category,
+                                                CategoryHolder *holder)
 {
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
@@ -304,57 +307,57 @@ void balm_MetricRegistry::registerCategoryHolder(const balm::Category *category,
     // twice and invalidating the linked list.
 
     if (0 == holder->category()) {
-        const_cast<balm::Category *>(category)->registerCategoryHolder(holder);
+        const_cast<Category *>(category)->registerCategoryHolder(holder);
     }
 }
 
-void balm_MetricRegistry::setFormat(const balm::MetricId&     metricId,
-                                    const balm::MetricFormat& format)
+void MetricRegistry::setFormat(const MetricId&     metricId,
+                                    const MetricFormat& format)
 {
-    balm::MetricDescription *desc =
-                 const_cast<balm::MetricDescription *>(metricId.description());
+    MetricDescription *desc =
+                 const_cast<MetricDescription *>(metricId.description());
 
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
     // Note that we need to use a non-'const' pointer to the format in order
     // to initialize it.
 
-    balm::MetricFormat *formatPtr =
-                 new (*d_allocator_p) balm::MetricFormat(format, d_allocator_p);
+    MetricFormat *formatPtr =
+                 new (*d_allocator_p) MetricFormat(format, d_allocator_p);
 
-    bsl::shared_ptr<const balm::MetricFormat> formatSPtr(formatPtr,
+    bsl::shared_ptr<const MetricFormat> formatSPtr(formatPtr,
                                                         d_allocator_p);
 
     // We must allocate the memory for the format strings from the pool of
     // unique string values.
-    for (int i = 0; i < balm::PublicationType::e_BALM_LENGTH; ++i) {
-        balm::PublicationType::Value  type = (balm::PublicationType::Value)i;
-        const balm::MetricFormatSpec *spec = format.formatSpec(type);
+    for (int i = 0; i < PublicationType::e_BALM_LENGTH; ++i) {
+        PublicationType::Value  type = (PublicationType::Value)i;
+        const MetricFormatSpec *spec = format.formatSpec(type);
         if (0 != spec) {
             const char *fmt =
                          d_uniqueStrings.insert(spec->format()).first->c_str();
             formatPtr->setFormatSpec(
-                              type, balm::MetricFormatSpec(spec->scale(), fmt));
+                              type, MetricFormatSpec(spec->scale(), fmt));
         }
     }
     desc->setFormat(formatSPtr);
 }
 
-void balm_MetricRegistry::setUserData(
-                               const balm::MetricId&                 metricId,
-                               balm::MetricDescription::UserDataKey  key,
+void MetricRegistry::setUserData(
+                               const MetricId&                 metricId,
+                               MetricDescription::UserDataKey  key,
                                const void                          *value)
 {
     BSLS_ASSERT(0 <= key && key < d_nextKey);
 
-    balm::MetricDescription *desc =
-                 const_cast<balm::MetricDescription *>(metricId.description());
+    MetricDescription *desc =
+                 const_cast<MetricDescription *>(metricId.description());
     desc->setUserData(key, value);
 }
 
-void balm_MetricRegistry::setUserData(
+void MetricRegistry::setUserData(
                            const char                          *categoryName,
-                           balm::MetricDescription::UserDataKey  key,
+                           MetricDescription::UserDataKey  key,
                            const void                          *value,
                            bool                                 prefixFlag)
 {
@@ -388,25 +391,25 @@ void balm_MetricRegistry::setUserData(
     }
 }
 
-balm::MetricDescription::UserDataKey balm_MetricRegistry::createUserDataKey()
+MetricDescription::UserDataKey MetricRegistry::createUserDataKey()
 {
     return d_nextKey++;
 }
 
 // ACCESSORS
-bsl::size_t balm_MetricRegistry::numMetrics() const
+bsl::size_t MetricRegistry::numMetrics() const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
     return d_metrics.size();
 }
 
-bsl::size_t balm_MetricRegistry::numCategories() const
+bsl::size_t MetricRegistry::numCategories() const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
     return d_categories.size();
 }
 
-const balm::Category *balm_MetricRegistry::findCategory(
+const Category *MetricRegistry::findCategory(
                                                     const char *category) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
@@ -414,19 +417,17 @@ const balm::Category *balm_MetricRegistry::findCategory(
     return it == d_categories.end() ? 0 : it->second.get();
 }
 
-balm::MetricId balm_MetricRegistry::findId(const char *category,
+MetricId MetricRegistry::findId(const char *category,
                                           const char *name) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
-    MetricRegistry::const_iterator it =
+    MetricMap::const_iterator it =
                                 d_metrics.find(bsl::make_pair(category, name));
-    return it == d_metrics.end()
-           ? balm::MetricId()
-           : balm::MetricId(it->second.get());
+    return it == d_metrics.end() ? MetricId() : MetricId(it->second.get());
 }
 
-void balm_MetricRegistry::getAllCategories(
-                         bsl::vector<const balm::Category *> *categories) const
+void MetricRegistry::getAllCategories(
+                         bsl::vector<const Category *> *categories) const
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_lock);
     categories->reserve(categories->size() + d_categories.size());
@@ -436,7 +437,7 @@ void balm_MetricRegistry::getAllCategories(
     }
 }
 
-bsl::ostream& balm_MetricRegistry::print(bsl::ostream& stream,
+bsl::ostream& MetricRegistry::print(bsl::ostream& stream,
                                          int           level,
                                          int           spacesPerLevel) const
 {
@@ -450,10 +451,10 @@ bsl::ostream& balm_MetricRegistry::print(bsl::ostream& stream,
     // by category (i.e., it is not an 'unordered_map', and the comparator
     // compares by category before name).
 
-    const balm::Category *lastCategory = 0;
-    MetricRegistry::const_iterator it = d_metrics.begin();
+    const Category *lastCategory = 0;
+    MetricMap::const_iterator it = d_metrics.begin();
     for (; it != d_metrics.end(); ++it) {
-        const balm::Category *category = it->second->category();
+        const Category *category = it->second->category();
         BSLS_ASSERT(0 != category);
         if (lastCategory != category) {
             if (0 != lastCategory) {
@@ -476,6 +477,8 @@ bsl::ostream& balm_MetricRegistry::print(bsl::ostream& stream,
     stream << "]" << SEP;
     return stream;
 }
+
+}  // close package namespace
 
 }  // close namespace BloombergLP
 

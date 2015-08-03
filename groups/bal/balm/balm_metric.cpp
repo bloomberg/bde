@@ -11,7 +11,7 @@ namespace BloombergLP {
                           // -----------------
 
 // PRIVATE CONSTANTS
-const bool balm::Metric::NOT_ACTIVE = false;
+const bool balm::Metric::k_NOT_ACTIVE = false;
 
 namespace balm {
                       // --------------------------

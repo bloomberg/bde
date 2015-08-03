@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //
 //  assert(metricIdA == copyMetricIdA);
 //..
-// Note that two 'bae_MetricId' objects that have different
+// Note that two 'balm::MetricId' objects that have different
 // 'balm::MetricDescription' object addresses are *not* equal, *even* if the
 // descriptions have the same name and category.
 //..

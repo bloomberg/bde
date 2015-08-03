@@ -89,7 +89,7 @@ using bsl::flush;
 // [ 7]  int removePublisher(balm::Publisher *);
 // [24]  int removePublisher(const bsl::shared_ptr<balm::Publisher>& );
 // [ 5]  balm::CollectorRepository& collectorRepository();
-// [ 5]  baem_MetricRegistry& metricRegistry();
+// [ 5]  balm::MetricRegistry& metricRegistry();
 // [22]  void collectSample(balm::MetricSample              *
 //                          bsl::vector<balm::MetricRecord> *
 //                          bool                            );
@@ -115,7 +115,7 @@ using bsl::flush;
 // [ 7]  int findSpecificPublishers(bsl::vector<balm::Publisher *> *,
 //                                  const balm::Category           *) const;
 // [ 5]  const balm::CollectorRepository& collectorRepository() const;
-// [ 5]  const baem_MetricRegistry& metricRegistry() const;
+// [ 5]  const balm::MetricRegistry& metricRegistry() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST: general behavior
 // [ 2] BREATHING TEST: publisher registration
@@ -187,7 +187,7 @@ typedef balm::MetricId                 Id;
 typedef balm::Publisher                Pub;
 typedef bsl::shared_ptr<Pub>           PubPtr;
 typedef balm::MetricsManager           Obj;
-typedef baem_MetricRegistry            Registry;
+typedef balm::MetricRegistry            Registry;
 typedef balm::CollectorRepository      Repository;
 typedef Obj::CallbackHandle            CbHandle;
 
@@ -3613,9 +3613,9 @@ int main(int argc, char *argv[])
         //   balm::MetricsManager(bslma::Allocator *);
         //   ~balm::MetricsManager();
         //   balm::CollectorRepository& collectorRepository();
-        //   baem_MetricRegistry& metricRegistry();
+        //   balm::MetricRegistry& metricRegistry();
         //   const balm::CollectorRepository& collectorRepository() const;
-        //   const baem_MetricRegistry& metricRegistry() const;
+        //   const balm::MetricRegistry& metricRegistry() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -3665,7 +3665,7 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "\tTesting TestCallback\n";
 
-            baem_MetricRegistry registry(Z);
+            balm::MetricRegistry registry(Z);
             const char *IDS [] = {"A", "B", "AB", "ABC", "DEF"};
             const int NUM_IDS = sizeof IDS / sizeof *IDS;
 
@@ -3734,7 +3734,7 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "\tTesting TestPublisher\n";
 
-            baem_MetricRegistry registry(Z);
+            balm::MetricRegistry registry(Z);
             struct {
                 int         d_elapsedTime;
                 int         d_timeStamp;

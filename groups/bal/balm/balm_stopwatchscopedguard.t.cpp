@@ -115,7 +115,7 @@ typedef balm::StopwatchScopedGuard       Obj;
 typedef Obj::Units                      Units;
 typedef balm::MetricsManager             MetricsManager;
 typedef balm::DefaultMetricsManager      DefaultManager;
-typedef baem_MetricRegistry             Registry;
+typedef balm::MetricRegistry             Registry;
 typedef balm::CollectorRepository        Repository;
 typedef balm::Collector                  Collector;
 typedef balm::MetricId                   Id;
@@ -987,7 +987,7 @@ int main(int argc, char *argv[])
             if (veryVerbose)
                 cout << "\tTesting TestPublisher\n";
 
-            baem_MetricRegistry registry(Z);
+            balm::MetricRegistry registry(Z);
             struct {
                 int         d_elapsedTime;
                 int         d_timeStamp;

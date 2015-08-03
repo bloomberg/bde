@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 // In the following example we illustrate how to create and publish records
 // with a 'balm::StreamPublisher'.  First we define a couple metric ids.  Note
 // that we create the 'balm::MetricId' objects by hand, but in practice an id
-// should be obtained from a 'baem_MetricRegistry' object (such as the
+// should be obtained from a 'balm::MetricRegistry' object (such as the
 // one owned by a 'balm::MetricsManager').
 //..
     balm::Category myCategory("MyCategory");

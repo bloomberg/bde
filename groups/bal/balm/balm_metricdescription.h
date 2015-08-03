@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // 'balm::MetricDescription' class suppresses copy construction and assignment,
 // and does not provide equality operators: Applications should use a *single*
 // 'balm::MetricDescription' object per metric (such as one provided by the
-// *'balm_MetricRegistry'* component).
+// *'balm::MetricRegistry'* component).
 //
 // IMPORTANT: The metric description's 'name', whose type is 'const char *',
 // must remain constant and valid throughout the lifetime of the
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // access or modify a 'balm::MetricDescription' in one thread while another
 // thread modifies the same object.  However, clients of the 'balm' package
 // accessing a non-modifiable 'balm::MetricDescription' supplied by a
-// 'balm_MetricRegistry' (by way of a 'balm::MetricId') can safely access the
+// 'balm::MetricRegistry' (by way of a 'balm::MetricId') can safely access the
 // properties of that metric description at any time.
 //
 ///Usage

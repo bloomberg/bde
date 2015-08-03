@@ -22,7 +22,7 @@ namespace BloombergLP {
                       // ---------------------------
 
 // PRIVATE CONSTANTS
-const char *balm::MetricFormatSpec::DEFAULT_FORMAT = "%f";
+const char *balm::MetricFormatSpec::k_DEFAULT_FORMAT = "%f";
 
 namespace balm {
 // CLASS METHODS

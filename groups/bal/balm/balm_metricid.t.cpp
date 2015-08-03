@@ -29,7 +29,7 @@ using bsl::flush;
 //                                 Overview
 //                                 --------
 // A 'bdema::MetricId' is a simple in-core value semantic class
-// whose value is the address of a (non-modifiable) 'baem_MetricDescription.
+// whose value is the address of a (non-modifiable) 'balm::MetricDescription.
 // The class also provides auxiliary accessors for accessing the value of the
 // underlying metric description.
 //-----------------------------------------------------------------------------
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
     balm::MetricId copyMetricIdA(metricIdA);
 
     ASSERT(metricIdA == copyMetricIdA);
-// Note that two 'bae_MetricId' objects that have different
+// Note that two 'balm::MetricId' objects that have different
 // 'balm::MetricDescription' object addresses are *not* equal, *even* if the
 // descriptions have the same name and category.
 //..

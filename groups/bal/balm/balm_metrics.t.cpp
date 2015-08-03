@@ -141,7 +141,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 typedef balm::DefaultMetricsManager DefaultManager;
-typedef baem_MetricRegistry        Registry;
+typedef balm::MetricRegistry        Registry;
 typedef balm::CollectorRepository   Repository;
 typedef balm::Collector             Collector;
 typedef balm::IntegerCollector      IntCollector;
@@ -1812,7 +1812,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(baemMetricsIfCategoryEnabledTestA());
 
@@ -1831,7 +1831,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(baemMetricsIfCategoryEnabledTestA());
             ASSERT(baemMetricsIfCategoryEnabledTest("A"));
@@ -2728,7 +2728,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3264,7 +3264,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3353,7 +3353,7 @@ int main(int argc, char *argv[])
 
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3443,7 +3443,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(breathingTestIfEnabledA());
             registry.setCategoryEnabled(registry.getCategory("A"), false);
@@ -3461,7 +3461,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3530,7 +3530,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 

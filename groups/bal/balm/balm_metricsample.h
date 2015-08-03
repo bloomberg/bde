@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // We start by initializing several 'balm::MetricRecord' values, which we will
 // add to the sample.  Note that in this example we create the 'balm::MetricId'
 // objects by hand; however, in practice ids should be obtained from a
-// 'balm_MetricRegistry' object (such as the one owned by a
+// 'balm::MetricRegistry' object (such as the one owned by a
 // 'balm::MetricsManager').
 //..
 //  bslma::Allocator *allocator = bslma::Default::allocator(0);
@@ -124,10 +124,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BALM_METRICRECORD
 #include <balm_metricrecord.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TYPETRAITS
-#include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMETZ
@@ -327,8 +323,7 @@ class MetricSample {
         // non-modifiable sample groups contained in a 'MetricSample'.
 
     // PUBLIC TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(MetricSample,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricSample, bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricSample(bslma::Allocator *basicAllocator = 0);

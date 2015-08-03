@@ -35,16 +35,18 @@ void combine(balm::MetricRecord *record, const balm::MetricRecord& value)
 }  // close unnamed namespace
 
               // =========================================
-              // class balm_CollectorRepository_Collectors
+              // class balm::CollectorRepository_Collectors
               // =========================================
 
+namespace balm {
+
 template <typename COLLECTOR>
-class balm_CollectorRepository_Collectors {
+class CollectorRepository_Collectors {
     // This implementation class provides a container mechanism for managing a
     // set of objects of templatized type 'COLLECTOR' that are all associated
     // with a single metric.  The behavior is undefined unless the templatized
     // type 'COLLECTOR' is either 'balm::Collector' or 'balm::IntegerCollector'.
-    // A 'balm_CollectorRepository_Collectors' object is supplied a
+    // A 'balm::CollectorRepository_Collectors' object is supplied a
     // 'balm::MetricId' at construction, and provides a default 'COLLECTOR' as
     // well as a set of additional 'COLLECTOR' objects for the identified
     // metric.  Additional 'COLLECTOR' objects (beyond the default) can be
@@ -67,21 +69,19 @@ class balm_CollectorRepository_Collectors {
     bslma::Allocator *d_allocator_p;       // allocator (held, not owned)
 
     // NOT IMPLEMENTED
-    balm_CollectorRepository_Collectors(
-                          const balm_CollectorRepository_Collectors& );
-    balm_CollectorRepository_Collectors& operator=(
-                          const balm_CollectorRepository_Collectors& );
+    CollectorRepository_Collectors(const CollectorRepository_Collectors& );
+    CollectorRepository_Collectors& operator=(
+                                       const CollectorRepository_Collectors& );
 
   public:
     // PUBLIC TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(balm_CollectorRepository_Collectors,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository_Collectors,
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
-    balm_CollectorRepository_Collectors(
-                                     const balm::MetricId&  metricId,
-                                     bslma::Allocator     *basicAllocator = 0);
-        // Create a 'balm_CollectorRepository_Collectors' object to hold
+    CollectorRepository_Collectors(const MetricId&   metricId,
+                                   bslma::Allocator *basicAllocator = 0);
+        // Create a 'balm::CollectorRepository_Collectors' object to hold
         // objects of the templatized type 'COLLECTOR' for the specified
         // 'metricId'.   Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -89,7 +89,7 @@ class balm_CollectorRepository_Collectors {
         // templatized type 'COLLECTOR' is either 'balm::Collector' or
         // 'balm::IntegerCollector', and 'metricId.isValid()' is 'true'.
 
-    ~balm_CollectorRepository_Collectors();
+    ~CollectorRepository_Collectors();
         // Destroy this object.
 
     // MANIPULATORS
@@ -108,14 +108,14 @@ class balm_CollectorRepository_Collectors {
         // call to 'addCollector' on this object, or has previously been
         // removed.
 
-    void collectAndReset(balm::MetricRecord *record);
+    void collectAndReset(MetricRecord *record);
         // Load into the specified 'record' the aggregate value of all the
         // records collected by the collectors owned by this object; then
         // reset those collectors to their default values.  Note that all
         // collectors within this object record values for the same metric id,
         // so they can be aggregated into a single record.
 
-    void collect(balm::MetricRecord *record);
+    void collect(MetricRecord *record);
         // Load into the specified 'record' the aggregate value of all the
         // records collected by the collectors owned by this object.  Note
         // that all collectors within this object record values for the same
@@ -132,20 +132,20 @@ class balm_CollectorRepository_Collectors {
         // not subsequently removed.  Return the number of collectors that
         // were found.
 
-    const balm::MetricId& metricId() const;
+    const MetricId& metricId() const;
         // Return a reference to the non-modifiable 'balm::MetricId' object
         // identifying the metric for which the collectors in this container
         // are collecting values.
 };
 
               // -------------------------------------------------
-              // class balm_CollectorRepository_CollectorContainer
+              // class balm::CollectorRepository_CollectorContainer
               // -------------------------------------------------
 
 // CREATORS
 template <typename COLLECTOR>
-balm_CollectorRepository_Collectors<COLLECTOR>::
-balm_CollectorRepository_Collectors(const balm::MetricId&  metricId,
+CollectorRepository_Collectors<COLLECTOR>::
+      CollectorRepository_Collectors(const MetricId&  metricId,
                                     bslma::Allocator     *basicAllocator)
 : d_defaultCollector(metricId)
 , d_addedCollectors(basicAllocator)
@@ -155,8 +155,8 @@ balm_CollectorRepository_Collectors(const balm::MetricId&  metricId,
 
 template <typename COLLECTOR>
 inline
-balm_CollectorRepository_Collectors<COLLECTOR>::
-~balm_CollectorRepository_Collectors()
+CollectorRepository_Collectors<COLLECTOR>::
+~CollectorRepository_Collectors()
 {
 }
 
@@ -164,14 +164,14 @@ balm_CollectorRepository_Collectors<COLLECTOR>::
 template <typename COLLECTOR>
 inline
 COLLECTOR *
-balm_CollectorRepository_Collectors<COLLECTOR>::defaultCollector()
+CollectorRepository_Collectors<COLLECTOR>::defaultCollector()
 {
     return &d_defaultCollector;
 }
 
 template <typename COLLECTOR>
 bsl::shared_ptr<COLLECTOR>
-balm_CollectorRepository_Collectors<COLLECTOR>::addCollector()
+CollectorRepository_Collectors<COLLECTOR>::addCollector()
 {
     Collector collectorPtr(
                 new (*d_allocator_p) COLLECTOR(d_defaultCollector.metricId()),
@@ -181,7 +181,7 @@ balm_CollectorRepository_Collectors<COLLECTOR>::addCollector()
 }
 
 template <typename COLLECTOR>
-int balm_CollectorRepository_Collectors<COLLECTOR>::removeCollector(
+int CollectorRepository_Collectors<COLLECTOR>::removeCollector(
                                                           COLLECTOR *collector)
 {
     Collector collectorPtr(collector, bslstl::SharedPtrNilDeleter(), 0);
@@ -191,13 +191,13 @@ int balm_CollectorRepository_Collectors<COLLECTOR>::removeCollector(
 
 template <typename COLLECTOR>
 void
-balm_CollectorRepository_Collectors<COLLECTOR>::collectAndReset(
-                                                     balm::MetricRecord *record)
+CollectorRepository_Collectors<COLLECTOR>::collectAndReset(
+                                                     MetricRecord *record)
 {
     d_defaultCollector.loadAndReset(record);
     typename CollectorSet::iterator it = d_addedCollectors.begin();
     for (; it != d_addedCollectors.end(); ++it) {
-        balm::MetricRecord tempRecord;
+        MetricRecord tempRecord;
         (*it)->loadAndReset(&tempRecord);
         combine(record, tempRecord);
     }
@@ -205,13 +205,12 @@ balm_CollectorRepository_Collectors<COLLECTOR>::collectAndReset(
 
 template <typename COLLECTOR>
 void
-balm_CollectorRepository_Collectors<COLLECTOR>::collect(
-                                                     balm::MetricRecord *record)
+CollectorRepository_Collectors<COLLECTOR>::collect(MetricRecord *record)
 {
     d_defaultCollector.load(record);
     typename CollectorSet::iterator it = d_addedCollectors.begin();
     for (; it != d_addedCollectors.end(); ++it) {
-        balm::MetricRecord tempRecord;
+        MetricRecord tempRecord;
         (*it)->load(&tempRecord);
         combine(record, tempRecord);
     }
@@ -220,7 +219,7 @@ balm_CollectorRepository_Collectors<COLLECTOR>::collect(
 // ACCESSORS
 template <typename COLLECTOR>
 int
-balm_CollectorRepository_Collectors<COLLECTOR>::getAddedCollectors(
+CollectorRepository_Collectors<COLLECTOR>::getAddedCollectors(
                     bsl::vector<bsl::shared_ptr<COLLECTOR> > *collectors) const
 {
     collectors->reserve(collectors->size() + d_addedCollectors.size());
@@ -233,13 +232,12 @@ balm_CollectorRepository_Collectors<COLLECTOR>::getAddedCollectors(
 
 template <typename COLLECTOR>
 inline
-const balm::MetricId&
-balm_CollectorRepository_Collectors<COLLECTOR>::metricId() const
+const MetricId&
+CollectorRepository_Collectors<COLLECTOR>::metricId() const
 {
     return d_defaultCollector.metricId();
 }
 
-namespace balm {
            // ===============================================
            // class CollectorRepository_MetricCollectors
            // ===============================================
@@ -256,9 +254,9 @@ class CollectorRepository_MetricCollectors {
     // state.
 
     // PRIVATE TYPES
-    typedef balm_CollectorRepository_Collectors<Collector>
+    typedef CollectorRepository_Collectors<Collector>
                                                         Collectors;
-    typedef balm_CollectorRepository_Collectors<IntegerCollector>
+    typedef CollectorRepository_Collectors<IntegerCollector>
                                                         IntCollectors;
 
     // DATA
@@ -273,7 +271,7 @@ class CollectorRepository_MetricCollectors {
   public:
     // PUBLIC TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository_MetricCollectors,
-                                 bslmf::TypeTraitUsesBslmaAllocator);
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
     CollectorRepository_MetricCollectors(
@@ -290,11 +288,11 @@ class CollectorRepository_MetricCollectors {
         // Destroy this object.
 
     // MANIPULATORS
-    balm_CollectorRepository_Collectors<Collector>& collectors();
+    CollectorRepository_Collectors<Collector>& collectors();
         // Return a reference to the modifiable container of 'Collector'
         // objects.
 
-    balm_CollectorRepository_Collectors<IntegerCollector>&
+    CollectorRepository_Collectors<IntegerCollector>&
                                                                intCollectors();
         // Return a reference to the modifiable container of
         // 'IntegerCollector' objects.
@@ -316,12 +314,12 @@ class CollectorRepository_MetricCollectors {
         // current values.
 
     // ACCESSORS
-    const balm_CollectorRepository_Collectors<Collector>&
+    const CollectorRepository_Collectors<Collector>&
                                                             collectors() const;
         // Return a reference to the non-modifiable container of
         // 'Collector' objects.
 
-    const balm_CollectorRepository_Collectors<IntegerCollector>&
+    const CollectorRepository_Collectors<IntegerCollector>&
                                                          intCollectors() const;
         // Return a reference to the non-modifiable container of
         // 'IntegerCollector' objects.
@@ -354,14 +352,14 @@ CollectorRepository_MetricCollectors::
 
 // MANIPULATORS
 inline
-balm_CollectorRepository_Collectors<Collector>&
+CollectorRepository_Collectors<Collector>&
 CollectorRepository_MetricCollectors::collectors()
 {
     return d_collectors;
 }
 
 inline
-balm_CollectorRepository_Collectors<IntegerCollector>&
+CollectorRepository_Collectors<IntegerCollector>&
 CollectorRepository_MetricCollectors::intCollectors()
 {
     return d_intCollectors;
@@ -387,14 +385,14 @@ void CollectorRepository_MetricCollectors::collect(
 
 // ACCESSORS
 inline
-const balm_CollectorRepository_Collectors<Collector>&
+const CollectorRepository_Collectors<Collector>&
 CollectorRepository_MetricCollectors::collectors() const
 {
     return d_collectors;
 }
 
 inline
-const balm_CollectorRepository_Collectors<IntegerCollector>&
+const CollectorRepository_Collectors<IntegerCollector>&
 CollectorRepository_MetricCollectors::intCollectors() const
 {
     return d_intCollectors;
@@ -558,8 +556,8 @@ int CollectorRepository::getAddedCollectors(
     }
     return numFound;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------

@@ -123,7 +123,7 @@ typedef balm::ConfigurationUtil              Obj;
 typedef balm::MetricFormatSpec               Spec;
 typedef balm::MetricsManager                 MMgr;
 typedef balm::PublicationType                Type;
-typedef baem_MetricRegistry                 Registry;
+typedef balm::MetricRegistry                 Registry;
 typedef balm::MetricDescription::UserDataKey Key;
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
             Key key4 = mgr.metricRegistry().createUserDataKey();
 
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A",   "A");
             registry.addId("AA",  "A");
             registry.addId("AAA", "A");
@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
             Key key3 = mgr.metricRegistry().createUserDataKey();
             Key key4 = mgr.metricRegistry().createUserDataKey();
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A",   "A");
             registry.addId("AA",  "A");
             registry.addId("AAA", "A");
@@ -669,7 +669,7 @@ int main(int argc, char *argv[])
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = mgr.metricRegistry().createUserDataKey();
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
             
             Obj::setUserData("A", "A", key0, (void *)1, &mgr);
@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = mgr.metricRegistry().createUserDataKey();
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
             
             Obj::setUserData("A", "A", key0, (void *)1);

@@ -140,14 +140,14 @@ void publishRecord(bsl::ostream&            stream,
         formatValue(stream, record.count(), countSpec);
         stream << ", total = ";
         formatValue(stream, record.total(), totalSpec);
-        if (balm::MetricRecord::DEFAULT_MIN == record.min()) {
+        if (balm::MetricRecord::k_DEFAULT_MIN == record.min()) {
             stream << ", min = undefined";
         }
         else {
             stream << ", min = ";
             formatValue(stream, record.min(), minSpec);
         }
-        if (balm::MetricRecord::DEFAULT_MAX == record.max()) {
+        if (balm::MetricRecord::k_DEFAULT_MAX == record.max()) {
             stream << ", max = undefined";
         }
         else {

@@ -1232,7 +1232,7 @@ void Metrics_Helper::initializeCategoryHolder(
                                          const char          *category)
 {
     MetricsManager  *manager  = DefaultMetricsManager::instance();
-    balm_MetricRegistry&  registry = manager->metricRegistry();
+    MetricRegistry&  registry = manager->metricRegistry();
     registry.registerCategoryHolder(registry.getCategory(category), holder);
 }
 

@@ -1102,7 +1102,7 @@ bool stringDiff(const bsl::string& expectedValue,
 //                                               1 time unit.
 
 void gg(bsl::vector<Action>  *actions,
-        baem_MetricRegistry&  registry,
+        balm::MetricRegistry&  registry,
         const char           *specification)
     // Set the specified 'actions' to the sequence of actions indicated by the
     // specified 'specification' (as described by the 'gg' generator language
@@ -1441,7 +1441,7 @@ int main(int argc, char *argv[])
         const int NUM_SPECS = sizeof TEST_SPECS / sizeof *TEST_SPECS;
         bslma::TestAllocator testAllocator;
         balm::MetricsManager  manager(Z);
-        baem_MetricRegistry& registry = manager.metricRegistry();
+        balm::MetricRegistry& registry = manager.metricRegistry();
         bdlmt::TimerEventScheduler timer(Z);
         Obj mX(&manager, &timer, &testAllocator); const Obj& MX = mX;
         for (int i = 0; i < NUM_SPECS; ++i) {
@@ -1532,7 +1532,7 @@ int main(int argc, char *argv[])
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
 
         balm::MetricsManager manager(Z);
-        baem_MetricRegistry&  reg = manager.metricRegistry();
+        balm::MetricRegistry&  reg = manager.metricRegistry();
         bdlmt::TimerEventScheduler timer(Z);
         Obj mX(&manager, &timer, Z); const Obj& MX = mX;
         for (int i = 0; i < 10; ++i) {
@@ -1582,7 +1582,7 @@ int main(int argc, char *argv[])
 
         bdlmt::TimerEventScheduler timer(Z);
         balm::MetricsManager      manager(Z);
-        baem_MetricRegistry&     reg = manager.metricRegistry();
+        balm::MetricRegistry&     reg = manager.metricRegistry();
         Obj mX(&manager, &timer, Z); const Obj& MX = mX;
         mX.scheduleCategory(reg.getCategory("A"), bsls::TimeInterval(1, 0));
         mX.scheduleCategory(reg.getCategory("B"), bsls::TimeInterval(2, 0));
@@ -1737,7 +1737,7 @@ int main(int argc, char *argv[])
 
         const int NUM_SPECS = sizeof TEST_SPECS / sizeof *TEST_SPECS;
         balm::MetricsManager  manager(Z);
-        baem_MetricRegistry& registry = manager.metricRegistry();
+        balm::MetricRegistry& registry = manager.metricRegistry();
         bdlmt::TimerEventScheduler timer(Z);
         for (int i = 0; i < NUM_SPECS; ++i) {
 
@@ -1810,7 +1810,7 @@ int main(int argc, char *argv[])
 
         bdlmt::TimerEventScheduler  timer(Z);
         balm::MetricsManager       manager(Z);
-        baem_MetricRegistry&      registry = manager.metricRegistry();
+        balm::MetricRegistry&      registry = manager.metricRegistry();
 
         const char *CATEGORIES[] = {"A", "B", "C", "D", "dummy1", "dummy2"};
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
@@ -1925,7 +1925,7 @@ int main(int argc, char *argv[])
 
         bdlmt::TimerEventScheduler  timer(Z);
         balm::MetricsManager       manager(Z);
-        baem_MetricRegistry&      registry = manager.metricRegistry();
+        balm::MetricRegistry&      registry = manager.metricRegistry();
 
         const char *CATEGORIES[] = {"A", "B", "C", "D", "dummy1", "dummy2"};
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
@@ -2092,7 +2092,7 @@ int main(int argc, char *argv[])
                           << "==================================" << endl;
 
         balm::MetricsManager  manager(Z);
-        baem_MetricRegistry& reg = manager.metricRegistry();
+        balm::MetricRegistry& reg = manager.metricRegistry();
         const char *CATEGORIES[] = {"A", "B", "C", "D", "dummy1", "dummy2"};
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
 
@@ -2265,7 +2265,7 @@ int main(int argc, char *argv[])
         BAEM_BEGIN_RETRY_TEST(3) {
         // 1. Create a metrics manager and add a 'TestPublisher' to it.
         balm::MetricsManager   manager(Z);
-        baem_MetricRegistry& reg = manager.metricRegistry();
+        balm::MetricRegistry& reg = manager.metricRegistry();
         TestPublisher tp(Z);
         PubPtr pub_p(&tp, bslstl::SharedPtrNilDeleter(), Z);
         manager.addGeneralPublisher(pub_p);
@@ -2443,7 +2443,7 @@ int main(int argc, char *argv[])
 
         bdlmt::TimerEventScheduler  timer(Z);
         balm::MetricsManager       manager(Z);
-        baem_MetricRegistry&      registry = manager.metricRegistry();
+        balm::MetricRegistry&      registry = manager.metricRegistry();
 
         const char *CATEGORIES[] = {"A", "B", "C", "D", "dummy1", "dummy2"};
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
@@ -2578,7 +2578,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) cout << "\tTesting 'gg'\n";
-            baem_MetricRegistry reg(Z);
+            balm::MetricRegistry reg(Z);
 
             const char *specification = "A1B2C3D4X5D6C7B8A9X1";
             bsl::vector<Action> result(Z);
@@ -2630,7 +2630,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) cout << "\tTesting 'TestPublisher'\n";
-            baem_MetricRegistry reg(Z);
+            balm::MetricRegistry reg(Z);
 
             const char *SETS[] = { "A", "B", "CD", "EF", "GHI" };
             const int NUM_SETS = sizeof SETS / sizeof *SETS;

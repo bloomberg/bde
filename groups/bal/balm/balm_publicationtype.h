@@ -105,7 +105,7 @@ struct PublicationType {
 
     enum {
         e_BALM_LENGTH = 8
-#ifdef XXXXX
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         , BAEM_LENGTH = e_BALM_LENGTH
 #endif
     };

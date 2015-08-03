@@ -243,14 +243,14 @@ int main(int argc, char *argv[])
 //..
 // Now we create 'balm::MetricRecord' to hold our aggregated metrics values.
 // Note that we create 'balm::MetricId' object by hand; however, in practice an
-// id should be obtained from a 'baem_MetricRegistry' object (such as the one
+// id should be obtained from a 'balm::MetricRegistry' object (such as the one
 // owned by a 'balm::MetricsManager').
 //..
     balm::Category           myCategory("MyCategory");
     balm::MetricDescription  description(&myCategory, "RequestSize");
     balm::MetricId           requestSizeId(&description);
 
-    // In practice, obtain 'requestSizeId' from a 'baem_MetricRegistry' object.
+    // In practice, obtain 'requestSizeId' from a 'balm::MetricRegistry' object.
     balm::MetricRecord requestSize(requestSizeId);
 //..
 // Finally we retrieve the information about the request sizes of the
@@ -543,8 +543,8 @@ int main(int argc, char *argv[])
             ASSERT(false            == X.metricId().isValid());
             ASSERT(0                == X.count());
             ASSERT(0                == X.total());
-            ASSERT(Obj::DEFAULT_MIN == X.min());
-            ASSERT(Obj::DEFAULT_MAX == X.max());
+            ASSERT(Obj::k_DEFAULT_MIN == X.min());
+            ASSERT(Obj::k_DEFAULT_MAX == X.max());
         }
         if (veryVerbose) cout << "\tTesting secondary constructor." << endl;
 
@@ -576,8 +576,8 @@ int main(int argc, char *argv[])
             ASSERT(VALUES[i].d_metric == X.metricId().description());
             ASSERT(0                  == X.count());
             ASSERT(0                  == X.total());
-            ASSERT(Obj::DEFAULT_MIN   == X.min());
-            ASSERT(Obj::DEFAULT_MAX   == X.max());
+            ASSERT(Obj::k_DEFAULT_MIN   == X.min());
+            ASSERT(Obj::k_DEFAULT_MAX   == X.max());
 
             ASSERT(VALUES[i].d_metric == Y.metricId().description());
             ASSERT(VALUES[i].d_count  == Y.count());
@@ -811,10 +811,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == X3.count());
         ASSERT(0 == mX3.total());
         ASSERT(0 == X3.total());
-        ASSERT(balm::MetricRecord::DEFAULT_MIN == mX3.min());
-        ASSERT(balm::MetricRecord::DEFAULT_MIN == X3.min());
-        ASSERT(balm::MetricRecord::DEFAULT_MAX == mX3.max());
-        ASSERT(balm::MetricRecord::DEFAULT_MAX == X3.max());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MIN == mX3.min());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MIN == X3.min());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MAX == mX3.max());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MAX == X3.max());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x3 <op> x1, x2, x3." << endl;
@@ -835,10 +835,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == X4.count());
         ASSERT(0 == mX4.total());
         ASSERT(0 == X4.total());
-        ASSERT(balm::MetricRecord::DEFAULT_MIN == mX4.min());
-        ASSERT(balm::MetricRecord::DEFAULT_MIN == X4.min());
-        ASSERT(balm::MetricRecord::DEFAULT_MAX == mX4.max());
-        ASSERT(balm::MetricRecord::DEFAULT_MAX == X4.max());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MIN == mX4.min());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MIN == X4.min());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MAX == mX4.max());
+        ASSERT(balm::MetricRecord::k_DEFAULT_MAX == X4.max());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
