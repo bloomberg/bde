@@ -5,6 +5,7 @@
 #include <ball_severity.h>
 
 #include <bdlqq_barrier.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>

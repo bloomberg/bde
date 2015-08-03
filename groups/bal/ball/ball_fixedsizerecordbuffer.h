@@ -142,7 +142,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLQQ_RECURSIVEMUTEX
-#include <bdlqq_recursivemutex
+#include <bdlqq_recursivemutex.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
