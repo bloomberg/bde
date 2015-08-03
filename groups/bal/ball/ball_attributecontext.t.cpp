@@ -10,7 +10,7 @@
 
 #include <bdlmca_blob.h>
 #include <bdlqq_barrier.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
 
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>

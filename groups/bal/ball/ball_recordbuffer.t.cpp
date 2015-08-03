@@ -7,7 +7,7 @@
 #include <bslma_testallocator.h>    // for testing only
 
 #include <bdlqq_lockguard.h>        // for testing only
-#include <bdlqq_xxxthread.h>           // for testing only
+#include <bdlqq_recursivemutex.h>           // for testing only
 
 #include <bsls_platform.h>          // for testing only
 #include <bsls_protocoltest.h>      // for testing only

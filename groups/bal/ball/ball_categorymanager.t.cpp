@@ -4,7 +4,8 @@
 
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
-#include <bslma_testallocator.h>
+
+#include <bdlb_bitutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>

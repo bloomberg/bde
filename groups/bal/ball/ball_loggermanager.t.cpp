@@ -13,7 +13,7 @@
 #include <ball_testobserver.h>                  // for testing only
 
 #include <bdlqq_barrier.h>                      // for testing only
-#include <bdlqq_xxxthread.h>                       // for testing only
+#include <bdlqq_threadutil.h>                       // for testing only
 
 #include <bslma_testallocator.h>                // for testing only
 
