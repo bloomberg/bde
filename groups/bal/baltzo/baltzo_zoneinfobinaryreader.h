@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 //..
 //: o HEADER -- The header is 44 bytes that describe the file.
 //:
-//: o TRANSITION TIMES -- 'numTransitions' number of  4-byte big-endian signed
+//: o TRANSITION TIMES -- 'numTransitions' number of 4-byte big-endian signed
 //:   integers representing the transition times in POSIX time format (number
 //:   of seconds elapsed since midnight UTC, January 1, 1970) sorted in
 //:   ascending order.  Each transition time represents a time at which the
@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //:   local time in the original rule file (from which the binary file was
 //:   presumably compiled).  Standard time refers to the time without
 //:   adjustment for daylight-saving time whether daylight saving is in effect
-//:   or not. (see next section for details).
+//:   or not.  (see next section for details).
 //
 ///'isGmt' and 'isStd'
 ///- - - - - - - - - -
@@ -152,8 +152,8 @@ BSLS_IDENT("$Id: $")
 // Leap corrections are currently not supported by this component.  Attempts to
 // read a stream containing leap corrections will result in an error.
 //
-// There is a slight difference between the mean length of a day and 86400 (24
-// * 60 * 60) seconds.  Leap corrections are adjustments to the UTC time to
+// There is a slight difference between the mean length of a day and 86400
+// (24 * 60 * 60) seconds.  Leap corrections are adjustments to the UTC time to
 // account for this difference.  In general, the time in a computer is updated
 // through the network to account for leap seconds.  Thus, it is not necessary
 // to for this component to consider leap corrections for accurate time
@@ -183,15 +183,15 @@ BSLS_IDENT("$Id: $")
 // Additional documentation for the Zoneinfo file format can be found at
 // various places on the internet:
 //
-//: o http://www.iana.org/time-zones -- Central links for Zoneinfo
-//:   time-zone DB information.  Up-to-date documentation on the file
-//:   specification can be found inside the code distribution, in a file named
-//:   'tzfile.5.txt'.  This file contains the most recent man-page text.
+//: o http://www.iana.org/time-zones -- Central links for Zoneinfo time-zone DB
+//:   information.  Up-to-date documentation on the file specification can be
+//:   found inside the code distribution, in a file named 'tzfile.5.txt'.  This
+//:   file contains the most recent man-page text.
 //:
-//: o https://github.com/eggert/tz -- Unofficial GitHub repository for
-//:   unstable changes not yet published into an official release on the
-//:   IANA website.  This repository is published and maintained by the
-//:   official IANA maintainer, Paul Eggert.
+//: o https://github.com/eggert/tz -- Unofficial GitHub repository for unstable
+//:   changes not yet published into an official release on the IANA website.
+//:   This repository is published and maintained by the official IANA
+//:   maintainer, Paul Eggert.
 //
 ///Usage
 ///-----
@@ -227,7 +227,7 @@ BSLS_IDENT("$Id: $")
 // Then, we load this data into a stream buffer.
 //..
 //  bdlsb::FixedMemInStreamBuf inStreamBuf(ASIA_BANGKOK_DATA,
-//                                        sizeof(ASIA_BANGKOK_DATA));
+//                                         sizeof(ASIA_BANGKOK_DATA));
 //  bsl::istream inputStream(&inStreamBuf);
 //..
 // Now, we read the 'inputStream' using 'baltzo::ZoneinfoBinaryReader::read'.
@@ -235,7 +235,7 @@ BSLS_IDENT("$Id: $")
 //
 //  baltzo::Zoneinfo timeZone;
 //  if (0 != baltzo::ZoneinfoBinaryReader::read(&timeZone,
-//                                             inputStream)) {
+//                                              inputStream)) {
 //      bsl::cerr << "baltzo::ZoneinfoBinaryReader::load failed"
 //                << bsl::endl;
 //      return 1;                                                      //RETURN
@@ -289,26 +289,27 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace baltzo {class Zoneinfo;
+namespace baltzo {
+
+class Zoneinfo;
 class ZoneinfoBinaryHeader;
 
-                      // ==================================
-                      // struct ZoneinfoBinaryReader
-                      // ==================================
+                        // ===========================
+                        // struct ZoneinfoBinaryReader
+                        // ===========================
 
 struct ZoneinfoBinaryReader {
     // This struct provides a namespace for functions that read Zoneinfo time
     // zone data from a binary input stream.  The primary method, 'read', makes
     // use of a stream containing a Zoneinfo time zone database to populate a
     // 'Zoneinfo' object.
-  public:
 
     // CLASS METHODS
-    static int read(Zoneinfo *zoneinfoResult,
-                    bsl::istream&    stream);
+    static int read(Zoneinfo      *zoneinfoResult,
+                    bsl::istream&  stream);
     static int read(Zoneinfo             *zoneinfoResult,
                     ZoneinfoBinaryHeader *headerResult,
-                    bsl::istream&                stream);
+                    bsl::istream&         stream);
         // Read time zone information from the specified 'stream', and load the
         // description into the specified 'zoneinfoResult'.  Return 0 on
         // success and a non-zero value if 'stream' does not provide a sequence
@@ -317,17 +318,24 @@ struct ZoneinfoBinaryReader {
         // Optionally specify a 'headerResult' that, on success, will be
         // populated with a summary of the 'stream' contents.
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

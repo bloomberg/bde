@@ -47,7 +47,7 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-static const char LOG_CATEGORY[] = "baetzo.ZONEINFOBINARYREADER";
+static const char LOG_CATEGORY[] = "baltzo.ZONEINFOBINARYREADER";
 
 namespace {
 
@@ -141,7 +141,7 @@ void formatHeaderId(bsl::string *formattedHeader,
 static const char *EXPECTED_HEADER_ID = "TZif";
     // The first 4 bytes of a valid Zoneinfo database file.
 
-template <typename TYPE>
+template <class TYPE>
 static inline
 int readRawArray(bsl::vector<TYPE> *result,
                  bsl::istream&      stream,
@@ -163,7 +163,7 @@ int readRawArray(bsl::vector<TYPE> *result,
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 static inline
 bool validIndex(const bsl::vector<TYPE>& vector, int index)
     // Return 'true' if the specified 'index' is within the range of valid
@@ -270,7 +270,7 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result,
                        << "Zoneinfo file.  Leap correction is not supported "
                        << "by 'baltzo::ZoneinfoBinaryReader'."
                        << BALL_LOG_END;
-        return -7;
+        return -7;                                                    // RETURN
     }
     result->setNumLeaps(numLeaps);
 
@@ -279,7 +279,7 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result,
         BALL_LOG_ERROR << "Invalid number of transitions found in Zoneinfo "
                        << "file."
                        << BALL_LOG_END;
-        return -8;
+        return -8;                                                    // RETURN
     }
     result->setNumTransitions(numTransitions);
 
@@ -287,7 +287,7 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result,
     if (0 >= abbrevDataSize) {
         BALL_LOG_ERROR << "No abbreviations data found in Zoneinfo file."
                        << BALL_LOG_END;
-        return -9;
+        return -9;                                                    // RETURN
     }
     result->setAbbrevDataSize(abbrevDataSize);
 
@@ -296,9 +296,9 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result,
 
 static inline
 int loadLocalTimeDescriptors(
-                 bsl::vector<baltzo::LocalTimeDescriptor> *descriptors,
-                 const bsl::vector<RawLocalTimeType>&     localTimeDescriptors,
-                 const bsl::vector<char>&                 abbreviationBuffer)
+                bsl::vector<baltzo::LocalTimeDescriptor> *descriptors,
+                const bsl::vector<RawLocalTimeType>&      localTimeDescriptors,
+                const bsl::vector<char>&                  abbreviationBuffer)
     // Load the specified 'descriptors' with the sequence of local time
     // descriptors described by the specified 'localTimeDescriptors' holding
     // raw information read from the file, and referring to null-terminated
@@ -321,7 +321,8 @@ int loadLocalTimeDescriptors(
 
         const int utcOffset = decode32(localTimeDescriptors[i].d_offset);
 
-        if (!baltzo::LocalTimeDescriptor::isValidUtcOffsetInSeconds(utcOffset)){
+        if (!baltzo::LocalTimeDescriptor::isValidUtcOffsetInSeconds(
+                                                                  utcOffset)) {
             BALL_LOG_ERROR << "Invalid UTC offset "
                            << utcOffset
                            << " found in Zoneinfo file.  Expecting "
@@ -360,7 +361,7 @@ int loadLocalTimeDescriptors(
 static inline
 int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
                            baltzo::ZoneinfoBinaryHeader *headerResult,
-                           bsl::istream&                stream)
+                           bsl::istream&                 stream)
     // Read time zone information in the version '2' file format from the
     // specified 'stream', and load the description into the specified
     // 'zoneinfoResult', and the header information into the specified
@@ -440,8 +441,8 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     }
 
     // Convert raw type objects into their associated types exposed by
-    // 'baltzo::Zoneinfo'.  Verify any data offsets read from the file to ensure
-    // they are within valid boundaries.
+    // 'baltzo::Zoneinfo'.  Verify any data offsets read from the file to
+    // ensure they are within valid boundaries.
 
     // Convert the 'Raw' local-time types into
     // 'zoneinfoResult->localTimeDescriptors()'.
@@ -459,7 +460,7 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     // Add default transition.
 
     const bsls::Types::Int64 firstTransitionTime =
-                     baltzo::Zoneinfo::convertToTimeT64(bdlt::Datetime(1, 1, 1));
+                   baltzo::Zoneinfo::convertToTimeT64(bdlt::Datetime(1, 1, 1));
 
     zoneinfoResult->addTransition(firstTransitionTime, descriptors.front());
 
@@ -492,22 +493,20 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     return 0;
 }
 
-namespace baltzo {
-                      // ---------------------------------
-                      // class ZoneinfoBinaryReader
-                      // ---------------------------------
+                        // --------------------------
+                        // class ZoneinfoBinaryReader
+                        // --------------------------
 
-int ZoneinfoBinaryReader::read(Zoneinfo *zoneinfoResult,
-                                      bsl::istream&    stream)
+int baltzo::ZoneinfoBinaryReader::read(Zoneinfo      *zoneinfoResult,
+                                       bsl::istream&  stream)
 {
     ZoneinfoBinaryHeader description;
     return read(zoneinfoResult, &description, stream);
 }
 
-int ZoneinfoBinaryReader::read(
-                                   Zoneinfo             *zoneinfoResult,
-                                   ZoneinfoBinaryHeader *headerResult,
-                                   bsl::istream&                stream)
+int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
+                                       ZoneinfoBinaryHeader *headerResult,
+                                       bsl::istream&         stream)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
@@ -638,15 +637,21 @@ int ZoneinfoBinaryReader::read(
 
     return 0;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

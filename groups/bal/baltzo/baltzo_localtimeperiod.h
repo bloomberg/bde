@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:  baltzo_localtimedescriptor, baltzo_zoneinfoutil
 //
 //@DESCRIPTION: This component provides a single, complex-constrained
-// (value-semantic) attribute class, 'baetzo::LocalTimerPeriod', that describes
+// (value-semantic) attribute class, 'baltzo::LocalTimerPeriod', that describes
 // a period of time over which a local time description (UTC offset, DST
 // status, and a descriptive string) is in effect.
 //
@@ -88,16 +88,16 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-// Then, we create a 'baltzo::LocalTimePeriod' object, 'edt2010', that describes
-// New York Daylight-Saving Time in 2010:
+// Then, we create a 'baltzo::LocalTimePeriod' object, 'edt2010', that
+// describes New York Daylight-Saving Time in 2010:
 //..
 //  enum { NEW_YORK_DST_OFFSET = -4 * 60 * 60 };  // -4 hours in seconds
 //
 //  baltzo::LocalTimeDescriptor edt(NEW_YORK_DST_OFFSET, true, "EDT");
 //
 //  baltzo::LocalTimePeriod     edt2010(edt,
-//                                     bdlt::Datetime(2010,  3, 14, 7),
-//                                     bdlt::Datetime(2010, 11,  7, 6));
+//                                      bdlt::Datetime(2010,  3, 14, 7),
+//                                      bdlt::Datetime(2010, 11,  7, 6));
 //
 //  assert(bdlt::Datetime(2010,  3, 14, 7) == edt2010.utcStartTime());
 //  assert(bdlt::Datetime(2010, 11,  7, 6) == edt2010.utcEndTime());
@@ -115,9 +115,9 @@ BSLS_IDENT("$Id: $")
 // described by 'edt2010'):
 //..
 //  bdlt::Datetime localDatetime;
-//  int           status = convertUtcToLocalTime(&localDatetime,
-//                                               utcDatetime,
-//                                               edt2010);
+//  int            status = convertUtcToLocalTime(&localDatetime,
+//                                                utcDatetime,
+//                                                edt2010);
 //  if (0 != status) {
 //      // The conversion failed so return an error code.
 //
@@ -171,11 +171,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baltzo {
-                        // ============================
+                        // =====================
                         // class LocalTimePeriod
-                        // ============================
+                        // =====================
 
 class LocalTimePeriod {
     // This complex-constrained (value-semantic) attribute class describes a
@@ -194,12 +193,12 @@ class LocalTimePeriod {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    LocalTimeDescriptor d_descriptor;    // local time descriptor for
-                                                // this period
+    LocalTimeDescriptor d_descriptor;    // local time descriptor for this
+                                         // period
 
-    bdlt::Datetime              d_utcStartTime;  // start of this period
+    bdlt::Datetime      d_utcStartTime;  // start of this period
 
-    bdlt::Datetime              d_utcEndTime;    // end of this period
+    bdlt::Datetime      d_utcEndTime;    // end of this period
 
   public:
     // TRAITS
@@ -229,11 +228,10 @@ class LocalTimePeriod {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    LocalTimePeriod(
-                        const LocalTimeDescriptor&  descriptor,
-                        const bdlt::Datetime&               utcStartTime,
-                        const bdlt::Datetime&               utcEndTime,
-                        bslma::Allocator                  *basicAllocator = 0);
+    LocalTimePeriod(const LocalTimeDescriptor&  descriptor,
+                    const bdlt::Datetime&       utcStartTime,
+                    const bdlt::Datetime&       utcEndTime,
+                    bslma::Allocator           *basicAllocator = 0);
         // Create a 'LocalTimePeriod' object having the specified
         // 'descriptor', 'utcStartTime', and 'utcEndTime' attribute values.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -245,7 +243,7 @@ class LocalTimePeriod {
         // the 'isValidUtcStartAndEndTime' method.)
 
     LocalTimePeriod(const LocalTimePeriod&  original,
-                           bslma::Allocator              *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a 'LocalTimePeriod' object with the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -316,24 +314,21 @@ class LocalTimePeriod {
 };
 
 // FREE OPERATORS
-bool operator==(const LocalTimePeriod& lhs,
-                const LocalTimePeriod& rhs);
+bool operator==(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'LocalTimePeriod' objects have
     // the same value if each of their corresponding 'descriptor',
     // 'utcStartTime', and 'utcEndTime' attributes have the same value.
 
-bool operator!=(const LocalTimePeriod& lhs,
-                const LocalTimePeriod& rhs);
+bool operator!=(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'LocalTimePeriod' objects
     // do not have the same value if the corresponding values of their
     // 'descriptor', 'utcStartTime', or 'utcEndTime' attributes are not the
     // same.
 
-bsl::ostream& operator<<(bsl::ostream&                 stream,
+std::ostream& operator<<(bsl::ostream&          stream,
                          const LocalTimePeriod& localTimePeriod);
-}  // close package namespace
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -342,26 +337,27 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
     // 'object.print(stream, 0, -1)'.
 
 // FREE FUNCTIONS
-void swap(baltzo::LocalTimePeriod& a, baltzo::LocalTimePeriod& b);
-
-namespace baltzo {    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+void swap(LocalTimePeriod& a, LocalTimePeriod& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
+
+}  // close package namespace
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------
+                        // ---------------------
                         // class LocalTimePeriod
-                        // ----------------------------
+                        // ---------------------
 
 // CLASS METHODS
 inline
-bool LocalTimePeriod::isValidUtcStartAndEndTime(
-                                             const bdlt::Datetime& utcStartTime,
-                                             const bdlt::Datetime& utcEndTime)
+bool baltzo::LocalTimePeriod::isValidUtcStartAndEndTime(
+                                            const bdlt::Datetime& utcStartTime,
+                                            const bdlt::Datetime& utcEndTime)
 {
     bdlt::Datetime defaultObj;
     return utcStartTime == utcEndTime
@@ -371,8 +367,7 @@ bool LocalTimePeriod::isValidUtcStartAndEndTime(
 
 // CREATORS
 inline
-LocalTimePeriod::LocalTimePeriod(
-                                              bslma::Allocator *basicAllocator)
+baltzo::LocalTimePeriod::LocalTimePeriod(bslma::Allocator *basicAllocator)
 : d_descriptor(basicAllocator)
 , d_utcStartTime()
 , d_utcEndTime()
@@ -380,11 +375,11 @@ LocalTimePeriod::LocalTimePeriod(
 }
 
 inline
-LocalTimePeriod::LocalTimePeriod(
-                             const LocalTimeDescriptor&  descriptor,
-                             const bdlt::Datetime&               utcStartTime,
-                             const bdlt::Datetime&               utcEndTime,
-                             bslma::Allocator                  *basicAllocator)
+baltzo::LocalTimePeriod::LocalTimePeriod(
+                                    const LocalTimeDescriptor&  descriptor,
+                                    const bdlt::Datetime&       utcStartTime,
+                                    const bdlt::Datetime&       utcEndTime,
+                                    bslma::Allocator           *basicAllocator)
 : d_descriptor(descriptor, basicAllocator)
 , d_utcStartTime(utcStartTime)
 , d_utcEndTime(utcEndTime)
@@ -393,9 +388,9 @@ LocalTimePeriod::LocalTimePeriod(
 }
 
 inline
-LocalTimePeriod::LocalTimePeriod(
-                                 const LocalTimePeriod&  original,
-                                 bslma::Allocator              *basicAllocator)
+baltzo::LocalTimePeriod::LocalTimePeriod(
+                                        const LocalTimePeriod&  original,
+                                        bslma::Allocator       *basicAllocator)
 : d_descriptor(original.d_descriptor, basicAllocator)
 , d_utcStartTime(original.d_utcStartTime)
 , d_utcEndTime(original.d_utcEndTime)
@@ -404,15 +399,15 @@ LocalTimePeriod::LocalTimePeriod(
 }
 
 inline
-LocalTimePeriod::~LocalTimePeriod()
+baltzo::LocalTimePeriod::~LocalTimePeriod()
 {
     BSLS_ASSERT_SAFE(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
 }
 
 // MANIPULATORS
 inline
-LocalTimePeriod& LocalTimePeriod::operator=(
-                                             const LocalTimePeriod& rhs)
+baltzo::LocalTimePeriod& baltzo::LocalTimePeriod::operator=(
+                                                    const LocalTimePeriod& rhs)
 {
     d_descriptor   = rhs.d_descriptor;    // must be first
     d_utcStartTime = rhs.d_utcStartTime;
@@ -421,9 +416,9 @@ LocalTimePeriod& LocalTimePeriod::operator=(
 }
 
 inline
-void LocalTimePeriod::setUtcStartAndEndTime(
-                                             const bdlt::Datetime& utcStartTime,
-                                             const bdlt::Datetime& utcEndTime)
+void baltzo::LocalTimePeriod::setUtcStartAndEndTime(
+                                            const bdlt::Datetime& utcStartTime,
+                                            const bdlt::Datetime& utcEndTime)
 {
     BSLS_ASSERT_SAFE(isValidUtcStartAndEndTime(utcStartTime, utcEndTime));
 
@@ -432,14 +427,13 @@ void LocalTimePeriod::setUtcStartAndEndTime(
 }
 
 inline
-void LocalTimePeriod::setDescriptor(
-                                       const LocalTimeDescriptor& value)
+void baltzo::LocalTimePeriod::setDescriptor(const LocalTimeDescriptor& value)
 {
     d_descriptor = value;
 }
 
 inline
-void LocalTimePeriod::swap(LocalTimePeriod& other)
+void baltzo::LocalTimePeriod::swap(LocalTimePeriod& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
@@ -451,34 +445,32 @@ void LocalTimePeriod::swap(LocalTimePeriod& other)
 
 // ACCESSORS
 inline
-bslma::Allocator *LocalTimePeriod::allocator() const
+bslma::Allocator *baltzo::LocalTimePeriod::allocator() const
 {
     return d_descriptor.allocator();
 }
 
 inline
-const LocalTimeDescriptor& LocalTimePeriod::descriptor() const
+const baltzo::LocalTimeDescriptor& baltzo::LocalTimePeriod::descriptor() const
 {
     return d_descriptor;
 }
 
 inline
-const bdlt::Datetime& LocalTimePeriod::utcStartTime() const
+const bdlt::Datetime& baltzo::LocalTimePeriod::utcStartTime() const
 {
     return d_utcStartTime;
 }
 
 inline
-const bdlt::Datetime& LocalTimePeriod::utcEndTime() const
+const bdlt::Datetime& baltzo::LocalTimePeriod::utcEndTime() const
 {
     return d_utcEndTime;
 }
-}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool baltzo::operator==(const LocalTimePeriod& lhs,
-                const LocalTimePeriod& rhs)
+bool baltzo::operator==(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs)
 {
     return lhs.descriptor()   == rhs.descriptor()
         && lhs.utcStartTime() == rhs.utcStartTime()
@@ -486,8 +478,7 @@ bool baltzo::operator==(const LocalTimePeriod& lhs,
 }
 
 inline
-bool baltzo::operator!=(const LocalTimePeriod& lhs,
-                const LocalTimePeriod& rhs)
+bool baltzo::operator!=(const LocalTimePeriod& lhs, const LocalTimePeriod& rhs)
 {
     return lhs.descriptor()   != rhs.descriptor()
         || lhs.utcStartTime() != rhs.utcStartTime()
@@ -495,28 +486,35 @@ bool baltzo::operator!=(const LocalTimePeriod& lhs,
 }
 
 inline
-bsl::ostream& baltzo::operator<<(bsl::ostream&                 stream,
-                         const LocalTimePeriod& localTimePeriod)
+std::ostream& baltzo::operator<<(bsl::ostream&          stream,
+                                 const LocalTimePeriod& localTimePeriod)
 {
     return localTimePeriod.print(stream, 0, -1);
 }
 
 // FREE FUNCTIONS
 inline
-void swap(baltzo::LocalTimePeriod& a, baltzo::LocalTimePeriod& b)
+void baltzo::swap(LocalTimePeriod& a, LocalTimePeriod& b)
 {
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

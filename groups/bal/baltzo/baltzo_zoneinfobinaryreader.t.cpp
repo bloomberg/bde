@@ -42,11 +42,11 @@ using bsl::exit;
 //
 // The test apparatus contains functions to create an arbitrary Zoneinfo binary
 // data.  A byte stream can be created from this data and the 'read' function
-// can be called on the byte stream to produce a 'baltzo::Zoneinfo' object.  The
-// test apparatus contains the 'verifyTimeZone' function to verify the
+// can be called on the byte stream to produce a 'baltzo::Zoneinfo' object.
+// The test apparatus contains the 'verifyTimeZone' function to verify the
 // resulting 'baltzo::Zoneinfo' object matches the data in the byte stream.
 // Both version '\0' and version '2' of the Zoneinfo binary data are tested.
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 8] read(baltzo::Zoneinfo *, bsl::istream&, bA=0);
 // [ 7] read(baltzo::Zoneinfo *, FileDescription *, bsl::istream&, bA=0);
@@ -1081,7 +1081,7 @@ static void writeBigEndian(char *address, int value)
 
 // ----------------------------------------------------------------------------
 
-static void writeBigEndian(char *address, bsls::Types::Int64 value)
+static void writeBigEndian64(char *address, bsls::Types::Int64 value)
 {
     bsls::Types::Int64 hostValue = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
     memcpy(address, &hostValue, sizeof hostValue);
@@ -1451,7 +1451,7 @@ class RawLeapInfo64 {
 // MANIPULATORS
 void RawLeapInfo64::setTransition(bsls::Types::Int64 value)
 {
-    writeBigEndian(d_transition, value);
+    writeBigEndian64(d_transition, value);
 }
 
 void RawLeapInfo64::setCorrection(int value)
@@ -1979,7 +1979,7 @@ static int verifyTimeZone(const ZoneinfoData&    data,
             LOOP3_ASSERT(LINE, H->numTransitions(), X.numTransitions() - 1,
                         H->numTransitions() == X.numTransitions() - 1);
         }
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     baltzo::Zoneinfo::TransitionConstIterator XT = X.beginTransitions();
@@ -1988,7 +1988,7 @@ static int verifyTimeZone(const ZoneinfoData&    data,
             LOOP2_ASSERT(LINE, XT->utcTime(),
                          FIRST_TRANSITION == XT->utcTime());
         }
-        return 2;
+        return 2;                                                     // RETURN
     }
 
     ++XT;
@@ -2000,7 +2000,7 @@ static int verifyTimeZone(const ZoneinfoData&    data,
             if (!expectToFail) {
                 LOOP_ASSERT(LINE, X.endTransitions() != XT);
             }
-            return 3;
+            return 3;                                                 // RETURN
         }
 
         int TT = *transitionTimeBuf;
@@ -2009,7 +2009,7 @@ static int verifyTimeZone(const ZoneinfoData&    data,
                 LOOP4_ASSERT(LINE, i, TT, XT->utcTime(),
                              TT == XT->utcTime());
             }
-            return 4;
+            return 4;                                                 // RETURN
         }
 
         int index = transitionIndexBuf[i];
@@ -2024,7 +2024,7 @@ static int verifyTimeZone(const ZoneinfoData&    data,
                 LOOP4_ASSERT(LINE, i, D, XT->descriptor(),
                              D == XT->descriptor());
             }
-            return 5;
+            return 5;                                                 // RETURN
         }
 
         ++XT;
@@ -2059,7 +2059,7 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&    data,
             LOOP3_ASSERT(LINE, H->numTransitions(), X.numTransitions() - 1,
                         H->numTransitions() == X.numTransitions() - 1);
         }
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     baltzo::Zoneinfo::TransitionConstIterator XT = X.beginTransitions();
@@ -2068,7 +2068,7 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&    data,
             LOOP2_ASSERT(LINE, XT->utcTime(),
                          FIRST_TRANSITION == XT->utcTime());
         }
-        return 2;
+        return 2;                                                     // RETURN
     }
 
     ++XT;
@@ -2080,7 +2080,7 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&    data,
             if (!expectToFail) {
                 LOOP_ASSERT(LINE, X.endTransitions() != XT);
             }
-            return 3;
+            return 3;                                                 // RETURN
         }
 
         bsls::Types::Int64 TT = *transitionTimeBuf;
@@ -2089,7 +2089,7 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&    data,
                 LOOP4_ASSERT(LINE, i, TT, XT->utcTime(),
                              TT == XT->utcTime());
             }
-            return 4;
+            return 4;                                                 // RETURN
         }
 
         int index = transitionIndexBuf[i];
@@ -2104,7 +2104,7 @@ static int verifyTimeZoneVersion2Format(const ZoneinfoData&    data,
                 LOOP4_ASSERT(LINE, i, D, XT->descriptor(),
                              D == XT->descriptor());
             }
-            return 5;
+            return 5;                                                 // RETURN
         }
 
         ++XT;
@@ -2175,7 +2175,7 @@ static int testVerifyTimeZone(int verbose)
     }
 
     RawLocalTimeTypes *localTimeTypes = ZI.getRawLocalTimeTypes();
-    for (int i = 0; i < NUM_TRANSITION_TIME; ++i) {
+    for (int i = 0; i < NUM_LOCAL_TIME_TYPES; ++i) {
         localTimeTypes[i].setOffset(LOCAL_TIME_TYPES[i].d_offset);
         localTimeTypes[i].setIsDst(LOCAL_TIME_TYPES[i].d_dstFlag);
         localTimeTypes[i].setAbbreviationIndex(
@@ -2406,7 +2406,7 @@ static int testVerifyTimeZoneVersion2Format(int verbose)
     }
 
     RawLocalTimeTypes *localTimeTypes = ZI.getRawLocalTimeTypes64();
-    for (int i = 0; i < NUM_TRANSITION_TIME; ++i) {
+    for (int i = 0; i < NUM_LOCAL_TIME_TYPES; ++i) {
         localTimeTypes[i].setOffset(LOCAL_TIME_TYPES[i].d_offset);
         localTimeTypes[i].setIsDst(LOCAL_TIME_TYPES[i].d_dstFlag);
         localTimeTypes[i].setAbbreviationIndex(
@@ -2586,6 +2586,9 @@ int main(int argc, char *argv[])
     bool veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // Turn off logging.
@@ -2593,7 +2596,7 @@ int main(int argc, char *argv[])
     ball::DefaultObserver observer(&bsl::cout);
     ball::LoggerManagerConfiguration configuration;
     ball::LoggerManager& manager =
-                   ball::LoggerManager::initSingleton(&observer, configuration);
+                  ball::LoggerManager::initSingleton(&observer, configuration);
 
     manager.setDefaultThresholdLevels(ball::Severity::BAEL_OFF,
                                       ball::Severity::BAEL_OFF,
@@ -2665,6 +2668,7 @@ int main(int argc, char *argv[])
         bsl::cerr << "baltzo::ZoneinfoBinaryReader::load failed"
                   << bsl::endl;
         return 1;                                                      //RETURN
+                                                                      // RETURN
     }
 //..
 // Finally, we write a description of the loaded Zoneinfo to the console.
@@ -2814,7 +2818,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != Obj::read(&TZ, inputStream));
         }
 
-        if (verbose) cout << "\nInvalid version '\0' 'numTransitions'." << endl;
+        if (verbose) cout << "\nInvalid version '\0' 'numTransitions'.\n";
         {
             ZoneinfoData ZI;
             ZI.getRawHeader()->setNumTransitions(-1);
@@ -3331,18 +3335,18 @@ int main(int argc, char *argv[])
         const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
 
         if (verbose) cout <<
-                         "\nTesting version '\0' multiple transitions." << endl;
+                         "\nTesting version '\0' multiple transitions.\n";
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 for (int i = 0; i < NUM_U_DATA; ++i) {
                     const int   LINE      = DATA[ti].d_line;
                     const int   NUM_TRANS = DATA[ti].d_numTransitions;
-                    const int   LLT_LINE  = U_DATA[ti].d_line;
-                    const int   NUM_LLT   = U_DATA[ti].d_numLocalTimeTypes;
+                    const int   LLT_LINE  = U_DATA[i].d_line;
+                    const int   NUM_LLT   = U_DATA[i].d_numLocalTimeTypes;
 
                     RawHeader RH;
                     RH.setNumTransitions(NUM_TRANS);
-                    RH.setNumLocalTimeTypes(NUM_U_DATA);
+                    RH.setNumLocalTimeTypes(NUM_LLT);
 
                     ZoneinfoData ZI(RH);
 
@@ -3365,13 +3369,13 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_U_DATA; ++i) {
                     const int   LINE      = DATA[ti].d_line;
                     const int   NUM_TRANS = DATA[ti].d_numTransitions;
-                    const int   LLT_LINE  = U_DATA[ti].d_line;
-                    const int   NUM_LLT   = U_DATA[ti].d_numLocalTimeTypes;
+                    const int   LLT_LINE  = U_DATA[i].d_line;
+                    const int   NUM_LLT   = U_DATA[i].d_numLocalTimeTypes;
 
                     RawHeader RH;
                     RH.setVersion('2');
                     RH.setNumTransitions(NUM_TRANS);
-                    RH.setNumLocalTimeTypes(NUM_U_DATA);
+                    RH.setNumLocalTimeTypes(NUM_LLT);
 
                     ZoneinfoData ZI(RH);
 
@@ -4588,11 +4592,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

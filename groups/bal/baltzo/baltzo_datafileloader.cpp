@@ -23,12 +23,12 @@ BSLS_IDENT_RCSID(baltzo_datafileloader_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-static const char LOG_CATEGORY[] = "BAETZO.DATAFILELOADER";
+static const char LOG_CATEGORY[] = "BALTZO.DATAFILELOADER";
 
 static const char *INVALID_PATH = "! INVALID_FILE_PATH !";
 
 static const int UNSPECIFIED_ERROR = -1;
-static const int UNSUPPORTED_ID    = baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID;
+static const int UNSUPPORTED_ID    = baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;
 
 BSLMF_ASSERT(UNSUPPORTED_ID != UNSPECIFIED_ERROR);
 
@@ -81,13 +81,12 @@ int validateTimeZoneId(const char *timeZoneId)
     return 0;
 }
 
-namespace baltzo {
-                       // ---------------------------
+                       // --------------------
                        // class DataFileLoader
-                       // ---------------------------
+                       // --------------------
 
 // CLASS METHODS
-bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
+bool baltzo::DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -105,17 +104,17 @@ bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 }
 
 // CREATORS
-DataFileLoader::DataFileLoader(bslma::Allocator *basicAllocator)
+baltzo::DataFileLoader::DataFileLoader(bslma::Allocator *basicAllocator)
 : d_rootPath(INVALID_PATH, basicAllocator)
 {
 }
 
-DataFileLoader::~DataFileLoader()
+baltzo::DataFileLoader::~DataFileLoader()
 {
 }
 
 // MANIPULATORS
-void DataFileLoader::configureRootPath(const char *path)
+void baltzo::DataFileLoader::configureRootPath(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -128,7 +127,7 @@ void DataFileLoader::configureRootPath(const char *path)
     d_rootPath = path;
 }
 
-int DataFileLoader::configureRootPathIfPlausible(const char *path)
+int baltzo::DataFileLoader::configureRootPathIfPlausible(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -140,8 +139,8 @@ int DataFileLoader::configureRootPathIfPlausible(const char *path)
     return 0;
 }
 
-int DataFileLoader::loadTimeZone(Zoneinfo *result,
-                                        const char      *timeZoneId)
+int baltzo::DataFileLoader::loadTimeZone(Zoneinfo   *result,
+                                         const char *timeZoneId)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -164,9 +163,9 @@ int DataFileLoader::loadTimeZone(Zoneinfo *result,
     if (!infile.is_open()) {
         // Failed to open the data file for 'timeZoneId'.  If the data-file
         // loader is correctly configured, 'timeZoneId' is not a supported
-        // time-zone identifier, so return 'BAETZO_UNSUPPORTED_ID'.  Otherwise,
+        // time-zone identifier, so return 'BALTZO_UNSUPPORTED_ID'.  Otherwise,
         // if the data-file loader is not correctly configured, return
-        // 'UNSPECIFIED_ERROR' (different from 'BAETZO_UNSUPPORTED_ID').
+        // 'UNSPECIFIED_ERROR' (different from 'BALTZO_UNSUPPORTED_ID').
 
         BALL_LOG_ERROR << "Failed to open time-zone information file '"
                        << path << "'" << BALL_LOG_END;
@@ -181,8 +180,8 @@ int DataFileLoader::loadTimeZone(Zoneinfo *result,
 }
 
 // ACCESSORS
-int DataFileLoader::loadTimeZoneFilePath(bsl::string *result,
-                                                const char  *timeZoneId) const
+int baltzo::DataFileLoader::loadTimeZoneFilePath(bsl::string *result,
+                                                 const char  *timeZoneId) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -190,28 +189,34 @@ int DataFileLoader::loadTimeZoneFilePath(bsl::string *result,
 
     const int rc = validateTimeZoneId(timeZoneId);
     if (0 != rc) {
-        return rc;
+        return rc;                                                    // RETURN
     }
 
     concatenatePath(result, d_rootPath.c_str(), timeZoneId);
     return 0;
 }
 
-const bsl::string& DataFileLoader::rootPath() const
+const bsl::string& baltzo::DataFileLoader::rootPath() const
 {
     BSLS_ASSERT(INVALID_PATH != d_rootPath);
 
     return d_rootPath;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

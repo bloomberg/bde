@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of named errors for the 'baetzo' package.
+//@PURPOSE: Enumerate the set of named errors for the 'baltzo' package.
 //
 //@CLASSES:
 //  baltzo::ErrorCode: namespace for error status 'enum'
@@ -18,14 +18,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'baltzo::ErrorCode::Enum', which enumerates the set of named error codes
-// returned by functions across the 'baetzo' package.
+// returned by functions across the 'baltzo' package.
 //
 ///Enumerators
 ///-----------
 //..
 //  Name                    Description
 //  ---------------------   --------------------------------------
-//  BAETZO_UNSUPPORTED_ID   Time zone identifier is not supported.
+//  BALTZO_UNSUPPORTED_ID   Time zone identifier is not supported.
 //..
 //
 ///Usage
@@ -39,9 +39,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a variable 'value' of type 'baltzo::ErrorCode::Enum' and
 // initialize it with the enumerator value
-// 'baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID':
+// 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID':
 //..
-//  baltzo::ErrorCode::Enum value = baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID;
+//  baltzo::ErrorCode::Enum value = baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;
 //..
 // Now, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -67,15 +67,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baltzo {
-                          // =======================
-                          // struct ErrorCode
-                          // =======================
+                            // ================
+                            // struct ErrorCode
+                            // ================
 
 struct ErrorCode {
     // This 'struct' provides a namespace for enumerating the set of named
-    // error codes that may be returned by functions in the 'baetzo' package
+    // error codes that may be returned by functions in the 'baltzo' package
     // that take a Zoneinfo string identifier as input.  See 'Enum' in the
     // TYPES sub-section for details.
     //
@@ -88,15 +87,20 @@ struct ErrorCode {
   public:
     // TYPES
     enum Enum {
-        BAETZO_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
+        BALTZO_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+      , BAETZO_UNSUPPORTED_ID = BALTZO_UNSUPPORTED_ID
+#endif  // BDE_OPENSOURCE_PUBLICATION
+
     };
 
   public:
     // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream&          stream,
+    static bsl::ostream& print(bsl::ostream&   stream,
                                ErrorCode::Enum value,
-                               int                    level          = 0,
-                               int                    spacesPerLevel = 4);
+                               int             level          = 0,
+                               int             spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose
@@ -114,11 +118,10 @@ struct ErrorCode {
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BAETZO_" prefix elided.  For
+        // corresponding enumerator name with the "BALTZO_" prefix elided.  For
         // example:
         //..
-        //  bsl::cout << ErrorCode::toAscii(
-        //                            ErrorCode::BAETZO_UNSUPPORTED_ID);
+        //  bsl::cout << ErrorCode::toAscii(ErrorCode::BALTZO_UNSUPPORTED_ID);
         //..
         // will print the following on standard output:
         //..
@@ -132,7 +135,6 @@ struct ErrorCode {
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, ErrorCode::Enum value);
-}  // close package namespace
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
@@ -142,13 +144,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, ErrorCode::Enum value);
     //  baltzo::ErrorCode::print(stream, value, 0, -1);
     //..
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                          // -----------------------
-                          // struct baltzo::ErrorCode
-                          // -----------------------
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                            // ----------------
+                            // struct ErrorCode
+                            // ----------------
 
 // FREE OPERATORS
 inline
@@ -157,15 +161,22 @@ bsl::ostream& baltzo::operator<<(bsl::ostream& stream, ErrorCode::Enum value)
     return ErrorCode::print(stream, value, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

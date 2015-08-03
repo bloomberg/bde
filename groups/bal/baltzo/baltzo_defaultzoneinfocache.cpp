@@ -19,10 +19,10 @@ BSLS_IDENT_RCSID(baltzo_defaultzoneinfocache_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-static const char LOG_CATEGORY[] = "BAETZO.DEFAULTZONEINFOCACHE";
+static const char LOG_CATEGORY[] = "BALTZO.DEFAULTZONEINFOCACHE";
 
 // Potential locations of TZ Database time-zone information.
-static const char *BAETZO_DATA_LOCATIONS[] = {
+static const char *BALTZO_DATA_LOCATIONS[] = {
 #ifndef BSLS_PLATFORM_OS_WINDOWS
     "/opt/bb/share/zoneinfo/"      // Bloomberg standard data location
   , "/bb/data/datetime/zoneinfo/"  // deprecated Bloomberg stnd data location
@@ -35,8 +35,8 @@ static const char *BAETZO_DATA_LOCATIONS[] = {
 };
 
 // STATIC DATA
-static baltzo::ZoneinfoCache *systemSingletonCachePtr = 0;  // default sys cache
-static baltzo::ZoneinfoCache *userSingletonCachePtr   = 0;  // default usr cache
+static baltzo::ZoneinfoCache *systemSingletonCachePtr = 0; // default sys cache
+static baltzo::ZoneinfoCache *userSingletonCachePtr   = 0; // default usr cache
 
 // STATIC HELPER FUNCTIONS
 static
@@ -51,20 +51,19 @@ baltzo::ZoneinfoCache *initSystemDefaultCache()
 
     static baltzo::DataFileLoader loader(allocator);
     loader.configureRootPath(
-                   baltzo::DefaultZoneinfoCache::defaultZoneinfoDataLocation());
+                  baltzo::DefaultZoneinfoCache::defaultZoneinfoDataLocation());
 
     static baltzo::ZoneinfoCache cache(&loader, allocator);
 
     return &cache;
 }
 
-namespace baltzo {
-                        // ---------------------------------
+                        // --------------------------
                         // class DefaultZoneinfoCache
-                        // ---------------------------------
+                        // --------------------------
 
 // PRIVATE CLASS METHODS
-ZoneinfoCache *DefaultZoneinfoCache::instance()
+baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::instance()
 {
     if (userSingletonCachePtr) {
         return userSingletonCachePtr;                                 // RETURN
@@ -79,7 +78,7 @@ ZoneinfoCache *DefaultZoneinfoCache::instance()
 }
 
 // CLASS METHODS
-const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
+const char *baltzo::DefaultZoneinfoCache::defaultZoneinfoDataLocation()
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     const char *envValue = getenv("BDE_ZONEINFO_ROOT_PATH");
@@ -100,7 +99,7 @@ const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
         return envValue;                                              // RETURN
     }
 
-    for (const char **pathPtr = BAETZO_DATA_LOCATIONS; *pathPtr; ++pathPtr) {
+    for (const char **pathPtr = BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr) {
         if (DataFileLoader::isPlausibleZoneinfoRootPath(*pathPtr)) {
             BALL_LOG_INFO << "The environment variable "
                           << "'BDE_ZONEINFO_ROOT_PATH' has not been set. "
@@ -120,32 +119,38 @@ const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
     return ".";
 }
 
-void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
+void baltzo::DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
                                           bsl::vector<const char *> *locations)
 {
     BSLS_ASSERT(locations);
 
-    for (const char **pathPtr = BAETZO_DATA_LOCATIONS; *pathPtr; ++pathPtr) {
+    for (const char **pathPtr = BALTZO_DATA_LOCATIONS; *pathPtr; ++pathPtr) {
         locations->push_back(*pathPtr);
     }
 }
 
-ZoneinfoCache *DefaultZoneinfoCache::setDefaultCache(
-                                                   ZoneinfoCache *cache)
+baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::setDefaultCache(
+                                                          ZoneinfoCache *cache)
 {
     ZoneinfoCache *previous = userSingletonCachePtr;
     userSingletonCachePtr = cache;
     return previous;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

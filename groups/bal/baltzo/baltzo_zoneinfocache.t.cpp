@@ -139,7 +139,7 @@ typedef baltzo::Zoneinfo            Zone;
 typedef baltzo::LocalTimeDescriptor Desc;
 typedef bsl::shared_ptr<Desc>      DescPtr;
 
-const int U = baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID;
+const int U = baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;
 
 //=============================================================================
 //                      GLOBAL CLASSES FOR TESTING
@@ -152,7 +152,7 @@ void executeInParallel(int                               numThreads,
    // on the specified 'threadArgs'.
 {
     bdlqq::ThreadUtil::Handle *threads =
-                                      new bdlqq::ThreadUtil::Handle[numThreads];
+                                     new bdlqq::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
@@ -245,7 +245,7 @@ class TestDriverTestLoader : public baltzo::Loader {
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  By default the test loader will return
-        // 'baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID' for all time zone
+        // 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' for all time zone
         // identifiers.  Note that providing a delay for 'loadTimeZone' in
         // order to verify thread safe access to that method.
 
@@ -283,7 +283,7 @@ class TestDriverTestLoader : public baltzo::Loader {
     virtual int loadTimeZone(baltzo::Zoneinfo *result, const char *timeZoneId);
         // Load into the specified 'result' the olson time zone information
         // for the time zone identified by the specified 'timeZoneId'.  Return
-        // 0 on success, 'baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID' if the
+        // 0 on success, 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' if the
         // identified time zone is not supported, and a negative value if any
         // other error occurs.
 
@@ -339,7 +339,7 @@ void TestDriverTestLoader::addTimeZone(const char *timeZone,
                                         d_allocator_p);
         bdlt::Datetime firstTime(1, 1, 1);
         bsls::Types::Int64 firstTimeT =
-                                      bdlt::EpochUtil::convertToTimeT64(firstTime);
+                                  bdlt::EpochUtil::convertToTimeT64(firstTime);
         zoneinfo.addTransition(firstTimeT, type);
     }
     d_timeZones[timeZone] = zoneinfo;
@@ -361,7 +361,8 @@ void TestDriverTestLoader::addTimeZone(const char *timeZoneId,
 
     baltzo::LocalTimeDescriptor type(utcOffset, dstFlag, name, d_allocator_p);
     bdlt::Datetime firstTime(1, 1, 1);
-    bsls::Types::Int64 firstTimeT = bdlt::EpochUtil::convertToTimeT64(firstTime);
+    bsls::Types::Int64 firstTimeT =
+                                  bdlt::EpochUtil::convertToTimeT64(firstTime);
 
     zoneinfo.addTransition(firstTimeT, type);
     d_timeZones[cacheIdentifier] = zoneinfo;
@@ -382,7 +383,7 @@ int TestDriverTestLoader::loadTimeZone(baltzo::Zoneinfo *result,
     TimeZoneMap::const_iterator it = d_timeZones.find(timeZoneId);
 
     if (it == d_timeZones.end()) {
-        return baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID;               // RETURN
+        return baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;              // RETURN
     }
 
     *result = it->second;
@@ -400,7 +401,7 @@ const bsl::string& TestDriverTestLoader::lastRequestedTimeZone() const
 //                      CONCURRENCY CONCERNS RELATED ENTRIES
 //-----------------------------------------------------------------------------
 
-namespace BAETZO_ZONEINFOCACHE_CONCURRENCY {
+namespace BALTZO_ZONEINFOCACHE_CONCURRENCY {
 
 struct TimeZoneData {
         int         d_line;       // line number
@@ -484,7 +485,7 @@ extern "C" void *workerThread(void *arg)
     return 0;
 }
 
-}  // close namespace BAETZO_ZONEINFOCACHE_CONCURRENCY
+}  // close namespace BALTZO_ZONEINFOCACHE_CONCURRENCY
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -522,7 +523,7 @@ class TestLoader : public baltzo::Loader {
         // Create a 'TestLoader' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  By default the
-        // test loader will return 'baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID'
+        // test loader will return 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID'
         // for all time zone identifiers.
 
     virtual ~TestLoader();
@@ -540,7 +541,7 @@ class TestLoader : public baltzo::Loader {
                              const char      *timeZoneId);
         // Load into the specified 'result' the olson time zone information
         // for the time zone identified by the specified 'timeZoneId'.  Return
-        // 0 on success, 'baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID' if the
+        // 0 on success, 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' if the
         // identified time zone is not supported, and a negative value if any
         // other error occurs.
 };
@@ -579,7 +580,7 @@ int TestLoader::loadTimeZone(baltzo::Zoneinfo *result,
     TimeZoneMap::const_iterator it = d_timeZones.find(timeZoneId);
 
     if (it == d_timeZones.end()) {
-        return baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID;               // RETURN
+        return baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;              // RETURN
     }
 
     *result = it->second;
@@ -606,7 +607,7 @@ int main(int argc, char *argv[])
                                                    ball::Severity::BAEL_OFF,
                                                    ball::Severity::BAEL_OFF);
     ball::LoggerManager& manager =
-                   ball::LoggerManager::initSingleton(&observer, configuration);
+                  ball::LoggerManager::initSingleton(&observer, configuration);
 
     bslma::TestAllocator defaultAllocator;  // To be used to make sure the
                                             // allocator is always passed down
@@ -679,7 +680,7 @@ int main(int argc, char *argv[])
 // 'isWellFormed'):
 //..
     bsls::Types::Int64 firstTime = bdlt::EpochUtil::convertToTimeT64(
-                                                       bdlt::Datetime(1, 1, 1));
+                                                      bdlt::Datetime(1, 1, 1));
     newYorkZoneinfo.addTransition(firstTime, est);
     londonZoneinfo.addTransition(firstTime, gmt);
 //..
@@ -753,7 +754,7 @@ int main(int argc, char *argv[])
 // identifier is not supported:
 //..
     ASSERT(0 == cache.getZoneinfo(&rc, "badId"));
-    ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+    ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 //..
 
       } break;
@@ -763,8 +764,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That simultaneous calls to 'getZoneinfo' for the same time-zone
-        //:   id initialize and load a *single* 'baltzo::Zoneinfo' object, whose
-        //:   address is returned for all calls.
+        //:   id initialize and load a *single* 'baltzo::Zoneinfo' object,
+        //:   whose address is returned for all calls.
         //:
         //: 2 That a call to 'lookupZoneinfo', made concurrently to a call
         //:   to either 'lookupZoneinfo' or 'loadTimeZone' for the same time
@@ -775,10 +776,10 @@ int main(int argc, char *argv[])
         //:   the 'baltzo::Loader' object supplied at construction
         //
         // Plan:
-        //: 1 Define a 'TestDriverTestLoader' implementation of 'baltzo::Loader'
-        //:   that will delay on calls to 'loadTimeZone', maintain a count of
-        //:   concurrent invocations, and ASSERT if that conccurent call count
-        //:   is greater than 1.
+        //: 1 Define a 'TestDriverTestLoader' implementation of
+        //:   'baltzo::Loader' that will delay on calls to 'loadTimeZone',
+        //:   maintain a count of concurrent invocations, and ASSERT if that
+        //:   conccurent call count is greater than 1.
         //:
         //: 2 Create an instance of 'TestDriverTestLoader' and configure that
         //:   instance with a set of sample data.
@@ -788,15 +789,15 @@ int main(int argc, char *argv[])
         //:   'getZoneinfo' for the same time zone identifier returns the same
         //:   'baltzo::Zoneinfo' address.  Verify that each call to
         //:   'lookupZoneinfo' either returns 0 (if it is possible
-        //:   'getZoneinfo' has not been called), or the same 'baltzo::Zoneinfo'
-        //:   address that was previously returned for that time zone
-        //:   identifier.
+        //:   'getZoneinfo' has not been called), or the same
+        //:   'baltzo::Zoneinfo' address that was previously returned for that
+        //:   time zone identifier.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING CONCURRENCY" << endl
                                   << "===================" << endl;
 
-        using namespace BAETZO_ZONEINFOCACHE_CONCURRENCY;
+        using namespace BALTZO_ZONEINFOCACHE_CONCURRENCY;
 
         // A 'bslma::TestAllocator' is required for thread safe allocations.
         bslma::TestAllocator testAllocator;
@@ -1029,15 +1030,15 @@ int main(int argc, char *argv[])
         //  Address concerns for 'getZoneinfo' not directly tested by the
         //  bootstrap tests:
         //
-        //: 1 'getZoneinfo' will return an 'BAETZO_UNSPECIFIED_ID' if the time
+        //: 1 'getZoneinfo' will return an 'BALTZO_UNSPECIFIED_ID' if the time
         //:   zone loader does not know the specified id.
         //:
         //: 2 'getZoneinfo' will return an error (other than
-        //:   'BAETZO_UNSPECIED_ID') if the loaded time zone is not
+        //:   'BALTZO_UNSPECIED_ID') if the loaded time zone is not
         //:   well-defined.
         //:
         //: 3 'getZoneinfo' will return an error code, other than
-        //:   ' BAETZO_UNSPECIFIED_ID' it the loader fails to load the time
+        //:   ' BALTZO_UNSPECIFIED_ID' it the loader fails to load the time
         //:    zone.
         //:
         //: 4 'getZoneinfo' uses the appropriate allocator.
@@ -1455,7 +1456,7 @@ int main(int argc, char *argv[])
         //:   provided.
         //:
         //: 2 That 'loadTimeZone' returns
-        //:   'baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID' for time zone ids that
+        //:   'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' for time zone ids that
         //:   have not been added.
         //:
         //: 3 That 'lastReturnedTimeZone' correctly returns the last time zone
@@ -1570,7 +1571,7 @@ int main(int argc, char *argv[])
 
                         bdlt::Datetime firstTime(1, 1, 1);
                         bsls::Types::Int64 firstTimeT =
-                                    bdlt::EpochUtil::convertToTimeT64(firstTime);
+                                  bdlt::EpochUtil::convertToTimeT64(firstTime);
 
                         baltzo::Zoneinfo::TransitionConstIterator itT =
                                                      result.beginTransitions();
@@ -1632,7 +1633,7 @@ int main(int argc, char *argv[])
 
         bdlt::Datetime firstTime(1, 1, 1);
         bsls::Types::Int64 firstTimeT =
-                                      bdlt::EpochUtil::convertToTimeT64(firstTime);
+                                  bdlt::EpochUtil::convertToTimeT64(firstTime);
 
         bsl::vector<Zone> timeZones(Z);
         for (int i = 0; i < 3; ++i) {
@@ -1704,11 +1705,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

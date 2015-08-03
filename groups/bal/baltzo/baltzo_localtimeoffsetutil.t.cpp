@@ -64,10 +64,10 @@ using namespace bsl;
 // [ 2] int configure(const char *timezone, const bdlt::Datetime& utc);
 
                         // *** accessor methods ***
-// [ 2] void loadLocalTimePeriod(baltzo::LocalTimePeriod *localTimePeriod);
+// [ 2] void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
 // [ 2] bsl::string loadTimezone(bsl::string *timezone);
 // [ 6] int updateCount();
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
 // [ 2] BOOTSTRAP1: int updateCount();
@@ -1035,7 +1035,7 @@ struct LogVerbosityGuard {
         d_verbose = verbose;
         if (!d_verbose) {
             d_defaultPassthrough =
-                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
+                  ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
                                               ball::Severity::BAEL_OFF,
@@ -1090,7 +1090,7 @@ extern "C" void *workerThread(void *arg)
     p->d_barrier_p->wait();
 
     p->d_offset = baltzo::LocalTimeOffsetUtil::localTimeOffset(
-                                               p->d_utcDatetime).totalSeconds();
+                                              p->d_utcDatetime).totalSeconds();
     return 0;
 }
 
@@ -1306,7 +1306,7 @@ int main(int argc, char *argv[])
     ball::DefaultObserver            observer(&bsl::cout);
     ball::LoggerManagerConfiguration configuration;
     ball::LoggerManager&             manager =
-                   ball::LoggerManager::initSingleton(&observer, configuration);
+                  ball::LoggerManager::initSingleton(&observer, configuration);
     (void)manager;
 
     switch (test) { case 0:
@@ -1623,9 +1623,9 @@ int main(int argc, char *argv[])
         //:   previously callback.
         //
         // Plan:
-        //: 1 Use the 'bdlt::CurrentTime::currentLocalTimeOffsetCallback' method
-        //:   to check the current local time offset callback before and after
-        //:   calls to 'setLoadLocalTimeOffsetCallback'.  (C-1)
+        //: 1 Use the 'bdlt::CurrentTime::currentLocalTimeOffsetCallback'
+        //:   method to check the current local time offset callback before and
+        //:   after calls to 'setLoadLocalTimeOffsetCallback'.  (C-1)
         //:
         //: 2 Compare the value returned by the initial call to the
         //:   'bdlt::CurrentTime::currentLocalTimeOffsetCallback' method with
@@ -1876,7 +1876,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int configure(const char *timezone, const bdlt::Datetime& utc);
-        //   void loadLocalTimePeriod(baltzo::LocalTimePeriod *localTimePeriod);
+        //   void loadLocalTimePeriod(LocalTimePeriod *localTimePeriod);
         //   bsl::string loadTimezone(bsl::string *timezone);
         // --------------------------------------------------------------------
 
@@ -2074,7 +2074,7 @@ int main(int argc, char *argv[])
         P(numIterations)
 
         bdlqq::Configuration::setDefaultThreadStackSize(
-                     bdlqq::Configuration::recommendedDefaultThreadStackSize());
+                    bdlqq::Configuration::recommendedDefaultThreadStackSize());
 
         const bdlt::Datetime newYearsDay(2013, 1,  1);
         const bdlt::Datetime  startOfDst(2013, 3, 10, 7);
@@ -2276,11 +2276,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

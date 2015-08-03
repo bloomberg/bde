@@ -82,8 +82,8 @@ using namespace bsl;
 //
 // CREATORS
 // [ 2] baltzo::LocalTimeDescriptor(bslma::Allocator *bA = 0);
-// [ 3] baltzo::LocalTimeDescriptor(int o, bool f, const SRef& d, *bA = 0);
-// [ 7] baltzo::LocalTimeDescriptor(const baetzo::LTDescriptor& o, *bA = 0);
+// [ 3] LocalTimeDescriptor(int o, bool f, const SRef& d, *bA = 0);
+// [ 7] baltzo::LocalTimeDescriptor(const LTDescriptor& o, *bA = 0);
 // [ 2] ~baltzo::LocalTimeDescriptor();
 //
 // MANIPULATORS
@@ -752,7 +752,7 @@ int main(int argc, char *argv[])
                         LOOP4_ASSERT(LINE1, LINE2,  Z,   X,  Z == X);
                         LOOP4_ASSERT(LINE1, LINE2, mR, &mX, mR == &mX);
 
-                        
+
 #ifdef BDE_BUILD_TARGET_EXC
                         if ('N' == MEMDST2 && 'Y' == MEMSRC1) {
                             LOOP2_ASSERT(LINE1, LINE2, 0 < EXCEPTION_COUNT);
@@ -1286,7 +1286,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   baltzo::LocalTimeDescriptor(const baetzo::LTDescriptor& o, *bA = 0);
+        //   baltzo::LocalTimeDescriptor(const LTDescriptor& o, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2312,7 +2312,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   baltzo::LocalTimeDescriptor(int o, bool f, const SRef& d, *bA = 0);
+        //   LocalTimeDescriptor(int o, bool f, const SRef& d, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3168,10 +3168,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

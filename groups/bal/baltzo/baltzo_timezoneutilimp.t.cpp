@@ -109,7 +109,7 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 //=============================================================================
-//                      GLOBAL TYPEDEFS
+//                              GLOBAL TYPEDEFS
 //-----------------------------------------------------------------------------
 typedef baltzo::TimeZoneUtilImp                   Obj;
 typedef baltzo::LocalTimeDescriptor               Descriptor;
@@ -118,15 +118,15 @@ typedef baltzo::Zoneinfo::TransitionConstIterator Iterator;
 typedef baltzo::ErrorCode                         Err;
 typedef baltzo::DstPolicy                         Dst;
 //=============================================================================
-//                      GLOBAL CONSTANTS
+//                              GLOBAL CONSTANTS
 //-----------------------------------------------------------------------------
-const Dst::Enum      DU   = Dst::BAETZO_UNSPECIFIED;
-const Dst::Enum      DD   = Dst::BAETZO_DST;
-const Dst::Enum      DS   = Dst::BAETZO_STANDARD;
-const Validity::Enum VU   = Validity::BAETZO_VALID_UNIQUE;
-const Validity::Enum VA   = Validity::BAETZO_VALID_AMBIGUOUS;
-const Validity::Enum VI   = Validity::BAETZO_INVALID;
-const Err::Enum      EUID = Err::BAETZO_UNSUPPORTED_ID;
+const Dst::Enum      DU   = Dst::BALTZO_UNSPECIFIED;
+const Dst::Enum      DD   = Dst::BALTZO_DST;
+const Dst::Enum      DS   = Dst::BALTZO_STANDARD;
+const Validity::Enum VU   = Validity::BALTZO_VALID_UNIQUE;
+const Validity::Enum VA   = Validity::BALTZO_VALID_AMBIGUOUS;
+const Validity::Enum VI   = Validity::BALTZO_INVALID;
+const Err::Enum      EUID = Err::BALTZO_UNSUPPORTED_ID;
 
 // Standard Identifiers
 const char *NY       = "America/New_York";
@@ -920,7 +920,7 @@ int main(int argc, char *argv[])
     ball::DefaultObserver observer(&bsl::cout);
     ball::LoggerManagerConfiguration configuration;
     ball::LoggerManager& manager =
-                   ball::LoggerManager::initSingleton(&observer, configuration);
+                  ball::LoggerManager::initSingleton(&observer, configuration);
 
     bslma::TestAllocator allocator, defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
@@ -964,7 +964,7 @@ int main(int argc, char *argv[])
     }
 
     ASSERT(0 == testLoader.setTimeZone(
-                                     "GMT", 
+                                     "GMT",
                                      reinterpret_cast<const char  *>(GMT_DATA),
                                      sizeof(GMT_DATA)));
     ASSERT(0 == testLoader.setTimeZone(
@@ -1053,9 +1053,9 @@ int main(int argc, char *argv[])
 // Before using the methods provided by 'baltzo::TimeZoneUtilImp' we must first
 // define a 'baltzo::ZoneinfoCache' object containing information about various
 // time zones.  For the purposes of this example, we will define a sample
-// cache containing only data for New York loaded through a 'baltzo::TestLoader'
-// object.  Note that, in general, clients should use data from an external
-// data source (see 'baltzo_datafileloader').
+// cache containing only data for New York loaded through a
+// 'baltzo::TestLoader' object.  Note that, in general, clients should use data
+// from an external data source (see 'baltzo_datafileloader').
 //
 // First, we create a Zoneinfo object for New York, and populate 'newYork' with
 // the correct time zone identifier:
@@ -1075,7 +1075,7 @@ int main(int argc, char *argv[])
 // 'baltzo_zoneinfoutil'):
 //..
     newYork.addTransition(bdlt::EpochUtil::convertToTimeT64(
-                                                       bdlt::Datetime(1, 1, 1)),
+                                                      bdlt::Datetime(1, 1, 1)),
                           est);
 //..
 // Next we create a series of transitions between these local-time descriptors
@@ -1162,10 +1162,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 The local-time descriptor held by 'result' has the correct value.
         //:
-        //: 3 Return 'Err::BAETZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 3 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 4 Does not return 0 or 'Err::BAETZO_UNSUPPORTED_ID' if another
+        //: 4 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
         //:   error occurs.
         //
         // Plan:
@@ -1517,10 +1517,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The parameters are correctly forwarded to 'resolveLocalTime'.
         //:
-        //: 3 Return 'Err::BAETZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 3 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 4 Does not return 0 or 'Err::BAETZO_UNSUPPORTED_ID' if another
+        //: 4 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
         //:   error occurs.
         //
         // Plan:
@@ -1830,10 +1830,10 @@ int main(int argc, char *argv[])
         //: 4 The (output) iterator refers to the specified input
         //:   'baltzo::Zoneinfo'.
         //:
-        //: 5 Return 'Err::BAETZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 5 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 6 Does not return 0 or 'Err::BAETZO_UNSUPPORTED_ID' if another
+        //: 6 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
         //:   error occurs.
         //:
         //:7 The correct transition and descriptor is applied for time zones
@@ -2439,10 +2439,10 @@ int main(int argc, char *argv[])
         //: 1 The parameters are correctly forwarded to
         //:   'baltzo::ZoneinfoUtil::convertUtcToLocalTime'.
         //:
-        //: 2 Return 'Err::BAETZO_UNSUPPORTED_ID' if an invalid time zone id is
+        //: 2 Return 'Err::BALTZO_UNSUPPORTED_ID' if an invalid time zone id is
         //:   passed.
         //:
-        //: 3 Does not return 0 or 'Err::BAETZO_UNSUPPORTED_ID' if another
+        //: 3 Does not return 0 or 'Err::BALTZO_UNSUPPORTED_ID' if another
         //:   error occurs.
         //
         // Plan:
@@ -2485,7 +2485,7 @@ int main(int argc, char *argv[])
             bdlt::Datetime VALID_INPUT(2010, 1, 1, 12, 0);
 
             baltzo::DataFileLoader bogusLoader(Z);
-            bogusLoader.configureRootPath("BAETZOBOGUSPATH");
+            bogusLoader.configureRootPath("BALTZOBOGUSPATH");
             baltzo::ZoneinfoCache bogusCache(&bogusLoader, Z);
 
 
@@ -2826,12 +2826,13 @@ int main(int argc, char *argv[])
                 bdlt::Datetime    inputTime;
                 bdlt::DatetimeTz  expResultTime;
                 ASSERT(0 == bdlt::Iso8601Util::parse(&inputTime,
-                                                 inputStr.c_str(),
-                                                 inputStr.size()));
+                                                     inputStr.c_str(),
+                                                     inputStr.size()));
                 ASSERT(0 == bdlt::Iso8601Util::parse(&expResultTime,
-                                                 expResultStr.c_str(),
-                                                 expResultStr.size()));
-                baltzo::LocalDatetime expLocalTime(expResultTime, timeZoneId, Z);
+                                                     expResultStr.c_str(),
+                                                     expResultStr.size()));
+                baltzo::LocalDatetime
+                                    expLocalTime(expResultTime, timeZoneId, Z);
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(policy); P_(inputTime); P(expLocalTime);
@@ -2996,11 +2997,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

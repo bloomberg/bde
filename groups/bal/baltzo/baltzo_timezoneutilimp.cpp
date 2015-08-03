@@ -28,7 +28,7 @@ BSLS_IDENT_RCSID(baltzo_timezoneutilimp_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-static const char LOG_CATEGORY[] = "BAETZO.TIMEZONEUTILIMP";
+static const char LOG_CATEGORY[] = "BALTZO.TIMEZONEUTILIMP";
 
 // STATIC HELPER FUNCTIONS
 static
@@ -38,7 +38,7 @@ int lookupTimeZone(const baltzo::Zoneinfo **timeZone,
     // Load, into the specified 'timeZone', the address of the time zone
     // information having the specified 'timeZoneId' from the specified
     // 'cache'.  Return 0 on success, and a non-zero value otherwise.  A return
-    // status of 'baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+    // status of 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
     // 'timeZoneId' is not recognized.
 {
     BSLS_ASSERT(timeZone);
@@ -60,9 +60,9 @@ int lookupTimeZone(const baltzo::Zoneinfo **timeZone,
 
 static
 baltzo::Zoneinfo::TransitionConstIterator findTransitionWithDstFlag(
-                      const bool                                      dstFlag,
-                      const baltzo::Zoneinfo::TransitionConstIterator& start,
-                      const baltzo::Zoneinfo&                          timeZone)
+                     const bool                                       dstFlag,
+                     const baltzo::Zoneinfo::TransitionConstIterator& start,
+                     const baltzo::Zoneinfo&                          timeZone)
     // Return an iterator referring to a transition in the specified
     // 'timeZone', having a local-time descriptor with the specified 'dstFlag'.
     // If existing, first examine the transition after the specified 'start',
@@ -115,11 +115,11 @@ baltzo::Zoneinfo::TransitionConstIterator findTransitionWithDstFlag(
 
 static
 void selectUtcOffset(
-                int                                             *utcOffsetSec,
-                const baltzo::Zoneinfo::TransitionConstIterator&  iter1,
-                const baltzo::Zoneinfo::TransitionConstIterator&  iter2,
-                const baltzo::Zoneinfo&                           timeZone,
-                bool                                             selectDstFlag)
+               int                                              *utcOffsetSec,
+               const baltzo::Zoneinfo::TransitionConstIterator&  iter1,
+               const baltzo::Zoneinfo::TransitionConstIterator&  iter2,
+               const baltzo::Zoneinfo&                           timeZone,
+               bool                                              selectDstFlag)
 {
     // Load into the specified 'utcOffsetSec', a UTC offset defined by a
     // local-time descriptor in the specified 'timeZone' whose daylight-saving
@@ -128,7 +128,7 @@ void selectUtcOffset(
     // descriptors associated with the two specified potential candidate
     // transitions referred to by 'iter1' and 'iter2'; load into
     // 'utcOffsetSec' the UTC offset indicated by the local-time descriptor
-    // associated with the 'baetzo::Transition' object referred to by 'iter2'
+    // associated with the 'baltzo::Transition' object referred to by 'iter2'
     // if one matching 'selectDstFlag' is not found.  This operation will use
     // the local-time descriptor associated with the transition referred to by
     // 'iter1' if its DST property matches 'selectDstFlag', and, if 'iter1'
@@ -198,17 +198,16 @@ void selectUtcOffset(
     *utcOffsetSec = iter2->descriptor().utcOffsetInSeconds();
 }
 
-namespace baltzo {
-                        // ----------------------------
+                        // ---------------------
                         // class TimeZoneUtilImp
-                        // ----------------------------
+                        // ---------------------
 
 // CLASS METHODS
-int TimeZoneUtilImp::convertUtcToLocalTime(
-                                        bdlt::DatetimeTz      *result,
-                                        const char           *resultTimeZoneId,
-                                        const bdlt::Datetime&  utcTime,
-                                        ZoneinfoCache *cache)
+int baltzo::TimeZoneUtilImp::convertUtcToLocalTime(
+                                       bdlt::DatetimeTz      *result,
+                                       const char            *resultTimeZoneId,
+                                       const bdlt::Datetime&  utcTime,
+                                       ZoneinfoCache         *cache)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(resultTimeZoneId);
@@ -228,13 +227,13 @@ int TimeZoneUtilImp::convertUtcToLocalTime(
     return 0;
 }
 
-int TimeZoneUtilImp::initLocalTime(
-                                bdlt::DatetimeTz                *result,
-                                LocalTimeValidity::Enum *resultValidity,
-                                const bdlt::Datetime&            localTime,
-                                const char                     *timeZoneId,
-                                DstPolicy::Enum          dstPolicy,
-                                ZoneinfoCache           *cache)
+int baltzo::TimeZoneUtilImp::initLocalTime(
+                                       bdlt::DatetimeTz        *result,
+                                       LocalTimeValidity::Enum *resultValidity,
+                                       const bdlt::Datetime&    localTime,
+                                       const char              *timeZoneId,
+                                       DstPolicy::Enum          dstPolicy,
+                                       ZoneinfoCache           *cache)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(resultValidity);
@@ -257,11 +256,11 @@ int TimeZoneUtilImp::initLocalTime(
     return 0;
 }
 
-int TimeZoneUtilImp::loadLocalTimePeriodForUtc(
-                                          LocalTimePeriod *result,
-                                          const char             *timeZoneId,
-                                          const bdlt::Datetime&    utcTime,
-                                          ZoneinfoCache   *cache)
+int baltzo::TimeZoneUtilImp::loadLocalTimePeriodForUtc(
+                                             LocalTimePeriod       *result,
+                                             const char            *timeZoneId,
+                                             const bdlt::Datetime&  utcTime,
+                                             ZoneinfoCache         *cache)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -282,13 +281,13 @@ int TimeZoneUtilImp::loadLocalTimePeriodForUtc(
     return 0;
 }
 
-void TimeZoneUtilImp::resolveLocalTime(
-                     bdlt::DatetimeTz                           *result,
-                     LocalTimeValidity::Enum            *resultValidity,
-                     Zoneinfo::TransitionConstIterator  *transitionIter,
-                     const bdlt::Datetime&                       localTime,
-                     DstPolicy::Enum                     dstPolicy,
-                     const Zoneinfo&                     timeZone)
+void baltzo::TimeZoneUtilImp::resolveLocalTime(
+                             bdlt::DatetimeTz                  *result,
+                             LocalTimeValidity::Enum           *resultValidity,
+                             Zoneinfo::TransitionConstIterator *transitionIter,
+                             const bdlt::Datetime&              localTime,
+                             DstPolicy::Enum                    dstPolicy,
+                             const Zoneinfo&                    timeZone)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(resultValidity);
@@ -317,12 +316,12 @@ void TimeZoneUtilImp::resolveLocalTime(
     // the relevant transitions.
 
     int utcOffsetInSeconds;
-    if (dstPolicy != DstPolicy::BAETZO_UNSPECIFIED) {
+    if (dstPolicy != DstPolicy::BALTZO_UNSPECIFIED) {
         // If 'dstPolicy' is DST or STANDARD, select the UTC offset from a
         // local time descriptor with a matching daylight-saving time
         // property.
 
-        const bool isDstOff = dstPolicy == DstPolicy::BAETZO_DST;
+        const bool isDstOff = dstPolicy == DstPolicy::BALTZO_DST;
         selectUtcOffset(&utcOffsetInSeconds, iter1, iter2, timeZone, isDstOff);
     }
     else {
@@ -331,10 +330,10 @@ void TimeZoneUtilImp::resolveLocalTime(
         // earlier if invalid.  Note that for valid and unique local times, the
         // returned iterators are equal so this choice is irrelevant.
 
-        BSLS_ASSERT(*resultValidity != Validity::BAETZO_VALID_UNIQUE
+        BSLS_ASSERT(*resultValidity != Validity::BALTZO_VALID_UNIQUE
                  || utcOffset1 == utcOffset2);
 
-         utcOffsetInSeconds = *resultValidity == Validity::BAETZO_INVALID
+         utcOffsetInSeconds = *resultValidity == Validity::BALTZO_INVALID
                             ? utcOffset1 : utcOffset2;
     }
 
@@ -373,10 +372,10 @@ void TimeZoneUtilImp::resolveLocalTime(
     result->setDatetimeTz(resultTime, resultOffsetInMinutes);
 }
 
-void TimeZoneUtilImp::createLocalTimePeriod(
-               LocalTimePeriod                          *result,
-               const Zoneinfo::TransitionConstIterator&  transition,
-               const Zoneinfo&                           timeZone)
+void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
+                          LocalTimePeriod                          *result,
+                          const Zoneinfo::TransitionConstIterator&  transition,
+                          const Zoneinfo&                           timeZone)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(transition != timeZone.endTransitions());
@@ -407,15 +406,21 @@ void TimeZoneUtilImp::createLocalTimePeriod(
     result->setDescriptor(transition->descriptor());
     result->setUtcStartAndEndTime(utcStartTime, utcEndTime);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
