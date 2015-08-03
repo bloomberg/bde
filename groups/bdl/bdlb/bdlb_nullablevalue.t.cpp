@@ -879,6 +879,22 @@ int main(int argc, char *argv[])
                           << endl;
 
         using bsl::swap;
+        {
+            Swappable obj1(1);
+            Swappable obj2(2);
+            const Swappable Zobj1(obj1);
+            const Swappable Zobj2(obj2);
+
+            ASSERT(obj1 == Zobj1);
+            ASSERT(obj2 == Zobj2);
+
+            ASSERT(not Swappable::swap_called());
+            swap(obj1, obj2);
+            ASSERT(    Swappable::swap_called());
+
+            ASSERT(obj2 == Zobj1);
+            ASSERT(obj1 == Zobj2);
+        }
 
         {
             // swap for two null objects is a no-op

@@ -283,21 +283,21 @@ bool operator!=(const NullableAllocatedValue<LHS_TYPE>& lhs,
 template <typename TYPE>
 bsl::ostream& operator<<(bsl::ostream&                             stream,
                          const NullableAllocatedValue<TYPE>& rhs);
-}  // close package namespace
     // Print the specified 'rhs' to the specified 'stream' in a single line.
+
 
 // FREE FUNCTIONS
 template <typename TYPE>
-void swap(bdlb::NullableAllocatedValue<TYPE>& a,
-          bdlb::NullableAllocatedValue<TYPE>& b);
-
-namespace bdlb {    // Swap the values of the specified 'a' and 'b' objects.  This method
+void swap(NullableAllocatedValue<TYPE>& a,
+          NullableAllocatedValue<TYPE>& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
     // provides the no-throw guarantee if the 'TYPE' template parameter has a
     // no-throw 'swap' and the result of the 'isNull' method for the two
     // objects being swapped is the same.  The behavior is undefined if the
     // objects have non-equal allocators.
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
+
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -621,8 +621,8 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&                             stream,
 // FREE FUNCTIONS
 template <typename TYPE>
 inline
-void swap(bdlb::NullableAllocatedValue<TYPE>& a,
-          bdlb::NullableAllocatedValue<TYPE>& b)
+void bdlb::swap(bdlb::NullableAllocatedValue<TYPE>& a,
+                bdlb::NullableAllocatedValue<TYPE>& b)
 {
     a.swap(b);
 }
