@@ -561,18 +561,18 @@ class ConcurrentMultipool {
 
   public:
     // CREATORS
-    ConcurrentMultipool(bslma::Allocator                 *basicAllocator = 0);
-    ConcurrentMultipool(int                               numPools,
-                        bslma::Allocator                 *basicAllocator = 0);
-    ConcurrentMultipool(bsls::BlockGrowth::Strategy       growthStrategy,
-                        bslma::Allocator                 *basicAllocator = 0);
-    ConcurrentMultipool(int                               numPools,
-                        bsls::BlockGrowth::Strategy       growthStrategy,
-                        bslma::Allocator                 *basicAllocator = 0);
-    ConcurrentMultipool(int                               numPools,
-                        bsls::BlockGrowth::Strategy       growthStrategy,
-                        int                               maxBlocksPerChunk,
-                        bslma::Allocator                 *basicAllocator = 0);
+    ConcurrentMultipool(bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipool(int                          numPools,
+                        bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipool(bsls::BlockGrowth::Strategy  growthStrategy,
+                        bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipool(int                          numPools,
+                        bsls::BlockGrowth::Strategy  growthStrategy,
+                        bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipool(int                          numPools,
+                        bsls::BlockGrowth::Strategy  growthStrategy,
+                        int                          maxBlocksPerChunk,
+                        bslma::Allocator            *basicAllocator = 0);
         // Create a multipool memory manager.  Optionally specify 'numPools',
         // indicating the number of internally created 'Pool' objects; the
         // block size of the first pool is 8 bytes, with the block size of each

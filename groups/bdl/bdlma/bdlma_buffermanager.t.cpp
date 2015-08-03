@@ -319,7 +319,6 @@ class my_Class {
         const int MAX_SIZE = my_IntegerCountingHashTable::
                                            calculateBufferSize(length, length);
 //..
-//
 // We then allocate an external buffer to be used by 'bdlma::BufferManager'.
 // Normally, this buffer will be created on the program stack if we know the
 // length in advance (for example, if we specify in the contract of this

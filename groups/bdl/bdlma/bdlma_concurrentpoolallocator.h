@@ -187,8 +187,8 @@ BSLS_IDENT("$Id: $")
 //  struct my1_WorkQueue {
 //      // DATA
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -338,8 +338,8 @@ BSLS_IDENT("$Id: $")
 //  struct my2_WorkQueue {
 //      // DATA
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS

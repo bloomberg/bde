@@ -218,6 +218,7 @@ bool MemoryBlockDescriptor::isNull() const
 {
     return 0 == d_address_p;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

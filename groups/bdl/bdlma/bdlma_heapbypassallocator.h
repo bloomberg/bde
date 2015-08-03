@@ -173,8 +173,8 @@ class HeapBypassAllocator : public bslma::Allocator {
     virtual void deallocate(void *);
         // This method has no effect for this heap bypass allocator.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

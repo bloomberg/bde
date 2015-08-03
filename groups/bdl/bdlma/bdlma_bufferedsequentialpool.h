@@ -322,7 +322,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF
-#include <bsl_cstddef.h>  // 'bsl::size_t'
+#include <bsl_cstddef.h>
 #endif
 
 namespace BloombergLP {

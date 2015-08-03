@@ -266,8 +266,8 @@ class AlignedAllocator : public bslma::Allocator {
         // 'alignment' is both a multiple of 'sizeof(void *)' and an integral
         // non-negative power of two.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

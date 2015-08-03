@@ -35,7 +35,7 @@
 // invocation (unless the size of the request is 0).
 //
 // Also note that, unlike many other BDE allocators, a 'bslma::Allocator *'
-// cannot be (optionally) supplied upon construction of a counting allocator;
+// cannot be (optionally) supplied upon construction of a 'GuardingAllocator';
 // instead, a system facility is used that allocates blocks of memory in
 // multiples of the system page size.
 //

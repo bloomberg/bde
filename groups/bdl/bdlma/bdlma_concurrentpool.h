@@ -546,6 +546,7 @@ int ConcurrentPool::blockSize() const
 {
     return d_blockSize;
 }
+
 }  // close package namespace
 }  // close enterprise namespace
 
