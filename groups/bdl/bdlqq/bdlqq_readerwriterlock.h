@@ -234,8 +234,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_CONDITION
+#include <bdlqq_condition.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
 #endif
 
 namespace BloombergLP {

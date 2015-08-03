@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlqq::Barrier: thread barrier class
 //
-//@SEE_ALSO: bdlqq_xxxthread
+//@SEE_ALSO: bdlqq_mutex, bdlqq_condition
 //
 //@AUTHOR: Ilougino Rocha(irocha)
 //
@@ -234,7 +234,7 @@ BSLS_IDENT("$Id: $")
 //     // all the trades succeed, or none of the trades are executed.
 // {
 //     TradeThreadArgument arguments[MAX_BASKET_TRADES];
-//     bcemt_Attribute attributes;
+//     bdlqq::ThreadAttributes attributes;
 //     bdlqq::ThreadUtil::Handle threadHandles[MAX_BASKET_TRADES];
 //
 //     int numTrades = trade.d_trades.length();

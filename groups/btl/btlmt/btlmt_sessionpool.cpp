@@ -11,7 +11,7 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <btlso_socketoptions.h>
 
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
 #include <bdlqq_lockguard.h>
 
 #include <bdlf_bind.h>

@@ -19,7 +19,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bdlma_deleter.h>
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bsls_atomic.h>
 #include <bdlmca_blobstreambuf.h>
 #include <bdlmca_xxxpooledbufferchainstreambuf.h>
@@ -2536,7 +2538,7 @@ void ChannelPool::init()
                                      d_collectTimeMetrics,
                                      d_allocator_p);
         if (d_startFlag) {
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             attr.setStackSize(d_config.threadStackSize());
             manager->enable(attr);
         }
@@ -4209,7 +4211,7 @@ int ChannelPool::stopAndRemoveAllChannels()
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
            while(--i >= 0) {
-               bcemt_Attribute attr;
+               bdlqq::ThreadAttributes attr;
                attr.setStackSize(d_config.threadStackSize());
                int rc = d_managers[i]->enable(attr);
                BSLS_ASSERT(0 == rc);
@@ -4315,7 +4317,7 @@ int ChannelPool::start()
 
     int numManagers = d_managers.size();
     for (int i = 0; i < numManagers; ++i) {
-        bcemt_Attribute attr;
+        bdlqq::ThreadAttributes attr;
         attr.setStackSize(d_config.threadStackSize());
         int ret = d_managers[i]->enable(attr);
         if (0 != ret) {
@@ -4338,7 +4340,7 @@ int ChannelPool::stop()
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
            while(--i >= 0) {
-               bcemt_Attribute attr;
+               bdlqq::ThreadAttributes attr;
                attr.setStackSize(d_config.threadStackSize());
                int rc = d_managers[i]->enable(attr);
                BSLS_ASSERT(0 == rc);

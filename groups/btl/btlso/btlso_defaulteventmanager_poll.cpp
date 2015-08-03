@@ -21,7 +21,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 #include <bsls_assert.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>

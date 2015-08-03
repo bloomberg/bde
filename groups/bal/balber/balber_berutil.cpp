@@ -104,7 +104,7 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 
 #include <bdlt_iso8601util.h>
 
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitutil.h>
 
 #include <bdlsb_fixedmemoutstreambuf.h>
 
@@ -272,7 +272,7 @@ void normalizeMantissaAndAdjustExp(long long *mantissa,
         *mantissa |= DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
     }
 
-    int shift = bdlb::BitUtil::find1AtSmallestIndex64(*mantissa);
+    int shift = bdlb::BitUtil::numTrailingUnsetBits((uint64_t) *mantissa);
     *mantissa >>= shift;
     *exponent -= (DOUBLE_NUM_MANTISSA_BITS - shift);
 
@@ -930,11 +930,10 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
         return FAILURE;                                               // RETURN
     }
 
-    int shift = bdlb::BitUtil::find1AtLargestIndex64(mantissa);
-    if (FAILURE == shift) {
+    int shift = bdlb::BitUtil::numLeadingUnsetBits((uint64_t) mantissa);
+    if (64 == shift) {
         return FAILURE;                                               // RETURN
     }
-    shift = 63 - shift;
 
     // Subtract the number of exponent bits and the sign bit.
 
@@ -1166,7 +1165,7 @@ int BerUtil_Imp::numBytesToStream(short value)
         // - Add 1 to convert from an index to a count in range 1 .. 15.
         // - Add 1 to preserve the sign bit, for a value in range 2 .. 16.
 
-        numBits = bdlb::BitUtil::find1AtLargestIndex(value) + 2;
+        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value) + 2;
     }
     else {
         // For negative values, all but one 1 bits on the left are redundant.
@@ -1174,7 +1173,7 @@ int BerUtil_Imp::numBytesToStream(short value)
         // - Add 1 to convert from an index to a count in range 1 .. 15.
         // - Add 1 to preserve the sign bit, for a value in range 2 .. 16.
 
-        numBits = bdlb::BitUtil::find0AtLargestIndex(value) + 2;
+        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value) + 2;
     }
 
     // Round up to correct number of bytes:
@@ -1197,7 +1196,7 @@ int BerUtil_Imp::numBytesToStream(int value)
         // - Add 1 to convert from an index to a count in range 1 .. 31.
         // - Add 1 to preserve the sign bit, for a value in range 2 .. 32.
 
-        numBits = bdlb::BitUtil::find1AtLargestIndex(value) + 2;
+        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value) + 2;
     }
     else {
         // For negative values, all but one 1 bits on the left are redundant.
@@ -1205,7 +1204,7 @@ int BerUtil_Imp::numBytesToStream(int value)
         // - Add 1 to convert from an index to a count in range 1 .. 31.
         // - Add 1 to preserve the sign bit, for a value in range 2 .. 32.
 
-        numBits = bdlb::BitUtil::find0AtLargestIndex(value) + 2;
+        numBits = 31 - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value) + 2;
     }
 
     // Round up to correct number of bytes:
@@ -1228,7 +1227,7 @@ int BerUtil_Imp::numBytesToStream(long long value)
         // - Add 1 to convert from an index to a count in range 1 .. 63.
         // - Add 1 to preserve the sign bit, for a value in range 2 .. 64.
 
-        numBits = bdlb::BitUtil::find1AtLargestIndex64(value) + 2;
+        numBits = 63 - bdlb::BitUtil::numLeadingUnsetBits((uint64_t) value) + 2;
     }
     else {
         // For negative values, all but one 1 bits on the left are redundant.
@@ -1236,7 +1235,7 @@ int BerUtil_Imp::numBytesToStream(long long value)
         // - Add 1 to convert from an index to a count in range 1 .. 63.
         // - Add 1 to preserve the sign bit, for a value in range 2 .. 64.
 
-        numBits = bdlb::BitUtil::find0AtLargestIndex64(value) + 2;
+        numBits = 63 - bdlb::BitUtil::numLeadingUnsetBits(~ (uint64_t) value) + 2;
     }
 
     // Round up to correct number of bytes:

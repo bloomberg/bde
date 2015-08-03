@@ -3,7 +3,9 @@
 #include <balb_controlmanager.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bdlf_bind.h>
 #include <bslma_testallocator.h>
 
@@ -251,9 +253,9 @@ int main(int argc, char *argv[])
                                     Incrementer(&counts[0]));
             dispatcher.addFunction("FOOBAR zippy");
 
-            bcemt_Attribute detached;
+            bdlqq::ThreadAttributes detached;
             bdlqq::ThreadUtil::Handle dummy;
-            detached.setDetachedState(bcemt_Attribute::BCEMT_CREATE_DETACHED);
+            detached.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
             ASSERT(0 == bdlqq::ThreadUtil::create(&dummy,
                                                  detached,
                                                  bdlf::BindUtil::bind(

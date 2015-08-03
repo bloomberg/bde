@@ -17,7 +17,9 @@
 #include <bslma_testallocator.h>
 
 #include <bdlqq_barrier.h>                  // Barrier
-#include <bdlqq_xxxthread.h>                   // thread management util
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bslma_testallocator.h>            // thread-safe allocator
 #include <bsl_typeinfo.h>
 
@@ -502,7 +504,7 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
                                    &syncBarrier
                                  };
 
-    bcemt_Attribute attributes;
+    bdlqq::ThreadAttributes attributes;
     int ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                        threadFunction, &connectInfo);
     ASSERT(0 == ret);
@@ -1371,7 +1373,7 @@ int main(int argc, char *argv[]) {
 // ===================>
 
                       bdlqq::ThreadUtil::Handle threadHandle;
-                      bcemt_Attribute attributes;
+                      bdlqq::ThreadAttributes attributes;
                       int ret = bdlqq::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
@@ -1736,7 +1738,7 @@ int main(int argc, char *argv[]) {
 // ===================>
 
                       bdlqq::ThreadUtil::Handle threadHandle;
-                      bcemt_Attribute attributes;
+                      bdlqq::ThreadAttributes attributes;
                       int ret = bdlqq::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
@@ -2158,7 +2160,7 @@ int main(int argc, char *argv[]) {
 // ===================>
 
                       bdlqq::ThreadUtil::Handle threadHandle;
-                      bcemt_Attribute attributes;
+                      bdlqq::ThreadAttributes attributes;
                       int ret = bdlqq::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
@@ -2585,7 +2587,7 @@ int main(int argc, char *argv[]) {
 // ===================>
 
                       bdlqq::ThreadUtil::Handle threadHandle;
-                      bcemt_Attribute attributes;
+                      bdlqq::ThreadAttributes attributes;
                       int ret = bdlqq::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,

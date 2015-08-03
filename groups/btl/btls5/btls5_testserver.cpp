@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(btls5_testserver_cpp, "$Id$ $CSID$")
 #include <bdlmca_blobutil.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_mutex.h>
-#include <bdlqq_xxxthread.h>                   // thread management util
+#include <bdlqq_mutex.h>
 #include <bdlf_bind.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>

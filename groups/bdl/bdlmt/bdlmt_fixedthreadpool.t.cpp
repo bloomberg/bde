@@ -5,7 +5,6 @@
 #include <bdlt_currenttime.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
 
 #include <bslma_defaultallocatorguard.h>
 

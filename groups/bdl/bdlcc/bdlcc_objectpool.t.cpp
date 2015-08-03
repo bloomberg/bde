@@ -6,6 +6,7 @@
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
+#include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
 #include <bsls_atomic.h>
 #include <bdlf_bind.h>
@@ -187,7 +188,7 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-bcemt_Attribute attributes;
+bdlqq::ThreadAttributes attributes;
 void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i

@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS

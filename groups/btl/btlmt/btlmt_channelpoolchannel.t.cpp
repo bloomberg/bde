@@ -11,7 +11,8 @@
 #include <bdlmca_blobutil.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_barrier.h>
 
 #include <bdlf_function.h>

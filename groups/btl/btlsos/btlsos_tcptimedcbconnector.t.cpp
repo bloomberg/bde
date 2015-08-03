@@ -17,7 +17,9 @@
 #include <bdlf_placeholder.h>
 
 #include <bslma_testallocator.h>            // thread-safe allocator
-#include <bdlqq_xxxthread.h>                   // thread management util
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -758,7 +760,7 @@ static int createServerThread(bdlqq::ThreadUtil::Handle           *threadHandle,
             int                                                   numConnects,
             btlso::IPv4Address                                    *localAddress)
 {
-    bcemt_Attribute attributes;
+    bdlqq::ThreadAttributes attributes;
     btlso::IPv4Address serverAddress;
     serverAddress.setIpAddress(hostName);
     serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
@@ -1672,7 +1674,7 @@ int main(int argc, char *argv[])
                                              };
 
                 bdlqq::ThreadUtil::Handle threadHandle;
-                bcemt_Attribute attributes;
+                bdlqq::ThreadAttributes attributes;
                 bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                      threadToAcceptConnection, &connectInfo);
 
@@ -2881,7 +2883,7 @@ int main(int argc, char *argv[])
 
             {
                 bdlqq::ThreadUtil::Handle threadHandle;
-                bcemt_Attribute attributes;
+                bdlqq::ThreadAttributes attributes;
                 btlso::IPv4Address serverAddress, localAddress;
                 serverAddress.setIpAddress(hostName);
                 serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);

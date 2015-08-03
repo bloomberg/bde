@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bdlqq_lockguard.h>
 #include <bdlqq_readlockguard.h>
 #include <bdlqq_writelockguard.h>
+#include <bdlqq_threadattributes.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -1301,7 +1302,7 @@ int TcpTimerEventManager::disable()
     return 0;
 }
 
-int TcpTimerEventManager::enable(const bcemt_Attribute& attr)
+int TcpTimerEventManager::enable(const bdlqq::ThreadAttributes& attr)
 {
     if(bdlqq::ThreadUtil::isEqual(bdlqq::ThreadUtil::self(), d_dispatcher)) {
         return 0;

@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //
 // Finally, the 'myProducer' function "joins" each consumer thread, which
 // ensures that the thread itself will terminate correctly (see the
-// 'bdlqq_xxxthread' component-level documentation for details):
+// 'bdlqq_threadutil' component-level documentation for details):
 //..
 //  void myProducer(int numThreads)
 //  {
@@ -392,12 +392,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_CONDITION
+#include <bdlqq_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXBITUTIL
-#include <bdlb_xxxbitutil.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
+#endif
+
+#ifndef INCLUDED_BDLB_BITUTIL
+#include <bdlb_bitutil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
@@ -781,9 +789,10 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
             }
         }
 
-        priority = bdlb::BitUtil::find1AtSmallestIndex(d_notEmptyFlags);
-        BSLS_ASSERT((unsigned)priority < (unsigned)BCEC_MAX_NUM_PRIORITIES);
-            // verifies 0 <= priority < BCEC_MAX_NUM_PRIORITIES
+        priority = bdlb::BitUtil::numTrailingUnsetBits((uint32_t) d_notEmptyFlags);
+        BSLS_ASSERT(priority < BCEC_MAX_NUM_PRIORITIES);
+            // verifies there is at least one priority bit set.
+            // Note that 'numTrailingUnsetBits' cannot return a negative value.
 
         Node *& head = d_heads[priority];
         condemned = head;
@@ -1014,7 +1023,7 @@ void MultipriorityQueue<TYPE>::removeAll()
 
         while (d_notEmptyFlags) {
             const int priority =
-                           bdlb::BitUtil::find1AtSmallestIndex(d_notEmptyFlags);
+                           bdlb::BitUtil::numTrailingUnsetBits((uint32_t) d_notEmptyFlags);
 
             Node *& head = d_heads[priority];
             BSLS_ASSERT(head);

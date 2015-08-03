@@ -5,7 +5,7 @@
 #include <btlso_socketimputil.h>
 #include <btlso_ipv4address.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
 
 #include <bsls_platform.h>
 

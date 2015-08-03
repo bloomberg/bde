@@ -11,7 +11,9 @@
 #include <btls_iovecutil.h>
 #include <btlsc_flag.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_timeinterval.h>
@@ -1021,7 +1023,7 @@ static int testExecutionHelper(
         info->d_signalIoFlag = command->flag.d_signalIoFlag;
         info->d_ioType = ioType;
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         int ret = bdlqq::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadSignalGenerator,
@@ -1050,7 +1052,7 @@ static int testExecutionHelper(
         info->d_signalIoFlag = command->flag.d_interruptFlags;
         info->d_ioType = ioType;
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         int ret = bdlqq::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,
@@ -1077,7 +1079,7 @@ static int testExecutionHelper(
         info->d_signalIoFlag = command->flag.d_interruptFlags;
         info->d_ioType = ioType;
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         int ret = bdlqq::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,

@@ -5,7 +5,10 @@
 #include <bslma_testallocator.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_barrier.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_condition.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_threadgroup.h>
 
 #include <bdlf_bind.h>
@@ -869,7 +872,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 //..
     int my_Server::start()
     {
-        bcemt_Attribute attr;
+        bdlqq::ThreadAttributes attr;
 
         if (bdlqq::ThreadUtil::create(&d_connectionThreadHandle, attr,
                                      &my_connectionMonitorThreadEntry,

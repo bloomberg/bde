@@ -5,7 +5,9 @@
 #include <bslma_testallocator.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_barrier.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_condition.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_threadgroup.h>
 #include <bsls_timeinterval.h>
 

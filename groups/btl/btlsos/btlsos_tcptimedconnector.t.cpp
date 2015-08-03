@@ -17,7 +17,9 @@
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
 
-#include <bdlqq_xxxthread.h>                   // thread management util
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
 #include <bslma_testallocator.h>            // thread-safe allocator
 #include <bsl_typeinfo.h>
 #include <bsl_c_time.h>
@@ -418,7 +420,7 @@ int processTest(btlsos::TcpTimedConnector                      *connector,
                                    equeueSize
                                  };
 
-    bcemt_Attribute attributes;
+    bdlqq::ThreadAttributes attributes;
     int ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
                                        threadFunction, &connectInfo);
     ASSERT(0 == ret);

@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //  bdlqq::UnLockGuard: DEPRECATED
 //  bdlqq::TryLockGuard: DEPRECATED
 //
-//@SEE_ALSO: bdlqq_xxxthread, bdlqq_readlockguard, bdlqq_writelockguard
+//@SEE_ALSO: bdlqq_readlockguard, bdlqq_writelockguard
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //

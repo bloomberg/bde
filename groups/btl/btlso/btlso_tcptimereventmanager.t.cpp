@@ -4,7 +4,7 @@
 #include <btlso_flag.h>
 #include <btlso_socketimputil.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>

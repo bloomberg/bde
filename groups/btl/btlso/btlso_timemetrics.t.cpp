@@ -2,7 +2,7 @@
 
 #include <btlso_timemetrics.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>

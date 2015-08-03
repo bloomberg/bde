@@ -2092,7 +2092,7 @@ int main(int argc, char *argv[])
         // TESTING USAGE Example 1
         //
         // Concern: that the usage examples (including those that were
-        // previously in the 'bdlqq_xxxthread' component) compile and work
+        // previously in the 'bdlqq_thread' component) compile and work
         // properly.
         // --------------------------------------------------------------------
 
