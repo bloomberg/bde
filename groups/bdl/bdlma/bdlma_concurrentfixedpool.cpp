@@ -2,7 +2,7 @@
 
 #include <bdlma_concurrentfixedpool.h>
 
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitutil.h>
 
 #include <bslma_default.h>
 
@@ -80,7 +80,8 @@ ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
                                  int               poolSize,
                                  bslma::Allocator *basicAllocator)
 : d_freeList(0)
-, d_sizeMask(bdlb::BitUtil::roundUpToBinaryPower(poolSize + 1) - 1)
+, d_sizeMask(bdlb::BitUtil::roundUpToBinaryPower(
+                                      static_cast<uint32_t>(poolSize + 1)) - 1)
 , d_nodes(poolSize, bslma::Default::allocator(basicAllocator))
 , d_dataOffset(bsl::max((int)sizeof(Node),
                   bsls::AlignmentUtil::calculateAlignmentFromSize(objectSize)))

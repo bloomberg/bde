@@ -8,7 +8,6 @@
 #include <bslma_testallocator.h>                // for testing only
 
 #include <bdlma_bufferedsequentialallocator.h>
-#include <bdlb_xxxbitutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>

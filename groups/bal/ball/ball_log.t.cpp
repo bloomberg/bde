@@ -14,6 +14,7 @@
 
 #include <bdlmca_blob.h>
 #include <bslma_testallocator.h>
+#include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
 #include <bsls_atomic.h>
 
@@ -5964,7 +5965,7 @@ int main(int argc, char *argv[])
         ball::DefaultObserver observer(bsl::cout);
         ball::LoggerManager::initSingleton( &observer, 0 );
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         bdlqq::ThreadUtil::Handle handles[10];
         for (int i = 0; i < 10; ++i) {
             bdlqq::ThreadUtil::create(&handles[i], attributes, ThreadFunctor());

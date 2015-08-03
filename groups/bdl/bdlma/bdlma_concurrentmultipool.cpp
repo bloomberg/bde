@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 
 #include <bdlma_concurrentpool.h>
 
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitutil.h>
 
 #include <bdlqq_barrier.h>                  // for testing only
 #include <bdlqq_lockguard.h>
@@ -167,8 +167,8 @@ void ConcurrentMultipool::initialize(
 inline
 int ConcurrentMultipool::findPool(int size) const
 {
-    return bdlb::BitUtil::find1AtLargestIndex(
-                                 ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1);
+    return 31 - bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(
+                                ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1));
 }
 
 // CREATORS

@@ -3,14 +3,13 @@
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
 
-#include <bdlb_xxxbitutil.h>
-
 #include <bdls_testutil.h>
 
 #include <bslma_default.h>                      // for purpose only
 #include <bslma_testallocator.h>                // for purpose only
 #include <bslma_testallocatorexception.h>       // for testing only
-
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -250,8 +249,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(my_Node,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_Node,
+                                       bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit my_Node(bslma::Allocator *basicAllocator = 0);
@@ -282,8 +281,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(my_Graph,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_Graph,
+                                       bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit my_Graph(bslma::Allocator *basicAllocator = 0);
@@ -312,8 +311,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(my_NamedGraphContainer,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(my_NamedGraphContainer,
+                                       bslma::UsesBslmaAllocator);
 
         // CREATORS
         explicit my_NamedGraphContainer(bslma::Allocator *basicAllocator = 0);

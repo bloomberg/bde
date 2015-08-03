@@ -14,6 +14,7 @@
 
 #include <bsl_cstring.h>  // 'strcmp'
 #include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstdio.h>   // 'sprintf'
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 
