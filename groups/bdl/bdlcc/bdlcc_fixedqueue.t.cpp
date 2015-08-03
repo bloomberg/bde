@@ -1,4 +1,4 @@
-// bdlcc_fixedqueue.t.cpp                                              -*-C++-*-
+// bdlcc_fixedqueue.t.cpp                                             -*-C++-*-
 
 #include <bdlcc_fixedqueue.h>
 
@@ -35,7 +35,7 @@
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
-#include <bsl_c_stdlib.h>            // atoi()
+#include <bsl_c_stdlib.h>            // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -127,6 +127,7 @@ typedef bdlcc::FixedQueue<Element*> Obj;
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
+
 namespace Backoff {
 
 void hardwork(int* item, int spin)
@@ -159,7 +160,7 @@ void pushpopThread(bdlcc::FixedQueue<int> *queue,
     }
 }
 
-} // close namespace Backoff
+}  // close namespace Backoff
 
 void rolloverPusher(bdlcc::FixedQueue<int> *queue,
                     bsls::AtomicInt *doneFlag,
@@ -167,12 +168,12 @@ void rolloverPusher(bdlcc::FixedQueue<int> *queue,
                     int threadId)
 {
     enum {
-        NUM_ITEMS = 50000 // num to push in this thread
+        k_NUM_ITEMS = 50000 // num to push in this thread
     };
 
     const int base = 1000000 * threadId;
 
-    for (int i = 0; i < NUM_ITEMS; ++i) {
+    for (int i = 0; i < k_NUM_ITEMS; ++i) {
         turnstile->waitTurn();
 
         queue->pushBack(base + i);
@@ -274,9 +275,9 @@ bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
                        bdlqq::TimedSemaphore                   *sema,
                        bsls::AtomicInt                         *numCaught) {
-    enum { NUM_ITERATIONS = 3 };
+    enum { k_NUM_ITERATIONS = 3 };
 
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         try {
             tester->pushBack(ExceptionTester());
         } catch (...) {
@@ -314,7 +315,6 @@ public:
     }
 };
 
-
 struct ThreadArgs {
     bdlqq::Condition  d_startCond;
     bdlqq::Condition  d_goCond;
@@ -347,17 +347,17 @@ ThreadArgs::ThreadArgs(int iterations, int size)
 extern "C" {
 
 void* pushBackTestThread(void *ptr)
-    // This function is used to simulate a thread pool job.  It
-    // accepts a pointer to a pointer to a structure containing
-    // a mutex and a conditional variable.  The function simply
-    // blocks until the conditional variable is signaled.
+    // This function is used to simulate a thread pool job.  It accepts a
+    // pointer to a pointer to a structure containing a mutex and a conditional
+    // variable.  The function simply blocks until the conditional variable is
+    // signaled.
 {
     ThreadArgs *args = (ThreadArgs*)ptr;
     {
         bdlqq::LockGuard<bdlqq::Mutex> lock(&args->d_mutex);
         ++args->d_count;
         args->d_startCond.signal();
-        while( !args->d_goSig ) args->d_goCond.wait(&args->d_mutex);
+        while ( !args->d_goSig ) args->d_goCond.wait(&args->d_mutex);
     }
 
     char* reserved = args->d_reserved;
@@ -383,17 +383,17 @@ void* pushBackTestThread(void *ptr)
 }
 
 void* popFrontTestThread(void *ptr)
-    // This function is used to simulate a thread pool job.  It
-    // accepts a pointer to a pointer to a structure containing
-    // a mutex and a conditional variable.  The function simply
-    // blocks until the conditional variable is signaled.
+    // This function is used to simulate a thread pool job.  It accepts a
+    // pointer to a pointer to a structure containing a mutex and a conditional
+    // variable.  The function simply blocks until the conditional variable is
+    // signaled.
 {
     ThreadArgs *args = (ThreadArgs*)ptr;
     {
         bdlqq::LockGuard<bdlqq::Mutex> lock(&args->d_mutex);
         ++args->d_count;
         args->d_startCond.signal();
-        while( !args->d_goSig ) args->d_goCond.wait(&args->d_mutex);
+        while ( !args->d_goSig ) args->d_goCond.wait(&args->d_mutex);
     }
     while (1) {
         Element *e = args->d_queue.popFront();
@@ -429,10 +429,10 @@ void case9disabler(bdlcc::FixedQueue<int> *queue,
     queue->disable();
 
     enum {
-        NUM_PUSH_TRIES=5000
+        k_NUM_PUSH_TRIES=5000
     };
 
-    for (int i = 0; i < NUM_PUSH_TRIES; ++i) {
+    for (int i = 0; i < k_NUM_PUSH_TRIES; ++i) {
         ASSERT(0 != queue->pushBack(i));
     }
     drainDoneBarrier->wait();
@@ -462,7 +462,7 @@ struct StressData {
 
 extern "C" void *stressConsumer1(void* arg) {
     StressData *data = (StressData*)arg;
-    while(true) {
+    while (true) {
         StressNode sn = data->queue->popFront();
         if (sn.thread<0) return 0;
         ++data->counts[sn.thread];
@@ -472,7 +472,7 @@ extern "C" void *stressConsumer1(void* arg) {
 
 extern "C" void *stressConsumer2(void* arg) {
     StressData *data = (StressData*)arg;
-    while(true) {
+    while (true) {
         StressNode sn;
         if (!data->queue->tryPopFront(&sn)) {
             if (sn.thread<0) return 0;
@@ -527,7 +527,7 @@ struct BenchData {
 
 extern "C" void *benchConsumer(void* arg) {
     BenchData *data = (BenchData*)arg;
-    while(true) {
+    while (true) {
         data->queue->popFront();
         if (data->stop) return 0;
         ++data->count;
@@ -537,7 +537,7 @@ extern "C" void *benchConsumer(void* arg) {
 extern "C" void *benchProducer(void* arg) {
     BenchData *data = (BenchData*)arg;
     int reserved;
-    while(true) {
+    while (true) {
         data->queue->pushBack((void*)&reserved);
         if (data->stop) return 0;
         ++data->count;
@@ -756,7 +756,7 @@ void runtest(int numPushers, int queueSize, bool doDrain, bool doSleep = false)
 
         bdlqq::ThreadUtil::microSleep(5000);
     }
-    
+
     queue.disable();
     ASSERT(!queue.isEnabled());
 
@@ -835,7 +835,7 @@ void popperThread(Control *control)
     control->d_barrier->wait();
 
     int numPopped;
-    while((numPopped = control->d_numPopped++) < totalToPop) {
+    while ((numPopped = control->d_numPopped++) < totalToPop) {
 
         Item item = queue->popFront();
 
@@ -847,12 +847,12 @@ void popperThread(Control *control)
 void runtest(int numIterations, int numPushers, int numPoppers)
 {
     enum {
-        QUEUE_SIZE = 2047
+        k_QUEUE_SIZE = 2047
     };
 
-    bdlcc::FixedQueue<Item> queue(QUEUE_SIZE);
+    bdlcc::FixedQueue<Item> queue(k_QUEUE_SIZE);
 
-    ASSERT(QUEUE_SIZE == queue.size());
+    ASSERT(k_QUEUE_SIZE == queue.size());
     ASSERT(queue.isEnabled());
 
     bdlqq::Barrier barrier(numPushers + numPoppers);
@@ -915,7 +915,7 @@ void popperThread(Control *control)
     control->d_barrier->wait();
 
     int numPopped;
-    while((numPopped = control->d_numPopped++) < totalToPop) {
+    while ((numPopped = control->d_numPopped++) < totalToPop) {
 
         queue->popFront();
     }
@@ -924,12 +924,12 @@ void popperThread(Control *control)
 void runtest(int numIterations, int numPushers, int numPoppers)
 {
     enum {
-        QUEUE_SIZE = 2047
+        k_QUEUE_SIZE = 2047
     };
 
-    bdlcc::FixedQueue<void *> queue(QUEUE_SIZE);
+    bdlcc::FixedQueue<void *> queue(k_QUEUE_SIZE);
 
-    ASSERT(QUEUE_SIZE == queue.size());
+    ASSERT(k_QUEUE_SIZE == queue.size());
     ASSERT(queue.isEnabled());
 
     bdlqq::Barrier barrier(numPushers + numPoppers);
@@ -956,15 +956,14 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
-
 struct my_WorkData {
     // Work data...
 };
 
 struct my_WorkRequest {
     enum RequestType {
-        WORK = 1
-        , STOP = 2
+        e_WORK = 1,
+        e_STOP = 2
     };
 
     RequestType d_type;
@@ -982,7 +981,7 @@ void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
     while (1) {
         // 'popFront()' will wait for a 'my_WorkRequest' until available.
         my_WorkRequest item = queue->popFront();
-        if (item.d_type == my_WorkRequest::STOP) { break; }
+        if (item.d_type == my_WorkRequest::e_STOP) { break; }
         myDoWork(item.d_data);
     }
 }
@@ -990,26 +989,26 @@ void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
 void myProducer(int numThreads)
 {
     enum {
-       MAX_QUEUE_LENGTH = 100,
-       NUM_WORK_ITEMS = 1000
+       k_MAX_QUEUE_LENGTH = 100,
+       k_NUM_WORK_ITEMS   = 1000
     };
 
-    bdlcc::FixedQueue<my_WorkRequest> queue(MAX_QUEUE_LENGTH);
+    bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
 
     bdlqq::ThreadGroup consumerThreads;
     consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
                                numThreads);
 
-    for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
+    for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
         my_WorkRequest item;
-        item.d_type = my_WorkRequest::WORK;
+        item.d_type = my_WorkRequest::e_WORK;
         item.d_data = my_WorkData(); // some stuff to do
         queue.pushBack(item);
     }
 
     for (int i = 0; i < numThreads; ++i) {
         my_WorkRequest item;
-        item.d_type = my_WorkRequest::STOP;
+        item.d_type = my_WorkRequest::e_STOP;
         queue.pushBack(item);
     }
 }
@@ -1028,7 +1027,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     bdlqq::Configuration::setDefaultThreadStackSize(
-                     bdlqq::Configuration::recommendedDefaultThreadStackSize());
+                    bdlqq::Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 18: {
@@ -1042,8 +1041,8 @@ int main(int argc, char *argv[])
                           << "Usage example test" << endl
                           << "==================" << endl;
 
-        enum { NUM_THREADS = 4 };
-        myProducer(NUM_THREADS);
+        enum { k_NUM_THREADS = 4 };
+        myProducer(k_NUM_THREADS);
         break;
       }
 
@@ -1052,10 +1051,10 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // Exception safety test
         //
-        // Test that the queue provides the Basic exception safety
-        // guarantee. After an exception on pushBack, the queue is emptied.
-        // After an exception on popFront, the object is removed and the
-        // queue behaves normally.
+        // Test that the queue provides the Basic exception safety guarantee.
+        // After an exception on pushBack, the queue is emptied.  After an
+        // exception on popFront, the object is removed and the queue behaves
+        // normally.
         // ---------------------------------------------------------
         if (verbose) cout << endl
                           << "Basic exception guarantee test" << endl
@@ -1071,7 +1070,7 @@ int main(int argc, char *argv[])
             bdlcc::FixedQueue<ExceptionTester> queue(1, &ta);
 
             ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
-                                           bdlqq::ThreadUtil::selfIdAsUint64());
+                                          bdlqq::ThreadUtil::selfIdAsUint64());
 
             bool caught = false;
             try {
@@ -1086,17 +1085,15 @@ int main(int argc, char *argv[])
 
         }
 
-
-
         if (verbose) {
             cout << endl
                  << "Testing exception safety for mutiple threads" << endl;
         }
         {
-            // b.  popping from a queue with exception operates normally.
+            // b. popping from a queue with exception operates normally.
 
-            enum {QUEUE_LENGTH = 3};
-            bdlcc::FixedQueue<ExceptionTester> queue(QUEUE_LENGTH,
+            enum { k_QUEUE_LENGTH = 3 };
+            bdlcc::FixedQueue<ExceptionTester> queue(k_QUEUE_LENGTH,
                                                          &ta);
             ASSERT(0 == queue.pushBack(ExceptionTester()));
             ASSERT(0 == queue.pushBack(ExceptionTester()));
@@ -1115,7 +1112,7 @@ int main(int argc, char *argv[])
             BSLS_ASSERT_OPT(0 == rc); // test invariant
 
             ExceptionTester::s_throwFrom = static_cast<bsls::Types::Int64>(
-                                           bdlqq::ThreadUtil::selfIdAsUint64());
+                                          bdlqq::ThreadUtil::selfIdAsUint64());
 
             if (veryVerbose) {
                 cout << endl
@@ -1131,12 +1128,12 @@ int main(int argc, char *argv[])
             }
             ASSERT(caught);
 
-            // Now the queue should become non-full and the pusher should
-            // be woken up and able to push into it
+            // Now the queue should become non-full and the pusher should be
+            // woken up and able to push into it
             ASSERT(0 ==
                    sema.timedWait(bdlt::CurrentTime::now().addSeconds(1)));
 
-            ASSERT(QUEUE_LENGTH == queue.length());
+            ASSERT(k_QUEUE_LENGTH == queue.length());
 
             if (veryVerbose) {
                 cout << endl
@@ -1151,21 +1148,21 @@ int main(int argc, char *argv[])
             }
             ASSERT(caught);
 
-            // Now the queue should become non-full and the pusher should
-            // be woken up and able to push into it
+            // Now the queue should become non-full and the pusher should be
+            // woken up and able to push into it
             ASSERT(0 ==
                    sema.timedWait(bdlt::CurrentTime::now().addSeconds(1)));
 
-            ASSERT(QUEUE_LENGTH == queue.length());
+            ASSERT(k_QUEUE_LENGTH == queue.length());
 
             if (veryVerbose) {
                 cout << endl
                      << "Exception during copy constructor (push)" << endl;
             }
 
-            // b.  pushing into a queue with exception empties the queue.
+            // b. pushing into a queue with exception empties the queue.
             ExceptionTester::s_throwFrom = bdlqq::ThreadUtil::idAsUint64(
-                                       bdlqq::ThreadUtil::handleToId(producer));
+                                      bdlqq::ThreadUtil::handleToId(producer));
 
             // pop an item to unblock the pusher
             ExceptionTester test = queue.popFront();
@@ -1176,8 +1173,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(queue.length(), 0 == queue.length());
             ASSERT(!queue.isFull());
 
-            // c.  after a push exception, the queue is still functional.
-            // run two generations through it.
+            // c. after a push exception, the queue is still functional. run
+            // two generations through it.
             ASSERT(0 == queue.pushBack(ExceptionTester()));
             ASSERT(0 == queue.pushBack(ExceptionTester()));
             ASSERT(0 == queue.pushBack(ExceptionTester()));
@@ -1203,8 +1200,8 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // Template Requirements Test
         //
-        // bdlcc::FixedQueue<T> should work for types T that have no
-        // default constructor and a 1-arg copy constructor.
+        // bdlcc::FixedQueue<T> should work for types T that have no default
+        // constructor and a 1-arg copy constructor.
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1234,23 +1231,22 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // length() stress-test
         //
-        // plan: in N threads, push one element and pop one element in
-        // a tight loop.  In the main thread, invoke length() repeatedly;
-        // the real length of the queue will always be between 0 and N,
-        // so verify that the reported length is always in this range.
+        // plan: in N threads, push one element and pop one element in a tight
+        // loop.  In the main thread, invoke length() repeatedly; the real
+        // length of the queue will always be between 0 and N, so verify that
+        // the reported length is always in this range.
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
                           << "'length()' Stress Test" << endl
                           << "======================" << endl;
 
-
         enum {
-            NUM_PUSHPOP_THREADS = 6,
-            TEST_DURATION = 3 // in seconds
+            k_NUM_PUSHPOP_THREADS = 6,
+            k_TEST_DURATION = 3 // in seconds
         };
 
-        bdlcc::FixedQueue<int> queue (NUM_PUSHPOP_THREADS*2);
+        bdlcc::FixedQueue<int> queue (k_NUM_PUSHPOP_THREADS*2);
 
         bsls::AtomicInt stop(0);
 
@@ -1258,27 +1254,32 @@ int main(int argc, char *argv[])
         tg.addThreads(bdlf::BindUtil::bind(&pushpopThread,
                                           &queue,
                                           &stop),
-                      NUM_PUSHPOP_THREADS);
+                      k_NUM_PUSHPOP_THREADS);
         bsls::Stopwatch timer;
         timer.start();
 
-        while (timer.elapsedTime() < TEST_DURATION) {
+        while (timer.elapsedTime() < k_TEST_DURATION) {
             int length;
 
             length = queue.length();
-            LOOP_ASSERT(length, 0 <= length && length <= NUM_PUSHPOP_THREADS);
+            LOOP_ASSERT(length,
+                        0 <= length && length <= k_NUM_PUSHPOP_THREADS);
 
             length = queue.length();
-            LOOP_ASSERT(length, 0 <= length && length <= NUM_PUSHPOP_THREADS);
+            LOOP_ASSERT(length,
+                        0 <= length && length <= k_NUM_PUSHPOP_THREADS);
 
             length = queue.length();
-            LOOP_ASSERT(length, 0 <= length && length <= NUM_PUSHPOP_THREADS);
+            LOOP_ASSERT(length,
+                        0 <= length && length <= k_NUM_PUSHPOP_THREADS);
 
             length = queue.length();
-            LOOP_ASSERT(length, 0 <= length && length <= NUM_PUSHPOP_THREADS);
+            LOOP_ASSERT(length,
+                        0 <= length && length <= k_NUM_PUSHPOP_THREADS);
 
             length = queue.length();
-            LOOP_ASSERT(length, 0 <= length && length <= NUM_PUSHPOP_THREADS);
+            LOOP_ASSERT(length,
+                        0 <= length && length <= k_NUM_PUSHPOP_THREADS);
         }
         stop.storeRelaxed(1);
         tg.joinAll();
@@ -1293,10 +1294,10 @@ int main(int argc, char *argv[])
                           << "Disable while pushing into a full queue" << endl
                           << "=======================================" << endl;
         enum {
-            NUM_THREADS = 4
+            k_NUM_THREADS = 4
         };
 
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
+        for (int numPushers=1; numPushers<=k_NUM_THREADS; numPushers++) {
             disabletst::runtest(numPushers, 8, false);   // queue size, doDrain
             disabletst::runtest(numPushers, 8, true);    // queue size, doDrain
             disabletst::runtest(numPushers, 2047, false);
@@ -1307,8 +1308,8 @@ int main(int argc, char *argv[])
         // Additional verification that threads are blocked on the
         // implementation's semaphore when 'disable' is invoked (and that they
         // are immediately released).
-        
-        disabletst::runtest(NUM_THREADS, 8, true, true);
+
+        disabletst::runtest(k_NUM_THREADS, 8, true, true);
 
       } break;
       case 13: {
@@ -1320,14 +1321,14 @@ int main(int argc, char *argv[])
                           << "sequence constraint test" << endl
                           << "========================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50000
         };
 
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
-        for(int numPoppers=1; numPoppers<=NUM_THREADS; numPoppers++) {
+        for (int numPushers=1; numPushers<=k_NUM_THREADS; numPushers++) {
+        for (int numPoppers=1; numPoppers<=k_NUM_THREADS; numPoppers++) {
 
-            zerotst::runtest(NUM_ITERATIONS, numPushers, numPoppers);
+            zerotst::runtest(k_NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
 
@@ -1341,22 +1342,22 @@ int main(int argc, char *argv[])
                           << "sequence constraint test" << endl
                           << "========================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50000
         };
 
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
-        for(int numPoppers=1; numPoppers<=NUM_THREADS; numPoppers++) {
+        for (int numPushers=1; numPushers<=k_NUM_THREADS; numPushers++) {
+        for (int numPoppers=1; numPoppers<=k_NUM_THREADS; numPoppers++) {
 
-            seqtst::runtest(NUM_ITERATIONS, numPushers, numPoppers);
+            seqtst::runtest(k_NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
 
       } break;
       case 11: {
         // ---------------------------------------------------------
-        // TESTING CONCERN: Verify the size calculations performed in
-        // the constructor.
+        // TESTING CONCERN: Verify the size calculations performed in the
+        // constructor.
         // ---------------------------------------------------------
 
         {
@@ -1380,8 +1381,8 @@ int main(int argc, char *argv[])
         // ---------------------------------------------------------
         // TESTING CONCERN: Memory leak if pushing while disabled
         //
-        // Plan: In a single thread, push an item while disabled and
-        // assert that memory allocated does not increase.
+        // Plan: In a single thread, push an item while disabled and assert
+        // that memory allocated does not increase.
         //
         // ---------------------------------------------------------
 
@@ -1473,17 +1474,17 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "...Initial queue state test" << endl;
 
         enum {
-            QUEUE_SIZE_SINGLETHREAD = 4,
-            NUM_FULL_ITERATIONS = 1200,
-            QUEUE_SIZE_MT = 30,
-            NUM_PUSHERS = 12,
-            QUEUE_SIZE_LARGE = 500000,
-            NUM_PUSHERS_MORE = 20,
-            NUM_PUSHERS_LESS = 2,
-            EMPTY_VERIFY_MS = 1500
+            k_QUEUE_SIZE_SINGLETHREAD = 4,
+            k_NUM_FULL_ITERATIONS = 1200,
+            k_QUEUE_SIZE_MT = 30,
+            k_NUM_PUSHERS = 12,
+            k_QUEUE_SIZE_LARGE = 500000,
+            k_NUM_PUSHERS_MORE = 20,
+            k_NUM_PUSHERS_LESS = 2,
+            k_EMPTY_VERIFY_MS = 1500
         };
 
-        bdlcc::FixedQueue<int> queue(QUEUE_SIZE_SINGLETHREAD);
+        bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_SINGLETHREAD);
         ASSERT(queue.isEnabled());
         ASSERT(0 == queue.tryPushBack(1));
         ASSERT(0 == queue.pushBack(2));
@@ -1502,8 +1503,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "...Full-queue disable test" << endl;
 
-        bdlcc::FixedQueue<int> mtQueue(QUEUE_SIZE_MT);
-        for (int i = 0; i < NUM_FULL_ITERATIONS; ++i) {
+        bdlcc::FixedQueue<int> mtQueue(k_QUEUE_SIZE_MT);
+        for (int i = 0; i < k_NUM_FULL_ITERATIONS; ++i) {
             if (veryVerbose && (0 == i % 100)) {
                 cout << "     ...filling(" << i << ")...";
             }
@@ -1534,12 +1535,12 @@ int main(int argc, char *argv[])
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &mtQueue,
                                                        &done),
-                                   NUM_PUSHERS);
+                                   k_NUM_PUSHERS);
             mtQueue.disable();
             mtQueue.removeAll();
             bsls::Stopwatch timer;
             timer.start();
-            while (timer.elapsedTime() * 1000 < EMPTY_VERIFY_MS) {
+            while (timer.elapsedTime() * 1000 < k_EMPTY_VERIFY_MS) {
                 ASSERT(mtQueue.isEmpty());
             }
             mtQueue.enable();
@@ -1562,13 +1563,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "...Non-full-queue test (less)" << endl;
         {
             volatile bool done = false;
-            bdlcc::FixedQueue<int> queue(QUEUE_SIZE_LARGE);
+            bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
             bdlqq::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &queue,
                                                        &done),
-                                   NUM_PUSHERS_LESS);
+                                   k_NUM_PUSHERS_LESS);
 
             queue.disable();
             if (veryVerbose) {
@@ -1580,7 +1581,8 @@ int main(int argc, char *argv[])
             bsls::Stopwatch timer;
             timer.start();
             double elapsed;
-            while ((elapsed = timer.elapsedTime() * 1000) < EMPTY_VERIFY_MS) {
+            while ((elapsed = timer.elapsedTime() * 1000)
+                 < k_EMPTY_VERIFY_MS) {
                 ASSERT(queue.isEmpty());
                 if (!queue.isEmpty()) {
                     cout << "TEST FAILURE: disabled queue became non-empty "
@@ -1607,13 +1609,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "...Non-full-queue test (more)" << endl;
         {
             volatile bool done = false;
-            bdlcc::FixedQueue<int> queue(QUEUE_SIZE_LARGE);
+            bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
             bdlqq::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &queue,
                                                        &done),
-                                   NUM_PUSHERS_MORE);
+                                   k_NUM_PUSHERS_MORE);
 
             // Sleep for up to 2 ms just to let some stuff get into the queue
             bdlqq::ThreadUtil::microSleep(rand() % 2000);
@@ -1628,7 +1630,7 @@ int main(int argc, char *argv[])
             timer.start();
             double elapsed;
             for (int i = 0; (elapsed = timer.elapsedTime() * 1000) <
-                     EMPTY_VERIFY_MS; ++i) {
+                     k_EMPTY_VERIFY_MS; ++i) {
                 ASSERT(queue.isEmpty());
                 if (!queue.isEmpty()) {
                     cout << "TEST FAILURE: disabled queue became non-empty"
@@ -1663,11 +1665,10 @@ int main(int argc, char *argv[])
         // CONCERN: Generation count logic
         //
         // Run enough objects through a small enough queue that the
-        // generation-count rollover logic is invoked.  The smallest number
-        // of generation counts supported is 508; for a queue size of 3,
-        // this implies that we need only run more than 3048 objects
-        // through the queue successfully to trigger the rollover logic
-        // and loop again.
+        // generation-count rollover logic is invoked.  The smallest number of
+        // generation counts supported is 508; for a queue size of 3, this
+        // implies that we need only run more than 3048 objects through the
+        // queue successfully to trigger the rollover logic and loop again.
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1675,39 +1676,39 @@ int main(int argc, char *argv[])
                           << "==========================="   << endl;
 
         enum {
-            NUM_PUSHER_THREADS = 6,
-            QUEUE_SIZE = 3,
-            NUM_VALUES = 3060 / NUM_PUSHER_THREADS
+            k_NUM_PUSHER_THREADS = 6,
+            k_QUEUE_SIZE = 3,
+            k_NUM_VALUES = 3060 / k_NUM_PUSHER_THREADS
         };
 
-        enum { NUM_ENTRIES = NUM_VALUES * NUM_PUSHER_THREADS };
-        char reserved[NUM_ENTRIES];
+        enum { k_NUM_ENTRIES = k_NUM_VALUES * k_NUM_PUSHER_THREADS };
+        char reserved[k_NUM_ENTRIES];
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        bdlqq::Barrier barrier(NUM_PUSHER_THREADS+1);
+        bdlqq::Barrier barrier(k_NUM_PUSHER_THREADS+1);
 
         {
             bdlcc::FixedQueue<char*> mX(3, &ta);
             bdlqq::ThreadGroup tg;
 
-            char* nextValue[NUM_PUSHER_THREADS];
-            char* lastValue[NUM_PUSHER_THREADS];
+            char* nextValue[k_NUM_PUSHER_THREADS];
+            char* lastValue[k_NUM_PUSHER_THREADS];
 
-            for (int j = 0; j < NUM_PUSHER_THREADS; ++j) {
-                nextValue[j] = reserved + NUM_VALUES*j;
-                lastValue[j] = reserved + NUM_VALUES*(j+1) - 1;
+            for (int j = 0; j < k_NUM_PUSHER_THREADS; ++j) {
+                nextValue[j] = reserved + k_NUM_VALUES*j;
+                lastValue[j] = reserved + k_NUM_VALUES*(j+1) - 1;
                 tg.addThread(bdlf::BindUtil::bind(&abaThread,
                                                  nextValue[j], lastValue[j],
                                                  &mX, &barrier, false));
             }
             tg.addThread(bdlf::BindUtil::bind(&sleepAndWait, 100, &barrier));
 
-            for (int numReceived = 0; numReceived < NUM_ENTRIES;
+            for (int numReceived = 0; numReceived < k_NUM_ENTRIES;
                  ++numReceived) {
                 char* value = mX.popFront();
                 int k;
-                for (k = 0; k < NUM_PUSHER_THREADS; ++k) {
+                for (k = 0; k < k_NUM_PUSHER_THREADS; ++k) {
                     if (value == nextValue[k]) {
                         nextValue[k] += (value == lastValue[k] ? 0 : 1);
                         LOOP2_ASSERT((void*)nextValue[k],
@@ -1716,7 +1717,7 @@ int main(int argc, char *argv[])
                         break;
                     }
                 }
-                LOOP_ASSERT(numReceived, k < NUM_PUSHER_THREADS);
+                LOOP_ASSERT(numReceived, k < k_NUM_PUSHER_THREADS);
             }
             tg.joinAll();
 
@@ -1750,39 +1751,39 @@ int main(int argc, char *argv[])
                           << "======================"   << endl;
 
         enum {
-            NUM_PUSHER_THREADS = 40,
-            NUM_VALUES = 6,
-            NUM_ITERATIONS = 2000
+            k_NUM_PUSHER_THREADS = 40,
+            k_NUM_VALUES = 6,
+            k_NUM_ITERATIONS = 2000
         };
 
-        enum { NUM_ENTRIES = NUM_VALUES * NUM_PUSHER_THREADS };
-        char reserved[NUM_ENTRIES];
+        enum { k_NUM_ENTRIES = k_NUM_VALUES * k_NUM_PUSHER_THREADS };
+        char reserved[k_NUM_ENTRIES];
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        for (int i = 0; i < NUM_ITERATIONS; ++i) {
-            bdlqq::Barrier barrier(NUM_PUSHER_THREADS+1);
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
+            bdlqq::Barrier barrier(k_NUM_PUSHER_THREADS+1);
 
-            bdlcc::FixedQueue<char*> mX(NUM_ENTRIES+1, &ta);
+            bdlcc::FixedQueue<char*> mX(k_NUM_ENTRIES+1, &ta);
             bdlqq::ThreadGroup tg;
 
-            char* nextValue[NUM_PUSHER_THREADS];
-            char* lastValue[NUM_PUSHER_THREADS];
+            char* nextValue[k_NUM_PUSHER_THREADS];
+            char* lastValue[k_NUM_PUSHER_THREADS];
 
-            for (int j = 0; j < NUM_PUSHER_THREADS; ++j) {
-                nextValue[j] = reserved + NUM_VALUES*j;
-                lastValue[j] = reserved + NUM_VALUES*(j+1) - 1;
+            for (int j = 0; j < k_NUM_PUSHER_THREADS; ++j) {
+                nextValue[j] = reserved + k_NUM_VALUES*j;
+                lastValue[j] = reserved + k_NUM_VALUES*(j+1) - 1;
                 tg.addThread(bdlf::BindUtil::bind(&abaThread,
                                                  nextValue[j], lastValue[j],
                                                  &mX, &barrier, false));
             }
             tg.addThread(bdlf::BindUtil::bind(&sleepAndWait, 100, &barrier));
 
-            for (int numReceived = 0; numReceived < NUM_ENTRIES;
+            for (int numReceived = 0; numReceived < k_NUM_ENTRIES;
                  ++numReceived) {
                 char* value = mX.popFront();
                 int k;
-                for (k = 0; k < NUM_PUSHER_THREADS; ++k) {
+                for (k = 0; k < k_NUM_PUSHER_THREADS; ++k) {
                     if (value == nextValue[k]) {
                         nextValue[k] += (value == lastValue[k] ? 0 : 1);
                         LOOP2_ASSERT((void*)nextValue[k],
@@ -1791,7 +1792,7 @@ int main(int argc, char *argv[])
                         break;
                     }
                 }
-                LOOP_ASSERT(numReceived, k < NUM_PUSHER_THREADS);
+                LOOP_ASSERT(numReceived, k < k_NUM_PUSHER_THREADS);
             }
             tg.joinAll();
 
@@ -1831,14 +1832,14 @@ int main(int argc, char *argv[])
         // Single thread, queue of T
 
         {
-            enum { NUM_ELEMENTS = 100 };
-            bdlcc::FixedQueue<int> mX(NUM_ELEMENTS);
+            enum { k_NUM_ELEMENTS = 100 };
+            bdlcc::FixedQueue<int> mX(k_NUM_ELEMENTS);
 
-            for (int i = 0; i < NUM_ELEMENTS; ++i) {
+            for (int i = 0; i < k_NUM_ELEMENTS; ++i) {
 
                 ASSERT(0 == mX.pushBack(0));
             }
-            ASSERT(NUM_ELEMENTS == mX.length());
+            ASSERT(k_NUM_ELEMENTS == mX.length());
             mX.removeAll();
             ASSERT(0 == mX.length());
         }
@@ -1847,16 +1848,16 @@ int main(int argc, char *argv[])
         // Single thread, queue of T*
 
         {
-            enum { NUM_ELEMENTS = 100 };
-            bdlcc::FixedQueue<int*> mX(NUM_ELEMENTS);
+            enum { k_NUM_ELEMENTS = 100 };
+            bdlcc::FixedQueue<int*> mX(k_NUM_ELEMENTS);
 
             int element = 0;
 
-            for (int i = 0; i < NUM_ELEMENTS; ++i) {
+            for (int i = 0; i < k_NUM_ELEMENTS; ++i) {
                 ASSERT(0 == mX.pushBack(&element));
             }
 
-            ASSERT(NUM_ELEMENTS == mX.length());
+            ASSERT(k_NUM_ELEMENTS == mX.length());
             mX.removeAll();
             ASSERT(0 == mX.length());
         }
@@ -1941,7 +1942,7 @@ int main(int argc, char *argv[])
         memset(consumerData, 0, sizeof(StressData)*numConsumers);
         bdlcc::FixedQueue<StressNode> queue(queueSize);
         bool stopProducers = false;
-        for(int i=0; i<numProducers; i++) {
+        for (int i=0; i<numProducers; i++) {
             producerData[i].counts = new int[1];
             producerData[i].checksums = new int[1];
             producerData[i].counts[0] = 0;
@@ -1954,10 +1955,10 @@ int main(int argc, char *argv[])
                     ((i%2) ? stressProducer2 : stressProducer1),
                     (void*)(producerData+i));
         }
-        for(int i=0; i<numConsumers; i++) {
+        for (int i=0; i<numConsumers; i++) {
             consumerData[i].counts = new int[numProducers];
             consumerData[i].checksums = new int[numProducers];
-            for(int j=0; j<numProducers; j++) {
+            for (int j=0; j<numProducers; j++) {
                 consumerData[i].counts[j] = 0;
                 consumerData[i].checksums[j] = 0;
             }
@@ -1968,7 +1969,7 @@ int main(int argc, char *argv[])
                     ((i%2) ? stressConsumer2 : stressConsumer1),
                     (void*)(consumerData+i));
         }
-        for(int i=0; i<seconds; i++) {
+        for (int i=0; i<seconds; i++) {
             bdlqq::ThreadUtil::microSleep(1000000);
             if (verbose) cout << "." << flush;
         }
@@ -1976,26 +1977,26 @@ int main(int argc, char *argv[])
         // First, stop producers and join them.  Consumers are still running so
         // the producers must be looping continuously.
         if (seconds) stopProducers = true;
-        for(int i=0; i<numProducers; i++) {
+        for (int i=0; i<numProducers; i++) {
             bdlqq::ThreadUtil::join(producerData[i].handle);
         }
         if (verbose) cout << "Producers stopped." << flush;
         // push messages to the queue to stop consumers
-        for(int i=0; i<numConsumers; i++) {
+        for (int i=0; i<numConsumers; i++) {
             StressNode sn;
             sn.thread=-1;
             queue.pushBack(sn);
         }
         // then join consumers
-        for(int i=0; i<numConsumers;i++) {
+        for (int i=0; i<numConsumers;i++) {
             bdlqq::ThreadUtil::join(consumerData[i].handle);
         }
         if (verbose) cout << "Consumers stopped." << flush;
         // now, verify the results
-        for(int i=0; i<numProducers;i++) {
+        for (int i=0; i<numProducers;i++) {
             int count = 0;
             int checksum = 0;
-            for(int j=0; j<numConsumers; j++) {
+            for (int j=0; j<numConsumers; j++) {
                 count += consumerData[j].counts[i];
                 checksum += consumerData[j].checksums[i];
             }
@@ -2003,11 +2004,11 @@ int main(int argc, char *argv[])
             ASSERT(producerData[i].counts[0] == count);
             ASSERT(producerData[i].checksums[0] == checksum);
         }
-        for(int i=0; i<numProducers; i++) {
+        for (int i=0; i<numProducers; i++) {
             delete[] producerData[i].counts;
             delete[] producerData[i].checksums;
         }
-        for(int i=0; i<numConsumers; i++) {
+        for (int i=0; i<numConsumers; i++) {
             delete[] consumerData[i].counts;
             delete[] consumerData[i].checksums;
         }
@@ -2153,8 +2154,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // A SIMPLE BENCHMARK
         //
-        // imitates a producer-consumer system with a fixed size
-        // queue using two semaphores
+        // imitates a producer-consumer system with a fixed size queue using
+        // two semaphores
         //
         // TBD: coredump on sundev31 -- fix
         int numProducers = argc > 2 ? atoi(argv[2]) : 1;
@@ -2172,7 +2173,7 @@ int main(int argc, char *argv[])
         BenchData* consumerData = new BenchData[numConsumers];
         bdlcc::FixedQueue<void*> queue(queueSize);
         //bsls::Types::Int64 timeStart = bsls::TimeUtil::getTimer();
-        for(int i=0; i<numConsumers; i++) {
+        for (int i=0; i<numConsumers; i++) {
             consumerData[i].queue = &queue;
             consumerData[i].count = 0;
             consumerData[i].stop = false;
@@ -2180,7 +2181,7 @@ int main(int argc, char *argv[])
                                      benchConsumer,
                                      (void*)(consumerData+i));
         }
-        for(int i=0; i<numProducers; i++) {
+        for (int i=0; i<numProducers; i++) {
             producerData[i].queue = &queue;
             producerData[i].stop = false;
             producerData[i].count = 0;
@@ -2188,19 +2189,19 @@ int main(int argc, char *argv[])
                                      benchProducer,
                                      (void*)(producerData+i));
         }
-        for(int j=0; j<samples; j++) {
+        for (int j=0; j<samples; j++) {
             bsls::Types::Int64 timeStart = bsls::TimeUtil::getTimer();
             bsls::Types::Int64 timeStartCPU = ::clock();
             int* consumerCount = new int[numConsumers];
-            for(int i=0; i<numConsumers; i++) {
+            for (int i=0; i<numConsumers; i++) {
                 consumerCount[i] = consumerData[i].count;
             }
             bsls::Types::Int64 throughput;
             bsls::Types::Int64 throughputCPU;
-            for(int i=0; i<seconds; i++) {
+            for (int i=0; i<seconds; i++) {
                 bdlqq::ThreadUtil::microSleep(1000000);
                 bsls::Types::Int64 totalMessages = 0;
-                for(int i=0; i<numConsumers;i++) {
+                for (int i=0; i<numConsumers;i++) {
                     totalMessages += (consumerData[i].count-consumerCount[i]);
                 }
                 bsls::Types::Int64 elapsed_us =
@@ -2223,20 +2224,20 @@ int main(int argc, char *argv[])
                  << endl;
         }
         cout << "stopping: " << flush;
-        for(int i=0; i<numProducers; i++) {
+        for (int i=0; i<numProducers; i++) {
             producerData[i].stop = true;
         }
-        for(int i=0; i<numProducers; i++) {
+        for (int i=0; i<numProducers; i++) {
             bdlqq::ThreadUtil::join(producerData[i].handle);
             cout << 'p' << flush;
         }
-        for(int i=0; i<numConsumers; i++) {
+        for (int i=0; i<numConsumers; i++) {
             consumerData[i].stop = true;
         }
-        for(int i=0; i<numConsumers; i++) {
+        for (int i=0; i<numConsumers; i++) {
             queue.pushBack((void*)0xBAADF00D);
         }
-        for(int i=0; i<numConsumers;i++) {
+        for (int i=0; i<numConsumers;i++) {
             bdlqq::ThreadUtil::join(consumerData[i].handle);
             cout << 'c' << flush;
         }
@@ -2247,9 +2248,9 @@ int main(int argc, char *argv[])
 
       case -3: {
         enum {
-            QUEUE_SIZE_LARGE = 500000,
-            NUM_PUSHERS_MORE = 20,
-            EMPTY_VERIFY_MS = 1500
+            k_QUEUE_SIZE_LARGE = 500000,
+            k_NUM_PUSHERS_MORE = 20,
+            k_EMPTY_VERIFY_MS = 1500
         };
 
         cout << "...Non-full-queue test (more)" << endl;
@@ -2257,13 +2258,13 @@ int main(int argc, char *argv[])
         for (int a = 0; a < numIterations; ++a)
         {
             volatile bool done = false;
-            bdlcc::FixedQueue<int> queue(QUEUE_SIZE_LARGE);
+            bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_LARGE);
 
             bdlqq::ThreadGroup pusherGroup;
             pusherGroup.addThreads(bdlf::BindUtil::bind(&case9pusher,
                                                        &queue,
                                                        &done),
-                                   NUM_PUSHERS_MORE);
+                                   k_NUM_PUSHERS_MORE);
 
             // Sleep for up to 2 ms just to let some stuff get into the queue
             bdlqq::ThreadUtil::microSleep(rand() % 2000);
@@ -2279,7 +2280,7 @@ int main(int argc, char *argv[])
             timer.start();
             double elapsed;
             for (int i = 0; (elapsed = timer.elapsedTime() * 1000) <
-                     EMPTY_VERIFY_MS; ++i) {
+                     k_EMPTY_VERIFY_MS; ++i) {
                 BSLS_ASSERT(queue.isEmpty());
                 ASSERT(queue.isEmpty());
                 if (!queue.isEmpty()) {
@@ -2315,13 +2316,13 @@ int main(int argc, char *argv[])
                           << "STRESS TEST -4" << endl
                           << "==============" << endl;
         enum {
-            NUM_THREADS = 6,
-            NUM_ITERATIONS = 1000000
+            k_NUM_THREADS = 6,
+            k_NUM_ITERATIONS = 1000000
         };
 
-        int numIterations = argc > 2 ? atoi(argv[2]) : NUM_ITERATIONS;
-        int numPushers = argc > 3 ? atoi(argv[3]) : NUM_THREADS;
-        int numPoppers = argc > 4 ? atoi(argv[4]) : NUM_THREADS;
+        int numIterations = argc > 2 ? atoi(argv[2]) : k_NUM_ITERATIONS;
+        int numPushers = argc > 3 ? atoi(argv[3]) : k_NUM_THREADS;
+        int numPoppers = argc > 4 ? atoi(argv[4]) : k_NUM_THREADS;
 
         if (verbose) cout << endl
                           << "NUM ITERATIONS: " << numIterations << endl
@@ -2338,13 +2339,13 @@ int main(int argc, char *argv[])
                           << "STRESS TEST -5" << endl
                           << "==============" << endl;
         enum {
-            NUM_THREADS = 6,
-            NUM_ITERATIONS = 1000000
+            k_NUM_THREADS = 6,
+            k_NUM_ITERATIONS = 1000000
         };
 
-        int numIterations = argc > 2 ? atoi(argv[2]) : NUM_ITERATIONS;
-        int numPushers = argc > 3 ? atoi(argv[3]) : NUM_THREADS;
-        int numPoppers = argc > 4 ? atoi(argv[4]) : NUM_THREADS;
+        int numIterations = argc > 2 ? atoi(argv[2]) : k_NUM_ITERATIONS;
+        int numPushers = argc > 3 ? atoi(argv[3]) : k_NUM_THREADS;
+        int numPoppers = argc > 4 ? atoi(argv[4]) : k_NUM_THREADS;
 
         if (verbose) cout << endl
                           << "NUM ITERATIONS: " << numIterations << endl
@@ -2361,10 +2362,10 @@ int main(int argc, char *argv[])
                           << "DISABLE TEST -7" << endl
                           << "===============" << endl;
         enum {
-            NUM_THREADS = 6
+            k_NUM_THREADS = 6
         };
 
-        int numPushers = argc > 2 ? atoi(argv[2]) : NUM_THREADS;
+        int numPushers = argc > 2 ? atoi(argv[2]) : k_NUM_THREADS;
 
         if (verbose) cout << endl
                           << "NUM PUSHERS: " << numPushers << endl;
@@ -2379,16 +2380,16 @@ int main(int argc, char *argv[])
                           << "NON BLOCKING STRESS TEST -8" << endl
                           << "===========================" << endl;
         enum {
-            NUM_THREADS = 6,
-            NUM_ITERATIONS = 1000000,
-            QUEUE_SIZE = 2047,
-            PUSH_COUNT = 100
+            k_NUM_THREADS = 6,
+            k_NUM_ITERATIONS = 1000000,
+            k_QUEUE_SIZE = 2047,
+            k_PUSH_COUNT = 100
         };
 
-        int numIterations = argc > 2 ? atoi(argv[2]) : NUM_ITERATIONS;
-        int numThreads = argc > 3 ? atoi(argv[3]) : NUM_THREADS;
-        int queueSize = argc > 4 ? atoi(argv[4]) : QUEUE_SIZE;
-        int pushCount = argc > 5 ? atoi(argv[5]) : PUSH_COUNT;
+        int numIterations = argc > 2 ? atoi(argv[2]) : k_NUM_ITERATIONS;
+        int numThreads = argc > 3 ? atoi(argv[3]) : k_NUM_THREADS;
+        int queueSize = argc > 4 ? atoi(argv[4]) : k_QUEUE_SIZE;
+        int pushCount = argc > 5 ? atoi(argv[5]) : k_PUSH_COUNT;
 
         if (verbose) cout << endl
                           << "NUM ITERATIONS: " << numIterations << endl
@@ -2403,31 +2404,31 @@ int main(int argc, char *argv[])
         // tests after 32-bit index rollover
         //
         // The indices into the queue are 32-bit indexes that count up
-        // continuously.  They're interpreted modulo the queue size, but
-        // the indexes themselves will abruptly roll over to 0 after
-        // 2^32 operations on the queue.  For a period of time thereafter,
-        // 'front' will be vastly larger than 'back' while the queue
-        // size remains normal.
+        // continuously.  They're interpreted modulo the queue size, but the
+        // indexes themselves will abruptly roll over to 0 after 2^32
+        // operations on the queue.  For a period of time thereafter, 'front'
+        // will be vastly larger than 'back' while the queue size remains
+        // normal.
         //
         // Perform various multithreaded tests on a queue AFTER it has reached
         // this condition.  First, in a single thread, spin these indices up;
         // then, using multiple threads, stress-test operations that compare
-        // front to back, such as pushing into a full queue or calculating
-        // the length.
+        // front to back, such as pushing into a full queue or calculating the
+        // length.
         //
         // ---------------------------------------------------------
         enum {
-            QUEUE_SIZE = 30000 // fairly large to facilitate certain non-empty
-                               // tests
+            k_QUEUE_SIZE = 30000  // fairly large to facilitate certain
+                                  // non-empty tests
         };
 
         // First, run our tests on a non-rolled-over queue
         bsl::cout << "Testing newly created queue..." << bsl::endl;
         bdlqq::ThreadGroup workThreads;
         bsls::AtomicInt doneFlag(0);
-        bdlcc::FixedQueue<int> youngQueue(QUEUE_SIZE);
+        bdlcc::FixedQueue<int> youngQueue(k_QUEUE_SIZE);
         // Fill the queue up halfway.
-        for (unsigned i = QUEUE_SIZE/2; i < QUEUE_SIZE; ++i) {
+        for (unsigned i = k_QUEUE_SIZE/2; i < k_QUEUE_SIZE; ++i) {
             youngQueue.pushBack(i);
         }
 
@@ -2462,8 +2463,8 @@ int main(int argc, char *argv[])
 
         bsl::cout << "\nIncrementing";
 
-        bdlcc::FixedQueue<int> queue (QUEUE_SIZE);
-        for (unsigned i = 0; i < 0xFFFFFFFF - QUEUE_SIZE; i += 5) {
+        bdlcc::FixedQueue<int> queue (k_QUEUE_SIZE);
+        for (unsigned i = 0; i < 0xFFFFFFFF - k_QUEUE_SIZE; i += 5) {
             queue.pushBack(i);
             queue.pushBack(i);
             queue.pushBack(i);
@@ -2485,7 +2486,7 @@ int main(int argc, char *argv[])
                   << bsl::endl;
 
         // Fill the queue up halfway.
-        for (unsigned i = QUEUE_SIZE/2; i < QUEUE_SIZE; ++i) {
+        for (unsigned i = k_QUEUE_SIZE/2; i < k_QUEUE_SIZE; ++i) {
             queue.pushBack(i);
         }
 
@@ -2541,11 +2542,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

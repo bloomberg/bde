@@ -1,4 +1,4 @@
-// bdlcc_sharedobjectpool.t.cpp                                        -*-C++-*-
+// bdlcc_sharedobjectpool.t.cpp                                       -*-C++-*-
 
 #include <bdlcc_sharedobjectpool.h>
 
@@ -23,7 +23,6 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
@@ -42,6 +41,7 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 namespace {
+
    //Unnamed namespace scopes private classes and methods for testing
 
 bdlqq::SpinLock coutLock;
@@ -138,7 +138,7 @@ class SlowerBlobPool {
     bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
     bslma::Allocator             *d_allocator_p;  // allocator (held)
 
-    enum {BUFFER_SIZE=65536};
+    enum { k_BUFFER_SIZE=65536 };
 
     static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
                            bslma::Allocator *allocator) {
@@ -148,7 +148,7 @@ class SlowerBlobPool {
   public:
 
     SlowerBlobPool(bslma::Allocator *basicAllocator = 0)
-      : d_blobFactory(BUFFER_SIZE, bslma::Default::allocator(basicAllocator))
+      : d_blobFactory(k_BUFFER_SIZE, bslma::Default::allocator(basicAllocator))
       , d_blobPool(bdlf::BindUtil::bind(
                                     &SlowerBlobPool::createBlob,
                                     bdlf::PlaceHolders::_1,
@@ -169,17 +169,17 @@ class SlowerBlobPool {
 };
 
 class SlowBlobPool {
-    bdlma::ConcurrentPoolAllocator           d_spAllocator;  // allocate shared pointer
+    bdlma::ConcurrentPoolAllocator           d_spAllocator;  // allocate shared
+                                                             // pointer
     bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
     bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
 
-    enum {BUFFER_SIZE=65536};
+    enum { k_BUFFER_SIZE=65536 };
 
     static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
                            bslma::Allocator *allocator) {
         new (address) bdlmca::Blob(factory, allocator);
     }
-
 
     static void resetAndReturnBlob(bdlmca::Blob *blob,
                                    bdlcc::ObjectPool<bdlmca::Blob> *pool) {
@@ -191,7 +191,7 @@ class SlowBlobPool {
 
     SlowBlobPool(bslma::Allocator *basicAllocator = 0)
       : d_spAllocator(basicAllocator)
-      , d_blobFactory(BUFFER_SIZE, basicAllocator)
+      , d_blobFactory(k_BUFFER_SIZE, basicAllocator)
       , d_blobPool(bdlf::BindUtil::bind(
                                     &SlowBlobPool::createBlob,
                                     bdlf::PlaceHolders::_1,
@@ -212,14 +212,14 @@ class SlowBlobPool {
 
 class FastBlobPool {
     typedef bdlcc::SharedObjectPool<
-                     bdlmca::Blob,
-                     bdlcc::ObjectPoolFunctors::DefaultCreator,
-                     bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
+                 bdlmca::Blob,
+                 bdlcc::ObjectPoolFunctors::DefaultCreator,
+                 bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
 
     bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-    BlobPool                      d_blobPool;     // supply blobs
+    BlobPool                        d_blobPool;     // supply blobs
 
-    enum {BUFFER_SIZE=65536};
+    enum { k_BUFFER_SIZE=65536 };
 
     static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
                     bslma::Allocator *allocator) {
@@ -229,7 +229,7 @@ class FastBlobPool {
   public:
 
    FastBlobPool(bslma::Allocator *basicAllocator = 0)
-      : d_blobFactory(BUFFER_SIZE, basicAllocator)
+      : d_blobFactory(k_BUFFER_SIZE, basicAllocator)
       , d_blobPool(bdlf::BindUtil::bind(
                                     &FastBlobPool::createBlob,
                                     bdlf::PlaceHolders::_1,
@@ -252,7 +252,6 @@ struct SpLink
         ASSERT(false == d_next);
     }
 };
-
 
 template <class POOL>
 class LinkTestRun
@@ -351,8 +350,7 @@ void LinkTestRun<POOL>::run()
    d_run = true;
 }
 
-
-} // close unnamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                                   TEST PLAN
@@ -445,7 +443,6 @@ struct ConstructorTestHelp3
       , d_resetCount(0)
       , d_startCount(startCount)
    {}
-
 
    // ACCESSORS
    static void resetWithCount(ConstructorTestHelp3 *self, int count)
@@ -606,7 +603,8 @@ class StringReseter
 };
 
 class SlowLinkPool {
-   bdlma::ConcurrentPoolAllocator     d_spAllocator;  // allocate shared pointer
+   bdlma::ConcurrentPoolAllocator     d_spAllocator;  // allocate shared
+                                                      // pointer
    bdlcc::ObjectPool<SpLink> d_linkPool;
 
    static void createLink(void* address) {
@@ -667,8 +665,8 @@ int main(int argc, char *argv[])
            //////////////////////////////////////////////////////
            // Constructor overloads
            //
-           // Concern: The various overloads of the constructor cause
-           // the correct creator and resetter functions to be called.
+           // Concern: The various overloads of the constructor cause the
+           // correct creator and resetter functions to be called.
            //
            //////////////////////////////////////////////////////
          using namespace bdlf::PlaceHolders;
@@ -830,23 +828,25 @@ int main(int argc, char *argv[])
            //////////////////////////////////////////////////////
            // Thread safety test
            //
-           // Run the performance test under high contention using a
-           // test allocator.
+           // Run the performance test under high contention using a test
+           // allocator.
            //////////////////////////////////////////////////////
          if (verbose) {
             cout << "Thread safety test" << endl;
          }
 
          enum {
-            NUM_THREADS=20,
-            NUM_BLOBS_PER_ITER=10000,
-            SECONDS_TO_RUN=6
+            k_NUM_THREADS=20,
+            k_NUM_BLOBS_PER_ITER=10000,
+            k_SECONDS_TO_RUN=6
          };
 
          bslma::TestAllocator alloc;
          {
-            TestRun<FastBlobPool> test(NUM_THREADS, NUM_BLOBS_PER_ITER,
-                                       SECONDS_TO_RUN, &alloc);
+            TestRun<FastBlobPool> test(k_NUM_THREADS,
+                                       k_NUM_BLOBS_PER_ITER,
+                                       k_SECONDS_TO_RUN,
+                                       &alloc);
             test.run();
 
             //sanity check, *not* performance check:
@@ -860,8 +860,8 @@ int main(int argc, char *argv[])
          //////////////////////////////////////////////////////
          // Usage Example Test
          //
-         // Concerns: that the component's usage example compiles and
-         // runs properly.
+         // Concerns: that the component's usage example compiles and runs
+         // properly.
          //////////////////////////////////////////////////////
          if (verbose) {
             cout << "Usage example test" << endl;
@@ -891,8 +891,9 @@ int main(int argc, char *argv[])
            cout << "Resetter test 2" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool1(StringCreator(),StringReseter(),1);
         bsl::shared_ptr<bsl::string> sharedStr;
@@ -915,8 +916,9 @@ int main(int argc, char *argv[])
         if (verbose) {
            cout << "Resetter test 1" << endl;
         }
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool1(StringCreator(),StringReseter(false),1);
         bsl::shared_ptr<bsl::string> sharedStr;
@@ -940,8 +942,9 @@ int main(int argc, char *argv[])
            cout << "numObjects test" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool(StringCreator(),StringReseter(),20);
         ASSERT(pool.numObjects()==0);
@@ -956,9 +959,9 @@ int main(int argc, char *argv[])
            cout << "Allocator test" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
-
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         bslma::TestAllocator ta1(veryVeryVerbose);
         bslma::TestAllocator ta2(veryVeryVerbose);
@@ -980,8 +983,9 @@ int main(int argc, char *argv[])
            cout << "Breathing test" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool((StringCreator()),(StringReseter()));
         ASSERT(pool.numObjects()==0);
@@ -995,14 +999,13 @@ int main(int argc, char *argv[])
          ///////////////////////////////////////////////////
          // Cache-stressing performance test
          //
-         // Similar to the basic performance test, except that
-         // the pooled objects are links in a long list.  Following
-         // the list from beginning to end seeks to highlight any
-         // caching inefficiencies.
+         // Similar to the basic performance test, except that the pooled
+         // objects are links in a long list.  Following the list from
+         // beginning to end seeks to highlight any caching inefficiencies.
          ////////////////////////////////////////////////////
          cout << "Cache-stressing Performance Test" << endl;
 
-         enum { SECONDS_TO_RUN = 5 };
+         enum { k_SECONDS_TO_RUN = 5 };
 
          struct Parameters {
             int d_numThreads;
@@ -1031,7 +1034,7 @@ int main(int argc, char *argv[])
 
             LinkTestRun<FastLinkPool> fastTest(p.d_numThreads,
                                                p.d_numLinksPerIteration,
-                                               SECONDS_TO_RUN);
+                                               k_SECONDS_TO_RUN);
 
             fastTest.run();
             double fastResult = fastTest.getRatePerThread() /
@@ -1042,7 +1045,7 @@ int main(int argc, char *argv[])
 
             LinkTestRun<SlowLinkPool> slowTest(p.d_numThreads,
                                                p.d_numLinksPerIteration,
-                                               SECONDS_TO_RUN);
+                                               k_SECONDS_TO_RUN);
 
             slowTest.run();
             double slowResult = slowTest.getRatePerThread() /
@@ -1072,7 +1075,7 @@ int main(int argc, char *argv[])
             runBaseTest = false;
          }
 
-         enum { SECONDS_TO_RUN = 5 };
+         enum { k_SECONDS_TO_RUN = 5 };
 
          struct Parameters {
             int d_numThreads;
@@ -1101,7 +1104,7 @@ int main(int argc, char *argv[])
 
             TestRun<FastBlobPool> fastTest(p.d_numThreads,
                                            p.d_numBlobsPerIteration,
-                                           SECONDS_TO_RUN);
+                                           k_SECONDS_TO_RUN);
 
             fastTest.run();
             double fastResult = fastTest.getRatePerThread() /
@@ -1113,7 +1116,7 @@ int main(int argc, char *argv[])
             if (runBaseTest) {
                TestRun<SlowBlobPool> slowTest(p.d_numThreads,
                                               p.d_numBlobsPerIteration,
-                                              SECONDS_TO_RUN);
+                                              k_SECONDS_TO_RUN);
 
                slowTest.run();
                double slowResult = slowTest.getRatePerThread() /
@@ -1125,7 +1128,7 @@ int main(int argc, char *argv[])
 
                TestRun<SlowerBlobPool> slowerTest(p.d_numThreads,
                                                   p.d_numBlobsPerIteration,
-                                                  SECONDS_TO_RUN);
+                                                  k_SECONDS_TO_RUN);
 
                slowerTest.run();
                double slowerResult = slowerTest.getRatePerThread() /
@@ -1165,11 +1168,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlcc_fixedqueueindexmanager.cpp                                    -*-C++-*-
+// bdlcc_fixedqueueindexmanager.cpp                                   -*-C++-*-
 #include <bdlcc_fixedqueueindexmanager.h>
 
 #include <bsls_ident.h>
@@ -21,8 +21,8 @@ namespace BloombergLP {
 ///===================
 // Each 'bdlcc::FixedQueueIndexManager' object maintains a circular buffer of
 // atomic integers, 'd_states', that encode the states of the corresponding
-// elements in an external circular buffer (e.g.,'bdlcc::FixedQueue').  The bits
-// in the atomic integers of the 'd_states' array, as well as both
+// elements in an external circular buffer (e.g.,'bdlcc::FixedQueue').  The
+// bits in the atomic integers of the 'd_states' array, as well as both
 // 'd_pushIndex' and 'd_popIndex', encode multiple pieces of information, as
 // described below.
 //
@@ -40,14 +40,14 @@ namespace BloombergLP {
 //
 ///Encoding of 'd_states' elements
 ///-------------------------------
-// The elements of the 'd_states' array indicate the state of the
-// corresponding element in the externally managed circular buffer.  Each
-// 'd_states' element encodes:
+// The elements of the 'd_states' array indicate the state of the corresponding
+// element in the externally managed circular buffer.  Each 'd_states' element
+// encodes:
 //
 //: o the 'ElementState' (e_EMPTY, e_WRITING, e_FULL, or e_READING)
 //: o the generation count
 //
-// The bit layout of the atomic integers in the  'd_states' array is below:
+// The bit layout of the atomic integers in the 'd_states' array is below:
 //..
 //
 // |31 30 . . . . . . . . . . . . . . . . . 4 3 | 1 0 |
@@ -98,9 +98,9 @@ namespace BloombergLP {
 // As noted earlier, the index manager uses a generation count to avoid ABA
 // problems.  In order for generation count to be effective we must ensure that
 // 'd_pushIndex', 'd_popIndex', and 'd_states' elements each can represent at
-// least two generations.  'd_states' elements each have 'sizeof(int) - 2'
-// bits available to represent the generation count (which we assume is plenty
-// for 2 generations), and 'd_popIndex' has one more bit available than
+// least two generations.  'd_states' elements each have 'sizeof(int) - 2' bits
+// available to represent the generation count (which we assume is plenty for 2
+// generations), and 'd_popIndex' has one more bit available than
 // 'd_pushIndex'.
 //
 // For 'd_pushIndex' to represent at least 2 generations, we must reserve at
@@ -111,9 +111,8 @@ namespace BloombergLP {
 ///Maximum Generation Count and Maximum Combined Index
 ///---------------------------------------------------
 // The maximum generation count and maximum combined index are per-object
-// constants, derived from a circular buffer's capacity, that are stored
-// within the 'd_maxGeneration' and 'd_maxCombinedIndex' data members
-// respectively.
+// constants, derived from a circular buffer's capacity, that are stored within
+// the 'd_maxGeneration' and 'd_maxCombinedIndex' data members respectively.
 //
 //: 'd_maxGeneration': The maximum *complete* generation that can be
 //:                    represented within a combined index.
@@ -132,9 +131,9 @@ namespace BloombergLP {
 ///----------==-----------------------
 // 'reservePushBack' and 'reservePopIndex' both return an error status
 // indicating the queue is either full or empty respectively.  Although the
-// meaning of full or empty is intuitive, in a lock-free context where
-// multiple readers and writers are simultanouesly updating a queue it is
-// worth defining precisely:
+// meaning of full or empty is intuitive, in a lock-free context where multiple
+// readers and writers are simultanouesly updating a queue it is worth defining
+// precisely:
 //
 // In the context of this implementation, a full or empty queue means the
 // failure status for the 'testAndSwap' where we attempt to mark the cell
@@ -143,10 +142,10 @@ namespace BloombergLP {
 //
 ///Use of BSLS_ASSERT
 ///------------------
-// 'BSLS_ASSERT' is used frequently in this component to test expected
-// internal invariants.  Generally that is the purview of the test-driver, but
-// it is difficult to externally test the expected invariants in a
-// multi-threaded context.
+// 'BSLS_ASSERT' is used frequently in this component to test expected internal
+// invariants.  Generally that is the purview of the test-driver, but it is
+// difficult to externally test the expected invariants in a multi-threaded
+// context.
 
 namespace {
 
@@ -165,7 +164,7 @@ enum ElementState {
 
 const char *toString(ElementState state)
     // Return a 0-terminated description of the specified 'state'.
-{    
+{
     switch (state) {
       case e_EMPTY:   return "EMPTY";
       case e_WRITING: return "WRITING";
@@ -216,7 +215,6 @@ static const unsigned int e_NUM_REPRESENTABLE_COMBINED_INDICES =
                                       // 'd_popIndex' (this is used to
                                       // determine 'd_maxGeneration')
 
-
 ///State Element Encoding
 ///- - - - - - - - - - -
 // The following operations are used to encode and decode the 'ElementState'
@@ -252,7 +250,6 @@ static ElementState decodeStateFromElementState(unsigned int encodedState)
     return ElementState(encodedState & e_ELEMENT_STATE_MASK);
 }
 
-
 ///Index Operations
 /// - - - - - - - -
 // The following operations are used to manipulate 'd_index' and 'd_popIndex'
@@ -277,10 +274,10 @@ static unsigned int discardDisabledFlag(unsigned int encodedPushIndex)
 }  // close unnamed namespace
 
 namespace bdlcc {
-                     // ---------------------------------
-                     // class FixedQueueIndexManager
-                     // ---------------------------------
 
+                       // ----------------------------
+                       // class FixedQueueIndexManager
+                       // ----------------------------
 
 // CLASS METHODS
 int FixedQueueIndexManager::circularDifference(unsigned int minuend,
@@ -355,11 +352,9 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
     unsigned int savedPushIndex  = -1;
     unsigned int combinedIndex, currIndex, currGeneration;
 
-
     // We use 'savedPushIndex' to ensure we attempt to acquire an index at
-    // least twice before returning 'e_QUEUE_FULL'.  This prevents
-    // pathological contention between reading and writing threads for a queue
-    // of length 1.
+    // least twice before returning 'e_QUEUE_FULL'.  This prevents pathological
+    // contention between reading and writing threads for a queue of length 1.
 
     for (;;) {
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -367,14 +362,13 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
             return e_DISABLED_QUEUE;                                  // RETURN
         }
 
-        // Attempt to swap the 'd_states' element referred to by the
-        // push-index to 'e_WRITING'.
+        // Attempt to swap the 'd_states' element referred to by the push-index
+        // to 'e_WRITING'.
 
         combinedIndex  = discardDisabledFlag(loadedPushIndex);
 
         currGeneration = combinedIndex / d_capacity;
         currIndex      = combinedIndex % d_capacity;
-
 
         const int compare = encodeElementState(currGeneration, e_EMPTY);
         const int swap    = encodeElementState(currGeneration, e_WRITING);
@@ -403,13 +397,10 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
         //: 3 The push index has been incremented between the value being
         //:   loaded, and the attempt to test and swap.
 
-
         unsigned int elementGeneration = decodeGenerationFromElementState(was);
 
         int difference = static_cast<int>(currGeneration -
                                           elementGeneration);
-
-
 
         if (difference == 1 || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
             difference == -static_cast<int>(d_maxGeneration))) {
@@ -453,8 +444,8 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
                                             elementGeneration,
                                             d_maxGeneration+1));
 
-        // Another thread has already acquired this cell.  Attempt to
-        // increment the push index.
+        // Another thread has already acquired this cell.  Attempt to increment
+        // the push index.
 
         unsigned int next = nextCombinedIndex(combinedIndex);
         loadedPushIndex   = d_pushIndex.testAndSwap(combinedIndex, next);
@@ -477,7 +468,6 @@ void FixedQueueIndexManager::commitPushIndex(unsigned int generation,
     BSLS_ASSERT(generation ==
                 decodeGenerationFromElementState(d_states[index]));
 
-
     // We cannot guarantee the full pre-conditions of this function.  The
     // preceding assertions are as close as we can get.
 
@@ -485,7 +475,6 @@ void FixedQueueIndexManager::commitPushIndex(unsigned int generation,
 
     d_states[index] = encodeElementState(generation, e_FULL);
 }
-
 
 int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
                                                  unsigned int *index)
@@ -498,9 +487,9 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
     unsigned int loadedPopIndex = d_popIndex.load();
     unsigned int savedPopIndex  = -1;
 
-    // We use 'savedPopIndex' to ensure we attempt to acquire an index at
-    // least twice before returning 'e_QUEUE_EMPTY'.  This is purely a
-    // performance adjustment.
+    // We use 'savedPopIndex' to ensure we attempt to acquire an index at least
+    // twice before returning 'e_QUEUE_EMPTY'.  This is purely a performance
+    // adjustment.
 
     unsigned int currIndex, currGeneration;
 
@@ -539,7 +528,6 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
         //:
         //: 4 The pop index has been incremented between the value being
         //:   loaded, and the attempt to test and swap.
-
 
         unsigned int elementGeneration = decodeGenerationFromElementState(was);
         ElementState state             = decodeStateFromElementState(was);
@@ -580,7 +568,7 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
 
         if (0 != difference || e_WRITING == state) {
             // The cell is currently being written, or our pop index is very
-            // out of date. Delay and try and reserve it again.
+            // out of date.  Delay and try and reserve it again.
 
             bdlqq::ThreadUtil::yield();
             loadedPopIndex = d_popIndex.loadRelaxed();
@@ -611,13 +599,11 @@ void FixedQueueIndexManager::commitPopIndex(unsigned int generation,
     // We cannot guarantee the full preconditions of this function.  The
     // preceding assertions are as close as we can get.
 
-    // Mark the popped cell with the subsequent generation and the EMPTY
-    // state.
+    // Mark the popped cell with the subsequent generation and the EMPTY state.
 
     d_states[index] = encodeElementState(nextGeneration(generation),
                                          e_EMPTY);
 }
-
 
 void FixedQueueIndexManager::disable()
 {
@@ -702,11 +688,10 @@ int FixedQueueIndexManager::reservePopIndexForClear (
         unsigned int currentIndex      = loadedCombinedIndex % d_capacity;
         unsigned int currentGeneration = loadedCombinedIndex / d_capacity;
 
-
         // Attempt to swap this cell's state from e_FULL to 'e_READING'.  Note
-        // that we set this to 'e_EMPTY' only after we attempt to increment
-        // the popIndex, so that another popping thread will not accidentally
-        // see this cell as empty and return that the queue is empty.
+        // that we set this to 'e_EMPTY' only after we attempt to increment the
+        // popIndex, so that another popping thread will not accidentally see
+        // this cell as empty and return that the queue is empty.
 
         const int compare = encodeElementState(currentGeneration, e_FULL);
         const int swap    = encodeElementState(currentGeneration, e_READING);
@@ -756,43 +741,37 @@ void FixedQueueIndexManager::abortPushIndexReservation(
     BSLS_ASSERT(generation ==
                 decodeGenerationFromElementState(d_states[index]));
 
-
     unsigned int loadedPopIndex = d_popIndex.loadRelaxed();
 
-    // Note that the preconditions for this function -- that the current
-    // thread (1) holds a push-index reservation on 'generation' and 'index',
-    // and (2) has called 'clearPopIndex' on all the preceding generation and
-    // index values -- require that 'd_popIndex' refer to 'generation' and
-    // 'index.
-
+    // Note that the preconditions for this function -- that the current thread
+    // (1) holds a push-index reservation on 'generation' and 'index', and (2)
+    // has called 'clearPopIndex' on all the preceding generation and index
+    // values -- require that 'd_popIndex' refer to 'generation' and 'index.
 
     BSLS_ASSERT(generation == loadedPopIndex / d_capacity);
     BSLS_ASSERT(index      == loadedPopIndex % d_capacity);
 
-
     // Marking the cell first for reading in the current generation, and then
     // after incrementing the pop index, marking it empty for the subsequent
     // generation matches the states when popping the cell.  Although the
-    // intermediate 'e_READING' state is not strictly necessary, it reduces
-    // the set of states that 'reservePopIndex' may encounter.
+    // intermediate 'e_READING' state is not strictly necessary, it reduces the
+    // set of states that 'reservePopIndex' may encounter.
 
     d_states[index] = encodeElementState(generation, e_READING);
-
 
     unsigned int nextIndex = nextCombinedIndex(loadedPopIndex);
     d_popIndex.testAndSwap(loadedPopIndex, nextIndex);
 
     d_states[index] = encodeElementState(nextGeneration(generation), e_EMPTY);
 
-
 }
 
 // ACCESSORS
 unsigned int FixedQueueIndexManager::length() const
 {
-    // Note that 'FixedQueue::pushBack' and 'FixedQueue::popFront'
-    // rely on the fact that the following atomic loads are sequentially
-    // consistent.  If this were to change, 'FixedQueue::tryPushBack' and
+    // Note that 'FixedQueue::pushBack' and 'FixedQueue::popFront' rely on the
+    // fact that the following atomic loads are sequentially consistent.  If
+    // this were to change, 'FixedQueue::tryPushBack' and
     // 'FixedQueue::tryPopFront' would need to be modified.
 
     unsigned int combinedPushIndex = discardDisabledFlag(d_pushIndex);
@@ -846,18 +825,15 @@ unsigned int FixedQueueIndexManager::length() const
     return 0;
 }
 
-
 bool FixedQueueIndexManager::isEnabled() const
 {
     return !isDisabledFlagSet(d_pushIndex.load());
 }
 
-
 bsl::ostream& FixedQueueIndexManager::print(bsl::ostream& stream) const
 {
     const unsigned int pushIndex = discardDisabledFlag(d_pushIndex);
     const unsigned int popIndex  = discardDisabledFlag(d_popIndex);
-
 
     stream << bsl::endl
            << "        capacity: " << capacity()         << bsl::endl
@@ -896,14 +872,20 @@ bsl::ostream& FixedQueueIndexManager::print(bsl::ostream& stream) const
 }
 }  // close package namespace
 
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

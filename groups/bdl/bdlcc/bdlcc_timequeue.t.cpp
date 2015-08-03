@@ -1,4 +1,4 @@
-// bdlcc_timequeue.t.cpp             -*-C++-*-
+// bdlcc_timequeue.t.cpp                                              -*-C++-*-
 
 #include <bdlcc_timequeue.h>
 
@@ -30,19 +30,17 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
-
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The class under testing is a parameterized queuing mechanism where the key
-// is a time value and the data a 'DATA' template parameter.
-// Items are order by time value within the key.  Items that have the same time
-// are stored in a circular linked list.  Thus it is particularly important to
-// test with items having the same time value and try and splitting the
-// circular lists at various places.  We test all functions in isolation.
+// is a time value and the data a 'DATA' template parameter.  Items are order
+// by time value within the key.  Items that have the same time are stored in a
+// circular linked list.  Thus it is particularly important to test with items
+// having the same time value and try and splitting the circular lists at
+// various places.  We test all functions in isolation.
 //
 // Note that this component is not tested, indeed not designed, with respect to
 // exception safety.  (The constructor of the 'DATA' could throw.)  The
@@ -57,7 +55,7 @@ using namespace bsl;  // automatically added by script
 // [6 ] int popFront(bdlcc::TimeQueueItem<DATA> *buffer,...
 // [7 ] void popLE(const bsls::TimeInterval& time,...
 // [4 ] int remove(Handle timeId, bsls::TimeInterval *newMinTime=0,...
-// [5 ] void removeAll(bsl::vector<bdlcc::TimeQueueItem<DATA> > *buffer=0);
+// [5 ] void removeAll(bsl::vector<bdlcc::TimeQueueItem<DATA> > *buf=0);
 // [3 ] int add(const bsls::TimeInterval& time, const DATA& data, ...
 // [3 ] int add(const bdlcc::TimeQueueItem<DATA> &item, int *isNewTop=0...
 // [8 ] int update(int handle, const bsls::TimeInterval &newTime,...
@@ -120,7 +118,6 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -144,9 +141,9 @@ static int veryVeryVerbose;
 typedef bdlcc::TimeQueue<const char*> Obj;
 typedef bdlcc::TimeQueueItem<const char*> Item;
 
-                        // ================
-                        // class TestString
-                        // ================
+                             // ================
+                             // class TestString
+                             // ================
 
 class TestString {
     // This class is a string with allocation, except that a
@@ -195,9 +192,9 @@ bool operator!=(const TestString& lhs, const TestString& rhs);
     // Return 0 whether the specified strings 's1' and 's2' do not hold the
     // same C++ string and 1 if they do.
 
-                        // ----------------
-                        // class TestString
-                        // ----------------
+                             // ----------------
+                             // class TestString
+                             // ----------------
 
 // CLASS MEMBERS
 bsl::string TestString::s_emptyString; // default-initialized
@@ -280,6 +277,7 @@ bool operator!=(const TestString& lhs, const TestString& rhs)
 
 namespace BloombergLP {
 namespace bslma {
+
 bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 {
     ta.print();
@@ -291,12 +289,13 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 //=============================================================================
 //                          CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
+
 namespace BCEC_TIMEQUEUE_TEST_CASE_11 {
 
 enum {
-    NUM_THREADS    = 10,
-    NUM_ITERATIONS = 1000,               // per thread
-    NUM_REMOVE_ALL = NUM_ITERATIONS / 2  // between two 'removeAll'
+    k_NUM_THREADS    = 10,
+    k_NUM_ITERATIONS = 1000,                 // per thread
+    k_NUM_REMOVE_ALL = k_NUM_ITERATIONS / 2  // between two 'removeAll'
 };
 
 typedef bsl::string DATA;
@@ -306,7 +305,7 @@ typedef bdlcc::TimeQueueItem<DATA> TimeQueueItem;
 bslma::TestAllocator ta(veryVeryVerbose);
 TimeQueue timequeue(&ta);
 
-bdlqq::Barrier barrier(NUM_THREADS + 1);
+bdlqq::Barrier barrier(k_NUM_THREADS + 1);
 
 struct Case11ThreadInfo {
     int                         d_id;
@@ -324,7 +323,7 @@ void *testAddUpdatePopRemoveAll(void *arg)
     bsl::vector<TimeQueueItem> *vPtr = info->d_items_p;
 
     // We stagger the removeAll steps among the threads.
-    const int STEP_REMOVE_ALL = THREAD_ID * NUM_REMOVE_ALL / NUM_THREADS;
+    const int STEP_REMOVE_ALL = THREAD_ID * k_NUM_REMOVE_ALL / k_NUM_THREADS;
 
     bsl::ostringstream oss;
     oss << THREAD_ID;
@@ -339,13 +338,13 @@ void *testAddUpdatePopRemoveAll(void *arg)
     int newLen;
    bsls::TimeInterval newMinTime;
     TimeQueueItem item;
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         if (veryVerbose) {
             coutMutex.lock();
             T_(); P_(THREAD_ID); Q_(ITERATION); P(i);
             coutMutex.unlock();
         }
-        const bsls::TimeInterval TIME((i * (i + 3)) % NUM_ITERATIONS);
+        const bsls::TimeInterval TIME((i * (i + 3)) % k_NUM_ITERATIONS);
         int h = timequeue.add(TIME, V);
         timequeue.update(h, TIME);
         if (0 == timequeue.popFront(&item, &newLen, &newMinTime)) {
@@ -356,7 +355,7 @@ void *testAddUpdatePopRemoveAll(void *arg)
         if (0 == timequeue.remove(h, &newLen, &newMinTime, &item)) {
             vPtr->push_back(item);
         }
-        if (i % NUM_REMOVE_ALL == STEP_REMOVE_ALL) {
+        if (i % k_NUM_REMOVE_ALL == STEP_REMOVE_ALL) {
             timequeue.removeAll(vPtr);
             if (veryVerbose) {
                 coutMutex.lock();
@@ -372,10 +371,10 @@ void *testLength(void *)
     // Invoke 'length' in a loop.
 {
     barrier.wait();
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int len = timequeue.length();
         LOOP2_ASSERT(i, len, len >= 0);
-        LOOP2_ASSERT(i, len, len <= NUM_THREADS);
+        LOOP2_ASSERT(i, len, len <= k_NUM_THREADS);
     }
     return NULL;
 }
@@ -386,11 +385,12 @@ void *testLength(void *)
 //=============================================================================
 //                      CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
+
 namespace BCEC_TIMEQUEUE_TEST_CASE_10 {
 
-                        // ====================
-                        // class TestLockObject
-                        // ====================
+                           // ====================
+                           // class TestLockObject
+                           // ====================
 
 class TestLockObject {
     // This small test object holds a time queue reference, and attempts to
@@ -419,9 +419,9 @@ class TestLockObject {
         // Reset the held queue reference to 0.
 };
 
-                        // --------------------
-                        // class TestLockObject
-                        // --------------------
+                           // --------------------
+                           // class TestLockObject
+                           // --------------------
 
 // CREATORS
 TestLockObject::TestLockObject(
@@ -469,12 +469,12 @@ namespace BCEC_TIMEQUEUE_TEST_CASE_MINUS_100 {
 static bsls::AtomicInt currentTime(0);
 
 enum {
-    NUM_THREADS    = 4,
-    NUM_ITERATIONS = 16,
-    SEND_COUNT = 1000,
-    RCV_COUNT = 800,
-    DELAY = 500,
-    BITS_PER_HANDLE = 22
+    k_NUM_THREADS    = 4,
+    k_NUM_ITERATIONS = 16,
+    k_SEND_COUNT = 1000,
+    k_RCV_COUNT = 800,
+    k_DELAY = 500,
+    k_BITS_PER_HANDLE = 22
 };
 
 void threadFunc(bdlcc::TimeQueue<int> *timeQueue,
@@ -536,22 +536,21 @@ void run()
                       << "The router simulation (kind of) test" << endl
                       << "====================================" << endl;
 
-    bdlcc::TimeQueue<int> timeQueue(BITS_PER_HANDLE);
+    bdlcc::TimeQueue<int> timeQueue(k_BITS_PER_HANDLE);
 
-    bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+    bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bdlqq::ThreadUtil::create(&threads[i],
                                  bdlf::BindUtil::bind(&threadFunc,
                                                      &timeQueue,
-                                                     (int)NUM_ITERATIONS,
-                                                     (int)SEND_COUNT,
-                                                     (int)RCV_COUNT,
-                                                     (int)DELAY));
+                                                     (int)k_NUM_ITERATIONS,
+                                                     (int)k_SEND_COUNT,
+                                                     (int)k_RCV_COUNT,
+                                                     (int)k_DELAY));
     }
 
-
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);
     }
 
@@ -562,6 +561,7 @@ void run()
 //=============================================================================
 //          USAGE EXAMPLE from header (with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
+
 namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
 // The following shows a typical usage of the 'bdlcc::TimeQueue' class,
@@ -714,8 +714,8 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
             // Begin monitoring timers and connections.
     };
 //..
-// The constructor is simple: it initializes the internal 'bdlcc::TimeQueue' and
-// sets the I/O timeout value.  The virtual destructor does nothing.
+// The constructor is simple: it initializes the internal 'bdlcc::TimeQueue'
+// and sets the I/O timeout value.  The virtual destructor does nothing.
 //..
     my_Server::my_Server(int ioTimeout, bslma::Allocator *allocator)
     : d_timeQueue(allocator)
@@ -737,11 +737,11 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
         }
     }
 //..
-// Member function 'newConnection' adds the 'connection' to the current
-// set of connections to be monitored.  This is done in two steps.
-// First, the 'connection' is added to the internal array, and then a
-// timer is set for the 'connection' by creating a corresponding entry
-// in the internal 'bdlcc::TimeQueue'.
+// Member function 'newConnection' adds the 'connection' to the current set of
+// connections to be monitored.  This is done in two steps.  First, the
+// 'connection' is added to the internal array, and then a timer is set for the
+// 'connection' by creating a corresponding entry in the internal
+// 'bdlcc::TimeQueue'.
 //..
     void my_Server::newConnection(my_Connection *connection)
     {
@@ -865,10 +865,10 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 // Function 'start' spawns two separate threads.  The first thread will monitor
 // connections and handle any data received on them.  The second monitors the
 // internal timer queue and removes connections that have timed out.  Function
-// 'start' calls 'bdlqq::ThreadUtil::create, which expects a function pointer to
-// a function with the standard "C" callback signature 'void *fn(void* data)'.
-// This non-member function will call back into the 'my_Server' object
-// immediately.
+// 'start' calls 'bdlqq::ThreadUtil::create', which expects a function pointer
+// to a function with the standard "C" callback signature
+// 'void *fn(void* data)'.  This non-member function will call back into the
+// 'my_Server' object immediately.
 //..
     int my_Server::start()
     {
@@ -906,8 +906,8 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
     }
 //..
-// In order to test our server, we provide two concrete implementations of
-// a test session and of a test server as follows.
+// In order to test our server, we provide two concrete implementations of a
+// test session and of a test server as follows.
 //..
     // myTestSession.h             -*-C++-*-
 
@@ -1057,8 +1057,6 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 
 }  // close namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE
 
-
-
 bsls::TimeInterval makeTimeInterval()
 {
     static bsls::AtomicInt counter(0);
@@ -1149,7 +1147,6 @@ int main(int argc, char *argv[])
 
             bsls::TimeInterval futureTime = bdlt::CurrentTime::now() +
                                            bsls::TimeInterval(600, 0);
-
 
             Obj x(&ta);
 
@@ -1286,7 +1283,6 @@ int main(int argc, char *argv[])
               ASSERT(-1 != q.add(makeTimeInterval(), 0));
           }
 
-
           {
               if (veryVerbose) bsl::cout << "e) popFront (once)" << bsl::endl;
 
@@ -1317,10 +1313,10 @@ int main(int argc, char *argv[])
         //   without races.
         //
         // Plan:
-        //   Create a time queue.  Create 'NUM_THREADS' threads and let each
+        //   Create a time queue.  Create 'k_NUM_THREADS' threads and let each
         //   thread invoke 'add', 'find', 'update', 'popFront', and 'popLE' in
         //   a loop.  Create a thread, let it invoke 'length' in a loop and
-        //   verify that there are at least 0 and no more than 'NUM_THREADS'
+        //   verify that there are at least 0 and no more than 'k_NUM_THREADS'
         //   elements at any given time.  At periodic intervals, let another
         //   thread invoke 'removeAll'.  Let all threads run concurrently.
         //   This test is mostly to verify that races don't happen, we are only
@@ -1339,11 +1335,11 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_TIMEQUEUE_TEST_CASE_11;
 
-        Case11ThreadInfo info[NUM_THREADS];
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS + 1];
-        bsl::vector<bdlcc::TimeQueueItem<DATA> > items[NUM_THREADS];
+        Case11ThreadInfo info[k_NUM_THREADS];
+        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS + 1];
+        bsl::vector<bdlcc::TimeQueueItem<DATA> > items[k_NUM_THREADS];
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             info[i].d_id = i;
             info[i].d_items_p = &items[i];
             bdlqq::ThreadUtil::create(&threads[i],
@@ -1351,17 +1347,17 @@ int main(int argc, char *argv[])
                                      (void *)&info[i]);
         }
 
-        bdlqq::ThreadUtil::create(&threads[NUM_THREADS], testLength, NULL);
+        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS], testLength, NULL);
 
         int size = 0;
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             bdlqq::ThreadUtil::join(threads[i]);
             size += items[i].size();
         }
-        bdlqq::ThreadUtil::join(threads[NUM_THREADS]);
+        bdlqq::ThreadUtil::join(threads[k_NUM_THREADS]);
 
         LOOP_ASSERT(timequeue.length(), 0 == timequeue.length());
-        LOOP_ASSERT(size, NUM_ITERATIONS * NUM_THREADS * 2 == size);
+        LOOP_ASSERT(size, k_NUM_ITERATIONS * k_NUM_THREADS * 2 == size);
 
       } break;
       case 10: {
@@ -1444,8 +1440,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tat destruction...\n";
             (void) mX.add(NOW, L);
-            mL.reset();  // avoid complications with order of
-                         // destruction of L and mX
+            mL.reset();  // avoid complications with order of destruction of L
+                         // and mX
             ASSERT(1 == mX.length());
         }
         ASSERT(6 == numDestructions);
@@ -1458,8 +1454,8 @@ int main(int argc, char *argv[])
         // Plan:
         //   Redo case 6, but using 'TestString' instead of 'const char*'.
         //   The only default allocation should be for the temporary
-        //   empty constructs in the 'bdlcc::TimeQueueItem' constructors, and the
-        //   test class 'TestString' guarantees that a default-constructed
+        //   empty constructs in the 'bdlcc::TimeQueueItem' constructors, and
+        //   the test class 'TestString' guarantees that a default-constructed
         //   instance does not trigger an allocation.
         //
         // Testing:
@@ -1521,7 +1517,7 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs  nsecs     expNumItems expItems
+                // line secs nsecs expNumItems expItems
                 // ---- ----- --------- ----------- ----------------
                 {  L_ , 1    , 0       , 2         , "\x6\xd"          },
                 {  L_ , 1    , 0       , 0         , ""                },
@@ -1631,7 +1627,7 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs nsecs     maxNum expNum expItems
+                // line secs nsecs maxNum expNum expItems
                 // ---- ---- --------- ------ ------ ----------------
                 {  L_ , 1   , 0       , 0   , 0    , ""                },
                 {  L_ , 1   , 0       , 1   , 1    , "\x6"             },
@@ -1826,7 +1822,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
-
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE     = VALUES[i].d_lineNum;
                 const int   I        = POP_ORDER[i];
@@ -1909,7 +1904,7 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs  nsecs     expNumItems expItems
+                // line secs nsecs expNumItems expItems
                 // ---- ----- --------- ----------- ----------------
                 {  L_ , 1    , 0       , 2         , "\x6\xd"          },
                 {  L_ , 1    , 0       , 0         , ""                },
@@ -2018,7 +2013,7 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs nsecs     maxNum expNum expItems
+                // line secs nsecs maxNum expNum expItems
                 // ---- ---- --------- ------ ------ ----------------
                 {  L_ , 1   , 0       , 0   , 0    , ""                },
                 {  L_ , 1   , 0       , 1   , 1    , "\x6"             },
@@ -2341,7 +2336,7 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Testing:
-        //   void removeAll(bsl::vector<bdlcc::TimeQueueItem<DATA> > *buffer=0);
+        //   void removeAll(bsl::vector<bdlcc::TimeQueueItem<DATA> > *buf=0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2627,7 +2622,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlcc::TimeQueue(bslma::Allocator *allocator=0);
-        //   bdlcc::TimeQueue(bool poolTimerMem, bslma::Allocator *allocator=0);
+        //   bdlcc::TimeQueue(bool poolTimerMem, bslma::Allocator *alloc=0);
         //   ~bdlcc::TimeQueue();
         //   void* add(const bsls::TimeInterval& time, const DATA& data, ...
         //   int length() const;
@@ -2840,7 +2835,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERT(bsls::TimeInterval() == X.time());
             ASSERT(NULL                == X.data());
-            // ASSERT(0                   == X.handle());
+            // ASSERT(0 == X.handle());
             ASSERT(Obj::Key(0)         == X.key());
 
             if (verbose) cout << "\t\tConstructor without key.\n";
@@ -2906,7 +2901,7 @@ int main(int argc, char *argv[])
                 const int NUM_ALLOC = ta.numAllocations();
                 ASSERT(bsls::TimeInterval() == X.time());
                 ASSERT(TestString()        == X.data());
-                // ASSERT(0                   == X.handle());
+                // ASSERT(0 == X.handle());
                 ASSERT(Obj::Key(0)         == X.key());
                 ASSERT(NUM_ALLOC           == ta.numAllocations());
                 ASSERT(NUM_ALLOC2          == ta2.numAllocations());
@@ -3013,7 +3008,6 @@ int main(int argc, char *argv[])
             const char* VD= "are";
             const char* VE= "you";
 
-
             int HA = x1.add(TA, VA);
             int HB = x1.add(TB, VB);
             int HC = x1.add(TC, VC);
@@ -3029,7 +3023,6 @@ int main(int argc, char *argv[])
             ASSERT(VA == tItem.data());
             ASSERT(TA == tItem.time());
             ASSERT(HA == tItem.handle());
-
 
             ASSERT(0  == x1.popFront(&tItem, &newLength, &newMinTime));
             ASSERT(3  == newLength);
@@ -3117,7 +3110,6 @@ int main(int argc, char *argv[])
             ASSERT(TA == tItem.time());
             ASSERT(HA == tItem.handle());
             ASSERT(KA == tItem.key());
-
 
             ASSERT(0  == x1.popFront(&tItem, &newLength, &newMinTime));
             ASSERT(3  == newLength);
@@ -3327,11 +3319,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlcc_queue.h                                                       -*-C++-*-
+// bdlcc_queue.h                                                      -*-C++-*-
 #ifndef INCLUDED_BDLCC_QUEUE
 #define INCLUDED_BDLCC_QUEUE
 
@@ -24,9 +24,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread-Enabled Idioms in the 'bdlcc::Queue' Interface
 ///---------------------------------------------------
-// The thread-enabled 'bdlcc::Queue' is similar to 'bdlc::Queue' in many regards,
-// but there are several differences in method behavior and signature that
-// arise due to the thread-enabled nature of the queue and its anticipated
+// The thread-enabled 'bdlcc::Queue' is similar to 'bdlc::Queue' in many
+// regards, but there are several differences in method behavior and signature
+// that arise due to the thread-enabled nature of the queue and its anticipated
 // usage pattern.  Most notably, the 'popFront' and 'popBack' methods return a
 // 'TYPE' object *by* *value*, rather than returning 'void', as 'bdlc::Queue'
 // does.  Moreover, if a queue object is empty, 'popFront' and 'popBack' will
@@ -34,40 +34,40 @@ BSLS_IDENT("$Id: $")
 //
 // As a corollary to this behavior choice, 'bdlcc::Queue' also provides
 // 'timedPopFront' and 'timedPopBack' methods.  These methods wait until a
-// specified timeout expires if the queue is empty, returning an item if
-// one becomes available before the specified timeout; otherwise, they return a
-// non-zero value to indicate that the specified timeout expired before an
-// item was available.  Note that *all* timeouts are expressed as values of
-// type 'bsls::TimeInterval' that represent !ABSOLUTE! times from 00:00:00 UTC,
+// specified timeout expires if the queue is empty, returning an item if one
+// becomes available before the specified timeout; otherwise, they return a
+// non-zero value to indicate that the specified timeout expired before an item
+// was available.  Note that *all* timeouts are expressed as values of type
+// 'bsls::TimeInterval' that represent !ABSOLUTE! times from 00:00:00 UTC,
 // January 1, 1970.
 //
 // The behavior of the 'push' methods differs in a similar manner.
 // 'bdlcc::Queue' supports the notion of a suggested maximum queue size, called
 // the "high-water mark", a value supplied at construction.  The 'pushFront'
 // and 'pushBack' methods will block indefinitely if the queue contains (at
-// least) the high-water mark number of items, until the number of items
-// falls below the high-water mark.  The 'timedPushFront' and 'timedPushBack'
-// are provided to limit the duration of blocking; note, however, that these
+// least) the high-water mark number of items, until the number of items falls
+// below the high-water mark.  The 'timedPushFront' and 'timedPushBack' are
+// provided to limit the duration of blocking; note, however, that these
 // methods can fail to add an item to the queue.  For this reason,
-// 'bdlcc::Queue' also provides a 'forcePushFront' method that will override the
-// high-water mark, if needed, in order to succeed without blocking.  Note that
-// this design decision makes the high-water mark concept a suggestion and not
-// an invariant.
+// 'bdlcc::Queue' also provides a 'forcePushFront' method that will override
+// the high-water mark, if needed, in order to succeed without blocking.  Note
+// that this design decision makes the high-water mark concept a suggestion and
+// not an invariant.
 //
 ///Use of the 'bdlc::Queue' Interface
 ///---------------------------------
-// Class 'bdlcc::Queue' provides access to an underlying 'bdlc::Queue', so clients
-// of 'bdlcc::Queue' have full access to the interface behavior of 'bdlc::Queue'
-// to inspect and modify the 'bdlcc::Queue'.
+// Class 'bdlcc::Queue' provides access to an underlying 'bdlc::Queue', so
+// clients of 'bdlcc::Queue' have full access to the interface behavior of
+// 'bdlc::Queue' to inspect and modify the 'bdlcc::Queue'.
 //
-// Member function 'bdlcc::Queue::queue()' provides *direct* modifiable access to
-// the 'bdlc::Queue' object used in the implementation.  Member functions
+// Member function 'bdlcc::Queue::queue()' provides *direct* modifiable access
+// to the 'bdlc::Queue' object used in the implementation.  Member functions
 // 'bdlcc::Queue::mutex()', 'bdlcc::Queue::notEmptyCondition()', and
-// 'bdlcc::Queue::notFullCondition()' correspondingly provide *direct* modifiable
-// access to the underlying 'bdlqq::Mutex' and 'bdlqq::Condition' objects
-// respectively.  These underlying objects are used within 'bdlcc::Queue' to
-// manage concurrent access to the queue.  Clients may use these member
-// variables together if needed.
+// 'bdlcc::Queue::notFullCondition()' correspondingly provide *direct*
+// modifiable access to the underlying 'bdlqq::Mutex' and 'bdlqq::Condition'
+// objects respectively.  These underlying objects are used within
+// 'bdlcc::Queue' to manage concurrent access to the queue.  Clients may use
+// these member variables together if needed.
 //
 // Whenever accessing the 'bdec' queue directly, clients must be sure to lock
 // and unlock the mutex or to signal or broadcast on the condition variable as
@@ -110,18 +110,18 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - -
 // The following example demonstrates a typical usage of a 'bdlcc::Queue'.
 //
-// This 'bdlcc::Queue' is used to communicate between a single "producer" thread
-// and multiple "consumer" threads.  The "producer" will push work requests
-// onto the queue, and each "consumer" will iteratively take a work request
-// from the queue and service the request.  This example shows a partial,
-// simplified implementation of the 'bdlmt::ThreadPool' class.  See component
-// 'bdlmt_threadpool' for more information.
+// This 'bdlcc::Queue' is used to communicate between a single "producer"
+// thread and multiple "consumer" threads.  The "producer" will push work
+// requests onto the queue, and each "consumer" will iteratively take a work
+// request from the queue and service the request.  This example shows a
+// partial, simplified implementation of the 'bdlmt::ThreadPool' class.  See
+// component 'bdlmt_threadpool' for more information.
 //
 // We begin our example with some utility classes that define a simple "work
 // item":
 //..
 // enum {
-//     MAX_CONSUMER_THREADS = 10
+//     k_MAX_CONSUMER_THREADS = 10
 // };
 //
 // struct my_WorkData {
@@ -130,8 +130,8 @@ BSLS_IDENT("$Id: $")
 //
 // struct my_WorkRequest {
 //     enum RequestType {
-//           WORK = 1
-//         , STOP = 2
+//         e_WORK = 1,
+//         e_STOP = 2
 //     };
 //
 //     RequestType d_type;
@@ -139,20 +139,20 @@ BSLS_IDENT("$Id: $")
 //     // Work data...
 // };
 //..
-// Next, we provide a simple function to service an individual work item.
-// The details are unimportant for this example.
+// Next, we provide a simple function to service an individual work item.  The
+// details are unimportant for this example.
 //..
 // void myDoWork(my_WorkData& data)
 // {
 //     // do some stuff...
 // }
 //..
-// The 'myConsumer' function will pop items off the queue and process them.
-// As discussed above, note that the call to 'queue->popFront()' will block
-// until there is an item available on the queue.  This function will be
-// executed in multiple threads, so that each thread waits in
-// 'queue->popFront()', and 'bdlcc::Queue' guarantees that each thread gets a
-// unique item from the queue.
+// The 'myConsumer' function will pop items off the queue and process them.  As
+// discussed above, note that the call to 'queue->popFront()' will block until
+// there is an item available on the queue.  This function will be executed in
+// multiple threads, so that each thread waits in 'queue->popFront()', and
+// 'bdlcc::Queue' guarantees that each thread gets a unique item from the
+// queue.
 //..
 // void myConsumer(bdlcc::Queue<my_WorkRequest> *queue)
 // {
@@ -171,8 +171,8 @@ BSLS_IDENT("$Id: $")
 //
 // Since 'bdlqq::ThreadUtil::create()' uses the familiar "C" convention of
 // passing a 'void' pointer, our function simply casts that pointer to our
-// required type ('bdlcc::Queue<my_WorkRequest*> *'), and then delegates to
-// the queue-specific function 'myConsumer', above.
+// required type ('bdlcc::Queue<my_WorkRequest*> *'), and then delegates to the
+// queue-specific function 'myConsumer', above.
 //..
 // extern "C" void *myConsumerThread(void *queuePtr)
 // {
@@ -181,9 +181,9 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 // In this simple example, the 'myProducer' function serves multiple roles: it
-// creates the 'bdlcc::Queue', starts out the consumer threads, and then produces
-// and queues work items.  When work requests are exhausted, this function
-// queues one 'STOP' item for each consumer queue.
+// creates the 'bdlcc::Queue', starts out the consumer threads, and then
+// produces and queues work items.  When work requests are exhausted, this
+// function queues one 'STOP' item for each consumer queue.
 //
 // When each Consumer thread reads a 'STOP', it terminates its thread-handling
 // function.  Note that, although the producer cannot control which thread
@@ -201,23 +201,23 @@ BSLS_IDENT("$Id: $")
 //
 //     bdlcc::Queue<my_WorkRequest *> queue;
 //
-//     assert(numThreads > 0 && numThreads <= MAX_CONSUMER_THREADS);
-//     bdlqq::ThreadUtil::Handle consumerHandles[MAX_CONSUMER_THREADS];
+//     assert(numThreads > 0 && numThreads <= k_MAX_CONSUMER_THREADS);
+//     bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
 //
 //     for (int i = 0; i < numThreads; ++i) {
 //         bdlqq::ThreadUtil::create(&consumerHandles[i],
-//                                  myConsumerThread,
-//                                  &queue);
+//                                   myConsumerThread,
+//                                   &queue);
 //     }
 //
 //     while (!getWorkData(&workData)) {
-//         item.d_type = my_WorkRequest::WORK;
+//         item.d_type = my_WorkRequest::e_WORK;
 //         item.d_data = workData;
 //         queue.pushBack(item);
 //     }
 //
 //     for (int i = 0; i < numThreads; ++i) {
-//         item.d_type = my_WorkRequest::STOP;
+//         item.d_type = my_WorkRequest::e_STOP;
 //         queue.pushBack(item);
 //     }
 //
@@ -254,25 +254,25 @@ BSLS_IDENT("$Id: $")
 // when a Worker thread has completed its work.
 //..
 // enum {
-//     MAX_EVENT_TEXT = 80
+//     k_MAX_EVENT_TEXT = 80
 // };
 //
 // struct my_Event {
 //     enum EventType {
-//         IN_PROGRESS   = 1
-//       , TASK_COMPLETE = 2
+//         e_IN_PROGRESS   = 1,
+//         e_TASK_COMPLETE = 2
 //     };
 //
 //     EventType d_type;
 //     int       d_workerId;
 //     int       d_eventNumber;
-//     char      d_eventText[MAX_EVENT_TEXT];
+//     char      d_eventText[k_MAX_EVENT_TEXT];
 // };
 //..
-// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns
-// a new thread, which invokes a simple "C" function taking a 'void' pointer.
-// In the previous example, we simply converted that 'void' pointer into a
-// pointer to the parameterized 'bdlcc::Queue<TYPE>' object.
+// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns a new
+// thread, which invokes a simple "C" function taking a 'void' pointer.  In the
+// previous example, we simply converted that 'void' pointer into a pointer to
+// the parameterized 'bdlcc::Queue<TYPE>' object.
 //
 // In this example, we want to pass an additional data item.  Each worker
 // thread is initialized with a unique integer value ("worker Id") that
@@ -286,9 +286,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Function 'myWorker' simulates a working thread by enqueuing multiple
 // 'my_Event' events during execution.  In a normal application, each
-// 'my_Event' structure would likely contain different textual information;
-// for the sake of simplicity, our loop uses a constant value for the text
-// field.
+// 'my_Event' structure would likely contain different textual information; for
+// the sake of simplicity, our loop uses a constant value for the text field.
 //..
 // void myWorker(int workerId, bdlcc::Queue<my_Event> *queue)
 // {
@@ -297,7 +296,7 @@ BSLS_IDENT("$Id: $")
 //
 //     for (evnum = 0; evnum < NEVENTS; ++evnum) {
 //         my_Event ev = {
-//             my_Event::IN_PROGRESS,
+//             my_Event::e_IN_PROGRESS,
 //             workerId,
 //             evnum,
 //             "In-Progress Event"
@@ -305,7 +304,7 @@ BSLS_IDENT("$Id: $")
 //         queue->pushBack(ev);
 //     }
 //     my_Event ev = {
-//         my_Event::TASK_COMPLETE,
+//         my_Event::e_TASK_COMPLETE,
 //         workerId,
 //         evnum,
 //         "Task Complete"
@@ -328,31 +327,31 @@ BSLS_IDENT("$Id: $")
 //..
 // For the sake of simplicity, we will implement the Observer behavior in the
 // main thread.  The 'void' function 'myObserver' starts out multiple threads
-// running the 'myWorker' function, reads 'my_Event's from the queue, and
-// logs all messages in the order of arrival.
+// running the 'myWorker' function, reads 'my_Event's from the queue, and logs
+// all messages in the order of arrival.
 //
-// As each 'myWorker' thread terminates, it sends a 'TASK_COMPLETE' event.
+// As each 'myWorker' thread terminates, it sends a 'e_TASK_COMPLETE' event.
 // Upon receiving this event, the 'myObserver' function uses the 'd_workerId'
 // to find the relevant thread, and then "joins" that thread.
 //
 // The 'myObserver' function determines when all tasks have completed simply by
-// counting the number of 'TASK_COMPLETE' messages received.
+// counting the number of 'e_TASK_COMPLETE' messages received.
 //..
 // void myObserver()
 // {
 //     const int NTHREADS = 10;
 //     bdlcc::Queue<my_Event> queue;
 //
-//     assert(NTHREADS > 0 && NTHREADS <= MAX_CONSUMER_THREADS);
-//     bdlqq::ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
+//     assert(NTHREADS > 0 && NTHREADS <= k_MAX_CONSUMER_THREADS);
+//     bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 //
 //     my_WorkerData workerData;
 //     workerData.d_queue = &queue;
 //     for (int i = 0; i < NTHREADS; ++i) {
 //         workerData.d_workerId = i;
 //         bdlqq::ThreadUtil::create(&workerHandles[i],
-//                                  myWorkerThread,
-//                                  &workerData);
+//                                   myWorkerThread,
+//                                   &workerData);
 //     }
 //     int nStop = 0;
 //     while (nStop < NTHREADS) {
@@ -360,7 +359,7 @@ BSLS_IDENT("$Id: $")
 //         bsl::cout << "[" << ev.d_workerId    << "] "
 //                          << ev.d_eventNumber << ". "
 //                          << ev.d_eventText   << bsl::endl;
-//         if (my_Event::TASK_COMPLETE == ev.d_type) {
+//         if (my_Event::e_TASK_COMPLETE == ev.d_type) {
 //             ++n_Stop;
 //             bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
 //         }
@@ -409,21 +408,22 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlcc {
-                             // ================
-                             // class Queue
-                             // ================
+
+                               // ===========
+                               // class Queue
+                               // ===========
 
 template <class TYPE>
 class Queue {
     // This class provides a thread-enabled implementation of an efficient,
     // in-place, indexable, double-ended queue of parameterized 'TYPE' values.
-    // Very efficient access to the underlying 'bdlc::Queue' object is provided,
-    // as well as to a 'bdlqq::Mutex' and a 'bdlqq::Condition' variable, to
-    // facilitate thread-safe use of the 'bdlc::Queue'.  Note that 'Queue'
-    // is not a value-semantic type, but the underlying 'bdlc::Queue' is.  In
-    // this regard, 'Queue' is a thread-enabled handle for a 'bdlc::Queue'.
+    // Very efficient access to the underlying 'bdlc::Queue' object is
+    // provided, as well as to a 'bdlqq::Mutex' and a 'bdlqq::Condition'
+    // variable, to facilitate thread-safe use of the 'bdlc::Queue'.  Note that
+    // 'Queue' is not a value-semantic type, but the underlying 'bdlc::Queue'
+    // is.  In this regard, 'Queue' is a thread-enabled handle for a
+    // 'bdlc::Queue'.
 
     // PRIVATE TYPES
     typedef typename bdlc::Queue<TYPE>::InitialCapacity QueueCapacity;
@@ -555,25 +555,25 @@ class Queue {
     // MANIPULATORS
     void popBack(TYPE *buffer);
         // Remove the last item in this queue and load that item into the
-        // specified 'buffer'.  If this queue is empty, block until an item
-        // is available.
+        // specified 'buffer'.  If this queue is empty, block until an item is
+        // available.
 
     TYPE popBack();
         // Remove the last item in this queue and return that item value.  If
         // this queue is empty, block until an item is available.
 
     int timedPopBack(TYPE *buffer, const bsls::TimeInterval& timeout);
-        // Remove the last item in this queue and load that item value into
-        // the specified 'buffer'.  If this queue is empty, block until an
-        // item is available or until the specified 'timeout' (expressed as
-        // the !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970) expires.
-        // Return 0 on success, and a non-zero value if the call timed
-        // out before an item was available.
+        // Remove the last item in this queue and load that item value into the
+        // specified 'buffer'.  If this queue is empty, block until an item is
+        // available or until the specified 'timeout' (expressed as the
+        // !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970) expires.  Return
+        // 0 on success, and a non-zero value if the call timed out before an
+        // item was available.
 
     void popFront(TYPE *buffer);
-        // Remove the first item in this queue and load that item into
-        // the specified 'buffer'.  If the queue is empty, block until
-        // an item is available.
+        // Remove the first item in this queue and load that item into the
+        // specified 'buffer'.  If the queue is empty, block until an item is
+        // available.
 
     TYPE popFront();
         // Remove the first item in this queue and return that item value.  If
@@ -581,16 +581,16 @@ class Queue {
 
     int timedPopFront(TYPE *buffer, const bsls::TimeInterval& timeout);
         // Remove the first item in this queue and load that item value into
-        // the specified 'buffer'.  If this queue is empty, block until an
-        // item is available or until the specified 'timeout' (expressed as
-        // the !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970) expires.
-        // Return 0 on success, and a non-zero value if the call timed
-        // out before an item was available.
+        // the specified 'buffer'.  If this queue is empty, block until an item
+        // is available or until the specified 'timeout' (expressed as the
+        // !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970) expires.  Return
+        // 0 on success, and a non-zero value if the call timed out before an
+        // item was available.
 
     void removeAll(bsl::vector<TYPE> *buffer = 0);
         // Remove all the items in this queue.  If the optionally specified
-        // 'buffer' is not 0, load into 'buffer' a copy of the items removed
-        // in front to back order of the queue prior to 'removeAll'.
+        // 'buffer' is not 0, load into 'buffer' a copy of the items removed in
+        // front to back order of the queue prior to 'removeAll'.
 
     void pushBack(const TYPE& item);
         // Append the specified 'item' to the back of this queue.  If the
@@ -612,7 +612,7 @@ class Queue {
         // queue is greater than or equal to the high-water mark, then block
         // until the number of items in this queue is less than the high-water
         // mark or until the specified 'timeout' (expressed as the !ABSOLUTE!
-        // time from 00:00:00 UTC, January 1, 1970) expires.   Return 0 on
+        // time from 00:00:00 UTC, January 1, 1970) expires.  Return 0 on
         // success, and a non-zero value if the call timed out before the
         // number of items in this queue fell below the high-water mark.
 
@@ -630,9 +630,8 @@ class Queue {
         // Append the specified 'item' to the front of this queue without
         // regard for the high-water mark.  Note that this method is provided
         // to allow high priority items to be inserted when the queue is full
-        // (i.e., has a number of items greater than or equal to its
-        // high-water mark); 'pushFront' and 'pushBack' should be used for
-        // general use.
+        // (i.e., has a number of items greater than or equal to its high-water
+        // mark); 'pushFront' and 'pushBack' should be used for general use.
 
     int tryPopFront(TYPE *buffer);
         // If this queue is non-empty, remove the first item, load that item
@@ -672,14 +671,14 @@ class Queue {
         // Return a reference to the modifiable condition variable used by this
         // queue to signal that the queue is not empty.
         //
-        // *DEPRECATED*  Use 'notEmptyCondition' instead.
+        // *DEPRECATED* Use 'notEmptyCondition' instead.
 
     bdlqq::Condition& insertCondition();
         // Return a reference to the modifiable condition variable used by this
         // queue to signal that the queue is not full (i.e., has fewer items
         // than its high-water mark).
         //
-        // *DEPRECATED*  Use 'notFullCondition' instead.
+        // *DEPRECATED* Use 'notFullCondition' instead.
 
     bdlqq::Mutex& mutex();
         // Return a reference to the modifiable mutex used by this queue to
@@ -691,8 +690,7 @@ class Queue {
 
     bdlqq::Condition& notFullCondition();
         // Return the condition variable used by this queue to signal that the
-        // queue is not full (i.e., has fewer items than its high-water
-        // mark).
+        // queue is not full (i.e., has fewer items than its high-water mark).
 
     bdlc::Queue<TYPE>& queue();
         // Return a reference to the modifiable underlying 'bdlc::Queue' object
@@ -720,9 +718,9 @@ class Queue {
         // by the time it is returned.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
 // CREATORS
 template <class TYPE>
@@ -1141,15 +1139,22 @@ int Queue<TYPE>::length() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

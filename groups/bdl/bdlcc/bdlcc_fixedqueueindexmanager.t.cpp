@@ -1,4 +1,4 @@
-// bdlcc_fixedqueueindexmanager.t.cpp                                  -*-C++-*-
+// bdlcc_fixedqueueindexmanager.t.cpp                                 -*-C++-*-
 
 #include <bdlcc_fixedqueueindexmanager.h>
 
@@ -29,7 +29,6 @@
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
-
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -193,7 +192,6 @@ typedef bdlcc::FixedQueueIndexManager Obj;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-
 bsl::ostream& operator<<(bsl::ostream&                            stream,
                          const bdlcc::FixedQueueIndexManager& indexManager)
 {
@@ -205,10 +203,9 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
 //                        GENERATOR LANGUAGE FOR gg
 //=============================================================================
 //
-// The gg function initializes the state of a
-// 'bdlcc::FixedQueueIndexManager' using a supplied 'pushCombinedIndex'
-// and 'popCombinedIndex'.  Te following table shows examples for various
-// states:
+// The gg function initializes the state of a 'bdlcc::FixedQueueIndexManager'
+// using a supplied 'pushCombinedIndex' and 'popCombinedIndex'.  Te following
+// table shows examples for various states:
 //..
 //  Legend: { generation | state }  State = { E => EMPTY,
 //                                            F => FULL }
@@ -251,8 +248,8 @@ void gg(Obj          *result,
         unsigned int  popCombinedIndex)
     // Initialize the specified 'result' to have the specified
     // 'pushCombinedIndex' and the specified 'popCombinedIndex'.  The behavior
-    // is undefined unless 'result' is empty, the push and pop index refer
-    // to the first cell in the circular buffer,
+    // is undefined unless 'result' is empty, the push and pop index refer to
+    // the first cell in the circular buffer,
     // 'pushCombinedIndex >= popCombinedIndex' and
     // 'pushCombinedIndex - popCombinedIndex <= result->capacity()'.  Note that
     // a combined index is the combination of generation count and index, as
@@ -285,7 +282,6 @@ void gg(Obj          *result,
     }
 }
 
-
 //=============================================================================
 //                          USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -303,7 +299,7 @@ class IntegerQueue {
   public:
 
     // CREATORS
-    explicit IntegerQueue(unsigned int      capacity, 
+    explicit IntegerQueue(unsigned int      capacity,
                           bslma::Allocator *basicAllocator = 0);
         // Create an queue capable of holding up to the specified 'capacity'
         // number of integer values.
@@ -382,21 +378,22 @@ unsigned int IntegerQueue::capacity() const
 
 // The following tools flagarently make use of implementation details and
 // platform specific behavior (i.e., 'reinterpret_cast').  Extraordinary
-// measures are taken in this test-driver  to allow testing that would
-// otherwise not be possible.  Specifically, this enables:  (1) testing
-// generation counts beyond the range that could be tested in a reasonable
-// amount of time (2) verify the internal state of an index manager is not
-// corrupted under heavy thread contention.
+// measures are taken in this test-driver to allow testing that would otherwise
+// not be possible.  Specifically, this enables: (1) testing generation counts
+// beyond the range that could be tested in a reasonable amount of time (2)
+// verify the internal state of an index manager is not corrupted under heavy
+// thread contention.
 
 struct FixedQueueIndexManagerDataMembers {
     // This struct maintains the exact same data members as
-    // 'bdlcc::FixedQueueIndexManager' and is used for debugging and
-    // extreme white box testing, where verifying the internal state of the
+    // 'bdlcc::FixedQueueIndexManager' and is used for debugging and extreme
+    // white box testing, where verifying the internal state of the
     // 'bdlcc::FixedQueueIndexManager' is necessary.
 
     // PRIVATE CONSTANTS
     enum {
-        e_PADDING = bdlqq::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
+        e_PADDING =
+                   bdlqq::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
     };
 
     // DATA
@@ -427,21 +424,20 @@ BSLMF_ASSERT(sizeof(FixedQueueIndexManagerDataMembers) ==
 
 class FixedQueueState {
     // This class provides access to the internal state of a
-    // 'bdlcc::FixedQueueIndexManager', and is used for debugging and
-    // extreme white box testing, where verifying the internal state of the
+    // 'bdlcc::FixedQueueIndexManager', and is used for debugging and extreme
+    // white box testing, where verifying the internal state of the
     // 'bdlcc::FixedQueueIndexManager' is necessary.
 
     // DATA
     const FixedQueueIndexManagerDataMembers *d_data;
-
 
   public:
 
     // CREATORS
     explicit FixedQueueState(
                         const bdlcc::FixedQueueIndexManager *indexManager);
-        // Create an an 'FixedQueueState' object to access the state of
-        // the specified 'indexManager'.
+        // Create an an 'FixedQueueState' object to access the state of the
+        // specified 'indexManager'.
 
     // ACCESSORS
     unsigned int pushIndex() const;
@@ -476,8 +472,8 @@ class FixedQueueState {
         // Return the maximum combined index value.
 
     bsl::ostream& print(bsl::ostream &stream) const;
-        // Write the state of the index manager supplied at construction to
-        // the specified 'stream'.
+        // Write the state of the index manager supplied at construction to the
+        // specified 'stream'.
 };
 
 // CREATORS
@@ -556,7 +552,6 @@ void dirtyAdjustGeneration(Obj          *result,
     data->d_popIndex  = generation * capacity;
 }
 
-
 void dirtyGG(Obj          *result,
              unsigned int  pushCombinedIndex,
              unsigned int  popCombinedIndex)
@@ -584,9 +579,9 @@ class TestThreadStateBarrier {
 
   public:
      enum State {
-         WAIT     = 0,
-         CONTINUE = 1,
-         EXIT     = 2
+         e_WAIT     = 0,
+         e_CONTINUE = 1,
+         e_EXIT     = 2
      };
 
      // CREATORS
@@ -603,8 +598,8 @@ class TestThreadStateBarrier {
 
     State state();
         // Return the state of the current test.  If the resulting state is
-        // 'WAIT' the calling thread must call 'blockUntilStateChange' before
-        // continuining, and if the state is 'EXIT' the calling thread must
+        // 'e_WAIT' the calling thread must call 'blockUntilStateChange' before
+        // continuining, and if the state is 'e_EXIT' the calling thread must
         // terminate.
 
     void blockUntilStateChange();
@@ -614,25 +609,25 @@ class TestThreadStateBarrier {
                          // Controlled Thread State Functions
 
     void suspendTest();
-        // Set the state of this state barrier to 'WAIT', and block the
+        // Set the state of this state barrier to 'e_WAIT', and block the
         // calling thread until the number of threads supplied at construction
-        // have called 'state' and received the 'WAIT' state.
+        // have called 'state' and received the 'e_WAIT' state.
 
     void continueTest();
-        // Set the state of this state barrier to 'CONTINUE' and wait until
+        // Set the state of this state barrier to 'e_CONTINUE' and wait until
         // the number of threads supplied at construction have called
         // 'blockUntilStateChange'.
 
     void exitTest();
-        // Set the state of this state barrier to 'EXIT', and block the
+        // Set the state of this state barrier to 'e_EXIT', and block the
         // calling thread until the number of threads supplied at construction
-        // have called 'state' and received the 'EXIT' state.
+        // have called 'state' and received the 'e_EXIT' state.
 };
 
 // CREATORS
 TestThreadStateBarrier::TestThreadStateBarrier(int numTestThreads)
 : d_barrier(numTestThreads + 1)
-, d_state(WAIT)
+, d_state(e_WAIT)
 {
 }
 
@@ -645,7 +640,7 @@ inline
 TestThreadStateBarrier::State TestThreadStateBarrier::state()
 {
     State state = static_cast<State>(d_state.loadRelaxed());
-    if (state == CONTINUE) {
+    if (state == e_CONTINUE) {
         return state;
     }
     d_barrier.wait();
@@ -659,19 +654,19 @@ void TestThreadStateBarrier::blockUntilStateChange()
 
 void TestThreadStateBarrier::suspendTest()
 {
-    d_state = WAIT;
+    d_state = e_WAIT;
     d_barrier.wait();
 }
 
 void TestThreadStateBarrier::continueTest()
 {
-    d_state = CONTINUE;
+    d_state = e_CONTINUE;
     d_barrier.wait();
 }
 
 void TestThreadStateBarrier::exitTest()
 {
-    d_state = EXIT;
+    d_state = e_EXIT;
     d_barrier.wait();
 }
 
@@ -705,10 +700,10 @@ void writerThread(Obj                    *x,
 
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
-        if (state == TestThreadStateBarrier::EXIT) {
+        if (state == TestThreadStateBarrier::e_EXIT) {
             return;
         }
-        else if (state == TestThreadStateBarrier::WAIT) {
+        else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
             continue;
         }
@@ -741,10 +736,10 @@ void readerThread(Obj                    *x,
 
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
-        if (state == TestThreadStateBarrier::EXIT) {
+        if (state == TestThreadStateBarrier::e_EXIT) {
             return;
         }
-        else if (state == TestThreadStateBarrier::WAIT) {
+        else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
             continue;
         }
@@ -767,8 +762,8 @@ void exceptionThread(Obj                    *x,
                      int                     delayPeriod)
     // Simulate a series of exceptions being handled by a client pushing
     // elements into the specified 'x' test object, using the specified
-    // 'testState' to determine the current state of the test (running,
-    // paused, exiting), and periodically inserting delays using the specified
+    // 'testState' to determine the current state of the test (running, paused,
+    // exiting), and periodically inserting delays using the specified
     // 'delayPeriod'.
 {
 
@@ -778,17 +773,16 @@ void exceptionThread(Obj                    *x,
 
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
-        if (state == TestThreadStateBarrier::EXIT) {
+        if (state == TestThreadStateBarrier::e_EXIT) {
             return;
         }
-        else if (state == TestThreadStateBarrier::WAIT) {
+        else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
             continue;
         }
 
         unsigned int length = x->length();
         ASSERTV(length, length <= CAPACITY);
-
 
         unsigned int endGeneration, endIndex;
         int rc = x->reservePushIndex(&endGeneration, &endIndex);
@@ -826,7 +820,6 @@ void assertValidState(Obj *x)
     unsigned int combinedPushIndex = pushGeneration * CAPACITY + pushIndex;
     unsigned int combinedPopIndex  = popGeneration  * CAPACITY + popIndex;
 
-
     ASSERT(combinedPushIndex >= combinedPopIndex &&
            combinedPushIndex <= combinedPopIndex + CAPACITY);
 
@@ -847,7 +840,6 @@ void assertValidState(Obj *x)
                                    ? e_EMPTY
                                    : e_FULL;
 
-
     unsigned int zone2EndIndex   = bsl::max(popIndex, pushIndex);
     unsigned int zone2Generation = popIndex < pushIndex
                                    ? popGeneration
@@ -858,7 +850,6 @@ void assertValidState(Obj *x)
     ElementState zone3State      = (popIndex < pushIndex || EMPTY)
                                    ? e_EMPTY
                                    : e_FULL;
-
 
     for (unsigned int i = 0; i < zone1EndIndex; ++i) {
         ASSERTV(*x, EMPTY, zone1State      == state.elementState(i));
@@ -873,7 +864,6 @@ void assertValidState(Obj *x)
         ASSERTV(*x, zone3Generation == state.elementGeneration(i));
     }
 }
-
 
 //=============================================================================
 //                           PERFORMANCE TEST
@@ -895,11 +885,11 @@ void writerThread(Obj                    *x,
 
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
-        if (state == TestThreadStateBarrier::EXIT) {
+        if (state == TestThreadStateBarrier::e_EXIT) {
             *writeCount += count;
             return;
         }
-        else if (state == TestThreadStateBarrier::WAIT) {
+        else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
             continue;
         }
@@ -933,11 +923,11 @@ void readerThread(Obj                    *x,
 
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
-        if (state == TestThreadStateBarrier::EXIT) {
+        if (state == TestThreadStateBarrier::e_EXIT) {
             *readCount += count;
             return;
         }
-        else if (state == TestThreadStateBarrier::WAIT) {
+        else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
             continue;
         }
@@ -1065,7 +1055,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "CONCERN: maxCombinedIndex" << endl
                           << "=========================" << endl;
-
 
         if (verbose) cout << "\nTest push & pop with a buffer of capacity 1"
                           << endl;
@@ -1376,7 +1365,10 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_WRITERS; ++i) {
                     int rc = bdlqq::ThreadUtil::create(
                         &handles[thread],
-                        bdlf::BindUtil::bind(&writerThread, &x, &state, DELAY));
+                        bdlf::BindUtil::bind(&writerThread,
+                                             &x,
+                                             &state,
+                                             DELAY));
                     BSLS_ASSERT_OPT(0 == rc); // test invariant
                     ++thread;
                 }
@@ -1390,7 +1382,10 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_EXCEPTIONS; ++i) {
                     int rc = bdlqq::ThreadUtil::create(
                         &handles[thread],
-                        bdlf::BindUtil::bind(&exceptionThread,&x,&state,DELAY));
+                        bdlf::BindUtil::bind(&exceptionThread,
+                                             &x,
+                                             &state,
+                                             DELAY));
                     BSLS_ASSERT_OPT(0 == rc); // test invariant
                     ++thread;
                 }
@@ -1512,7 +1507,6 @@ int main(int argc, char *argv[])
             int NUM_EXCEPTIONS = DATA[i].d_numExceptions;
             int NUM_THREADS    = NUM_READERS + NUM_WRITERS + NUM_EXCEPTIONS;
 
-
             TestThreadStateBarrier state(NUM_THREADS);
             Obj x(CAPACITY);  const Obj& X = x;
 
@@ -1537,7 +1531,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_EXCEPTIONS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(
                      &handles[thread],
-                     bdlf::BindUtil::bind(&exceptionThread, &x, &state, DELAY));
+                     bdlf::BindUtil::bind(&exceptionThread,
+                                          &x,
+                                          &state,
+                                          DELAY));
                 BSLS_ASSERT_OPT(0 == rc); // test invariant
                 ++thread;
             }
@@ -1730,11 +1727,9 @@ int main(int argc, char *argv[])
           { L_, INT_MAX_DIV_2,             0, INT_MAX_PLUS_1,  INT_MAX_DIV_2 },
           { L_,             0, INT_MAX_DIV_2, INT_MAX_PLUS_1, -INT_MAX_DIV_2 },
 
-                // Examples
-                // circularDifference(   0, 359, 360) ==    1
-                // circularDifference( 359,   0, 360) ==   -1
-                // circularDifference( 180,   0, 360) ==  180
-                // circularDifference(   0, 180, 360) == -180
+                // Examples circularDifference( 0, 359, 360) == 1
+                // circularDifference( 359, 0, 360) == -1 circularDifference(
+                // 180, 0, 360) == 180 circularDifference( 0, 180, 360) == -180
 
                 { L_,   0, 359,  360,    1 },
                 { L_, 359,   0,  360,   -1 },
@@ -1802,7 +1797,6 @@ int main(int argc, char *argv[])
                 const unsigned int numRepGen =
                                Obj::numRepresentableGenerations(CAPACITY);
 
-
                 // The maximum element state generation is the maximum value
                 // that can be represented in a 32bit integer with 2 bits used
                 // for state.  The maximum combined index is the maximum value
@@ -1815,9 +1809,8 @@ int main(int argc, char *argv[])
                 // Assert that either the 'numRepresentableGenerations' value
                 // is the maximum that can be put into a element state value
                 // (32 bit integer with 2 bits used for state), or is the
-                // maximum value that can fit into a push index (32 bit
-                // integer with 1 bit used for disabled).
-
+                // maximum value that can fit into a push index (32 bit integer
+                // with 1 bit used for disabled).
 
                 ASSERTV(numRepGen, numRepGen >= 2);
                 ASSERTV(CAPACITY, numRepGen,
@@ -1860,7 +1853,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "TESTING: abortPushIndexReservation" << endl
                           << "==================================" << endl;
-
 
         if (verbose) cout << "\nTest with a buffer of capacity 1"
                           << endl;
@@ -1965,9 +1957,8 @@ int main(int argc, char *argv[])
                 // Call abort push index.
                 x.abortPushIndexReservation(endGen, endIdx);
 
-
-                // Verify the queue is now empty and the current push index
-                // has been incremented from the cell previously reserved for
+                // Verify the queue is now empty and the current push index has
+                // been incremented from the cell previously reserved for
                 // writing.
 
                 ASSERT(0 == X.length());
@@ -2034,7 +2025,8 @@ int main(int argc, char *argv[])
         //     the queue if the current combined pop index is not
         //     'endGeneration' and 'endIndex'.
         //
-        //  3 'reservePopIndexForClear' will not clear an index acquired for popping.
+        //  3 'reservePopIndexForClear' will not clear an index acquired for
+        //    popping.
         //
         //  4 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -2048,8 +2040,8 @@ int main(int argc, char *argv[])
         //    (C-1,2,3)
         //
         //  3 For a table driven set of possible initial queue states: call
-        //    'reservePopIndexForClear' repeatedly unto it returns failure, and verify
-        //    that it succeeds the expected number of times, returns the
+        //    'reservePopIndexForClear' repeatedly unto it returns failure, and
+        //    verify that it succeeds the expected number of times, returns the
         //    correct cleared indices, and leaves those indicies empty.
         //    (C-1,2,3)
         //
@@ -2069,7 +2061,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "TESTING: reservePopIndexForClear" << endl
                           << "================================" << endl;
-
 
         if (verbose) cout << "\nTest with a buffer of capacity 1"
                           << endl;
@@ -2113,7 +2104,6 @@ int main(int argc, char *argv[])
             ASSERT(13 == resultIdx);
             x.commitPushIndex(gen, idx);
 
-
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
             if (veryVerbose) { P(L_); P(X); }
             ASSERT(0 == x.reservePopIndexForClear(
@@ -2131,7 +2121,6 @@ int main(int argc, char *argv[])
             ASSERT(1 == resultIdx);
             x.commitPopIndex(resultGen, resultIdx);
             x.commitPushIndex(gen, idx);
-
 
             ASSERT(0 == x.reservePushIndex(&gen, &idx));
             if (veryVerbose) { P(L_); P(X); }
@@ -2355,8 +2344,6 @@ int main(int argc, char *argv[])
                           << "TESTING: enabled & disabled" << endl
                           << "===========================" << endl;
 
-
-
         if (verbose) cout << "\nTest that a newly constructed obj is enabled"
                           << endl;
         {
@@ -2490,7 +2477,6 @@ int main(int argc, char *argv[])
             { L_,  2,  4,  3,    true,  true },
             { L_,  2,  4,  4,    true, false },
 
-
             { L_,  7, 14, 14,    true, false },
             { L_,  7, 15, 14,    true,  true },
             { L_,  7, 16, 15,    true,  true },
@@ -2516,7 +2502,6 @@ int main(int argc, char *argv[])
                     const unsigned int GENERATION = PUSH_INDEX / CAPACITY;
                     const unsigned int INDEX      = PUSH_INDEX % CAPACITY;
 
-
                     bslma::TestAllocator oa;
                     Obj x(CAPACITY, &oa); const Obj& X = x;
 
@@ -2540,7 +2525,6 @@ int main(int argc, char *argv[])
                     const bool         SUCCESS    = VALUES[i].d_nextPop;
                     const unsigned int GENERATION = POP_INDEX / CAPACITY;
                     const unsigned int INDEX      = POP_INDEX % CAPACITY;
-
 
                     bslma::TestAllocator oa;
                     Obj x(CAPACITY, &oa); const Obj& X = x;
@@ -2582,7 +2566,6 @@ int main(int argc, char *argv[])
                     const unsigned int GENERATION = PUSH_INDEX / CAPACITY;
                     const unsigned int INDEX      = PUSH_INDEX % CAPACITY;
 
-
                     bslma::TestAllocator oa;
                     Obj x(CAPACITY, &oa); const Obj& X = x;
 
@@ -2606,7 +2589,6 @@ int main(int argc, char *argv[])
                     const bool         SUCCESS    = VALUES[i].d_nextPop;
                     const unsigned int GENERATION = POP_INDEX / CAPACITY;
                     const unsigned int INDEX      = POP_INDEX % CAPACITY;
-
 
                     bslma::TestAllocator oa;
                     Obj x(CAPACITY, &oa); const Obj& X = x;
@@ -2915,7 +2897,8 @@ int main(int argc, char *argv[])
                     Obj x(CAPACITY, &oa); const Obj &X = x;
 
                     for (int op = 0; op < maxOp; ++op) {
-                        bool isPush = bdlb::BitUtil::isBitSet((uint32_t) opSequence, op);
+                        bool isPush = bdlb::BitUtil::isBitSet(
+                                                     (uint32_t)opSequence, op);
                         unsigned int index, gen;
                         bool SUCCESS = isPush ? LENGTH < CAPACITY : LENGTH > 0;
                         if (isPush) {
@@ -3118,8 +3101,7 @@ int main(int argc, char *argv[])
                 10000,
 
                 // Note that the following test cases are not enabled as they
-                // exhaust memory on many platforms.
-                // Obj::e_MAX_CAPACITY - 1,
+                // exhaust memory on many platforms.  Obj::e_MAX_CAPACITY - 1,
                 // Obj::e_MAX_CAPACITY
             };
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
@@ -3173,8 +3155,8 @@ int main(int argc, char *argv[])
             ASSERT_OPT_FAIL_RAW(Obj obj(Obj::e_MAX_CAPACITY + 1, &oa));
 
             // The following test is disabled because it causes a divide by 0
-            // failure prior to reaching the assertion.
-            // ASSERT_OPT_FAIL(Obj obj(0, &oa));
+            // failure prior to reaching the assertion.  ASSERT_OPT_FAIL(Obj
+            // obj(0, &oa));
         }
       } break;
       case 1: {
@@ -3257,7 +3239,6 @@ int main(int argc, char *argv[])
 
         const int TOTAL_TIME_S = argc > 2 ? atoi(argv[2]) : 30;
 
-
         struct {
                 int d_line;
                 int d_capacity;           // queue capacity
@@ -3291,13 +3272,11 @@ int main(int argc, char *argv[])
             "Capacity,  Num Readers, Num Writers,   Reads/Sec,   Writes/Sec\n"
             "--------,-------------,------------,------------,-------------\n";
 
-
         for (int i = 0; i < NUM_DATA; ++i) {
             int CAPACITY       = DATA[i].d_capacity;
             int NUM_READERS    = DATA[i].d_numReaders;
             int NUM_WRITERS    = DATA[i].d_numWriters;
             int NUM_THREADS    = NUM_READERS + NUM_WRITERS;
-
 
             TestThreadStateBarrier state(NUM_THREADS);
             Obj x(CAPACITY);
@@ -3310,7 +3289,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_WRITERS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(
                   &handles[thread],
-                  bdlf::BindUtil::bind(&writerThread, &x, &writeCount, &state));
+                  bdlf::BindUtil::bind(&writerThread,
+                                       &x,
+                                       &writeCount,
+                                       &state));
                 BSLS_ASSERT_OPT(0 == rc); // test invariant
                 ++thread;
             }
@@ -3322,12 +3304,12 @@ int main(int argc, char *argv[])
                 ++thread;
             }
 
-
             state.continueTest();
             bsls::Stopwatch s;
             s.start();
 
-            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(ELAPSED_TIME_PER_TEST));
+            bdlqq::ThreadUtil::sleep(
+                                    bsls::TimeInterval(ELAPSED_TIME_PER_TEST));
 
             s.stop();
             state.exitTest();
@@ -3400,11 +3382,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

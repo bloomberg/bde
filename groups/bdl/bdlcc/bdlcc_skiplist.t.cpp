@@ -1,4 +1,4 @@
-// bdlcc_skiplist.t.cpp             -*-C++-*-
+// bdlcc_skiplist.t.cpp                                               -*-C++-*-
 
 #include <bdlcc_skiplist.h>
 
@@ -336,7 +336,7 @@ class SimpleScheduler
                     if (!d_doneFlag && (0 != d_list.front(&newFirst) ||
                                         newFirst.key() == firstItem.key())) {
                         d_notEmptyCond.timedWait(&d_condMutex,
-                                               bdlt::CurrentTime::now() + when);
+                                              bdlt::CurrentTime::now() + when);
                     }
                     d_condMutex.unlock();
                 }
@@ -391,14 +391,14 @@ public:
     void scheduleEvent(const bdlf::Function<void(*)()>& event,
                        const bdlt::Datetime& when)
     {
-        // Use 'addR' since this event will probably be placed near the end
-        // of the list.
+        // Use 'addR' since this event will probably be placed near the end of
+        // the list.
 
         bool newFrontFlag;
         d_list.addR(when, event, &newFrontFlag);
         if (newFrontFlag) {
-            // This event is scheduled before all other events.  Wake up
-            // the dispatcher thread.
+            // This event is scheduled before all other events.  Wake up the
+            // dispatcher thread.
 
             d_condMutex.lock();
             d_notEmptyCond.signal();
@@ -471,8 +471,8 @@ void populateEx(SKIPLIST *list, const ARRAY& array, int length)
 template<class SKIPLIST, class ARRAY>
 void verify(SKIPLIST *list, const ARRAY& array, int length, int line)
 {
-    // scan forward using 'raw' and 'skip' methods; and also using 'front'
-    // and 'next' (non-raw) methods, in parallel.
+    // scan forward using 'raw' and 'skip' methods; and also using 'front' and
+    // 'next' (non-raw) methods, in parallel.
     typename SKIPLIST::Pair *p;
     typename SKIPLIST::PairHandle h;
     list->frontRaw(&p);
@@ -508,7 +508,7 @@ void verifyReverse(const SKIPLIST& list,
                    int             length,
                    int             line)
 {
-    // scan backward  using 'skip' and also 'previous', in parallel
+    // scan backward using 'skip' and also 'previous', in parallel
 
     typename SKIPLIST::PairHandle p, p2;
     list.back(&p);
@@ -574,13 +574,13 @@ void verifyEx(SKIPLIST* list, const ARRAY& array, int length, int line)
 //                      CASE 101 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_SKIPLIST_TEST_CASE_101 {
+namespace SKIPLIST_TEST_CASE_101 {
 
 typedef bdlcc::SkipList<int,int> List;
 
 enum {
-    NUM_THREADS    = 12,
-    NUM_ITERATIONS = 100
+    k_NUM_THREADS    = 12,
+    k_NUM_ITERATIONS = 100
 };
 
 void threadFunc(List                *list,
@@ -588,11 +588,11 @@ void threadFunc(List                *list,
                 int                  threadNum)
 {
     for (int j=0; j<numIterations; j++) {
-        for(int i=0; i<numIterations; i++) {
+        for (int i=0; i<numIterations; i++) {
             list->add(1000*i + threadNum, -1000*i - threadNum);
         }
 
-        for(int i=0; i<numIterations; i++) {
+        for (int i=0; i<numIterations; i++) {
             int k = 1000*i + threadNum;
             int d = -k;
             List::Pair *h;
@@ -631,40 +631,40 @@ void run()
     List list;
     POPULATE_LIST_EX(&list, VALUES1);
 
-    bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+    bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bdlqq::ThreadUtil::create(&threads[i],
                                  bdlf::BindUtil::bind(&threadFunc,
                                                      &list,
-                                                     (int)NUM_ITERATIONS,
+                                                     (int)k_NUM_ITERATIONS,
                                                      i+1));
     }
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);
     }
 
     VERIFY_LIST_EX(list, VALUES2);
 }
 
-} // close namespace BCEC_SKIPLIST_TEST_CASE_101
+}  // close namespace SKIPLIST_TEST_CASE_101
 
 //=============================================================================
 //                      CASE -100 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_SKIPLIST_TEST_CASE_MINUS_100 {
+namespace SKIPLIST_TEST_CASE_MINUS_100 {
 
 static bsls::AtomicInt currentTime(0);
 typedef bdlcc::SkipList<bsls::TimeInterval,int> TimeQ;
 
 enum {
-    NUM_THREADS    = 4,
-    NUM_ITERATIONS = 100,
-    SEND_COUNT = 1000,
-    RCV_COUNT = 900,
-    DELAY = 500
+    k_NUM_THREADS    = 4,
+    k_NUM_ITERATIONS = 100,
+    k_SEND_COUNT = 1000,
+    k_RCV_COUNT = 900,
+    k_DELAY = 500
 };
 
 void threadFunc(TimeQ               *timeQueue,
@@ -678,27 +678,27 @@ void threadFunc(TimeQ               *timeQueue,
 
     bsls::Stopwatch sw;
 
-    for(int i=0; i<numIterations; i++) {
-        if( verbose ) {
+    for (int i=0; i<numIterations; i++) {
+        if ( verbose ) {
             sw.start();
         }
 
         // "send" messages
-        for(int snd=0; snd<sendCount; snd++) {
+        for (int snd=0; snd<sendCount; snd++) {
             currentTime++;
             bsls::TimeInterval t(currentTime + delay, 0);
             timeQueue->addRaw(&timers[snd], t, delay);
         }
 
         // "receive" replies
-        for(int rcv=0; rcv<rcvCount; rcv++) {
+        for (int rcv=0; rcv<rcvCount; rcv++) {
             timeQueue->remove(timers[rcv]);
             timeQueue->releaseReferenceRaw(timers[rcv]);
         }
 
         // "resend" replies
         bsls::TimeInterval now(currentTime, 0);
-        while(1) {
+        while (1) {
             TimeQ::Pair *resubmit;
             if (0 != timeQueue->frontRaw(&resubmit)) {
                 break;
@@ -719,11 +719,11 @@ void threadFunc(TimeQ               *timeQueue,
         }
 
         // clean up remaining handles
-        for(int cln=rcvCount; cln<sendCount; cln++) {
+        for (int cln=rcvCount; cln<sendCount; cln++) {
             timeQueue->releaseReferenceRaw(timers[cln]);
         }
 
-        if( verbose ) {
+        if ( verbose ) {
             sw.stop();
 
             int iteration = i;
@@ -742,27 +742,28 @@ void run()
 
     TimeQ timeQueue;
 
-    bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+    bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bdlqq::ThreadUtil::create(&threads[i],
                                  bdlf::BindUtil::bind(&threadFunc,
                                                      &timeQueue,
-                                                     (int)NUM_ITERATIONS,
-                                                     (int)SEND_COUNT,
-                                                     (int)RCV_COUNT,
-                                                     (int)DELAY));
+                                                     (int)k_NUM_ITERATIONS,
+                                                     (int)k_SEND_COUNT,
+                                                     (int)k_RCV_COUNT,
+                                                     (int)k_DELAY));
     }
 
-    for (int i = 0; i < NUM_THREADS; ++i) {
+    for (int i = 0; i < k_NUM_THREADS; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);
     }
 
 }
 
-} // close namespace BCEC_SKIPLIST_TEST_CASE_MINUS_100
+}  // close namespace SKIPLIST_TEST_CASE_MINUS_100
 
 namespace {
+
 void pushBackWrapper(bsl::vector<int> *vector,
                      int               item)
 {
@@ -792,7 +793,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nDISTRIBUTION TEST"
                                << "\n=================" << bsl::endl;
 
-        enum { NUM_ITERATIONS = 60000 };
+        enum { k_NUM_ITERATIONS = 60000 };
 
         typedef bdlcc::SkipList<int,int> Obj;
         typedef Obj::PairHandle H;
@@ -801,7 +802,7 @@ int main(int argc, char *argv[])
 
         int n[32] = {0};
 
-        for (int i=0; i<NUM_ITERATIONS; i++) {
+        for (int i=0; i<k_NUM_ITERATIONS; i++) {
             H h;
             list.add(&h, 0, 0);
             int l = list.level(h);
@@ -811,7 +812,7 @@ int main(int argc, char *argv[])
             list.remove(h);
         }
 
-        double exp = (NUM_ITERATIONS / 4) * 3;
+        double exp = (k_NUM_ITERATIONS / 4) * 3;
         double div = 0.1;
 
         for (int i=0; i<32; i++) {
@@ -834,12 +835,12 @@ int main(int argc, char *argv[])
         // Value-semantic tests
 
         enum {
-            COPY_A_TO_B,
-            COPY_B_TO_A,
-            ADD_TO_A,
-            ADD_TO_B,
-            CLEAR_A,
-            CLEAR_B
+            e_COPY_A_TO_B,
+            e_COPY_B_TO_A,
+            e_ADD_TO_A,
+            e_ADD_TO_B,
+            e_CLEAR_A,
+            e_CLEAR_B
         };
 
         struct Parameters {
@@ -855,13 +856,13 @@ int main(int argc, char *argv[])
         {
             "", "",
             "[]", "[]", true,
-            COPY_A_TO_B,
+            e_COPY_A_TO_B,
             L_
         },
         {
             "", "",
             "[]", "[]", true,
-            COPY_B_TO_A,
+            e_COPY_B_TO_A,
             L_
         },
 
@@ -870,7 +871,7 @@ int main(int argc, char *argv[])
             "alpha", "the",
             "[[ (level = 2) alpha => the ]]", "[]",
             false,
-            ADD_TO_A,
+            e_ADD_TO_A,
             L_
         }
         };
@@ -896,15 +897,15 @@ int main(int argc, char *argv[])
                 bdlcc::SkipList<bsl::string, bsl::string> mB2(mB, &ta);
 
                 switch (p.d_operation) {
-                case COPY_A_TO_B:
+                case e_COPY_A_TO_B:
                     mB = mA;
                     mB2 = mA;
                 break;
-                case COPY_B_TO_A:
+                case e_COPY_B_TO_A:
                     mA = mB;
                     mA2 = mB;
                     break;
-                case ADD_TO_A:
+                case e_ADD_TO_A:
                     LOOP_ASSERT(p.d_line,
                                 0 == mA.addAtLevelUniqueRaw
                                 (0, 2, p.d_key, p.d_data));
@@ -912,7 +913,7 @@ int main(int argc, char *argv[])
                                 0 == mA2.addAtLevelUniqueRaw
                                 (0, 2, p.d_key, p.d_data));
                     break;
-                case ADD_TO_B:
+                case e_ADD_TO_B:
                     LOOP_ASSERT(p.d_line,
                                 0 == mB.addAtLevelUniqueRaw
                                 (0, 2, p.d_key, p.d_data));
@@ -920,11 +921,11 @@ int main(int argc, char *argv[])
                                 0 == mB2.addAtLevelUniqueRaw
                                 (0, 2, p.d_key, p.d_data));
                     break;
-                case CLEAR_A:
+                case e_CLEAR_A:
                     LOOP_ASSERT(p.d_line, mA.removeAll() ==
                                 mA2.removeAll());
                     break;
-                 case CLEAR_B:
+                 case e_CLEAR_B:
                     LOOP_ASSERT(p.d_line, mB.removeAll() ==
                                 mB2.removeAll());
                     break;
@@ -962,13 +963,13 @@ int main(int argc, char *argv[])
         // ----------------------------------------------------
         // Testing 'skipBackward' and 'skipForward'
         //
-        // Test appropriate behavior of 'skipBackward' and 'skipForward'
-        // and their "raw" variants in a single-threaded environment.
+        // Test appropriate behavior of 'skipBackward' and 'skipForward' and
+        // their "raw" variants in a single-threaded environment.
         //
         // Concerns:
         //   * skipping at the front/end resets the handle (as appropriate)
         //     and returns 0
-        //   * skipping a removed item returns BCEC_NOT_FOUND
+        //   * skipping a removed item returns k_NOT_FOUND
         //   * reference counting is correct
         // ----------------------------------------------------
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -1021,15 +1022,15 @@ int main(int argc, char *argv[])
             ASSERT(!b.isValid());
 
             obj.remove(h3);
-            ASSERT(SkipList::BCEC_NOT_FOUND == obj.skipBackward(&h3));
+            ASSERT(SkipList::k_NOT_FOUND == obj.skipBackward(&h3));
             ASSERT(h3.isValid());
-            ASSERT(SkipList::BCEC_NOT_FOUND == obj.skipForward(&h3));
+            ASSERT(SkipList::k_NOT_FOUND == obj.skipForward(&h3));
             ASSERT(h3.isValid());
 
             obj.remove(p4);
-            ASSERT(SkipList::BCEC_NOT_FOUND == obj.skipBackwardRaw(&p4));
+            ASSERT(SkipList::k_NOT_FOUND == obj.skipBackwardRaw(&p4));
             ASSERT(0 != p4);
-            ASSERT(SkipList::BCEC_NOT_FOUND == obj.skipForwardRaw(&p4));
+            ASSERT(SkipList::k_NOT_FOUND == obj.skipForwardRaw(&p4));
             ASSERT(0 != p4);
 
             obj.releaseReferenceRaw(p4);
@@ -1054,7 +1055,7 @@ int main(int argc, char *argv[])
         typedef bdlcc::SkipList<int, CountedDelete> SkipList;
 
         enum {
-            NUM_THREADS = 5
+            k_NUM_THREADS = 5
         };
 
         SkipList mX;
@@ -1063,11 +1064,11 @@ int main(int argc, char *argv[])
 
         mX.addRaw(&handle, 1, CountedDelete());
 
-        int numThreads = NUM_THREADS;
+        int numThreads = k_NUM_THREADS;
         if (verbose) {
             numThreads = atoi(argv[2]);
             if (numThreads == 0) {
-                numThreads = NUM_THREADS;
+                numThreads = k_NUM_THREADS;
             }
             else {
                 cout << "Running with " << numThreads << " threads."
@@ -1096,15 +1097,15 @@ int main(int argc, char *argv[])
         typedef bdlcc::SkipList<int, int> SkipList;
 
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 1000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 1000
         };
 
-        int numThreads = NUM_THREADS;
+        int numThreads = k_NUM_THREADS;
         if (verbose) {
             numThreads = atoi(argv[2]);
             if (numThreads == 0) {
-                numThreads = NUM_THREADS;
+                numThreads = k_NUM_THREADS;
             }
             else {
                 cout << "Running with " << numThreads << " threads."
@@ -1112,11 +1113,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        int numIterations = NUM_ITERATIONS;
+        int numIterations = k_NUM_ITERATIONS;
         if (veryVerbose) {
             numIterations = atoi(argv[3]);
             if (numIterations == 0) {
-                numIterations = NUM_ITERATIONS;
+                numIterations = k_NUM_ITERATIONS;
             }
             else {
                 cout << "Running with " << numIterations << " iterations."
@@ -1186,15 +1187,15 @@ int main(int argc, char *argv[])
         typedef bdlcc::SkipList<int, int> SkipList;
 
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 1000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 1000
         };
 
-        int numThreads = NUM_THREADS;
+        int numThreads = k_NUM_THREADS;
         if (verbose) {
             numThreads = atoi(argv[2]);
             if (numThreads == 0) {
-                numThreads = NUM_THREADS;
+                numThreads = k_NUM_THREADS;
             }
             else {
                 cout << "Running with " << numThreads << " threads."
@@ -1202,11 +1203,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        int numIterations = NUM_ITERATIONS;
+        int numIterations = k_NUM_ITERATIONS;
         if (veryVerbose) {
             numIterations = atoi(argv[3]);
             if (numIterations == 0) {
-                numIterations = NUM_ITERATIONS;
+                numIterations = k_NUM_ITERATIONS;
             }
             else {
                 cout << "Running with " << numIterations << " iterations."
@@ -1334,7 +1335,7 @@ int main(int argc, char *argv[])
         // findR test
         // --------------------------------------------------------------------
         DATA VALUES1[] = {
-            // line,  key,  data,  level
+            // line, key, data, level
             { L_ ,       1,   "1",    0},
             { L_ ,       3,   "3",    1},
             { L_ ,       0,   "0",    2},
@@ -1417,7 +1418,7 @@ int main(int argc, char *argv[])
                 if (verbose) Obj.print(cout, 0, -1) << endl;
 
                 ret = Obj.updateR(h3, 0, 0, false);
-                ASSERT(ret==SkipList::BCEC_DUPLICATE);
+                ASSERT(ret==SkipList::k_DUPLICATE);
                 if (verbose) Obj.print(cout, 0, -1) << endl;
 
                 Obj.updateR(h3, 10);
@@ -1537,7 +1538,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj.isEmpty());
 
             ret = Obj.popFront(&h);
-            ASSERT(ret==SkipList::BCEC_NOT_FOUND);
+            ASSERT(ret==SkipList::k_NOT_FOUND);
         }
       } break;
       case 11: {
@@ -1821,8 +1822,8 @@ int main(int argc, char *argv[])
         // 'update' test
         //
         // Concerns:
-        //   (1) Update on an item that's been removed returns BCEC_NOT_FOUND.
-        //   (2) Update to an existing position returns BCEC_DUPLICATE if
+        //   (1) Update on an item that's been removed returns k_NOT_FOUND.
+        //   (2) Update to an existing position returns k_DUPLICATE if
         //       allowDuplicates is false
         //   (3) Update updates the key value stored on the node.
         //   (4) After an update, the data can be looked up by its new value
@@ -1856,9 +1857,9 @@ int main(int argc, char *argv[])
                 Obj obj(&ta);
                 H h;
 
-                enum {NUM_ITEMS = 4};
+                enum {k_NUM_ITEMS = 4};
 
-                for (int i = 0; i < NUM_ITEMS; ++i) {
+                for (int i = 0; i < k_NUM_ITEMS; ++i) {
                     obj.add(i*3, i);
                 }
 
@@ -1898,7 +1899,7 @@ int main(int argc, char *argv[])
 
                         int rc = (obj.*updater)(fromH, p.d_to, 0, false);
                         if (p.d_isDuplicate) {
-                            ASSERT(rc == Obj::BCEC_DUPLICATE);
+                            ASSERT(rc == Obj::k_DUPLICATE);
                         }
                         else {
                             LOOP3_ASSERT(i, p.d_line, rc, 0 == rc);
@@ -1914,27 +1915,27 @@ int main(int argc, char *argv[])
 
                     Obj obj2(&ta);
 
-                    H items[NUM_ITEMS];
-                    for (int j = 0; j < NUM_ITEMS; ++j) {
+                    H items[k_NUM_ITEMS];
+                    for (int j = 0; j < k_NUM_ITEMS; ++j) {
                         obj2.add(items + j, j, j);
                     }
 
                     ASSERT(obj.length() == obj2.length());
-                    ASSERT(NUM_ITEMS == obj2.length());
+                    ASSERT(k_NUM_ITEMS == obj2.length());
 
                     //Now check concerns (1) and (5)
                     ASSERT(0 == obj2.remove(items[0]));
-                    ASSERT(Obj::BCEC_NOT_FOUND == (obj2.*updater)(items[0],
+                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[0],
                                                                  100,
                                                                  0, false));
-                    ASSERT(Obj::BCEC_NOT_FOUND == (obj2.*updater)(items[0],
+                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[0],
                                                                  100,
                                                                  0, true));
                     ASSERT(0 == obj2.remove(items[3]));
-                    ASSERT(Obj::BCEC_NOT_FOUND == (obj2.*updater)(items[3],
+                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[3],
                                                                  100,
                                                                  0, false));
-                    ASSERT(Obj::BCEC_NOT_FOUND == (obj2.*updater)(items[3],
+                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[3],
                                                                  100,
                                                                  0, true));
 
@@ -2057,7 +2058,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == da.numBytesInUse());
 
                 ret = Obj.popFront(&h);
-                ASSERT(ret==SkipList::BCEC_NOT_FOUND);
+                ASSERT(ret==SkipList::k_NOT_FOUND);
                 V(da.numBytesInUse());
                 ASSERT(0 == da.numBytesInUse());
             }
@@ -2085,8 +2086,8 @@ int main(int argc, char *argv[])
             bdlt::Datetime now = bdlt::CurrentTime::utc(),
                 scheduleTime;
 
-            // Add events out of sequence and ensure they are executed
-            // in the proper order
+            // Add events out of sequence and ensure they are executed in the
+            // proper order
 
             if (veryVerbose) {
                 cout << "Starting scheduling: " << now << endl;
@@ -2126,9 +2127,9 @@ int main(int argc, char *argv[])
             bsls::Stopwatch waitTimer;
             waitTimer.start();
 
-            // sleep for up to 2.5 seconds until everything gets executed
-            // (in nightly build environments, which are heavily overloaded,
-            // it's hard to set precise time requirements)
+            // sleep for up to 2.5 seconds until everything gets executed (in
+            // nightly build environments, which are heavily overloaded, it's
+            // hard to set precise time requirements)
             while (3 != values.size()  && 2.5 > waitTimer.elapsedTime()) {
                 bdlqq::ThreadUtil::microSleep(10000);
             }
@@ -2219,20 +2220,20 @@ int main(int argc, char *argv[])
             ASSERT(Obj2.isEmpty());
 
             ret = Obj2.popFront(&h2h);
-            ASSERT(ret==SkipList::BCEC_NOT_FOUND);
+            ASSERT(ret==SkipList::k_NOT_FOUND);
         }
       } break;
       case -101: {
         // --------------------------------------------------------------------
         // The thread-safety test
         // --------------------------------------------------------------------
-        BCEC_SKIPLIST_TEST_CASE_101::run();
+        SKIPLIST_TEST_CASE_101::run();
       } break;
       case -100: {
         // --------------------------------------------------------------------
         // The router simulation (kind of) test
         // --------------------------------------------------------------------
-        BCEC_SKIPLIST_TEST_CASE_MINUS_100::run();
+        SKIPLIST_TEST_CASE_MINUS_100::run();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -2246,11 +2247,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

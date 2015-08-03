@@ -1,4 +1,4 @@
-// bdlcc_timequeue.h   -*-C++-*-
+// bdlcc_timequeue.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLCC_TIMEQUEUE
 #define INCLUDED_BDLCC_TIMEQUEUE
 
@@ -23,32 +23,32 @@ BSLS_IDENT("$Id: $")
 // can be used to efficiently remove the item making this queue suitable for
 // conditions where time items are added and removed very frequently.
 //
-// Class 'bdlcc::TimeQueue<DATA>' provides a public interface which is similar in
-// structure and intent to 'bdlcc::Queue<DATA>', with the exception that each
-// item stored in the 'bdlcc::TimeQueue' is of type 'bdlcc::TimeQueueItem<DATA>'.
-// This structure contains a single 'bsls::TimeInterval' value along with the
-// 'DATA' value.
+// Class 'bdlcc::TimeQueue<DATA>' provides a public interface which is similar
+// in structure and intent to 'bdlcc::Queue<DATA>', with the exception that
+// each item stored in the 'bdlcc::TimeQueue' is of type
+// 'bdlcc::TimeQueueItem<DATA>'.  This structure contains a single
+// 'bsls::TimeInterval' value along with the 'DATA' value.
 //
 // Idiomatic usage of 'bdlcc::TimeQueue' includes the member function 'popLE',
-// which finds all items on the queue whose 'bsls::TimeInterval' are less than a
-// specified value, and transfers those items to a provided vector of items.
+// which finds all items on the queue whose 'bsls::TimeInterval' are less than
+// a specified value, and transfers those items to a provided vector of items.
 // Through the use of this member function, clients can retrieve and process
 // multiple elements that have expired, that is, whose 'bsls::TimeInterval'
 // values are in the past.
 //
 // 'bdlcc::TimeQueue' also makes use of an opaque data type
 // 'bdlcc::TimeQueue::Handle' which serves to identify an individual element on
-// the Time Queue.  A value of type 'Handle' is returned from the 'add'
-// member function, and can then be used to remove or modify the corresponding
-// element on the queue.  In this way, the 'update' member function can update
-// the time value for a specific 'bdlcc::TimeQueueItem' without removing it from
-// the queue.
+// the Time Queue.  A value of type 'Handle' is returned from the 'add' member
+// function, and can then be used to remove or modify the corresponding element
+// on the queue.  In this way, the 'update' member function can update the time
+// value for a specific 'bdlcc::TimeQueueItem' without removing it from the
+// queue.
 //
 ///'bdlcc::TimeQueue::Handle' Uniqueness, Reuse and 'numIndexBits'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
 // 'bdlcc::TimeQueue::Handle' is an alias for a 32-bit 'int' type.  A handle
-// consists of two parts, the "index section" and the "iteration section".
-// The index section, which is the low-order 'numIndexBits' (which defaults to
+// consists of two parts, the "index section" and the "iteration section".  The
+// index section, which is the low-order 'numIndexBits' (which defaults to
 // 'numIndexBits == 17'), uniquely identifies the node.  Once a node is added,
 // it never ceases to exist - it may be freed, but it will be kept on a free
 // list to be eventually recycled, and the same index section will always
@@ -73,12 +73,12 @@ BSLS_IDENT("$Id: $")
 // a single 'bdlcc::TimeQueue' object simultaneously from two or more separate
 // threads.
 //
-// It is safe to enqueue objects in a 'bdlcc::TimeQueue' object whose destructor
-// may access or even modify the same 'bdlcc::TimeQueue' object.  However, there
-// is no guarantee regarding the safety of enqueuing objects whose copy
-// constructors or assignment operators may modify or even merely access the
-// same 'bdlcc::TimeQueue' object (except 'length').  Such attempts generally
-// lead to a deadlock.
+// It is safe to enqueue objects in a 'bdlcc::TimeQueue' object whose
+// destructor may access or even modify the same 'bdlcc::TimeQueue' object.
+// However, there is no guarantee regarding the safety of enqueuing objects
+// whose copy constructors or assignment operators may modify or even merely
+// access the same 'bdlcc::TimeQueue' object (except 'length').  Such attempts
+// generally lead to a deadlock.
 //
 ///Usage
 ///-----
@@ -231,8 +231,8 @@ BSLS_IDENT("$Id: $")
 //          // Begin monitoring timers and connections.
 //  };
 //..
-// The constructor is simple: it initializes the internal 'bdlcc::TimeQueue' and
-// sets the I/O timeout value.  The virtual destructor does nothing.
+// The constructor is simple: it initializes the internal 'bdlcc::TimeQueue'
+// and sets the I/O timeout value.  The virtual destructor does nothing.
 //..
 //  my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
 //  : d_timeQueue(basicAllocator)
@@ -244,11 +244,11 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //..
-// Member function 'newConnection' adds the 'connection' to the current
-// set of connections to be monitored.  This is done in two steps.
-// First, the 'connection' is added to the internal array, and then a
-// timer is set for the 'connection' by creating a corresponding entry
-// in the internal 'bdlcc::TimeQueue'.
+// Member function 'newConnection' adds the 'connection' to the current set of
+// connections to be monitored.  This is done in two steps.  First, the
+// 'connection' is added to the internal array, and then a timer is set for the
+// 'connection' by creating a corresponding entry in the internal
+// 'bdlcc::TimeQueue'.
 //..
 //  void my_Server::newConnection(my_Connection *connection)
 //  {
@@ -332,7 +332,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void my_Server::monitorTimers()
 //  {
-//      while(1) {
+//      while (1) {
 //          bsl::vector<bdlcc::TimeQueueItem<my_Connection*> > expiredTimers;
 //          {
 //              bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
@@ -362,7 +362,7 @@ BSLS_IDENT("$Id: $")
 //          if (length) {
 //              bdlcc::TimeQueueItem<my_Connection*> *data =
 //                                                   &expiredTimers.front();
-//              for( int i=0; i < length; ++i) {
+//              for ( int i=0; i < length; ++i) {
 //                  closeConnection(data[i].data());
 //              }
 //          }
@@ -372,10 +372,10 @@ BSLS_IDENT("$Id: $")
 // Function 'start' spawns two separate threads.  The first thread will monitor
 // connections and handle any data received on them.  The second monitors the
 // internal timer queue and removes connections that have timed out.  Function
-// 'start' calls 'bdlqq::ThreadUtil::create, which expects a function pointer to
-// a function with the standard "C" callback signature 'void *fn(void *data)'.
-// This non-member function will call back into the 'my_Server' object
-// immediately.
+// 'start' calls 'bdlqq::ThreadUtil::create', which expects a function pointer
+// to a function with the standard "C" callback signature
+// 'void *fn(void *data)'.  This non-member function will call back into the
+// 'my_Server' object immediately.
 //..
 //  int my_Server::start()
 //  {
@@ -413,8 +413,8 @@ BSLS_IDENT("$Id: $")
 //
 //  }
 //..
-// In order to test our server, we provide two concrete implementations of
-// a test session and of a test server as follows.
+// In order to test our server, we provide two concrete implementations of a
+// test session and of a test server as follows.
 //..
 //  // myTestSession.h             -*-C++-*-
 //
@@ -605,10 +605,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-
-
 namespace bdlcc {template <typename DATA>
+
 class TimeQueueItem;
 
                              // ====================
@@ -616,24 +614,23 @@ class TimeQueueItem;
                              // ====================
 template <typename DATA>
 class TimeQueue {
-    // This parameterized class provides a public interface which is
-    // similar in structure and intent to 'Queue<DATA>', with the
-    // exception that each item stored in the 'TimeQueue' has an
-    // associated time value.  Items are retrieved or exchanged by proxy of a
-    // 'TimeQueueItem<DATA>', and are referred to by an opaque data type
-    // 'TimeQueue::Handle' which serves to identify an individual element
-    // on the Time Queue.  Idiomatic usage of 'TimeQueue' includes the
-    // member function 'popLE', which finds all items on the queue whose
-    // 'bsls::TimeInterval' are less than a specified value and transfers those
-    // items to a provided vector of items, and the member function 'update',
-    // which can update the time value for a specific 'TimeQueueItem'
-    // without removing it from the queue.
+    // This parameterized class provides a public interface which is similar in
+    // structure and intent to 'Queue<DATA>', with the exception that each item
+    // stored in the 'TimeQueue' has an associated time value.  Items are
+    // retrieved or exchanged by proxy of a 'TimeQueueItem<DATA>', and are
+    // referred to by an opaque data type 'TimeQueue::Handle' which serves to
+    // identify an individual element on the Time Queue.  Idiomatic usage of
+    // 'TimeQueue' includes the member function 'popLE', which finds all items
+    // on the queue whose 'bsls::TimeInterval' are less than a specified value
+    // and transfers those items to a provided vector of items, and the member
+    // function 'update', which can update the time value for a specific
+    // 'TimeQueueItem' without removing it from the queue.
 
     // TYPES
     enum {
-        BCEC_NUM_INDEX_BITS_MIN     = 8,
-        BCEC_NUM_INDEX_BITS_MAX     = 24,
-        BCEC_NUM_INDEX_BITS_DEFAULT = 17
+        k_NUM_INDEX_BITS_MIN     = 8,
+        k_NUM_INDEX_BITS_MAX     = 24,
+        k_NUM_INDEX_BITS_DEFAULT = 17
     };
 
   public:
@@ -736,12 +733,14 @@ class TimeQueue {
     const int                d_indexIterationMask;
     const int                d_indexIterationInc;
 
-    mutable bdlqq::Mutex      d_mutex;          // used for synchronizing access
+    mutable bdlqq::Mutex      d_mutex;          // used for synchronizing
+                                                // access
                                                // to this queue
 
     bsl::vector<Node*>       d_nodeArray;      // array of nodes in this queue
 
-    bsls::AtomicPointer<Node> d_nextFreeNode_p; // pointer to the next free node
+    bsls::AtomicPointer<Node> d_nextFreeNode_p; // pointer to the next free
+                                                // node
                                                // in this queue (the free list
                                                // is singly linked only, using
                                                // d_next_p)
@@ -831,12 +830,11 @@ class TimeQueue {
                int                             *isNewTop  = 0,
                int                             *newLength = 0);
         // Add a new item to this queue having the specified 'time' value, and
-        // associated 'data'.  Optionally load into the specified 'isNewTop'
-        // a non-zero value if the replaces is now the lowest item in this
-        // queue, and a 0 value otherwise.  If specified, load into
-        // 'newLength', the new number of items in this queue.  Return a value
-        // that may be used to identify the newly added item in future calls
-        // to time queue.
+        // associated 'data'.  Optionally load into the specified 'isNewTop' a
+        // non-zero value if the replaces is now the lowest item in this queue,
+        // and a 0 value otherwise.  If specified, load into 'newLength', the
+        // new number of items in this queue.  Return a value that may be used
+        // to identify the newly added item in future calls to time queue.
 
     int popFront(TimeQueueItem<DATA> *buffer     = 0,
                  int                      *newLength  = 0,
@@ -943,16 +941,16 @@ class TimeQueue {
         // queue is empty.
 };
 
-                             // =========================
-                             // struct TimeQueueItem
-                             // =========================
+                           // ====================
+                           // struct TimeQueueItem
+                           // ====================
 
 template <typename DATA>
 class TimeQueueItem {
     // This parameterized structure holds a time, data and associated handle.
-    // This structure is used in the interface of 'TimeQueue<DATA>' to
-    // provide thread-safe access to individual elements on the queue.  Note
-    // that 'DATA' must be default-constructible.
+    // This structure is used in the interface of 'TimeQueue<DATA>' to provide
+    // thread-safe access to individual elements on the queue.  Note that
+    // 'DATA' must be default-constructible.
 
   public:
     // PUBLIC TYPES
@@ -989,10 +987,9 @@ class TimeQueueItem {
 
     TimeQueueItem(const TimeQueueItem<DATA>&  original,
                        bslma::Allocator                *basicAllocator = 0);
-        // Create a copy of the 'original' time queue item.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is zero, then use the currently installed default
-        // allocator.
+        // Create a copy of the 'original' time queue item.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+        // zero, then use the currently installed default allocator.
 
     // MANIPULATORS
     bsls::TimeInterval& time();
@@ -1004,8 +1001,8 @@ class TimeQueueItem {
     Handle& handle()
         // Return the modifiable handle value associated with this item.
     {
-        // this definition was moved into the class declaration
-        // to work around a Visual Studio .NET 2003 bug.
+        // this definition was moved into the class declaration to work around
+        // a Visual Studio .NET 2003 bug.
 
         return d_handle;
     }
@@ -1023,8 +1020,8 @@ class TimeQueueItem {
     Handle handle() const
         // Return the non-modifiable handle value associated with this item.
     {
-        // this definition was moved into the class declaration
-        // to work around a Visual Studio .NET 2003 bug.
+        // this definition was moved into the class declaration to work around
+        // a Visual Studio .NET 2003 bug.
 
         return d_handle;
     }
@@ -1033,13 +1030,13 @@ class TimeQueueItem {
         // Return the non-modifiable key value associated with this item.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
-                              // --------------
-                              // TimeQueue
-                              // --------------
+                                // ---------
+                                // TimeQueue
+                                // ---------
 
 // PRIVATE MANIPULATORS
 template <typename DATA>
@@ -1095,7 +1092,7 @@ void TimeQueue<DATA>::putFreeNodeList(Node *begin)
 // CREATORS
 template <typename DATA>
 TimeQueue<DATA>::TimeQueue(bslma::Allocator *basicAllocator)
-: d_indexMask((1 << BCEC_NUM_INDEX_BITS_DEFAULT) - 1)
+: d_indexMask((1 << k_NUM_INDEX_BITS_DEFAULT) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1109,7 +1106,7 @@ TimeQueue<DATA>::TimeQueue(bslma::Allocator *basicAllocator)
 template <typename DATA>
 TimeQueue<DATA>::TimeQueue(bool              poolTimerMemory,
                                      bslma::Allocator *basicAllocator)
-: d_indexMask((1 << BCEC_NUM_INDEX_BITS_DEFAULT) - 1)
+: d_indexMask((1 << k_NUM_INDEX_BITS_DEFAULT) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1136,8 +1133,8 @@ TimeQueue<DATA>::TimeQueue(int               numIndexBits,
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(BCEC_NUM_INDEX_BITS_MIN <= numIndexBits
-             && BCEC_NUM_INDEX_BITS_MAX >= numIndexBits);
+    BSLS_ASSERT(k_NUM_INDEX_BITS_MIN <= numIndexBits
+             && k_NUM_INDEX_BITS_MAX >= numIndexBits);
 }
 
 template <typename DATA>
@@ -1153,8 +1150,8 @@ TimeQueue<DATA>::TimeQueue(int               numIndexBits,
 , d_length(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(BCEC_NUM_INDEX_BITS_MIN <= numIndexBits
-             && BCEC_NUM_INDEX_BITS_MAX >= numIndexBits);
+    BSLS_ASSERT(k_NUM_INDEX_BITS_MIN <= numIndexBits
+             && k_NUM_INDEX_BITS_MAX >= numIndexBits);
 
     // The 'poolTimerMemory' option has been deprecated (see method
     // documentation).
@@ -1434,22 +1431,20 @@ void TimeQueue<DATA>::popLE(
 
 template <typename DATA>
 inline
-int TimeQueue<DATA>::remove(
-                             typename TimeQueue<DATA>::Handle  handle,
-                             int                                   *newLength,
-                             bsls::TimeInterval                     *newMinTime,
-                             TimeQueueItem<DATA>              *item)
+int TimeQueue<DATA>::remove(typename TimeQueue<DATA>::Handle  handle,
+                            int                              *newLength,
+                            bsls::TimeInterval               *newMinTime,
+                            TimeQueueItem<DATA>              *item)
 {
     return remove(handle, Key(0), newLength, newMinTime, item);
 }
 
 template <typename DATA>
-int TimeQueue<DATA>::remove(
-                             typename TimeQueue<DATA>::Handle  handle,
-                             const Key&                             key,
-                             int                                   *newLength,
-                             bsls::TimeInterval                     *newMinTime,
-                             TimeQueueItem<DATA>              *item)
+int TimeQueue<DATA>::remove(typename TimeQueue<DATA>::Handle  handle,
+                            const Key&                        key,
+                            int                              *newLength,
+                            bsls::TimeInterval               *newMinTime,
+                            TimeQueueItem<DATA>              *item)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     int index = ((int)handle & d_indexMask) - 1;
@@ -1655,9 +1650,9 @@ int TimeQueue<DATA>::minTime(bsls::TimeInterval *buffer) const
     return 0;
 }
 
-                             // -------------------------
-                             // struct TimeQueueItem
-                             // -------------------------
+                           // --------------------
+                           // struct TimeQueueItem
+                           // --------------------
 
 // CREATORS
 template <typename DATA>
@@ -1737,6 +1732,7 @@ DATA& TimeQueueItem<DATA>::data()
 #if 0
 
 namespace bdlcc {// this definition was moved into the class declaration
+
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
 inline
@@ -1749,6 +1745,7 @@ TimeQueueItem<DATA>::handle()
 #endif
 
 namespace bdlcc {
+
 template <typename DATA>
 inline
 typename TimeQueueItem<DATA>::Key&
@@ -1776,6 +1773,7 @@ const DATA& TimeQueueItem<DATA>::data() const
 #if 0
 
 namespace bdlcc {// this definition was moved into the class declaration
+
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
 inline
@@ -1788,6 +1786,7 @@ TimeQueueItem<DATA>::handle() const
 #endif
 
 namespace bdlcc {
+
 template <typename DATA>
 inline
 const typename TimeQueueItem<DATA>::Key&
@@ -1797,15 +1796,22 @@ TimeQueueItem<DATA>::key() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

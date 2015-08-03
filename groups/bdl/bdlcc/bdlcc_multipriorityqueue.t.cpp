@@ -1,4 +1,4 @@
-// bdlcc_multipriorityqueue.t.cpp       -*-C++-*-
+// bdlcc_multipriorityqueue.t.cpp                                     -*-C++-*-
 
 #include <bdlcc_multipriorityqueue.h>
 
@@ -195,10 +195,10 @@ typedef bdlcc::MultipriorityQueue<bsl::string>  Sobj;
 //             TYPES AND FUNCTIONS FOR TEST CASE - USAGE EXAMPLE 1
 //-----------------------------------------------------------------------------
 
-namespace BCEC_MULTIPRIORITYQUEUE_TEST_USAGE_1 {
+namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 
 enum {
-    MAX_CONSUMER_THREADS = 10
+    k_MAX_CONSUMER_THREADS = 10
 };
 
 struct MyWorkData {
@@ -207,8 +207,8 @@ struct MyWorkData {
 
 struct MyWorkRequest {
     enum RequestType {
-          WORK = 1
-        , STOP = 2
+        e_WORK = 1,
+        e_STOP = 2
     };
 
     RequestType d_type;
@@ -226,8 +226,8 @@ void myDoWork(MyWorkData& data)
 int getWorkData(MyWorkData *result)
 {
     static int count = 0;
-    result->d_i = bsl::rand();   // Only one thread runs this routine, so
-                                 // it does not matter that rand() is not
+    result->d_i = bsl::rand();   // Only one thread runs this routine, so it
+                                 // does not matter that rand() is not
                                  // thread-safe.
 
     return ++count >= 100;
@@ -238,12 +238,12 @@ void myConsumer(bdlcc::MultipriorityQueue<MyWorkRequest> *queue)
     MyWorkRequest item;
     while (1) {
 
-        // The 'popFront' function will wait for a 'MyWorkRequest' until one
-        // is available.
+        // The 'popFront' function will wait for a 'MyWorkRequest' until one is
+        // available.
 
         queue->popFront(&item);
 
-        if (MyWorkRequest::STOP == item.d_type) {
+        if (MyWorkRequest::e_STOP == item.d_type) {
             break;
         }
 
@@ -257,29 +257,29 @@ extern "C" void *myConsumerThread(void *queuePtr)
     return queuePtr;
 }
 
-}  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_USAGE_1
+}  // close namespace MULTIPRIORITYQUEUE_TEST_USAGE_1
 
 //=============================================================================
 //            TYPES AND FUNCTIONS FOR TEST CASE - USAGE EXAMPLE 2
 //-----------------------------------------------------------------------------
 
-namespace BCEC_MULTIPRIORITYQUEUE_TEST_USAGE_2 {
+namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
 
 enum {
-    MAX_CONSUMER_THREADS = 10
-  , MAX_EVENT_TEXT = 80
+    k_MAX_CONSUMER_THREADS = 10,
+    k_MAX_EVENT_TEXT       = 80
 };
 
 struct MyEvent {
     enum EventType {
-        IN_PROGRESS   = 1
-      , TASK_COMPLETE = 2
+        e_IN_PROGRESS   = 1,
+        e_TASK_COMPLETE = 2
     };
 
     EventType d_type;
     int       d_workerId;
     int       d_eventNumber;
-    char      d_eventText[MAX_EVENT_TEXT];
+    char      d_eventText[k_MAX_EVENT_TEXT];
 };
 
 struct MyWorkerData {
@@ -297,7 +297,7 @@ void myWorker(int workerId, bdlcc::MultipriorityQueue<MyEvent> *queue)
 
     for (eventNumber = 0; eventNumber < NUM_EVENTS; ++eventNumber) {
         MyEvent ev = {
-            MyEvent::IN_PROGRESS,
+            MyEvent::e_IN_PROGRESS,
             workerId,
             eventNumber,
             "In-Progress Event"         // constant (for simplicity)
@@ -308,7 +308,7 @@ void myWorker(int workerId, bdlcc::MultipriorityQueue<MyEvent> *queue)
     // Now push an event to end this task.
 
     MyEvent ev = {
-        MyEvent::TASK_COMPLETE,
+        MyEvent::e_TASK_COMPLETE,
         workerId,
         eventNumber,
         "Task Complete"
@@ -323,19 +323,19 @@ extern "C" void *myWorkerThread(void *vWorkerPtr)
     return vWorkerPtr;
 }
 
-}  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_USAGE_2
+}  // close namespace MULTIPRIORITYQUEUE_TEST_USAGE_2
 
 //=============================================================================
 //                            TYPE FOR TEST CASE 11
 //-----------------------------------------------------------------------------
 
-namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_11 {
+namespace MULTIPRIORITYQUEUE_TEST_CASE_11 {
 
 // The goal of this test is to make sure that pushes and pops are exception
-// safe.  Push copies the object into the queue, pops assign the object
-// from the queue.  So what we need is a type that we can program to throw
-// exceptions either during push or pop, or in neither case.  We call this
-// type 'Thrower'.
+// safe.  Push copies the object into the queue, pops assign the object from
+// the queue.  So what we need is a type that we can program to throw
+// exceptions either during push or pop, or in neither case.  We call this type
+// 'Thrower'.
 
 struct Thrower {
     Element d_value;            // use Element type to monitor for leaks.
@@ -376,13 +376,13 @@ Thrower& Thrower::operator=(const Thrower& original) {
     return *this;
 }
 
-}  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_11
+}  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_11
 
 //=============================================================================
 //                                  TEST CASE 9
 //-----------------------------------------------------------------------------
 
-namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_9 {
+namespace MULTIPRIORITYQUEUE_TEST_CASE_9 {
 
 double testStartedTime;
 
@@ -448,7 +448,7 @@ struct OutPairPriorityLess {
 
 struct ConsumerThread {
     enum {
-        ILLEGAL_VAL = INT_MAX
+        k_ILLEGAL_VAL = INT_MAX
     };
 
     static bdlqq::Barrier  *s_barrier;
@@ -460,7 +460,7 @@ struct ConsumerThread {
         s_barrier->wait();
 
         while (true) {
-            OutPair outPair = { ILLEGAL_VAL, 0 };
+            OutPair outPair = { k_ILLEGAL_VAL, 0 };
 
             Element e;
             s_queue_p->popFront(&e, &outPair.d_priority);
@@ -469,8 +469,8 @@ struct ConsumerThread {
             if (0 > outPair.d_value) {
                 break;
             }
-            ASSERT(ILLEGAL_VAL != outPair.d_value);
-            if (ILLEGAL_VAL == outPair.d_value) {
+            ASSERT(k_ILLEGAL_VAL != outPair.d_value);
+            if (k_ILLEGAL_VAL == outPair.d_value) {
                 break;
             }
 
@@ -491,13 +491,13 @@ Obj            *ConsumerThread::s_queue_p;
 OutPair        *ConsumerThread::s_outPairVec;
 bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 
-}  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_9
+}  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_9
 
 //=============================================================================
 //                                  TEST CASE 8
 //-----------------------------------------------------------------------------
 
-namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_8 {
+namespace MULTIPRIORITYQUEUE_TEST_CASE_8 {
 
 double testStartedTime;
 
@@ -556,7 +556,7 @@ struct OutPairPriorityLess {
 
 struct ConsumerThread {
     enum {
-        ILLEGAL_VAL = INT_MAX
+        k_ILLEGAL_VAL = INT_MAX
     };
 
     static bdlqq::Barrier  *s_barrier;
@@ -568,14 +568,14 @@ struct ConsumerThread {
         s_barrier->wait();
 
         while (true) {
-            OutPair outPair = { ILLEGAL_VAL, 0 };
+            OutPair outPair = { k_ILLEGAL_VAL, 0 };
 
             s_queue_p->popFront(&outPair.d_value, &outPair.d_priority);
             if (0 > outPair.d_value) {
                 break;
             }
-            ASSERT(ILLEGAL_VAL != outPair.d_value);
-            if (ILLEGAL_VAL == outPair.d_value) {
+            ASSERT(k_ILLEGAL_VAL != outPair.d_value);
+            if (k_ILLEGAL_VAL == outPair.d_value) {
                 break;
             }
 
@@ -596,20 +596,20 @@ Iobj           *ConsumerThread::s_queue_p;
 OutPair        *ConsumerThread::s_outPairVec;
 bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 
-}  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_8
+}  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_8
 
 //=============================================================================
 //                                  TEST CASE 7
 //-----------------------------------------------------------------------------
 
-namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_7 {
+namespace MULTIPRIORITYQUEUE_TEST_CASE_7 {
 
 struct TestFunctor7 {
     enum {
-        GARBAGE_VALUE = -178,
-        PUSH_PRIORITY  = 4,
-        FIRST_PUSHVAL  = 1,
-        SECOND_PUSHVAL = 2
+        k_GARBAGE_VALUE = -178,
+        k_PUSH_PRIORITY  = 4,
+        k_FIRST_PUSHVAL  = 1,
+        k_SECOND_PUSHVAL = 2
     };
 
     Obj *d_pMX;
@@ -618,8 +618,8 @@ struct TestFunctor7 {
     int     d_priority;
 
     void setGarbage() {
-        d_e        = GARBAGE_VALUE;
-        d_priority = GARBAGE_VALUE;
+        d_e        = k_GARBAGE_VALUE;
+        d_priority = k_GARBAGE_VALUE;
     }
 
     TestFunctor7(Obj *pMX, bdlqq::Barrier *barrier)
@@ -633,13 +633,13 @@ struct TestFunctor7 {
         // the queue is empty, verify tryPopFront does not block
         setGarbage();
         ASSERT(0 != d_pMX->tryPopFront(&d_e));
-        ASSERT(GARBAGE_VALUE == d_e);
-        ASSERT(GARBAGE_VALUE == d_priority);
+        ASSERT(k_GARBAGE_VALUE == d_e);
+        ASSERT(k_GARBAGE_VALUE == d_priority);
 
         setGarbage();
         ASSERT(0 != d_pMX->tryPopFront(&d_e, &d_priority));
-        ASSERT(GARBAGE_VALUE == d_e);
-        ASSERT(GARBAGE_VALUE == d_priority);
+        ASSERT(k_GARBAGE_VALUE == d_e);
+        ASSERT(k_GARBAGE_VALUE == d_priority);
 
         d_barrier->wait();
         // the main thread now can start pushing stuff, sleeping and yielding
@@ -647,22 +647,22 @@ struct TestFunctor7 {
 
         setGarbage();
         d_pMX->popFront(&d_e);
-        ASSERT(FIRST_PUSHVAL == d_e);
+        ASSERT(k_FIRST_PUSHVAL == d_e);
 
         setGarbage();
         d_pMX->popFront(&d_e, &d_priority);
-        ASSERT(SECOND_PUSHVAL == d_e);
-        ASSERT(PUSH_PRIORITY == d_priority);
+        ASSERT(k_SECOND_PUSHVAL == d_e);
+        ASSERT(k_PUSH_PRIORITY == d_priority);
     }
 };
 
-}  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_7
+}  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_7
 
 //=============================================================================
 //                                  TEST CASE 5
 //-----------------------------------------------------------------------------
 
-namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_5 {
+namespace MULTIPRIORITYQUEUE_TEST_CASE_5 {
 
 struct PushPoint {
     double d_value;
@@ -673,7 +673,7 @@ struct PushPoint {
     }
 };
 
-}  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_5
+}  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_5
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -718,11 +718,11 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_USAGE_1;
+        using namespace MULTIPRIORITYQUEUE_TEST_USAGE_1;
 
         enum {
-            NUM_PRIORITIES = 8,
-            NUM_THREADS = 8
+            k_NUM_PRIORITIES = 8,
+            k_NUM_THREADS = 8
         };
 
         bslma::TestAllocator ta;
@@ -732,42 +732,42 @@ int main(int argc, char *argv[])
 
         // Create Multi-Priority Queue with specified number of priorities.
 
-        bdlcc::MultipriorityQueue<MyWorkRequest> queue(NUM_PRIORITIES, &ta);
+        bdlcc::MultipriorityQueue<MyWorkRequest> queue(k_NUM_PRIORITIES, &ta);
 
         // Start the specified number of threads.
 
-        ASSERT(0 < NUM_THREADS && NUM_THREADS <= MAX_CONSUMER_THREADS);
-        bdlqq::ThreadUtil::Handle consumerHandles[MAX_CONSUMER_THREADS];
+        ASSERT(0 < k_NUM_THREADS && k_NUM_THREADS <= k_MAX_CONSUMER_THREADS);
+        bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             bdlqq::ThreadUtil::create(&consumerHandles[i],
                                      myConsumerThread,
                                      &queue);
         }
 
-        // Load work data into work requests and push them onto the queue
-        // with varying priority until all work data has been exhausted.
+        // Load work data into work requests and push them onto the queue with
+        // varying priority until all work data has been exhausted.
 
         int count = 0;                      // used to generate priorities
 
         while (!getWorkData(&workData)) {       // see declaration (above)
-            item.d_type = MyWorkRequest::WORK;
+            item.d_type = MyWorkRequest::e_WORK;
             item.d_data = workData;
-            queue.pushBack(item, count % NUM_PRIORITIES);
+            queue.pushBack(item, count % k_NUM_PRIORITIES);
                                                     // mixed priorities
             ++count;
         }
 
         // Load as many stop requests as there are active consumer threads.
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            item.d_type = MyWorkRequest::STOP;
-            queue.pushBack(item, NUM_PRIORITIES - 1);   // lowest priority
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
+            item.d_type = MyWorkRequest::e_STOP;
+            queue.pushBack(item, k_NUM_PRIORITIES - 1);   // lowest priority
         }
 
         // Join all of the consumer threads back with the main thread.
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             bdlqq::ThreadUtil::join(consumerHandles[i]);
         }
       }  break;
@@ -792,20 +792,21 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_USAGE_2;
+        using namespace MULTIPRIORITYQUEUE_TEST_USAGE_2;
 
-        const int NUM_THREADS = 10;
-        const int NUM_PRIORITIES = 4;
+        const int k_NUM_THREADS = 10;
+        const int k_NUM_PRIORITIES = 4;
 
-        bdlcc::MultipriorityQueue<MyEvent> queue(NUM_PRIORITIES, &ta);
+        bdlcc::MultipriorityQueue<MyEvent> queue(k_NUM_PRIORITIES, &ta);
 
-        ASSERT(0 < NUM_THREADS && NUM_THREADS <= MAX_CONSUMER_THREADS);
-        bdlqq::ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
+        ASSERT(0 < k_NUM_THREADS && k_NUM_THREADS <= k_MAX_CONSUMER_THREADS);
+        bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
-        // Create 'NUM_THREADS', each holding a unique value for 'd_workerId'.
+        // Create 'k_NUM_THREADS', each holding a unique value for
+        // 'd_workerId'.
 
-        MyWorkerData workerData[NUM_THREADS];
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        MyWorkerData workerData[k_NUM_THREADS];
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             workerData[i].d_queue = &queue;
             workerData[i].d_workerId = i;
             bdlqq::ThreadUtil::create(&workerHandles[i],
@@ -815,10 +816,10 @@ int main(int argc, char *argv[])
 
         // Now wait and print out each of the 'd_workerId' values as the
         // threads complete.  This function ends after a total of
-        // 'NUM_THREADS' 'MyEvent::TASK_COMPLETE' events have been printed.
+        // 'k_NUM_THREADS' 'MyEvent::e_TASK_COMPLETE' events have been printed.
 
         int nStop = 0;
-        while (nStop < NUM_THREADS) {
+        while (nStop < k_NUM_THREADS) {
             MyEvent ev;
             queue.popFront(&ev);
             if (veryVerbose) {
@@ -826,7 +827,7 @@ int main(int argc, char *argv[])
                           << ev.d_eventNumber << ". "
                           << ev.d_eventText << bsl::endl;
             }
-            if (MyEvent::TASK_COMPLETE == ev.d_type) {
+            if (MyEvent::e_TASK_COMPLETE == ev.d_type) {
                 ++nStop;
                 bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
             }
@@ -1073,7 +1074,7 @@ int main(int argc, char *argv[])
         //   of type 'Element' within the 'Thrower' class for monitoring leaks.
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_11;
+        using namespace MULTIPRIORITYQUEUE_TEST_CASE_11;
 
         if (verbose) {
             cout << "===================================\n"
@@ -1082,11 +1083,11 @@ int main(int argc, char *argv[])
         }
 
         enum {
-            A_VAL = 38,
-            B_VAL = 39,
-            C_VAL = 40,
-            D_VAL = 41,
-            E_VAL = 42
+            k_A_VAL = 38,
+            k_B_VAL = 39,
+            k_C_VAL = 40,
+            k_D_VAL = 41,
+            k_E_VAL = 42
         };
 
         ASSERT(0 == Element::s_allocCount);
@@ -1097,11 +1098,11 @@ int main(int argc, char *argv[])
             Tq *pMX = new (ta) Tq(1, &ta);
             Tq& mX = *pMX;     const Tq& X = *pMX;
 
-            Thrower thrA(A_VAL, false, false);     // never throws
-            Thrower thrB(B_VAL, true,  false);     // throws on copy
-            Thrower thrC(C_VAL, false, true);      // throws on assignment
-            Thrower thrD(D_VAL, false, false);     // never throws
-            Thrower thrE(E_VAL, false, false);     // never throws
+            Thrower thrA(k_A_VAL, false, false);     // never throws
+            Thrower thrB(k_B_VAL, true,  false);     // throws on copy
+            Thrower thrC(k_C_VAL, false, true);      // throws on assignment
+            Thrower thrD(k_D_VAL, false, false);     // never throws
+            Thrower thrE(k_E_VAL, false, false);     // never throws
 
             ASSERT(5 == Element::s_allocCount);
 
@@ -1117,7 +1118,7 @@ int main(int argc, char *argv[])
 
                 mX.popFront(&thrD);             // should be able to
                                                 // successfully pop thrA
-                ASSERT(A_VAL == thrD.d_value);
+                ASSERT(k_A_VAL == thrD.d_value);
             }
 
             ASSERT(0 == X.length());
@@ -1128,11 +1129,11 @@ int main(int argc, char *argv[])
                                                 // should throw
                 ASSERT(0);
             } catch (...) {
-                ASSERT(1 == X.length());        // verify queue is unchanged.
-                ASSERT(E_VAL == thrE.d_value); // verify thrE is unchanged.
+                ASSERT(1 == X.length());          // verify queue is unchanged
+                ASSERT(k_E_VAL == thrE.d_value);  // verify thrE is unchanged
 
-                // can't examine front of queue any more, will always
-                // throw on pop.
+                // can't examine front of queue any more, will always throw on
+                // pop.
             }
 
             ASSERT(1 == X.length());
@@ -1142,9 +1143,8 @@ int main(int argc, char *argv[])
 
             ta.deleteObjectRaw(pMX);
         } catch (...) {
-            ASSERT(0);          // Should never get here, that is, we
-                                // should be able to destroy the queue
-                                // without throwing.
+            ASSERT(0);          // Should never get here, that is, we should be
+                                // able to destroy the queue without throwing.
         }
 
         ASSERT(0 == ta.numBytesInUse());
@@ -1190,7 +1190,7 @@ int main(int argc, char *argv[])
         }
 
         enum {
-            N_PRIORITIES = 8
+            k_N_PRIORITIES = 8
         };
 
         bslma::TestAllocator taDefault(veryVeryVeryVerbose);
@@ -1206,7 +1206,7 @@ int main(int argc, char *argv[])
                 Sobj *pMX;
 
                 if (0 == construct) {
-                    pMX = new(ta) Sobj(N_PRIORITIES, &ta);
+                    pMX = new(ta) Sobj(k_N_PRIORITIES, &ta);
                 }
                 else {
                     pMX = new(ta) Sobj(&ta);
@@ -1286,7 +1286,7 @@ int main(int argc, char *argv[])
         //   Stress 'RemoveAll' test
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_9;
+        using namespace MULTIPRIORITYQUEUE_TEST_CASE_9;
 
         if (verbose) {
             cout << "=====================\n"
@@ -1295,30 +1295,30 @@ int main(int argc, char *argv[])
         }
 
         enum {
-            NUM_PRODUCERS          = 10,
-            NUM_CONSUMERS          = 4,
-            NUM_PRIORITIES         = 8,
-            NUM_ITEMS_PER_PRODUCER = 8000,
-            GARBAGE_CHAR           = 0x8f,
-            REMOVE_MASK            = 0x7ff      // removeAll every 2048 items
+            k_NUM_PRODUCERS          = 10,
+            k_NUM_CONSUMERS          = 4,
+            k_NUM_PRIORITIES         = 8,
+            k_NUM_ITEMS_PER_PRODUCER = 8000,
+            k_GARBAGE_CHAR           = 0x8f,
+            k_REMOVE_MASK            = 0x7ff      // removeAll every 2048 items
         };
 
-        Obj mX(NUM_PRIORITIES, &ta);     const Obj& X = mX;
+        Obj mX(k_NUM_PRIORITIES, &ta);     const Obj& X = mX;
 
-        bdlqq::Barrier producerBarrier(NUM_PRODUCERS + 1);
+        bdlqq::Barrier producerBarrier(k_NUM_PRODUCERS + 1);
 
-        ProducerThread::s_numPriorities       =  NUM_PRIORITIES;
-        ProducerThread::s_numItemsPerProducer =  NUM_ITEMS_PER_PRODUCER;
+        ProducerThread::s_numPriorities       =  k_NUM_PRIORITIES;
+        ProducerThread::s_numItemsPerProducer =  k_NUM_ITEMS_PER_PRODUCER;
         ProducerThread::s_pushVal             =  0;
         ProducerThread::s_barrier             = &producerBarrier;
         ProducerThread::s_queue_p             = &mX;
-        ProducerThread::s_removeMask          =  REMOVE_MASK;
+        ProducerThread::s_removeMask          =  k_REMOVE_MASK;
 
-        bdlqq::Barrier  consumerBarrier(NUM_CONSUMERS + 1);
-        OutPair        outPairVec[NUM_PRODUCERS * NUM_ITEMS_PER_PRODUCER];
+        bdlqq::Barrier  consumerBarrier(k_NUM_CONSUMERS + 1);
+        OutPair        outPairVec[k_NUM_PRODUCERS * k_NUM_ITEMS_PER_PRODUCER];
         bsls::AtomicInt outPairVecIdx(0);
 
-        bsl::memset(outPairVec, GARBAGE_CHAR, sizeof(outPairVec));
+        bsl::memset(outPairVec, k_GARBAGE_CHAR, sizeof(outPairVec));
 
         ConsumerThread::s_barrier       = &consumerBarrier;
         ConsumerThread::s_queue_p       = &mX;
@@ -1331,14 +1331,14 @@ int main(int argc, char *argv[])
         ASSERT(0 == Element::s_allocCount);
 
         bdlqq::ThreadGroup consumerGroup;
-        consumerGroup.addThreads(consumer, NUM_CONSUMERS);
+        consumerGroup.addThreads(consumer, k_NUM_CONSUMERS);
 
         if (veryVerbose) {
             COUT << "Consumers spawned" << ENDL;
         }
 
         bdlqq::ThreadGroup producerGroup;
-        producerGroup.addThreads(producer, NUM_PRODUCERS);
+        producerGroup.addThreads(producer, k_NUM_PRODUCERS);
 
         if (veryVerbose) {
             COUT << "Producers spawned" << ENDL;
@@ -1347,7 +1347,7 @@ int main(int argc, char *argv[])
         consumerBarrier.wait();
 
         // try to give consumers a change to block on pop, ready to go
-        for (int i = 0; NUM_CONSUMERS + NUM_PRODUCERS > i; ++i) {
+        for (int i = 0; k_NUM_CONSUMERS + k_NUM_PRODUCERS > i; ++i) {
             bdlqq::ThreadUtil::yield();
             bdlqq::ThreadUtil::microSleep(10 * 1000);
         }
@@ -1363,8 +1363,8 @@ int main(int argc, char *argv[])
                                              testStartedTime << " sec" << ENDL;
         }
 
-        for (int i = 0; NUM_CONSUMERS > i; ++i) {
-            mX.pushBack(-1, NUM_PRIORITIES - 1);
+        for (int i = 0; k_NUM_CONSUMERS > i; ++i) {
+            mX.pushBack(-1, k_NUM_PRIORITIES - 1);
         }
 
         consumerGroup.joinAll();
@@ -1378,14 +1378,14 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(X.length(), 0 == X.length());
         ASSERT(0 == Element::s_allocCount);
 
-        int priorityCounts[NUM_PRIORITIES];
+        int priorityCounts[k_NUM_PRIORITIES];
         bsl::memset(priorityCounts, 0, sizeof priorityCounts);
         for (int i = 0;  outPairVecIdx > i; ++i) {
             ++priorityCounts[outPairVec[i].d_priority];
         }
         if (veryVerbose) {
             cout << "PriorityCounts: ";
-            for (int i = 0; NUM_PRIORITIES > i; ++i) {
+            for (int i = 0; k_NUM_PRIORITIES > i; ++i) {
                 cout << (i ? ", " : "") << priorityCounts[i];
             }
             cout << endl;
@@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
                 outOfOrder += (outPairVec[i].d_value <= lastValue);
             }
         }
-        ASSERT(NUM_PRIORITIES - 1 == lastPriority);
+        ASSERT(k_NUM_PRIORITIES - 1 == lastPriority);
         if (veryVerbose) {
             cout << "Out of order: " <<
                     outOfOrder << " out of " << outPairVecIdx << " = " <<
@@ -1461,7 +1461,7 @@ int main(int argc, char *argv[])
         //   Looking for race conditions, lost data, and surprise deadlocks.
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_8;
+        using namespace MULTIPRIORITYQUEUE_TEST_CASE_8;
 
         if (verbose) {
             cout << "=========================\n"
@@ -1470,35 +1470,35 @@ int main(int argc, char *argv[])
         }
 
         enum {
-            NUM_PRODUCERS  = 10,
-            NUM_CONSUMERS  = 5,
-            NUM_PRIORITIES = 8,
-            GARBAGE_CHAR   = 0x8f
+            k_NUM_PRODUCERS  = 10,
+            k_NUM_CONSUMERS  = 5,
+            k_NUM_PRIORITIES = 8,
+            k_GARBAGE_CHAR   = 0x8f
         };
 
-        Iobj mX(NUM_PRIORITIES, &ta); const Iobj& X = mX;
+        Iobj mX(k_NUM_PRIORITIES, &ta); const Iobj& X = mX;
 
         int numItemsPerProducer =   4000;
         if (veryVeryVerbose) {
             numItemsPerProducer = 120000;
         }
 
-        bdlqq::Barrier producerBarrier(NUM_PRODUCERS + 1);
+        bdlqq::Barrier producerBarrier(k_NUM_PRODUCERS + 1);
 
-        ProducerThread::s_numPriorities       =  NUM_PRIORITIES;
+        ProducerThread::s_numPriorities       =  k_NUM_PRIORITIES;
         ProducerThread::s_numItemsPerProducer =  numItemsPerProducer;
         ProducerThread::s_pushVal             =  0;
         ProducerThread::s_barrier             = &producerBarrier;
         ProducerThread::s_queue_p             = &mX;
 
-        bdlqq::Barrier   consumerBarrier(NUM_CONSUMERS + 1);
-        int             outPairVecNumBytes = sizeof(OutPair) * NUM_PRODUCERS
+        bdlqq::Barrier   consumerBarrier(k_NUM_CONSUMERS + 1);
+        int             outPairVecNumBytes = sizeof(OutPair) * k_NUM_PRODUCERS
                                                          * numItemsPerProducer;
         OutPair        *outPairVec = (OutPair *)
                                                ta.allocate(outPairVecNumBytes);
         bsls::AtomicInt  outPairVecIdx(0);
 
-        bsl::memset(outPairVec, GARBAGE_CHAR, outPairVecNumBytes);
+        bsl::memset(outPairVec, k_GARBAGE_CHAR, outPairVecNumBytes);
 
         ConsumerThread::s_barrier       = &consumerBarrier;
         ConsumerThread::s_queue_p       = &mX;
@@ -1509,14 +1509,14 @@ int main(int argc, char *argv[])
         ConsumerThread consumer;
 
         bdlqq::ThreadGroup consumerGroup;
-        consumerGroup.addThreads(consumer, NUM_CONSUMERS);
+        consumerGroup.addThreads(consumer, k_NUM_CONSUMERS);
 
         if (veryVerbose) {
             COUT << "Consumers spawned" << ENDL;
         }
 
         bdlqq::ThreadGroup producerGroup;
-        producerGroup.addThreads(producer, NUM_PRODUCERS);
+        producerGroup.addThreads(producer, k_NUM_PRODUCERS);
 
         if (veryVerbose) {
             COUT << "Producers spawned" << ENDL;
@@ -1525,7 +1525,7 @@ int main(int argc, char *argv[])
         consumerBarrier.wait();
 
         // try to give consumers a change to block on pop, ready to go
-        for (int i = 0; NUM_CONSUMERS + NUM_PRODUCERS > i; ++i) {
+        for (int i = 0; k_NUM_CONSUMERS + k_NUM_PRODUCERS > i; ++i) {
             bdlqq::ThreadUtil::yield();
             bdlqq::ThreadUtil::microSleep(10 * 1000);
         }
@@ -1541,8 +1541,8 @@ int main(int argc, char *argv[])
                                              testStartedTime << " sec" << ENDL;
         }
 
-        for (int i = 0; NUM_CONSUMERS > i; ++i) {
-            mX.pushBack(-1, NUM_PRIORITIES - 1);
+        for (int i = 0; k_NUM_CONSUMERS > i; ++i) {
+            mX.pushBack(-1, k_NUM_PRIORITIES - 1);
         }
 
         consumerGroup.joinAll();
@@ -1554,25 +1554,25 @@ int main(int argc, char *argv[])
                                                                         ENDL;
         }
 
-        ASSERT(NUM_PRODUCERS * numItemsPerProducer == outPairVecIdx);
+        ASSERT(k_NUM_PRODUCERS * numItemsPerProducer == outPairVecIdx);
 
         LOOP_ASSERT(X.length(), 0 == X.length());
 
         if (veryVerbose) {
-            double averages[NUM_PRIORITIES];
+            double averages[k_NUM_PRIORITIES];
             bsl::memset(averages, 0, sizeof(averages));
-            int counts[NUM_PRIORITIES];
+            int counts[k_NUM_PRIORITIES];
             bsl::memset(counts, 0, sizeof(counts));
 
             for (int i = 0; outPairVecIdx > i; ++i) {
                 averages[outPairVec[i].d_priority] += i;
                 ++counts[outPairVec[i].d_priority];
             }
-            for (int i = 0; NUM_PRIORITIES > i; ++i) {
+            for (int i = 0; k_NUM_PRIORITIES > i; ++i) {
                 averages[i] /= counts[i];
             }
             cout << "(count, average) for priority i:\n";
-            for (int i = 0; NUM_PRIORITIES > i; ++i) {
+            for (int i = 0; k_NUM_PRIORITIES > i; ++i) {
                 cout << (i % 3 ? ", " : (i ? "\n    " : "    "));
                 cout << "(" << counts[i] << ", " << averages[i] << ")";
             }
@@ -1596,7 +1596,7 @@ int main(int argc, char *argv[])
                 outOfOrder += (outPairVec[i].d_value <= lastValue);
             }
         }
-        ASSERT(NUM_PRIORITIES - 1 == lastPriority);
+        ASSERT(k_NUM_PRIORITIES - 1 == lastPriority);
         if (veryVerbose) {
             cout << "Out of order: " <<
                     outOfOrder << " out of " << outPairVecIdx << " = " <<
@@ -1639,7 +1639,7 @@ int main(int argc, char *argv[])
         //   blocking behavior
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_7;
+        using namespace MULTIPRIORITYQUEUE_TEST_CASE_7;
 
         if (verbose) {
             cout << "=================================================\n"
@@ -1661,13 +1661,13 @@ int main(int argc, char *argv[])
             bdlqq::ThreadUtil::yield();
             bdlqq::ThreadUtil::microSleep(1000 * 50);
         }
-        mX.pushBack(tf7.FIRST_PUSHVAL, tf7.PUSH_PRIORITY);
+        mX.pushBack(tf7.k_FIRST_PUSHVAL, tf7.k_PUSH_PRIORITY);
 
         for (int j = 0; 4 > j; ++j) {
             bdlqq::ThreadUtil::yield();
             bdlqq::ThreadUtil::microSleep(1000 * 50);
         }
-        mX.pushBack(tf7.SECOND_PUSHVAL, tf7.PUSH_PRIORITY);
+        mX.pushBack(tf7.k_SECOND_PUSHVAL, tf7.k_PUSH_PRIORITY);
 
         bdlqq::ThreadUtil::join(handle);
       }  break;
@@ -1691,7 +1691,7 @@ int main(int argc, char *argv[])
         //   ~bdlcc::MultipriorityQueue()
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_5;    // reusing
+        using namespace MULTIPRIORITYQUEUE_TEST_CASE_5;    // reusing
 
         if (verbose) {
             cout << "==================================\n"
@@ -1706,7 +1706,7 @@ int main(int argc, char *argv[])
                                     { 12.1, 2 }, { 43.3, 3 }, { 22.2, 2 },
                                     { 13.4, 3 }, { 1.2,  1 }, { 42.3, 2 },
                                     { 10.1, 0 } };
-        enum { VPUSH_LEN = sizeof vPush / sizeof *vPush };
+        int VPUSH_LEN = static_cast<int>(sizeof vPush / sizeof *vPush);
 
         // testing removeAll
 
@@ -1767,7 +1767,7 @@ int main(int argc, char *argv[])
         //   Proper ordering of popped objects.
         // --------------------------------------------------------------------
 
-        using namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_5;
+        using namespace MULTIPRIORITYQUEUE_TEST_CASE_5;
 
         if (verbose) {
             cout << "========================================\n"
@@ -1782,7 +1782,7 @@ int main(int argc, char *argv[])
                                     { 3.1, 2 }, { 3.2, 3 }, { 3.3, 2 },
                                     { 4.1, 3 }, { 4.2, 1 }, { 4.3, 2 },
                                     { 5.1, 0 } };
-        enum { VPUSH_LEN = sizeof vPush / sizeof *vPush };
+        int VPUSH_LEN = static_cast<int>(sizeof vPush / sizeof *vPush);
 
         if (veryVerbose) {
             cout << "First, testing popFront\n";
@@ -1872,7 +1872,7 @@ int main(int argc, char *argv[])
         }
 
         enum {
-            GARBAGE_VALUE = -2374
+            k_GARBAGE_VALUE = -2374
         };
 
         bslma::DefaultAllocatorGuard guard(&ta);
@@ -1935,7 +1935,7 @@ int main(int argc, char *argv[])
                                      1.3,  2.3, 3.3, 4.3, 5.3, 6.3, 7.3, 8.3,
                                      1.4,  2.4, 3.4, 4.4, 5.4, 6.4, 7.4, 8.4,
                                      1.5,  2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5 };
-            enum { VDOUB_LEN = sizeof vDoub / sizeof *vDoub };
+            int VDOUB_LEN = static_cast<int>(sizeof vDoub / sizeof *vDoub);
 
             ASSERT(VDOUB_LEN >= priorityCount);
 
@@ -1948,8 +1948,8 @@ int main(int argc, char *argv[])
                 cout << "Popped values: ";
             }
             for (int i = 0; priorityCount > i; ++i) {
-                Element e    = GARBAGE_VALUE;
-                int priority = GARBAGE_VALUE;
+                Element e    = k_GARBAGE_VALUE;
+                int priority = k_GARBAGE_VALUE;
 
                 ASSERT(X.length() == priorityCount - i);
 
@@ -1998,8 +1998,8 @@ int main(int argc, char *argv[])
         }
 
         enum {
-            SINGLE_PRIORITY = 3,
-            GARBAGE_VALUE = -12
+            k_SINGLE_PRIORITY =   3,
+            k_GARBAGE_VALUE   = -12
         };
 
         Obj mX(&ta);    const Obj& X = mX;
@@ -2010,7 +2010,7 @@ int main(int argc, char *argv[])
         }
 
         const double vDoub[] = { 5.1, 4.2, 3.3, 2.4, 2.4, 2.4, 2.4, 7.1, 8.1 };
-        enum { VDOUB_LEN = sizeof vDoub / sizeof *vDoub };
+        int VDOUB_LEN = static_cast<int>(sizeof vDoub / sizeof *vDoub);
 
         ASSERT(X.isEmpty());
 
@@ -2022,7 +2022,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; VDOUB_LEN > i; ++i) {
             ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], SINGLE_PRIORITY);
+            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
             ASSERT(!X.isEmpty());
         }
 
@@ -2031,8 +2031,8 @@ int main(int argc, char *argv[])
             ASSERT(!X.isEmpty());
             ASSERT(X.length() == Element::s_allocCount);
 
-            Element e = GARBAGE_VALUE;
-            int priority = GARBAGE_VALUE;
+            Element e = k_GARBAGE_VALUE;
+            int priority = k_GARBAGE_VALUE;
 
             mX.popFront(&e, &priority);
 
@@ -2052,7 +2052,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; VDOUB_LEN > i; ++i) {
             ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], SINGLE_PRIORITY);
+            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
             ASSERT(!X.isEmpty());
         }
 
@@ -2061,7 +2061,7 @@ int main(int argc, char *argv[])
             ASSERT(!X.isEmpty());
             ASSERT(X.length() == Element::s_allocCount);
 
-            Element e = GARBAGE_VALUE;
+            Element e = k_GARBAGE_VALUE;
 
             mX.popFront(&e);
 
@@ -2080,7 +2080,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; VDOUB_LEN > i; ++i) {
             ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], SINGLE_PRIORITY);
+            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
             ASSERT(!X.isEmpty());
         }
 
@@ -2089,8 +2089,8 @@ int main(int argc, char *argv[])
             ASSERT(!X.isEmpty());
             ASSERT(X.length() == Element::s_allocCount);
 
-            Element e = GARBAGE_VALUE;
-            int priority = GARBAGE_VALUE;
+            Element e = k_GARBAGE_VALUE;
+            int priority = k_GARBAGE_VALUE;
 
             ASSERT(0 == mX.tryPopFront(&e, &priority));
             ASSERT(3 == priority);
@@ -2110,7 +2110,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; VDOUB_LEN > i; ++i) {
             ASSERT(X.length() == i);
-            mX.pushBack(vDoub[i], SINGLE_PRIORITY);
+            mX.pushBack(vDoub[i], k_SINGLE_PRIORITY);
             ASSERT(!X.isEmpty());
         }
 
@@ -2119,7 +2119,7 @@ int main(int argc, char *argv[])
             ASSERT(!X.isEmpty());
             ASSERT(X.length() == Element::s_allocCount);
 
-            Element e = GARBAGE_VALUE;
+            Element e = k_GARBAGE_VALUE;
 
             ASSERT(0 == mX.tryPopFront(&e));
 
@@ -2182,7 +2182,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != mX.tryPopFront(&e));
 
         const double vDoub[] = { 5.1, 4.2, 3.3, 2.4, 2.4, 2.4, 2.4, 7.7, 8.8 };
-        enum { VDOUB_LEN = sizeof vDoub / sizeof *vDoub };
+        int VDOUB_LEN = static_cast<int>(sizeof vDoub / sizeof *vDoub);
 
         ASSERT(X.isEmpty());
 
@@ -2308,10 +2308,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
