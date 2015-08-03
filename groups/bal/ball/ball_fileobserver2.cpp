@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <ball_context.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
+#include <ball_userfieldvalues.h>
 
 #ifdef BDE_FOR_TESTING_ONLY
 #include <ball_defaultobserver.h>             // for testing only
@@ -19,7 +20,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_lockguard.h>
 
-#include <bdlmxxx_list.h>
+
 
 #include <bdlt_currenttime.h>
 
@@ -233,27 +234,22 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(stream);
     BSLS_ASSERT(filename);
 
-    const bool fileExistFlag = bdlsu::FilesystemUtil::exists(filename);
-    bdlsu::FilesystemUtil::FileDescriptor fd = bdlsu::FilesystemUtil::open(
-                       filename,
-                       fileExistFlag ? bdlsu::FilesystemUtil::e_OPEN
-                                     : bdlsu::FilesystemUtil::e_OPEN_OR_CREATE,
-                       bdlsu::FilesystemUtil::e_READ_APPEND);
+    typedef bdlsu::FilesystemUtil FileUtil;
 
-    if (fd == bdlsu::FilesystemUtil::k_INVALID_FD) {
+    const bool fileExistFlag = FileUtil::exists(filename);
+
+    FileUtil::FileDescriptor fd =  FileUtil::open(filename,
+                                                  FileUtil::e_OPEN_OR_CREATE,
+                                                  FileUtil::e_WRITE_ONLY,
+                                                  FileUtil::e_KEEP);
+
+    if (fd == FileUtil::k_INVALID_FD) {
         fprintf(
            stderr,
            "%s Cannot open log file %s: %s.  File logging will be disabled!\n",
            errorMsgPrefix, filename, bsl::strerror(getErrorCode()));
         return -1;                                                    // RETURN
     }
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-    // Add read/write access to other, because 'bdlsu::FilesystemUtil::open' set file
-    // permission to 'rw-rw----'.
-
-    chmod(filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-#endif
 
     bdlsu::FdStreamBuf *streamBuf = dynamic_cast<bdlsu::FdStreamBuf *>(
                                                               stream->rdbuf());
@@ -416,7 +412,7 @@ void FileObserver2::logRecordDefault(bsl::ostream&      stream,
     stream.write(message.data(), message.length());
     stream << ' ';
 
-    const bdlmxxx::List& userFields = record.userFields();
+    const ball::UserFieldValues& userFields = record.userFieldValues();
     const int numUserFields = userFields.length();
     for (int i = 0; i < numUserFields; ++i) {
         stream << userFields[i] << ' ';
@@ -600,7 +596,7 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
     // 'd_logFileTimestampUtc' if the log file does not already exist.
 
     bdlsu::FilesystemUtil::getLastModificationTime(&d_logFileTimestampUtc,
-                                            d_logFileName);
+                                                   d_logFileName);
 
     if (0 < d_rotationInterval.totalSeconds()) {
         d_nextRotationTimeUtc = computeNextRotationTime(

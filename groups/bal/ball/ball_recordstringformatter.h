@@ -124,14 +124,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -168,17 +160,6 @@ class RecordStringFormatter {
     // according to the format specification and outputs the formatted result
     // to a given stream.  The timestamp offset of the record formatter is
     // added to each timestamp that is output to the stream.
-    //
-    // Additionally, this class supports a complete set of *value* *semantic*
-    // operations, including copy construction, assignment and equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  A precise
-    // operational definition of when two instances have the same value can be
-    // found in the description of 'operator==' for the class.  This class is
-    // *exception* *neutral* with no guarantee of rollback: If an exception is
-    // thrown during the invocation of a method on a pre-existing instance, the
-    // object is left in a valid state, but its value is undefined.  In no
-    // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
-    // an object as both source and destination) is supported in all cases.
 
     // CLASS DATA
     static const int k_DISABLE_PUBLISH_IN_LOCALTIME;
@@ -205,11 +186,6 @@ class RecordStringFormatter {
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(RecordStringFormatter,
                                  bslalg::TypeTraitUsesBslmaAllocator);
-
-    // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.
 
     // CREATORS
     explicit RecordStringFormatter(bslma::Allocator *basicAllocator = 0);
@@ -322,16 +298,6 @@ class RecordStringFormatter {
         // Set the timestamp offset of this record formatter to the specified
         // 'offset'.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-
     // ACCESSORS
     void operator()(bsl::ostream& stream, const Record& record) const;
         // Format the specified 'record' according to the format specification
@@ -352,12 +318,6 @@ class RecordStringFormatter {
         // Return a reference to the non-modifiable timestamp offset of this
         // record formatter.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.
 };
 
 // FREE OPERATORS
@@ -389,14 +349,6 @@ bsl::ostream& operator<<(bsl::ostream&                     output,
                         // --------------------------------
                         // class RecordStringFormatter
                         // --------------------------------
-
-// CLASS METHODS
-inline
-int RecordStringFormatter::maxSupportedBdexVersion()
-{
-    return 1;
-}
-
 // MANIPULATORS
 inline
 void RecordStringFormatter::disablePublishInLocalTime()
@@ -423,35 +375,6 @@ void RecordStringFormatter::setTimestampOffset(
     d_timestampOffset = offset;
 }
 
-template <class STREAM>
-STREAM& RecordStringFormatter::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) { // switch on the schema version (starting with 1)
-          case 1: {
-            bsl::string format;
-            bdex_InStreamFunctions::streamIn(stream, format, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-
-            bdlt::DatetimeInterval offset;
-            offset.bdexStreamIn(stream, 1);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-
-            d_formatSpec      = format;
-            d_timestampOffset = offset;
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
-
 // ACCESSORS
 inline
 const char *RecordStringFormatter::format() const
@@ -473,18 +396,6 @@ RecordStringFormatter::timestampOffset() const
     return d_timestampOffset;
 }
 
-template <class STREAM>
-STREAM& RecordStringFormatter::bdexStreamOut(STREAM& stream,
-                                                  int     version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_formatSpec, 0);
-        d_timestampOffset.bdexStreamOut(stream, 1);
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS

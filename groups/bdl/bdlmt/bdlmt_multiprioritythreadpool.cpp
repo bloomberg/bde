@@ -155,7 +155,7 @@ MultipriorityThreadPool::MultipriorityThreadPool(
 MultipriorityThreadPool::MultipriorityThreadPool(
                                       int                     numThreads,
                                       int                     numPriorities,
-                                      const bcemt_Attribute&  threadAttributes,
+                                      const bdlqq::ThreadAttributes&  threadAttributes,
                                       bslma::Allocator       *basicAllocator)
 : d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
 , d_threadAttributes(threadAttributes)
@@ -173,7 +173,7 @@ MultipriorityThreadPool::MultipriorityThreadPool(
 
     // Force all threads to be joinable.
     d_threadAttributes.setDetachedState(
-                                       bcemt_Attribute::BCEMT_CREATE_JOINABLE);
+                                       bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
 }
 
 MultipriorityThreadPool::~MultipriorityThreadPool()

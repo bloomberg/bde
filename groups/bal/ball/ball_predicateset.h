@@ -61,14 +61,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_predicate.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -131,12 +123,6 @@ class PredicateSet {
         // specified 'size' as the number of slots.  The hash value is
         // guaranteed to be in the range [0, size).
 
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported
-        // by this class.  (See the 'bde' package-group-level documentation
-        // for more information on 'bdex' streaming of value-semantic types
-        // and containers.)
-
     // TYPES
     typedef SetType::const_iterator const_iterator;
 
@@ -174,17 +160,6 @@ class PredicateSet {
     void removeAllPredicates();
         // Remove every predicate in this predicate set.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid and this object is unaltered.  Note that no version is read
-        // from 'stream'.
-
     // ACCESSORS
     bool evaluate(const AttributeContainerList& containerList) const;
         // Return 'true' if for every predicate maintained by this object, an
@@ -221,12 +196,6 @@ class PredicateSet {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.
 };
 
 // FREE OPERATORS
@@ -257,13 +226,6 @@ bsl::ostream& operator<<(bsl::ostream&            output,
                    // -----------------------
                    // class PredicateSet
                    // -----------------------
-
-// CLASS METHODS
-inline
-int PredicateSet::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
-}
 
 // CREATORS
 inline
@@ -306,42 +268,6 @@ void PredicateSet::removeAllPredicates()
     d_predicateSet.clear();
 }
 
-template <class STREAM>
-STREAM& PredicateSet::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            int size;
-            Predicate predicate("", 0);  // no default ctor; dummy data
-
-            bdex_InStreamFunctions::streamIn(stream, size, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-
-            if (0 > size) {
-                stream.invalidate();
-                return stream;                                        // RETURN
-            }
-
-            removeAllPredicates();
-            for (int i = 0; i < size; ++i) {
-                bdex_InStreamFunctions::streamIn(stream, predicate, 1);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-
-                addPredicate(predicate);
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
 
 // ACCESSORS
 inline
@@ -369,23 +295,6 @@ PredicateSet::const_iterator PredicateSet::end() const
     return d_predicateSet.end();
 }
 
-template <class STREAM>
-STREAM& PredicateSet::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream,
-                                           (int)d_predicateSet.size(),
-                                           0);
-        for (const_iterator iter = d_predicateSet.begin();
-             iter != d_predicateSet.end();
-             ++iter) {
-            bdex_OutStreamFunctions::streamOut(stream, *iter, 1);
-        }
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS

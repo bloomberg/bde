@@ -191,7 +191,7 @@ int FixedThreadPool::startNewThread()
 // CREATORS
 
 FixedThreadPool::FixedThreadPool(
-        const bcemt_Attribute&  threadAttributes,
+        const bdlqq::ThreadAttributes&  threadAttributes,
         int                     numThreads,
         int                     maxQueueSize,
         bslma::Allocator       *basicAllocator)

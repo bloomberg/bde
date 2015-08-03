@@ -18,15 +18,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'ball::Transmission::Cause'.  'Cause' enumerates the list of conditions
-// (or states) that can cause a log record to be transmitted.
-//
-// Templatized functions are provided to support the streaming in and out of
-// the enumerated values.  Input streams must be compatible with the
-// 'bdlxxxx::InStream' protocol, and output streams must be compatible with the
-// 'bdlxxxx::OutStream' protocol or else convertible to a standard 'ostream'; in
-// the latter case, the value is written as its corresponding string
-// representation.  In addition, this component supports functions that
-// convert the 'Cause' enumerators to a well-defined ASCII representation.
+// (or states) that can cause a log record to be transmitted.  In addition,
+// this component supports functions that convert the 'Cause' enumerators to a
+// well-defined ASCII representation.
 //
 ///USAGE EXAMPLE 1 - SYNTAX
 ///------------------------
@@ -214,53 +208,15 @@ struct Transmission {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-
-    static int maxSupportedVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-        //
-        // DEPRECATED: replaced by the 'maxSupportedBdexVersion' method.
-
-    static const char *toAscii(Transmission::Cause value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
-
-    template <class STREAM>
-    static STREAM& bdexStreamIn(STREAM&                   stream,
-                                Transmission::Cause& value,
-                                int                       version);
-        // Assign to the specified 'value' the value read from the specified
-        // input 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
-
     static bsl::ostream& streamOut(bsl::ostream&            stream,
                                    Transmission::Cause value);
         // Format the specified 'value' to the specified output 'stream'
         // and return a reference to the modifiable 'stream'.
 
-    template <class STREAM>
-    static STREAM& bdexStreamOut(STREAM&                  stream,
-                                 Transmission::Cause value,
-                                 int                      version);
-        // Write the specified 'value' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.  Optionally specify
-        // an explicit 'version' format; by default, the maximum supported
-        // version is written to 'stream' and used as the format.  If 'version'
-        // is specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
+    static const char *toAscii(Transmission::Cause value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
+
 };
 
 // FREE OPERATORS
@@ -279,43 +235,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, Transmission::Cause rhs);
 
 // CLASS METHODS
 inline
-int Transmission::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
-}
-
-inline
-int Transmission::maxSupportedVersion()
-{
-    return maxSupportedBdexVersion();
-}
-
-template <class STREAM>
-STREAM& Transmission::bdexStreamIn(STREAM&                   stream,
-                                        Transmission::Cause& value,
-                                        int                       version)
-{
-    switch(version) {
-      case 1: {
-        unsigned char readValue;
-        stream.getUint8(readValue);
-        if (stream) {
-            if (readValue < Transmission::BAEL_LENGTH) {
-                value = Transmission::Cause(readValue);
-            }
-            else {
-                stream.invalidate();  // bad value in stream
-            }
-        }
-      } break;
-      default: {
-        stream.invalidate();          // unrecognized version number
-      } break;
-    }
-    return stream;
-}
-
-inline
 bsl::ostream& Transmission::streamOut(bsl::ostream&            stream,
                                            Transmission::Cause value)
 {
@@ -323,18 +242,6 @@ bsl::ostream& Transmission::streamOut(bsl::ostream&            stream,
     return stream;
 }
 
-template <class STREAM>
-STREAM& Transmission::bdexStreamOut(STREAM&                  stream,
-                                         Transmission::Cause value,
-                                         int                      version)
-{
-    switch (version) {
-      case 1: {
-        stream.putUint8((unsigned char) value);  // write value as single byte
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS
@@ -344,54 +251,6 @@ bsl::ostream& ball::operator<<(bsl::ostream&            stream,
 {
     return Transmission::streamOut(stream, rhs);
 }
-
-// ============================================================================
-//                     namespace bdex_InStreamFunctions
-// ============================================================================
-
-namespace bdex_InStreamFunctions {
-
-template <typename STREAM>
-inline
-STREAM& streamIn(STREAM&                   stream,
-                 ball::Transmission::Cause& value,
-                 int                       version)
-{
-    return ball::Transmission::bdexStreamIn(stream, value, version);
-}
-
-}  // close namespace bdex_InStreamFunctions;
-
-// ============================================================================
-//                      namespace bdex_VersionFunctions
-// ============================================================================
-
-namespace bdex_VersionFunctions {
-
-inline
-int maxSupportedVersion(ball::Transmission::Cause)
-{
-    return ball::Transmission::maxSupportedBdexVersion();
-}
-
-}  // close namespace bdex_VersionFunctions;
-
-// ============================================================================
-//                     namespace bdex_OutStreamFunctions
-// ============================================================================
-
-namespace bdex_OutStreamFunctions {
-
-template <typename STREAM>
-inline
-STREAM& streamOut(STREAM&                         stream,
-                  const ball::Transmission::Cause& value,
-                  int                             version)
-{
-    return ball::Transmission::bdexStreamOut(stream, value, version);
-}
-
-}  // close namespace bdex_OutStreamFunctions
 
 }  // close namespace BloombergLP
 

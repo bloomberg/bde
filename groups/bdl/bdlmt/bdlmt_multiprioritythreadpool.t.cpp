@@ -172,8 +172,8 @@ namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_13 {
 // where traffic of low priority, while massively more numerous, does not
 // impede the progress of higher priority jobs.
 
-bsls::AtomicInt urgentJobsDone(0);
-bsls::AtomicInt lessUrgentJobsDone(0);
+bsls::AtomicInt     urgentJobsDone;
+bsls::AtomicInt lessUrgentJobsDone;
 
 extern "C" void *urgentJob(void *) {
     bdlqq::ThreadUtil::microSleep(10000);          // 10 mSec
@@ -341,7 +341,10 @@ struct Functor {
 
     void operator()() {
         if (0 == d_priority) {
+            bsls::AtomicInt& rScannedTo = scannedTo[d_numToScan];
+#if 0
             bsls::AtomicInt& rScannedTo(scannedTo[d_numToScan]);
+#endif
 
             for (int i = d_numToScan; d_limit > i; i += d_numToScan) {
                 isStillPrime[i] = false;
@@ -430,7 +433,7 @@ struct Worker {
 };
 bdlmt::MultipriorityThreadPool *Worker::s_pool = 0;
 bdlcc::Queue<Worker>           *Worker::s_doneQueue = 0;
-bsls::AtomicInt Worker::s_time(0);
+bsls::AtomicInt Worker::s_time;
 
 struct ProducerThread {
     int                   d_workersPerProducer;
@@ -791,15 +794,15 @@ int main(int argc, char *argv[])
                                                                  --attrState) {
             bslma::TestAllocator localTa;
 
-            bcemt_Attribute attrib;
+            bdlqq::ThreadAttributes attrib;
 
             if (ATTRIB_DETACHED == attrState) {
                 attrib.setDetachedState(
-                                       bcemt_Attribute::BCEMT_CREATE_DETACHED);
+                                       bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
             }
             else if (ATTRIB_JOINABLE == attrState) {
                 attrib.setDetachedState(
-                                       bcemt_Attribute::BCEMT_CREATE_JOINABLE);
+                                       bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
             }
 
             jobsCompleted = 0;
@@ -1602,7 +1605,7 @@ int main(int argc, char *argv[])
                                                       numThreads, numPri, &ta);
                             }
                             else {
-                                bcemt_Attribute attrib;
+                                bdlqq::ThreadAttributes attrib;
 
                                 pool = new (ta)
                                                 bdlmt::MultipriorityThreadPool(
@@ -1616,7 +1619,7 @@ int main(int argc, char *argv[])
                                                    numThreads, numPri);
                             }
                             else {
-                                bcemt_Attribute attrib;
+                                bdlqq::ThreadAttributes attrib;
 
                                 pool = new (taDefault)
                                                 bdlmt::MultipriorityThreadPool(

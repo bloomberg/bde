@@ -223,7 +223,7 @@ BSLS_IDENT("$Id: $")
 //          MAX_IDLE    = 100  // use a very short idle time since new jobs
 //                             // arrive only at startup
 //      };
-//      bcemt_Attribute           defaultAttrs;
+//      bdlqq::ThreadAttributes           defaultAttrs;
 //      bdlmt::MultiQueueThreadPool pool(defaultAttrs,
 //                                     MIN_THREADS, MAX_THREADS, MAX_IDLE,
 //                                     basicAllocator);
@@ -587,7 +587,7 @@ class MultiQueueThreadPool {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    MultiQueueThreadPool(const bcemt_Attribute&  threadAttributes,
+    MultiQueueThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
                               int                     minThreads,
                               int                     maxThreads,
                               int                     maxIdleTime,

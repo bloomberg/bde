@@ -2,8 +2,6 @@
 #include <bdlmt_fixedthreadpool.h>
 #include <bslma_testallocator.h>
 
-#include <bdlimpxxx_fuzzy.h>
-
 #include <bdlt_currenttime.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
@@ -334,7 +332,7 @@ static void  myFastSearch( const string&         word,
                          )
 {
     bdlqq::Mutex     mutex;
-    bcemt_Attribute defaultAttributes;
+    bdlqq::ThreadAttributes defaultAttributes;
     bdlmt::FixedThreadPool pool(defaultAttributes,
                               SEARCH_THREADS,
                               SEARCH_QUEUE_CAPACITY);
@@ -396,7 +394,7 @@ static void  myFastFunctorSearch( const string& word,
                                 )
 {
     bdlqq::Mutex     mutex;
-    bcemt_Attribute defaultAttributes;
+    bdlqq::ThreadAttributes defaultAttributes;
     bdlmt::FixedThreadPool pool(defaultAttributes,
                               SEARCH_THREADS,
                               SEARCH_QUEUE_CAPACITY);
@@ -894,7 +892,7 @@ int main(int argc, char *argv[])
         enum { NTHREADS = 1,
                NQUEUE_CAPACITY = 100 };
 
-        bcemt_Attribute attr;
+        bdlqq::ThreadAttributes attr;
         Obj mX(attr, NTHREADS, NQUEUE_CAPACITY, &testAllocator);
 
         STARTPOOL(mX);
@@ -930,7 +928,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: cpu time not consumed when idle \n"
                           << "====================================" << endl ;
         {
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
 
             enum {
                 THREADS_THREADS = 25,
@@ -1011,7 +1009,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING SYNCHRONOUS SIGNALS" << endl
                           << "===========================" << endl ;
         {
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             enum {
                 THREADS = 5,
                 QUEUE_CAPACITY = 10
@@ -1091,7 +1089,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING a job enqueuing other jobs\n"
                           << "====================================" << endl ;
         {
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             Obj localX(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             xP = &localX;
             STARTPOOL(localX);
@@ -1144,7 +1142,7 @@ int main(int argc, char *argv[])
             const int THREADS  = VALUES[i].d_numThreads;
             const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             const Obj& X = x;
 
@@ -1243,7 +1241,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
             const Obj& X = x;
 
@@ -1305,7 +1303,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
 
             const Obj& X = x;
@@ -1366,7 +1364,7 @@ int main(int argc, char *argv[])
             args.d_stopCond = &stopCond;
             args.d_count = 0;
 
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
 
             const Obj& X = x;
@@ -1458,7 +1456,7 @@ int main(int argc, char *argv[])
                 const int THREADS  = VALUES[i].d_numThreads;
                 const int QUEUE_CAPACITY  = VALUES[i].d_maxNumJobs;
 
-                bcemt_Attribute attr;
+                bdlqq::ThreadAttributes attr;
                 Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
 
                 const Obj& X = x;
@@ -1488,7 +1486,7 @@ int main(int argc, char *argv[])
         //   This test case exercises basic functionality but tests *nothing*.
         // --------------------------------------------------------------------
 
-        bcemt_Attribute attr;
+        bdlqq::ThreadAttributes attr;
         const int THREADS  = 10;
         const int QUEUE_CAPACITY  = 50;
         Obj x(attr, THREADS, QUEUE_CAPACITY, &testAllocator);
@@ -1553,7 +1551,7 @@ int main(int argc, char *argv[])
             args.d_count = 0;
 
             bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bcemt_Attribute attributes;
+            bdlqq::ThreadAttributes attributes;
 
             mutex.lock();
             for (int i=0; i<NITERATIONS; ++i) {
@@ -1594,7 +1592,7 @@ int main(int argc, char *argv[])
             args.d_count = 0;
 
             bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bcemt_Attribute attributes;
+            bdlqq::ThreadAttributes attributes;
 
             for (int i=0; i<NITERATIONS; ++i) {
                 mutex.lock();
@@ -1631,7 +1629,7 @@ int main(int argc, char *argv[])
             args.d_count = 0;
 
             bdlqq::ThreadUtil::Handle threadHandles[NITERATIONS];
-            bcemt_Attribute attributes;
+            bdlqq::ThreadAttributes attributes;
 
             for (int i=0; i<NITERATIONS; ++i) {
                 bdlqq::ThreadUtil::create(&threadHandles[i], attributes,
@@ -1690,7 +1688,7 @@ int main(int argc, char *argv[])
         for (int i = 1; i < MAX_NTHREADS; ++i)
         {
             cout << "\tUsing " << i << " threads.\n";
-            bcemt_Attribute attr;
+            bdlqq::ThreadAttributes attr;
             const int NTHREADS = i;
             const int NQUEUE_CAPACITY = 10000;
 

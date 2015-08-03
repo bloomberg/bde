@@ -23,6 +23,7 @@ BSLS_IDENT("$Id: $")
 // Each function provides a specific customization or convenience enhancement
 // to the basic logger functionality.
 //
+#warning TBD: FIX Documentation around Populator callbacks
 // Functions in this component have at most nine parameters and match one of
 // the four signatures:
 //..

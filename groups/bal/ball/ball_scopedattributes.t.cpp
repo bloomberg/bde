@@ -4,9 +4,6 @@
 #include <ball_attributecontext.h>
 #include <ball_attributecontainer.h>
 
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 

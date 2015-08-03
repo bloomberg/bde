@@ -8,7 +8,6 @@ BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 #include <bsls_atomic.h>  // for testing only
 
 #include <bdlf_bind.h>
-#include <bdlb_xxxbitutil.h>
 #include <bsls_systemtime.h>
 
 #include <bsls_assert.h>

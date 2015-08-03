@@ -2,9 +2,6 @@
 
 #include <ball_defaultattributecontainer.h>
 
-#include <bdlxxxx_testinstream.h>               // for testing only
-#include <bdlxxxx_testoutstream.h>              // for testing only
-
 #include <bslma_testallocator.h>             // for testing only
 #include <bslma_testallocatorexception.h>    // for testing only
 #include <bsls_types.h>
@@ -97,8 +94,6 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 typedef ball::DefaultAttributeContainer Obj;
-typedef bdlxxxx::TestInStream              StreamIn;
-typedef bdlxxxx::TestOutStream             StreamOut;
 
 typedef bsls::Types::Int64             Int64;
 

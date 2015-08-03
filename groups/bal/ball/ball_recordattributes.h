@@ -222,14 +222,14 @@ class RecordAttributes {
     //
     // Additionally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment and equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  A precise
-    // operational definition of when two instances have the same value can be
-    // found in the description of 'operator==' for the class.  This class is
-    // *exception* *neutral* with no guarantee of rollback: If an exception is
-    // thrown during the invocation of a method on a pre-existing instance, the
-    // object is left in a valid state, but its value is undefined.  In no
-    // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
-    // an object as both source and destination) is supported in all cases.
+    // comparison, and 'ostream' printing.  A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of 'operator==' for the class.  This class is *exception* *neutral* with
+    // no guarantee of rollback: If an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
 
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 Uint64;
@@ -253,21 +253,6 @@ class RecordAttributes {
                            const RecordAttributes&);
 
   public:
-    // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
-
-    static int maxSupportedVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
-        //
-        // DEPRECATED: Replaced by the 'maxSupportedBdexVersion' method.
-
     // CREATORS
     RecordAttributes(bslma::Allocator *basicAllocator = 0);
         // Create a record attributes object with all attributes having default
@@ -346,19 +331,6 @@ class RecordAttributes {
         // Set the timestamp attribute of this record attributes object to the
         // specified 'timestamp'.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If the
-        // specified 'version' is not supported, 'stream' is marked invalid,
-        // but this object is unaltered.  Note that no version is read from
-        // 'stream'.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
-
     // ACCESSORS
     const char *category() const;
         // Return the category attribute of this record attributes object.
@@ -408,16 +380,6 @@ class RecordAttributes {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' and return a
-        // reference to the modifiable 'stream'.  Optionally specify an
-        // explicit 'version' format; by default, the maximum supported version
-        // is written to 'stream' and used as the format.  If 'version' is
-        // specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See
-        // the package-group-level documentation for more information on 'bdex'
-        // streaming of value-semantic types and containers.)
 };
 
 // FREE OPERATORS
@@ -449,19 +411,6 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
                         // ---------------------------
                         // class RecordAttributes
                         // ---------------------------
-
-// CLASS METHODS
-inline
-int RecordAttributes::maxSupportedBdexVersion()
-{
-    return 1;  // required by BDE policy; versions start at 1
-}
-
-inline
-int RecordAttributes::maxSupportedVersion()
-{
-    return maxSupportedBdexVersion();
-}
 
 // CREATORS
 inline
@@ -524,68 +473,6 @@ void RecordAttributes::setTimestamp(const bdlt::Datetime& timestamp)
     d_timestamp = timestamp;
 }
 
-template <class STREAM>
-STREAM& RecordAttributes::bdexStreamIn(STREAM& stream, int version)
-{
-    switch(version) {  // switch on RecordAttributes version (starting with 1)
-      case 1: {
-        d_timestamp.bdexStreamIn(stream, 1);
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        stream.getInt32(d_processID);
-
-        // TBD: d_threadID is 64 bit.  Temporarily we are just streaming the
-        // low order 32 bits of it.  Eventually stream all 64 bits.
-        int tmp;
-        stream.getInt32(tmp);
-        d_threadID = tmp;
-
-        stream.getString(d_fileName);
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        stream.getInt32(d_lineNumber);
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        stream.getString(d_category);
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        stream.getInt32(d_severity);
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        d_messageStreamBuf.pubseekpos(0);
-        int len;
-        stream.getInt32(len);
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        char c;
-        while(stream && len--) {
-            stream.getInt8(c);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            d_messageStreamBuf.sputc(c);
-        }
-
-      } break;
-      default: {
-        stream.invalidate();  // unrecognized version number
-      } break;
-    }
-    return stream;
-}
-
 // ACCESSORS
 inline
 const char *RecordAttributes::category() const
@@ -635,46 +522,6 @@ const bdlt::Datetime& RecordAttributes::timestamp() const
     return d_timestamp;
 }
 
-template <class STREAM>
-STREAM& RecordAttributes::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        d_timestamp.bdexStreamOut(stream, 1);
-        stream.putInt32(d_processID);
-
-        // TBD: d_threadID is 64 bit.  Temporarily, for compatibility, we are
-        // just streaming the low order 32 bits.  Eventually stream all 64
-        // bits.
-        stream.putInt32((int) d_threadID);
-
-        stream.putString(d_fileName);
-
-        stream.putInt32(d_lineNumber);
-
-        stream.putString(d_category);
-
-        stream.putInt32(d_severity);
-
-        const int len = static_cast<int>(d_messageStreamBuf.length());
-        const char *data = d_messageStreamBuf.data();
-
-        stream.putInt32(len);
-        for (int i = 0; i < len; ++i) {
-            stream.putInt8(data[i]);
-        }
-
-        // COMMENT NEEDED: Would it be wrong to use the following instead (but
-        // using following breaks one test case to my surprise!!)
-        //         stream.putInt32(len);
-        //         stream.putArrayInt8(data, len);
-
-      } break;
-      default: {
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS

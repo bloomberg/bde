@@ -285,8 +285,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_ruleset.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR

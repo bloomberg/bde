@@ -8,10 +8,6 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-
 #include <bdlf_function.h>                      // for testing only
 #include <bdlf_bind.h>                          // for testing only
 #include <bdlf_placeholder.h>                   // for testing only

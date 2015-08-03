@@ -48,8 +48,8 @@ BSLS_IDENT("$Id: $")
 // threads and queue capacity, hence the name "fixed" thread pool.  An
 // application can, however, specify the attributes of the threads in the
 // pool (e.g., thread priority or stack size), by providing a
-// 'bcemt_Attribute' object with the desired values set.  See 'bdlqq_xxxthread'
-// package documentation for a description of 'bcemt_Attribute'.
+// 'bdlqq::ThreadAttributes' object with the desired values set.  See 'bdlqq_threadutil'
+// package documentation for a description of 'bdlqq::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.
 // A server need only package client requests to execute as jobs, and
@@ -161,7 +161,7 @@ BSLS_IDENT("$Id: $")
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlqq_xxxthread' for information about the 'bdlqq::Mutex' class, and
+// See 'bdlqq_threadutil' for information about the 'bdlqq::Mutex' class, and
 // component 'bdlqq_lockguard' for information about the 'bdlqq::LockGuard'
 // template class.
 //..
@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 //                      bsl::vector<bsl::string>&       outFileList)
 //   {
 //       bdlqq::Mutex     mutex;
-//       bcemt_Attribute defaultAttributes;
+//       bdlqq::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
@@ -296,12 +296,24 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
+#endif
+
 #ifndef INCLUDED_BDLQQ_SEMAPHORE
 #include <bdlqq_semaphore.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
+#include <bdlqq_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_CONDITION
+#include <bdlqq_condition.h>
 #endif
 
 #ifndef INCLUDED_BDLQQ_THREADGROUP
@@ -402,7 +414,7 @@ class FixedThreadPool {
 
     bdlqq::ThreadGroup d_threadGroup;       // threads used by this pool
 
-    bcemt_Attribute   d_threadAttributes;  // thread attributes to be used when
+    bdlqq::ThreadAttributes   d_threadAttributes;  // thread attributes to be used when
                                            // constructing processing threads
 
     const int         d_numThreads;        // number of configured processing
@@ -457,7 +469,7 @@ class FixedThreadPool {
         // undefined unless '1 <= numThreads' and
         // '1 <= maxPendingJobs <= 0x01FFFFFF'.
 
-    FixedThreadPool(const bcemt_Attribute& threadAttributes,
+    FixedThreadPool(const bdlqq::ThreadAttributes& threadAttributes,
                          int                    numThreads,
                          int                    maxNumPendingJobs,
                          bslma::Allocator      *basicAllocator = 0);

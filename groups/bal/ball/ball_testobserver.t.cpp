@@ -7,9 +7,6 @@
 #include <ball_recordattributes.h>              // for testing only
 
 #include <bdlt_datetimeutil.h>                     // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -148,8 +145,8 @@ int main(int argc, char *argv[])
 
         {
             ball::RecordAttributes attributes;
-            bdlmxxx::List             list;
-            ball::Record           record(attributes, list);
+            ball::UserFieldValues  fieldValues;
+            ball::Record           record(attributes, fieldValues);
             ball::Context          context;
 
                                               ASSERT(0 == Obj::numInstances());
@@ -195,8 +192,8 @@ int main(int argc, char *argv[])
 
         {
             ball::RecordAttributes attributes;
-            bdlmxxx::List             list;
-            ball::Record           record(attributes, list);
+            ball::UserFieldValues  fieldValues;
+            ball::Record           record(attributes, fieldValues);
             ball::Context          context;
 
             ASSERT(0 == Obj::numInstances());

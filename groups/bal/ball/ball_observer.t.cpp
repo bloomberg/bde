@@ -8,10 +8,6 @@
 
 #include <bdlt_datetimeutil.h>                     // for testing only
 #include <bdlt_epochutil.h>                     // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-
 #include <bslma_testallocator.h>                // for testing only
 
 #include <bsls_protocoltest.h>                  // for testing only
@@ -183,7 +179,7 @@ int main(int argc, char *argv[])
                                       dynamic_cast<ball::Observer&>(myObserver);
             bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            bdlmxxx::List             emptyList;
+            ball::UserFieldValues  userValues;
 
 
             if (verbose)
@@ -196,7 +192,7 @@ int main(int argc, char *argv[])
                 fixed.setThreadID(0);
 
                 bsl::shared_ptr<const ball::Record> handle(
-                             new (testAllocator) ball::Record(fixed, emptyList),
+                             new (testAllocator) ball::Record(fixed, userValues),
                              &testAllocator);
                 observer.publish(
                             handle,
@@ -220,7 +216,7 @@ int main(int argc, char *argv[])
                     fixed.setThreadID(31 + n);
 
                     bsl::shared_ptr<const ball::Record> handle(
-                             new (testAllocator) ball::Record(fixed, emptyList),
+                             new (testAllocator) ball::Record(fixed, userValues),
                              &testAllocator);
                     observer.publish(
                                 handle,

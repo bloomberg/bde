@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //    bdlmt::MultipriorityThreadPool: mechanism to parallelize prioritized jobs
 //
-//@SEE_ALSO: bdlqq_xxxthread
+//@SEE_ALSO: bdlqq_threadutil
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -63,8 +63,8 @@ BSLS_IDENT("$Id: $")
 //
 // Finally an application can specify the attributes of the worker threads in
 // a thread pool (e.g., guard size or stack size), by optionally supplying an
-// appropriately configured 'bcemt_Attribute' object.  (See the 'bdlqq_xxxthread'
-// component-level documentation for a description of the 'bcemt_Attribute'
+// appropriately configured 'bdlqq::ThreadAttributes' object.  (See the 'bdlqq_threadutil'
+// component-level documentation for a description of the 'bdlqq::ThreadAttributes'
 // class.)  Note that the field pertaining to whether the worker threads should
 // be detached or joinable is ignored.
 //
@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 // priority, while massively more numerous, does not impede the progress of
 // higher-priority jobs:
 //..
-//   bsls::AtomicInt urgentJobsDone     = 0;
-//   bsls::AtomicInt lessUrgentJobsDone = 0;
+//   bsls::AtomicInt     urgentJobsDone;
+//   bsls::AtomicInt lessUrgentJobsDone;
 //
 //   extern "C" void *urgentJob(void *)
 //   {
@@ -373,8 +373,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_multipriorityqueue.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLCC_MUTEX
+#include <bdlqq_mutex.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
+#include <bdlqq_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLQQ_THREADGROUP
@@ -456,7 +464,7 @@ class MultipriorityThreadPool {
     bdlcc::MultipriorityQueue<ThreadFunctor>
                      d_queue;             // pending job queue
 
-    bcemt_Attribute  d_threadAttributes;  // user-supplied attributes of all
+    bdlqq::ThreadAttributes  d_threadAttributes;  // user-supplied attributes of all
                                           // the threads this pool spawns
 
     bdlqq::ThreadGroup
@@ -518,7 +526,7 @@ class MultipriorityThreadPool {
                                  bslma::Allocator       *basicAllocator = 0);
     MultipriorityThreadPool(int                     numThreads,
                                  int                     numPriorities,
-                                 const bcemt_Attribute&  threadAttributes,
+                                 const bdlqq::ThreadAttributes&  threadAttributes,
                                  bslma::Allocator       *basicAllocator = 0);
         // Create a multi-priority thread pool capable of concurrently
         // executing the specified 'numThreads' "jobs" with associated integer

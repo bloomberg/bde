@@ -89,14 +89,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_rule.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -180,12 +172,6 @@ class RuleSet {
         // Return the maximum number of rules that can be simultaneously
         // maintained by this object.
 
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
-
     static void printMask(bsl::ostream& stream,
                           MaskType      mask,
                           int           level = 0,
@@ -256,17 +242,6 @@ class RuleSet {
     RuleSet& operator=(const RuleSet& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid and this object is unaltered.  Note that no version is read
-        // from 'stream'.
-
     // ACCESSORS
     int ruleId(const Rule& value) const;
        // Return the id of the rule having the specified 'value' if such a
@@ -306,12 +281,6 @@ class RuleSet {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.
 };
 
 // FREE OPERATORS
@@ -345,51 +314,6 @@ int RuleSet::maxNumRules()
     return BAEL_MAX_NUM_RULES;
 }
 
-inline
-int RuleSet::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
-}
-
-// MANIPULATORS
-template <class STREAM>
-STREAM&  RuleSet::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            int numRules = 0;
-            bdex_InStreamFunctions::streamIn(stream, numRules, 0);
-            if (!stream ) {
-                return stream;                                        // RETURN
-            }
-
-            if (0 > numRules) {
-                stream.invalidate();
-                return stream;                                        // RETURN
-            }
-
-            removeAllRules();
-
-            for (int i = 0; i < numRules; ++i) {
-                Rule rule("", 0, 0, 0, 0);
-                bdex_InStreamFunctions::streamIn(stream, rule, 1);
-                if (!stream) {
-                    return stream;                                    // RETURN
-                }
-                addRule(rule);
-            }
-
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-
-}
-
 // ACCESSORS
 inline
 const Rule *RuleSet::getRuleById(int id) const
@@ -409,24 +333,6 @@ int RuleSet::numPredicates() const
     return d_numPredicates;
 }
 
-template <class STREAM>
-STREAM& RuleSet::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream,
-                                           (int)d_ruleHashtable.size(),
-                                           0);
-        for (int i = 0; i < maxNumRules(); ++i) {
-            const Rule *rule = getRuleById(i);
-            if (rule) {
-                bdex_OutStreamFunctions::streamOut(stream, *rule, 1);
-            }
-        }
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 inline

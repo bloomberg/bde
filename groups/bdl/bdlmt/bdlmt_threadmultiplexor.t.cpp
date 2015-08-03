@@ -5,7 +5,7 @@
 #include <bdlf_bind.h>
 #include <bslmf_if.h>
 #include <bdlqq_semaphore.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>
 #include <bdlqq_threadgroup.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bsls_atomic.h>
@@ -384,9 +384,7 @@ int usageExample(bslma::Allocator *allocator)
        return -1;
     }
 
-bsls::AtomicInt iCheck(0);
-bsls::AtomicInt uCheck(0);
-bsls::AtomicInt cCheck(0);
+    bsls::AtomicInt iCheck, uCheck, cCheck;
 
     JobQueue::Job ijob =
         bdlf::BindUtil::bind(&bsls::AtomicInt::add, &iCheck, 1);
@@ -466,7 +464,7 @@ int main(int argc, char *argv[])
                 NUM_JOBS      = 100
             };
 
-            bsls::AtomicInt timesCalled(0);
+            bsls::AtomicInt timesCalled;
             bdlqq::Semaphore startSemaphore;
             bdlmt::ThreadMultiplexor mX(1, MAX_QUEUESIZE, &ta);
             bdlqq::ThreadGroup threads;

@@ -10,8 +10,8 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
-#include <bdlimpxxx_fuzzy.h>
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitstringutil.h>
+#include <bsl_climits.h>        // for 'CHAR_BIT'
 #include <bdlt_datetime.h>
 #include <bdlt_currenttime.h>
 
@@ -428,10 +428,10 @@ class TestClass {
       d_isClock(rhs.d_isClock),
       d_periodicInterval(rhs.d_periodicInterval),
       d_expectedTimeAtExecution(rhs.d_expectedTimeAtExecution),
-      d_numExecuted(rhs.d_numExecuted.loadRelaxed()),
-      d_executionTime(rhs.d_executionTime.loadRelaxed()),
+      d_numExecuted(rhs.d_numExecuted.load()),
+      d_executionTime(rhs.d_executionTime.load()),
       d_line(rhs.d_line),
-      d_delayed(rhs.d_delayed.loadRelaxed()),
+      d_delayed(rhs.d_delayed.load()),
       d_referenceTime(rhs.d_referenceTime),
       d_globalLastExecutionTime(rhs.d_globalLastExecutionTime),
       d_assertOnFailure(rhs.d_assertOnFailure),
@@ -1045,7 +1045,11 @@ void startClock(Obj            *scheduler,
 // 'maxValue'.
 int numBitsRequired(int maxValue)
 {
-    return bdlb::BitUtil::find1AtLargestIndex(maxValue) + 1;
+    ASSERT(0 <= maxValue);                                               
+
+    return 1 + bdlb::BitstringUtil::find1AtLargestIndex(
+                                                   &maxValue,
+                                                   CHAR_BIT * sizeof maxValue);
 }
 
 // Calculate the largest integer indentifiable using the specified 'numBits'.
@@ -2662,6 +2666,39 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 26: {
+        // FAST TRACK SCRATCH AREA
+
+        if (verbose) cout << endl
+                          << "FAST TRACK SCRATCH AREA" << endl
+                          << "=======================" << endl;
+
+        const int ARRAY[] = {
+            //  INT_MIN,
+            //       -1,
+                      0,
+                      1,
+                      2,
+                      3,
+                1 << 10,
+                INT_MAX
+        };
+        const int NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
+        
+        for (int i = 0; i < NUM_ELEMENTS; ++i) {
+            const int VALUE = ARRAY[i];
+        //  const int ret0 = bdlb::BitUtil::find1AtLargestIndex(VALUE);
+            const int ret1 = bdlb::BitstringUtil::find1AtLargestIndex(
+                                                      &VALUE,
+                                                      CHAR_BIT * sizeof VALUE);
+                                                          
+            P_(VALUE)
+            //P_(ret0)
+            P(ret1)
+            // ASSERT(ret1 == ret0);
+        }
+    
+      } break;
       case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:
@@ -3242,7 +3279,7 @@ int main(int argc, char *argv[])
             // to be testing the accuracy of the 'microSleep' method in this
             // component -- especially since it can be really unreasonably slow
             // on a heavily loaded machine (i.e., during the nighttime runs).
-            // Testing of that routine has been moved to bdlqq_xxxthread.t.cpp.
+            // Testing of that routine has been moved to 'bdlqq_threadutil.t.cpp'.
 
             // go through odd elements - they should be SLEEP_SECONDS later
             sfit = sf.timeList().begin();
@@ -3381,7 +3418,7 @@ int main(int argc, char *argv[])
         // be testing the accuracy of the 'microSleep' method in this component
         // -- especially since it can be really unreasonably slow on a heavily
         // loaded machine (i.e., during the nighttime runs).  Testing of that
-        // routine has been moved to bdlqq_xxxthread.t.cpp.
+        // routine has been moved to 'bdlqq_threadutil.t.cpp'.
 
         // go through odd elements - they should be SLEEP_SECONDS later
         it = sf.timeList().begin();

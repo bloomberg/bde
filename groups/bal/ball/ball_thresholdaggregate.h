@@ -43,14 +43,6 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -80,12 +72,6 @@ class ThresholdAggregate {
         // Return a hash value calculated from the specified threshold
         // 'aggregate' using the specified 'size' as the number of slots.  The
         // hash value is guaranteed to be in the range '[0, size)'.
-
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
 
     static bool areValidThresholdLevels(int recordLevel,
                                         int passLevel,
@@ -156,17 +142,6 @@ class ThresholdAggregate {
         // Set the trigger-all level of this threshold aggregate to the
         // specified 'triggerAllLevel'.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid and this object is unaltered.  Note that no version is read
-        // from 'stream'.
-
     // ACCESSORS
     int recordLevel() const;
         // Return the record level of this threshold aggregate.
@@ -194,12 +169,6 @@ class ThresholdAggregate {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.
 };
 
 // FREE OPERATORS
@@ -256,12 +225,6 @@ int ThresholdAggregate::triggerAllLevel() const
 }
 
 // CLASS METHODS
-inline
-int ThresholdAggregate::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
-}
-
 inline
 bool ThresholdAggregate::areValidThresholdLevels(int recordLevel,
                                                       int passLevel,
@@ -329,49 +292,7 @@ void ThresholdAggregate::setTriggerAllLevel(int triggerAllLevel)
     d_triggerAllLevel = static_cast<unsigned char>(triggerAllLevel);
 }
 
-template <class STREAM>
-STREAM& ThresholdAggregate::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_recordLevel, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            bdex_InStreamFunctions::streamIn(stream, d_passLevel, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            bdex_InStreamFunctions::streamIn(stream, d_triggerLevel, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            bdex_InStreamFunctions::streamIn(stream, d_triggerAllLevel, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
 
-// ACCESSORS
-template <class STREAM>
-inline
-STREAM& ThresholdAggregate::bdexStreamOut(STREAM& stream, int) const
-{
-    bdex_OutStreamFunctions::streamOut(stream, d_recordLevel, 0);
-    bdex_OutStreamFunctions::streamOut(stream, d_passLevel, 0);
-    bdex_OutStreamFunctions::streamOut(stream, d_triggerLevel, 0);
-    bdex_OutStreamFunctions::streamOut(stream, d_triggerAllLevel, 0);
-
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS

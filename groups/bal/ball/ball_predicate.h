@@ -71,13 +71,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_attribute.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
@@ -124,12 +117,6 @@ class Predicate {
         // the specified 'size' as the number of slots.  The hash value is
         // guaranteed to be in the range [0 .. size - 1].
 
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported
-        // by this class.  (See the 'bde' package-group-level documentation
-        // for more information on 'bdex' streaming of value-semantic types
-        // and containers.)
-
     // CREATORS
     Predicate(const bslstl::StringRef&  name,
                    int                     value,
@@ -174,17 +161,6 @@ class Predicate {
     Predicate& operator=(const Predicate& rhs);
         // Assign the value of the specified 'rhs' object to this object.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid and this object is unaltered.  Note that no version is read
-        // from 'stream'.
-
     void setName(const bslstl::StringRef& name);
         // Set the attribute name of this object to the specified (literal)
         // 'name'.
@@ -218,12 +194,6 @@ class Predicate {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.
 };
 
 // FREE OPERATORS
@@ -258,12 +228,6 @@ inline
 int Predicate::hash(const Predicate& predicate, int size)
 {
     return Attribute::hash(predicate.d_attribute, size);
-}
-
-inline
-int Predicate::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
 }
 
 // CREATORS
@@ -334,33 +298,6 @@ void Predicate::setValue(const Attribute::Value& value)
     d_attribute.setValue(value);
 }
 
-template <class STREAM>
-STREAM& Predicate::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_nameStr, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            d_attribute.setName(d_nameStr.c_str());
-
-            Attribute::Value value;
-            bdex_InStreamFunctions::streamIn(stream, value, 1);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            d_attribute.setValue(value);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-
-    return stream;
-}
 
 // ACCESSORS
 inline
@@ -381,23 +318,6 @@ const Attribute& Predicate::attribute() const
     return d_attribute;
 }
 
-template <class STREAM>
-STREAM& Predicate::bdexStreamOut(STREAM& stream, int version) const
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_OutStreamFunctions::streamOut(stream, d_nameStr, 0);
-            bdex_OutStreamFunctions::streamOut(stream, d_attribute.value(), 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS
