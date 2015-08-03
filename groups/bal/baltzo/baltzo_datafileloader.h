@@ -22,9 +22,9 @@ BSLS_IDENT("$Id: $")
 // described in a Zoneinfo binary database file.  The following inheritance
 // hierarchy diagram shows the classes involved and their methods:
 //..
-//   ,---------------------.
+//   ,----------------------.
 //  ( baltzo::DataFileLoader )
-//   `---------------------'
+//   `----------------------'
 //              |      ctor
 //              |      configureRootPath
 //              |      configureRootPathIfPlausible
@@ -32,9 +32,9 @@ BSLS_IDENT("$Id: $")
 //              |      rootPath
 //              |      isRootPathPlausible
 //              V
-//       ,-------------.
+//       ,--------------.
 //      ( baltzo::Loader )
-//       `-------------'
+//       `--------------'
 //                 dtor
 //                 loadTimeZone
 //..
@@ -73,10 +73,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// 'baem::DataFileLoader' is *const* *thread-safe*, meaning that accessors may
-// be invoked concurrently from different threads, but it is not safe to access
-// or modify a 'baltzo::DataFileLoader' in one thread while another thread
-// modifies the same object.
+// 'baltzo::DataFileLoader' is *const* *thread-safe*, meaning that accessors
+// may be invoked concurrently from different threads, but it is not safe to
+// access or modify a 'baltzo::DataFileLoader' in one thread while another
+// thread modifies the same object.
 //
 ///Usage
 ///-----
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 // files are typically created using the 'zic' compiler -- a publicly available
 // tool provided as part of the standard Zoneinfo distribution (see
 // 'http://www.twinsun.com/tz/tz-link.htm') -- and deployed in a standard
-// directory location (see 'baetzo_defaulttimezonecache').
+// directory location (see 'baltzo_defaultzoneinfocache').
 //
 // We start by defining static binary data for "Asia/Bangkok", (chosen because
 // it is relatively small):
@@ -143,9 +143,9 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Using a 'baltzo::DataFileLoader' to Load a Zoneinfo File
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to use a 'baltzo::DataFileLoader' to load
-// a time-zone data file into a 'baltzo::Zoneinfo' object.  We start by creating
-// a 'baltzo::DataFileLoader' object, 'loader', and configure it with the
-// relative path "test" which we created in Example 1 (Prologue).
+// a time-zone data file into a 'baltzo::Zoneinfo' object.  We start by
+// creating a 'baltzo::DataFileLoader' object, 'loader', and configure it with
+// the relative path "test" which we created in Example 1 (Prologue).
 //..
 //  baltzo::DataFileLoader loader;
 //  loader.configureRootPath("test");
@@ -211,13 +211,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace baltzo {
 
+class Zoneinfo;
 
-namespace baltzo {class Zoneinfo;
-
-                        // ===========================
-                        // class DataFileLoader
-                        // ===========================
+                            // ====================
+                            // class DataFileLoader
+                            // ====================
 
 class DataFileLoader : public Loader {
     // This component provides a concrete implementation of the
@@ -267,12 +267,11 @@ class DataFileLoader : public Loader {
         // contain valid Zoneinfo data, as determined by calling
         // 'isPlausibleZoneinfoRootPath' on 'path'.
 
-    virtual int loadTimeZone(Zoneinfo *result,
-                             const char      *timeZoneId);
+    virtual int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
         // Load into the specified 'result' the time-zone information for the
         // time zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.  If an error occurs during this
         // operation, 'result' will be left in a valid, but unspecified state.
 
@@ -302,27 +301,35 @@ class DataFileLoader : public Loader {
         // value returned by the 'rootPath' method.
 };
 
+}  // close package namespace
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 // ACCESSORS
 inline
-bool  DataFileLoader::isRootPathPlausible() const
+bool baltzo::DataFileLoader::isRootPathPlausible() const
 {
     return isPlausibleZoneinfoRootPath(rootPath().c_str());
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

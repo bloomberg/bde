@@ -18,8 +18,8 @@ namespace BloombergLP {
 // STATIC HELPER FUNCTIONS
 static
 bool containsDescriptor(
-                     const bsl::vector<baltzo::ZoneinfoTransition>& transitions,
-                     const baltzo::LocalTimeDescriptor&             descriptor)
+                    const bsl::vector<baltzo::ZoneinfoTransition>& transitions,
+                    const baltzo::LocalTimeDescriptor&             descriptor)
     // Return 'true' if the specified 'transitions' contain a transition with
     // the specified 'descriptor', and 'false' otherwise.
 {
@@ -33,16 +33,15 @@ bool containsDescriptor(
     return false;
 }
 
-namespace baltzo {
-                        // -------------------------------
+                        // ------------------------
                         // class ZoneinfoTransition
-                        // -------------------------------
+                        // ------------------------
 
 // ACCESSORS
 bsl::ostream&
-ZoneinfoTransition::print(bsl::ostream& stream,
-                                 int           level,
-                                 int           spacesPerLevel) const
+baltzo::ZoneinfoTransition::print(bsl::ostream& stream,
+                                  int           level,
+                                  int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -89,16 +88,15 @@ ZoneinfoTransition::print(bsl::ostream& stream,
 
     return stream;
 }
-}  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& baltzo::operator<<(bsl::ostream&                    stream,
-                         const ZoneinfoTransition& object)
+bsl::ostream& baltzo::operator<<(bsl::ostream&             stream,
+                                 const ZoneinfoTransition& object)
 {
     stream << "[ ";
 
     bdlt::Datetime utcDatetime;
-    int rc = Zoneinfo::convertFromTimeT64(&utcDatetime, 
+    int rc = Zoneinfo::convertFromTimeT64(&utcDatetime,
                                                  object.utcTime());
     if (!rc) {
         stream << utcDatetime << " ";
@@ -112,14 +110,14 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&                    stream,
     return stream;
 }
 
-                        // -------------------------------------
-                        // class baltzo::Zoneinfo::DescriptorLess
-                        // -------------------------------------
+                    // ------------------------------
+                    // class Zoneinfo::DescriptorLess
+                    // ------------------------------
 
 // ACCESSORS
 bool baltzo::Zoneinfo::DescriptorLess::operator()(
-                                   const baltzo::LocalTimeDescriptor& lhs,
-                                   const baltzo::LocalTimeDescriptor& rhs) const
+                                          const LocalTimeDescriptor& lhs,
+                                          const LocalTimeDescriptor& rhs) const
 {
     if (lhs.utcOffsetInSeconds() != rhs.utcOffsetInSeconds()) {
         return lhs.utcOffsetInSeconds() < rhs.utcOffsetInSeconds();   // RETURN
@@ -132,27 +130,26 @@ bool baltzo::Zoneinfo::DescriptorLess::operator()(
     return lhs.dstInEffectFlag() < rhs.dstInEffectFlag();
 }
 
-namespace baltzo {
-                        // ---------------------
-                        // class Zoneinfo
-                        // ---------------------
+                            // --------------
+                            // class Zoneinfo
+                            // --------------
 
 // CLASS METHODS
-bdlt::EpochUtil::TimeT64 Zoneinfo::convertToTimeT64(
+bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
                                                 const bdlt::Datetime& datetime)
 {
-    int elaspedDays = 
-        bdlt::DelegatingDateImpUtil::ymdToSerial(datetime.year(), 
+    int elaspedDays =
+        bdlt::DelegatingDateImpUtil::ymdToSerial(datetime.year(),
                                                  datetime.month(),
                                                  datetime.day()) -
         bdlt::DelegatingDateImpUtil::ymdToSerial(1970, 1, 1);
 
-    return elaspedDays * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY + 
+    return elaspedDays * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY +
         (datetime.hour() * 60 + datetime.minute()) * 60 + datetime.second();
 }
 
-int Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
-                                        bdlt::EpochUtil::TimeT64  time)
+int baltzo::Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
+                                         bdlt::EpochUtil::TimeT64  time)
 {
     typedef bdlt::DelegatingDateImpUtil DateUtil;
     if (( DateUtil::isProlepticGregorianMode() && -62135596800LL > time) ||
@@ -178,8 +175,8 @@ int Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
 
 
 // CREATORS
-Zoneinfo::Zoneinfo(const Zoneinfo&  original,
-                                 bslma::Allocator       *basicAllocator)
+baltzo::Zoneinfo::Zoneinfo(const Zoneinfo&   original,
+                           bslma::Allocator *basicAllocator)
 : d_identifier(original.d_identifier, basicAllocator)
 , d_descriptors(original.d_descriptors, basicAllocator)
 , d_transitions(basicAllocator)
@@ -193,9 +190,8 @@ Zoneinfo::Zoneinfo(const Zoneinfo&  original,
 }
 
 // MANIPULATORS
-void Zoneinfo::addTransition(
-                                  bdlt::EpochUtil::TimeT64              utcTime,
-                                  const LocalTimeDescriptor& descriptor)
+void baltzo::Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
+                                     const LocalTimeDescriptor& descriptor)
 {
     typedef bsl::vector<ZoneinfoTransition>::iterator
                                                             TransitionIterator;
@@ -241,8 +237,8 @@ void Zoneinfo::addTransition(
 }
 
 // ACCESSORS
-Zoneinfo::TransitionConstIterator
-Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
+baltzo::Zoneinfo::TransitionConstIterator
+baltzo::Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
 {
     BSLS_ASSERT_SAFE(numTransitions() > 0);
     BSLS_ASSERT_SAFE(d_transitions.front().utcTime() <=
@@ -265,9 +261,9 @@ Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
     return it;
 }
 
-bsl::ostream& Zoneinfo::print(bsl::ostream& stream,
-                                     int           level,
-                                     int           spacesPerLevel) const
+bsl::ostream& baltzo::Zoneinfo::print(bsl::ostream& stream,
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -316,11 +312,10 @@ bsl::ostream& Zoneinfo::print(bsl::ostream& stream,
 
     return stream;
 }
-}  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& baltzo::operator<<(bsl::ostream&          stream,
-                         const Zoneinfo& object)
+bsl::ostream& baltzo::operator<<(bsl::ostream&   stream,
+                                 const Zoneinfo& object)
 {
     stream << "[ \"" << object.identifier() << "\" [";
 
@@ -334,13 +329,20 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&          stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -33,9 +33,9 @@ using namespace bsl;
 //                                  Overview
 //                                  --------
 // This component under test provides two classes that represent time zones.
-// The 'baltzo::ZoneinfoTransition' is an unconstrained in-core (value-semantic)
-// class.  The 'class' supports a subset of the value-semantic functionality:
-// basic accessors, equality operators, and 'operator<'.
+// The 'baltzo::ZoneinfoTransition' is an unconstrained in-core
+// (value-semantic) class.  The 'class' supports a subset of the value-semantic
+// functionality: basic accessors, equality operators, and 'operator<'.
 //
 // This particular attribute class does not provide a public default/value
 // constructor capable of creating an object in any state relevant for testing.
@@ -60,7 +60,7 @@ using namespace bsl;
 // 'addTransition' manipulator capable of creating an object in any state
 // relevant for testing.  We will implement a 'gg' function for creating a zone
 // info having any value.  We will then use the accessors to verify the state.
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
 //                       // -------------------------
 //                       // baltzo::ZoneinfoTransition
@@ -77,7 +77,7 @@ using namespace bsl;
 // [ 5] bool operator!=(const baltzo::ZoneinfoTransition& lhs, rhs);
 // [ 7] bool operator<(const baltzo::ZoneinfoTransition& lhs, rhs);
 // [ 6] bsl::ostream& operator<<(ostream& s, const ZoneinfoTransition& d);
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 //                       // ---------------
 //                       // baltzo::Zoneinfo
@@ -89,7 +89,7 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [13] baltzo::Zoneinfo& operator=(const baltzo::Zoneinfo& rhs);
-// [ 2] void addTransition(TimeT64 time, const baetzo::LTD& d);
+// [ 2] void addTransition(TimeT64 time, const baltzo::LTD& d);
 // [ 9] void setIdentifier(const bslstl::StringRef& identifier);
 // [12] void swap(baltzo::Zoneinfo& other);
 
@@ -110,7 +110,7 @@ using namespace bsl;
 //
 // FREE FUNCTIONS
 // [12] void swap(baltzo::Zoneinfo& first, baltzo::Zoneinfo& second);
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST: 'baltzo::Zoneinfo', 'baltzo::ZoneinfoTransition'
 // [15] USAGE EXAMPLE
 
@@ -406,7 +406,7 @@ Obj g(const char *spec)
 //..
         BSLS_ASSERT(0 < timeZone.numTransitions());
         BSLS_ASSERT(timeZone.firstTransition().utcTime() <=
-                                       bdlt::EpochUtil::convertToTimeT64(utcTime));
+                                   bdlt::EpochUtil::convertToTimeT64(utcTime));
 //..
 // Next, we obtain the appropriate 'baltzo::ZoneinfoTransition' object,
 // invoking the method 'findTransitionForUtcTime' on 'timeZone':
@@ -456,7 +456,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Call 'convertFromTimeT64' and compare the results against
-        //:   'bdlt::EpochUtil::convertFromTimeT64' 
+        //:   'bdlt::EpochUtil::convertFromTimeT64'
         //
         // Testing:
         //   int convertFromTimeT64(bdlt::Datetime *, TimeT64);
@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
             int              d_line;           // source line number
             bdlt::EpochUtil::TimeT64 d_timet;
         } DATA [] = {
-            // LINE 
+            // LINE
             { L_, -62135596801LL },
             { L_, -62135596800LL },
             { L_, -62135769601LL },
@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Call 'convertToTimeT64' and compare the results against
-        //:   'bdlt::EpochUtil::convertToTimeT64' 
+        //:   'bdlt::EpochUtil::convertToTimeT64'
         //
         // Testing:
         //   bdlt::EpochUtil::TimeT64 convertToTimeT64(const bdlt::Datetime& );
@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
             int  d_s;
             int  d_ms;
         } DATA [] = {
-          // LINE 
+          // LINE
             { L_, 0001, 01, 01, 00, 00, 00, 000 },
             { L_, 0001, 01, 01, 00, 00, 00, 001 },
             { L_, 0001, 01, 01, 00, 00, 00, 999 },
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
                                       DATA[ti].d_m,
                                       DATA[ti].d_s,
                                       DATA[ti].d_ms);
-            
+
             TimeT64 EXPECTED = bdlt::EpochUtil::convertToTimeT64(input);
             TimeT64 result   = Obj::convertToTimeT64(input);
 
@@ -618,9 +618,9 @@ int main(int argc, char *argv[])
 // 'bdlt::EpochUtil::TimeT64':
 //..
     bdlt::EpochUtil::TimeT64 edtTransitionTime =
-                                    bdlt::EpochUtil::convertToTimeT64(edtDatetime);
+                                bdlt::EpochUtil::convertToTimeT64(edtDatetime);
     bdlt::EpochUtil::TimeT64 estTransitionTime =
-                                    bdlt::EpochUtil::convertToTimeT64(estDatetime);
+                                bdlt::EpochUtil::convertToTimeT64(estDatetime);
 //..
 // Now, we associate the created descriptors with the transitions we indicated
 // previously and add them to 'newYorkTimeZone' using the 'addTransition'
@@ -657,8 +657,8 @@ int main(int argc, char *argv[])
 //
 // Suppose, now, we want to convert UTC time to the corresponding local time in
 // New York.  We can do so using the previously defined function
-// 'utcToLocalTime' and reusing the 'baltzo::Zoneinfo' object, 'newYorkTimeZone'
-// of Example 1.
+// 'utcToLocalTime' and reusing the 'baltzo::Zoneinfo' object,
+// 'newYorkTimeZone' of Example 1.
 //
 // First, we define 'bdlt::Datetime' object representing the UTC time "Apr 10,
 // 2010 12:00":
@@ -765,11 +765,12 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int           LINE   = DATA[ti].d_line;
-            const char *const   SPEC   = DATA[ti].d_spec;
-            const TimeT64       UTC    = DATA[ti].d_utcTime;
-            const int           INDEX  = DATA[ti].d_expIndex;
-            const bdlt::Datetime DT     = bdlt::EpochUtil::convertFromTimeT64(UTC);
+            const int            LINE   = DATA[ti].d_line;
+            const char *const    SPEC   = DATA[ti].d_spec;
+            const TimeT64        UTC    = DATA[ti].d_utcTime;
+            const int            INDEX  = DATA[ti].d_expIndex;
+            const bdlt::Datetime DT     =
+                                      bdlt::EpochUtil::convertFromTimeT64(UTC);
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -793,7 +794,8 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                const bdlt::Datetime DT = bdlt::EpochUtil::convertFromTimeT64(1);
+                const bdlt::Datetime DT =
+                                        bdlt::EpochUtil::convertFromTimeT64(1);
 
                 Obj mX(&oa);  const Obj& X = gg(&mX, "nD");
                 Obj mY(&oa);  const Obj& Y = mY;
@@ -807,7 +809,8 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                const bdlt::Datetime DT = bdlt::EpochUtil::convertFromTimeT64(1);
+                const bdlt::Datetime DT =
+                                        bdlt::EpochUtil::convertFromTimeT64(1);
 
                 Obj mX(&oa);  const Obj& X = gg(&mX, "nD");
                 Obj mY(&oa);  const Obj& Y = gg(&mY, "xA");
@@ -1794,11 +1797,9 @@ int main(int argc, char *argv[])
         //   const bsl::string& identifier() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "'baltzo::Zoneinfo' 'setIdentifier' & 'identifier'"
-                          << endl
-                          << "================================================"
-                          << endl;
+        if (verbose)
+            cout << "\n'baltzo::Zoneinfo' 'setIdentifier' & 'identifier'"
+                 << "\n=================================================\n";
 
         if (verbose) cout <<
            "\nInstall an allocator as the default." << endl;
@@ -3389,7 +3390,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   baltzo::Zoneinfo(bslma::Allocator *bA = 0);
-        //   void addTransition(TimeT64 time, const baetzo::LTD& d);
+        //   void addTransition(TimeT64 time, const baltzo::LTD& d);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4019,11 +4020,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

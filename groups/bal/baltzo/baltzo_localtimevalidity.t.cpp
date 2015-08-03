@@ -167,12 +167,12 @@ int main(int argc, char *argv[])
 // The following snippets of code provide a simple illustration of
 // 'baltzo::LocalTimeValidity' usage.
 //
-// First, we create a variable 'value' of type 'baltzo::LocalTimeValidity::Enum'
-// and initialize it with the enumerator value
-// 'baltzo::LocalTimeValidity::BAETZO_VALID_AMBIGUOUS':
+// First, we create a variable 'value' of type
+// 'baltzo::LocalTimeValidity::Enum' and initialize it with the enumerator
+// value 'baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS':
 //..
    baltzo::LocalTimeValidity::Enum value =
-                             baltzo::LocalTimeValidity::BAETZO_VALID_AMBIGUOUS;
+                             baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -261,9 +261,9 @@ if (veryVerbose)
         } DATA[] = {
             //line       enumerator value              expected result
             //----    ----------------------          -----------------
-            { L_,     Obj::BAETZO_VALID_UNIQUE,       "VALID_UNIQUE"     },
-            { L_,     Obj::BAETZO_VALID_AMBIGUOUS,    "VALID_AMBIGUOUS"  },
-            { L_,     Obj::BAETZO_INVALID,            "INVALID"          },
+            { L_,     Obj::BALTZO_VALID_UNIQUE,       "VALID_UNIQUE"     },
+            { L_,     Obj::BALTZO_VALID_AMBIGUOUS,    "VALID_AMBIGUOUS"  },
+            { L_,     Obj::BALTZO_INVALID,            "INVALID"          },
 
             { L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT     },
             { L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
@@ -273,6 +273,12 @@ if (veryVerbose)
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) cout << "\nTesting '<<' operator." << endl;
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        ASSERT(Obj::BAETZO_VALID_UNIQUE    == Obj::BALTZO_VALID_UNIQUE);
+        ASSERT(Obj::BAETZO_VALID_AMBIGUOUS == Obj::BALTZO_VALID_AMBIGUOUS);
+        ASSERT(Obj::BAETZO_INVALID         == Obj::BALTZO_INVALID);
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE  = DATA[ti].d_lineNum;
@@ -387,25 +393,25 @@ if (veryVerbose)
 #define NL "\n"
             //line level spl    enumerator value           expected result
             //---- ----- --- ----------------------       -----------------
-            { L_,    0,   4, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
-            { L_,    0,   4, Obj::BAETZO_VALID_AMBIGUOUS,
+            { L_,    0,   4, Obj::BALTZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    0,   4, Obj::BALTZO_VALID_AMBIGUOUS,
                                                         "VALID_AMBIGUOUS" NL },
-            { L_,    0,   4, Obj::BAETZO_INVALID,        "INVALID" NL        },
+            { L_,    0,   4, Obj::BALTZO_INVALID,        "INVALID" NL        },
 
             { L_,    0,   4, (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL  },
             { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL  },
 
-            { L_,    0,  -1, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE"      },
-            { L_,    0,   0, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
-            { L_,    0,   2, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
-            { L_,    1,   1, Obj::BAETZO_VALID_UNIQUE,   " VALID_UNIQUE" NL  },
-            { L_,    1,   2, Obj::BAETZO_VALID_UNIQUE,   "  VALID_UNIQUE" NL },
-            { L_,   -1,   2, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
-            { L_,   -2,   1, Obj::BAETZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
-            { L_,    2,   1, Obj::BAETZO_VALID_UNIQUE,   "  VALID_UNIQUE" NL },
-            { L_,    1,   3, Obj::BAETZO_VALID_UNIQUE,   "   VALID_UNIQUE" NL},
+            { L_,    0,  -1, Obj::BALTZO_VALID_UNIQUE,   "VALID_UNIQUE"      },
+            { L_,    0,   0, Obj::BALTZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    0,   2, Obj::BALTZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    1,   1, Obj::BALTZO_VALID_UNIQUE,   " VALID_UNIQUE" NL  },
+            { L_,    1,   2, Obj::BALTZO_VALID_UNIQUE,   "  VALID_UNIQUE" NL },
+            { L_,   -1,   2, Obj::BALTZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,   -2,   1, Obj::BALTZO_VALID_UNIQUE,   "VALID_UNIQUE" NL   },
+            { L_,    2,   1, Obj::BALTZO_VALID_UNIQUE,   "  VALID_UNIQUE" NL },
+            { L_,    1,   3, Obj::BALTZO_VALID_UNIQUE,   "   VALID_UNIQUE" NL},
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -519,9 +525,9 @@ if (veryVerbose)
         } DATA[] = {
             // line         enumerator value            expected result
             // ----    ---------------------------     -----------------
-            {  L_,     Obj::BAETZO_VALID_UNIQUE,       "VALID_UNIQUE"     },
-            {  L_,     Obj::BAETZO_VALID_AMBIGUOUS,    "VALID_AMBIGUOUS"  },
-            {  L_,     Obj::BAETZO_INVALID,            "INVALID"          },
+            {  L_,     Obj::BALTZO_VALID_UNIQUE,       "VALID_UNIQUE"     },
+            {  L_,     Obj::BALTZO_VALID_AMBIGUOUS,    "VALID_AMBIGUOUS"  },
+            {  L_,     Obj::BALTZO_INVALID,            "INVALID"          },
 
             {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT     },
             {  L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
@@ -583,10 +589,17 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

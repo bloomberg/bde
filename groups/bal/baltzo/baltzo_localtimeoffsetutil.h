@@ -139,6 +139,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_currenttime.h>
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIME
+#include <bdlt_datetime.h>
+#endif
+
 #ifndef INCLUDED_BDLQQ_RWMUTEX
 #include <bdlqq_rwmutex.h>
 #endif
@@ -152,21 +156,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
-
 namespace baltzo {
-                        // =================================
+                        // ==========================
                         // struct LocalTimeOffsetUtil
-                        // =================================
+                        // ==========================
 
 struct LocalTimeOffsetUtil {
     // This 'struct' provides a namespace for a 'bdetu_systemtime' local time
@@ -178,7 +171,7 @@ struct LocalTimeOffsetUtil {
     static bsls::AtomicInt s_updateCount;
 
     // PRIVATE CLASS METHODS
-    static int configureImp(const char           *timezone,
+    static int configureImp(const char            *timezone,
                             const bdlt::Datetime&  utcDatetime);
         // Set the local time period information used by the
         // 'loadLocalTimeOffset' method according to the specified 'timezone'
@@ -203,17 +196,17 @@ struct LocalTimeOffsetUtil {
                         // *** local time offset methods ***
 
     static bsls::TimeInterval localTimeOffset(
-                                           const bdlt::Datetime&  utcDatetime);
+                                            const bdlt::Datetime& utcDatetime);
         // Return the offset of the local time from UTC for the specified
         // 'utcDatetime'.  This function is thread-safe.  The behavior is
         // undefined unless the local time zone has been previously established
         // by a call to the 'configure' method.  This method *is* thread-safe.
 
     static bdlt::LocalTimeOffset::LocalTimeOffsetCallback
-                                             setLoadLocalTimeOffsetCallback();
+                                              setLoadLocalTimeOffsetCallback();
         // Set 'loadLocalTimeOffset' as the local time offset callback of
-        // 'bdlt::CurrentTime'.  Return the previously installed callback.  This
-        // method is *not* thread-safe.
+        // 'bdlt::CurrentTime'.  Return the previously installed callback.
+        // This method is *not* thread-safe.
 
                         // *** configure methods ***
 
@@ -232,7 +225,7 @@ struct LocalTimeOffsetUtil {
         // current UTC datetime.  Return 0 on success, and a non-zero value
         // otherwise.  This method is *not* thread-safe.
 
-    static int configure(const char           *timezone,
+    static int configure(const char            *timezone,
                          const bdlt::Datetime&  utcDatetime);
         // Set the local time period information used by the
         // 'loadLocalTimeOffset' method to that for the specified 'timezone' at
@@ -266,13 +259,15 @@ struct LocalTimeOffsetUtil {
         // *is* thread-safe.
 };
 
+}  // close package namespace
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------------
+                        // --------------------------
                         // struct LocalTimeOffsetUtil
-                        // ---------------------------------
+                        // --------------------------
 
 // CLASS METHODS
 
@@ -280,31 +275,37 @@ struct LocalTimeOffsetUtil {
 
 inline
 bdlt::LocalTimeOffset::LocalTimeOffsetCallback
-LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
+baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
 {
     return bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
-                                      &LocalTimeOffsetUtil::localTimeOffset);
+                                        &LocalTimeOffsetUtil::localTimeOffset);
 }
 
                         // *** accessor methods ***
 
 inline
-int LocalTimeOffsetUtil::updateCount()
+int baltzo::LocalTimeOffsetUtil::updateCount()
 {
     return s_updateCount;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

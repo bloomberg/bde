@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Implementing 'baltzo::Loader'
 ///- - - - - - - - - - - - - - - - - - - -
-// This example demonstrates an implementation of 'baltzo::Loader' that can only
-// return data for "America/New_York".
+// This example demonstrates an implementation of 'baltzo::Loader' that can
+// only return data for "America/New_York".
 //
 // Note that in general, an implementation of 'baltzo::Loader' should obtain
 // time-zone information from an external data source (see
@@ -47,10 +47,10 @@ BSLS_IDENT("$Id: $")
 // First, we define the interface of our implementation:
 //..
 //  class MyLoaderImp : public baltzo::Loader {
-//      // This class provides a concrete implementation of the 'baltzo::Loader'
-//      // protocol (an abstract interface) for obtaining a time zone.  This
-//      // test implementation contains only partial data of the
-//      // "America/New_York" time zone, and is unable to obtain time-zone
+//      // This class provides a concrete implementation of the
+//      // 'baltzo::Loader' protocol (an abstract interface) for obtaining a
+//      // time zone.  This test implementation contains only partial data of
+//      // the "America/New_York" time zone, and is unable to obtain time-zone
 //      // information for any other time zones.
 //
 //    public:
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      virtual int loadTimeZone(baltzo::Zoneinfo *result,
-//                               const char      *timeZoneId);
+//                               const char       *timeZoneId);
 //          // Load into the specified 'result' the "Zoneinfo" time zone
 //          // information for the time zone identified by the specified
 //          // 'timeZoneId'.  Return 0 on success, and non-zero otherwise.
@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 // Next, we implement the 'loadTimeZone' function:
 //..
 //  int MyLoaderImp::loadTimeZone(baltzo::Zoneinfo *result,
-//                                 const char      *timeZoneId)
+//                                const char       *timeZoneId)
 //  {
 //..
 // Then, we check the 'timeZoneId' equals to "America/New_York" as this
@@ -130,11 +130,11 @@ BSLS_IDENT("$Id: $")
 //
 //      for (int i = 0; i < NUM_TRANSITION_TIMES; i += 2) {
 //          result->addTransition(
-//               bdlt::EpochUtil::convertToTimeT64(TRANSITION_TIMES[i]),
-//               edt);
+//                      bdlt::EpochUtil::convertToTimeT64(TRANSITION_TIMES[i]),
+//                      edt);
 //          result->addTransition(
-//           bdlt::EpochUtil::convertToTimeT64(TRANSITION_TIMES[i + 1]),
-//           est);
+//                  bdlt::EpochUtil::convertToTimeT64(TRANSITION_TIMES[i + 1]),
+//                  est);
 //      }
 //      return 0;
 //  }
@@ -148,7 +148,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 ///Example 2: Using a 'baltzo::Loader'
-/// - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - -
 // In this example we use a 'MyLoaderImpl' to load the data for one time zone,
 // and print the time transitions, contained in the obtained time zone data, to
 // standard output.  Note that, the implementation of this example is for
@@ -181,7 +181,7 @@ BSLS_IDENT("$Id: $")
 //                                               nyTimeZone.beginTransitions();
 //  for (; tIt != nyTimeZone.endTransitions(); ++tIt) {
 //     bdlt::Datetime transition =
-//                   bdlt::EpochUtil::convertFromTimeT64(tIt->utcTransitionTime());
+//               bdlt::EpochUtil::convertFromTimeT64(tIt->utcTransitionTime());
 //     const baltzo::LocalTimeDescriptor& descriptor = tIt->descriptor();
 //
 //     bsl::cout << "transition to "
@@ -211,13 +211,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace baltzo {
 
+class Zoneinfo;
 
-namespace baltzo {class Zoneinfo;
-
-                        // ===================
-                        // class Loader
-                        // ===================
+                                // ============
+                                // class Loader
+                                // ============
 
 class Loader {
     // This class provides a protocol (a pure abstract interface) for loading a
@@ -229,12 +229,11 @@ class Loader {
         // Destroy this object.
 
     // MANIPULATORS
-    virtual int loadTimeZone(Zoneinfo *result,
-                             const char      *timeZoneId) = 0;
+    virtual int loadTimeZone(Zoneinfo *result, const char *timeZoneId) = 0;
         // Load into the specified 'result' the time zone information for the
         // time zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.  If an error occurs during this
         // operation, 'result' will be left in a valid, but otherwise
         // unspecified state.  On return, 'result' will be well-formed (see
@@ -243,21 +242,24 @@ class Loader {
         // constraints will not be usable by other other components in this
         // package -- e.g., 'baltzo_zoneinfocache').
 };
+
 }  // close package namespace
-
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
