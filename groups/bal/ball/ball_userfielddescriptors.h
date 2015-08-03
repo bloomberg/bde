@@ -29,6 +29,14 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfieldtype.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_TUSESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #include <bsl_unordered_map.h>
 #endif
@@ -63,8 +71,8 @@ class UserFieldDescriptors {
 
   public:
     // TYPES
-    BSLALG_DECLARE_NESTED_TRAITS(UserFieldDescriptors,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFieldDescriptors,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit UserFieldDescriptors(bslma::Allocator *basicAllocator = 0);
