@@ -38,15 +38,15 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'baem_MetricRegistry' is a mechanism for registering category and
+// The 'balm::MetricRegistry' is a mechanism for registering category and
 // metric identifiers.  This test must ensure that values can be added and
 // found and that the container is thread safe.  Finally, this container
 // guarantees a single address is provided for each unique string value
 // returned (in either a metric name or category name).
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2]  baem_MetricRegistry(bslma::Allocator *);
-// [ 2]  ~baem_MetricRegistry();
+// [ 2]  balm::MetricRegistry(bslma::Allocator *);
+// [ 2]  ~balm::MetricRegistry();
 // MANIPULATORS
 // [ 2]  balm::MetricId addId(const bslstl::StringRef& , const bslstl::StringRef& );
 // [ 3]  balm::MetricId getId(const bslstl::StringRef& , const bslstl::StringRef& );
@@ -134,7 +134,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef balm::Category         Cat;
 typedef balm::MetricId         Id;
-typedef baem_MetricRegistry   Obj;
+typedef balm::MetricRegistry   Obj;
 typedef balm::PublicationType  Type;
 typedef balm::MetricFormat     Format;
 typedef balm::MetricFormatSpec Spec;
@@ -180,7 +180,7 @@ class ConcurrencyTest {
     // DATA
     bdlmt::FixedThreadPool      d_pool;
     bdlqq::Barrier             d_barrier;
-    baem_MetricRegistry      *d_registry_p;
+    balm::MetricRegistry      *d_registry_p;
     bslma::Allocator         *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -191,7 +191,7 @@ class ConcurrencyTest {
 
     // CREATORS
     ConcurrencyTest(int                  numThreads,
-                    baem_MetricRegistry *registry,
+                    balm::MetricRegistry *registry,
                     bslma::Allocator    *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_barrier(numThreads)
@@ -228,13 +228,13 @@ void ConcurrencyTest::execute()
     bslma::TestAllocator cAlloc;
     balm::MetricFormat formatA(&cAlloc);
     balm::MetricFormat formatB(&cAlloc);
-    formatB.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
+    formatB.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
     balm::MetricFormat formatC(&cAlloc);
-    formatC.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
-    formatC.setFormatSpec(Type::BAEM_AVG, Spec(1.0, "%d"));
+    formatC.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
+    formatC.setFormatSpec(Type::e_BALM_AVG, Spec(1.0, "%d"));
     balm::MetricFormat formatD(&cAlloc);
-    formatD.setFormatSpec(Type::BAEM_MIN, Spec(2.0, "%f"));
-    formatD.setFormatSpec(Type::BAEM_MAX, Spec(2.0, "%d"));
+    formatD.setFormatSpec(Type::e_BALM_MIN, Spec(2.0, "%f"));
+    formatD.setFormatSpec(Type::e_BALM_MAX, Spec(2.0, "%d"));
 
     const balm::MetricFormat *FORMATS[] = {
         &formatA,
@@ -244,13 +244,13 @@ void ConcurrencyTest::execute()
     };
     const int NUM_FORMATS = sizeof FORMATS / sizeof *FORMATS;
 
-    Type::Value TYPES[] = { Type::BAEM_TOTAL,
-                            Type::BAEM_COUNT,
-                            Type::BAEM_MIN,
-                            Type::BAEM_MAX,
-                            Type::BAEM_AVG,
-                            Type::BAEM_RATE,
-                            Type::BAEM_UNSPECIFIED
+    Type::Value TYPES[] = { Type::e_BALM_TOTAL,
+                            Type::e_BALM_COUNT,
+                            Type::e_BALM_MIN,
+                            Type::e_BALM_MAX,
+                            Type::e_BALM_AVG,
+                            Type::e_BALM_RATE,
+                            Type::e_BALM_UNSPECIFIED
     };
     const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
 
@@ -491,13 +491,13 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example illustrates how to create and use a
-// 'baem_MetricRegistry'.  We start by creating a 'baem_MetricRegistry' object,
+// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry' object,
 // 'registry', and then using this registry to create a 'balm::MetricId' for a
 // metric "MetricA" belonging to the category "MyCategory" (i.e.,
 // "MyCategory.MetricA").
 //..
     bslma::Allocator    *allocator = bslma::Default::allocator(0);
-    baem_MetricRegistry  registry(allocator);
+    balm::MetricRegistry  registry(allocator);
 
     balm::MetricId idA = registry.addId("MyCategory", "MetricA");
 //..
@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bslma::TestAllocator testAllocator;
-        baem_MetricRegistry registry(&testAllocator);;
+        balm::MetricRegistry registry(&testAllocator);;
         {
             ConcurrencyTest tester(10, &registry, &defaultAllocator);
             tester.runTest();
@@ -890,13 +890,13 @@ int main(int argc, char *argv[])
         bslma::TestAllocator cAlloc;
         balm::MetricFormat formatA(&cAlloc);
         balm::MetricFormat formatB(&cAlloc);
-        formatB.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
+        formatB.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
         balm::MetricFormat formatC(&cAlloc);
-        formatC.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
-        formatC.setFormatSpec(Type::BAEM_AVG, Spec(1.0, "%d"));
+        formatC.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
+        formatC.setFormatSpec(Type::e_BALM_AVG, Spec(1.0, "%d"));
         balm::MetricFormat formatD(&cAlloc);
-        formatD.setFormatSpec(Type::BAEM_MIN, Spec(2.0, "%f"));
-        formatD.setFormatSpec(Type::BAEM_MAX, Spec(2.0, "%d"));
+        formatD.setFormatSpec(Type::e_BALM_MIN, Spec(2.0, "%f"));
+        formatD.setFormatSpec(Type::e_BALM_MAX, Spec(2.0, "%d"));
 
         const balm::MetricFormat *FORMATS[] = {
             &formatA,
@@ -943,8 +943,8 @@ int main(int argc, char *argv[])
             ASSERT(*f1 == *f2);
 
             // Verify the strings are shared.
-            ASSERT(f1->formatSpec(Type::BAEM_TOTAL)->format() ==
-                   f2->formatSpec(Type::BAEM_TOTAL)->format());
+            ASSERT(f1->formatSpec(Type::e_BALM_TOTAL)->format() ==
+                   f2->formatSpec(Type::e_BALM_TOTAL)->format());
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
       case 10: {
@@ -983,13 +983,13 @@ int main(int argc, char *argv[])
         };
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
-        Type::Value TYPES[] = { Type::BAEM_TOTAL,
-                                Type::BAEM_COUNT,
-                                Type::BAEM_MIN,
-                                Type::BAEM_MAX,
-                                Type::BAEM_AVG,
-                                Type::BAEM_RATE,
-                                Type::BAEM_UNSPECIFIED
+        Type::Value TYPES[] = { Type::e_BALM_TOTAL,
+                                Type::e_BALM_COUNT,
+                                Type::e_BALM_MIN,
+                                Type::e_BALM_MAX,
+                                Type::e_BALM_AVG,
+                                Type::e_BALM_RATE,
+                                Type::e_BALM_UNSPECIFIED
         };
         const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
 
@@ -999,7 +999,7 @@ int main(int argc, char *argv[])
             const char *NAME = METRICS[i].d_name;
 
             balm::MetricId id = mX.addId(CAT, NAME);
-            ASSERT(Type::BAEM_UNSPECIFIED ==
+            ASSERT(Type::e_BALM_UNSPECIFIED ==
                    id.description()->preferredPublicationType());
 
             for (int j = 0; j < NUM_TYPES; ++j) {
@@ -1732,14 +1732,14 @@ int main(int argc, char *argv[])
         //   the modification.
         //
         // Testing:
-        //   baem_MetricRegistry(bslma::Allocator *);
-        //   ~baem_MetricRegistry();
-        //   balm::MetricId addId(const bslstl::StringRef& ,
+        //   MetricRegistry(bslma::Allocator *);
+        //   ~MetricRegistry();
+        //   MetricId addId(const bslstl::StringRef& ,
         //                       const bslstl::StringRef& );
-        //   const balm::Category *addCategory(const bslstl::StringRef& );
+        //   const Category *addCategory(const bslstl::StringRef& );
         //   bsl::size_t numMetrics() const;
         //   bsl::size_t numCategories() const;
-        //   balm::MetricId findId(const bslstl::StringRef& ,
+        //   MetricId findId(const bslstl::StringRef& ,
         //                        const bslstl::StringRef& ) const;
         //   const balm::Category *findCategory(const bslstl::StringRef& ) const;
         // --------------------------------------------------------------------

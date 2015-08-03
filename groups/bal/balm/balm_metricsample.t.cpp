@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
 // We start by initializing several 'balm::MetricRecord' values that we will add
 // to the sample.  Note that in this example we create the 'balm::MetricId'
 // objects by hand; however, in practice ids should be obtained from a
-// 'baem_MetricRegistry' object (such as the one owned by a
+// 'balm::MetricRegistry' object (such as the one owned by a
 // 'balm::MetricsManager').
 //..
     bslma::Allocator    *allocator = bslma::Default::allocator(0);

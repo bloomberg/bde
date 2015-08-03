@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 // 'EventManager' object (defined above).
 //
 // We start by creating a 'balm::MetricId' object by hand, but in
-// practice, an id should be obtained from a 'baem_MetricRegistry' object
+// practice, an id should be obtained from a 'balm::MetricRegistry' object
 // (such as the one owned by a 'balm::MetricsManager').
 //..
     balm::Category           myCategory("MyCategory");

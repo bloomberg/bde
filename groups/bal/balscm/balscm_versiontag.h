@@ -26,21 +26,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// At compile time, the version of BAE can be used to select an older or newer
+// At compile time, the version of BAL can be used to select an older or newer
 // way to accomplish a task, to enable new functionality, or to accommodate an
 // interface change.  For example, if the name of a function changes (a rare
 // occurrence, but potentially disruptive when it does happen), the impact on
 // affected code can be minimized by conditionally calling the function by its
 // old or new name using conditional compilation.  In the following, the '#if'
-// preprocessor directive compares 'BAL_VERSION' (i.e., the latest BAE version,
+// preprocessor directive compares 'BAL_VERSION' (i.e., the latest BAL version,
 // excluding the patch version) to a specified major and minor version composed
 // using the 'BSL_MAKE_VERSION' macro:
 //..
 //  #if BAL_VERSION > BSL_MAKE_VERSION(1, 3)
-//      // Call 'newFunction' for BAE versions later than 1.3.
+//      // Call 'newFunction' for BAL versions later than 1.3.
 //      int result = newFunction();
 //  #else
-//      // Call 'oldFunction' for BAE version 1.3 or earlier.
+//      // Call 'oldFunction' for BAL version 1.3 or earlier.
 //      int result = oldFunction();
 //  #endif
 //..
@@ -50,19 +50,19 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #define BAL_VERSION_MAJOR BSL_VERSION_MAJOR
-    // BAE release major version
+    // BAL release major version
 
 #define BAL_VERSION_MINOR BSL_VERSION_MINOR
-    // BAE release major version
+    // BAL release major version
 
 #define BAL_VERSION BSL_MAKE_VERSION(BAL_VERSION_MAJOR, \
                                      BAL_VERSION_MINOR)
     // Construct a composite version number in the range [ 0 .. 999900 ] from
     // the specified 'BAL_VERSION_MAJOR' and 'BAL_VERSION_MINOR' numbers
     // corresponding to the major and minor version numbers, respectively, of
-    // the current (latest) BAE release.  Note that the patch version number is
+    // the current (latest) BAL release.  Note that the patch version number is
     // intentionally not included.  For example, 'BAL_VERSION' produces 10300
-    // (decimal) for BAE version 1.3.1.
+    // (decimal) for BAL version 1.3.1.
 
 #endif
 

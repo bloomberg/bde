@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // values, then collects a 'balm::MetricRecord'.
 //
 // We start by creating a 'balm::MetricId' object by hand, but in practice,
-// an id should be obtained from a 'baem_MetricRegistry' object (such as the
+// an id should be obtained from a 'balm::MetricRegistry' object (such as the
 // one owned by a 'balm::MetricsManager'):
 //..
 //  balm::Category           myCategory("MyCategory");
@@ -70,6 +70,10 @@ BSLS_IDENT("$Id: $")
 //      assert(3        == record.max());
 //..
 
+#ifndef INCLUDED_BSL_UTILITY
+#include <bsl_algorithm.h>
+#endif
+
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
 #endif
@@ -82,12 +86,12 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricrecord.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -108,8 +112,8 @@ class IntegerCollector {
     // collected, the number of times an event occurred, and the total,
     // minimum, and maximum aggregates of the associated measurement value.
     // The default value for the count is 0, the default value for the total
-    // is 0, the default value for the minimum is 'DEFAULT_MIN', and the
-    // default value for the maximum is 'DEFAULT_MAX'.
+    // is 0, the default value for the minimum is 'k_DEFAULT_MIN', and the
+    // default value for the maximum is 'k_DEFAULT_MAX'.
 
     // DATA
     MetricId       d_metricId;  // metric identifier
@@ -125,14 +129,18 @@ class IntegerCollector {
 
   public:
     // PUBLIC CONSTANTS
-    static const int DEFAULT_MIN;  // default minimum value (INT_MAX)
-    static const int DEFAULT_MAX;  // default maximum value (INT_MIN)
+    static const int k_DEFAULT_MIN;  // default minimum value (INT_MAX)
+    static const int k_DEFAULT_MAX;  // default maximum value (INT_MIN)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    static const int DEFAULT_MIN;
+    static const int DEFAULT_MAX;
+#endif
 
     // CREATORS
     IntegerCollector(const MetricId& metricId);
         // Create an integer collector for a metric having the specified
         // 'metricId', and having an initial count of 0, total of 0, min of
-        // 'DEFAULT_MIN', and max of 'DEFAULT_MAX'.
+        // 'k_DEFAULT_MIN', and max of 'k_DEFAULT_MAX'.
 
     ~IntegerCollector();
         // Destroy this object.
@@ -142,7 +150,7 @@ class IntegerCollector {
         // Reset the count, total, minimum, and maximum values of the metric
         // being collected to their default states.  After this operation, the
         // count and total values will be 0, the minimum value will be
-        // 'DEFAULT_MIN', and the maximum value will be 'DEFAULT_MAX'.
+        // 'k_DEFAULT_MIN', and the maximum value will be 'k_DEFAULT_MAX'.
 
     void loadAndReset(MetricRecord *records);
         // Load into the specified 'record' the id of the metric being
@@ -150,14 +158,14 @@ class IntegerCollector {
         // aggregated values for that metric; then reset the count, total,
         // minimum, and maximum values to their default states.  After this
         // operation, the count and total values will be 0, the minimum value
-        // will be 'DEFAULT_MIN', and the maximum value will be 'DEFAULT_MAX'.
-        // Note that 'DEFAULT_MIN != MetricRecord::DEFAULT_MIN' and
-        // 'DEFAULT_MAX != MetricRecord::DEFAULT_MAX'; when populating
+        // will be 'k_DEFAULT_MIN', and the maximum value will be 'k_DEFAULT_MAX'.
+        // Note that 'k_DEFAULT_MIN != MetricRecord::k_DEFAULT_MIN' and
+        // 'k_DEFAULT_MAX != MetricRecord::k_DEFAULT_MAX'; when populating
         // 'record', this operation will convert default values for minimum
-        // and maximum.  A minimum value of 'DEFAULT_MIN' will populate a
-        // minimum value of 'MetricRecord::DEFAULT_MIN' and a maximum
-        // value of 'DEFAULT_MAX' will populate a maximum value of
-        // 'MetricRecord::DEFAULT_MAX'.
+        // and maximum.  A minimum value of 'k_DEFAULT_MIN' will populate a
+        // minimum value of 'MetricRecord::k_DEFAULT_MIN' and a maximum
+        // value of 'k_DEFAULT_MAX' will populate a maximum value of
+        // 'MetricRecord::k_DEFAULT_MAX'.
 
     void update(int value);
         // Increment the event count by 1, add the specified 'value' to the
@@ -186,13 +194,13 @@ class IntegerCollector {
         // Load into the specified 'record' the id of the metric being
         // collected, as well as the current count, total, minimum, and
         // maximum aggregated values for the metric.  Note that
-        // 'DEFAULT_MIN != MetricRecord::DEFAULT_MIN' and
-        // 'DEFAULT_MAX != MetricRecord::DEFAULT_MAX'; when populating
+        // 'k_DEFAULT_MIN != MetricRecord::k_DEFAULT_MIN' and
+        // 'k_DEFAULT_MAX != MetricRecord::k_DEFAULT_MAX'; when populating
         // 'record', this operation will convert default values for minimum
-        // and maximum.  A minimum value of 'DEFAULT_MIN' will populate a
-        // minimum value of 'MetricRecord::DEFAULT_MIN' and a maximum
-        // value of 'DEFAULT_MAX' will populate a maximum value of
-        // 'MetricRecord::DEFAULT_MAX'.
+        // and maximum.  A minimum value of 'k_DEFAULT_MIN' will populate a
+        // minimum value of 'MetricRecord::k_DEFAULT_MIN' and a maximum
+        // value of 'k_DEFAULT_MAX' will populate a maximum value of
+        // 'MetricRecord::k_DEFAULT_MAX'.
 };
 
 // ===========================================================================
@@ -209,8 +217,8 @@ IntegerCollector::IntegerCollector(const MetricId& metricId)
 : d_metricId(metricId)
 , d_count(0)
 , d_total(0)
-, d_min(DEFAULT_MIN)
-, d_max(DEFAULT_MAX)
+, d_min(k_DEFAULT_MIN)
+, d_max(k_DEFAULT_MAX)
 , d_mutex()
 {
 }
@@ -227,8 +235,8 @@ void IntegerCollector::reset()
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
     d_count = 0;
     d_total = 0;
-    d_min   = DEFAULT_MIN;
-    d_max   = DEFAULT_MAX;
+    d_min   = k_DEFAULT_MIN;
+    d_max   = k_DEFAULT_MAX;
 }
 
 inline

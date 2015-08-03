@@ -14,10 +14,16 @@ namespace BloombergLP {
                           // -----------------------
 
 // PUBLIC CONSTANTS
+const double balm::MetricRecord::k_DEFAULT_MIN =
+                                       bsl::numeric_limits<double>::infinity();
+const double balm::MetricRecord::k_DEFAULT_MAX =
+                                      -bsl::numeric_limits<double>::infinity();
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const double balm::MetricRecord::DEFAULT_MIN =
                                        bsl::numeric_limits<double>::infinity();
 const double balm::MetricRecord::DEFAULT_MAX =
                                       -bsl::numeric_limits<double>::infinity();
+#endif
 
 namespace balm {
 // ACCESSORS

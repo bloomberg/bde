@@ -113,14 +113,14 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //..
 // Now we create a 'balm::MetricRecord' to hold the aggregated metrics values.
 // Note that we create a 'balm::MetricId' object by hand, but in practice
-// an id should be obtained from a 'baem_MetricRegistry' object (such as the
+// an id should be obtained from a 'balm::MetricRegistry' object (such as the
 // one owned by a 'balm::MetricsManager').
 //..
 //  balm::Category           myCategory("MyCategory");
 //  balm::MetricDescription  description(&myCategory, "RequestSize");
 //  balm::MetricId           requestSizeId(&description);
 //
-//  // In practice, obtain 'requestSizeId' from a 'baem_MetricRegistry' object.
+//  // In practice, get 'requestSizeId' from a 'balm::MetricRegistry' object.
 //  balm::MetricRecord requestSize(requestSizeId);
 //..
 // Finally we retrieve the information about the request sizes of the
@@ -161,8 +161,8 @@ class MetricRecord {
     // has occurred as well as the minimum, maximum, and total of the measured
     // value.  The default 'metricId' is the invalid id value, the default
     // 'count' is 0, the default 'total' is 0.0, the default 'min' is the
-    // defined 'DEFAULT_MIN' constant (the representation for positive
-    // infinity), and the default 'max' is the defined 'DEFAULT_MAX' constant
+    // defined 'k_DEFAULT_MIN' constant (the representation for positive
+    // infinity), and the default 'max' is the defined 'k_DEFAULT_MAX' constant
     // (the representation for negative infinity).
 
     // DATA
@@ -174,8 +174,12 @@ class MetricRecord {
 
   public:
     // PUBLIC CONSTANTS
-    static const double DEFAULT_MIN;    // default minimum value
-    static const double DEFAULT_MAX;    // default maximum value
+    static const double k_DEFAULT_MIN;    // default minimum value
+    static const double k_DEFAULT_MAX;    // default maximum value
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    static const double DEFAULT_MIN;
+    static const double DEFAULT_MAX;
+#endif
 
     // CREATORS
     MetricRecord();
@@ -183,17 +187,17 @@ class MetricRecord {
         // 'metricId', 'count', 'total', 'min', and 'max' attributes.  The
         // default 'metricId' is the invalid id value, the default 'count' is
         // 0, the default 'total' is 0.0,  the default 'min' is the defined
-        // 'DEFAULT_MIN' constant (the representation for positive infinity),
-        // and the default 'max' is the defined 'DEFAULT_MAX' constant (the
+        // 'k_DEFAULT_MIN' constant (the representation for positive infinity),
+        // and the default 'max' is the defined 'k_DEFAULT_MAX' constant (the
         // representation for negative infinity).
 
     MetricRecord(const MetricId& metricId);
         // Create a metric record having the specified 'metricId',
         // and default values for the 'total', 'count', 'min', and 'max'
         // attributes.  The default 'count' is 0, the default 'total' is 0.0,
-        // the default 'min' is the defined 'DEFAULT_MIN' constant (the
+        // the default 'min' is the defined 'k_DEFAULT_MIN' constant (the
         // representation for positive infinity), and the default 'max' is the
-        // defined 'DEFAULT_MAX' constant (the representation for negative
+        // defined 'k_DEFAULT_MAX' constant (the representation for negative
         // infinity).
 
     MetricRecord(const MetricId& metricId,
@@ -299,8 +303,8 @@ MetricRecord::MetricRecord()
 : d_metricId()
 , d_count(0)
 , d_total(0.0)
-, d_min(DEFAULT_MIN)
-, d_max(DEFAULT_MAX)
+, d_min(k_DEFAULT_MIN)
+, d_max(k_DEFAULT_MAX)
 {
 }
 
@@ -309,8 +313,8 @@ MetricRecord::MetricRecord(const MetricId& metricId)
 : d_metricId(metricId)
 , d_count(0)
 , d_total(0.0)
-, d_min(DEFAULT_MIN)
-, d_max(DEFAULT_MAX)
+, d_min(k_DEFAULT_MIN)
+, d_max(k_DEFAULT_MAX)
 {
 }
 

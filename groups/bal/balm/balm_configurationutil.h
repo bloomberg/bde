@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 //      balm::ConfigurationUtil::setPreferredPublicationType(
 //                                             "myCategory",
 //                                             "avgElapsedTimeMs",
-//                                             balm::PublicationType::BAEM_AVG);
+//                                          balm::PublicationType::e_BALM_AVG);
 //..
 // Next, because we will record the elapsed time in seconds, we configure a
 // format to scale the elapsed time by 1000.0:
@@ -66,12 +66,12 @@ BSLS_IDENT("$Id: $")
 //     balm::ConfigurationUtil::setFormatSpec(
 //                                    "myCategory",
 //                                    "avgElapsedTimeMs",
-//                                    balm::PublicationType::BAEM_AVG,
-//                                    balm::MetricFormatSpec(1000.0, "%.2f ms");
+//                                    balm::PublicationType::e_BALM_AVG,
+//                                   balm::MetricFormatSpec(1000.0, "%.2f ms");
 //..
 // We now collect an example value of .005:
 //..
-//     BAEM_METRIC_UPDATE("myCategory", "avgElapsedTimeMs", .005);
+//     BALM_METRIC_UPDATE("myCategory", "avgElapsedTimeMs", .005);
 //..
 // Finally, we publish the metric.  Note that in practice, clients of
 // the 'baem' package can use the 'balm::PublicationScheduler' to schedule the
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // CREATORS
 //  ThresholdPublisher::ThresholdPublisher(
-//                            balm::MetricDescription::UserDataKey thresholdKey)
+//                           balm::MetricDescription::UserDataKey thresholdKey)
 //  : d_thresholdKey(thresholdKey)
 //  {
 //  }
@@ -192,7 +192,7 @@ BSLS_IDENT("$Id: $")
 // Now we create a user data key for our threshold information:
 //..
 //      balm::MetricDescription::UserDataKey thresholdKey =
-//                                 balm::ConfigurationUtil::createUserDataKey();
+//                                balm::ConfigurationUtil::createUserDataKey();
 //..
 // Next we create an object of our application-specific publisher type,
 // 'ThresholdPublisher', and configure the default metrics manager to publish
@@ -201,7 +201,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::shared_ptr<balm::Publisher> publisher(
 //            new (*allocator) ThresholdPublisher(thresholdKey),
 //            allocator);
-//      balm::DefaultMetricsManager::instance()->addGeneralPublisher(publisher);
+//     balm::DefaultMetricsManager::instance()->addGeneralPublisher(publisher);
 //..
 // Next we configure two metric thresholds:
 //..
@@ -288,7 +288,7 @@ struct ConfigurationUtil {
         // manager has not been initialized.  If a 'MetricId' does not
         // exist for the specified 'category' and 'metricName', create one
         // and add it to the metric registry of the indicated metrics
-        // manager.  For example, a publication type of 'BAEM_AVG', and a
+        // manager.  For example, a publication type of 'e_BALM_AVG', and a
         // format spec with a scale of 1000.0 and a format of "%.2f ms",
         // indicates that the average value of the indicated metric should be
         // formatted by scaling the value by 1000 and then rounding the value
@@ -308,8 +308,8 @@ struct ConfigurationUtil {
         // or a non-zero value if 'manager' is 0 and the default metrics
         // manager has not been initialized.  The preferred publication type of
         // a metric indicates the preferred aggregate to publish for that
-        // metric, or 'PublicationType::BAEM_UNSPECIFIED' if there is no
-        // preference.  For example, specifying 'BAEM_AVG' indicates that the
+        // metric, or 'PublicationType::e_BALM_UNSPECIFIED' if there is no
+        // preference.  For example, specifying 'e_BALM_AVG' indicates that the
         // average value of the collected metric should be reported.  If a
         // 'MetricId' does not exist for the specified 'category' and
         // 'metricName', create one and add it to the metric registry of the

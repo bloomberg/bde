@@ -10,36 +10,36 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a registry for metrics.
 //
 //@CLASSES:
-//   baem_MetricRegistry: a registry for metrics
+//   balm::MetricRegistry: a registry for metrics
 //
 //@SEE_ALSO: balm_metricsmanager, balm_metricrecord
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component defines a class, 'baem_MetricRegistry', that
+//@DESCRIPTION: This component defines a class, 'balm::MetricRegistry', that
 // provides operations to register both metric categories and individual
 // metrics.  A metric is uniquely identified by its name and category, and the
 // metric registry provides a mapping from those identifying properties to a
-// 'balm::MetricId'.  A 'baem_MetricRegistry' object also provides a
+// 'balm::MetricId'.  A 'balm::MetricRegistry' object also provides a
 // mapping from a category name to the address of a non-modifiable
 // 'balm::Category' object.
 //
 ///Thread Safety
 ///-------------
-// 'baem_MetricRegistry' is fully *thread-safe*, meaning that all non-creator
+// 'balm::MetricRegistry' is fully *thread-safe*, meaning that all non-creator
 // operations on a given object can be safely invoked simultaneously from
 // multiple threads.
 //
 ///Usage
 ///-----
 // The following example illustrates how to create and use a
-// 'baem_MetricRegistry'.  We start by creating a 'baem_MetricRegistry'
+// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry'
 // object, 'registry', and then using this registry to create a
 // 'balm::MetricId' for a metric named "MetricA" belonging to the category
 // "MyCategory" (i.e., "MyCategory.MetricA").
 //..
 //  bslma::Allocator    *allocator = bslma::Default::allocator(0);
-//  baem_MetricRegistry  registry(allocator);
+//  balm::MetricRegistry  registry(allocator);
 //
 //  balm::MetricId idA = registry.addId("MyCategory", "MetricA");
 //..
@@ -110,10 +110,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_cstringless.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -159,18 +155,19 @@ namespace BloombergLP {
 namespace bslma { class Allocator; }
 
 
-namespace balm {class MetricFormat;
-}  // close package namespace
+namespace balm {
+
+class MetricFormat;
 
                       // =========================
-                      // class baem_MetricRegistry
+                      // class balm::MetricRegistry
                       // =========================
 
-class baem_MetricRegistry {
+class MetricRegistry {
     // The class defines a thread-aware mechanism for registering metrics
     // and metric categories.  A metric is uniquely identified by its name
     // and category, and the metric registry provides a mapping from those
-    // identifying properties to a 'balm::MetricId'.  A 'baem_MetricRegistry'
+    // identifying properties to a 'balm::MetricId'.  A 'balm::MetricRegistry'
     // object also provides a mapping from a category name to the address of
     // a non-modifiable 'balm::Category' object.
 
@@ -208,13 +205,13 @@ class baem_MetricRegistry {
     };
 
     typedef bsl::map<CategoryAndName,
-                     bsl::shared_ptr<balm::MetricDescription>,
-                     CategoryAndNameLess>                MetricRegistry;
-        // A 'MetricRegistry' is a type that maps a category and name to a
+                     bsl::shared_ptr<MetricDescription>,
+                     CategoryAndNameLess>                MetricMap;
+        // A 'MetricMap' is a type that maps a category and name to a
         // 'balm::MetricDescription' object address.
 
     typedef bsl::map<const char *,
-                     bsl::shared_ptr<balm::Category>,
+                     bsl::shared_ptr<Category>,
                      bdlb::CStringLess>                    CategoryRegistry;
         // A 'CategoryRegistry' is a type that maps a name to a
         // 'balm::Category' object address.
@@ -230,7 +227,7 @@ class baem_MetricRegistry {
 
     CategoryRegistry       d_categories;     // map category -> 'balm::Category'
 
-    MetricRegistry         d_metrics;        // map (category,name) -> MetricId
+    MetricMap              d_metrics;        // map (category,name) -> MetricId
 
     bool                   d_defaultEnabled; // default enabled status
 
@@ -248,12 +245,12 @@ class baem_MetricRegistry {
     bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
 
     // NOT IMPLEMENTED
-    baem_MetricRegistry(const baem_MetricRegistry&);
-    baem_MetricRegistry& operator=(const baem_MetricRegistry&);
+    MetricRegistry(const MetricRegistry&);
+    MetricRegistry& operator=(const MetricRegistry&);
 
   private:
     // PRIVATE MANIPULATORS
-    bsl::pair<balm::MetricId, bool> insertId(const char *category,
+    bsl::pair<MetricId, bool> insertId(const char *category,
                                             const char *name);
         // Insert a metric id having the specified 'category' and 'name' into
         // this metric registry.  Return a pair whose first member is the id
@@ -262,7 +259,7 @@ class baem_MetricRegistry {
         // undefined unless the calling thread has a *write* lock on 'd_lock'.
 
     void setCurrentUserData(const char                          *category,
-                            balm::MetricDescription::UserDataKey  key,
+                            MetricDescription::UserDataKey  key,
                             const void                          *value);
         // Associate the specified 'value' with the specified 'key' for every
         // metric belonging to the specified 'category'.  Note that this
@@ -285,20 +282,19 @@ class baem_MetricRegistry {
 
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(baem_MetricRegistry,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricRegistry, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    baem_MetricRegistry(bslma::Allocator *basicAllocator = 0);
+    MetricRegistry(bslma::Allocator *basicAllocator = 0);
         // Create an empty metric registry.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    ~baem_MetricRegistry();
+    ~MetricRegistry();
         // Destroy this metric registry.
 
     // MANIPULATORS
-    balm::MetricId addId(const char *category, const char *name);
+    MetricId addId(const char *category, const char *name);
         // Add the specified 'category' and 'name' to this registry, unless it
         // has already been registered, and return a 'balm::MetricId' object
         // identifying the newly-registered metric.  If the indicated metric
@@ -307,7 +303,7 @@ class baem_MetricRegistry {
         // behavior is undefined unless 'category' and 'name' are
         // null-terminated.
 
-    balm::MetricId getId(const char *category, const char *name);
+    MetricId getId(const char *category, const char *name);
         // Return a 'balm::MetricId' object for the metric identified by the
         // specified 'category' and 'name'.  If no corresponding metric has
         // already been registered, register a new metric and return a
@@ -316,13 +312,13 @@ class baem_MetricRegistry {
         // null-terminated.  Note that this operation is guaranteed to return
         // a valid 'balm::MetricId' object.
 
-    const balm::Category *addCategory(const char *category);
+    const Category *addCategory(const char *category);
         // Add the specified 'category' to this registry, unless it has already
         // been registered.  Return the address of the newly-created
         // non-modifiable 'balm::Category' object on success, and 0 otherwise.
         // The behavior is undefined unless 'category' is null-terminated.
 
-    const balm::Category *getCategory(const char *category);
+    const Category *getCategory(const char *category);
         // Return the address of the non-modifiable 'balm::Category' object for
         // the specified 'category'.  If no corresponding category exists,
         // register a new category and return the address of the newly-created
@@ -330,7 +326,7 @@ class baem_MetricRegistry {
         // is null-terminated.  Note that this operation is guaranteed to
         // return a valid address.
 
-    void setCategoryEnabled(const balm::Category* category,
+    void setCategoryEnabled(const Category* category,
                             bool                 value);
         // Set whether the specified 'category' is enabled to the specified
         // 'value'.  The behavior is undefined unless 'category' is a
@@ -357,8 +353,8 @@ class baem_MetricRegistry {
         // operation has *linear* runtime performance with respect to the
         // total number of category holders registered with this repository.
 
-     void registerCategoryHolder(const balm::Category *category,
-                                 balm::CategoryHolder *holder);
+     void registerCategoryHolder(const Category *category,
+                                 CategoryHolder *holder);
         // Load into the specified  'holder' the address of the specified
         // 'category', its 'enabled' status, and the address of the next holder
         // in the linked list of category holders maintained by 'category'
@@ -370,10 +366,10 @@ class baem_MetricRegistry {
         // and *unmodified* (by the client) for the lifetime of this object.
         //
         // This method should *not* be used directly by client code.  It is an
-        // implementation detail of the 'baem' metric collection system.
+        // implementation detail of the 'balm' metric collection system.
 
-    void setPreferredPublicationType(const balm::MetricId&        metric,
-                                     balm::PublicationType::Value type);
+    void setPreferredPublicationType(const MetricId&        metric,
+                                     PublicationType::Value type);
         // Set the preferred publication type of the specified 'metric' to the
         // specified 'type'.  The preferred publication type of a metric
         // indicates the preferred aggregate to publish for that metric, or
@@ -387,8 +383,8 @@ class baem_MetricRegistry {
         // 'balm::MetricDescription' (i.e.,
         // 'metric.description()->preferredPublicationType()').
 
-    void setFormat(const balm::MetricId&     metricId,
-                   const balm::MetricFormat& format);
+    void setFormat(const MetricId&     metricId,
+                   const MetricFormat& format);
         // Set the format for the specified 'metricId' to the specified
         // 'format'.  Note that there is no uniform specification for how
         // publisher implementations will interpret the supplied 'format'.
@@ -398,23 +394,23 @@ class baem_MetricRegistry {
         //  metric.description()->format();
         //..
 
-    balm::MetricDescription::UserDataKey createUserDataKey();
+    MetricDescription::UserDataKey createUserDataKey();
         // Return a new unique key that can be used to associate (via
         // 'setUserData') and retrieve (via 'userData') a value with a metric
         // (or group of metrics).  Note that the returned key can be used by
-        // clients of 'baem' to associate additional information with a metric.
+        // clients of 'balm' to associate additional information with a metric.
 
-    void setUserData(const balm::MetricId&                 metricId,
-                     balm::MetricDescription::UserDataKey  key,
+    void setUserData(const MetricId&                 metricId,
+                     MetricDescription::UserDataKey  key,
                      const void                          *value);
         // Associate the specified 'value' with the specified 'key' in the
         // description of the specified 'metricId'.  The behavior is undefined
         // unless 'key' was previously returned from 'createUserDataKey'.  Note
-        // that this method allows clients of 'baem' to associate (opaque)
+        // that this method allows clients of 'balm' to associate (opaque)
         // application-specific information with a metric.
 
     void setUserData(const char                          *categoryName,
-                     balm::MetricDescription::UserDataKey  key,
+                     MetricDescription::UserDataKey  key,
                      const void                          *value,
                      bool                                 prefixFlag = false);
         // Associate the specified 'value' with the specified 'key' in any
@@ -439,14 +435,14 @@ class baem_MetricRegistry {
     bsl::size_t numCategories() const;
         // Return the number of categories in this registry.
 
-    const balm::Category *findCategory(const char *category) const;
+    const Category *findCategory(const char *category) const;
         // Find the specified 'category' in this registry.  Return
         // the address of the non-modifiable 'balm::Category' object
         // corresponding to the specified 'category', or 0 if no such category
         // has been registered.  The behavior is undefined unless 'category' is
         // null-terminated.
 
-    balm::MetricId findId(const char *category, const char *name) const;
+    MetricId findId(const char *category, const char *name) const;
         // Find the specified 'category' and 'name' in this registry.  Return
         // the 'balm::MetricId' object corresponding to the metric having the
         // specified 'category' and 'name', if found, or an invalid metric id
@@ -454,10 +450,9 @@ class baem_MetricRegistry {
         // 'false').  The behavior is undefined unless 'category' and 'name'
         // are null-terminated.
 
-    void getAllCategories(
-                         bsl::vector<const balm::Category *> *categories) const;
+    void getAllCategories(bsl::vector<const Category *> *categories) const;
         // Append to the specified 'categories' the addresses of all the
-        // categories registered by this 'baem_MetricRegistry' object.
+        // categories registered by this 'balm::MetricRegistry' object.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -473,12 +468,14 @@ class baem_MetricRegistry {
         // not valid on entry, this operation has no effect.
 };
 
+}  // close package namespace
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
                           // -------------------------
-                          // class baem_MetricRegistry
+                          // class balm::MetricRegistry
                           // -------------------------
 
 }  // close namespace BloombergLP

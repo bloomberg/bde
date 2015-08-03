@@ -40,7 +40,7 @@ using bsl::flush;
 //                                 --------
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2]  balm::CollectorRepository(baem_MetricRegistry *,
+// [ 2]  balm::CollectorRepository(balm::MetricRegistry *,
 //                                bslma::Allocator    *);
 // [ 2]  ~balm::CollectorRepository();
 // MANIPULATORS
@@ -66,7 +66,7 @@ using bsl::flush;
 //                      bsl::vector<balm::Collector *>        *,
 //                      bsl::vector<balm::IntegerCollector *> *,
 //                      const balm::MetricId&                  );
-// [ 2]  baem_MetricRegistry &registry();
+// [ 2]  balm::MetricRegistry &registry();
 // [ 4]  void collectAndReset(bsl::vector<balm::MetricRecord> *,
 //                            const balm::Category            *);
 // ACCESSORS
@@ -74,7 +74,7 @@ using bsl::flush;
 //                      bsl::vector<const balm::Collector *>        *,
 //                      bsl::vector<const balm::IntegerCollector *> *,
 //                      const balm::MetricId&                        ) const;
-// [ 2]  const baem_MetricRegistry& registry() const;
+// [ 2]  const balm::MetricRegistry& registry() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCURRENCY TEST
@@ -132,7 +132,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef baem_MetricRegistry      Registry;
+typedef balm::MetricRegistry      Registry;
 typedef balm::CollectorRepository Obj;
 typedef balm::Collector           Col;
 typedef balm::IntegerCollector    ICol;
@@ -434,7 +434,7 @@ int main(int argc, char *argv[])
 // looking up 2 collectors and 2 integer collectors.
 //..
     bslma::Allocator    *allocator = bslma::Default::allocator(0);
-    baem_MetricRegistry  metricRegistry(allocator);
+    balm::MetricRegistry  metricRegistry(allocator);
     balm::CollectorRepository repository(&metricRegistry, allocator);
 
     balm::Collector *collector1 = repository.getDefaultCollector("Test", "C1");
@@ -499,7 +499,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         bslma::TestAllocator      testAllocator;
-        baem_MetricRegistry      registry(&testAllocator);;
+        balm::MetricRegistry      registry(&testAllocator);;
         balm::CollectorRepository mX(&registry, &testAllocator);
         {
             ThreadTester tester(10, &mX, &defaultAllocator);
@@ -1242,19 +1242,19 @@ int main(int argc, char *argv[])
         //   does no perform more than 2 memory allocations.
         //
         // Testing:
-        //   balm::CollectorRepository(baem_MetricRegistry *,
+        //   CollectorRepository(MetricRegistry *,
         //                            bslma::Allocator    *);
         //   ~balm::CollectorRepository();
         //   bsl::shared_ptr<balm::Collector>
         //                          addCollector(const balm::MetricId& );
         //   bsl::shared_ptr<balm::IntegerCollector>
         //                          addIntegerCollector(const balm::MetricId& );
-        //   baem_MetricRegistry &registry();
+        //   MetricRegistry &registry();
         //   int getAddedCollectors(
         //            bsl::vector<bsl::shared_ptr<balm::Collector> >  *,
         //            bsl::vector<bsl::shared_ptr<balm::IntegerCollector> >  *,
         //            const balm::MetricId&                                   );
-        //   const baem_MetricRegistry &registry() const;
+        //   const MetricRegistry &registry() const;
         // --------------------------------------------------------------------
 
         Registry reg(Z); const Registry& REG = reg;
