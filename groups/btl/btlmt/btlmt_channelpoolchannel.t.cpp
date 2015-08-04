@@ -4,16 +4,12 @@
 
 #include <btlmt_asyncchannel.h>
 #include <btlmt_channelpool.h>
-#include <btlmt_message.h>
 #include <btlmt_session.h>
 
 #include <bdlmca_blob.h>
 #include <bdlmca_blobutil.h>
-#include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_barrier.h>
+#include <bdlmtt_barrier.h>
 
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
@@ -126,11 +122,11 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlqq::Mutex coutMutex;
+static bdlmtt::Mutex coutMutex;
 
 #define MTCOUT   { coutMutex.lock(); cout \
-                                           << bdlqq::ThreadUtil::selfIdAsInt() \
-                                           << ": "
+                                        << bdlmtt::ThreadUtil::selfIdAsInt() \
+                                        << ": "
 #define MTENDL   endl << bsl::flush ;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
 
@@ -163,12 +159,16 @@ static bdlqq::Mutex coutMutex;
 #define MTLOOP2_ASSERT(I,J,X) { \
   if (!(X)) { MTCOUT; P_(I); P(J); aSsErT(1, #X, __LINE__); cout << MTFLUSH; }}
 
-void readCb(int         result,
-            int        *numNeeded,
-            bdlmca::Blob *blob,
-            int         channelId,
-            const string& s)
+void readCb(int            result,
+            int           *numNeeded,
+            bdlmca::Blob  *blob,
+            int            channelId,
+            const string&  s)
 {
+    if (veryVerbose) {
+        PT3(result, *numNeeded, channelId);
+        PT2(blob->length(), s);
+    }
 }
 
 namespace CASE1 {
@@ -184,7 +184,7 @@ class DataReader {
     int                 d_msgId;           // message id
     int                 d_msgLength;       // message length
     bsl::string         d_data;            // actual data
-    mutable bdlqq::Mutex d_mutex;           // mutex for data
+    mutable bdlmtt::Mutex d_mutex;           // mutex for data
 
   public:
     // CREATORS
@@ -200,12 +200,6 @@ class DataReader {
                          bdlmca::Blob *msg,
                          int         channelId);
         // Blob based read callback.
-
-    void pbcBasedReadCb(int                   state,
-                        int                  *numConsumed,
-                        int                  *needed,
-                        const btlmt::DataMsg&  msg);
-        // Pooled Buffer Chain based read callback.
 
     // ACCESSORS
     const bsl::string& data() const;
@@ -234,39 +228,32 @@ class my_Server {
                                                           // typedef
 
     btlmt::ChannelPoolConfiguration  d_config;             // pool
-                                                          // configuration
+                                                           // configuration
 
-    bdlqq::Mutex                     d_mapMutex;           // map lock
+    bdlmtt::Mutex                    d_mapMutex;           // map lock
 
-    mutable bdlqq::Mutex             d_idxMutex;           // idx lock
+    mutable bdlmtt::Mutex            d_idxMutex;           // idx lock
 
-    ChannelMap                      d_channelMap;         // channel map
+    ChannelMap                       d_channelMap;         // channel map
 
-    bsl::vector<int>                d_channelIdxMap;      // channel idx
-                                                          // map
+    bsl::vector<int>                 d_channelIdxMap;      // channel idx
+                                                           // map
 
     btlmt::ChannelPool              *d_channelPool_p;      // channel pool
 
-    int                             d_portNumber;         // port on which
-                                                          // this server
-                                                          // is listening
+    int                              d_portNumber;         // port on which
+                                                           // this server
+                                                           // is listening
 
-    bool                            d_useBlobForDataReads;
-                                                          // use blob based
-                                                          // reads
+    bdlmca::PooledBlobBufferFactory  d_blobBufferFactory;  // blob buffer
+                                                           // factory
 
-    bdlmca::PooledBufferChainFactory  d_bufferChainFactory; // buffer chain
-                                                          // factory
+    bdlma::ConcurrentPoolAllocator   d_spAllocator;        // smart pointers
+                                                           // allocators
 
-    bdlmca::PooledBlobBufferFactory   d_blobBufferFactory;  // blob buffer
-                                                          // factory
-
-    bdlma::ConcurrentPoolAllocator             d_spAllocator;        // smart pointers
-                                                          // allocators
-
-    bslma::Allocator               *d_allocator_p;        // memory
-                                                          // allocator
-                                                          // (held)
+    bslma::Allocator                *d_allocator_p;        // memory
+                                                           // allocator
+                                                           // (held)
 
     // PRIVATE MANIPULATORS
     void channelStateCb(int   channelId,
@@ -274,12 +261,6 @@ class my_Server {
                         int   state,
                         void *userData);
         // Wrapper for channel pool's channel callback state callback.
-
-    void pbcBasedReadCb(int                  *numConsumed,
-                        int                  *numNeeded,
-                        const btlmt::DataMsg&  msg,
-                        void                 *userData);
-        // Channel pool's pooled buffer chain based read callback.
 
     void blobBasedReadCb(int        *numNeeded,
                          bdlmca::Blob *msg,
@@ -302,13 +283,10 @@ class my_Server {
 
     // CREATORS
     my_Server(const btlmt::ChannelPoolConfiguration&  config,
-              bool                                   useBlobForDataReads,
-              bslma::Allocator                      *basicAllocator = 0);
-        // Construct this server configured by the specified 'config' and
-        // if 'useBlobForDataReads' is 'true' use 'bdlmca::Blob' for data
-        // reads, and if it is 'false' then use 'bdlmca::PooledBufferChain'
-        // based data reads.  Optionally specify 'basicAllocator' used to
-        // allocate memory.
+              bslma::Allocator                       *basicAllocator = 0);
+        // Construct this server configured by the specified 'config' using
+        // 'bdlmca::Blob' for data reads.  Optionally specify 'basicAllocator'
+        // used to allocate memory.
 
     ~my_Server();
         // Destroy this server.
@@ -379,7 +357,7 @@ void DataReader::blobBasedReadCb(int         state,
     }
 
     if (btlmt::AsyncChannel::BTEMT_SUCCESS != state) {
-        return;                                                   // RETURN
+        return;                                                       // RETURN
     }
 
     if (veryVerbose) {
@@ -389,56 +367,57 @@ void DataReader::blobBasedReadCb(int         state,
                << MTENDL;
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
 
+    const int INT_SIZE = static_cast<int>(sizeof(int));
     if (-1 == d_msgId) {
-        if (msg->length() < sizeof(int)) {
-            *numNeeded = sizeof(int);
+        if (msg->length() < INT_SIZE) {
+            *numNeeded = INT_SIZE;
             return;                                                   // RETURN
         }
 
         char *dataPtr = msg->buffer(0).data();
-        if (msg->buffer(0).size() < sizeof(int)) {
-            char tmp[sizeof(int)];
+        if (msg->buffer(0).size() < INT_SIZE) {
+            char tmp[INT_SIZE];
             const int numBytes = msg->buffer(0).size();
             memcpy(tmp, msg->buffer(0).data(), numBytes);
-            ASSERT(msg->buffer(1).size() <= sizeof(int) - numBytes);
+            ASSERT(msg->buffer(1).size() <= INT_SIZE - numBytes);
             memcpy(tmp + numBytes,
                    msg->buffer(1).data(),
-                   sizeof(int) - numBytes);
+                   INT_SIZE - numBytes);
             dataPtr = tmp;
         }
 
         bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, dataPtr);
         ASSERT(0 <= d_msgId);
-        bdlmca::BlobUtil::erase(msg, 0, sizeof(int));
+        bdlmca::BlobUtil::erase(msg, 0, INT_SIZE);
         if (0 == msg->length()) {
-            *numNeeded = sizeof(int);
+            *numNeeded = INT_SIZE;
             return;                                                   // RETURN
         }
     }
 
     if (-1 == d_msgLength) {
-        if (msg->length() < sizeof(int)) {
-            *numNeeded = sizeof(int);
+        if (msg->length() < INT_SIZE) {
+            *numNeeded = INT_SIZE;
             return;                                                   // RETURN
         }
 
         char *dataPtr = msg->buffer(0).data();
-        if (msg->buffer(0).size() < sizeof(int)) {
-            char tmp[sizeof(int)];
+        if (msg->buffer(0).size() < INT_SIZE) {
+            char tmp[INT_SIZE];
             const int numBytes = msg->buffer(0).size();
             memcpy(tmp, msg->buffer(0).data(), numBytes);
-            ASSERT(msg->buffer(1).size() >= sizeof(int) - numBytes);
+            ASSERT(msg->buffer(1).size() >= INT_SIZE - numBytes);
             memcpy(tmp + numBytes,
                    msg->buffer(1).data(),
-                   sizeof(int) - numBytes);
+                   INT_SIZE - numBytes);
             dataPtr = tmp;
         }
 
         bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength, dataPtr);
         ASSERT(0 <= d_msgLength);
-        bdlmca::BlobUtil::erase(msg, 0, sizeof(int));
+        bdlmca::BlobUtil::erase(msg, 0, INT_SIZE);
 
         if (0 == msg->length()) {
             *numNeeded = d_msgLength;
@@ -461,136 +440,29 @@ void DataReader::blobBasedReadCb(int         state,
     *numNeeded = numRemaining <= 0 ? 0 : numRemaining;
 }
 
-void DataReader::pbcBasedReadCb(int                   state,
-                                int                  *numConsumed,
-                                int                  *numNeeded,
-                                const btlmt::DataMsg&  msg)
-{
-    if (veryVerbose) {
-        MTCOUT << "PBC based callback called with "
-               << " state: " << state << MTENDL;
-    }
-
-    if (btlmt::AsyncChannel::BTEMT_SUCCESS != state) {
-        return;                                                   // RETURN
-    }
-
-    if (veryVerbose) {
-        MTCOUT << "PBC based callback called with "
-               << "for Channel Id: " << msg.channelId()
-               << " with data of length: " << msg.data()->length()
-               << MTENDL;
-    }
-
-    bdlmca::PooledBufferChain *chain = msg.data();
-    ASSERT(chain);
-
-    const int bufSize    = chain->bufferSize();
-    const int numBuffers = (chain->length() / bufSize) + 1;
-    int       bufOffset  = 0;
-    int       bufIdx     = 0;
-    *numConsumed         = 0;
-
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
-
-    if (-1 == d_msgId) {
-        if (chain->length() < sizeof(int)) {
-            *numNeeded = sizeof(int);
-            return;                                               // RETURN
-        }
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, chain->buffer(bufIdx));
-        ASSERT(0 <= d_msgId);
-
-        bufOffset += sizeof(int);
-        *numConsumed += sizeof(int);
-        if (bufOffset >= bufSize) {
-            ++bufIdx;
-            bufOffset = 0;
-        }
-
-        if (*numConsumed == chain->length()) {
-            *numNeeded = sizeof(int);
-            return;                                               // RETURN
-        }
-    }
-
-    if (-1 == d_msgLength) {
-        if (chain->length() < *numConsumed + sizeof(int)) {
-            *numNeeded = sizeof(int);
-            return;                                               // RETURN
-        }
-        ASSERT(bufSize >= bufOffset + sizeof(int));
-
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength,
-                                        chain->buffer(bufIdx) + bufOffset);
-        ASSERT(0 <= d_msgLength);
-        bufOffset += sizeof(int);
-
-        *numConsumed += sizeof(int);
-        if (bufOffset >= bufSize) {
-            ++bufIdx;
-            bufOffset = 0;
-        }
-
-        if (*numConsumed == chain->length()) {
-            *numNeeded = d_msgLength;
-            return;                                               // RETURN
-        }
-    }
-
-    bsl::string msgData;
-    if (bufOffset >= bufSize) {
-        ++bufIdx;
-        bufOffset = 0;
-    }
-
-    int remaining = chain->length() - *numConsumed;
-    if (d_msgLength < remaining) {
-        remaining = d_msgLength;
-    }
-
-    while (remaining) {
-        int currSize = remaining > bufSize - bufOffset
-                     ? bufSize - bufOffset : remaining;
-        msgData.append(chain->buffer(bufIdx) + bufOffset, currSize);
-        remaining -= currSize;
-        bufOffset += currSize;
-        *numConsumed += currSize;
-        if (bufOffset >= bufSize) {
-            ++bufIdx;
-            bufOffset = 0;
-        }
-    }
-
-    d_data.append(msgData);
-
-    const int numRemaining = d_msgLength - d_data.size();
-    *numNeeded = numRemaining <= 0 ? 0 : 1;
-}
-
 // ACCESSORS
 const bsl::string& DataReader::data() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     return d_data;
 }
 
 int DataReader::msgId() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     return d_msgId;
 }
 
 int DataReader::msgLength() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     return d_msgLength;
 }
 
 bool DataReader::done() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
-    return d_data.size() == d_msgLength;
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    return (int) d_data.size() == d_msgLength;
 }
 
                         // ---------------
@@ -601,7 +473,7 @@ bool DataReader::done() const
 void my_Server::channelStateCb(int   channelId,
                                int   sourceId,
                                int   state,
-                               void *userData)
+                               void *)
 {
     if (veryVerbose) {
         MTCOUT << "Channel state callback called with"
@@ -610,7 +482,7 @@ void my_Server::channelStateCb(int   channelId,
                << " State: " << state << MTENDL;
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
 
     switch (state) {
@@ -620,7 +492,7 @@ void my_Server::channelStateCb(int   channelId,
                 MTCOUT << "Channel Id: " << channelId
                        << " not found" << MTENDL;
             }
-            return;                                               // RETURN
+            return;                                                   // RETURN
         }
       } break;
 
@@ -632,18 +504,16 @@ void my_Server::channelStateCb(int   channelId,
             }
             d_channelPool_p->shutdown(channelId,
                                       btlmt::ChannelPool::BTEMT_IMMEDIATE);
-            return;                                               // RETURN
+            return;                                                   // RETURN
         }
 
         Obj *channel;
-        channel = new (*d_allocator_p)
-                             btlmt::ChannelPoolChannel(channelId,
-                                                      d_channelPool_p,
-                                                      &d_bufferChainFactory,
-                                                      &d_blobBufferFactory,
-                                                      &d_spAllocator,
-                                                      d_allocator_p,
-                                                      d_useBlobForDataReads);
+        channel = new (*d_allocator_p) btlmt::ChannelPoolChannel(
+                                                          channelId,
+                                                          d_channelPool_p,
+                                                          &d_blobBufferFactory,
+                                                          &d_spAllocator,
+                                                          d_allocator_p);
         d_channelMap[channelId] = channel;
         d_idxMutex.lock();
         d_channelIdxMap.push_back(channelId);
@@ -654,9 +524,7 @@ void my_Server::channelStateCb(int   channelId,
     }
 }
 
-void my_Server::poolStateCb(int reason,
-                            int source,
-                            int severity)
+void my_Server::poolStateCb(int reason, int source, int)
 {
     if (veryVerbose) {
         MTCOUT << "Pool state changed: (" << reason << ", " << source
@@ -664,39 +532,19 @@ void my_Server::poolStateCb(int reason,
     }
 }
 
-void my_Server::pbcBasedReadCb(int                  *numConsumed,
-                               int                  *numNeeded,
-                               const btlmt::DataMsg&  msg,
-                               void                 *userData)
-{
-    int channelId = msg.channelId();
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mapMutex);
-    ChannelMap::iterator iter = d_channelMap.find(channelId);
-    if (iter == d_channelMap.end()) {
-        if (veryVerbose) {
-            MTCOUT << "Channel Id: " << channelId
-                   << " not found" << MTENDL;
-        }
-        return;                                                   // RETURN
-    }
-    Obj *channel = iter->second;
-    guard.release()->unlock();
-    channel->dataCb(numConsumed, numNeeded, msg);
-}
-
 void my_Server::blobBasedReadCb(int        *numNeeded,
                                 bdlmca::Blob *msg,
                                 int         channelId,
                                 void       *userData)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
     if (iter == d_channelMap.end()) {
         if (veryVerbose) {
             MTCOUT << "Channel Id: " << channelId
                    << " not found" << MTENDL;
         }
-        return;                                                   // RETURN
+        return;                                                       // RETURN
     }
 
     Obj *channel = iter->second;
@@ -707,14 +555,11 @@ void my_Server::blobBasedReadCb(int        *numNeeded,
 // CREATORS
 my_Server::my_Server(
                 const btlmt::ChannelPoolConfiguration&  config,
-                bool                                   useBlobForDataReads,
-                bslma::Allocator                      *basicAllocator)
+                bslma::Allocator                       *basicAllocator)
 : d_config(config)
 , d_channelMap(basicAllocator)
 , d_channelPool_p(0)
 , d_portNumber(0)
-, d_useBlobForDataReads(useBlobForDataReads)
-, d_bufferChainFactory(config.maxIncomingMessageSize(), basicAllocator)
 , d_blobBufferFactory(config.maxIncomingMessageSize(), basicAllocator)
 , d_spAllocator(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -727,31 +572,16 @@ my_Server::my_Server(
             bdlf::MemFnUtil::memFn(&my_Server::poolStateCb, this)
           , d_allocator_p);
 
-    if (d_useBlobForDataReads) {
-        btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
+    btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
             bdlf::MemFnUtil::memFn(&my_Server::blobBasedReadCb,
                                   this);
 
-        d_channelPool_p = new (*d_allocator_p)
+    d_channelPool_p = new (*d_allocator_p)
                                      btlmt::ChannelPool(channelStateFunctor,
-                                                       dataFunctor,
-                                                       poolStateFunctor,
-                                                       d_config,
-                                                       d_allocator_p);
-    }
-    else {
-        bdlf::Function<void (*)(int *, int*, const btlmt::DataMsg&, void*)>
-            dataFunctor(
-                    bdlf::MemFnUtil::memFn(&my_Server::pbcBasedReadCb, this)
-                  , d_allocator_p);
-
-        d_channelPool_p = new (*d_allocator_p)
-                                     btlmt::ChannelPool(channelStateFunctor,
-                                                       dataFunctor,
-                                                       poolStateFunctor,
-                                                       d_config,
-                                                       d_allocator_p);
-    }
+                                                        dataFunctor,
+                                                        poolStateFunctor,
+                                                        d_config,
+                                                        d_allocator_p);
 
     d_channelPool_p->start();
 
@@ -776,17 +606,17 @@ my_Server::~my_Server()
 // ACCESSORS
 Obj *my_Server::channel(int index)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard1(&d_idxMutex);
-    if (index >= d_channelIdxMap.size()) {
-        return 0;                                                 // RETURN
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard1(&d_idxMutex);
+    if (index >= (int) d_channelIdxMap.size()) {
+        return 0;                                                     // RETURN
     }
     int channelId = d_channelIdxMap[index];
     guard1.release()->unlock();
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard2(&d_mapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard2(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
     if (iter != d_channelMap.end()) {
-        return iter->second;
+        return iter->second;                                          // RETURN
     }
     return 0;
 }
@@ -811,31 +641,22 @@ void TestData::run()
     Obj *channel = 0;
     while (!channel) {
         channel = d_server_p->channel(d_threadId);
-        bdlqq::ThreadUtil::yield();
+        bdlmtt::ThreadUtil::yield();
     }
 
     btlmt::AsyncChannel::BlobBasedReadCallback blobBasedCb =
                         bdlf::MemFnUtil::memFn(&DataReader::blobBasedReadCb,
                                               &d_reader);
-    btlmt::AsyncChannel::ReadCallback pbcBasedCb =
-                         bdlf::MemFnUtil::memFn(&DataReader::pbcBasedReadCb,
-                                               &d_reader);
 
     for (int i = 0; i < d_numCbs; ++i) {
         const CallbackDetails cbDetails = d_callbacks[i];
         const int numBytes  = cbDetails.d_numBytes;
-        const bool blobBased= cbDetails.d_blobBased;
 
-        if (blobBased) {
-            channel->read(numBytes, blobBasedCb);
-        }
-        else {
-            channel->read(numBytes, pbcBasedCb);
-        }
+        channel->read(numBytes, blobBasedCb);
     }
 
     while (!d_reader.done()) {
-        bdlqq::ThreadUtil::yield();
+        bdlmtt::ThreadUtil::yield();
     }
 }
 
@@ -884,9 +705,8 @@ int main(int argc, char *argv[])
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::DataReadCallback           dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
-            bdlmca::PooledBufferChainFactory pbcf(1024);
             bdlmca::PooledBlobBufferFactory  pbbf(1024);
 
             bslma::TestAllocator ca;
@@ -897,7 +717,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&ta);
 
-            Obj mX(0, &cp, &pbcf, &pbbf, &pa, &ca);  const Obj& X = mX;
+            Obj mX(0, &cp, &pbbf, &pa, &ca);
 
             string logString(&ta);
             logString = "12345678901234567890123456789012" \
@@ -1104,84 +924,78 @@ int main(int argc, char *argv[])
         typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> IPv4Factory;
         typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
 
-        for (int k = 0; k < 2; ++k) {
-            bslma::TestAllocator     ta(veryVeryVerbose);
-            my_Server               server(config, (bool) k, &ta);
-            const btlso::IPv4Address ADDRESS("127.0.0.1", server.portNumber());
+        bslma::TestAllocator     ta(veryVeryVerbose);
+        my_Server                server(config, &ta);
+        const btlso::IPv4Address ADDRESS("127.0.0.1", server.portNumber());
 
-            IPv4Factory              factory(&ta);
-            bsl::vector<TestData>    tests(NUM_DATA);
-            bdlqq::ThreadUtil::Handle handles[NUM_DATA];
-            bsl::vector<bsl::string> expData(NUM_DATA);
-            bsl::vector<Socket *>    sockets(NUM_DATA);
+        IPv4Factory              factory(&ta);
+        bsl::vector<TestData>    tests(NUM_DATA);
+        bdlmtt::ThreadUtil::Handle handles[NUM_DATA];
+        bsl::vector<bsl::string> expData(NUM_DATA);
+        bsl::vector<Socket *>    sockets(NUM_DATA);
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int         LINE     = DATA[i].d_line;
-                const bsl::string EXP_DATA = DATA[i].d_expData;
-                const int         LEN      = EXP_DATA.size();
-                const int         NUM_CBS  = DATA[i].d_numCbs;
-                TestData&         test     = tests[i];
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const bsl::string EXP_DATA = DATA[i].d_expData;
+            const int         NUM_CBS  = DATA[i].d_numCbs;
+            TestData&         test     = tests[i];
 
-                Socket *socket   = factory.allocate();
-                test.d_threadId  = i;
-                test.d_server_p  = &server;
-                test.d_numCbs    = NUM_CBS;
-                test.d_callbacks = DATA[i].d_cbDetails;
-                bdlqq::ThreadUtil::create(&handles[i],
-                                         threadFunction,
-                                         &test);
+            Socket *socket   = factory.allocate();
+            test.d_threadId  = i;
+            test.d_server_p  = &server;
+            test.d_numCbs    = NUM_CBS;
+            test.d_callbacks = DATA[i].d_cbDetails;
+            bdlmtt::ThreadUtil::create(&handles[i], threadFunction, &test);
 
-                sockets[i] = socket;
-                expData[i] = EXP_DATA;
-                ASSERT(0 == socket->connect(ADDRESS));
-            }
+            sockets[i] = socket;
+            expData[i] = EXP_DATA;
+            ASSERT(0 == socket->connect(ADDRESS));
+        }
 
-            const int MAX_DATA_SIZE = 1024;
-            for (int i = 0; i < NUM_DATA; ++i) {
-                Socket             *socket    = sockets[i];
-                const bsl::string&  writeData = expData[i];
-                const int           DATA_SIZE = writeData.size();
+        const int MAX_DATA_SIZE = 1024;
+        for (int i = 0; i < NUM_DATA; ++i) {
+            Socket             *socket    = sockets[i];
+            const bsl::string&  writeData = expData[i];
+            const int           DATA_SIZE = writeData.size();
 
-                char data[MAX_DATA_SIZE];
-                bsl::memset(data, 0, MAX_DATA_SIZE);
-                ASSERT(DATA_SIZE <= MAX_DATA_SIZE);
+            char data[MAX_DATA_SIZE];
+            bsl::memset(data, 0, MAX_DATA_SIZE);
+            ASSERT(DATA_SIZE <= MAX_DATA_SIZE);
 
-                int offset = 0;
-                bdlxxxx::ByteStreamImpUtil::putInt32(data, i);
-                offset += sizeof(int);
+            int offset = 0;
+            bdlxxxx::ByteStreamImpUtil::putInt32(data, i);
+            offset += sizeof(int);
 
-                bdlxxxx::ByteStreamImpUtil::putInt32(data + offset, DATA_SIZE);
-                offset += sizeof(int);
+            bdlxxxx::ByteStreamImpUtil::putInt32(data + offset, DATA_SIZE);
+            offset += sizeof(int);
 
-                const int TOTAL_SIZE = DATA_SIZE + offset;
+            const int TOTAL_SIZE = DATA_SIZE + offset;
 
-                bsl::memcpy(data + offset, writeData.data(), DATA_SIZE);
+            bsl::memcpy(data + offset, writeData.data(), DATA_SIZE);
 
-                offset = 0;
-                int incr = 1, remaining = TOTAL_SIZE;
-                while (remaining > 0) {
-                    ASSERT(incr == socket->write(data + offset, incr));
-                    remaining -= incr;
-                    offset += incr;
-                    if (remaining <= incr) {
-                        incr = remaining;
-                    }
-                    else {
-                        ++incr;
-                    }
-                    bdlqq::ThreadUtil::microSleep(100);
+            offset = 0;
+            int incr = 1, remaining = TOTAL_SIZE;
+            while (remaining > 0) {
+                ASSERT(incr == socket->write(data + offset, incr));
+                remaining -= incr;
+                offset += incr;
+                if (remaining <= incr) {
+                    incr = remaining;
                 }
+                else {
+                    ++incr;
+                }
+                bdlmtt::ThreadUtil::microSleep(100);
             }
+        }
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
-            }
+        for (int i = 0; i < NUM_DATA; ++i) {
+            ASSERT(0 == bdlmtt::ThreadUtil::join(handles[i]));
+        }
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const DataReader& reader = tests[i].d_reader;
-                LOOP_ASSERT(i, reader.data() == expData[reader.msgId()]);
-                factory.deallocate(sockets[i], true);
-            }
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const DataReader& reader = tests[i].d_reader;
+            LOOP_ASSERT(i, reader.data() == expData[reader.msgId()]);
+            factory.deallocate(sockets[i], true);
         }
       } break;
       default: {
@@ -1198,7 +1012,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

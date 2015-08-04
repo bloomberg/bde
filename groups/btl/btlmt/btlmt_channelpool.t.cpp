@@ -3,7 +3,6 @@
 #include <btlmt_channelpool.h>
 
 #include <btlmt_channelpoolconfiguration.h>
-#include <btlmt_message.h>
 #include <btlmt_asyncchannel.h>
 
 #include <btls_iovecutil.h>
@@ -22,14 +21,9 @@
 #include <bslma_testallocator.h>
 #include <bdlmca_blobutil.h>
 #include <bdlma_concurrentpool.h>
-#include <bdlmca_xxxpooledbufferchain.h>
-#include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_condition.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bdlmtt_barrier.h>
+#include <bdlmtt_lockguard.h>
+#include <bdlmtt_xxxthread.h>
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
@@ -38,7 +32,7 @@
 #include <bdlf_memfn.h>
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
-#include <bdlb_strtokenrefiter.h>
+#include <bdlb_xxxstrtokeniter.h>
 #include <bdlxxxx_instreamfunctions.h>             // for testing only
 #include <bdlxxxx_outstreamfunctions.h>            // for testing only
 #include <bdlxxxx_byteoutstream.h>
@@ -55,7 +49,6 @@
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
-#include <bsl_functional.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
@@ -107,12 +100,10 @@ using namespace bdlf::PlaceHolders;
 // [ 3]  int btlmt::ChannelPool::stop(...);
 // [ 4]  int btlmt::ChannelPool::connect(...);
 // [ 5]  int btlmt::ChannelPool::listen(int port, ...);
-// [ 4]  int btlmt::ChannelPool::listen(const btlso::IPv4Address&  address, ...);
+// [ 4]  int btlmt::ChannelPool::listen(const IPv4Address&  address, ...);
 // [ 5]  int btlmt::ChannelPool::close(int serverID);
 // [ 6]  int btlmt::ChannelPool::import(...);
 // [ 8]  int btlmt::ChannelPool::shutdown();
-// [ 9]  int btlmt::ChannelPool::write(btlmt::DataMsg, ...);
-// [ 9]  int btlmt::ChannelPool::write(btlmt::BlobMsg, ...);
 // [ 9]  int btlmt::ChannelPool::write(btes::Iovecs, ...);
 // [ 9]  int btlmt::ChannelPool::write(btes::Ovecs, ...);
 // [10]  int btlmt::ChannelPool::registerClock(...);
@@ -136,7 +127,7 @@ using namespace bdlf::PlaceHolders;
 // [14]  int btlmt::ChannelPool::getChannelStatistics*(...);
 // [14]  int btlmt::ChannelPool::numBytes*(...);
 // [14]  int btlmt::ChannelPool::totalBytes*(...);
-// [  ]  const btlso::IPv4Address *btlmt::ChannelPool::serverAddress(...) const;
+// [  ]  const btlso::IPv4Address *ChannelPool::serverAddress(...) const;
 //
 // CLASS 'btlmt::ChannelPool_MessageUtil'
 // [26] btlmt::ChannelPool_IovecArray<>
@@ -222,11 +213,11 @@ void aSsErT(int c, const char *s, int i)
 
 // The following macros facilitate thread-safe streaming to standard output.
 
-static bdlqq::Mutex coutMutex;
+static bdlmtt::Mutex coutMutex;
 
 #define MTCOUT   { coutMutex.lock(); cout \
-                                        << bdlqq::ThreadUtil::selfIdAsUint64() \
-                                           << ": "
+                                      << bdlmtt::ThreadUtil::selfIdAsUint64() \
+                                      << ": "
 #define MTENDL   endl << bsl::flush ;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
 
@@ -321,41 +312,70 @@ void makeNull(bdlf::Function<void (*)(A1, A2, A3, A4)> * f) {
 }
 
 template <typename A1, typename A2, typename A3, typename A4>
-void makeNull(bslma::Allocator *a, bdlf::Function<void (*)(A1, A2, A3, A4)> * f)
+void makeNull(bslma::Allocator *a, bdlf::Function<void (*)(A1, A2, A3, A4)> *f)
 {
-    *f = bdlf::Function<void (*)(A1, A2, A3, A4)>(NullFn4<A1, A2, A3, A4>(), a);
+    *f = bdlf::Function<void (*)(A1, A2, A3, A4)>(NullFn4<A1, A2, A3, A4>(),a);
 }
 
+struct ChannelState {
+    enum Type {
+        BTEMT_CHANNEL_DOWN = 0     // the connection is broken
+        , BTEMT_CHANNEL_UP         // the connection is established
+        , BTEMT_READ_TIMEOUT       // timed out waiting for incoming data
+        , BTEMT_SEND_BUFFER_FULL   // the outgoing buffer is full *OBSOLETE*
+        , BTEMT_MESSAGE_DISCARDED  // message is discarded (can't be sent)
+        , BTEMT_AUTO_READ_ENABLED  // automatic reading is enabled on a channel
+        , BTEMT_AUTO_READ_DISABLED // automatic reading disabled on a channel
+        , BTEMT_WRITE_CACHE_LOWWAT // write cache low watermark
+        , BTEMT_WRITE_CACHE_HIWAT  // write cache hi watermark
+           = BTEMT_SEND_BUFFER_FULL
+    };
+};
+
+struct PoolState {
+    enum Type {
+        BTEMT_ACCEPT_TIMEOUT = 0,           // timed out accepting a connection
+        BTEMT_ERROR_ACCEPTING,              // error accepting a connection
+        BTEMT_ERROR_CONNECTING,             // error connecting to the peer
+        BTEMT_CHANNEL_LIMIT,                // channel limit reached
+        BTEMT_CAPACITY_LIMIT,               // capacity limit reached
+        BTEMT_ERROR_BINDING_CLIENT_ADDR,    // error binding client address
+        BTEMT_ERROR_SETTING_OPTIONS,        // error setting socket options
+        BTEMT_EVENT_MANAGER_LIMIT           // event manager limit reached
+    };
+};
+
 struct my_ChannelEvent {
-    bsls::TimeInterval         d_when;
-    bdlqq::ThreadUtil::Handle  d_thread;
-    bsls::Types::Uint64       d_threadId;
-    btlmt::ChannelMsg          d_data;
-    void                     *d_context;
+    bsls::TimeInterval          d_when;
+    bdlmtt::ThreadUtil::Handle  d_thread;
+    bsls::Types::Uint64         d_threadId;
+    int                         d_channelId;
+    int                         d_allocatorId;
+    ChannelState::Type          d_event;
+    void                       *d_context;
 };
 
 bsl::ostream& operator<<(bsl::ostream& s, const my_ChannelEvent& event) {
     s << "{ "
       << event.d_when     << ", "
       << event.d_threadId << ", "
-      << event.d_data     << ", "
       << event.d_context
       << " }";
     return s;
 }
 
 struct my_PoolEvent {
-    bsls::TimeInterval        d_when;
-    bdlqq::ThreadUtil::Handle d_thread;
-    bsls::Types::Uint64      d_threadId;
-    btlmt::PoolMsg            d_data;
+    bsls::TimeInterval         d_when;
+    bdlmtt::ThreadUtil::Handle d_thread;
+    bsls::Types::Uint64        d_threadId;
+    int                        d_sourceId;
+    PoolState::Type            d_state;
 };
 
 bsl::ostream& operator<<(bsl::ostream& s, const my_PoolEvent& event) {
     s << "{ "
       << event.d_when     << ", "
       << event.d_threadId << ", "
-      << event.d_data
       << "}";
     return s;
 }
@@ -378,7 +398,7 @@ void recordChannelState(int                           channelId,
                         int                           state,
                         void                         *context,
                         bsl::vector<my_ChannelEvent> *results,
-                        bdlqq::Mutex                  *resultsLock)
+                        bdlmtt::Mutex                  *resultsLock)
     // Record the occurrence of this event into the specified 'results'
     // array of events using the specified 'resultsLock' for synchronization.
 {
@@ -387,22 +407,22 @@ void recordChannelState(int                           channelId,
 
     my_ChannelEvent event;
     event.d_when = bdlt::CurrentTime::now();
-    event.d_thread = bdlqq::ThreadUtil::self();
-    event.d_threadId = bdlqq::ThreadUtil::selfIdAsUint64();
-    event.d_data.setChannelId(channelId);
-    event.d_data.setAllocatorId(sourceId);
-    event.d_data.setChannelState((btlmt::ChannelMsg::ChannelState)state);
+    event.d_thread = bdlmtt::ThreadUtil::self();
+    event.d_threadId = bdlmtt::ThreadUtil::selfIdAsUint64();
+    event.d_channelId = channelId;
+    event.d_allocatorId = sourceId;
+    event.d_event = (ChannelState::Type) state;
     event.d_context = context;
-    bdlqq::LockGuard<bdlqq::Mutex> lock(resultsLock);
+    bdlmtt::LockGuard<bdlmtt::Mutex> lock(resultsLock);
     results->push_back(event);
 }
 
 static
 void recordPoolState(int                        state,
                      int                        sourceId,
-                     int                        severity,
+                     int,
                      bsl::vector<my_PoolEvent> *results,
-                     bdlqq::Mutex               *resultsLock)
+                     bdlmtt::Mutex             *resultsLock)
     // Record the occurrence of this event into the specified 'results'
     // array of events using the specified 'resultsLock' for synchronization.
 {
@@ -411,12 +431,12 @@ void recordPoolState(int                        state,
 
     my_PoolEvent event;
     event.d_when = bdlt::CurrentTime::now();
-    event.d_thread = bdlqq::ThreadUtil::self();
-    event.d_threadId = bdlqq::ThreadUtil::selfIdAsUint64();
-    event.d_data.setSourceId(sourceId);
-    event.d_data.setState((btlmt::PoolMsg::PoolState)state);
+    event.d_thread = bdlmtt::ThreadUtil::self();
+    event.d_threadId = bdlmtt::ThreadUtil::selfIdAsUint64();
+    event.d_sourceId = sourceId;
+    event.d_state = (PoolState::Type) state;
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(resultsLock);
+    bdlmtt::LockGuard<bdlmtt::Mutex> lock(resultsLock);
     results->push_back(event);
 }
 
@@ -464,21 +484,21 @@ class ChannelPoolStateCbTester {
                         d_channelStates;  // sequence of states since last
                                           // 'waitForState'
 
-    bdlqq::Mutex         d_mutex;          // synchronize access to data
+    bdlmtt::Mutex         d_mutex;          // synchronize access to data
 
-    bdlqq::Condition     d_condition;      // wait for a state callback
+    bdlmtt::Condition     d_condition;      // wait for a state callback
 
-    void channelStateCb(int channelId, int sourceId, int state, void *arg)
+    void channelStateCb(int channelId, int sourceId, int state, void *)
         // Append the specified 'state' to the queue of channel states, and if
         // 'waitForState' is currently blocked waiting for a state, wake up
         // the waiting thread to return the updated state information.
     {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
         d_channelStates.push_back(
                          ChannelState(channelId,
                                       sourceId,
                                       state,
-                                      bdlqq::ThreadUtil::selfIdAsUint64()));
+                                      bdlmtt::ThreadUtil::selfIdAsUint64()));
         switch (state) {
           case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
               if (veryVerbose) {
@@ -538,26 +558,26 @@ class ChannelPoolStateCbTester {
     {
         bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-               bdlf::MemFnUtil::memFn( &ChannelPoolStateCbTester::channelStateCb
+               bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb
                                     , this)
              , ma);
 
-        btlmt::ChannelPool::DataReadCallback         dataCb;
+        btlmt::ChannelPool::BlobBasedReadCallback    dataCb;
         btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
 
-        makeNull(&poolCb);
         makeNull(&dataCb);
+        makeNull(&poolCb);
 
         d_channelPool_p.load(
-            new (*ma) btlmt::ChannelPool(channelCb, dataCb, poolCb, config, ma),
-            ma);
+           new (*ma) btlmt::ChannelPool(channelCb, dataCb, poolCb, config, ma),
+           ma);
     }
 
     ChannelPoolStateCbTester(
                const btlmt::ChannelPoolConfiguration&       config,
-               btlmt::ChannelPool::DataReadCallback         dataCb,
+               btlmt::ChannelPool::BlobBasedReadCallback    dataCb,
                btlmt::ChannelPool::PoolStateChangeCallback  poolCb,
-               bslma::Allocator                           *basicAllocator = 0)
+               bslma::Allocator                            *basicAllocator = 0)
         // Initialize a channel pool state callback tester using the specified
         // 'config', 'dataCb', and 'poolCb'.  This object will manage an
         // underlying 'btlmt::ChannelPool', configured with 'config', and will
@@ -571,13 +591,13 @@ class ChannelPoolStateCbTester {
     {
         bslma::Allocator *ma = bslma::Default::allocator(basicAllocator);
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-               bdlf::MemFnUtil::memFn( &ChannelPoolStateCbTester::channelStateCb
-                                    , this)
+              bdlf::MemFnUtil::memFn(&ChannelPoolStateCbTester::channelStateCb
+                                     , this)
              , ma);
 
         d_channelPool_p.load(
-            new (*ma) btlmt::ChannelPool(channelCb, dataCb, poolCb, config, ma),
-            ma);
+           new (*ma) btlmt::ChannelPool(channelCb, dataCb, poolCb, config, ma),
+           ma);
     }
 
     // MANIPULATORS
@@ -586,7 +606,7 @@ class ChannelPoolStateCbTester {
     // ACCESSORS
     int waitForState(bsl::vector<ChannelState> *stateChanges,
                      int                        state,
-                     const bsls::TimeInterval&   elapsedTime)
+                     const bsls::TimeInterval&  elapsedTime)
         // Wait for up to the specified 'elapsedTime' for a client to receive
         // a channel state callback indicating the specified 'state'; return 0
         // and append to the specified 'stateChanges' the list of channel
@@ -596,7 +616,7 @@ class ChannelPoolStateCbTester {
     {
         bsls::TimeInterval now     = bdlt::CurrentTime::now();
         bsls::TimeInterval timeout = now + elapsedTime;
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
         int  idx   = 0;
         bool found = false;
         while (!found && now < timeout) {
@@ -615,7 +635,7 @@ class ChannelPoolStateCbTester {
         if (found) {
             *stateChanges = d_channelStates;
             d_channelStates.clear();
-            return 0;
+            return 0;                                                 // RETURN
         }
         return -1;
     }
@@ -657,7 +677,7 @@ namespace CASE44 {
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -668,12 +688,12 @@ void poolStateCb(int state, int source, int severity)
 void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -686,14 +706,14 @@ void channelStateCb(int              channelId,
 }
 
 void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
+                     bdlmca::Blob    *msg,
                      int              channelId,
-                     void            *arg,
-                     bdlqq::Barrier   *barrier,
-                     bdlmca::Blob      *savedMsg)
+                     void            *,
+                     bdlmtt::Barrier *barrier,
+                     bdlmca::Blob    *savedMsg)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -726,7 +746,7 @@ void *readData(void *data)
         if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
-        bdlqq::ThreadUtil::microSleep(1000 , 0);
+        bdlmtt::ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
     return 0;
 }
@@ -742,7 +762,7 @@ class ReadServer
     int                      d_msgSize;
     bslma::Allocator        *d_allocator_p;
     btlmt::ChannelPool       *d_cp_p;
-    bdlqq::Semaphore          d_msgSema;
+    bdlmtt::Semaphore          d_msgSema;
 
   private:
     // ChannelPool Callback Functions
@@ -824,7 +844,7 @@ ReadServer::ReadServer(
               , d_allocator_p);
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
-                            bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
+                           bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
                                                   this);
 
     d_cp_p = new (*d_allocator_p) btlmt::ChannelPool(factory,
@@ -854,11 +874,11 @@ int ReadServer::stop()
     return d_cp_p->stop();
 }
 
-void ReadServer::poolCB(int state, int source, int severity)
+void ReadServer::poolCB(int, int, int)
 {
 }
 
-void ReadServer::chanCB(int channelId, int serverId, int state, void *arg)
+void ReadServer::chanCB(int channelId, int, int state, void *)
 {
     switch (state) {
     case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
@@ -867,10 +887,7 @@ void ReadServer::chanCB(int channelId, int serverId, int state, void *arg)
     }
 }
 
-void ReadServer::blobBasedReadCb(int             *needed,
-                                 bdlmca::Blob      *msg,
-                                 int              channelId,
-                                 void            *arg)
+void ReadServer::blobBasedReadCb(int *needed, bdlmca::Blob *msg, int, void *)
 {
     if (veryVerbose) {
         bsl::cout << "Blob Based Read Cb called with message of length: "
@@ -912,7 +929,7 @@ btlso::IPv4Address  d_peerAddress;
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -923,12 +940,12 @@ void poolStateCb(int state, int source, int severity)
 void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -948,13 +965,13 @@ void channelStateCb(int              channelId,
 }
 
 void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
+                     bdlmca::Blob    *msg,
                      int              channelId,
-                     void            *arg,
-                     bdlqq::Barrier   *barrier)
+                     void            *,
+                     bdlmtt::Barrier *)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -976,14 +993,14 @@ void blobBasedReadCb(int             *needed,
 
 namespace CASE43 {
 
-bdlqq::Mutex        mapMutex;
+bdlmtt::Mutex        mapMutex;
 bsl::map<int, int> sourceIdToChannelIdMap;
 typedef bsl::map<int, int>::iterator MapIter;
 
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -994,9 +1011,9 @@ void poolStateCb(int state, int source, int severity)
 void channelStateCb(int              channelId,
                     int              sourceId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *)
 {
     if (veryVerbose) {
         bsl::cout << "Channel state callback called with"
@@ -1008,17 +1025,17 @@ void channelStateCb(int              channelId,
     if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
         *id = channelId;
         {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&mapMutex);
+            bdlmtt::LockGuard<bdlmtt::Mutex> guard(&mapMutex);
             sourceIdToChannelIdMap[sourceId] = channelId;
         }
     }
 }
 
 void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
+                     bdlmca::Blob    *msg,
                      int              channelId,
-                     void            *arg,
-                     bdlqq::Barrier   *barrier)
+                     void            *,
+                     bdlmtt::Barrier *)
 {
     if (veryVerbose) {
         bsl::cout << "Blob Based Read Cb called with"
@@ -1064,7 +1081,7 @@ void *connectFunction(void *args)
 
         rc = clientSockets[INDEX]->write(buffer.data(), numRemaining);
 
-        bdlqq::ThreadUtil::microSleep(1000 , 0);
+        bdlmtt::ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
     return 0;
 }
@@ -1102,7 +1119,7 @@ void *listenFunction(void *args)
 
         rc = client->write(buffer.data(), numRemaining);
 
-        bdlqq::ThreadUtil::microSleep(1000 , 0);
+        bdlmtt::ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
     return 0;
 }
@@ -1119,7 +1136,7 @@ namespace CASE42 {
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -1130,13 +1147,13 @@ void poolStateCb(int state, int source, int severity)
 void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
                     int             *numTimesLowWatCalled,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -1153,13 +1170,13 @@ void channelStateCb(int              channelId,
 }
 
 void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
+                     bdlmca::Blob    *msg,
                      int              channelId,
-                     void            *arg,
-                     bdlqq::Barrier   *barrier)
+                     void            *,
+                     bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -1191,7 +1208,7 @@ void *readData(void *data)
         if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
-        bdlqq::ThreadUtil::microSleep(1000 , 0);
+        bdlmtt::ThreadUtil::microSleep(1000 , 0);
     } while (numRemaining > 0);
     return 0;
 }
@@ -1208,7 +1225,7 @@ namespace CASE41 {
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -1219,12 +1236,12 @@ void poolStateCb(int state, int source, int severity)
 void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -1237,14 +1254,14 @@ void channelStateCb(int              channelId,
 }
 
 void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
+                     bdlmca::Blob    *msg,
                      int              channelId,
-                     void            *arg,
+                     void            *,
                      string          *data,
-                     bdlqq::Barrier   *barrier)
+                     bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -1262,8 +1279,8 @@ void blobBasedReadCb(int             *needed,
 
 struct ReadData {
     btlso::StreamSocket<btlso::IPv4Address> *d_socket_p;
-    bdlqq::Mutex                           *d_mutex_p;
-    int                                   *d_stopReading_p;
+    bdlmtt::Mutex                           *d_mutex_p;
+    int                                     *d_stopReading_p;
 };
 
 void *readData(void *data)
@@ -1271,7 +1288,7 @@ void *readData(void *data)
     ReadData& td = *(ReadData *) data;
 
     btlso::StreamSocket<btlso::IPv4Address> *socket      = td.d_socket_p;
-    bdlqq::Mutex&                           mutex       = *td.d_mutex_p;
+    bdlmtt::Mutex&                           mutex       = *td.d_mutex_p;
     int&                                   stopReading = *td.d_stopReading_p;
 
     const int BUF_SIZE = 1000 * 100;
@@ -1283,7 +1300,7 @@ void *readData(void *data)
         if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
             br += rc;
         }
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&mutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&mutex);
         if (stopReading) {
             break;
         }
@@ -1302,10 +1319,9 @@ void *writeData(void *data)
 {
     WriteData& td = *(WriteData *) data;
 
-    btlmt::ChannelPool&                     pool      = *td.d_pool_p;
-    int                                    channelId = td.d_channelId;;
-    btlso::StreamSocket<btlso::IPv4Address> *socket    = td.d_socket_p;
-    bdlmca::Blob                            *blob      = td.d_blob_p;
+    btlmt::ChannelPool&  pool      = *td.d_pool_p;
+    int                  channelId = td.d_channelId;;
+    bdlmca::Blob        *blob      = td.d_blob_p;
 
     int curr = 0, max = 0;
     int rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
@@ -1314,7 +1330,7 @@ void *writeData(void *data)
                       << "\n=========" << endl;
 
     for (int i = 0; i < 100; ++i) {
-        bdlqq::ThreadUtil::microSleep(1000);
+        bdlmtt::ThreadUtil::microSleep(1000);
 
         rc = pool.write(channelId, *blob);
         LOOP_ASSERT(rc, !rc);
@@ -1336,7 +1352,7 @@ void *writeData(void *data)
     LOOP_ASSERT(rc, !rc);
 
     for (int i = 0; i < 100; ++i) {
-        bdlqq::ThreadUtil::microSleep(1000);
+        bdlmtt::ThreadUtil::microSleep(1000);
 
         rc = pool.write(channelId, *blob);
         LOOP_ASSERT(rc, !rc);
@@ -1358,7 +1374,7 @@ void *writeData(void *data)
     LOOP_ASSERT(rc, !rc);
 
     for (int i = 0; i < 100; ++i) {
-        bdlqq::ThreadUtil::microSleep(1000);
+        bdlmtt::ThreadUtil::microSleep(1000);
 
         rc = pool.resetRecordedMaxWriteCacheSize(channelId);
         LOOP_ASSERT(rc, !rc);
@@ -1404,12 +1420,12 @@ const int NUM_THREADS = 20;
 const int NUM_THREADS = 5;
 #endif
 
-bdlqq::Barrier *barrier;
+bdlmtt::Barrier *barrier;
 
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -1420,12 +1436,12 @@ void poolStateCb(int state, int source, int severity)
 void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -1438,13 +1454,13 @@ void channelStateCb(int              channelId,
     }
 }
 
-void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
-                     int              channelId,
-                     void            *arg)
+void blobBasedReadCb(int          *needed,
+                     bdlmca::Blob *msg,
+                     int           channelId,
+                     void         *)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -1456,7 +1472,7 @@ void blobBasedReadCb(int             *needed,
 struct TestData {
     Obj           *d_pool_p;
     int            d_channelId;
-    bdlqq::Barrier *d_barrier_p;
+    bdlmtt::Barrier *d_barrier_p;
     bdlmca::Blob    *d_blob_p;
 };
 
@@ -1492,12 +1508,16 @@ int check()
     // try to write too much
     rc = write(CACHE_HI_WAT + 1);
     LOOP_ASSERT(rc, rc);
-    if (!rc) return ERROR_IMPOSSIBLE_WRITE_SUCCEEDED;
+    if (!rc) {
+        return ERROR_IMPOSSIBLE_WRITE_SUCCEEDED;                      // RETURN
+    }
 
     // try to write max possible
     rc = write(CACHE_HI_WAT);
     LOOP_ASSERT(rc, !rc);
-    if (rc) return ERROR_MAX_POSSIBLE_WRITE_FAILED;
+    if (rc) {
+        return ERROR_MAX_POSSIBLE_WRITE_FAILED;                       // RETURN
+    }
 
     return 0;
 }
@@ -1511,7 +1531,7 @@ void delay(int delay)
 
 // signal allow writer threads to start writing from the same time (to
 // increase concurrency), barrier could be another way but might be too heavy.
-static bsls::AtomicInt sig(0);
+static bdlmtt::AtomicInt sig = 0;
 void signalerThread()
 {
     while(1) {
@@ -1559,7 +1579,7 @@ void writerThread(unsigned threadIndex)
 
 void success()
 {
-    bsl::cout << "no bug found" << bsl::endl;
+    std::cout << "no bug found" << std::endl;
     _exit(0);
 }
 
@@ -1569,7 +1589,7 @@ extern "C" void* threadFunctionCase36(void *data)
     TestData      *testData = (TestData *) data;
     Obj           *pool     = testData->d_pool_p;
     int            id       = testData->d_channelId;
-    bdlqq::Barrier *barrier  = testData->d_barrier_p;;
+    bdlmtt::Barrier *barrier  = testData->d_barrier_p;;
 
     bdlmca::Blob b(&f);
     b.setLength(CACHE_HI_WAT);
@@ -1593,14 +1613,14 @@ extern "C" void* threadFunctionCase36(void *data)
 namespace CASE38 {
 
 btlmt::ChannelPool *d_pool_p = 0;
-int                numRead = 0;
-bdlqq::Mutex        dataMutex;
-ostringstream      dataStream;
+int                 numRead = 0;
+bdlmtt::Mutex       dataMutex;
+ostringstream       dataStream;
 
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -1608,14 +1628,14 @@ void poolStateCb(int state, int source, int severity)
     }
 }
 
-void channelStateCb(int              channelId,
-                    int              serverId,
-                    int              state,
-                    void            *arg,
-                    int             *id)
+void channelStateCb(int   channelId,
+                    int   serverId,
+                    int   state,
+                    void *,
+                    int  *id)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -1626,14 +1646,14 @@ void channelStateCb(int              channelId,
     }
 }
 
-void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
-                     int              channelId,
-                     void            *arg,
-                     int             *numTimesCbCalled)
+void blobBasedReadCb(int          *needed,
+                     bdlmca::Blob *msg,
+                     int           channelId,
+                     void         *,
+                     int          *numTimesCbCalled)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -1676,7 +1696,7 @@ namespace CASE36 {
 void poolStateCb(int state, int source, int severity)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -1687,12 +1707,12 @@ void poolStateCb(int state, int source, int severity)
 void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -1705,15 +1725,15 @@ void channelStateCb(int              channelId,
 }
 
 void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
+                     bdlmca::Blob    *msg,
                      int              channelId,
-                     void            *arg,
+                     void            *,
                      int             *numTimesCbCalled,
                      string          *data,
-                     bdlqq::Barrier   *barrier)
+                     bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -1811,10 +1831,10 @@ public:
 void poolStateCb(int            state,
                  int            source,
                  int            severity,
-                 bdlqq::Barrier *barrier)
+                 bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
@@ -1826,12 +1846,12 @@ void poolStateCb(int            state,
 void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
-                    void            *arg,
+                    void            *,
                     int             *id,
-                    bdlqq::Barrier   *barrier)
+                    bdlmtt::Barrier *barrier)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -1843,13 +1863,13 @@ void channelStateCb(int              channelId,
     }
 }
 
-void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob      *msg,
-                     int              channelId,
-                     void            *arg)
+void blobBasedReadCb(int          *needed,
+                     bdlmca::Blob *msg,
+                     int           channelId,
+                     void         *)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(&coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -1976,7 +1996,7 @@ int setOption(SocketOptions *options, const char *specString)
       } break;
       default: {
         LOOP2_ASSERT(spec, value, 0);
-        return 0;
+        return 0;                                                     // RETURN
       } break;
     }
     return numRead;
@@ -1993,7 +2013,7 @@ int ggg(SocketOptions *object, const char *spec)
     while (*spec) {
         const int numRead = setOption(object, spec);
         if (!numRead) {
-            return numRead;
+            return numRead;                                           // RETURN
         }
         spec += numRead;
    }
@@ -2025,10 +2045,10 @@ int verify(const Obj&                 pool,
     if (!options.debugFlag().isNull()) {
         int result;
         const int rc = pool.getSocketOption(
-                                        &result,
-                                        btlso::SocketOptUtil::BTESO_DEBUGINFO,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        channelId);
+                                       &result,
+                                       btlso::SocketOptUtil::BTESO_DEBUGINFO,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       channelId);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -2039,10 +2059,10 @@ int verify(const Obj&                 pool,
     if (!options.allowBroadcasting().isNull()) {
         int result;
         const int rc = pool.getSocketOption(
-                                        &result,
-                                        btlso::SocketOptUtil::BTESO_BROADCAST,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        channelId);
+                                       &result,
+                                       btlso::SocketOptUtil::BTESO_BROADCAST,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       channelId);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -2070,10 +2090,10 @@ int verify(const Obj&                 pool,
     if (!options.keepAlive().isNull()) {
         int result;
         const int rc = pool.getSocketOption(
-                                        &result,
-                                        btlso::SocketOptUtil::BTESO_KEEPALIVE,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        channelId);
+                                       &result,
+                                       btlso::SocketOptUtil::BTESO_KEEPALIVE,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       channelId);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -2084,10 +2104,10 @@ int verify(const Obj&                 pool,
     if (!options.bypassNormalRouting().isNull()) {
         int result;
         const int rc = pool.getSocketOption(
-                                        &result,
-                                        btlso::SocketOptUtil::BTESO_DONTROUTE,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        channelId);
+                                       &result,
+                                       btlso::SocketOptUtil::BTESO_DONTROUTE,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       channelId);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -2112,10 +2132,10 @@ int verify(const Obj&                 pool,
     if (!options.leaveOutOfBandDataInline().isNull()) {
         int result;
         const int rc = pool.getSocketOption(
-                                        &result,
-                                        btlso::SocketOptUtil::BTESO_OOBINLINE,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        channelId);
+                                       &result,
+                                       btlso::SocketOptUtil::BTESO_OOBINLINE,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       channelId);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -2126,10 +2146,10 @@ int verify(const Obj&                 pool,
     if (!options.sendBufferSize().isNull()) {
         int result;
         const int rc = pool.getSocketOption(
-                                        &result,
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        channelId);
+                                       &result,
+                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       channelId);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -2229,7 +2249,7 @@ class ReadServer
     int                d_expDataSize;
     bslma::Allocator  *d_allocator_p;
     btlmt::ChannelPool *d_cp_p;
-    bdlqq::Mutex       *d_coutMutex;
+    bdlmtt::Mutex       *d_coutMutex;
 
   private:
     // ChannelPool Callback Functions
@@ -2237,10 +2257,10 @@ class ReadServer
 
     void chanCB(int channelId, int serverId, int state, void *arg);
 
-    void blobBasedReadCb(int        *numNeeded,
+    void blobBasedReadCb(int          *numNeeded,
                          bdlmca::Blob *msg,
-                         int         channelId,
-                         void       *context);
+                         int           channelId,
+                         void         *context);
         // Blob based read callback.
 
     // Not Implemented
@@ -2249,14 +2269,12 @@ class ReadServer
 
   public:
     // CREATORS
-    ReadServer(bdlqq::Mutex                           *coutMutex,
-               int                                    expDataSize,
+    ReadServer(bdlmtt::Mutex                          *coutMutex,
+               int                                     expDataSize,
                const btlmt::ChannelPoolConfiguration&  channelPoolConfig,
-               bslma::Allocator                      *allocator = 0);
+               bslma::Allocator                       *allocator = 0);
         // Create a server object which accepts connections
-        // on localhost at the specified by 'port' and uses the specified
-        // 'useBlobForDataReads' to decide if 'bdlmca::Blob' or
-        // 'bdlmca::PooledBufferChain' should be used for data reads.  The server
+        // on localhost at the specified by 'port'.  The server
         // uses the specified 'allocator' for internal memory management.
 
    ~ReadServer();
@@ -2287,7 +2305,7 @@ class ReadServer
 
 // CREATORS
 ReadServer::ReadServer(
-        bdlqq::Mutex                           *coutMutex,
+        bdlmtt::Mutex                           *coutMutex,
         int                                    expDataSize,
         const btlmt::ChannelPoolConfiguration&  channelPoolConfig,
         bslma::Allocator                      *allocator)
@@ -2298,17 +2316,17 @@ ReadServer::ReadServer(
 , d_coutMutex(coutMutex)
 {
     btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                                     bdlf::MemFnUtil::memFn(&ReadServer::poolCB,
+                                    bdlf::MemFnUtil::memFn(&ReadServer::poolCB,
                                                            this),
                                      d_allocator_p);
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                                     bdlf::MemFnUtil::memFn(&ReadServer::chanCB,
+                                    bdlf::MemFnUtil::memFn(&ReadServer::chanCB,
                                                            this),
                                      d_allocator_p);
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
-                            bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
+                           bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
                                                   this);
 
     d_cp_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
@@ -2337,14 +2355,14 @@ int ReadServer::stop()
     return d_cp_p->stop();
 }
 
-void ReadServer::poolCB(int state, int source, int severity)
+void ReadServer::poolCB(int, int, int)
 {
 }
 
-void ReadServer::chanCB(int channelId, int serverId, int state, void *arg)
+void ReadServer::chanCB(int channelId, int serverId, int state, void *)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -2360,13 +2378,13 @@ void ReadServer::chanCB(int channelId, int serverId, int state, void *arg)
     }
 }
 
-void ReadServer::blobBasedReadCb(int             *needed,
-                                 bdlmca::Blob      *msg,
-                                 int              channelId,
-                                 void            *arg)
+void ReadServer::blobBasedReadCb(int          *needed,
+                                 bdlmca::Blob *msg,
+                                 int           channelId,
+                                 void         *)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -2379,13 +2397,13 @@ void ReadServer::blobBasedReadCb(int             *needed,
     const int length     = msg->length();
 
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
         bdlmca::BlobUtil::hexDump(bsl::cout, *msg, 0, length);
     }
 
     if (d_expDataSize != length) {
         *needed = 1;
-        return;
+        return;                                                       // RETURN
     }
 
     for (int i = 0; i < numBuffers - 1; ++i) {
@@ -2437,7 +2455,7 @@ class DataReader {
     int                 d_msgId;           // message id
     int                 d_msgLength;       // message length
     string              d_data;            // actual data
-    mutable bdlqq::Mutex d_mutex;           // mutex for data
+    mutable bdlmtt::Mutex d_mutex;           // mutex for data
 
   public:
     // CREATORS
@@ -2453,12 +2471,6 @@ class DataReader {
                          int         channelId,
                          void       *context);
         // Blob based read callback.
-
-    void pbcBasedReadCb(int                  *numConsumed,
-                        int                  *needed,
-                        const btlmt::DataMsg&  msg,
-                        void                 *context);
-        // Pooled Buffer Chain based read callback.
 
     // ACCESSORS
     const string& data() const;
@@ -2486,16 +2498,15 @@ class ReadServer
     typedef bsl::map<int, DataReader *>  DataMap;    // maps msg id to data
 
     int        d_port;           // well-known port for service requests
-    const bool d_useBlobForDataReads;
 
     bslma::Allocator        *d_allocator_p;
     btlmt::ChannelPool       *d_cp_p;
     ChannelMap               d_channelMap;
-    mutable bdlqq::Mutex      d_channelMapMutex;
+    mutable bdlmtt::Mutex      d_channelMapMutex;
     DataMap                  d_dataMap;
-    mutable bdlqq::Mutex      d_dataMapMutex;
-    mutable bdlqq::Mutex      d_generalMutex;
-    bdlqq::Mutex             *d_coutMutex;
+    mutable bdlmtt::Mutex      d_dataMapMutex;
+    mutable bdlmtt::Mutex      d_generalMutex;
+    bdlmtt::Mutex             *d_coutMutex;
 
   private:
     // ChannelPool Callback Functions
@@ -2509,27 +2520,18 @@ class ReadServer
                          void       *context);
         // Blob based read callback.
 
-    void pbcBasedReadCb(int                  *numConsumed,
-                        int                  *needed,
-                        const btlmt::DataMsg&  msg,
-                        void                 *context);
-        // Pooled Buffer Chain based read callback.
-
     // Not Implemented
     ReadServer(const ReadServer&);
     ReadServer& operator=(const ReadServer&);
 
   public:
     // CREATORS
-    ReadServer(bdlqq::Mutex       *coutMutex,
+    ReadServer(bdlmtt::Mutex     *coutMutex,
                int                port,
-               bool               useBlobForDataReads,
                bslma::Allocator  *allocator = 0);
-        // Create a server object which accepts connections
-        // on localhost at the specified by 'port' and uses the specified
-        // 'useBlobForDataReads' to decide if 'bdlmca::Blob' or
-        // 'bdlmca::PooledBufferChain' should be used for data reads.  The server
-        // uses the specified 'allocator' for internal memory management.
+        // Create a server object which accepts connections on localhost at the
+        // specified by 'port'.  The server uses the specified 'allocator' for
+        // internal memory management.
 
    ~ReadServer();
         // Terminate all open connections, and destroy the server.
@@ -2562,12 +2564,10 @@ class ReadServer
 };
 
 ReadServer::ReadServer(
-        bdlqq::Mutex       *coutMutex,
+        bdlmtt::Mutex       *coutMutex,
         int                port,
-        bool               useBlobForDataReads,
         bslma::Allocator  *allocator)
 : d_port(port)
-, d_useBlobForDataReads(useBlobForDataReads)
 , d_allocator_p(bslma::Default::allocator(allocator))
 , d_coutMutex(coutMutex)
 {
@@ -2587,34 +2587,20 @@ ReadServer::ReadServer(
                                      , this)
               , d_allocator_p);
 
-    if (d_useBlobForDataReads) {
-        btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
-                            bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
+    btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
+                           bdlf::MemFnUtil::memFn(&ReadServer::blobBasedReadCb,
                                                   this);
 
-        d_cp_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
-                                                        dataFunctor,
-                                                        poolCb,
-                                                        cpc,
-                                                        allocator);
-    }
-    else {
-        btlmt::ChannelPool::DataReadCallback dataCb(
-                    bdlf::MemFnUtil::memFn( &ReadServer::pbcBasedReadCb
-                                         , this)
-                  , d_allocator_p);
-
-        d_cp_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
-                                                        dataCb,
-                                                        poolCb,
-                                                        cpc,
-                                                        allocator);
-    }
+    d_cp_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
+                                                     dataFunctor,
+                                                     poolCb,
+                                                     cpc,
+                                                     allocator);
 }
 
 ReadServer::~ReadServer()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_dataMapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_dataMapMutex);
     DataMap::const_iterator citer = d_dataMap.begin();
     for (;citer != d_dataMap.end(); ++citer) {
         const DataReader *reader = citer->second;
@@ -2638,14 +2624,14 @@ int ReadServer::stop()
     return d_cp_p->stop();
 }
 
-void ReadServer::poolCB(int state, int source, int severity)
+void ReadServer::poolCB(int, int, int)
 {
 }
 
-void ReadServer::chanCB(int channelId, int serverId, int state, void *arg)
+void ReadServer::chanCB(int channelId, int serverId, int state, void *)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
         bsl::cout << "Channel state callback called with"
                   << " Channel Id: " << channelId
                   << " Server Id: "  << serverId
@@ -2669,7 +2655,7 @@ void ReadServer::blobBasedReadCb(int             *needed,
                                  void            *arg)
 {
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+        bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
         bsl::cout << "Blob Based Read Cb called with"
                   << " Channel Id: " << channelId
                   << " of length: "  << msg->length() << bsl::endl;
@@ -2683,39 +2669,19 @@ void ReadServer::blobBasedReadCb(int             *needed,
     r->blobBasedReadCb(needed, msg, channelId, arg);
 }
 
-void ReadServer::pbcBasedReadCb(int                  *numConsumed,
-                                int                  *needed,
-                                const btlmt::DataMsg&  msg,
-                                void                 *arg)
-{
-    if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
-        bsl::cout << "PBC Based Read Cb called with"
-                  << " Channel Id: " << msg.channelId()
-                  << " of length: "  << msg.data()->length() << bsl::endl;
-    }
-
-    ASSERT(numConsumed);
-    ASSERT(needed);
-
-    DataReader *r = reader(msg.channelId());
-    ASSERT(r);
-    r->pbcBasedReadCb(numConsumed, needed, msg, arg);
-}
-
 // MANIPULATORS
 DataReader *ReadServer::reader(int channelId, bool createNew)
 {
     int msgId;
-    bdlqq::LockGuard<bdlqq::Mutex> guard1(&d_channelMapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard1(&d_channelMapMutex);
     ChannelMap::const_iterator citer = d_channelMap.find(channelId);
     if (citer == d_channelMap.end()) {
         if (!createNew) {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+            bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
             bsl::cout << "Channel up callback called with"
                       << " Channel Id: " << channelId
                       << " which does not exist" << bsl::endl;
-            return 0;
+            return 0;                                                 // RETURN
         }
         else {
             msgId = d_channelMap.size();
@@ -2724,11 +2690,11 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
     }
     else {
         if (createNew) {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+            bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
             bsl::cout << "Channel up callback called with"
                       << " Channel Id: " << channelId
                       << " which is already up" << bsl::endl;
-            return 0;
+            return 0;                                                 // RETURN
         }
         else {
             msgId = citer->second;
@@ -2737,15 +2703,15 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
     guard1.release()->unlock();
 
     DataReader *reader = 0;
-    bdlqq::LockGuard<bdlqq::Mutex> guard2(&d_dataMapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard2(&d_dataMapMutex);
     DataMap::iterator iter = d_dataMap.find(msgId);
     if (iter == d_dataMap.end()) {
         if (!createNew) {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+            bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
             bsl::cout << "Channel up callback called with"
                       << " Channel Id: " << channelId
                       << " which does not exist" << bsl::endl;
-            return 0;
+            return 0;                                                 // RETURN
         }
         else {
             reader = new (*d_allocator_p) DataReader();
@@ -2754,11 +2720,11 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
     }
     else {
         if (createNew) {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
+            bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_coutMutex);
             bsl::cout << "Channel up callback called with"
                       << " Channel Id: " << channelId
                       << " which is already up" << bsl::endl;
-            return 0;
+            return 0;                                                 // RETURN
         }
         else {
             reader = iter->second;
@@ -2771,7 +2737,7 @@ DataReader *ReadServer::reader(int channelId, bool createNew)
 int ReadServer::numCompletedMsgs() const
 {
     int numCompletedMsgs = 0;
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_dataMapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_dataMapMutex);
     DataMap::const_iterator citer = d_dataMap.begin();
     for (;citer != d_dataMap.end(); ++citer) {
         const DataReader *reader = citer->second;
@@ -2789,7 +2755,7 @@ int ReadServer::portNumber() const
 
 DataReader *ReadServer::dataReader(int msgIdx)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_dataMapMutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_dataMapMutex);
     DataMap::const_iterator citer = d_dataMap.find(msgIdx);
     return citer != d_dataMap.end() ? citer->second : 0;
 }
@@ -2810,10 +2776,10 @@ DataReader::~DataReader()
 }
 
 // MANIPULATORS
-void DataReader::blobBasedReadCb(int        *numNeeded,
+void DataReader::blobBasedReadCb(int          *numNeeded,
                                  bdlmca::Blob *msg,
-                                 int         channelId,
-                                 void       *context)
+                                 int           channelId,
+                                 void         *)
 {
     if (veryVerbose) {
         MTCOUT << "Blob based callback called with "
@@ -2822,7 +2788,7 @@ void DataReader::blobBasedReadCb(int        *numNeeded,
                << MTENDL;
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
 
     if (-1 == d_msgId) {
         if (msg->length() < (int) sizeof(int)) {
@@ -2853,7 +2819,7 @@ void DataReader::blobBasedReadCb(int        *numNeeded,
 
         if (0 == msg->length()) {
             *numNeeded = d_msgLength;
-            return;                                               // RETURN
+            return;                                                   // RETURN
         }
     }
 
@@ -2868,142 +2834,31 @@ void DataReader::blobBasedReadCb(int        *numNeeded,
 
     bdlmca::BlobUtil::erase(msg, 0, msg->length());
     d_data.append(msgData);
-    const int numRemaining = d_msgLength - d_data.size();
-    *numNeeded = 1;
-}
-
-void DataReader::pbcBasedReadCb(int                  *numConsumed,
-                                int                  *numNeeded,
-                                const btlmt::DataMsg&  msg,
-                                void                 *context)
-{
-    if (veryVerbose) {
-        MTCOUT << "PBC based callback called with "
-               << "for Channel Id: " << msg.channelId()
-               << " with data of length: " << msg.data()->length()
-               << MTENDL;
-    }
-
-    bdlmca::PooledBufferChain *chain = msg.data();
-    ASSERT(chain);
-
-    const int bufSize    = chain->bufferSize();
-    const int numBuffers = (chain->length() / bufSize) + 1;
-    int       bufOffset  = 0;
-    int       bufIdx     = 0;
-    *numConsumed         = 0;
-
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
-
-    if (-1 == d_msgId) {
-        if (chain->length() < (int) sizeof(int)) {
-            *numNeeded = sizeof(int);
-            return;                                                   // RETURN
-        }
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, chain->buffer(bufIdx));
-        ASSERT(0 <= d_msgId);
-
-        if (veryVerbose) {
-            MTCOUT << "Msg Id: " << d_msgId << MTENDL;
-        }
-
-        bufOffset += sizeof(int);
-        *numConsumed += sizeof(int);
-        if (bufOffset >= bufSize) {
-            ++bufIdx;
-            bufOffset = 0;
-        }
-
-        if (*numConsumed == chain->length()) {
-            *numNeeded = sizeof(int);
-            return;                                               // RETURN
-        }
-    }
-
-    if (-1 == d_msgLength) {
-        if (chain->length() < *numConsumed + (int) sizeof(int)) {
-            *numNeeded = sizeof(int) - (chain->length() - *numConsumed);
-            return;                                                   // RETURN
-        }
-        ASSERT(bufSize >= bufOffset + (int) sizeof(int));
-
-        bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength,
-                                        chain->buffer(bufIdx) + bufOffset);
-        ASSERT(0 <= d_msgLength);
-        if (veryVerbose) {
-            MTCOUT << "Msg Length: " << d_msgLength << MTENDL;
-        }
-
-        bufOffset += sizeof(int);
-
-        *numConsumed += sizeof(int);
-        if (bufOffset >= bufSize) {
-            ++bufIdx;
-            bufOffset = 0;
-        }
-
-        if (*numConsumed == chain->length()) {
-            *numNeeded = d_msgLength;
-            return;                                               // RETURN
-        }
-    }
-
-    string msgData;
-    if (bufOffset >= bufSize) {
-        ++bufIdx;
-        bufOffset = 0;
-    }
-
-    int remaining = chain->length() - *numConsumed;
-    if (d_msgLength < remaining) {
-        remaining = d_msgLength;
-    }
-
-    while (remaining) {
-        int currSize = remaining > bufSize - bufOffset
-                     ? bufSize - bufOffset : remaining;
-        msgData.append(chain->buffer(bufIdx) + bufOffset, currSize);
-        remaining -= currSize;
-        bufOffset += currSize;
-        *numConsumed += currSize;
-        if (bufOffset >= bufSize) {
-            ++bufIdx;
-            bufOffset = 0;
-        }
-    }
-
-    d_data.append(msgData);
-
-    if (veryVerbose) {
-        MTCOUT << d_data << MTENDL;
-    }
-
-    const int numRemaining = d_msgLength - d_data.size();
     *numNeeded = 1;
 }
 
 // ACCESSORS
 const string& DataReader::data() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     return d_data;
 }
 
 int DataReader::msgId() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     return d_msgId;
 }
 
 int DataReader::msgLength() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     return d_msgLength;
 }
 
 bool DataReader::done() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
     return (int) d_data.size() == d_msgLength;
 }
 
@@ -3016,10 +2871,9 @@ struct TestData {
 
     int                                     d_threadIntId; // integer thread id
     string                                  d_expData;  // expected data
-    bool                                    d_useBlobs; // use blobs
     btlso::IPv4Address                       d_address;  // ip address
     btlso::StreamSocket<btlso::IPv4Address>  *d_socket_p; // socket to write to
-    bdlqq::Barrier                          *d_barrier_p;// barrier
+    bdlmtt::Barrier                          *d_barrier_p;// barrier
 
     void run();
         // Run the test function.
@@ -3073,7 +2927,7 @@ void TestData::run()
         else {
             ++incr;
         }
-        bdlqq::ThreadUtil::microSleep(100);
+        bdlmtt::ThreadUtil::microSleep(100);
     }
 }
 
@@ -3085,15 +2939,15 @@ void TestData::run()
 
 namespace TEST_CASE_BUSY_METRICS {
 
-void dummyDataCallbackWithDelay(int                  *numConsumed,
-                                int                  *numNeeded,
-                                const btlmt::DataMsg&  message,
-                                void                 *context,
-                                double                delayS)
+void dummyDataCallbackWithDelay(int          *numNeeded,
+                                bdlmca::Blob *message,
+                                int           ,
+                                void         *,
+                                double        delayS)
 {
-    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(delayS));
+    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(delayS));
     *numNeeded   = 1;
-    *numConsumed = message.data()->length();
+    bdlmca::BlobUtil::erase(message, 0, message->length());
 }
 
 }  // namespace TEST_CASE_BUSY_METRICS
@@ -3113,8 +2967,8 @@ int createData(bsl::vector<bsl::vector<char> > *data,
 {
     int length = 0;
     bsl::vector<int> lengths;
-    for (bdlb::StrTokenRefIter it(description, " "); it; ++it) {
-        lengths.push_back(atoi(it().data()));
+    for (bdlb::StrTokenIter it(description, " "); it; ++it) {
+        lengths.push_back(atoi(it()));
         length += lengths.back();
     }
     data->resize(lengths.size());
@@ -3156,16 +3010,6 @@ void loadBlob(bdlmca::Blob                       *blob,
                                          0);
         bdlmca::BlobBuffer buffer(sharedData, srcIt->size());
         blob->appendDataBuffer(buffer);
-    }
-}
-
-void loadBufferChain(bdlmca::PooledBufferChain          *chain,
-                     bsl::vector<bsl::vector<char> >&  data)
-    // Load into the specified 'chain' the specified 'data' buffers.
-{
-    bsl::vector<bsl::vector<char> >::iterator srcIt  = data.begin();
-    for (; srcIt != data.end(); ++srcIt) {
-        chain->append(&srcIt->front(), srcIt->size());
     }
 }
 
@@ -3247,7 +3091,7 @@ bool isEqualByteSequence(
     }
 
     if (blobPosition  == maximumOffset) {
-        return true;
+        return true;                                                  // RETURN
     }
     bsl::cout << "Unqueal end of buffer: ";
     P_(blobPosition); P_(blobIndex);
@@ -3269,8 +3113,8 @@ int loadTestVector(bsl::vector<IOVEC>  *vector,
     // [0, 'srcData.size()').
 {
     int length = 0;
-    for (bdlb::StrTokenRefIter it(description, " "); it; ++it) {
-        int index = atoi(it().data());
+    for (bdlb::StrTokenIter it(description, " "); it; ++it) {
+        int index = atoi(it());
         vector->push_back(srcData[index]);
         length += srcData[index].length();
     }
@@ -3449,9 +3293,9 @@ class TestCase25ConcurrencyTest {
      const int                 d_channelId;
      Socket * const            d_clientSocket_p;
      const int                 d_numThreads;
-     bsls::AtomicInt            d_numBytesWritten;
-     bsls::AtomicInt            d_done;
-     bdlqq::Barrier             d_barrier;
+     bdlmtt::AtomicInt            d_numBytesWritten;
+     bdlmtt::AtomicInt            d_done;
+     bdlmtt::Barrier             d_barrier;
      bdlmt::FixedThreadPool      d_threadPool;
 
      void executeTest();
@@ -3463,11 +3307,11 @@ class TestCase25ConcurrencyTest {
   public:
 
     TestCase25ConcurrencyTest(
-                         btlmt::ChannelPool                     *pool,
-                         int                                    channelId,
-                         btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
-                         int                                    numThreads,
-                         bslma::Allocator                      *allocator = 0);
+                       btlmt::ChannelPool                      *pool,
+                       int                                      channelId,
+                       btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
+                       int                                      numThreads,
+                       bslma::Allocator                        *allocator = 0);
 
     void run();
         // Run 'executeTest' on multiple threads.
@@ -3475,11 +3319,11 @@ class TestCase25ConcurrencyTest {
 };
 
 TestCase25ConcurrencyTest::TestCase25ConcurrencyTest(
-                          btlmt::ChannelPool                      *pool,
-                          int                                    channelId,
-                          btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
-                          int                                    numThreads,
-                          bslma::Allocator                      *allocator)
+                         btlmt::ChannelPool                      *pool,
+                         int                                      channelId,
+                         btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
+                         int                                      numThreads,
+                         bslma::Allocator                        *allocator)
 : d_pool_p(pool)
 , d_channelId(channelId)
 , d_clientSocket_p(clientSocket)
@@ -3569,11 +3413,11 @@ void TestCase25ConcurrencyTest::run()
             numBytesRead += rc;
         }
         else {
-            bdlqq::ThreadUtil::microSleep(10);
+            bdlmtt::ThreadUtil::microSleep(10);
         }
     }
     d_threadPool.drain();
-    bdlqq::ThreadUtil::microSleep(100);
+    bdlmtt::ThreadUtil::microSleep(100);
     ASSERT(numBytesRead == (int)d_numBytesWritten);
     if (veryVerbose) {
         PT2((int)d_numBytesWritten, numBytesRead);
@@ -3583,9 +3427,9 @@ void TestCase25ConcurrencyTest::run()
 #if 0
 void testCase25ConcurrencyTest(btlmt::ChannelPool *pool,
                                int                channelId,
-                               bdlqq::Barrier     *barrier,
-                               bsls::AtomicInt    *numWritten,
-                               bsls::AtomicInt    *done)
+                               bdlmtt::Barrier     *barrier,
+                               bdlmtt::AtomicInt    *numWritten,
+                               bdlmtt::AtomicInt    *done)
 {
     enum { HI_WATERMARK = 1024,
            NUM_BYTES    = HI_WATERMARK * 10 };
@@ -3629,14 +3473,14 @@ void testCase25ConcurrencyTest(btlmt::ChannelPool *pool,
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_N2_NAMESPACE {
 static
-void caseN2ChannelStateCallback(int                 channelId,
-                                int                 serverId,
-                                int                 state,
-                                void               *arg,
+void caseN2ChannelStateCallback(int                  channelId,
+                                int                  serverId,
+                                int                  state,
+                                void                *,
                                 btlmt::ChannelPool **poolAddr,
-                                int               **eventAddr,
-                                bdlqq::Barrier      *barrier,
-                                int                *channelId_p)
+                                int                **eventAddr,
+                                bdlmtt::Barrier     *barrier,
+                                int                 *channelId_p)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -3678,117 +3522,16 @@ namespace TEST_CASE_23_NAMESPACE {
 const char MESSAGE[] = "MESSAGE\n";
 
 struct case23CallbackInfo {
-    bdlqq::Barrier     *d_clientServerBarrier_p;
-    bdlqq::Barrier     *d_stateBarrier_p;
-    bdlqq::Barrier     *d_dataBarrier_p;
-    bsls::AtomicInt     d_channelId;
-    bsls::AtomicInt     d_channelDownReadFlag;
-    bsls::AtomicInt     d_channelDownWriteFlag;
+    bdlmtt::Barrier     *d_clientServerBarrier_p;
+    bdlmtt::Barrier     *d_stateBarrier_p;
+    bdlmtt::Barrier     *d_dataBarrier_p;
+    bdlmtt::AtomicInt     d_channelId;
+    bdlmtt::AtomicInt     d_channelDownReadFlag;
+    bdlmtt::AtomicInt     d_channelDownWriteFlag;
     btlmt::ChannelPool *d_channelPool_p;
     int                d_msgLength;
     bool               d_echoMode; // differentiates server thread
 };
-
-#if 0
-static
-void case23ChannelStateCallback(int                 channelId,
-                                int                 serverId,
-                                int                 state,
-                                void               *arg,
-                                case23CallbackInfo *info)
-{
-    ASSERT(info);
-
-    switch(state){
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN_READ: {
-        if (veryVerbose) {
-            MTCOUT << "Connection terminated (read only):"
-                   << " serverId="  << bsl::hex << serverId << bsl::dec
-                   << " channelId=" << channelId
-                   << MTENDL;
-        }
-        ++info->d_channelDownReadFlag;
-        info->d_stateBarrier_p->wait();
-      } break;
-
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN_WRITE: {
-        if (veryVerbose) {
-            MTCOUT << "Connection terminated (write only):"
-                   << " serverId="  << bsl::hex << serverId << bsl::dec
-                   << " channelId=" << channelId
-                   << MTENDL;
-        }
-        ++info->d_channelDownWriteFlag;
-        info->d_stateBarrier_p->wait();
-      } break;
-
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
-        if (veryVerbose) {
-            MTCOUT << "Connection terminated:"
-                   << " serverId="  << bsl::hex << serverId << bsl::dec
-                   << " channelId=" << channelId
-                   << MTENDL;
-        }
-        info->d_stateBarrier_p->wait();
-      } break;
-
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
-        if (veryVerbose) {
-            MTCOUT << "Connection established:"
-                   << " serverId="  << bsl::hex << serverId << bsl::dec
-                   << " channelId=" << channelId
-                   << MTENDL;
-        }
-        info->d_channelId = channelId;
-        info->d_stateBarrier_p->wait();
-      } break;
-    }
-}
-
-static
-void case23DataCallback(int                *numConsumed,
-                        int                *numNeeded,
-                        btlmt::DataMsg       msg,
-                        void               *context,
-                        case23CallbackInfo *info)
-{
-    // This is an echo server, the clients merely receive the data but don't
-    // echo it.  They do only minimal checking.  We need to adjust the
-    // channelId just in case the channel has been shut down, in which case
-    // channelId is 0 but oldChannelId still has the good data.
-
-    MTASSERT(numConsumed);
-    MTASSERT(msg.data());
-    MTLOOP_ASSERT(msg.data()->length(), 0 < msg.data()->length());
-
-    info->d_msgLength -= msg.data()->length();
-
-    *numConsumed = msg.data()->length();
-    *numNeeded   = info->d_msgLength;
-
-    if (info->d_echoMode && 0 == info->d_msgLength) {
-        // Delay the answer with the use of the barrier.
-        info->d_dataBarrier_p->wait();
-
-        int retCode = info->d_channelPool_p->write(msg.channelId(), msg);
-        MTLOOP_ASSERT(retCode, 0 == retCode ||
-                              -2 == retCode ||  // reached high-water mark
-                              -3 == retCode);   // channel shut down
-        if (0 == retCode) {
-            if (veryVerbose) {
-                MTCOUT << "\t\tServer echoing back " << *numConsumed
-                       << " bytes on channel " << msg.channelId() << MTENDL;
-            }
-        }
-        else {
-            if (veryVerbose) {
-                MTCOUT << "\t\tServer dropped " << *numConsumed
-                       << " bytes on channel " << msg.channelId() << MTENDL;
-            }
-        }
-    }
-}
-#endif
 
 extern "C"
 void *case23ClientThread3(void *arg)
@@ -3864,23 +3607,24 @@ namespace TEST_CASE_22_NAMESPACE {
 const int MAGIC          = 0x0ABCDEF0;
 
 struct case22ThreadInfo {
-    bdlqq::Barrier                  *d_barrier_p;
-    Obj                            *d_channelPool_p;
+    bdlmtt::Barrier                 *d_barrier_p;
+    Obj                             *d_channelPool_p;
     btlso::IPv4Address               d_serverAddress;
-    bool                            d_isLeaderFlag;
-    int                             d_groupId;
-    bsls::AtomicInt                 *d_channelId;
-    bsls::AtomicInt                 *d_oldChannelId;
-    int                             d_bufferAlloc;
-    int                             d_totalAlloc;
-    int                             d_numIters;
-    char                            d_write;
-    bdlmca::PooledBufferChainFactory *d_factory_p;
-    int                             d_messageLength;
-    bslma::Allocator               *d_allocator_p;
+    bool                             d_isLeaderFlag;
+    int                              d_groupId;
+    bdlmtt::AtomicInt               *d_channelId;
+    bdlmtt::AtomicInt               *d_oldChannelId;
+    int                              d_bufferAlloc;
+    int                              d_totalAlloc;
+    int                              d_numIters;
+    char                             d_write;
+    bdlmca::PooledBlobBufferFactory *d_factory_p;
+    int                              d_messageLength;
+    bslma::Allocator                *d_allocator_p;
 };
 
 extern "C" {
+
 void * case22Thread(void * arg)
 {
     case22ThreadInfo *info = (case22ThreadInfo *) arg;
@@ -3911,18 +3655,16 @@ void * case22Thread(void * arg)
                             ? TOTAL_SIZE % BUF_SIZE
                             : BUF_SIZE;  // size of the last buffer
 
-    // Segment buffer into DataMsg of individual buffers of BUF_SIZE.
-    bdlmca::PooledBufferChain *chain = info->d_factory_p->allocate(0);
+    bdlmca::Blob blob(info->d_factory_p, info->d_allocator_p);
     for (int i = 0 ;i < numVecs; ++i) {
-        chain->append(buffer + i * BUF_SIZE,
-                      (i < numVecs-1) ? BUF_SIZE : LAST_VEC_SIZE);
+        bdlmca::BlobUtil::append(&blob,
+                                 buffer + i * BUF_SIZE,
+                                 (i < numVecs-1) ? BUF_SIZE : LAST_VEC_SIZE);
     }
 
-    // If keeping track of message length, put it into the first eight bytes.
-    btlmt::DataMsg msg;
-    msg.setData(chain, info->d_factory_p, info->d_allocator_p);
     info->d_allocator_p->deallocate(buffer);
 
+    // If keeping track of message length, put it into the first eight bytes.
     if (info->d_isLeaderFlag) {
         if (verbose) {
             MTCOUT << "\tInitial connection: channelId=" << *info->d_channelId
@@ -3932,8 +3674,8 @@ void * case22Thread(void * arg)
                                100, bsls::TimeInterval(1.0), // 1s
                                info->d_groupId);
         MTLOOP_ASSERT(retCode, 0 == retCode);
-        bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(0, 1); // 1s
+        bdlmtt::ThreadUtil::yield();
+        bdlmtt::ThreadUtil::microSleep(0, 1); // 1s
     }
 
     // Wait until all threads have initialized their buffers.
@@ -3976,8 +3718,8 @@ void * case22Thread(void * arg)
                     channelId = *info->d_channelId;
                     --countDown;
                     if (!channelId) {
-                        bdlqq::ThreadUtil::yield();
-                        bdlqq::ThreadUtil::microSleep(10000); // 10ms
+                        bdlmtt::ThreadUtil::yield();
+                        bdlmtt::ThreadUtil::microSleep(10000); // 10ms
                     }
                 } while (countDown && !channelId);
 
@@ -3992,8 +3734,7 @@ void * case22Thread(void * arg)
             }
         }
 
-        msg.setChannelId(channelId);
-        retCode = mXp->write(channelId, msg);
+        retCode = mXp->write(channelId, blob);
         MTLOOP_ASSERT(retCode,
                        0 == retCode ||  // o.k.
                       -2 == retCode ||  // reached high-water mark
@@ -4002,17 +3743,18 @@ void * case22Thread(void * arg)
 
         if (veryVerbose) {
             if (0 == retCode) {
-                MTCOUT << "\t\tWrote " << msg.data()->length()
+                MTCOUT << "\t\tWrote " << blob.length()
                        << " bytes to channel " << channelId << MTENDL;
             }
             else {
-                MTCOUT << "\t\tDroppped " << msg.data()->length()
+                MTCOUT << "\t\tDroppped " << blob.length()
                        << " bytes to channel " << channelId << MTENDL;
             }
         }
     }
     return 0;
 }
+
 } // closing extern "C"
 
 static
@@ -4058,23 +3800,23 @@ void case22PoolStateCallback(
 }
 
 struct case22CallbackInfo {
-    Obj               **d_channelPool_p;
+    Obj                **d_channelPool_p;
     btlso::IPv4Address   d_serverAddress;
-    bsls::AtomicInt     *d_channelId1;
-    bsls::AtomicInt     *d_channelId2;
-    bsls::AtomicInt     *d_oldChannelId1;
-    bsls::AtomicInt     *d_oldChannelId2;
-    char                d_payloadChar1;
-    char                d_payloadChar2;
-    int                 d_numNeeded;
-    int                 d_msgSize;
+    bdlmtt::AtomicInt   *d_channelId1;
+    bdlmtt::AtomicInt   *d_channelId2;
+    bdlmtt::AtomicInt   *d_oldChannelId1;
+    bdlmtt::AtomicInt   *d_oldChannelId2;
+    char                 d_payloadChar1;
+    char                 d_payloadChar2;
+    int                  d_numNeeded;
+    int                  d_msgSize;
 };
 
 static
 void case22ChannelStateCallback(int                 channelId,
                                 int                 sourceId,
                                 int                 state,
-                                void               *arg,
+                                void               *,
                                 case22CallbackInfo *info)
 {
     MTASSERT(info);
@@ -4124,9 +3866,10 @@ void case22ChannelStateCallback(int                 channelId,
       } break;
       case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
         MTASSERT(0 == mXp->setSocketOption(
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        32768, channelId));
+                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       32768,
+                                       channelId));
         if (verbose) {
             MTCOUT << "\tConnection established:"
                    << " sourceId="    << sourceId
@@ -4148,17 +3891,16 @@ void case22ChannelStateCallback(int                 channelId,
     }
 }
 
-void case22DataCallback(int                *numConsumed,
-                        int                *numNeeded,
-                        btlmt::DataMsg       msg,
-                        void               *context,
+void case22DataCallback(int                *numNeeded,
+                        bdlmca::Blob       *msg,
+                        int                 channelId,
+                        void               *,
                         case22CallbackInfo *info)
 {
     // This is an echo server, the clients merely receive the data but don't
     // echo it.  They do only minimal checking.  We need to adjust the
     // channelId just in case the channel has been shut down, in which case
     // channelId is 0 but oldChannelId still has the good data.
-
     btlmt::ChannelPool  *mXp = *(info->d_channelPool_p);
     const int           channelId1 = *info->d_channelId1
                                    ? *info->d_channelId1
@@ -4169,25 +3911,30 @@ void case22DataCallback(int                *numConsumed,
     const char          PAYLOAD_CHAR1 = info->d_payloadChar1;
     const char          PAYLOAD_CHAR2 = info->d_payloadChar2;
 
-    MTASSERT(numConsumed);
-    MTASSERT(msg.data());
-    MTLOOP_ASSERT(msg.data()->length(), 0 < msg.data()->length());
+    MTASSERT(numNeeded);
+    MTASSERT(msg);
+    MTLOOP_ASSERT(msg->length(), 0 < msg->length());
 
-    if (msg.channelId() == channelId1 || msg.channelId() == channelId2) {
+    bsl::shared_ptr<char> buffer =
+        bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(msg->length());
+    char *dataBuffer = buffer.get();
+    bdlmca::BlobUtil::copy(dataBuffer, *msg, 0, msg->length());
+
+    if (channelId == channelId1 || channelId == channelId2) {
         if (0 < info->d_msgSize) {
             // Keep track of message length read by each thread.  The first
             // four bytes of a message indicate its length and must be equal to
             // MSG_LEN.  The remaining bytes must be equal to the PAYLOAD_CHAR.
 
-            int length = msg.data()->length();
+            int length = msg->length();
             const int MSG_LENGTH = info->d_msgSize;
 
-            *numConsumed = 0;
-            *numNeeded   = MSG_LENGTH;
+            int numConsumed = 0;
+            *numNeeded      = MSG_LENGTH;
 
             if (veryVerbose) {
                 MTCOUT << "\t\tClient receiving back " << length
-                       << " bytes on channel " << msg.channelId() << MTENDL;
+                       << " bytes on channel " << channelId << MTENDL;
             }
 
             while (length >= MSG_LENGTH) {
@@ -4195,46 +3942,46 @@ void case22DataCallback(int                *numConsumed,
                     int d_msg;
                     char msg_buffer[sizeof(int)];
                 } x;
-                x.msg_buffer[0] = (*msg.data())[*numConsumed];
-                x.msg_buffer[1] = (*msg.data())[*numConsumed + 1];
-                x.msg_buffer[2] = (*msg.data())[*numConsumed + 2];
-                x.msg_buffer[3] = (*msg.data())[*numConsumed + 3];
-                MTLOOP2_ASSERT(msg.channelId(), x.d_msg,
-                               MAGIC == x.d_msg);
+                x.msg_buffer[0] = dataBuffer[numConsumed];
+                x.msg_buffer[1] = dataBuffer[numConsumed + 1];
+                x.msg_buffer[2] = dataBuffer[numConsumed + 2];
+                x.msg_buffer[3] = dataBuffer[numConsumed + 3];
+                MTLOOP2_ASSERT(channelId, x.d_msg, MAGIC == x.d_msg);
 
-                x.msg_buffer[0] = (*msg.data())[*numConsumed + 4];
-                x.msg_buffer[1] = (*msg.data())[*numConsumed + 5];
-                x.msg_buffer[2] = (*msg.data())[*numConsumed + 6];
-                x.msg_buffer[3] = (*msg.data())[*numConsumed + 7];
-                MTLOOP2_ASSERT(msg.channelId(), x.d_msg,
-                               MSG_LENGTH == x.d_msg);
+                x.msg_buffer[0] = dataBuffer[numConsumed + 4];
+                x.msg_buffer[1] = dataBuffer[numConsumed + 5];
+                x.msg_buffer[2] = dataBuffer[numConsumed + 6];
+                x.msg_buffer[3] = dataBuffer[numConsumed + 7];
+                MTLOOP2_ASSERT(channelId, x.d_msg, MSG_LENGTH == x.d_msg);
 
-                const char PAYLOAD_CHAR = (msg.channelId() == channelId1)
+                const char PAYLOAD_CHAR = (channelId == channelId1)
                                         ? PAYLOAD_CHAR1 : PAYLOAD_CHAR2;
 
                 for (int i = 8; i < MSG_LENGTH; ++i) {
-                    MTLOOP2_ASSERT(msg.channelId(), i,
-                              PAYLOAD_CHAR == (*msg.data())[*numConsumed + i]);
+                    MTLOOP2_ASSERT(PAYLOAD_CHAR,
+                                   dataBuffer[numConsumed + i],
+                    PAYLOAD_CHAR == dataBuffer[numConsumed + i]);
 
-                    if (PAYLOAD_CHAR != (*msg.data())[i]) {
-                        x.msg_buffer[0] = (*msg.data())[*numConsumed + i];
-                        x.msg_buffer[1] = (*msg.data())[*numConsumed + i + 1];
-                        x.msg_buffer[2] = (*msg.data())[*numConsumed + i + 2];
-                        x.msg_buffer[3] = (*msg.data())[*numConsumed + i + 3];
+                    if (PAYLOAD_CHAR != dataBuffer[i]) {
+                        x.msg_buffer[0] = dataBuffer[numConsumed + i];
+                        x.msg_buffer[1] = dataBuffer[numConsumed + i + 1];
+                        x.msg_buffer[2] = dataBuffer[numConsumed + i + 2];
+                        x.msg_buffer[3] = dataBuffer[numConsumed + i + 3];
                         if (MAGIC == x.d_msg) {
-                            MTLOOP2_ASSERT(msg.channelId(), i,
+                            MTLOOP2_ASSERT(channelId, i,
                                            0 == "Client receiving MAGIC word");
                         }
                         if (verbose) {
                             PT3(__LINE__, (int)PAYLOAD_CHAR,
-                                          (int)(*msg.data())[i]);
+                                          (int)dataBuffer[i]);
                         }
-                        *numConsumed += i;
-                        return;
+                        numConsumed += i;
+                        bdlmca::BlobUtil::erase(msg, 0, numConsumed);
+                        return;                                       // RETURN
                     }
                 }
 
-                *numConsumed += MSG_LENGTH;  // but not if we return early
+                numConsumed += MSG_LENGTH;  // but not if we return early
                 length -= MSG_LENGTH;
             }
             *numNeeded = MSG_LENGTH - length;
@@ -4245,72 +3992,74 @@ void case22DataCallback(int                *numConsumed,
             // length.  Also, we always expect the char read to be the
             // PAYLOAD_CHAR.
 
-            *numConsumed = msg.data()->length();
-            *numNeeded = info->d_numNeeded;
+            int numConsumed = msg->length();
+            *numNeeded   = info->d_numNeeded;
 
             if (veryVerbose) {
-                MTCOUT << "\t\tClient receiving back " << *numConsumed
-                       << " bytes on channel " << msg.channelId() << MTENDL;
+                MTCOUT << "\t\tClient receiving back " << numConsumed
+                       << " bytes on channel " << channelId << MTENDL;
             }
-            const char PAYLOAD_CHAR = (msg.channelId() == channelId1)
+            const char PAYLOAD_CHAR = (channelId == channelId1)
                                     ? PAYLOAD_CHAR1 : PAYLOAD_CHAR2;
-            for (int i = 0; i < *numConsumed; ++i) {
-                MTLOOP2_ASSERT(msg.channelId(), i,
-                                             PAYLOAD_CHAR == (*msg.data())[i]);
-                if (PAYLOAD_CHAR != (*msg.data())[i]) {
+            for (int i = 0; i < numConsumed; ++i) {
+                MTLOOP2_ASSERT(channelId, i,
+                                   PAYLOAD_CHAR == dataBuffer[i]);
+                if (PAYLOAD_CHAR != dataBuffer[i]) {
                     if (verbose) {
                         PT3(__LINE__, (int)PAYLOAD_CHAR,
-                                      (int)(*msg.data())[i]);
+                                      (int)dataBuffer[i]);
                     }
-                    return;
+                    bdlmca::BlobUtil::erase(msg, 0, numConsumed);
+                    return;                                           // RETURN
                 }
             }
         }
     }
     else {
-        *numConsumed = msg.data()->length();
-        *numNeeded = info->d_numNeeded;
+        int numConsumed = msg->length();
+        *numNeeded   = info->d_numNeeded;
 
-        int retCode = mXp->write(msg.channelId(), msg);
+        int retCode = mXp->write(channelId, *msg);
         MTLOOP_ASSERT(retCode, 0 == retCode ||
                               -2 == retCode ||  // reached high-water mark
                               -3 == retCode);   // channel shut down
         if (0 == retCode) {
             if (veryVerbose) {
-                MTCOUT << "\t\tServer echoing back " << *numConsumed
-                       << " bytes on channel " << msg.channelId() << MTENDL;
+                MTCOUT << "\t\tServer echoing back " << numConsumed
+                       << " bytes on channel " << channelId << MTENDL;
             }
         }
         else {
-            int retCode = mXp->shutdown(msg.channelId(),
+            int retCode = mXp->shutdown(channelId,
                                         btlmt::ChannelPool::BTEMT_IMMEDIATE);
             MTLOOP_ASSERT(retCode, 0 == retCode || -1 == retCode);
             if (verbose) {
                 MTCOUT << "\tServer connection closed:"
-                       << " channelId=" << msg.channelId()
+                       << " channelId=" << channelId
                        << " numChannels=" << mXp->numChannels()
                        << " shutdown=" << retCode
                        << MTENDL;
             }
             if (veryVerbose) {
-                MTCOUT << "\t\tServer dropped " << *numConsumed
-                       << " bytes on channel " << msg.channelId() << MTENDL;
+                MTCOUT << "\t\tServer dropped " << numConsumed
+                       << " bytes on channel " << channelId << MTENDL;
             }
         }
 
+        bdlmca::BlobUtil::erase(msg, 0, numConsumed);
     }
 }
 
 static
-void runTestCase22(char                                         *progname,
-                   int                                           numThreads,
-                   int                                           numIters,
-                   int                                           bufferSize,
-                   int                                           msgSize,
-                   int                                           serverSize,
-                   int                                           serverNeeded,
-                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                   bslma::TestAllocator                          *allocator)
+void runTestCase22(char                                           *,
+                   int                                             numThreads,
+                   int                                             numIters,
+                   int                                             bufferSize,
+                   int                                             msgSize,
+                   int                                             serverSize,
+                   int                                             srvrNeeded,
+                   btlso::StreamSocketFactory<btlso::IPv4Address> *,
+                   bslma::TestAllocator                           *allocator)
 {
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Test Initialization
@@ -4319,8 +4068,8 @@ void runTestCase22(char                                         *progname,
         SERVER_ID           = 1013410001,
         BACKLOG             = 100,
         REUSE_ADDRESS       = 1,
-        PAYLOAD_CHAR1       = '\xb2',  // -78
-        PAYLOAD_CHAR2       = '\x5c'   //  92
+        PAYLOAD_CHAR1       = 'a',
+        PAYLOAD_CHAR2       = 'Z'
     };
     const int NUM_THREADS   = numThreads;
     const int NUM_ITERS     = numIters;
@@ -4333,10 +4082,10 @@ void runTestCase22(char                                         *progname,
     const btlso::IPv4Address ADDRESS("127.0.0.1", 0);
 
     btlmt::ChannelPool *poolAddr;
-    bsls::AtomicInt channelId1(0);
-    bsls::AtomicInt channelId2(0);
-    bsls::AtomicInt oldChannelId1(0);
-    bsls::AtomicInt oldChannelId2(0);
+    bdlmtt::AtomicInt   channelId1 = 0;
+    bdlmtt::AtomicInt   channelId2 = 0;
+    bdlmtt::AtomicInt   oldChannelId1 = 0;
+    bdlmtt::AtomicInt   oldChannelId2 = 0;
 
     case22CallbackInfo info;
     info.d_channelPool_p = &poolAddr;
@@ -4347,7 +4096,7 @@ void runTestCase22(char                                         *progname,
     info.d_oldChannelId2 = &oldChannelId2;
     info.d_payloadChar1  = (char)PAYLOAD_CHAR1;
     info.d_payloadChar2  = (char)PAYLOAD_CHAR2;
-    info.d_numNeeded     = serverNeeded;
+    info.d_numNeeded     = srvrNeeded;
     info.d_msgSize       = msgSize < 0 ? -msgSize : 0;
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
@@ -4356,13 +4105,13 @@ void runTestCase22(char                                         *progname,
                                 , _1, _2, _3, _4
                                 , &info));
 
-    btlmt::ChannelPool::DataReadCallback  dataCb(
+    btlmt::ChannelPool::BlobBasedReadCallback  dataCb(
             bdlf::BindUtil::bindA( allocator
                                 , &case22DataCallback
                                 , _1, _2, _3, _4
                                 , &info));
 
-    btlmt::ChannelPool::PoolStateChangeCallback poolCb( &case22PoolStateCallback
+    btlmt::ChannelPool::PoolStateChangeCallback poolCb(&case22PoolStateCallback
                                                      , allocator);
 
     btlmt::ChannelPoolConfiguration cpc;
@@ -4389,7 +4138,7 @@ void runTestCase22(char                                         *progname,
                                 (maxOutgoingMessageSize + 1) / 2,
                                 maxOutgoingMessageSize);
 
-    bdlmca::PooledBufferChainFactory bufferFactory(BUFFER_ALLOC, allocator);
+    bdlmca::PooledBlobBufferFactory bufferFactory(BUFFER_ALLOC, allocator);
 
     // Starting server.
     {
@@ -4411,11 +4160,11 @@ void runTestCase22(char                                         *progname,
                             btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
                             RECEIVE_ALLOC, SERVER_ID));
 
-        bdlqq::ThreadUtil::Handle *threads = (bdlqq::ThreadUtil::Handle*)
-           allocator->allocate(sizeof(bdlqq::ThreadUtil::Handle) * NUM_THREADS);
+        bdlmtt::ThreadUtil::Handle *threads = (bdlmtt::ThreadUtil::Handle*)
+         allocator->allocate(sizeof(bdlmtt::ThreadUtil::Handle) * NUM_THREADS);
         case22ThreadInfo *info = (case22ThreadInfo*)
                    allocator->allocate(sizeof(case22ThreadInfo) * NUM_THREADS);
-        bdlqq::Barrier barrier(NUM_THREADS + 1);
+        bdlmtt::Barrier barrier(NUM_THREADS + 1);
         for (int i = 0; i < NUM_THREADS; ++i) {
             info[i].d_barrier_p     = &barrier;
             info[i].d_channelPool_p = &mX;
@@ -4435,9 +4184,9 @@ void runTestCase22(char                                         *progname,
             info[i].d_allocator_p   = allocator;
             info[i].d_messageLength = msgSize < 0 ? -msgSize : 0;
 
-            ASSERT(0  == bdlqq::ThreadUtil::create(&threads[i],
-                                                  &case22Thread,
-                                                  &info[i]));
+            ASSERT(0  == bdlmtt::ThreadUtil::create(&threads[i],
+                                                    &case22Thread,
+                                                    &info[i]));
         }
 
         barrier.wait();
@@ -4445,7 +4194,7 @@ void runTestCase22(char                                         *progname,
         // Give some time for channel pool to read all the data, then stop.
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+            ASSERT(0 == bdlmtt::ThreadUtil::join(threads[i]));
         }
 
         if (verbose) {
@@ -4618,8 +4367,8 @@ class bteso_SslLikeStreamSocket : public btlso::StreamSocket<ADDRESS> {
         // internal write buffer if this number is smaller than the total size
         // of the 'buffers'.  If the internal write buffer gets filled up,
         // subsequently attempt to flush it by calling 'write' on the
-        // underlying 'btlso::StreamSocket' object, and return the error code if
-        // that call returns an error code.  Otherwise, return the number of
+        // underlying 'btlso::StreamSocket' object, and return the error code
+        // if that call returns an error code.  Otherwise, return the number of
         // bytes copied.  In particular, if there is no data in the internal
         // buffer, either block (in blocking mode) or return 'ERROR_WOULDBLOCK'
         // if reading on the underlying socket would block.  Note that a
@@ -4743,7 +4492,7 @@ class bteso_SslLikeStreamSocketFactory
         // newly-created socket on success, and 0 otherwise.
 
     virtual btlso::StreamSocket<ADDRESS> *allocate(
-                                            btlso::SocketHandle::Handle handle);
+                                           btlso::SocketHandle::Handle handle);
         // Create a stream-based socket of type
         // 'bteso_SslLikeStreamSocket<ADDRESS>' attached to the specified
         // socket 'handle'.  Return the address of the newly-created socket on
@@ -4783,7 +4532,7 @@ class bteso_SslLikeStreamSocket_AutoCloseSocket {
   public:
     // CREATORS
     bteso_SslLikeStreamSocket_AutoCloseSocket(
-                            btlso::StreamSocket<ADDRESS>               *socket,
+                            btlso::StreamSocket<ADDRESS>              *socket,
                             bteso_SslLikeStreamSocketFactory<ADDRESS> *factory)
         // Create a proctor object to manage socket having the specified
         // 'socketHandle'.
@@ -4881,7 +4630,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::read(char *buffer, int length)
     if (0 == d_readBytesAvailable) {
         int retCode = d_socket_p->read(d_readBuffer, d_bufferSize);
         if (retCode < 0) {
-            return retCode;
+            return retCode;                                           // RETURN
         }
         if (veryVerbose) {
             MTCOUT << "\tSslLikeStreamSocket::read: " << retCode << "bytes."
@@ -4896,7 +4645,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::read(char *buffer, int length)
         d_readBytesAvailable -= length;
         bsl::memmove(d_readBuffer, d_readBuffer + length,
                      d_readBytesAvailable);
-        return length;
+        return length;                                                // RETURN
     }
 
     return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
@@ -4911,7 +4660,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::readv(const btls::Iovec *buffers,
     if (0 == d_readBytesAvailable) {
         int retCode = d_socket_p->read(d_readBuffer, d_bufferSize);
         if (retCode < 0) {
-            return retCode;
+            return retCode;                                           // RETURN
         }
         if (veryVerbose) {
             MTCOUT << "\tSslLikeStreamSocket::readv: " << retCode << "bytes."
@@ -4928,7 +4677,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::readv(const btls::Iovec *buffers,
         d_readBytesAvailable -= length;
         bsl::memmove(d_readBuffer, d_readBuffer + length,
                      d_readBytesAvailable);
-        return length;
+        return length;                                                // RETURN
     }
 
     return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
@@ -4942,7 +4691,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::write(const char *buffer, int length)
     if (d_writeOffset == d_bufferSize) {
         int retCode = d_socket_p->write(d_writeBuffer, d_bufferSize);
         if (retCode < 0) {
-            return retCode;
+            return retCode;                                           // RETURN
         }
         if (veryVerbose) {
             MTCOUT << "\tSslLikeStreamSocket::write: " << retCode << "bytes."
@@ -4957,7 +4706,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::write(const char *buffer, int length)
         length = bsl::min(length, d_bufferSize - d_writeOffset);
         bsl::memcpy(d_writeBuffer + d_writeOffset, buffer, length);
         d_writeOffset += length;
-        return length;
+        return length;                                                // RETURN
     }
 
     return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
@@ -4972,7 +4721,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writev(const btls::Iovec *buffers,
     if (d_writeOffset == d_bufferSize) {
         int retCode = d_socket_p->write(d_writeBuffer, d_bufferSize);
         if (retCode < 0) {
-            return retCode;
+            return retCode;                                           // RETURN
         }
         if (veryVerbose) {
             MTCOUT << "\tSslLikeStreamSocket::writev: " << retCode << "bytes."
@@ -4988,7 +4737,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writev(const btls::Iovec *buffers,
                                             d_bufferSize - d_writeOffset,
                                             buffers, numBuffers);
         d_writeOffset += length;
-        return length;
+        return length;                                                // RETURN
     }
 
     return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
@@ -5003,7 +4752,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writev(const btls::Ovec *buffers,
     if (d_writeOffset == d_bufferSize) {
         int retCode = d_socket_p->write(d_writeBuffer, d_bufferSize);
         if (retCode < 0) {
-            return retCode;
+            return retCode;                                           // RETURN
         }
         if (veryVerbose) {
             MTCOUT << "\tSslLikeStreamSocket::writev: " << retCode << "bytes."
@@ -5019,7 +4768,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writev(const btls::Ovec *buffers,
                                             d_bufferSize - d_writeOffset,
                                             buffers, numBuffers);
         d_writeOffset += length;
-        return length;
+        return length;                                                // RETURN
     }
 
     return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
@@ -5029,7 +4778,7 @@ template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::writeFlush()
 {
     if (0 == d_writeOffset) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int retCode = d_socket_p->write(d_writeBuffer, d_writeOffset);
@@ -5041,7 +4790,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writeFlush()
         bsl::memmove(d_writeBuffer, d_writeBuffer + retCode,
                      d_writeOffset - retCode);
         d_writeOffset -= retCode;
-        return retCode;
+        return retCode;                                               // RETURN
     }
 
     BSLS_ASSERT(retCode < 0);
@@ -5140,7 +4889,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::peerAddress(ADDRESS *result) const
 
 template <class ADDRESS>
 int bteso_SslLikeStreamSocket<ADDRESS>::lingerOption(
-                                 btlso::SocketOptUtil::LingerData *result) const
+                                btlso::SocketOptUtil::LingerData *result) const
 {
     return d_socket_p->lingerOption(result);
 }
@@ -5179,7 +4928,7 @@ btlso::StreamSocket<ADDRESS> *
 bteso_SslLikeStreamSocketFactory<ADDRESS>::allocate()
 {
     btlso::StreamSocket<ADDRESS> *socket =
-                            btlso::InetStreamSocketFactory<ADDRESS>::allocate();
+                           btlso::InetStreamSocketFactory<ADDRESS>::allocate();
 
     bteso_SslLikeStreamSocket_AutoCloseSocket<ADDRESS>
                                                  deallocateGuard(socket, this);
@@ -5199,7 +4948,7 @@ bteso_SslLikeStreamSocketFactory<ADDRESS>::allocate(
         btlso::SocketHandle::Handle handle)
 {
     btlso::StreamSocket<ADDRESS> *socket =
-                      btlso::InetStreamSocketFactory<ADDRESS>::allocate(handle);
+                     btlso::InetStreamSocketFactory<ADDRESS>::allocate(handle);
 
     bteso_SslLikeStreamSocket_AutoCloseSocket<ADDRESS>
                                                  deallocateGuard(socket, this);
@@ -5233,7 +4982,7 @@ void bteso_SslLikeStreamSocketFactory<ADDRESS>::deallocate(
                 reinterpret_cast<bteso_SslLikeStreamSocket<ADDRESS> *>(socket);
 
     if (closeHandleFlag) {
-       btlso::InetStreamSocketFactory<ADDRESS>::deallocate(sSocket->d_socket_p);
+      btlso::InetStreamSocketFactory<ADDRESS>::deallocate(sSocket->d_socket_p);
     }
     sSocket->~bteso_SslLikeStreamSocket<ADDRESS>();
     d_allocator_p->deallocate(socket);
@@ -5247,26 +4996,26 @@ void bteso_SslLikeStreamSocketFactory<ADDRESS>::deallocate(
 namespace TEST_CASE_20_NAMESPACE {
 
 static
-void case20DataCallback(int           *numConsumed,
-                        int           *numNeeded,
-                        btlmt::DataMsg  msg,
-                        void          *context)
+void case20DataCallback(int          *numNeeded,
+                        bdlmca::Blob *msg,
+                        int           ,
+                        void         *)
 {
-    *numConsumed = msg.data()->length();
-    *numNeeded   = 1;
+    bdlmca::BlobUtil::erase(msg, 0, msg->length());
+    *numNeeded = 1;
 
-    // bdlqq::ThreadUtil::microSleep(1000); // 1ms
+    // bdlmtt::ThreadUtil::microSleep(1000); // 1ms
 }
 
 static
-void case20ChannelStateCallback(int                 channelId,
-                                int                 serverId,
-                                int                 state,
-                                void               *arg,
+void case20ChannelStateCallback(int                  channelId,
+                                int                  serverId,
+                                int                  state,
+                                void                *,
                                 btlmt::ChannelPool **poolAddr,
-                                int               **eventAddr,
-                                bdlqq::Barrier      *barrier,
-                                int                *channelId_p)
+                                int                **eventAddr,
+                                bdlmtt::Barrier     *barrier,
+                                int                 *channelId_p)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -5310,7 +5059,7 @@ void case19PoolStateCallback(
     int              state,
     int              serverId,
     int              severity,
-    bsls::AtomicInt64 *acceptErrors)
+    bdlmtt::AtomicInt64 *acceptErrors)
 {
     ASSERT(acceptErrors);
 
@@ -5335,14 +5084,13 @@ void case19PoolStateCallback(
 namespace TEST_CASE_18_NAMESPACE {
 
 static
-void case18ChannelStateCallback(
-        int                 channelId,
-        int                 serverId,
-        int                 state,
-        void               *arg,
-        btlmt::ChannelPool **poolAddr,
-        int               **eventAddr,
-        bdlqq::Barrier      *barrier)
+void case18ChannelStateCallback(int                  channelId,
+                                int                  serverId,
+                                int                  state,
+                                void                *,
+                                btlmt::ChannelPool **poolAddr,
+                                int                **eventAddr,
+                                bdlmtt::Barrier     *barrier)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -5383,7 +5131,7 @@ void case18PoolStateCallback(
     int              serverId,
     int              severity,
     int            **eventAddr,
-    bsls::AtomicInt  *limitReachedFlag)
+    bdlmtt::AtomicInt  *limitReachedFlag)
 {
     ASSERT(eventAddr && *eventAddr);
     ASSERT(limitReachedFlag);
@@ -5435,12 +5183,12 @@ void case18PoolStateCallback(
 namespace TEST_CASE_17_NAMESPACE {
 
 static
-void case17ChannelStateCallback(int            channelId,
-                                int            serverId,
-                                int            state,
-                                void          *arg,
-                                int           *value,
-                                bdlqq::Barrier *barrier)
+void case17ChannelStateCallback(int              channelId,
+                                int              serverId,
+                                int              state,
+                                void            *,
+                                int             *value,
+                                bdlmtt::Barrier *barrier)
 {
     ASSERT(value);
     ASSERT(barrier);
@@ -5481,15 +5229,14 @@ void case17ChannelStateCallback(int            channelId,
 namespace TEST_CASE_16_NAMESPACE {
 
 static
-void case16ChannelStateCallback(
-        int                 channelId,
-        int                 serverId,
-        int                 state,
-        void               *arg,
-        int                 expServerId,
-        btlmt::ChannelPool **poolAddr,
-        int                *value,
-        bdlqq::Barrier      *barrier)
+void case16ChannelStateCallback(int                  channelId,
+                                int                  serverId,
+                                int                  state,
+                                void                *,
+                                int                  expServerId,
+                                btlmt::ChannelPool **poolAddr,
+                                int                 *value,
+                                bdlmtt::Barrier     *barrier)
 {
     ASSERT(poolAddr && *poolAddr);
     ASSERT(barrier);
@@ -5571,8 +5318,7 @@ static
 void case15ChannelStateCallback(int   channelId,
                                 int   sourceId,
                                 int   state,
-                                void *arg,
-                                // additional parameters below:
+                                void *,
                                 int  *acceptedChannelId1,
                                 int  *channelId1,
                                 int  *channelId2,
@@ -5635,32 +5381,34 @@ void case15ChannelStateCallback(int   channelId,
 namespace TEST_CASE_14_NAMESPACE {
 
 static
-void case14ChannelDataCallback(int *numConsumed, int *numNeeded,
-                           btlmt::DataMsg msg, void *context,
-                           Obj **channelPool_p, bsls::AtomicInt *fail)
+void case14ChannelDataCallback(int                *numNeeded,
+                               bdlmca::Blob       *msg,
+                               int                 channelId,
+                               void               *,
+                               Obj               **channelPool_p,
+                               bdlmtt::AtomicInt  *fail)
 {
-    ASSERT(numConsumed);
-    ASSERT(msg.data());
-    ASSERT(0 < msg.data()->length());
+    ASSERT(numNeeded);
+    ASSERT(msg);
+    ASSERT(0 < msg->length());
 
-    if (0 == (*channelPool_p)->write(msg.channelId(), msg)) {
+    if (0 == (*channelPool_p)->write(channelId, *msg)) {
         *fail = 1;
     }
 
-    *numConsumed = msg.data()->length();
-    *numNeeded   = 1;
+    bdlmca::BlobUtil::erase(msg, 0, msg->length());
+    *numNeeded = 1;
 }
 
 static
-void case14ChannelStateCallback(
-        int                 channelId,
-        int                 serverId,
-        int                 state,
-        void               *arg,
-        btlmt::ChannelPool **poolAddr,
-        int               **eventAddr,
-        bdlqq::Barrier      *barrier,
-        int                *channelId_p)
+void case14ChannelStateCallback(int                  channelId,
+                                int                  serverId,
+                                int                  state,
+                                void                *,
+                                btlmt::ChannelPool **poolAddr,
+                                int                **eventAddr,
+                                bdlmtt::Barrier     *barrier,
+                                int                 *channelId_p)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -5702,13 +5450,13 @@ void case14ChannelStateCallback(
 namespace TEST_CASE_13_NAMESPACE {
 
 static
-void case13ChannelStateCallback(int                 channelId,
-                                int                 serverId,
-                                int                 state,
-                                void               *arg,
+void case13ChannelStateCallback(int                  channelId,
+                                int                  serverId,
+                                int                  state,
+                                void                *,
                                 btlmt::ChannelPool **poolAddr,
-                                int               **eventAddr,
-                                bdlqq::Barrier      *barrier)
+                                int                **eventAddr,
+                                bdlmtt::Barrier     *barrier)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -5750,15 +5498,15 @@ namespace TEST_CASE_12_NAMESPACE {
 
 static
 void case12FlowControlChannelCallback(
-                       int                                    channelId,
-                       int                                    sourceId,
-                       int                                    state,
-                       void                                   *arg,
-                       bdlqq::Barrier                          *barrier,
-                       int                                    *numBytesWritten,
-                       const btlmt::ChannelPoolConfiguration&   config,
-                       bdlmca::PooledBufferChainFactory         *factory,
-                       btlmt::ChannelPool                     **instance)
+                      int                                      channelId,
+                      int                                      sourceId,
+                      int                                      state,
+                      void                                    *,
+                      bdlmtt::Barrier                         *barrier,
+                      int                                     *numBytesWritten,
+                      const btlmt::ChannelPoolConfiguration&   ,
+                      bdlmca::PooledBlobBufferFactory         *factory,
+                      btlmt::ChannelPool                     **instance)
 {
     ASSERT(barrier);
     ASSERT(numBytesWritten);
@@ -5783,12 +5531,14 @@ void case12FlowControlChannelCallback(
                    << " channelId=" << channelId
                 << MTENDL;
         }
-        bdlmca::PooledBufferChain *chain =  factory->allocate(0);
-        chain->setLength(chain->bufferSize());
-        bsl::memset(chain->buffer(0), 0xab, chain->bufferSize());
-        btlmt::DataMsg msg(chain, factory, channelId);
-        while ((*instance)->write(channelId, msg) == 0) {
-            *numBytesWritten += chain->length();
+
+
+
+        bdlmca::Blob blob(factory);
+        blob.setLength(factory->bufferSize());
+        bsl::memset(blob.buffer(0).data(), 0xab, factory->bufferSize());
+        while ((*instance)->write(channelId, blob) == 0) {
+            *numBytesWritten += blob.length();
         }
         if (verbose) {
             P(*numBytesWritten);
@@ -5817,7 +5567,7 @@ namespace TEST_CASE_11_NAMESPACE {
 
 static
 void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                   bslma::TestAllocator&                          ta)
+                   bslma::TestAllocator&                           ta)
 {
     enum {
         SERVER_ID   = 1013410001,
@@ -5826,9 +5576,9 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
     const int NUM_SOCKETS = 20;  // an enum would confuse bsl::fill_n below
 
     bsl::vector<my_ChannelEvent> channelEvents;
-    bdlqq::Mutex                  channelEventsMutex;
+    bdlmtt::Mutex                channelEventsMutex;
     bsl::vector<my_PoolEvent>    poolEvents;
-    bdlqq::Mutex                  poolEventsMutex;
+    bdlmtt::Mutex                poolEventsMutex;
 
     btlmt::ChannelPoolConfiguration config;
     config.setMaxThreads(4);
@@ -5837,7 +5587,8 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
     config.setIncomingMessageSizes(1, 1, 1);
     config.setReadTimeout(0);
 
-    btlmt::ChannelPool::DataReadCallback         dataCb;
+    btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
+    makeNull(&dataCb);
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
             bdlf::BindUtil::bindA( &ta
@@ -5853,17 +5604,16 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
                                 , &poolEvents
                                 , &poolEventsMutex));
 
-    makeNull(&dataCb);
-
     btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
     if (verbose) {
         P(config);
     }
     ASSERT(0 == mX.start());
 
-    // Establish server
     makeNull(&channelCb);
     makeNull(&poolCb);
+
+    // Establish server
     btlmt::ChannelPool mY(channelCb, dataCb, poolCb, config, &ta);
     mY.start();
 
@@ -5892,8 +5642,8 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
             mX.import(&socket, i);
         }
     }
-    bdlqq::ThreadUtil::yield();
-    bdlqq::ThreadUtil::microSleep(0, 15);
+    bdlmtt::ThreadUtil::yield();
+    bdlmtt::ThreadUtil::microSleep(0, 15);
 
     ASSERT(NUM_SOCKETS     == mX.numChannels());
     ASSERT(2 * NUM_SOCKETS == channelEvents.size());
@@ -5905,26 +5655,26 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
     bsl::fill_n((int*)importedFlag, NUM_SOCKETS, 0);
 
     for (int i = 0; i < numEvents; ++i) {
-        LOOP_ASSERT(i, 0 <= channelEvents[i].d_data.allocatorId());
-        if (veryVerbose) { P(channelEvents[i].d_data.allocatorId()); }
+        LOOP_ASSERT(i, 0 <= channelEvents[i].d_allocatorId);
+        if (veryVerbose) { P(channelEvents[i].d_allocatorId); }
 
-        LOOP_ASSERT(i, btlmt::ChannelMsg::BTEMT_CHANNEL_UP ==
-                                             channelEvents[i].d_data.event() ||
-                       btlmt::ChannelMsg::BTEMT_AUTO_READ_ENABLED ==
-                                             channelEvents[i].d_data.event());
-        LOOP_ASSERT(i, NUM_SOCKETS > channelEvents[i].d_data.allocatorId());
+        LOOP_ASSERT(i, ChannelState::BTEMT_CHANNEL_UP ==
+                                             channelEvents[i].d_event ||
+                       ChannelState::BTEMT_AUTO_READ_ENABLED ==
+                                             channelEvents[i].d_event);
+        LOOP_ASSERT(i, NUM_SOCKETS > channelEvents[i].d_allocatorId);
 
-        if (channelEvents[i].d_data.event() ==
-                                     btlmt::ChannelMsg::BTEMT_AUTO_READ_ENABLED)
+        if (channelEvents[i].d_event ==
+                                     ChannelState::BTEMT_AUTO_READ_ENABLED)
         {
             LOOP_ASSERT(i, 1 ==
-                          importedFlag[channelEvents[i].d_data.allocatorId()]);
-            importedFlag[channelEvents[i].d_data.allocatorId()] = 3;
+                          importedFlag[channelEvents[i].d_allocatorId]);
+            importedFlag[channelEvents[i].d_allocatorId] = 3;
         }
         else {
             LOOP_ASSERT(i, 0 ==
-                          importedFlag[channelEvents[i].d_data.allocatorId()]);
-            importedFlag[channelEvents[i].d_data.allocatorId()] = 1;
+                          importedFlag[channelEvents[i].d_allocatorId]);
+            importedFlag[channelEvents[i].d_allocatorId] = 1;
         }
     }
 
@@ -5936,8 +5686,8 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
     bsl::vector<my_ChannelEvent> backup;
 
     for (int i = 0; i < (int)channelEvents.size(); ++i) {
-        if (btlmt::ChannelMsg::BTEMT_AUTO_READ_ENABLED !=
-                                               channelEvents[i].d_data.event())
+        if (ChannelState::BTEMT_AUTO_READ_ENABLED !=
+                                               channelEvents[i].d_event)
         {
             backup.push_back(channelEvents[i]);
         }
@@ -5948,10 +5698,10 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
     {
         channelEvents.clear();
         for (int i = 0; i < (int)backup.size(); ++i) {
-            if (veryVerbose) { P(backup[i].d_data.channelId()); }
-            LOOP_ASSERT(i, 0 == mX.disableRead(backup[i].d_data.channelId()));
+            if (veryVerbose) { P(backup[i].d_channelId); }
+            LOOP_ASSERT(i, 0 == mX.disableRead(backup[i].d_channelId));
         }
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
 
         numEvents = channelEvents.size();
         if (veryVerbose) {
@@ -5961,22 +5711,22 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
 
         bsl::fill_n(importedFlag, NUM_SOCKETS, 0);
         for (int i = 0; i < numEvents; ++i) {
-            LOOP_ASSERT(i, 0 <= channelEvents[i].d_data.allocatorId());
+            LOOP_ASSERT(i, 0 <= channelEvents[i].d_allocatorId);
             if (veryVerbose) {
-                P(channelEvents[i].d_data.allocatorId());
+                P(channelEvents[i].d_allocatorId);
             }
-            LOOP_ASSERT(i, btlmt::ChannelMsg::BTEMT_AUTO_READ_DISABLED ==
-                                              channelEvents[i].d_data.event());
+            LOOP_ASSERT(i, ChannelState::BTEMT_AUTO_READ_DISABLED ==
+                                              channelEvents[i].d_event);
             LOOP_ASSERT(i, NUM_SOCKETS >
-                                        channelEvents[i].d_data.allocatorId());
-            importedFlag[channelEvents[i].d_data.allocatorId()] = 1;
+                                        channelEvents[i].d_allocatorId);
+            importedFlag[channelEvents[i].d_allocatorId] = 1;
         }
 
         LOOP2_ASSERT(NUM_SOCKETS, numEvents, NUM_SOCKETS == numEvents);
         for (int i = 0; i < numEvents; ++i) {
             LOOP_ASSERT(i, 1 == importedFlag[i]);
         }
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
     }
 
     if (verbose)
@@ -5985,11 +5735,11 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
         channelEvents.clear();
         for (int i = 0; i < (int)backup.size(); ++i) {
             if (veryVerbose) {
-                P(backup[i].d_data.channelId());
+                P(backup[i].d_channelId);
             }
-            LOOP_ASSERT(i, 0 == mX.enableRead(backup[i].d_data.channelId()));
+            LOOP_ASSERT(i, 0 == mX.enableRead(backup[i].d_channelId));
         }
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
 
         numEvents = channelEvents.size();
         if (veryVerbose) {
@@ -5999,23 +5749,23 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
 
         bsl::fill_n(importedFlag, NUM_SOCKETS, 0);
         for (int i = 0; i < numEvents; ++i) {
-            LOOP_ASSERT(i, 0 <= channelEvents[i].d_data.allocatorId());
-            LOOP_ASSERT(i, btlmt::ChannelMsg::BTEMT_AUTO_READ_ENABLED ==
-                                              channelEvents[i].d_data.event());
+            LOOP_ASSERT(i, 0 <= channelEvents[i].d_allocatorId);
+            LOOP_ASSERT(i, ChannelState::BTEMT_AUTO_READ_ENABLED ==
+                                              channelEvents[i].d_event);
             LOOP_ASSERT(i, NUM_SOCKETS >
-                                        channelEvents[i].d_data.allocatorId());
-            importedFlag[channelEvents[i].d_data.allocatorId()] = 1;
+                                        channelEvents[i].d_allocatorId);
+            importedFlag[channelEvents[i].d_allocatorId] = 1;
         }
 
         LOOP2_ASSERT(NUM_SOCKETS, numEvents, NUM_SOCKETS == numEvents);
         for (int i = 0; i < numEvents; ++i) {
             LOOP_ASSERT(i, 1 == importedFlag[i]);
         }
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
     }
 
     for (int i = 0; i < (int)backup.size(); ++i) {
-        mX.shutdown(backup[i].d_data.channelId(),
+        mX.shutdown(backup[i].d_channelId,
                     btlmt::ChannelPool::BTEMT_IMMEDIATE);
     }
     mX.stop();
@@ -6034,7 +5784,7 @@ namespace TEST_CASE_10_NAMESPACE {
 const ThreadId DONT_CHECK_THREAD_ID = NULL_THREAD_ID;
 
 struct my_ClockState {
-    bdlqq::ThreadUtil::Handle  d_threadHandle;
+    bdlmtt::ThreadUtil::Handle  d_threadHandle;
     bsls::TimeInterval         d_startTime;
     bsls::TimeInterval         d_timeout;
     int                       d_numInvocations;
@@ -6069,7 +5819,7 @@ void case10MyClockCallback(my_ClockState     *state,
     ++state->d_numInvocations;
 
     if (DONT_CHECK_THREAD_ID != checkThreadId) {
-        ASSERT(checkThreadId == bdlqq::ThreadUtil::selfIdAsUint64());
+        ASSERT(checkThreadId == bdlmtt::ThreadUtil::selfIdAsUint64());
     }
 
     state->d_startTime += state->d_timeout;
@@ -6085,8 +5835,7 @@ static
 void case10ChannelStateCallback(int                  channelId,
                                 int                  sourceId,
                                 int                  state,
-                                void                *arg,
-                                // additional parameters below:
+                                void                *,
                                 int                 *channelId1,
                                 bsls::Types::Uint64 *threadId1,
                                 int                 *channelId2,
@@ -6115,11 +5864,11 @@ void case10ChannelStateCallback(int                  channelId,
         }
         if (1 == sourceId) {
             *channelId1 = channelId;
-            *threadId1  = bdlqq::ThreadUtil::selfIdAsUint64();
+            *threadId1  = bdlmtt::ThreadUtil::selfIdAsUint64();
         }
         else {
             *channelId2 = channelId;
-            *threadId2  = bdlqq::ThreadUtil::selfIdAsUint64();
+            *threadId2  = bdlmtt::ThreadUtil::selfIdAsUint64();
         }
       } break;
     }
@@ -6133,26 +5882,26 @@ void case10ChannelStateCallback(int                  channelId,
 namespace TEST_CASE_9_NAMESPACE {
 
 struct case9ThreadInfo {
-    bdlqq::Barrier    *d_barrier;
-    bsls::AtomicInt   *d_threadCount;
-    Obj              *d_channelPool_p;
-    int               d_channelId;
-    int               d_write;
-    int               d_bufferAlloc;
-    int               d_totalAlloc;
-    bslma::Allocator *d_allocator_p;
+    bdlmtt::Barrier   *d_barrier;
+    bdlmtt::AtomicInt *d_threadCount;
+    Obj               *d_channelPool_p;
+    int                d_channelId;
+    int                d_write;
+    int                d_bufferAlloc;
+    int                d_totalAlloc;
+    bslma::Allocator  *d_allocator_p;
 };
 
 struct case9ThreadInfo2 {
-    bdlqq::Barrier                  *d_barrier;
-    bsls::AtomicInt                 *d_threadCount;
-    Obj                            *d_channelPool_p;
-    int                             d_channelId;
-    int                             d_write;
-    int                             d_bufferAlloc;
-    int                             d_totalAlloc;
-    bslma::Allocator               *d_allocator_p;
-    bdlmca::PooledBufferChainFactory *d_factory_p;
+    bdlmtt::Barrier                 *d_barrier;
+    bdlmtt::AtomicInt               *d_threadCount;
+    Obj                             *d_channelPool_p;
+    int                              d_channelId;
+    int                              d_write;
+    int                              d_bufferAlloc;
+    int                              d_totalAlloc;
+    bslma::Allocator                *d_allocator_p;
+    bdlmca::PooledBlobBufferFactory *d_factory_p;
 };
 
 extern "C" {
@@ -6190,7 +5939,7 @@ void *case9Thread0(void *arg)
 
     // Now write in a short burst, until write succeeds.
     while (0 != info->d_channelPool_p->write(info->d_channelId, blob)) {
-        bdlqq::ThreadUtil::yield();
+        bdlmtt::ThreadUtil::yield();
     }
 
     // Signal effective termination to write.
@@ -6200,50 +5949,7 @@ void *case9Thread0(void *arg)
     return NULL;
 }
 }
-extern "C" {
-void *case9Thread1(void *arg)
-{
-    case9ThreadInfo2 *info = (case9ThreadInfo2 *) arg;
-    const int BUF_SIZE = info->d_bufferAlloc;
-    const int TOTAL_SIZE = info->d_totalAlloc;
 
-    // Set up buffer to write to channel pool, of total size
-    // TOTAL_SIZE, filled with the requested value.
-    char *buffer = (char *) info->d_allocator_p->allocate(TOTAL_SIZE);
-    bsl::memset(buffer, info->d_write, TOTAL_SIZE);
-
-    // Be careful to round numVecs upward and compute lastVec size correctly.
-    const int numVecs = (TOTAL_SIZE + BUF_SIZE - 1) / BUF_SIZE;
-    const int LAST_VEC_SIZE = (0 < TOTAL_SIZE % BUF_SIZE)
-                            ? TOTAL_SIZE % BUF_SIZE
-                            : BUF_SIZE;  // size of the last buffer
-
-    // Segment buffer into DataMsg of individual buffers of BUF_SIZE.
-    bdlmca::PooledBufferChain *chain = info->d_factory_p->allocate(0);
-    for (int i = 0 ;i < numVecs; ++i) {
-        chain->append(buffer + i * BUF_SIZE,
-                      (i < numVecs-1) ? BUF_SIZE : LAST_VEC_SIZE);
-    }
-    btlmt::DataMsg msg;
-    msg.setData(chain, info->d_factory_p, info->d_allocator_p);
-    msg.setChannelId(info->d_channelId);
-
-    // Wait until all threads have initialized their buffers.
-    info->d_barrier->wait();
-
-    // Now write in a short burst, until write succeeds.
-    while (0 != info->d_channelPool_p->write(info->d_channelId, msg)) {
-        bdlqq::ThreadUtil::yield();
-    }
-
-    // Signal effective termination to write.
-    ++(*(info->d_threadCount));
-    info->d_barrier->wait();
-
-    info->d_allocator_p->deallocate(buffer);
-    return NULL;
-}
-}
 extern "C" {
 void *case9Thread2(void *arg)
 {
@@ -6264,7 +5970,7 @@ void *case9Thread2(void *arg)
 
     // Segment buffer into Iovecs of individual buffers of BUF_SIZE.
     btls::Iovec *vecs = (btls::Iovec *) info->d_allocator_p->allocate(numVecs *
-                                                            sizeof(btls::Ovec));
+                                                           sizeof(btls::Ovec));
     for (int i = 0; i < numVecs; ++i) {
         vecs[i].setBuffer(buffer + i * BUF_SIZE,
                           (i < numVecs-1) ? BUF_SIZE : LAST_VEC_SIZE);
@@ -6276,7 +5982,7 @@ void *case9Thread2(void *arg)
     // Now write in a short burst, until write succeeds.
     while (0 != info->d_channelPool_p->write(info->d_channelId,
                                              vecs, numVecs)) {
-        bdlqq::ThreadUtil::yield();
+        bdlmtt::ThreadUtil::yield();
     }
 
     // Signal effective termination to write.
@@ -6290,6 +5996,7 @@ void *case9Thread2(void *arg)
 }
 
 extern "C" {
+
 void *case9Thread3(void *arg)
 {
     case9ThreadInfo2 *info = (case9ThreadInfo2 *) arg;
@@ -6298,29 +6005,29 @@ void *case9Thread3(void *arg)
 
     // Set up buffer to write to channel pool, of total size
     // info->d_bufferAlloc, filled with the requested value.
+
     char *buffer = (char *) info->d_allocator_p->allocate(TOTAL_SIZE);
     bsl::memset(buffer, info->d_write, TOTAL_SIZE);
     bsl::shared_ptr<char> sharedBuffer;
-    if (0 == info->d_write % 3) {
+    if (0 == info->d_write % 2) {
         sharedBuffer.reset(buffer, info->d_allocator_p);
     }
 
     // Be careful to round numVecs upward and compute lastVec size correctly.
+
     const int numVecs = (TOTAL_SIZE + BUF_SIZE - 1) / BUF_SIZE;
     const int LAST_VEC_SIZE = (0 < TOTAL_SIZE % BUF_SIZE)
                             ? TOTAL_SIZE % BUF_SIZE
                             : BUF_SIZE;  // size of the last buffer
 
-    // Segment buffer into Iovecs, or DataMsg, of individual buffers of
-    // BUF_SIZE.
     bdlmca::Blob blob(info->d_allocator_p);
-    bdlmca::PooledBufferChain *chain = info->d_factory_p->allocate(0);
-    btlmt::DataMsg msg;
-    btls::Iovec *vecs = (btls::Iovec *) info->d_allocator_p->allocate(numVecs *
-                                                           sizeof(btls::Iovec));
+    bdlmca::Blob chain(info->d_allocator_p);
+
+    btls::Iovec *vecs = (btls::Iovec *) info->d_allocator_p->allocate(
+                                                numVecs * sizeof(btls::Iovec));
 
     for (int i = 0 ;i < numVecs; ++i) {
-        switch (info->d_write % 3) {
+        switch (info->d_write % 2) {
           case 0: {
             bsl::shared_ptr<char> buf(sharedBuffer, buffer + i * BUF_SIZE);
             blob.appendBuffer(bdlmca::BlobBuffer(buf,
@@ -6328,25 +6035,17 @@ void *case9Thread3(void *arg)
                                                              : LAST_VEC_SIZE));
           } break;
           case 1: {
-            chain->append(buffer + i * BUF_SIZE,
-                          (i < numVecs-1) ? BUF_SIZE : LAST_VEC_SIZE);
-          } break;
-          case 2: {
             vecs[i].setBuffer(buffer + i * BUF_SIZE,
                               (i < numVecs-1) ? BUF_SIZE : LAST_VEC_SIZE);
           } break;
           default: ASSERT(0 && "Unreachable");
         }
     }
-    switch (info->d_write % 3) {
+    switch (info->d_write % 2) {
       case 0: {
         blob.setLength(TOTAL_SIZE);
       } break;
       case 1: {
-        msg.setData(chain, info->d_factory_p, info->d_allocator_p);
-        msg.setChannelId(info->d_channelId);
-      } break;
-      case 2: {
       } break;
       default: ASSERT(0 && "Unreachable");
     }
@@ -6355,21 +6054,16 @@ void *case9Thread3(void *arg)
     info->d_barrier->wait();
 
     // Now write in a short burst, until write succeeds.
-    switch (info->d_write % 3) {
+    switch (info->d_write % 2) {
       case 0: {
         while (0 != info->d_channelPool_p->write(info->d_channelId, blob)) {
-            bdlqq::ThreadUtil::yield();
+            bdlmtt::ThreadUtil::yield();
         }
       } break;
       case 1: {
-        while (0 != info->d_channelPool_p->write(info->d_channelId, msg)) {
-            bdlqq::ThreadUtil::yield();
-        }
-      } break;
-      case 2: {
         while (0 != info->d_channelPool_p->write(info->d_channelId,
                                                  vecs, numVecs)) {
-            bdlqq::ThreadUtil::yield();
+            bdlmtt::ThreadUtil::yield();
         }
       } break;
       default: ASSERT(0 && "Unreachable");
@@ -6380,18 +6074,19 @@ void *case9Thread3(void *arg)
     info->d_barrier->wait();
 
     info->d_allocator_p->deallocate(vecs);
-    if (0 != info->d_write % 3) {
+    if (0 != info->d_write % 2) {
         info->d_allocator_p->deallocate(buffer);
     }
     return NULL;
 }
+
 }
 
 struct case9ReadInfo {
     btlsos::TcpChannel  *d_channel_p;
     int                 d_concurrentReadFlag;
     int                 d_numThreads;
-    bsls::AtomicInt     *d_threadCount;
+    bdlmtt::AtomicInt     *d_threadCount;
     int                 d_bufferAlloc;
     int                 d_totalAlloc;
     bslma::Allocator   *d_allocator_p;
@@ -6416,7 +6111,7 @@ void *case9Read(void *arg)
     // If specified, wait until all writes have completed
     if (!info->d_concurrentReadFlag) {
         while (*(info->d_threadCount) < NUM_THREADS) {
-            bdlqq::ThreadUtil::yield();
+            bdlmtt::ThreadUtil::yield();
         }
     }
 
@@ -6475,14 +6170,14 @@ void *case9Read(void *arg)
 }
 
 static
-void case9ChannelStateCallback(int                 channelId,
-                               int                 serverId,
-                               int                 state,
-                               void               *arg,
+void case9ChannelStateCallback(int                  channelId,
+                               int                  serverId,
+                               int                  state,
+                               void                *,
                                btlmt::ChannelPool **poolAddr,
-                               int               **eventAddr,
-                               bdlqq::Barrier      *barrier,
-                               int                *channelId_p)
+                               int                **eventAddr,
+                               bdlmtt::Barrier     *barrier,
+                               int                 *channelId_p)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -6517,9 +6212,9 @@ void case9ChannelStateCallback(int                 channelId,
 }
 
 static
-void runTestCase9(char                                         *progname,
+void runTestCase9(char                                           *,
                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  bslma::TestAllocator&                          ta)
+                  bslma::TestAllocator&                           ta)
 {
     using namespace TEST_CASE_21_NAMESPACE; // for dynamic_cast(SslLikeSocket)
     typedef bteso_SslLikeStreamSocketFactory<btlso::IPv4Address>
@@ -6645,12 +6340,12 @@ void runTestCase9(char                                         *progname,
             MAX_THREADS        = 1,
             SERVER_ID          = 1013410001,
             BACKLOG            = 1,
-            WRITING_THREADS    = 4
+            WRITING_THREADS    = 3
         };
 
-        bdlqq::Barrier channelBarrier(2);
+        bdlmtt::Barrier channelBarrier(2);
 
-        btlmt::ChannelPool  *poolAddr;
+        btlmt::ChannelPool *poolAddr;
         int                 poolEvent = -1;
         int                *eventAddr = &poolEvent;
         int                 channelId = -1;
@@ -6664,10 +6359,10 @@ void runTestCase9(char                                         *progname,
                                     , &channelBarrier
                                     , &channelId));
 
-        btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-        makeNull(&poolCb);
+        btlmt::ChannelPool::PoolStateChangeCallback poolCb;
+        btlmt::ChannelPool::BlobBasedReadCallback   dataCb;
 
-        btlmt::ChannelPool::DataReadCallback         dataCb;
+        makeNull(&poolCb);
         makeNull(&dataCb);
 
         btlmt::ChannelPoolConfiguration cpc;
@@ -6692,22 +6387,12 @@ void runTestCase9(char                                         *progname,
         ASSERT(0 == X.numChannels());
         const btlso::IPv4Address PEER = *mX.serverAddress(SERVER_ID);
 
-        typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
-        typedef bteso_SslLikeStreamSocket<btlso::IPv4Address>     SslLikeSocket;
-        typedef btlsos::TcpChannel                                Channel;
+        typedef btlso::StreamSocket<btlso::IPv4Address>       Socket;
+        typedef bteso_SslLikeStreamSocket<btlso::IPv4Address> SslLikeSocket;
+        typedef btlsos::TcpChannel                            Channel;
 
         Socket  *socket = factory->allocate();
         Channel  channel(socket, &ta);
-
-#if 0
-        ASSERT(0 == channel.setOption(btlso::SocketOptUtil::BTESO_RECEIVEBUFFER,
-                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                      1024));
-
-        ASSERT(0 == channel.setOption(btlso::SocketOptUtil::BTESO_TCPNODELAY,
-                                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                      1));
-#endif
 
         SslLikeSocket *sSocket = dynamic_cast<SslLikeSocket*>(socket);
 
@@ -6721,7 +6406,7 @@ void runTestCase9(char                                         *progname,
         }
         else {
             cout << "Error: Failed to connect to channelpool.  Abort.\n";
-            return;
+            return;                                                   // RETURN
         }
 
         ASSERT(0 == mX.setServerSocketOption(
@@ -6735,7 +6420,7 @@ void runTestCase9(char                                         *progname,
                                        1, SERVER_ID));
 
         ASSERT(-5 == mX.write(31312313, (btls::Iovec*)NULL, 0));
-        bdlmca::PooledBufferChainFactory bufferFactory(BUFFER_ALLOC, &ta);
+        bdlmca::PooledBlobBufferFactory bufferFactory(BUFFER_ALLOC, &ta);
 
         if (veryVerbose)
             cout << "Writing using blobs\n"
@@ -6744,10 +6429,10 @@ void runTestCase9(char                                         *progname,
             if (veryVerbose)
                 cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
 
-            bsls::AtomicInt count(0);
-            bdlqq::ThreadUtil::Handle threadsHandle[WRITING_THREADS + 1];
-            bdlqq::Barrier            threadBarrier(WRITING_THREADS);
-            bdlqq::ThreadAttributes          attr;
+            bdlmtt::AtomicInt count = 0;
+            bdlmtt::ThreadUtil::Handle threadsHandle[WRITING_THREADS + 1];
+            bdlmtt::Barrier            threadBarrier(WRITING_THREADS);
+            bcemt_Attribute          attr;
             case9ThreadInfo2        info[WRITING_THREADS];
             for (int i = 0; i < WRITING_THREADS; ++i) {
                 info[i].d_barrier       = &threadBarrier;
@@ -6759,7 +6444,7 @@ void runTestCase9(char                                         *progname,
                 info[i].d_totalAlloc    = BIG_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&threadsHandle[i],
                                                      attr, &case9Thread0,
                                                      &info[i]));
             }
@@ -6776,7 +6461,7 @@ void runTestCase9(char                                         *progname,
             infoRead.d_totalAlloc         = BIG_BUFFER_ALLOC;
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
+                   bdlmtt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
                                             attr, &case9Read, &infoRead));
 
             // For reuse in case 21
@@ -6785,7 +6470,7 @@ void runTestCase9(char                                         *progname,
             }
 
             for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
+                ASSERT(0 == bdlmtt::ThreadUtil::join(threadsHandle[i], 0));
             }
 
             count = 0;
@@ -6803,7 +6488,7 @@ void runTestCase9(char                                         *progname,
                 info[i].d_totalAlloc    = SMALL_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&threadsHandle[i],
                                                      attr, &case9Thread0,
                                                      &info[i]));
             }
@@ -6819,7 +6504,7 @@ void runTestCase9(char                                         *progname,
             infoRead.d_totalAlloc         = SMALL_BUFFER_ALLOC;
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
+                   bdlmtt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
                                             attr, &case9Read, &infoRead));
 
             // For reuse in case 21
@@ -6828,103 +6513,7 @@ void runTestCase9(char                                         *progname,
             }
 
             for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
-            }
-
-        }
-
-        if (veryVerbose)
-            cout << "Writing using datamsg\n"
-                 << "---------------------" << endl;
-        {
-            if (veryVerbose)
-                cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
-
-            bsls::AtomicInt count(0);
-            bdlqq::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
-            bdlqq::Barrier            threadBarrier(WRITING_THREADS);
-            bdlqq::ThreadAttributes          attr;
-            case9ThreadInfo2        info[WRITING_THREADS];
-            for (int i = 0; i < WRITING_THREADS; ++i) {
-                info[i].d_barrier       = &threadBarrier;
-                info[i].d_threadCount   = &count;
-                info[i].d_channelPool_p = &mX;
-                info[i].d_channelId     = channelId;
-                info[i].d_write         = i;
-                info[i].d_bufferAlloc   = BUFFER_ALLOC;
-                info[i].d_totalAlloc    = BIG_BUFFER_ALLOC;
-                info[i].d_allocator_p   = &ta;
-                info[i].d_factory_p     = &bufferFactory;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
-                                                     attr, &case9Thread1,
-                                                     &info[i]));
-            }
-
-            if (veryVerbose) {
-                cout << "\tReading BIG_BUFFER_ALLOC" << endl;
-            }
-            case9ReadInfo infoRead;
-            infoRead.d_channel_p          = &channel;
-            infoRead.d_threadCount        = &count;
-            infoRead.d_concurrentReadFlag = CONCURRENT_READ;
-            infoRead.d_numThreads         = WRITING_THREADS;
-            infoRead.d_bufferAlloc        = BUFFER_ALLOC;
-            infoRead.d_totalAlloc         = BIG_BUFFER_ALLOC;
-            infoRead.d_allocator_p        = &ta;
-            ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                            attr, &case9Read, &infoRead));
-
-            // For reuse in case 21
-            if (sSocket) {
-                sSocket->writeFlush();
-            }
-
-            for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
-            }
-
-            count = 0;
-            if (veryVerbose) {
-                cout << "\tWriting SMALL_BUFFER_ALLOC" << endl;
-            }
-
-            for (int i = 0; i < WRITING_THREADS; ++i) {
-                info[i].d_barrier       = &threadBarrier;
-                info[i].d_threadCount   = &count;
-                info[i].d_channelPool_p = &mX;
-                info[i].d_channelId     = channelId;
-                info[i].d_write         = i;
-                info[i].d_bufferAlloc   = BUFFER_ALLOC;
-                info[i].d_totalAlloc    = SMALL_BUFFER_ALLOC;
-                info[i].d_allocator_p   = &ta;
-                info[i].d_factory_p     = &bufferFactory;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
-                                                     attr, &case9Thread1,
-                                                     &info[i]));
-            }
-
-            if (veryVerbose) {
-                cout << "\tReading SMALL_BUFFER_ALLOC" << endl;
-            }
-            infoRead.d_channel_p          = &channel;
-            infoRead.d_threadCount        = &count;
-            infoRead.d_concurrentReadFlag = CONCURRENT_READ;
-            infoRead.d_numThreads         = WRITING_THREADS;
-            infoRead.d_bufferAlloc        = BUFFER_ALLOC;
-            infoRead.d_totalAlloc         = SMALL_BUFFER_ALLOC;
-            infoRead.d_allocator_p        = &ta;
-            ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                            attr, &case9Read, &infoRead));
-
-            // For reuse in case 21
-            if (sSocket) {
-                sSocket->writeFlush();
-            }
-
-            for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
+                ASSERT(0 == bdlmtt::ThreadUtil::join(threadsHandle[i], 0));
             }
 
         }
@@ -6936,10 +6525,10 @@ void runTestCase9(char                                         *progname,
             if (veryVerbose)
                 cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
 
-            bsls::AtomicInt count(0);
-            bdlqq::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
-            bdlqq::Barrier            threadBarrier(WRITING_THREADS);
-            bdlqq::ThreadAttributes          attr;
+            bdlmtt::AtomicInt count = 0;
+            bdlmtt::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
+            bdlmtt::Barrier            threadBarrier(WRITING_THREADS);
+            bcemt_Attribute          attr;
             case9ThreadInfo         info[WRITING_THREADS];
             for (int i = 0; i < WRITING_THREADS; ++i) {
                 info[i].d_barrier       = &threadBarrier;
@@ -6950,7 +6539,7 @@ void runTestCase9(char                                         *progname,
                 info[i].d_bufferAlloc   = BUFFER_ALLOC;
                 info[i].d_totalAlloc    = BIG_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&threadsHandle[i],
                                                      attr, &case9Thread2,
                                                      &info[i]));
             }
@@ -6967,7 +6556,7 @@ void runTestCase9(char                                         *progname,
             infoRead.d_totalAlloc         = BIG_BUFFER_ALLOC;
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
+                   bdlmtt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
                                             attr, &case9Read, &infoRead));
 
             // For reuse in case 21
@@ -6976,7 +6565,7 @@ void runTestCase9(char                                         *progname,
             }
 
             for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
+                ASSERT(0 == bdlmtt::ThreadUtil::join(threadsHandle[i], 0));
             }
 
             if (veryVerbose) {
@@ -6992,7 +6581,7 @@ void runTestCase9(char                                         *progname,
                 info[i].d_bufferAlloc   = BUFFER_ALLOC;
                 info[i].d_totalAlloc    = SMALL_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&threadsHandle[i],
                                                      attr, &case9Thread2,
                                                      &info[i]));
             }
@@ -7008,7 +6597,7 @@ void runTestCase9(char                                         *progname,
             infoRead.d_totalAlloc         = SMALL_BUFFER_ALLOC;
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
+                   bdlmtt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
                                             attr, &case9Read, &infoRead));
 
             // For reuse in case 21
@@ -7017,23 +6606,23 @@ void runTestCase9(char                                         *progname,
             }
 
             for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
+                ASSERT(0 == bdlmtt::ThreadUtil::join(threadsHandle[i], 0));
             }
         }
 
         if (veryVerbose)
-            cout << "Writing using all three flavors of write()\n"
-                 << "------------------------------------------" << endl;
+            cout << "Writing using both flavors of write()\n"
+                 << "---------------------------------------" << endl;
 
         {
             if (veryVerbose) {
                 cout << "\tWriting BIG_BUFFER_ALLOC" << endl;
             }
 
-            bsls::AtomicInt count(0);
-            bdlqq::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
-            bdlqq::Barrier            threadBarrier(WRITING_THREADS);
-            bdlqq::ThreadAttributes          attr;
+            bdlmtt::AtomicInt count = 0;
+            bdlmtt::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
+            bdlmtt::Barrier            threadBarrier(WRITING_THREADS);
+            bcemt_Attribute          attr;
             case9ThreadInfo2        info[WRITING_THREADS];
             for (int i = 0; i < WRITING_THREADS; ++i) {
                 info[i].d_barrier       = &threadBarrier;
@@ -7045,9 +6634,9 @@ void runTestCase9(char                                         *progname,
                 info[i].d_totalAlloc    = BIG_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
-                                                     attr, &case9Thread3,
-                                                     &info[i]));
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&threadsHandle[i],
+                                                       attr, &case9Thread3,
+                                                       &info[i]));
             }
 
             if (veryVerbose) {
@@ -7062,11 +6651,11 @@ void runTestCase9(char                                         *progname,
             infoRead.d_totalAlloc         = BIG_BUFFER_ALLOC;
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
+                   bdlmtt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
                                             attr, &case9Read, &infoRead));
 
             for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
+                ASSERT(0 == bdlmtt::ThreadUtil::join(threadsHandle[i], 0));
             }
 
             // For reuse in case 21
@@ -7089,7 +6678,7 @@ void runTestCase9(char                                         *progname,
                 info[i].d_totalAlloc    = SMALL_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threadsHandle[i],
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&threadsHandle[i],
                                                      attr, &case9Thread3,
                                                      &info[i]));
             }
@@ -7105,7 +6694,7 @@ void runTestCase9(char                                         *progname,
             infoRead.d_totalAlloc         = SMALL_BUFFER_ALLOC;
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
-                   bdlqq::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
+                   bdlmtt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
                                             attr, &case9Read, &infoRead));
 
             // For reuse in case 21
@@ -7114,7 +6703,7 @@ void runTestCase9(char                                         *progname,
             }
 
             for (int i = 0; i <= WRITING_THREADS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::join(threadsHandle[i], 0));
+                ASSERT(0 == bdlmtt::ThreadUtil::join(threadsHandle[i], 0));
             }
         }
 
@@ -7132,17 +6721,17 @@ void runTestCase9(char                                         *progname,
 namespace TEST_CASE_8_NAMESPACE {
 
 struct case8CallbackInfo {
-    bdlqq::Barrier  *d_barrier_p;
-    bsls::AtomicInt  d_channelId;
-    bsls::AtomicInt  d_channelDownReadFlag;
-    bsls::AtomicInt  d_channelDownWriteFlag;
+    bdlmtt::Barrier   *d_barrier_p;
+    bdlmtt::AtomicInt  d_channelId;
+    bdlmtt::AtomicInt  d_channelDownReadFlag;
+    bdlmtt::AtomicInt  d_channelDownWriteFlag;
 };
 
 static
 void case8ChannelStateCallback(int                channelId,
                                int                serverId,
                                int                state,
-                               void              *arg,
+                               void              *,
                                case8CallbackInfo *info)
 {
     ASSERT(info);
@@ -7201,12 +6790,11 @@ void case8ChannelStateCallback(int                channelId,
 namespace TEST_CASE_7_NAMESPACE {
 
 static
-void case7ChannelStateCallback(
-        int            channelId,
-        int            serverId,
-        int            state,
-        void          *arg,
-        bdlqq::Barrier *barrier)
+void case7ChannelStateCallback(int              channelId,
+                               int              serverId,
+                               int              state,
+                               void            *,
+                               bdlmtt::Barrier *barrier)
 {
     ASSERT(barrier);
 
@@ -7259,8 +6847,8 @@ struct case4WorkerInfo {
     int                       d_expNumFailures;
     int                       d_queueSize;
     int                       d_timeOut;
-    bsls::AtomicInt            d_portNumber;
-    bdlqq::ThreadUtil::Handle *d_worker_p;
+    bdlmtt::AtomicInt            d_portNumber;
+    bdlmtt::ThreadUtil::Handle *d_worker_p;
 };
 
 extern "C"
@@ -7321,7 +6909,7 @@ static void case4PoolStateCb(int              poolState,
                              int              sourceId,
                              int              severity,
                              // additional arguments follow
-                             bsls::AtomicInt  *numFailures,
+                             bdlmtt::AtomicInt  *numFailures,
                              case4WorkerInfo *info)
 {
     if (veryVerbose) {
@@ -7344,7 +6932,7 @@ static void case4PoolStateCb(int              poolState,
 
     if (btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolState) {
         ASSERT(btlmt::ChannelPool::BTEMT_ALERT == severity);  // ALERT
-        return;
+        return;                                                       // RETURN
     }
 
     ASSERT(btlmt::PoolMsg::BTEMT_ERROR_CONNECTING == poolState);
@@ -7357,20 +6945,19 @@ static void case4PoolStateCb(int              poolState,
     if (*numFailures == info->d_expNumFailures) {
         // Now is the time to let the last connect attempt succeed.
 
-        bdlqq::ThreadUtil::create(info->d_worker_p, &case4OpenConnectThread,
+        bdlmtt::ThreadUtil::create(info->d_worker_p, &case4OpenConnectThread,
                                  (void *)info);
     }
 }
 
-static void case4ChannelCb(int                channelId,
-                           int                sourceId,
-                           int                state,
-                           void              *context,
-                           // additional arguments follow
-                           int                *channelIdPtr,
-                           bsls::AtomicInt     *isInvokedFlag,
-                           bsls::AtomicInt     *numFailures,
-                           case4WorkerInfo    *info,
+static void case4ChannelCb(int                  channelId,
+                           int                  sourceId,
+                           int                  state,
+                           void                *,
+                           int                 *channelIdPtr,
+                           bdlmtt::AtomicInt   *isInvokedFlag,
+                           bdlmtt::AtomicInt   *numFailures,
+                           case4WorkerInfo     *info,
                            btlmt::ChannelPool **pool)
 {
     if (veryVerbose) {
@@ -7429,7 +7016,7 @@ static void case4ErrorPoolStateCb(int             poolState,
                                   int             severity,
                                   int             expectedSourceId,
                                   int             expectedSeverity,
-                                  bsls::AtomicInt *isInvokedFlag)
+                                  bdlmtt::AtomicInt *isInvokedFlag)
 {
     ASSERT(expectedSourceId == sourceId);
     ASSERT(expectedSeverity == severity);
@@ -7453,7 +7040,7 @@ static void case4ErrorPoolStateCb(int             poolState,
 /// monitorPool, from usage example 2, is reused.
 //-----------------------------------------------------------------------------
 
-static void monitorPool(bdlqq::Mutex              *coutLock,
+static void monitorPool(bdlmtt::Mutex              *coutLock,
                         const btlmt::ChannelPool&  pool,
                         int                       numTimes,
                         bool                      verbose = true)
@@ -7463,8 +7050,8 @@ static void monitorPool(bdlqq::Mutex              *coutLock,
     // access to a standard output stream.
 {
     while (0 <= --numTimes) {
-        bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(0, 2);  // 2 seconds
+        bdlmtt::ThreadUtil::yield();
+        bdlmtt::ThreadUtil::microSleep(0, 2);  // 2 seconds
         if (verbose) {
             coutLock->lock();
             bsl::cout << bdlt::CurrentTime::utc() << "\n"
@@ -7491,7 +7078,7 @@ struct my_LocalCallback {
     int d_status;
     int d_id;
     int d_channelExpected;
-    void connectCb(int channelId, int id, int status, void *context) {
+    void connectCb(int, int id, int status, void *) {
         MTCOUT << "Callback invoked" << MTENDL;
         ASSERT(id == d_id);
         ASSERT(d_status == status);
@@ -7509,10 +7096,7 @@ int usageExample1(bslma::Allocator *allocator) {
           , allocator);
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-    makeNull(&poolCb);
-
-    btlmt::ChannelPool::DataReadCallback         dataCb;
-    makeNull(&dataCb);
+    btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
 
     testCb.d_id = 5;
     testCb.d_status = btlmt::ChannelPool::BTEMT_CHANNEL_UP;
@@ -7587,15 +7171,14 @@ class vlm_EchoServer
 
     int    d_port;           // well-known port for service requests
 
-    bslma::Allocator                 *d_allocator_p;
-    bdlmca::PooledBufferChainFactory   *d_pbcFactory_p;
-    btlmt::ChannelPool                *d_cp_p;
+    bslma::Allocator   *d_allocator_p;
+    btlmt::ChannelPool *d_cp_p;
 
 private:
     // ChannelPool Callback Functions
     void poolCB(int state, int source, int severity);
     void chanCB(int channelId, int serverId, int state, void *arg);
-    void dataCB(int *consumed, int *needed, btlmt::DataMsg msg, void *arg);
+    void blobCB(int *numNeeded, bdlmca::Blob *msg, int channelId, void *arg);
 
     // Not Implemented
     vlm_EchoServer(const vlm_EchoServer&);
@@ -7630,15 +7213,11 @@ public:
         // listens to connections.
 };
 
-vlm_EchoServer::vlm_EchoServer(
-        int                port,
-        bslma::Allocator  *allocator)
+vlm_EchoServer::vlm_EchoServer(int port, bslma::Allocator *allocator)
 : d_port(port)
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
     enum { BUFSIZE = 1 << 10 };    // 1K buffers
-    d_pbcFactory_p = new(*d_allocator_p)
-                         bdlmca::PooledBufferChainFactory(BUFSIZE);
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
             bdlf::MemFnUtil::memFn(&vlm_EchoServer::poolCB, this)
@@ -7648,8 +7227,8 @@ vlm_EchoServer::vlm_EchoServer(
             bdlf::MemFnUtil::memFn(&vlm_EchoServer::chanCB, this)
           , d_allocator_p);
 
-    btlmt::ChannelPool::DataReadCallback         dataCb(
-            bdlf::MemFnUtil::memFn(&vlm_EchoServer::dataCB, this)
+    btlmt::ChannelPool::BlobBasedReadCallback      dataCb(
+            bdlf::MemFnUtil::memFn(&vlm_EchoServer::blobCB, this)
           , d_allocator_p);
 
     btlmt::ChannelPoolConfiguration    cpc;
@@ -7666,7 +7245,6 @@ vlm_EchoServer::~vlm_EchoServer()
 {
     d_cp_p->stop();
     d_allocator_p->deleteObjectRaw(d_cp_p);
-    d_allocator_p->deleteObjectRaw(d_pbcFactory_p);
 }
 
 int vlm_EchoServer::start()
@@ -7687,45 +7265,53 @@ int vlm_EchoServer::portNumber()
     return d_cp_p->serverAddress(SERVER_ID)->portNumber();
 }
 
-void vlm_EchoServer::poolCB(int state, int source, int severity)
+void vlm_EchoServer::poolCB(int, int, int)
 {
 }
 
-void vlm_EchoServer::chanCB(int channelId, int serverId, int state, void *arg)
+void vlm_EchoServer::chanCB(int channelId, int, int state, void *)
 {
     if (btlmt::ChannelPool::BTEMT_CHANNEL_DOWN == state) {
         d_cp_p->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
     }
 }
 
-void vlm_EchoServer::dataCB(
-        int             *consumed,
-        int             *needed,
-        btlmt::DataMsg    msg,
-        void            *arg)
+void vlm_EchoServer::blobCB(int          *numNeeded,
+                            bdlmca::Blob *msg,
+                            int           ,
+                            void         *)
 {
-    ASSERT(consumed);
-    ASSERT(needed);
-    ASSERT(msg.data());
+    ASSERT(numNeeded);
+    ASSERT(msg);
 
-    // Find Message Boundary
-    int length;
-    bdlxxxx::ByteStreamImpUtil::getInt32(&length, msg.data()->buffer(0));
-    ASSERT(0 < length);
-    if(length > (int)(msg.data()->length() - sizeof length)){
-        *needed = length - msg.data()->length() + sizeof length;
-        *consumed = 0;
+    const int INT_SIZE = sizeof(int);
+    if (msg->length() < INT_SIZE) {
+        *numNeeded = INT_SIZE;
         return;
     }
-    *needed = sizeof length;
-    *consumed = length + sizeof length;
+
+    // Find Message Boundary
+
+    int length;
+    bdlxxxx::ByteStreamImpUtil::getInt32(&length, msg->buffer(0).data());
+    ASSERT(0 < length);
+
+    if (length > msg->length() - INT_SIZE) {
+        *numNeeded = length - msg->length() + INT_SIZE;
+        return;
+    }
+
+    *numNeeded = INT_SIZE;
 
     // Process Request
-    ASSERT(1 == msg.data()->numBuffers());
-    ASSERT(length == (int)(msg.data()->length() - sizeof length));
+    ASSERT(1 == msg->numDataBuffers());
+    LOOP2_ASSERT(length, msg->length(),
+                 length == (int)(msg->length() - INT_SIZE));
 
-    d_cp_p->write(msg.channelId(), msg);
+    bdlmca::BlobUtil::erase(msg, 0, length + INT_SIZE);
+//     d_cp_p->write(channelId, *msg);
 }
+
 
 } // closing namespace USAGE_EXAMPLE_3_NAMESPACE
 
@@ -7735,26 +7321,30 @@ void vlm_EchoServer::dataCB(
 namespace USAGE_EXAMPLE_2_NAMESPACE {
 
 static
-int parseMessages(int *numNeeded, bdlmca::PooledBufferChain *chain) {
+int parseMessages(int *numNeeded, bdlmca::Blob *blob)
+{
     ASSERT(numNeeded);
-    char *data = chain->buffer(0);
-    int   length = chain->length();
-    ASSERT(data);
-    int originalLength  = length;
-    int processedMessages = 0;
+
+    int   length            = blob->length();
+    int   originalLength    = length;
+    int   processedMessages = 0;
+    char *data              = blob->buffer(0).data();
+
     while (length > (int) sizeof(int)) {
         int msgLength;
         memcpy(&msgLength, data, sizeof(int));
         msgLength = ntohl(msgLength);
         ASSERT(0 <= msgLength);
+
         // As a guard against malicious user, the msgLength should be limited
         // in the protocol.
+
         if (length < msgLength) {
             *numNeeded = msgLength - length;
-            return originalLength - length;
+            return originalLength - length;                           // RETURN
         }
         length -= msgLength;
-        data += msgLength;
+        data   += msgLength;
         ++processedMessages;
     }
     *numNeeded = sizeof(int) - length;
@@ -7768,31 +7358,38 @@ class my_QueueProcessor {
         SERVER_ID = 0x7A
     };
 
-    btlmt::ChannelPoolConfiguration d_config;          // pool's configuration
-    btlmt::ChannelPool             *d_channelPool_p;   // managed pool
-    bslma::Allocator              *d_allocator_p;     // memory manager
-    bdlqq::Mutex                   *d_coutLock_p;
-    bdlcc::Queue<btlmt::DataMsg>     *d_incomingQueue_p;
-    bdlcc::Queue<btlmt::DataMsg>     *d_outgoingQueue_p;
-    bdlqq::ThreadUtil::Handle       d_processorHandle;
-    bsls::AtomicOperations::AtomicTypes::Int           d_runningFlag;
+    typedef bsl::pair<int, bdlmca::Blob> BlobTypeWithId;
+
+    btlmt::ChannelPoolConfiguration  d_config;          // pool's configuration
+    btlmt::ChannelPool              *d_channelPool_p;   // managed pool
+    bslma::Allocator                *d_allocator_p;     // memory manager
+    bdlmtt::Mutex                   *d_coutLock_p;
+    bdlcc::Queue<BlobTypeWithId>    *d_incomingQueue_p;
+    bdlcc::Queue<BlobTypeWithId>    *d_outgoingQueue_p;
+    bdlmtt::ThreadUtil::Handle       d_processorHandle;
+    bdlmtt::AtomicUtil::Int          d_runningFlag;
+
   private:
+
     // Callback functions:
+
     void poolCb(int state, int source, int severity);
     void channelStateCb(int channelId, int sourceId, int state, void *context);
-    void dataCb(int *numConsumed, int *numNeeded, btlmt::DataMsg msg,
-                void *context);
+    void blobCB(int *numNeeded, bdlmca::Blob *msg, int channelId, void *arg);
 
     // Not implemented:
+
     my_QueueProcessor(const my_QueueProcessor& original);        // Not impl.
     my_QueueProcessor& operator=(const my_QueueProcessor& rhs);  // Not impl.
+
   public:
     // CREATORS
-    my_QueueProcessor(bdlcc::Queue<btlmt::DataMsg> *incomingQueue,
-                      bdlcc::Queue<btlmt::DataMsg> *outgoingQueue,
-                      bdlqq::Mutex *coutLock,
-                      int portNumber, int numConnections,
-                      bslma::Allocator *basicAllocator = 0);
+    my_QueueProcessor(bdlcc::Queue<BlobTypeWithId> *incomingQueue,
+                      bdlcc::Queue<BlobTypeWithId> *outgoingQueue,
+                      bdlmtt::Mutex                *coutLock,
+                      int                           portNumber,
+                      int                           numConnections,
+                      bslma::Allocator             *basicAllocator = 0);
 
     ~my_QueueProcessor();
         // Destroy this server.
@@ -7818,23 +7415,24 @@ extern "C" {
     }
 }
 
-my_QueueProcessor::my_QueueProcessor(bdlcc::Queue<btlmt::DataMsg> *incomingQueue,
-                                     bdlcc::Queue<btlmt::DataMsg> *outgoingQueue,
-                                     bdlqq::Mutex               *coutLock ,
-                                     int                        portNumber,
-                                     int                        numConnections,
-                                     bslma::Allocator          *basicAllocator)
+my_QueueProcessor::my_QueueProcessor(
+                                  bdlcc::Queue<BlobTypeWithId> *incomingQueue,
+                                  bdlcc::Queue<BlobTypeWithId> *outgoingQueue,
+                                  bdlmtt::Mutex                *coutLock,
+                                  int                           portNumber,
+                                  int                           numConnections,
+                                  bslma::Allocator             *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutLock_p(coutLock)
 , d_incomingQueue_p(incomingQueue)
 , d_outgoingQueue_p(outgoingQueue)
 {
-    bsls::AtomicOperations::initInt(&d_runningFlag, 0);
+    bdlmtt::AtomicUtil::initInt(&d_runningFlag, 0);
     d_config.setMaxThreads(4);
     d_config.setMaxConnections(numConnections);
     d_config.setReadTimeout(5.0);      // in seconds
     d_config.setMetricsInterval(10.0); // seconds
-    d_config.setWriteCacheWatermarks(0, 1<<20);  // 1Mb
+    d_config.setWriteCacheWatermarks(0, 1 << 20);  // 1Mb
     d_config.setIncomingMessageSizes(4, 100, 1024);
 
     if (verbose) {
@@ -7845,8 +7443,8 @@ my_QueueProcessor::my_QueueProcessor(bdlcc::Queue<btlmt::DataMsg> *incomingQueue
             bdlf::MemFnUtil::memFn(&my_QueueProcessor::channelStateCb, this)
           , basicAllocator);
 
-    btlmt::ChannelPool::DataReadCallback         dataCb(
-            bdlf::MemFnUtil::memFn(&my_QueueProcessor::dataCb, this)
+    btlmt::ChannelPool::BlobBasedReadCallback      dataCb(
+            bdlf::MemFnUtil::memFn(&my_QueueProcessor::blobCB, this)
           , basicAllocator);
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
@@ -7854,10 +7452,10 @@ my_QueueProcessor::my_QueueProcessor(bdlcc::Queue<btlmt::DataMsg> *incomingQueue
           , basicAllocator);
 
     d_channelPool_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
-                                                             dataCb,
-                                                             poolCb,
-                                                             d_config,
-                                                             basicAllocator);
+                                                              dataCb,
+                                                              poolCb,
+                                                              d_config,
+                                                              basicAllocator);
 
     if (verbose) {
         bsl::cout << "Starting queue processor, listening on port "
@@ -7875,19 +7473,19 @@ my_QueueProcessor::~my_QueueProcessor() {
 }
 
 int my_QueueProcessor::processOutgoingQueue() {
-    while (bsls::AtomicOperations::getInt(&d_runningFlag)) {
+    while (bdlmtt::AtomicUtil::getInt(d_runningFlag)) {
         bsls::TimeInterval TIMEOUT(bdlt::CurrentTime::now());
         TIMEOUT += 5.0; // 5s
-        btlmt::DataMsg msg;
+        BlobTypeWithId msg;
         if (0 == d_outgoingQueue_p->timedPopBack(&msg, TIMEOUT)) {
-            if (0 != d_channelPool_p->write(msg.channelId(), msg)) {
+            if (0 != d_channelPool_p->write(msg.first, msg.second)) {
                 if (veryVerbose) {
                     d_coutLock_p->lock();
-                    bsl::cout << "Channel " << msg.channelId() << " is down."
+                    bsl::cout << "Channel " << msg.first << " is down."
                               << bsl::endl;
                     d_coutLock_p->unlock();
                 }
-                d_channelPool_p->shutdown(msg.channelId(),
+                d_channelPool_p->shutdown(msg.first,
                                           btlmt::ChannelPool::BTEMT_IMMEDIATE);
             }
         }
@@ -7896,16 +7494,16 @@ int my_QueueProcessor::processOutgoingQueue() {
 }
 
 int my_QueueProcessor::startProcessor() {
-    bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
-    bsls::AtomicOperations::setInt(&d_runningFlag, 1);
-    return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
+    bcemt_Attribute attributes;
+    attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
+    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 1);
+    return bdlmtt::ThreadUtil::create(&d_processorHandle, attributes,
                                     &queueProc, (void*)this);
 }
 
 int my_QueueProcessor::stopProcessor() {
-    bsls::AtomicOperations::setInt(&d_runningFlag, 0);
-    return bdlqq::ThreadUtil::join(d_processorHandle);
+    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 0);
+    return bdlmtt::ThreadUtil::join(d_processorHandle);
 }
 
 int my_QueueProcessor::portNumber() {
@@ -7924,7 +7522,7 @@ void my_QueueProcessor::poolCb(int state, int source, int severity) {
 void my_QueueProcessor::channelStateCb(int   channelId,
                                        int   sourceId,
                                        int   state,
-                                       void *context)
+                                       void *)
 {
     ASSERT(SERVER_ID == sourceId);
 
@@ -7951,23 +7549,28 @@ void my_QueueProcessor::channelStateCb(int   channelId,
     }
 }
 
-void my_QueueProcessor::dataCb(int *numConsumed, int *numNeeded,
-                               btlmt::DataMsg msg, void *context) {
-    ASSERT(numConsumed);
-    ASSERT(msg.data());
-    int length = msg.data()->length();
+void my_QueueProcessor::blobCB(int          *numNeeded,
+                               bdlmca::Blob *msg,
+                               int           channelId,
+                               void         *)
+{
+    ASSERT(numNeeded);
+    ASSERT(msg);
+
+    int length = msg->length();
     ASSERT(0 < length);
 
-    *numConsumed = parseMessages(numNeeded, msg.data());
+    int numConsumed = parseMessages(numNeeded, msg);
 
     if (veryVeryVerbose) {
-        MTCOUT << "Received " << msg.data()->length() << " bytes from "
-               << msg.channelId() << " " << *numConsumed << " processed; "
-               << *numNeeded << " needed to complete a message." << MTENDL;
+        MTCOUT << "Received " << msg->length() << " bytes from "
+               << channelId << " " << *numNeeded
+               << " needed to complete a message." << MTENDL;
     }
 
-    if (*numConsumed) {
-        d_incomingQueue_p->pushBack(msg);
+    if (numConsumed) {
+        BlobTypeWithId data(channelId, *msg);
+        d_incomingQueue_p->pushBack(data);
     }
 }
 
@@ -8001,10 +7604,10 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         };
 
         // DATA
-        btlmt::ChannelPoolConfiguration d_config;        // pool's configuration
+        btlmt::ChannelPoolConfiguration d_config;        // pool's config
         btlmt::ChannelPool             *d_channelPool_p; // managed pool
         bslma::Allocator              *d_allocator_p;   // memory manager
-        bdlqq::Mutex                   *d_coutLock_p;    // synchronize 'cout'
+        bdlmtt::Mutex                   *d_coutLock_p;    // synchronize 'cout'
 
       private:
         // Callback functions:
@@ -8032,19 +7635,16 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
             // (using 'setChannelContext()'), in this example we do not
             // specify a context, so the value will be 0.
 
-        void dataCb(int           *numConsumed,
-                    int           *numNeeded,
-                    btlmt::DataMsg  msg,
-                    void          *context);
-            // Echo the specified 'msg' to the client on the channel
-            // identified by 'msg.channelId()' channel, load into the
-            // specified 'numConsumed' the number of bytes processed from
-            // 'msg', load into 'numNeeeded' the minimum length of
-            // additional data that is needed to complete a message, and close
-            // the communication channel.  Because this echo server is not
-            // interested in a discrete messages in a particular message
-            /// format, 'numConsumed' will always be set to the length of
-            // 'msg', and 'numNeeded' will be set to 1 (indicating this
+        void blobCB(int          *numNeeded,
+                    bdlmca::Blob *msg,
+                    int           channelId,
+                    void         *arg);
+            // Echo the specified 'msg' to the client on the channel identified
+            // by 'channelId' channel, load into the specified 'numNeeeded' the
+            // minimum length of additional data that is needed to complete a
+            // message, and close the communication channel.  Because this echo
+            // server is not interested in a discrete messages in a particular
+            // message format, 'numNeeded' will be set to 1 (indicating this
             // callback should be invoked again as soon as any new data is
             // read).
 
@@ -8053,7 +7653,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         my_EchoServer& operator=(const my_EchoServer&);
 
       public:
-        my_EchoServer(bdlqq::Mutex      *coutLock,
+        my_EchoServer(bdlmtt::Mutex      *coutLock,
                       int               portNumber,
                       int               numConnections,
                       bslma::Allocator *basicAllocator = 0);
@@ -8077,7 +7677,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
 // the channel pool is created, configured, and started.  The listening port
 // is established:
 //..
-    my_EchoServer::my_EchoServer(bdlqq::Mutex      *coutLock,
+    my_EchoServer::my_EchoServer(bdlmtt::Mutex      *coutLock,
                                  int               portNumber,
                                  int               numConnections,
                                  bslma::Allocator *basicAllocator)
@@ -8094,20 +7694,20 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
                 bdlf::MemFnUtil::memFn(&my_EchoServer::channelStateCb, this)
               , basicAllocator);
 
-        btlmt::ChannelPool::PoolStateChangeCallback poolStateFunctor(
+        btlmt::ChannelPool::PoolStateChangeCallback    poolStateFunctor(
                 bdlf::MemFnUtil::memFn(&my_EchoServer::poolStateCb, this)
               , basicAllocator);
 
-        btlmt::ChannelPool::DataReadCallback dataFunctor(
-                bdlf::MemFnUtil::memFn(&my_EchoServer::dataCb, this)
-              , basicAllocator);
+        btlmt::ChannelPool::BlobBasedReadCallback      dataFunctor(
+            bdlf::MemFnUtil::memFn(&my_EchoServer::blobCB, this)
+          , basicAllocator);
 
-        d_channelPool_p = new (*d_allocator_p)
-            btlmt::ChannelPool(channelStateFunctor,
-                              dataFunctor,
-                              poolStateFunctor,
-                              d_config,
-                              basicAllocator);
+        d_channelPool_p = new (*d_allocator_p) btlmt::ChannelPool(
+                                                           channelStateFunctor,
+                                                           dataFunctor,
+                                                           poolStateFunctor,
+                                                           d_config,
+                                                           basicAllocator);
 
         ASSERT(0 == d_channelPool_p->start());
         ASSERT(0 == d_channelPool_p->listen(portNumber,
@@ -8141,7 +7741,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
     void my_EchoServer::channelStateCb(int   channelId,
                                        int   sourceId,
                                        int   state,
-                                       void *context)
+                                       void *)
     {
         ASSERT(SERVER_ID == sourceId);
 
@@ -8166,20 +7766,20 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         }
     }
 
-    void my_EchoServer::dataCb(int           *numConsumed,
-                               int           *numNeeded,
-                               btlmt::DataMsg  msg,
-                               void          *context)
+    void my_EchoServer::blobCB(int          *numNeeded,
+                               bdlmca::Blob *msg,
+                               int           channelId,
+                               void         *)
     {
-        ASSERT(numConsumed);
-        ASSERT(msg.data());
-        ASSERT(0 < msg.data()->length());
+        ASSERT(numNeeded);
+        ASSERT(msg);
+        ASSERT(0 < msg->length());
 
-        ASSERT(0 == d_channelPool_p->write(msg.channelId(), msg));
-        *numConsumed = msg.data()->length();
+        ASSERT(0 == d_channelPool_p->write(channelId, *msg));
+        bdlmca::BlobUtil::erase(msg, 0, msg->length());
         *numNeeded   = 1;
-        MTCOUT << "Shutdown " << msg.channelId() << MTENDL;
-        d_channelPool_p->shutdown(msg.channelId(),
+        MTCOUT << "Shutdown " << channelId << MTENDL;
+        d_channelPool_p->shutdown(channelId,
                                   btlmt::ChannelPool::BTEMT_IMMEDIATE);
     }
 //..
@@ -8189,7 +7789,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
 // its busy metrics.  For simplicity, we will use the following function
 // for monitoring:
 //..
-    static void monitorPool(bdlqq::Mutex              *coutLock,
+    static void monitorPool(bdlmtt::Mutex              *coutLock,
                             const btlmt::ChannelPool&  pool,
                             int                       numTimes)
         // Every 10 seconds, output the percent busy of the specified channel
@@ -8203,7 +7803,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
             MTCOUT << "The pool is " << pool.busyMetrics() << "% busy ("
                    << pool.numThreads() << " threads)." << MTENDL;
             coutLock->unlock();
-            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));  // 10 seconds
+            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));  // 10 secs
         }
     }
 //..
@@ -8216,16 +7816,18 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
 
 namespace USAGE_EXAMPLE_M1_NAMESPACE {
 
+typedef bsl::pair<int, bdlmca::Blob> BlobTypeWithId;
+
 static void
-generateMessage(btlmt::DataMsg& msg, bslma::Allocator *basicAllocator = 0) {
-    bdlmca::PooledBufferChain *chain = msg.data();
+generateMessage(bdlmca::Blob& msg, bslma::Allocator *basicAllocator = 0)
+{
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     bdlxxxx::ByteOutStream stream(basicAllocator);
     bdex_OutStreamFunctions::streamOut(stream, now, 1);
     int streamedLength = stream.length();
-    chain->setLength(sizeof(int) + streamedLength);
-    chain->replace(sizeof(int), stream.data(), streamedLength);
-    char *buffer = chain->buffer(0);
+    msg.setLength(sizeof(int) + streamedLength);
+    bdlmca::BlobUtil::append(&msg, stream.data(), sizeof(int), streamedLength);
+    char *buffer = msg.buffer(0).data();
     int tmp = htonl(streamedLength + sizeof(int));
     memcpy(buffer, &tmp, sizeof(int));
 }
@@ -8237,36 +7839,37 @@ class my_QueueClient {
         CLIENT_BASE_ID = 0xAB      // Actual clientId is between this and
                                    // CLIENT_BASE_ID + d_numConnections.
     };
-    btlmt::ChannelPoolConfiguration d_config;          // pool's configuration
-    btlmt::ChannelPool             *d_channelPool_p;   // managed pool
-    bslma::Allocator              *d_allocator_p;     // memory manager
-    bdlqq::Mutex                   *d_coutLock_p;
-    bdlcc::Queue<btlmt::DataMsg>     *d_incomingQueue_p;
-    bdlcc::Queue<btlmt::DataMsg>     *d_outgoingQueue_p;
-    bdlqq::ThreadUtil::Handle       d_processorHandle;
-    bsls::AtomicOperations::AtomicTypes::Int           d_runningFlag;
-    btlmt::DataMsg                  d_initialMessage;
-    btlso::IPv4Address              d_peer;
-    int                            d_numConnections;
+
+    btlmt::ChannelPoolConfiguration  d_config;          // pool's configuration
+    btlmt::ChannelPool              *d_channelPool_p;   // managed pool
+    bslma::Allocator                *d_allocator_p;     // memory manager
+    bdlmtt::Mutex                   *d_coutLock_p;
+    bdlcc::Queue<BlobTypeWithId>    *d_incomingQueue_p;
+    bdlcc::Queue<BlobTypeWithId>    *d_outgoingQueue_p;
+    bdlmtt::ThreadUtil::Handle       d_processorHandle;
+    bdlmtt::AtomicUtil::Int          d_runningFlag;
+    bdlmca::Blob                     d_initialMessage;
+    btlso::IPv4Address               d_peer;
+    int                              d_numConnections;
+
   private:
     // Callback functions:
     void poolStateCb(int state, int source, int severity);
     void channelStateCb(int channelId, int sourceId, int state, void *context);
-    void dataCb(int *numConsumed, int *numNeeded, btlmt::DataMsg msg,
-                void *context);
+    void blobCB(int *numNeeded, bdlmca::Blob *msg, int channelId, void *);
 
     // Not implemented:
     my_QueueClient(const my_QueueClient& original);        // Not impl.
     my_QueueClient& operator=(const my_QueueClient& rhs);  // Not impl.
   public:
-    my_QueueClient(bdlcc::Queue<btlmt::DataMsg>    *incomingQueue,
-                      bdlcc::Queue<btlmt::DataMsg> *outgoingQueue,
-                      bdlqq::Mutex               *coutLock,
-                      const char                *hostname,
-                      int                        portNumber,
-                      int                        numConnections,
-                      const btlmt::DataMsg&       initialMessage,
-                      bslma::Allocator          *basicAllocator = 0);
+    my_QueueClient(bdlcc::Queue<BlobTypeWithId> *incomingQueue,
+                   bdlcc::Queue<BlobTypeWithId> *outgoingQueue,
+                   bdlmtt::Mutex                *coutLock,
+                   const char                   *hostname,
+                   int                           portNumber,
+                   int                           numConnections,
+                   const bdlmca::Blob&           initialMessage,
+                   bslma::Allocator             *basicAllocator = 0);
 
     ~my_QueueClient();
         // Destroy this server.
@@ -8294,14 +7897,14 @@ extern "C" {
     }
 }
 
-my_QueueClient::my_QueueClient(bdlcc::Queue<btlmt::DataMsg> *incomingQueue,
-                               bdlcc::Queue<btlmt::DataMsg> *outgoingQueue,
-                               bdlqq::Mutex               *coutLock ,
-                               const char                *hostname,
-                               int                        portNumber,
-                               int                        numConnections,
-                               const btlmt::DataMsg&       initialMessage,
-                               bslma::Allocator          *basicAllocator)
+my_QueueClient::my_QueueClient(bdlcc::Queue<BlobTypeWithId> *incomingQueue,
+                               bdlcc::Queue<BlobTypeWithId> *outgoingQueue,
+                               bdlmtt::Mutex                *coutLock ,
+                               const char                   *hostname,
+                               int                           portNumber,
+                               int                           numConnections,
+                               const bdlmca::Blob&           initialMessage,
+                               bslma::Allocator             *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutLock_p(coutLock)
 , d_incomingQueue_p(incomingQueue)
@@ -8310,7 +7913,7 @@ my_QueueClient::my_QueueClient(bdlcc::Queue<btlmt::DataMsg> *incomingQueue,
 , d_peer(hostname, portNumber)
 , d_numConnections(numConnections)
 {
-    bsls::AtomicOperations::initInt(&d_runningFlag, 0);
+    bdlmtt::AtomicUtil::initInt(&d_runningFlag, 0);
     d_config.setMaxThreads(4);
     d_config.setMaxConnections(numConnections);
     d_config.setReadTimeout(5.0);      // in seconds
@@ -8330,15 +7933,15 @@ my_QueueClient::my_QueueClient(bdlcc::Queue<btlmt::DataMsg> *incomingQueue,
             bdlf::MemFnUtil::memFn(&my_QueueClient::poolStateCb, this)
           , basicAllocator);
 
-    btlmt::ChannelPool::DataReadCallback         dataCb(
-            bdlf::MemFnUtil::memFn(&my_QueueClient::dataCb, this)
+    btlmt::ChannelPool::BlobBasedReadCallback      dataCb(
+            bdlf::MemFnUtil::memFn(&my_QueueClient::blobCB, this)
           , basicAllocator);
 
     d_channelPool_p = new (*d_allocator_p) btlmt::ChannelPool(channelCb,
-                                                             dataCb,
-                                                             poolCb,
-                                                             d_config,
-                                                             basicAllocator);
+                                                              dataCb,
+                                                              poolCb,
+                                                              d_config,
+                                                              basicAllocator);
     ASSERT(0 == d_channelPool_p->start());
     for (int i = 0; i < numConnections; ++i) {
         MTCOUT << "Connecting to " << hostname << ":" << portNumber << MTENDL;
@@ -8355,28 +7958,28 @@ my_QueueClient::~my_QueueClient() {
 }
 
 int my_QueueClient::processOutgoingQueue() {
-    while (bsls::AtomicOperations::getInt(&d_runningFlag)) {
+    while (bdlmtt::AtomicUtil::getInt(d_runningFlag)) {
         bsls::TimeInterval TIMEOUT(bdlt::CurrentTime::now());
         TIMEOUT += 5.0; // 5s
-        btlmt::DataMsg msg;
+        BlobTypeWithId msg;
         if (0 == d_outgoingQueue_p->timedPopBack(&msg, TIMEOUT)) {
-            ASSERT(0 == d_channelPool_p->write(msg.channelId(), msg));
+            ASSERT(0 == d_channelPool_p->write(msg.first, msg.second));
         }
     }
     return 0;
 }
 
 int my_QueueClient::startProcessor() {
-    bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
-    bsls::AtomicOperations::setInt(&d_runningFlag, 1);
-    return bdlqq::ThreadUtil::create(&d_processorHandle, attributes,
+    bcemt_Attribute attributes;
+    attributes.setDetachedState(bcemt_Attribute::BCEMT_CREATE_JOINABLE);
+    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 1);
+    return bdlmtt::ThreadUtil::create(&d_processorHandle, attributes,
                                     &queueClientProc, (void*)this);
 }
 
 int my_QueueClient::stopProcessor() {
-    bsls::AtomicOperations::setInt(&d_runningFlag, 0);
-    return bdlqq::ThreadUtil::join(d_processorHandle);
+    bdlmtt::AtomicUtil::setInt(&d_runningFlag, 0);
+    return bdlmtt::ThreadUtil::join(d_processorHandle);
 }
 
 void my_QueueClient::poolStateCb(int state, int source, int severity) {
@@ -8391,7 +7994,7 @@ void my_QueueClient::poolStateCb(int state, int source, int severity) {
 void my_QueueClient::channelStateCb(int   channelId,
                                     int   sourceId,
                                     int   state,
-                                    void *context)
+                                    void *)
 {
     ASSERT(CLIENT_BASE_ID <= sourceId &&
            sourceId < CLIENT_BASE_ID + d_numConnections);
@@ -8427,20 +8030,23 @@ void my_QueueClient::channelStateCb(int   channelId,
     }
 }
 
-void my_QueueClient::dataCb(int           *numConsumed,
-                            int           *numNeeded,
-                            btlmt::DataMsg  msg,
-                            void          *context) {
-    ASSERT(numConsumed);
-    ASSERT(msg.data());
-    ASSERT(0 < msg.data()->length());
+void my_QueueClient::blobCB(int          *numNeeded,
+                            bdlmca::Blob *msg,
+                            int           channelId,
+                            void         *)
+{
+    ASSERT(numNeeded);
+    ASSERT(msg);
+    ASSERT(0 < msg->length());
 
-    *numConsumed = USAGE_EXAMPLE_2_NAMESPACE::parseMessages(numNeeded,
-                                                            msg.data());
-    if (*numConsumed) {
-        d_incomingQueue_p->pushBack(msg);
+    int numConsumed = USAGE_EXAMPLE_2_NAMESPACE::parseMessages(numNeeded, msg);
+
+    if (numConsumed) {
+        BlobTypeWithId data(channelId, *msg);
+        d_incomingQueue_p->pushBack(data);
     }
 }
+
 
 struct caseMinusOneInfo {
     int   d_numConnections;
@@ -8468,12 +8074,11 @@ void *usageExampleMinusOne(void *arg)
         P(PORT_NUMBER);
         P(NUM_MESSAGES);
     }
-    bdlcc::Queue<btlmt::DataMsg> incoming, outgoing;
+    bdlcc::Queue<BlobTypeWithId> incoming, outgoing;
 
-    bdlmca::PooledBufferChainFactory chainFactory(100, &ta);
-    bdlmca::PooledBufferChain *chain = chainFactory.allocate(0);
-
-    btlmt::DataMsg initialMessage(chain, &chainFactory, -1, &ta);
+    bdlmca::PooledBlobBufferFactory blobFactory(100, &ta);
+    bdlmca::Blob                    blob(&blobFactory);
+    bdlmca::Blob                    initialMessage(blob, &ta);
 
     generateMessage(initialMessage, &ta);
 
@@ -8489,20 +8094,20 @@ void *usageExampleMinusOne(void *arg)
 
     int numConnections = NUM_CONNECTIONS * NUM_ITERS;
     while (numConnections) {
-        btlmt::DataMsg msg = incoming.popFront();
+        BlobTypeWithId msg = incoming.popFront();
 
         // Process message here
         bsls::TimeInterval now = bdlt::CurrentTime::now();
-        char *msgData = msg.data()->buffer(0);
+        char *msgData = msg.second.buffer(0).data();
         msgData += sizeof(int);
-        bdlxxxx::ByteInStream stream(msgData, msg.data()->length()
-                - sizeof(int));
+        bdlxxxx::ByteInStream stream(msgData, msg.second.length()
+                                     - sizeof(int));
         bsls::TimeInterval initialTime;
         bdex_InStreamFunctions::streamIn(stream, initialTime, 1);
         now -= initialTime;
-        int channelId = msg.channelId();
+        int channelId = msg.first;
         if (veryVerbose) {
-            MTCOUT << "Processed message from " << msg.channelId() << "."
+            MTCOUT << "Processed message from " << channelId << "."
                    << " Delay = " << now << MTENDL;
         }
         if (veryVerbose) {
@@ -8510,7 +8115,7 @@ void *usageExampleMinusOne(void *arg)
         }
         channelStats[channelId - 1].push_back(now);
         if ((int) channelStats[channelId - 1].size() < NUM_MESSAGES) {
-            generateMessage(msg, &ta);
+            generateMessage(msg.second, &ta);
             outgoing.pushBack(msg);
         }
         else {
@@ -8521,11 +8126,11 @@ void *usageExampleMinusOne(void *arg)
             }
             delay = delay / i;
             if (verbose) {
-                MTCOUT << "Processed message from " << msg.channelId() << "."
+                MTCOUT << "Processed message from " << channelId << "."
                     << " Average delay = " << delay << MTENDL;
             }
             channelStats[channelId - 1].clear();
-            qp.shutdown(msg.channelId());
+            qp.shutdown(channelId);
             --numConnections;
         }
     }
@@ -8691,9 +8296,11 @@ class TestDriver {
         // Breathing test.
 };
 
+
                                // --------------
                                // TEST APPARATUS
                                // --------------
+
 
 void TestDriver::testCase44()
 {
@@ -8754,7 +8361,7 @@ void TestDriver::testCase44()
             P(config);
         }
 
-        bdlqq::Barrier   channelCbBarrier(2);
+        bdlmtt::Barrier   channelCbBarrier(2);
         int             channelId;
 
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
@@ -8773,7 +8380,7 @@ void TestDriver::testCase44()
         bdlmca::PooledBlobBufferFactory factory(SIZE/2);
 
         bdlmca::Blob    blob;
-        bdlqq::Barrier dataCbBarrier(2);
+        bdlmtt::Barrier dataCbBarrier(2);
 
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
                                      bdlf::BindUtil::bind(&blobBasedReadCb,
@@ -8788,7 +8395,8 @@ void TestDriver::testCase44()
             address.setPortNumber(PORT);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
+            btlso::StreamSocket<btlso::IPv4Address> *socket =
+                                                            factory.allocate();
 
             ASSERT(0 == socket->connect(address));
             ASSERT(0 == socket->setBlockingMode(
@@ -8867,7 +8475,7 @@ void TestDriver::testCase43()
             P(config);
         }
 
-        bdlqq::Barrier   channelCbBarrier(NT + 1);
+        bdlmtt::Barrier   channelCbBarrier(NT + 1);
         int             channelId;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -8877,14 +8485,14 @@ void TestDriver::testCase43()
 
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        bdlqq::Barrier dataCbBarrier(NT + 1);
+        bdlmtt::Barrier dataCbBarrier(NT + 1);
 
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
                                      bdlf::BindUtil::bind(&blobBasedReadCb,
                                                          _1, _2, _3, _4,
                                                          &dataCbBarrier));
 
-        Obj mX(channelCb, dataCb, poolCb, config);  const Obj& X = mX;
+        Obj mX(channelCb, dataCb, poolCb, config);
 
         ASSERT(0 == mX.start());
 
@@ -8894,9 +8502,9 @@ void TestDriver::testCase43()
             ASSERT(0 == mX.listen(0, 1, SERVER_ID + i));
         }
 
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
 
-        bdlqq::ThreadUtil::Handle connectThreads[NT];
+        bdlmtt::ThreadUtil::Handle connectThreads[NT];
         ConnectData              connectData[NT];
         const int                SIZE = 1024 * 1024; // 1 MB
 
@@ -8905,25 +8513,25 @@ void TestDriver::testCase43()
             connectData[i].d_numBytes = SIZE;
             ASSERT(0 == mX.getServerAddress(&connectData[i].d_serverAddress,
                                             SERVER_ID + i));
-            ASSERT(0 == bdlqq::ThreadUtil::create(&connectThreads[i],
+            ASSERT(0 == bdlmtt::ThreadUtil::create(&connectThreads[i],
                                                  &connectFunction,
                                                  (void *) &connectData[i]));
         }
 
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
 
-        bdlqq::ThreadUtil::Handle listenThreads[NT];
+        bdlmtt::ThreadUtil::Handle listenThreads[NT];
         ListenData               listenData[NT];
         for (int i = 0; i < NT; ++i) {
             listenData[i].d_index    = i;
             listenData[i].d_numBytes = SIZE;
 
-            ASSERT(0 == bdlqq::ThreadUtil::create(&listenThreads[i],
+            ASSERT(0 == bdlmtt::ThreadUtil::create(&listenThreads[i],
                                                  &listenFunction,
                                                  (void *) &listenData[i]));
         }
 
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
 
         const int CLIENT_ID = 200;
 
@@ -8937,7 +8545,7 @@ void TestDriver::testCase43()
                                    CLIENT_ID + i));
         }
 
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
 
         const int NUM_BYTES = 1024 * 1024 * 10;
         bdlmca::PooledBlobBufferFactory f(SIZE);
@@ -9003,7 +8611,7 @@ void TestDriver::testCase42()
             P(config);
         }
 
-        bdlqq::Barrier   channelCbBarrier(2);
+        bdlmtt::Barrier   channelCbBarrier(2);
         int             channelId;
         int             numTimesLowWatCalled = 0;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
@@ -9015,7 +8623,7 @@ void TestDriver::testCase42()
 
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        bdlqq::Barrier dataCbBarrier(2);
+        bdlmtt::Barrier dataCbBarrier(2);
 
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
                                      bdlf::BindUtil::bind(&blobBasedReadCb,
@@ -9065,12 +8673,12 @@ void TestDriver::testCase42()
         rd.d_socket_p      = client;
         rd.d_numBytes      = SIZE;
 
-        bdlqq::ThreadUtil::Handle handle;
-        bdlqq::ThreadUtil::create(&handle, &readData, &rd);
+        bdlmtt::ThreadUtil::Handle handle;
+        bdlmtt::ThreadUtil::create(&handle, &readData, &rd);
 
         channelCbBarrier.wait();
 
-        ASSERT(0 == bdlqq::ThreadUtil::join(handle));
+        ASSERT(0 == bdlmtt::ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 1 == numTimesLowWatCalled);
 
         rc = pool.write(channelId, b);
@@ -9079,11 +8687,11 @@ void TestDriver::testCase42()
         rc = pool.write(channelId, b, 100);
         ASSERT(rc);
 
-        bdlqq::ThreadUtil::create(&handle, &readData, &rd);
+        bdlmtt::ThreadUtil::create(&handle, &readData, &rd);
 
         channelCbBarrier.wait();
 
-        ASSERT(0 == bdlqq::ThreadUtil::join(handle));
+        ASSERT(0 == bdlmtt::ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
 }
 
@@ -9114,7 +8722,7 @@ void TestDriver::testCase41()
             P(config);
         }
 
-        bdlqq::Barrier   channelCbBarrier(2);
+        bdlmtt::Barrier   channelCbBarrier(2);
         int             channelId;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -9125,7 +8733,7 @@ void TestDriver::testCase41()
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
         string        data;
-        bdlqq::Barrier dataCbBarrier(2);
+        bdlmtt::Barrier dataCbBarrier(2);
 
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
                                      bdlf::BindUtil::bind(&blobBasedReadCb,
@@ -9174,12 +8782,12 @@ void TestDriver::testCase41()
         wd.d_blob_p    = &b;
 
         const int NUM_THREADS = 5;
-        bdlqq::ThreadUtil::Handle handles[NUM_THREADS + 1];
+        bdlmtt::ThreadUtil::Handle handles[NUM_THREADS + 1];
         for (int i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::create(&handles[i], &writeData, &wd);
+            bdlmtt::ThreadUtil::create(&handles[i], &writeData, &wd);
         }
 
-        bdlqq::Mutex mutex;
+        bdlmtt::Mutex mutex;
         int         stopReading = 0;
 
         ReadData rd;
@@ -9187,17 +8795,17 @@ void TestDriver::testCase41()
         rd.d_mutex_p       = &mutex;
         rd.d_stopReading_p = &stopReading;
 
-        bdlqq::ThreadUtil::create(&handles[NUM_THREADS], &readData, &rd);
+        bdlmtt::ThreadUtil::create(&handles[NUM_THREADS], &readData, &rd);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bdlmtt::ThreadUtil::join(handles[i]));
         }
 
         mutex.lock();
         stopReading = 1;
         mutex.unlock();
 
-        ASSERT(0 == bdlqq::ThreadUtil::join(handles[NUM_THREADS]));
+        ASSERT(0 == bdlmtt::ThreadUtil::join(handles[NUM_THREADS]));
 }
 
 void TestDriver::testCase40()
@@ -9233,7 +8841,7 @@ void TestDriver::testCase39()
             P(config);
         }
 
-        bdlqq::Barrier   channelCbBarrier(2);
+        bdlmtt::Barrier   channelCbBarrier(2);
         int             channelId;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -9243,7 +8851,7 @@ void TestDriver::testCase39()
 
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        bdlqq::Barrier dataCbBarrier(2);
+        bdlmtt::Barrier dataCbBarrier(2);
 
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
                                      bdlf::BindUtil::bind(&blobBasedReadCb,
@@ -9305,7 +8913,7 @@ void TestDriver::testCase39()
         rc = socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
         ASSERT(!rc);
 
-        btlso::IPv4Address other;  const btlso::IPv4Address& OTHER = other;
+        btlso::IPv4Address other;
         rc = pool.getPeerAddress(&other, channelId);
 
         channelCbBarrier.wait();
@@ -9377,7 +8985,6 @@ void TestDriver::testCase38()
         populateText(TEXT, LEN);
 
         const int NUM_TIMES = 100;
-        const int TIMEOUT = 3;
 
         socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
         for (int i = 0; i < NUM_TIMES; ++i) {
@@ -9390,19 +8997,19 @@ void TestDriver::testCase38()
         // Wait for the dispatcher thread to process the deregister the READ
         // event.
 
-        bdlqq::ThreadUtil::microSleep(0, 3);
+        bdlmtt::ThreadUtil::microSleep(0, 3);
 
         LOOP_ASSERT(numTimesDataCbCalled, 1 == numTimesDataCbCalled);
 
         pool.enableRead(channelId);
 
-        bdlqq::ThreadUtil::microSleep(0, 3);
+        bdlmtt::ThreadUtil::microSleep(0, 3);
 
         LOOP_ASSERT(numTimesDataCbCalled, 2 == numTimesDataCbCalled);
 
         pool.enableRead(channelId);
 
-        bdlqq::ThreadUtil::microSleep(0, 3);
+        bdlmtt::ThreadUtil::microSleep(0, 3);
 
         LOOP_ASSERT(numTimesDataCbCalled, numTimesDataCbCalled > 2);
         ASSERT(0 == memcmp(TEXT, dataStream.str().c_str(), LEN));
@@ -9546,13 +9153,13 @@ void TestDriver::testCase36()
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlma::ConcurrentPool pool(100, &ta);
 
-        bdlcc::Queue<btlmt::DataMsg> incoming, outgoing;
+        bdlcc::Queue<BlobTypeWithId> incoming, outgoing;
         my_QueueProcessor qp(&incoming, &outgoing, &coutMutex,
                              0, MAX_CONNECTIONS, &ta);
         ASSERT(0 == qp.startProcessor());
         const int PORT_NUMBER = qp.portNumber();
 
-        bdlqq::ThreadUtil::Handle usageMinusOneHandle;
+        bdlmtt::ThreadUtil::Handle usageMinusOneHandle;
         if (verbose < 0) {
             caseMinusOneInfo info;
             info.d_numConnections = NUM_CONNECTIONS;
@@ -9560,31 +9167,31 @@ void TestDriver::testCase36()
             info.d_hostname       = const_cast<char *>("127.0.0.1");
             info.d_numMessages    = NUM_MESSAGES;
             info.d_numIters       = NUM_ITERS;
-            bdlqq::ThreadUtil::create(&usageMinusOneHandle,
+            bdlmtt::ThreadUtil::create(&usageMinusOneHandle,
                                      &usageExampleMinusOne,
                                      (void *)&info);
         }
 
-        bdlqq::ThreadUtil::microSleep(0, 1); // 1s, to let my_QueueClients
+        bdlmtt::ThreadUtil::microSleep(0, 1); // 1s, to let my_QueueClients
                                             // enqueue messages into incoming
                                             // queue.
 
         while (0 < incoming.queue().length()) {
-            btlmt::DataMsg msg = incoming.popFront(); // get msg from client
+            BlobTypeWithId msg = incoming.popFront(); // get msg from client
             if (veryVerbose) {
-                PT(msg.data()->length());
+                PT(msg.second.length());
             }
-            ASSERT(msg.data()->length());
+            ASSERT(msg.second.length());
             if (veryVeryVerbose) {
                 MTCOUT << "Processing message from "
-                       << msg.channelId() << MTENDL;
+                       << msg.first << MTENDL;
             }
-            bdlqq::ThreadUtil::microSleep(10000);
+            bdlmtt::ThreadUtil::microSleep(10000);
             outgoing.pushBack(msg); // will send back to corresponding client
         }
 
         if (verbose < 0) {
-            bdlqq::ThreadUtil::join(usageMinusOneHandle);
+            bdlmtt::ThreadUtil::join(usageMinusOneHandle);
         }
         ASSERT(0 == qp.stopProcessor());
 
@@ -9677,7 +9284,7 @@ void TestDriver::testCase34()
             P(config);
         }
 
-        bdlqq::Barrier   channelCbBarrier(2);
+        bdlmtt::Barrier   channelCbBarrier(2);
         int             channelId;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -9719,49 +9326,49 @@ void TestDriver::testCase34()
         channelCbBarrier.wait();
         channelCbBarrier.wait();
 
-        bdlqq::Barrier currBarrier(NUM_THREADS + 1);
+        bdlmtt::Barrier currBarrier(NUM_THREADS + 1);
         barrier = &currBarrier;
 
         rc = check();
         ASSERT(!rc);
 
         // signalerThread
-        bdlqq::ThreadUtil::Handle handle;
-        rc = bdlqq::ThreadUtil::create(&handle, &signalerThread);
+        bdlmtt::ThreadUtil::Handle handle;
+        rc = bdlmtt::ThreadUtil::create(&handle, &signalerThread);
         ASSERT(!rc);
 
         // fork threads
         for (int i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::Handle handle;
-            rc = bdlqq::ThreadUtil::create(&handle,
-                                        bdlf::BindUtil::bind(&writerThread, i));
+            bdlmtt::ThreadUtil::Handle handle;
+            rc = bdlmtt::ThreadUtil::create(&handle,
+                                       bdlf::BindUtil::bind(&writerThread, i));
             ASSERT(!rc);
         }
 
         barrier->wait();
 
         // quick check
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1)); // let flush complete
+        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1)); // let flush complete
                                                        // if any
         rc = check();
         ASSERT(!rc); // never returns
 
         // more thorough check
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10)); // in case flush did
+        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(10)); // in case flush did
                                                         // not complete
 
         rc = check();
         ASSERT(!rc); // never returns
 
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10));  // in case flush did
-                                                         // not complete
+        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(10)); // in case flush did
+                                                           // not complete
 
         rc = check();
         ASSERT(!rc); // never returns
 
         // Following veriy that the bug is due to d_writeCacheSize mess-up
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10));  // in case flush did
-                                                         // not complete
+        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(10)); // in case flush did
+                                                           // not complete
         if (ERROR_MAX_POSSIBLE_WRITE_FAILED) {
           rc = channelPool->setWriteCacheHiWatermark(channelId,
                                                      CACHE_HI_WAT * 2);
@@ -9809,7 +9416,7 @@ void TestDriver::testCase33()
             P(config);
         }
 
-        bdlqq::Barrier   channelCbBarrier(2);
+        bdlmtt::Barrier   channelCbBarrier(2);
         int             channelId;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -9819,7 +9426,7 @@ void TestDriver::testCase33()
 
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        bdlqq::Barrier   dataCbBarrier(2);
+        bdlmtt::Barrier   dataCbBarrier(2);
         int             numTimesDataCbCalled = 0;
         string          data;
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
@@ -9856,7 +9463,7 @@ void TestDriver::testCase33()
         dataCbBarrier.wait();
 
         LOOP_ASSERT(numTimesDataCbCalled,    1   == numTimesDataCbCalled);
-        LOOP3_ASSERT(LEN, data.size(), data, LEN == data.size());
+        LOOP3_ASSERT(LEN, data.size(), data, LEN == (int) data.size());
 
         if (veryVerbose) {
             P(data);
@@ -9870,7 +9477,7 @@ void TestDriver::testCase33()
         // Wait for the dispatcher thread to process the deregister the READ
         // event.
 
-        bdlqq::ThreadUtil::microSleep(0, 2);
+        bdlmtt::ThreadUtil::microSleep(0, 2);
 
         rc = socket->write(TEXT, LEN);
         LOOP2_ASSERT(LEN, rc, LEN == rc);
@@ -9890,6 +9497,7 @@ void TestDriver::testCase33()
             P(data);
         }
 }
+
 void TestDriver::testCase32()
 {
         // --------------------------------------------------------------------
@@ -9950,9 +9558,9 @@ void TestDriver::testCase32()
 
 #ifndef BSLS_PLATFORM_OS_AIX
 // TBD on AIX setting this option succeeds for BTESO_SOCKET_DATAGRAM
-//                   {   L_,   "JN",        -1 },
-//                   {   L_,   "JY",        -1 },
-// #else
+            {   L_,   "JN",        -1 },
+            {   L_,   "JY",        -1 },
+#else
             {   L_,   "JN",         0 },
             {   L_,   "JY",         0 },
 #endif
@@ -9962,9 +9570,9 @@ void TestDriver::testCase32()
 
 #ifndef BSLS_PLATFORM_OS_HPUX
 // TBD on HPUX setting this option succeeds for BTESO_SOCKET_DATAGRAM
-//                   {   L_,   "LN",        -1 },
-//                   {   L_,   "LY",        -1 },
-// #else
+            {   L_,   "LN",        -1 },
+            {   L_,   "LY",        -1 },
+#else
             {   L_,   "LN",         0 },
             {   L_,   "LY",         0 },
 #endif
@@ -9989,19 +9597,19 @@ void TestDriver::testCase32()
             {   L_,   "B2",         0 },
 #endif
 
-// #if !defined(BSLS_PLATFORM_OS_SOLARIS)          \
-//  && !defined(BSLS_PLATFORM_OS_LINUX)            \
-//  && !defined(BSLS_PLATFORM_OS_HPUX)
-//               // Cannot be changed on Linux and not specified on Sun
+#if !defined(BSLS_PLATFORM_OS_SOLARIS)          \
+ && !defined(BSLS_PLATFORM_OS_LINUX)            \
+ && !defined(BSLS_PLATFORM_OS_HPUX)
+              // Cannot be changed on Linux and not specified on Sun
 
-//             {   L_,   "C0",         0 },
-//             {   L_,   "C1",         0 },
-//             {   L_,   "C2",         0 },
-// #elif !defined(BSLS_PLATFORM_OS_HPUX)
-//             {   L_,   "C0",        -1 },
-//             {   L_,   "C1",        -1 },
-//             {   L_,   "C2",        -1 },
-// #endif
+            {   L_,   "C0",         0 },
+            {   L_,   "C1",         0 },
+            {   L_,   "C2",         0 },
+#elif !defined(BSLS_PLATFORM_OS_HPUX)
+            {   L_,   "C0",        -1 },
+            {   L_,   "C1",        -1 },
+            {   L_,   "C2",        -1 },
+#endif
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_CYGWIN)
             {   L_,   "D0",        -1 },
@@ -10057,7 +9665,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10065,7 +9673,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10091,7 +9699,6 @@ void TestDriver::testCase32()
 
                     if (veryVerbose) { P_(LINE) P(OPT); }
 
-                    const int SERVER_ID = 100;
                     const int SOURCE_ID = 200;
 
                     btlso::StreamSocket<btlso::IPv4Address> *socket =
@@ -10134,7 +9741,7 @@ void TestDriver::testCase32()
                                  numExpChannels == pool.numChannels());
                 }
             }
-            for (int i = 0; i < sockets.size(); ++i) {
+            for (int i = 0; i < (int) sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
             }
         }
@@ -10147,7 +9754,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10155,7 +9762,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10169,7 +9776,6 @@ void TestDriver::testCase32()
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
             vector<btlso::StreamSocket<btlso::IPv4Address> *> sockets;
-            int numExpChannels = 0;
             for (int i = 0; i < NUM_DATA; ++i) {
                 for (int j = 0; j < 2; ++j) {
                     const int   LINE   = DATA[i].d_line;
@@ -10181,7 +9787,6 @@ void TestDriver::testCase32()
 
                     if (veryVerbose) { P(LINE) P(OPT) }
 
-                    const int SERVER_ID = 100;
                     const int SOURCE_ID = 200;
 
                     btlso::StreamSocket<btlso::IPv4Address> *socket =
@@ -10223,7 +9828,7 @@ void TestDriver::testCase32()
                 }
             }
 
-            for (int i = 0; i < sockets.size(); ++i) {
+            for (int i = 0; i < (int) sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
             }
         }
@@ -10237,7 +9842,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10245,7 +9850,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10258,10 +9863,10 @@ void TestDriver::testCase32()
             ASSERT(0 == pool.start());
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            const int SERVER_ID = 100;
             const int SOURCE_ID = 200;
 
-            btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
+            btlso::StreamSocket<btlso::IPv4Address> *socket =
+                                                            factory.allocate();
 
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
@@ -10300,7 +9905,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10308,7 +9913,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10321,10 +9926,10 @@ void TestDriver::testCase32()
             ASSERT(0 == pool.start());
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            const int SERVER_ID = 100;
             const int SOURCE_ID = 200;
 
-            btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
+            btlso::StreamSocket<btlso::IPv4Address> *socket =
+                                                            factory.allocate();
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
 
@@ -10365,7 +9970,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10373,7 +9978,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10445,7 +10050,7 @@ void TestDriver::testCase32()
                              numExpChannels == pool.numChannels());
             }
 
-            for (int i = 0; i < sockets.size(); ++i) {
+            for (int i = 0; i < (int) sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
             }
         }
@@ -10459,7 +10064,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10467,7 +10072,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10540,7 +10145,7 @@ void TestDriver::testCase32()
                              numExpChannels == pool.numChannels());
             }
 
-            for (int i = 0; i < sockets.size(); ++i) {
+            for (int i = 0; i < (int) sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
             }
         }
@@ -10554,7 +10159,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10562,7 +10167,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10630,7 +10235,7 @@ void TestDriver::testCase32()
                              numExpChannels == pool.numChannels());
             }
 
-            for (int i = 0; i < sockets.size(); ++i) {
+            for (int i = 0; i < (int) sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
             }
         }
@@ -10644,7 +10249,7 @@ void TestDriver::testCase32()
                 P(config);
             }
 
-            bdlqq::Barrier   channelCbBarrier(2);
+            bdlmtt::Barrier   channelCbBarrier(2);
             int             channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
@@ -10652,7 +10257,7 @@ void TestDriver::testCase32()
                                                            &channelId,
                                                            &channelCbBarrier));
 
-            bdlqq::Barrier   poolCbBarrier(2);
+            bdlmtt::Barrier   poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
                                           bdlf::BindUtil::bind(&poolStateCb,
                                                               _1, _2, _3,
@@ -10722,7 +10327,7 @@ void TestDriver::testCase32()
                              numExpChannels == pool.numChannels());
             }
 
-            for (int i = 0; i < sockets.size(); ++i) {
+            for (int i = 0; i < (int) sockets.size(); ++i) {
                 factory.deallocate(sockets[i]);
             }
         }
@@ -10769,7 +10374,7 @@ void TestDriver::testCase31()
         config.setMaxThreads(1);
         config.setIncomingMessageSizes(1, 3, 5);
 
-        bdlqq::Mutex         coutMutex;
+        bdlmtt::Mutex         coutMutex;
         bslma::TestAllocator ta(veryVeryVerbose);
         ReadServer          server(&coutMutex, LEN, config, &ta);
 
@@ -10794,10 +10399,10 @@ void TestDriver::testCase31()
         for (int i = 0, offset = 0; i < 10; ++i) {
             ASSERT(NUM_WRITTEN == socket->write(data + offset, NUM_WRITTEN));
             offset += NUM_WRITTEN;
-            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));
+            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1));
         }
 
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(5));
+        bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(5));
 
         const string& DATA = server.data();
 
@@ -10858,22 +10463,21 @@ void TestDriver::testCase30()
 
         {
             for (int type = 0; type < 2; ++type) {
-                bdlqq::Mutex coutMutex;
+                bdlmtt::Mutex coutMutex;
                 bslma::TestAllocator ta(veryVeryVerbose);
-                ReadServer server(&coutMutex, 0, (bool) type, &ta);
+                ReadServer server(&coutMutex, 0, &ta);
                 ASSERT(0 == server.start());
                 const int PORT = server.portNumber();
                 btlso::IPv4Address address;
                 address.setPortNumber(PORT);
 
                 IPv4Factory              factory;
-                bdlqq::ThreadUtil::Handle handles[NUM_DATA];
+                bdlmtt::ThreadUtil::Handle handles[NUM_DATA];
                 bsl::vector<TestData>    tests(NUM_DATA);
-                bdlqq::Barrier            barrier(NUM_DATA);
+                bdlmtt::Barrier            barrier(NUM_DATA);
 
                 for (int i = 0; i < NUM_DATA; ++i) {
-                    const int          LINE = DATA[i].d_line;
-                    const string&      TEXT = DATA[i].d_text;
+                    const string& TEXT = DATA[i].d_text;
 
                     TestData& testData      = tests[i];
                     testData.d_threadIntId  = i;
@@ -10881,19 +10485,18 @@ void TestDriver::testCase30()
                     testData.d_address      = address;
                     testData.d_socket_p     = factory.allocate();
                     testData.d_barrier_p    = &barrier;
-                    testData.d_useBlobs     = type;
 
-                    bdlqq::ThreadUtil::create(&handles[i],
+                    bdlmtt::ThreadUtil::create(&handles[i],
                                              threadFunction,
                                              &testData);
                 }
 
                 for (int i = 0; i < NUM_DATA; ++i) {
-                    ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+                    ASSERT(0 == bdlmtt::ThreadUtil::join(handles[i]));
                 }
 
                 while (NUM_DATA != server.numCompletedMsgs()) {
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 for (int i = 0; i < NUM_DATA; ++i) {
@@ -10961,11 +10564,8 @@ void TestDriver::testCase29()
 
         bslma::TestAllocator ta;
 
-        int       NUM_THREADS[] = { 2,  4,  8 };
+        int       NUM_THREADS[]   = { 2,  4,  8 };
         const int NUM_NUM_THREADS = sizeof NUM_THREADS / sizeof *NUM_THREADS;
-        bool      COLLECT_METRICS[] = { false, true };
-        const int NUM_COLLECT_METRICS = sizeof COLLECT_METRICS /
-                                        sizeof * COLLECT_METRICS;
 
         if (veryVerbose) {
             cout << "\tTesting round-robin (metrics collection off)" << endl;
@@ -10996,9 +10596,8 @@ void TestDriver::testCase29()
             if (veryVeryVerbose) { P(config); }
 
             ChannelPoolStateCbTester mX(config, &ta);
-            Obj& pool = mX.pool(); const Obj& POOL = mX.pool();
-            bdlmca::PooledBufferChainFactory outFactory(HI_WATERMARK / 64,
-                                                      &ta);
+            Obj& pool = mX.pool();
+
             ASSERT(0 == pool.start());
 
             // Keep track of the client sockets (so we can deallocate them),
@@ -11015,7 +10614,7 @@ void TestDriver::testCase29()
                 btlso::SocketHandle::Handle handles[2];
 
                 ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                            handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
 
                 ASSERT(0 == ret);
 
@@ -11038,9 +10637,9 @@ void TestDriver::testCase29()
                 bsl::vector<ChannelPoolStateCbTester::ChannelState>
                                                                    states(&ta);
                 ASSERT(0 == mX.waitForState(
-                                           &states,
-                                           btlmt::ChannelPool::BTEMT_CHANNEL_UP,
-                                           bsls::TimeInterval(1.0)));
+                                          &states,
+                                          btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                          bsls::TimeInterval(1.0)));
 
                 // For any CHANNEL_UP message, record the thread to which the
                 // new channel was assinged.
@@ -11050,7 +10649,7 @@ void TestDriver::testCase29()
                         P_(states[k].d_state); P(states[k].d_threadId);
                     }
                     if (states[k].d_state ==
-                                         btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
+                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
                         threadIdCount[states[k].d_threadId]++;
                     }
                 }
@@ -11071,7 +10670,7 @@ void TestDriver::testCase29()
                                     0 < it->second && it->second <= 2);
                     }
                 }
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.05));
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(.05));
             }
             pool.stop();
             for (int j = 0; j < (int) cltSockets.size(); ++j) {
@@ -11112,20 +10711,17 @@ void TestDriver::testCase29()
             if (veryVeryVerbose) { P(config); }
 
             // Supply a data callback that will delay, to simulate processing.
-            btlmt::ChannelPool::DataReadCallback         dataCb(
+            btlmt::ChannelPool::BlobBasedReadCallback         dataCb(
                     bdlf::BindUtil::bindA( &ta
                                         , &dummyDataCallbackWithDelay
                                         , _1, _2, _3, _4
                                         , 0.5));
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            makeNull(&poolCb);
 
             ChannelPoolStateCbTester mX(config, dataCb, poolCb, &ta);
 
-            Obj& pool = mX.pool(); const Obj& POOL = mX.pool();
-            bdlmca::PooledBufferChainFactory outFactory(HI_WATERMARK / 64,
-                                                      &ta);
+            Obj& pool = mX.pool();
             ASSERT(0 == pool.start());
 
             ThreadId lastClientSocketThreadId;
@@ -11135,7 +10731,8 @@ void TestDriver::testCase29()
                 int ret  = 0;
                 btlso::SocketHandle::Handle handles[2];
                 ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                            handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles,
+                           btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
 
                 ASSERT(0 == ret);
 
@@ -11158,9 +10755,9 @@ void TestDriver::testCase29()
                 bsl::vector<ChannelPoolStateCbTester::ChannelState>
                                                                    states(&ta);
                 ASSERT(0 == mX.waitForState(
-                                           &states,
-                                           btlmt::ChannelPool::BTEMT_CHANNEL_UP,
-                                           bsls::TimeInterval(1.0)));
+                                          &states,
+                                          btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                          bsls::TimeInterval(1.0)));
 
                 // For any CHANNEL_UP message, record the thread to which the
                 // new channel was assinged.
@@ -11170,7 +10767,7 @@ void TestDriver::testCase29()
                         P_(states[k].d_state); P(states[k].d_threadId);
                     }
                     if (states[k].d_state ==
-                                         btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
+                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
                         threadIdCount[states[k].d_threadId]++;
                         if (j == MAX_THREADS - 1) {
                             lastClientSocketThreadId = states[k].d_threadId;
@@ -11179,7 +10776,7 @@ void TestDriver::testCase29()
                 }
                 LOOP_ASSERT(threadIdCount.size(),
                             j + 1 == (int) threadIdCount.size());
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.05));
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(.05));
             }
 
             // Write data to all but the last channel, to simulate processing
@@ -11188,7 +10785,7 @@ void TestDriver::testCase29()
             for (int j = 0; j < (int) cltSockets.size() - 1; ++j) {
                 ASSERT(1 == cltSockets[j]->write(ONE_BYTE_MSG, 1));
             }
-            bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.25));
+            bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(.25));
 
             if (veryVerbose) {
                 P(pool.busyMetrics());
@@ -11198,7 +10795,8 @@ void TestDriver::testCase29()
             int ret  = 0;
             btlso::SocketHandle::Handle handles[2];
             ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                            handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles,
+                           btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
 
             ASSERT(0 == ret);
 
@@ -11235,7 +10833,8 @@ void TestDriver::testCase29()
             // thread (i.e., the event manager) of the channel that was not
             // simulating processing (i.e., the last channel).
             for (int k = 0; k < (int) states.size(); ++k) {
-                if (states[k].d_state == btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
+                if (states[k].d_state ==
+                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
                     LOOP2_ASSERT(lastClientSocketThreadId,
                                  states[k].d_threadId,
                                  lastClientSocketThreadId ==
@@ -11311,7 +10910,8 @@ void TestDriver::testCase28()
                     HI_WATERMARK  = 4096
                 };
 
-                btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&ta);
+                btlso::InetStreamSocketFactory<btlso::IPv4Address>
+                                                                  factory(&ta);
                 btlmt::ChannelPoolConfiguration config;
                 config.setMaxThreads(MAX_THREADS);
                 config.setCollectTimeMetrics(COLLECT_TIME_METRICS);
@@ -11326,7 +10926,7 @@ void TestDriver::testCase28()
 
                 if (verbose) { P(config); }
 
-                btlmt::ChannelPool::DataReadCallback         dataCb(
+                btlmt::ChannelPool::BlobBasedReadCallback         dataCb(
                         bdlf::BindUtil::bindA( &ta
                                             , &dummyDataCallbackWithDelay
                                             , _1, _2, _3, _4
@@ -11337,8 +10937,8 @@ void TestDriver::testCase28()
 
                 ChannelPoolStateCbTester mX(config, dataCb, poolCb, &ta);
                 Obj& pool = mX.pool(); const Obj& POOL = mX.pool();
-                bdlmca::PooledBufferChainFactory outFactory(HI_WATERMARK / 64,
-                                                          &ta);
+                bdlmca::PooledBlobBufferFactory outFactory(HI_WATERMARK / 64,
+                                                           &ta);
 
                 ASSERT(0 == pool.start());
 
@@ -11374,16 +10974,16 @@ void TestDriver::testCase28()
                 bsl::vector<ChannelPoolStateCbTester::ChannelState>
                                                                  states(&ta);
                 ASSERT(0 == mX.waitForState(
-                                           &states,
-                                           btlmt::ChannelPool::BTEMT_CHANNEL_UP,
-                                           bsls::TimeInterval(1.0)));
+                                          &states,
+                                          btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                          bsls::TimeInterval(1.0)));
 
                 int channelId = mX.lastOpenedChannelId();
                 ASSERT(0 != channelId);
 
                 ASSERT(1 == clientSocket->write(ONE_BYTE_MSG, 1));
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.3));
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(.3));
 
                 pool.stop();
 
@@ -11472,7 +11072,6 @@ void TestDriver::testCase27()
 
             ChannelPoolStateCbTester mX(config, &ta);
             btlmt::ChannelPool& pool = mX.pool();
-            bdlmca::PooledBufferChainFactory outFactory(HI_WATERMARK / 64, &ta);
 
             ASSERT(0 == pool.start());
 
@@ -11481,7 +11080,8 @@ void TestDriver::testCase27()
             btlso::SocketHandle::Handle handles[2];
 
             ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                            handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles,
+                           btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
 
             ASSERT(0 == ret);
             ASSERT(0 == code);
@@ -11527,9 +11127,9 @@ void TestDriver::testCase27()
             LOOP_ASSERT(i,
                         timeoutShouldOccur ==
                         (0 == mX.waitForState(
-                                         &states,
-                                         btlmt::ChannelPool::BTEMT_READ_TIMEOUT,
-                                         bsls::TimeInterval(2.0))));
+                                        &states,
+                                        btlmt::ChannelPool::BTEMT_READ_TIMEOUT,
+                                        bsls::TimeInterval(2.0))));
 
             timer.stop();
             if (timeoutShouldOccur) {
@@ -11549,9 +11149,10 @@ void TestDriver::testCase27()
 
             MTLOOP_ASSERT(i,
                           timeoutShouldOccur ==
-                          (0 == mX.waitForState(&states,
-                                         btlmt::ChannelPool::BTEMT_READ_TIMEOUT,
-                                         bsls::TimeInterval(2.0))));
+                          (0 == mX.waitForState(
+                                        &states,
+                                        btlmt::ChannelPool::BTEMT_READ_TIMEOUT,
+                                        bsls::TimeInterval(2.0))));
 
             timer.stop();
             if (timeoutShouldOccur) {
@@ -11594,8 +11195,7 @@ void TestDriver::testCase26()
         //        sizes that will be filled with arbitrary data.  For each
         //        test data point, create a series of buffers matching the
         //        test data point description, and use it to populate a
-        //        'IovecArray', a 'bdlmca::Blob', and a 'btlmt::DataMsg' (i.e. a
-        //        'bdlmca::PooledBufferChain').  Then invoke the functions
+        //        'IovecArray' ans a 'bdlmca::Blob'.  Then invoke the functions
         //        defined in 'btlmt::ChannelPool_MessageUtil' on each of the
         //        three message container types.
         //
@@ -11617,9 +11217,9 @@ void TestDriver::testCase26()
         //  btlmt::ChannelPool_IovecArray
         //  ----------------------------
         //   btlmt::ChannelPool_IovecArray<IOVEC>(const IOVEC *, int );
-        //  btlmt::ChannelPool_IovecArray(const btlmt::ChannelPool_IovecArray& );
+        //   btlmt::ChannelPool_IovecArray(btlmt::ChannelPool_IovecArray& );
         //   btlmt::ChannelPool_IovecArray& operator=(
-        //                               const btlmt::ChannelPool_IovecArray& );
+        //                              const btlmt::ChannelPool_IovecArray& );
         //   const IOVEC *iovecs() const;
         //   int numIovecs() const;
         //   bsls::Types::Int64 length() const;
@@ -11627,7 +11227,6 @@ void TestDriver::testCase26()
         //  btlmt::ChannelPool_MessageUtil
         //  -----------------------------
         //   static bsls::Types::Int64 length(const IovecArray<IOVEC>& );
-        //   static bsls::Types::Int64 length(const btlmt::DataMsg& );
         //   static bsls::Types::Int64 length(const bdlmca::Blob& );
         //   static int write(btlso::StreamSocket<btlso::IPv4Address> *,
         //                   btls::Iovec                            *,
@@ -11635,16 +11234,10 @@ void TestDriver::testCase26()
         //   static int write(btlso::StreamSocket<btlso::IPv4Address> *,
         //                   btls::Iovec                            *,
         //                  const bdlmca::Blob&                      );
-        //   static int write(btlso::StreamSocket<btlso::IPv4Address> *,
-        //                   btls::Iovec                            *,
-        //                   const btlmt::DataMsg&                   );
         //   static int loadIovec(btls::Iovec *, const bdlmca::Blob& );
-        //   static int loadIovec(btls::Iovec *, const btlmt::DataMsg& );
-        //   static int loadBlob(bdlmca::Blob *, const IovecArray<IOVEC>&, int);
-        //   static int loadBlob(bdlmca::Blob *, const btlmt::DataMsg&, int);
+        //   static int loadBlob(lob *, const IovecArray<IOVEC>&, int);
         //   static int loadBlob(bdlmca::Blob *, const bdlmca::Blob&, int);
-        //   static void appendToBlob(bdlmca::Blob *, const IovecArray<IOVEC>&);
-        //   static void appendToBlob(bdlmca::Blob *, const btlmt::DataMsg&);
+        //   static void appendToBlob(Blob *, const IovecArray<IOVEC>&);
         //   static void appendToBlob(bdlmca::Blob *, const bdlmca::Blob&);
         // --------------------------------------------------------------------
 
@@ -11674,7 +11267,8 @@ void TestDriver::testCase26()
         if (veryVerbose) cout << "Testing IovecArray<btls::Ovec>" << bsl::endl;
         testIovecArray<btls::Ovec>();
 
-        if (veryVerbose) cout << "Testing IovecArray<btls::Iovec>" << bsl::endl;
+        if (veryVerbose) cout << "Testing IovecArray<btls::Iovec>"
+                              << bsl::endl;
         testIovecArray<btls::Iovec>();
 
         struct TestCaseData {
@@ -11706,7 +11300,6 @@ void TestDriver::testCase26()
         enum { BLOCK_SIZE = 64 };
 
         bdlmca::PooledBlobBufferFactory blobFactory(BLOCK_SIZE, &ta);
-        bdlmca::PooledBufferChainFactory chainFactory(BLOCK_SIZE, &ta);
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             // ------------------- Create Test Data ---------------------------
@@ -11728,31 +11321,22 @@ void TestDriver::testCase26()
             bdlmca::Blob mY(&blobFactory, &ta); const bdlmca::Blob& MY = mY;
             loadBlob(&mY, data);
 
-            // Create a 'btlmt::DataMsg', 'MZ'.
-            bdlmca::PooledBufferChain *chain = chainFactory.allocate(0);
-            loadBufferChain(chain, data);
-            btlmt::DataMsg mZ(chain, &chainFactory, 0, &ta);
-            const btlmt::DataMsg& MZ = mZ;
-
             // ------------- Test MessageHelper::length() ---------------------
             ASSERT(LENGTH == Helper::length(MX));
             ASSERT(LENGTH == Helper::length(MY));
-            ASSERT(LENGTH == Helper::length(MZ));
 
             // ------------- Test MessageHelper::loadBlob() -------------------
 
             for (int offset = 0; offset < LENGTH; ++offset) {
-                bdlmca::Blob cX(&blobFactory, &ta); const bdlmca::Blob& CX = cX;
-                bdlmca::Blob cY(&blobFactory, &ta); const bdlmca::Blob& CY = cY;
-                bdlmca::Blob cZ(&blobFactory, &ta); const bdlmca::Blob& CZ = cZ;
+                bdlmca::Blob cX(&blobFactory, &ta);const bdlmca::Blob& CX = cX;
+                bdlmca::Blob cY(&blobFactory, &ta);const bdlmca::Blob& CY = cY;
 
                 int rcX = Helper::loadBlob(&cX, MX, offset);
                 int rcY = Helper::loadBlob(&cY, MY, offset);
-                int rcZ = Helper::loadBlob(&cZ, MZ, offset);
 
                 // We need to precompute the expected prefix of the returned
                 // by 'loadBlob'.
-                int expectedPrefixZ = offset % BLOCK_SIZE;
+
                 int expectedPrefixY = 0;
                 int length          = 0;
                 for (int i = 0; i < (int) data.size(); ++i) {
@@ -11767,26 +11351,20 @@ void TestDriver::testCase26()
 
                 ASSERT(0               == rcX);
                 ASSERT(expectedPrefixY == rcY);
-                ASSERT(expectedPrefixZ == rcZ);
 
                 ASSERT(LENGTH - offset                   == CX.length());
                 ASSERT(LENGTH - offset + expectedPrefixY == CY.length());
-                ASSERT(LENGTH - offset + expectedPrefixZ == CZ.length());
 
                 ASSERT(rcX < CX.buffer(0).size());
                 ASSERT(rcY < CY.buffer(0).size());
-                ASSERT(rcZ < CZ.buffer(0).size());
 
                 ASSERT(rcX < CX.length());
                 ASSERT(rcY < CY.length());
-                ASSERT(rcZ < CZ.length());
 
                 LOOP_ASSERT(LINE,
                        isEqualByteSequence(data, offset, CX, 0));
                 LOOP_ASSERT(LINE,
                        isEqualByteSequence(data, offset, CY, expectedPrefixY));
-                LOOP_ASSERT(LINE,
-                       isEqualByteSequence(data, offset, CZ, expectedPrefixZ));
             }
 
             // ------------- Test MessageHelper::appendToBlob() --------------
@@ -11795,60 +11373,46 @@ void TestDriver::testCase26()
                 const int PREFIX_LEN = createData(&prefixData,
                                                   VALUES[j].d_description);
 
-                bdlmca::Blob dX(&blobFactory, &ta); const bdlmca::Blob& DX = dX;
-                bdlmca::Blob dY(&blobFactory, &ta); const bdlmca::Blob& DY = dY;
-                bdlmca::Blob dZ(&blobFactory, &ta); const bdlmca::Blob& DZ = dZ;
+                bdlmca::Blob dX(&blobFactory, &ta);const bdlmca::Blob& DX = dX;
+                bdlmca::Blob dY(&blobFactory, &ta);const bdlmca::Blob& DY = dY;
 
                 loadBlob(&dX, prefixData);
                 loadBlob(&dY, prefixData);
-                loadBlob(&dZ, prefixData);
 
                 ASSERT(isEqualByteSequence(prefixData, 0, DX, 0));
                 ASSERT(isEqualByteSequence(prefixData, 0, DY, 0));
-                ASSERT(isEqualByteSequence(prefixData, 0, DZ, 0));
 
                 Helper::appendToBlob(&dX, MX);
                 Helper::appendToBlob(&dY, MY);
-                Helper::appendToBlob(&dZ, MZ);
 
                 ASSERT(LENGTH + PREFIX_LEN == DX.length());
                 ASSERT(LENGTH + PREFIX_LEN == DY.length());
-                ASSERT(LENGTH + PREFIX_LEN == DZ.length());
 
                 // Sanity check that the initial data wasn't changed
                 ASSERT(isEqualByteSequence(prefixData, 0, DX, 0, PREFIX_LEN));
                 ASSERT(isEqualByteSequence(prefixData, 0, DY, 0, PREFIX_LEN));
-                ASSERT(isEqualByteSequence(prefixData, 0, DZ, 0, PREFIX_LEN));
 
                 ASSERT(isEqualByteSequence(data, 0, DX, PREFIX_LEN));
                 ASSERT(isEqualByteSequence(data, 0, DY, PREFIX_LEN));
-                ASSERT(isEqualByteSequence(data, 0, DZ, PREFIX_LEN));
             }
 
             // ------------- Test MessageHelper::loadIovec() --------------
             {
                 const int NUM_IOVECS = 2 * Helper::BTEMT_MAX_IOVEC_SIZE;
                 btls::Iovec dY[NUM_IOVECS];
-                btls::Iovec dZ[NUM_IOVECS];
 
                 int rY = Helper::loadIovec(dY, MY);
-                int rZ = Helper::loadIovec(dZ, MZ);
 
                 ASSERT(bsl::min(MY.numBuffers(),
                                 (int)Helper::BTEMT_MAX_IOVEC_SIZE) == rY);
-                ASSERT(bsl::min(MZ.data()->numBuffers(),
-                                (int)Helper::BTEMT_MAX_IOVEC_SIZE) == rZ);
 
                 // To utilize the existing comparison operation, load the data
                 // into a blob
-                bdlmca::Blob bY(&blobFactory, &ta); const bdlmca::Blob& BY = bY;
-                bdlmca::Blob bZ(&blobFactory, &ta); const bdlmca::Blob& BZ = bZ;
+                bdlmca::Blob bY(&blobFactory, &ta);const bdlmca::Blob& BY = bY;
 
                 btls::IovecUtil::appendToBlob(&bY, dY, rY, 0);
-                btls::IovecUtil::appendToBlob(&bZ, dZ, rZ, 0);
 
                 ASSERT(isEqualByteSequence(data, 0, BY, 0));
-                ASSERT(isEqualByteSequence(data, 0, BZ, 0));
             }
 
             // ------------- Test MessageHelper::write() ----------------------
@@ -11859,9 +11423,10 @@ void TestDriver::testCase26()
                 // Create two sockets, one to receive the message and the
                 // other to send it.
                 btlso::SocketHandle::Handle handles[2];
-                btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&ta);
+                btlso::InetStreamSocketFactory<btlso::IPv4Address>
+                                                                  factory(&ta);
                 int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                            handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
 
                 ASSERT(0 == ret);
 
@@ -11882,19 +11447,17 @@ void TestDriver::testCase26()
                 // The actual length by 'Helper::write'  may be less that the
                 // original data if the number of buffers is greater than
                 // 'BTEMT_MAX_IOVEC_SIZE'.
-                int LENGTHX, LENGTHY, LENGTHZ;
+
+                int LENGTHX, LENGTHY;
                 {
                     btls::Iovec vY[NUM_IOVECS];
-                    btls::Iovec vZ[NUM_IOVECS];
 
                     int numBufX = bsl::min(MX.numIovecs(),
                                            (int)Helper::BTEMT_MAX_IOVEC_SIZE);
                     int numBufY = Helper::loadIovec(vY, MY);
-                    int numBufZ = Helper::loadIovec(vZ, MZ);
 
                     LENGTHX = btls::IovecUtil::length(MX.iovecs(), numBufX);
                     LENGTHY = btls::IovecUtil::length(vY, numBufY);
-                    LENGTHZ = btls::IovecUtil::length(vZ, numBufZ);
                 }
 
                 sndSocket->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
@@ -11902,7 +11465,6 @@ void TestDriver::testCase26()
 
                 bsl::vector<char> rcvBufferX(2 * LENGTH, 0, &ta);
                 bsl::vector<char> rcvBufferY(2 * LENGTH, 0, &ta);
-                bsl::vector<char> rcvBufferZ(2 * LENGTH, 0, &ta);
 
                 // Send the iovec message.
                 int bytesX = 0;
@@ -11922,40 +11484,25 @@ void TestDriver::testCase26()
                     bytesY += rc;
                 }
 
-                // Send the 'btlmt::DataMsg' message.
-                int bytesZ = 0;
-                ASSERT(LENGTHZ == Helper::write(sndSocket, temp, MZ));
-                while (bytesZ < LENGTHZ) {
-                    int rc = rcvSocket->read(&rcvBufferZ[bytesZ], 2 * LENGTH);
-                    ASSERT(0 <= rc);
-                    bytesZ += rc;
-                }
-
                 // Verify the correct data was received (load it into a
                 // 'bdlmca::Blob' to use the existing memory comparison
                 // function).
                 ASSERT(bytesX == LENGTHX);
                 ASSERT(bytesY == LENGTHY);
-                ASSERT(bytesZ == LENGTHZ);
 
                 bsl::shared_ptr<char> spX(&rcvBufferX.front(),
                                           bslstl::SharedPtrNilDeleter(), 0);
                 bsl::shared_ptr<char> spY(&rcvBufferY.front(),
                                           bslstl::SharedPtrNilDeleter(), 0);
-                bsl::shared_ptr<char> spZ(&rcvBufferZ.front(),
-                                          bslstl::SharedPtrNilDeleter(), 0);
 
-                bdlmca::Blob bX(&blobFactory, &ta); const bdlmca::Blob& BX = bX;
-                bdlmca::Blob bY(&blobFactory, &ta); const bdlmca::Blob& BY = bY;
-                bdlmca::Blob bZ(&blobFactory, &ta); const bdlmca::Blob& BZ = bZ;
+                bdlmca::Blob bX(&blobFactory, &ta);const bdlmca::Blob& BX = bX;
+                bdlmca::Blob bY(&blobFactory, &ta);const bdlmca::Blob& BY = bY;
 
                 bX.appendDataBuffer(bdlmca::BlobBuffer(spX, bytesX));
                 bY.appendDataBuffer(bdlmca::BlobBuffer(spY, bytesY));
-                bZ.appendDataBuffer(bdlmca::BlobBuffer(spZ, bytesZ));
 
                 ASSERT(isEqualByteSequence(data, 0, BX, 0, LENGTHX));
                 ASSERT(isEqualByteSequence(data, 0, BY, 0, LENGTHY));
-                ASSERT(isEqualByteSequence(data, 0, BZ, 0, LENGTHZ));
 
                 factory.deallocate(sndSocket);
                 factory.deallocate(rcvSocket);
@@ -12035,7 +11582,6 @@ void TestDriver::testCase25()
 
             ChannelPoolStateCbTester mX(config, &ta);
             btlmt::ChannelPool& pool = mX.pool();
-            bdlmca::PooledBufferChainFactory outFactory(HI_WATERMARK / 64, &ta);
 
             ASSERT(0 == pool.start());
 
@@ -12044,7 +11590,7 @@ void TestDriver::testCase25()
             btlso::SocketHandle::Handle handles[2];
 
             ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                            handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
 
             ASSERT(0 == ret);
             ASSERT(0 == code);
@@ -12180,7 +11726,7 @@ void TestDriver::testCase25()
                     numBytesWritten   += oneByteMsg.length();
                     totalBytesWritten += oneByteMsg.length();
                 }
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.25));
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(.25));
             }
             if (veryVerbose) {
                 PT2(numBytesWritten, totalBytesWritten);
@@ -12188,9 +11734,9 @@ void TestDriver::testCase25()
             int sts = pool.write(channelId, oneByteMsg);
             LOOP_ASSERT(sts, 0 != sts);
             ASSERT(0 == mX.waitForState(
-                                    &states,
-                                    btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
-                                    bsls::TimeInterval(0.25)));
+                                   &states,
+                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   bsls::TimeInterval(0.25)));
 
             // 3. Double the write cache size, verify that the 'HIWAT' alert
             //    is not delivered.  Then refill the cache and verify that the
@@ -12202,9 +11748,9 @@ void TestDriver::testCase25()
             ASSERT(0 ==
                    pool.setWriteCacheHiWatermark(channelId, 2 * HI_WATERMARK));
             ASSERT(0 != mX.waitForState(
-                                    &states,
-                                    btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
-                                    bsls::TimeInterval(0.25)));
+                                   &states,
+                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   bsls::TimeInterval(0.25)));
 
             numBytesWritten = 0;
             while (0 == (rc = pool.write(channelId, oneByteMsg))) {
@@ -12218,9 +11764,9 @@ void TestDriver::testCase25()
                                               HI_WATERMARK == numBytesWritten);
             ASSERT(0 != pool.write(channelId, oneByteMsg));
             ASSERT(0 == mX.waitForState(
-                                    &states,
-                                    btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
-                                    bsls::TimeInterval(0.25)));
+                                   &states,
+                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   bsls::TimeInterval(0.25)));
 
             // 4. Double the write cache size again, add one byte (to verify
             //    it is not full), then reduce the write cache size to the
@@ -12235,16 +11781,16 @@ void TestDriver::testCase25()
             ASSERT(0 == pool.write(channelId, oneByteMsg));
             totalBytesWritten += oneByteMsg.length();
             ASSERT(0 != mX.waitForState(
-                                    &states,
-                                    btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
-                                    bsls::TimeInterval(0.25)));
+                                   &states,
+                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   bsls::TimeInterval(0.25)));
 
             ASSERT(0 ==
                    pool.setWriteCacheHiWatermark(channelId, HI_WATERMARK));
             ASSERT(0 == mX.waitForState(
-                                    &states,
-                                    btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
-                                    bsls::TimeInterval(0.25)));
+                                   &states,
+                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   bsls::TimeInterval(0.25)));
             ASSERT(0 != pool.write(channelId, oneByteMsg));
 
             // 5. Increase the write cache size back to 2 * HI_WATERMARK (one
@@ -12259,9 +11805,9 @@ void TestDriver::testCase25()
             ASSERT(0 ==
                    pool.setWriteCacheHiWatermark(channelId, 2 * HI_WATERMARK));
             ASSERT(0 != mX.waitForState(
-                                    &states,
-                                    btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
-                                    bsls::TimeInterval(0.25)));
+                                   &states,
+                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   bsls::TimeInterval(0.25)));
             ASSERT(0 != pool.write(channelId, oneByteMsg));
 
             // 6. Empty the write cache and perform a concurrency test.
@@ -12408,14 +11954,14 @@ void TestDriver::testCase23()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::DataReadCallback           dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback           dataCb;
 
-            bdlqq::Barrier clientServerBarrier(2); // client and server threads
+            bdlmtt::Barrier clientServerBarrier(2); // client and server thread
 
-            bdlqq::Barrier serverStateBarrier(2); // server control thread and
+            bdlmtt::Barrier serverStateBarrier(2); // server control thread and
                                                  // channelStateCallback of mY
 
-            bdlqq::Barrier serverDataBarrier(2);  // server control thread and
+            bdlmtt::Barrier serverDataBarrier(2);  // server control thread and
                                                  // dataCallback of mY
 
             case23CallbackInfo serverInfo;
@@ -12433,7 +11979,6 @@ void TestDriver::testCase23()
                                        _1, _2, _3, _4,
                                        &serverInfo);
 
-            makeNull(&poolCb);
 
             dataCb = bdef::BindUtilA(&ta,
                                     case23DataCallback,
@@ -12450,10 +11995,10 @@ void TestDriver::testCase23()
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, cpc, &ta);
             serverInfo.d_channelPool_p = &mX;
 
-            bdlqq::Barrier clientStateBarrier(2); // client control thread and
+            bdlmtt::Barrier clientStateBarrier(2); // client control thread and
                                                  // channelStateCallback of mY
 
-            bdlqq::Barrier clientDataBarrier(2);  // client control thread and
+            bdlmtt::Barrier clientDataBarrier(2);  // client control thread and
                                                  // dataCallback of mY
 
             case23CallbackInfo clientInfo;
@@ -12500,7 +12045,7 @@ void TestDriver::testCase23()
                 ASSERT(0 == mX.stop());
                 ASSERT(0 == mY.stop());
             }
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bdlmtt::ThreadUtil::microSleep(0, 2);
 
             if (verbose)
                 cout << "\tClient shuts down read." << endl;
@@ -12542,20 +12087,20 @@ void TestDriver::testCase23()
                                     false,
                                     btlmt::ChannelPool::BTEMT_KEEP_HALF_OPEN));
 
-                bdlqq::ThreadUtil::Handle serverHandle;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&serverHandle,
+                bdlmtt::ThreadUtil::Handle serverHandle;
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&serverHandle,
                                                      &case23ServerThread3,
                                                      &serverInfo));
 
-                bdlqq::ThreadUtil::Handle clientHandle;
-                ASSERT(0 == bdlqq::ThreadUtil::create(&clientHandle,
+                bdlmtt::ThreadUtil::Handle clientHandle;
+                ASSERT(0 == bdlmtt::ThreadUtil::create(&clientHandle,
                                                      &case23ClientThread3,
                                                      &clientInfo));
 
-                bdlqq::ThreadUtil::join(serverHandle);
-                bdlqq::ThreadUtil::join(clientHandle);
+                bdlmtt::ThreadUtil::join(serverHandle);
+                bdlmtt::ThreadUtil::join(clientHandle);
             }
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bdlmtt::ThreadUtil::microSleep(0, 1);
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -12623,6 +12168,7 @@ void TestDriver::testCase22()
                 NUM_THREADS        = 4,
                 NUM_ITERS          = 105,   // never a multiple of 10
                 LARGE_NUM_ITERS    = 1005,  // never a multiple of 10
+
 #endif
                 BUFFER_SIZE        = 1024,
                 SMALL_MSG_SIZE     = 327,
@@ -12848,7 +12394,7 @@ void TestDriver::testCase20()
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
-            bdlqq::Mutex                  channelEventsMutex;
+            bdlmtt::Mutex                channelEventsMutex;
 
             enum {
                 NUM_SOCKETS   = 100,
@@ -12860,7 +12406,7 @@ void TestDriver::testCase20()
             };
 
             int managersStatistics[MAX_THREADS];
-            bdlqq::Barrier channelBarrier(2);
+            bdlmtt::Barrier channelBarrier(2);
 
             // Initialize per-manager counters.
             bsl::fill_n(managersStatistics, (int)MAX_THREADS, 0);
@@ -12903,10 +12449,10 @@ void TestDriver::testCase20()
                                         , &channelBarrier
                                         , &channelId));
 
-            btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            makeNull(&poolCb);
+            btlmt::ChannelPool::PoolStateChangeCallback poolCb;
+            btlmt::ChannelPool::BlobBasedReadCallback   dataCb;
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
+            makeNull(&poolCb);
             makeNull(&dataCb);
 
             Obj mX(channelCb, dataCb, poolCb, config, &ta);
@@ -12923,12 +12469,13 @@ void TestDriver::testCase20()
             config.setMaxThreads(1);
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb2;
-            makeNull(&channelCb2);
-
-            btlmt::ChannelPool::DataReadCallback dataCb2(&case20DataCallback,
-                                                        &ta);
+            btlmt::ChannelPool::BlobBasedReadCallback      dataCb2(
+                                                           &case20DataCallback,
+                                                           &ta);
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb2;
+
+            makeNull(&channelCb2);
             makeNull(&poolCb2);
 
             Obj mY(channelCb2, dataCb2, poolCb2, config, &ta);
@@ -12941,7 +12488,8 @@ void TestDriver::testCase20()
 
             // Import lots of sockets and send some data.
             if (verbose) cout << "Importing sockets.\n";
-            btlso::StreamSocket<btlso::IPv4Address> *clientSockets[NUM_SOCKETS];
+            btlso::StreamSocket<btlso::IPv4Address> *
+                                                    clientSockets[NUM_SOCKETS];
             for (int i = 0; i < NUM_SOCKETS; ++i) {
                 Socket  *socket = factory.allocate();
                 clientSockets[i] = socket;
@@ -12971,7 +12519,7 @@ void TestDriver::testCase20()
                 }
             }
 
-            bdlqq::ThreadUtil::microSleep(0, 3); // 3 sec should be good enough
+            bdlmtt::ThreadUtil::microSleep(0, 3); // 3 sec should be enough
 
             if (verbose)
                 cout << "Shutting down" << endl;
@@ -13045,7 +12593,7 @@ void TestDriver::testCase19()
             if (verbose)
                cout << "Configuring channel pool and setting FD limit" << endl;
 
-            bsls::AtomicInt64 acceptErrors(0);
+            bdlmtt::AtomicInt64 acceptErrors = 0;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             makeNull(&channelCb);
@@ -13056,7 +12604,7 @@ void TestDriver::testCase19()
                                                       _1, _2, _3,
                                                       &acceptErrors));
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback dataCb;
             makeNull(&dataCb);
 
             btlmt::ChannelPoolConfiguration cpc;
@@ -13120,11 +12668,11 @@ void TestDriver::testCase19()
 
                 // Give time to the channel pool to process accept error
                 // callbacks.
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bdlmtt::ThreadUtil::microSleep(0, 1);
             }
 
             // Give time to the channel pool to process accept error callbacks.
-            bdlqq::ThreadUtil::microSleep(0, 8);
+            bdlmtt::ThreadUtil::microSleep(0, 8);
 
             ASSERT(acceptErrors);
 
@@ -13142,7 +12690,7 @@ void TestDriver::testCase19()
             ASSERT(0 == setrlimit(RLIMIT_NOFILE, &rlim));
             if (veryVerbose) { P(rlim.rlim_cur); }
 
-            bdlqq::ThreadUtil::microSleep(0, 8);
+            bdlmtt::ThreadUtil::microSleep(0, 8);
             acceptErrors = 0;
 
             if (verbose)
@@ -13168,7 +12716,7 @@ void TestDriver::testCase19()
             }
 
             // Give time to the channel pool to process accept error callbacks.
-            bdlqq::ThreadUtil::microSleep(0, 10);
+            bdlmtt::ThreadUtil::microSleep(0, 10);
 
             ASSERT(0 == acceptErrors);
             if (veryVerbose) { P(acceptErrors); }
@@ -13237,8 +12785,8 @@ void TestDriver::testCase18()
                 BACKLOG     = 1
             };
 
-            bdlqq::Barrier  channelBarrier(2);
-            bsls::AtomicInt limitReachedFlag;
+            bdlmtt::Barrier  channelBarrier(2);
+            bdlmtt::AtomicInt limitReachedFlag;
 
             btlmt::ChannelPool *poolAddr;
             int                poolEvent = -1;
@@ -13259,7 +12807,7 @@ void TestDriver::testCase18()
                                         , &eventAddr
                                         , &limitReachedFlag));
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
             makeNull(&dataCb);
 
             btlmt::ChannelPoolConfiguration cpc;
@@ -13306,11 +12854,11 @@ void TestDriver::testCase18()
                     channelBarrier.wait();
                     LOOP_ASSERT(i, i+1 == X.numChannels());
                     sockets.push_back(socket);
-                    bdlqq::ThreadUtil::microSleep(200000);
+                    bdlmtt::ThreadUtil::microSleep(200000);
                 }
                 while (!limitReachedFlag) {
-                    bdlqq::ThreadUtil::microSleep(200000);
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::microSleep(200000);
+                    bdlmtt::ThreadUtil::yield();
                 }
                 ASSERT(btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolEvent);
                 ASSERT(MAX_CLIENTS == X.numChannels());
@@ -13340,7 +12888,7 @@ void TestDriver::testCase18()
                         factory.deallocate(socket);
                         channelBarrier.wait();
                     }
-                    bdlqq::ThreadUtil::microSleep(250000);
+                    bdlmtt::ThreadUtil::microSleep(250000);
                     ASSERT(0  == X.numChannels());
                     LOOP_ASSERT(poolEvent, -1 == poolEvent);
                     sockets.clear();
@@ -13364,8 +12912,8 @@ void TestDriver::testCase18()
                         sockets.push_back(socket);
                     }
                     while (!limitReachedFlag) {
-                        bdlqq::ThreadUtil::microSleep(200000);
-                        bdlqq::ThreadUtil::yield();
+                        bdlmtt::ThreadUtil::microSleep(200000);
+                        bdlmtt::ThreadUtil::yield();
                     }
                     ASSERT(btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolEvent);
                     ASSERT(MAX_CLIENTS == X.numChannels());
@@ -13386,8 +12934,8 @@ void TestDriver::testCase18()
                 ASSERT(0 == socket->connect(PEER));
                 ASSERT(0 == channel.isInvalid());
 
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(400000);
+                bdlmtt::ThreadUtil::yield();
+                bdlmtt::ThreadUtil::microSleep(400000);
                 ASSERT(MAX_CLIENTS == X.numChannels());
                 ASSERT(btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolEvent);
 
@@ -13413,8 +12961,8 @@ void TestDriver::testCase18()
                     factory.deallocate(socket);
                     channelBarrier.wait();
                 }
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(400000);
+                bdlmtt::ThreadUtil::yield();
+                bdlmtt::ThreadUtil::microSleep(400000);
                 ASSERT(0  == X.numChannels());
                 ASSERT(-1 == poolEvent);
             }
@@ -13469,7 +13017,7 @@ void TestDriver::testCase17()
                 BACKLOG      = 1
             };
 
-            bdlqq::Barrier barrier(2);
+            bdlmtt::Barrier barrier(2);
             int           channelId = 0;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
@@ -13479,10 +13027,10 @@ void TestDriver::testCase17()
                                         , &channelId
                                         , &barrier));
 
-            btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            makeNull(&ta, &poolCb);
+            btlmt::ChannelPool::PoolStateChangeCallback poolCb;
+            btlmt::ChannelPool::BlobBasedReadCallback   dataCb;
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
+            makeNull(&ta, &poolCb);
             makeNull(&dataCb);
 
             btlmt::ChannelPoolConfiguration cpc;
@@ -13500,7 +13048,8 @@ void TestDriver::testCase17()
             // Test Execution
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
+            btlso::StreamSocket<btlso::IPv4Address> *socket =
+                                                            factory.allocate();
             btlsos::TcpChannel                      channel(socket);
 
             ASSERT(0 == socket->connect(PEER));
@@ -13565,11 +13114,11 @@ void TestDriver::testCase16()
                 BACKLOG      = 1
             };
 
-            btlmt::ChannelPool::DataReadCallback  dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback  dataCb;
             btlmt::ChannelPool::PoolStateChangeCallback       poolCb;
 
             btlmt::ChannelPool *poolAddr = 0;
-            bdlqq::Barrier      barrier(2);
+            bdlmtt::Barrier      barrier(2);
             int                channelId = 0;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
@@ -13600,7 +13149,8 @@ void TestDriver::testCase16()
             // Test Execution
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
+            btlso::StreamSocket<btlso::IPv4Address> *socket =
+                                                            factory.allocate();
             btlsos::TcpChannel                      channel(socket);
 
             ASSERT(0 == socket->connect(PEER));
@@ -13666,7 +13216,7 @@ void TestDriver::testCase15()
             config.setReadTimeout(1);
 
             btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
-            btlmt::ChannelPool::DataReadCallback         dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
 
             int acceptedChannelId1 = -1;
             int channelId1 = -1;
@@ -13680,9 +13230,6 @@ void TestDriver::testCase15()
                                         , &channelId1
                                         , &channelId2
                                         , veryVerbose));
-
-            makeNull(&poolCb);
-            makeNull(&dataCb);
 
             bsl::vector<btlmt::ChannelPool::HandleInfo> handles;
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
@@ -13742,8 +13289,8 @@ void TestDriver::testCase15()
 
                 for (int i = 0; (-1 == acceptedChannelId1 || -1 == channelId1)
                                                    && i < SETUP_TIMEOUT; ++i) {
-                    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));  // 1s
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 handles.clear();
@@ -13786,9 +13333,10 @@ void TestDriver::testCase15()
             bsls::TimeInterval importTime;
             {
                 btlso::SocketHandle::Handle socketHandles[2];
-                ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                                    socketHandles,
-                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                ASSERT(0 ==
+                       btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
+                                   socketHandles,
+                                   btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
 
                 btlso::StreamSocket<btlso::IPv4Address> *socket =
                                             factory.allocate(socketHandles[0]);
@@ -13804,8 +13352,8 @@ void TestDriver::testCase15()
                 // Wait until channel has been created.
 
                 for (int i = 0; (-1 == channelId2) && i < SETUP_TIMEOUT; ++i) {
-                    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));  // 1s
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 handles.clear();
@@ -13882,8 +13430,8 @@ void TestDriver::testCase15()
 
                 for (int i = 0; (-1 != acceptedChannelId1 || -1 != channelId1)
                                                    && i < SETUP_TIMEOUT; ++i) {
-                    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));  // 1s
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 handles.clear();
@@ -13902,8 +13450,8 @@ void TestDriver::testCase15()
                 // Wait until channels have been destroyed.
 
                 for (int i = 0; (-1 != channelId2) && i < SETUP_TIMEOUT; ++i) {
-                    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));  // 1s
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 handles.clear();
@@ -13971,9 +13519,10 @@ void TestDriver::testCase14()
             };
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
+            makeNull(&poolCb);
 
-            bdlqq::Barrier channelBarrier(2);
-            bsls::AtomicInt fail(0);
+            bdlmtt::Barrier channelBarrier(2);
+            bdlmtt::AtomicInt fail = 0;
 
             btlmt::ChannelPool  *poolAddr;
             int                 poolEvent = -1;
@@ -13989,9 +13538,7 @@ void TestDriver::testCase14()
                                         , &channelBarrier
                                         , &channelId));
 
-            makeNull(&ta, &poolCb);
-
-            btlmt::ChannelPool::DataReadCallback         dataCb(
+            btlmt::ChannelPool::BlobBasedReadCallback         dataCb(
                     bdlf::BindUtil::bindA( &ta
                                         , &case14ChannelDataCallback
                                         , _1, _2, _3, _4
@@ -14031,13 +13578,13 @@ void TestDriver::testCase14()
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return;
+                return;                                               // RETURN
             }
 
             ASSERT(0 == mX.setSocketOption(
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        512, channelId));
+                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       512, channelId));
 
             char buffer[1024];
             bsls::Types::Int64 clientBytesWritten = 0;
@@ -14055,7 +13602,7 @@ void TestDriver::testCase14()
                 }
                 #endif
             }
-            bdlqq::ThreadUtil::microSleep(200 * 1000);
+            bdlmtt::ThreadUtil::microSleep(200 * 1000);
             LOOP_ASSERT(X.numChannels(), 1 == X.numChannels());
 
             bsls::Types::Int64 clientBytesRead = 0;
@@ -14159,13 +13706,13 @@ void TestDriver::testCase14()
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return;
+                return;                                               // RETURN
             }
 
             ASSERT(0 == mX.setSocketOption(
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        512, channelId));
+                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       512, channelId));
             clientBytesWritten = 0;
             fail = 0;
             while(!fail) {
@@ -14182,7 +13729,7 @@ void TestDriver::testCase14()
                 }
                 #endif
             }
-            bdlqq::ThreadUtil::microSleep(200 * 1000);
+            bdlmtt::ThreadUtil::microSleep(200 * 1000);
             ASSERT(1 == X.numChannels());
 
             bsls::Types::Int64 oldBytesWritten = bytesWritten;
@@ -14304,13 +13851,13 @@ void TestDriver::testCase14()
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return;
+                return;                                               // RETURN
             }
 
             ASSERT(0 == mX.setSocketOption(
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        512, channelId));
+                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       512, channelId));
             clientBytesWritten = 0;
             fail = 0;
             while(!fail) {
@@ -14327,7 +13874,7 @@ void TestDriver::testCase14()
                 }
                 #endif
             }
-            bdlqq::ThreadUtil::microSleep(200 * 1000);
+            bdlmtt::ThreadUtil::microSleep(200 * 1000);
             ASSERT(1 == X.numChannels());
 
             clientBytesRead = 0;
@@ -14469,10 +14016,13 @@ void TestDriver::testCase13()
             const double HARD_TOLERANCE = 0.60;  // 60% tolerance to assert
             const double TOLERANCE      = 0.30;  // 30% tolerance to warn
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
-            btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
+            btlmt::ChannelPool::BlobBasedReadCallback   dataCb;
+            btlmt::ChannelPool::PoolStateChangeCallback poolCb;
 
-            bdlqq::Barrier channelBarrier(2);
+            makeNull(&dataCb);
+            makeNull(&poolCb);
+
+            bdlmtt::Barrier channelBarrier(2);
 
             btlmt::ChannelPool *poolAddr;
             int                poolEvent = -1;
@@ -14485,9 +14035,6 @@ void TestDriver::testCase13()
                                         , &poolAddr
                                         , &eventAddr
                                         , &channelBarrier));
-
-            makeNull(&poolCb);
-            makeNull(&dataCb);
 
             btlmt::ChannelPoolConfiguration cpc;
             cpc.setMaxConnections(MAX_THREADS);
@@ -14516,7 +14063,7 @@ void TestDriver::testCase13()
                 Socket  *socket = factory.allocate();
                 Channel  channel(socket, &ta);
 
-                bdlqq::ThreadUtil::yield();
+                bdlmtt::ThreadUtil::yield();
                 ASSERT(0 == socket->connect(PEER));
                 ASSERT(0 == channel.isInvalid());
 
@@ -14548,7 +14095,7 @@ void TestDriver::testCase13()
                 if (!i) {
                     // Give some time to the pool to setup its stuff.
 
-                    bdlqq::ThreadUtil::microSleep(200 * 1000);
+                    bdlmtt::ThreadUtil::microSleep(200 * 1000);
                 }
 
             }
@@ -14556,7 +14103,7 @@ void TestDriver::testCase13()
 
             // If we get rescheduled, we will have inaccurate results.
 
-            bdlqq::ThreadUtil::yield();
+            bdlmtt::ThreadUtil::yield();
 
             for (bsl::vector<Socket*>::iterator it = sockets.begin();
                     it != sockets.end(); ++it)
@@ -14564,7 +14111,7 @@ void TestDriver::testCase13()
                 Socket  *socket = *it;
                 Channel  channel(socket);
 
-                bdlqq::ThreadUtil::microSleep(2000 * 1000);
+                bdlmtt::ThreadUtil::microSleep(2000 * 1000);
                 channel.invalidate();
                 factory.deallocate(socket);
                 channelBarrier.wait();
@@ -14627,7 +14174,7 @@ void TestDriver::testCase12()
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
-            bdlqq::Mutex                  channelEventsMutex;
+            bdlmtt::Mutex                channelEventsMutex;
 
             enum {
                 NUM_SOCKETS   = 1,
@@ -14648,15 +14195,18 @@ void TestDriver::testCase12()
                                            HI_WATERMARK);
             if (verbose) { P(config); }
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback    dataCb;
             btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
 
-            bdlqq::Barrier barrier(2);
+            makeNull(&dataCb);
+            makeNull(&poolCb);
+
+            bdlmtt::Barrier barrier(2);
             int           numBytesWritten = 0;
 
             // Do not overflow the stack.
 
-            bdlmca::PooledBufferChainFactory outFactory(HI_WATERMARK / 64, &ta);
+            bdlmca::PooledBlobBufferFactory outFactory(HI_WATERMARK/64, &ta);
 
             btlmt::ChannelPool *mX_p;
 
@@ -14670,9 +14220,6 @@ void TestDriver::testCase12()
                                         , &outFactory
                                         , &mX_p));
 
-            makeNull(&poolCb);
-            makeNull(&dataCb);
-
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
             mX_p = &mX;
 
@@ -14680,14 +14227,14 @@ void TestDriver::testCase12()
 
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                                     handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    handles,
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             ASSERT(0 == ret);
 
             // The following socket options are set only if necessary.
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                                     btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                     btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                                    btlso::SocketOptUtil::BTESO_TCPLEVEL,
+                                    btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
             ASSERT(0 == ret);
 
             btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
@@ -14721,7 +14268,7 @@ void TestDriver::testCase12()
                          numBytesRead == numBytesWritten);
 
             if (verbose) cout << "\tShutting down\n";
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bdlmtt::ThreadUtil::microSleep(0, 2);
 
             mX.stop();
 
@@ -14845,7 +14392,7 @@ void TestDriver::testCase10()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::DataReadCallback           dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
             makeNull(&channelCb);
             makeNull(&poolCb);
@@ -14858,7 +14405,8 @@ void TestDriver::testCase10()
             {
                 btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
                 ASSERT(0 == mX.start());
-                bsls::TimeInterval startTime = bdlt::CurrentTime::now() + 120.0;
+                bsls::TimeInterval startTime = bdlt::CurrentTime::now() +
+                                                                         120.0;
 
                 enum {
                     NUM_CLOCKS = 20
@@ -14933,15 +14481,15 @@ void TestDriver::testCase10()
                     cout << "\t\tWaiting for each clock to be invoked "
                          << NUM_INVOCATIONS << " times.\n";
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(
                                                  NUM_INVOCATIONS * 1.0) + 0.5);
                 int iter = 10;
                 while (--iter && !(NUM_INVOCATIONS <=
                                 clockState[LAST_CLOCK_IDX].d_numInvocations)) {
                     cout << __FILE__ << ": " << __LINE__
                          << ": ***WARNING***  delays in case 10 (a)" << endl;
-                    bdlqq::ThreadUtil::microSleep(mT);
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::microSleep(mT);
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 if (veryVerbose)
@@ -15030,8 +14578,8 @@ void TestDriver::testCase10()
 
                 for (int i = 0; -1 == channelId1 && i < (int) SETUP_TIMEOUT;
                                                                          ++i) {
-                    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));  // 1s
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 if (-1 == channelId1) {
@@ -15049,8 +14597,8 @@ void TestDriver::testCase10()
 
                 for (int i = 0; (-1 == channelId1 || -1 == channelId2) &&
                                                 i < (int) SETUP_TIMEOUT; ++i) {
-                    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));  // 1s
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 if (-1 == channelId2 || -1 == channelId2) {
@@ -15107,15 +14655,15 @@ void TestDriver::testCase10()
                     cout << "\t\tWaiting for each clock to be invoked "
                          << NUM_INVOCATIONS << " times.\n";
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(
                                                  NUM_INVOCATIONS * 1.0) + 0.5);
                 int iter = 10;
                 while (--iter && !((int) NUM_INVOCATIONS <=
                                 clockState[NUM_CLOCKS - 1].d_numInvocations)) {
                     cout << __FILE__ << ": " << __LINE__
                          << ": ***WARNING***  delays in case 10 (a)" << endl;
-                    bdlqq::ThreadUtil::microSleep(mT);
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::microSleep(mT);
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 if (veryVerbose)
@@ -15174,15 +14722,15 @@ void TestDriver::testCase10()
                     cout << "\t\tWaiting for each clock to be invoked "
                          << NUM_INVOCATIONS << " times.\n";
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(
                                                  NUM_INVOCATIONS * 1.0) + 0.5);
                 int iter = 10;
                 while (--iter && !(NUM_INVOCATIONS <=
                                 clockState[NUM_CLOCKS - 1].d_numInvocations)) {
                     cout << __FILE__ << ": " << __LINE__
                          << ": ***WARNING***  delays in case 10 (a)" << endl;
-                    bdlqq::ThreadUtil::microSleep(mT);
-                    bdlqq::ThreadUtil::yield();
+                    bdlmtt::ThreadUtil::microSleep(mT);
+                    bdlmtt::ThreadUtil::yield();
                 }
 
                 if (veryVerbose)
@@ -15214,7 +14762,7 @@ void TestDriver::testCase10()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::DataReadCallback           dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
             makeNull(&channelCb);
             makeNull(&poolCb);
@@ -15225,7 +14773,8 @@ void TestDriver::testCase10()
             bslma::TestAllocator ta(veryVeryVerbose);
             {
                 btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
-                bsls::TimeInterval startTime = bdlt::CurrentTime::now() + 120.0;
+                bsls::TimeInterval startTime = bdlt::CurrentTime::now() +
+                                                                         120.0;
                 ASSERT(0 == mX.stop());
 
                 enum {
@@ -15275,15 +14824,15 @@ void TestDriver::testCase10()
 
                     for (int j = 0; j <= i; ++j) {
                         LOOP2_ASSERT(i, j, 0 == mX.registerClock(
-                                                        NULL_CB,
-                                                        startTime,
-                                                        bsls::TimeInterval(1.0),
-                                                        j));
+                                                       NULL_CB,
+                                                       startTime,
+                                                       bsls::TimeInterval(1.0),
+                                                       j));
                         LOOP2_ASSERT(i, j, 1 == mX.registerClock(
-                                                        NULL_CB,
-                                                        startTime,
-                                                        bsls::TimeInterval(1.0),
-                                                        j));
+                                                       NULL_CB,
+                                                       startTime,
+                                                       bsls::TimeInterval(1.0),
+                                                       j));
                     }
 
                     if (veryVerbose)
@@ -15294,7 +14843,7 @@ void TestDriver::testCase10()
                     if (veryVerbose)
                         cout << "\t\tSleeping..." << endl;
 
-                    bdlqq::ThreadUtil::microSleep(0, 7);
+                    bdlmtt::ThreadUtil::microSleep(0, 7);
 
                     if (veryVerbose)
                         cout << "\t\tDeregistering clocks" << endl;
@@ -15343,8 +14892,7 @@ void TestDriver::testCase9()
         //   a callback, and that callback to schedule another one inside.
         //
         // Testing:
-        //   int btlmt::ChannelPool::write(btlmt::DataMsg, ...);
-        //   int btlmt::ChannelPool::write(btlmt::BlobMsg, ...);
+        //   int btlmt::ChannelPool::write(bdlmca::Blob, ...);
         //   int btlmt::ChannelPool::write(btes::Iovecs, ...);
         //   int btlmt::ChannelPool::write(btes::Ovecs, ...);
         // --------------------------------------------------------------------
@@ -15409,12 +14957,12 @@ void TestDriver::testCase8()
                 TIMEOUT      = 1   // 1s
             };
 
-            btlso::InetStreamSocketFactory<btlso::IPv4Address>  factory;
+            btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
             btlmt::ChannelPool::ChannelStateChangeCallback     serverChannelCb;
             btlmt::ChannelPool::PoolStateChangeCallback        poolCb;
-            btlmt::ChannelPool::DataReadCallback               dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback          dataCb;
 
-            bdlqq::Barrier barrier(2);
+            bdlmtt::Barrier barrier(2);
 
             case8CallbackInfo info;
             info.d_barrier_p = &barrier;
@@ -15475,7 +15023,7 @@ void TestDriver::testCase8()
 
                 ASSERT(0 != mX.shutdown(info.d_channelId));
             }
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bdlmtt::ThreadUtil::microSleep(0, 1);
 
             if (verbose)
                 cout << "\tPartial shutdown is same as full shutdown." << endl;
@@ -15497,7 +15045,7 @@ void TestDriver::testCase8()
                 MTASSERT(0 == info.d_channelDownReadFlag);
                 MTASSERT(0 == info.d_channelDownWriteFlag);
             }
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bdlmtt::ThreadUtil::microSleep(0, 1);
 
             info.d_channelId = -1;
             info.d_channelDownReadFlag = 0;
@@ -15517,7 +15065,7 @@ void TestDriver::testCase8()
                 MTASSERT(0 == info.d_channelDownReadFlag);
                 MTASSERT(0 == info.d_channelDownWriteFlag);
             }
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bdlmtt::ThreadUtil::microSleep(0, 1);
 
             if (verbose)
                 cout << "\tHalf-open shutdown (close read)." << endl;
@@ -15540,7 +15088,7 @@ void TestDriver::testCase8()
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
                                         bteso_Flag::BTESO_SHUTDOWN_RECEIVE));
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
@@ -15553,7 +15101,7 @@ void TestDriver::testCase8()
                 MTASSERT(1 == info.d_channelDownReadFlag);
                 MTASSERT(1 == info.d_channelDownWriteFlag);
             }
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bdlmtt::ThreadUtil::microSleep(0, 1);
 
             if (verbose)
                 cout << "\tHalf-open shutdown (close write)." << endl;
@@ -15576,7 +15124,7 @@ void TestDriver::testCase8()
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
                                         bteso_Flag::BTESO_SHUTDOWN_SEND));
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
+                bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
@@ -15638,10 +15186,10 @@ void TestDriver::testCase7()
             btlso::StreamSocket<btlso::IPv4Address>            *socketA;
             btlso::StreamSocket<btlso::IPv4Address>            *socketB;
 
-            btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::DataReadCallback           dataCb;
+            btlmt::ChannelPool::PoolStateChangeCallback poolCb;
+            btlmt::ChannelPool::BlobBasedReadCallback   dataCb;
 
-            bdlqq::Barrier barrier(2);
+            bdlmtt::Barrier barrier(2);
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
@@ -15670,7 +15218,7 @@ void TestDriver::testCase7()
                 btlso::SocketHandle::Handle handles[2];
                 LOOP_ASSERT(i, 0 ==
                     btlso::SocketImpUtil::socketPair<btlso::IPv4Address>
-                          (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                         (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
 
                 socketA = factory.allocate(handles[0]);
                 socketB = factory.allocate(handles[1]);
@@ -15722,9 +15270,9 @@ void TestDriver::testCase6()
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
-            bdlqq::Mutex                  channelEventsMutex;
+            bdlmtt::Mutex                  channelEventsMutex;
             bsl::vector<my_PoolEvent>    poolEvents;
-            bdlqq::Mutex                  poolEventsMutex;
+            bdlmtt::Mutex                  poolEventsMutex;
 
             const int NUM_SOCKETS = 20;
             btlmt::ChannelPoolConfiguration config;
@@ -15748,8 +15296,7 @@ void TestDriver::testCase6()
                                         , &poolEvents
                                         , &poolEventsMutex));
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
-            makeNull(&dataCb);
+            btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
@@ -15772,7 +15319,7 @@ void TestDriver::testCase6()
                 btlso::SocketHandle::Handle handles[2];
                 LOOP_ASSERT(i, 0 ==
                     btlso::SocketImpUtil::socketPair<btlso::IPv4Address>
-                          (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                         (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
 
                 socketA = factory.allocate(handles[0]);
                 socketB = factory.allocate(handles[1]);
@@ -15782,7 +15329,7 @@ void TestDriver::testCase6()
                 socketVecB.push_back(socketB);
             }
 
-            bdlqq::ThreadUtil::microSleep(0, 10); // 10 secs should be enough
+            bdlmtt::ThreadUtil::microSleep(0, 10); // 10 secs should be enough
 
             int numChannels = mX.numChannels();
             LOOP_ASSERT(numChannels, NUM_SOCKETS == numChannels);
@@ -15806,32 +15353,32 @@ void TestDriver::testCase6()
             bsl::fill_n(importedFlag, NUM_SOCKETS, 0);
 
             for (int i = 0; i < numEvents; ++i) {
-                LOOP_ASSERT(i, btlmt::ChannelMsg::BTEMT_CHANNEL_UP ==
-                                             channelEvents[i].d_data.event() ||
-                               btlmt::ChannelMsg::BTEMT_AUTO_READ_ENABLED ==
-                                              channelEvents[i].d_data.event());
-                const int sourceId = channelEvents[i].d_data.allocatorId();
+                LOOP_ASSERT(i, ChannelState::BTEMT_CHANNEL_UP ==
+                                             channelEvents[i].d_event ||
+                               ChannelState::BTEMT_AUTO_READ_ENABLED ==
+                                              channelEvents[i].d_event);
+                const int sourceId = channelEvents[i].d_allocatorId;
                 LOOP_ASSERT(i, 0 <= sourceId);
                 LOOP_ASSERT(i, sourceId < NUM_SOCKETS);
-                if (btlmt::ChannelMsg::BTEMT_CHANNEL_UP ==
-                                             channelEvents[i].d_data.event()) {
-                    const int channelId = channelEvents[i].d_data.channelId();
+                if (ChannelState::BTEMT_CHANNEL_UP ==
+                                             channelEvents[i].d_event) {
+                    const int channelId = channelEvents[i].d_channelId;
                     LOOP_ASSERT(i, socketVecA[sourceId] ==
                                               X.streamSocket(channelId).get());
                 }
-                if (veryVerbose) { P(channelEvents[i].d_data.allocatorId()); }
+                if (veryVerbose) { P(channelEvents[i].d_allocatorId); }
 
-                if (channelEvents[i].d_data.event() ==
-                                     btlmt::ChannelMsg::BTEMT_AUTO_READ_ENABLED)
+                if (channelEvents[i].d_event ==
+                                     ChannelState::BTEMT_AUTO_READ_ENABLED)
                 {
                     LOOP_ASSERT(i, 1 ==
-                          importedFlag[channelEvents[i].d_data.allocatorId()]);
-                    importedFlag[channelEvents[i].d_data.allocatorId()] = 3;
+                          importedFlag[channelEvents[i].d_allocatorId]);
+                    importedFlag[channelEvents[i].d_allocatorId] = 3;
                 }
                 else {
                     LOOP_ASSERT(i, 0 ==
-                          importedFlag[channelEvents[i].d_data.allocatorId()]);
-                    importedFlag[channelEvents[i].d_data.allocatorId()] = 1;
+                          importedFlag[channelEvents[i].d_allocatorId]);
+                    importedFlag[channelEvents[i].d_allocatorId] = 1;
                 }
             }
 
@@ -15843,8 +15390,8 @@ void TestDriver::testCase6()
             bsl::vector<my_ChannelEvent> backup;
 
             for (int i = 0; i < (int)channelEvents.size(); ++i) {
-                if (btlmt::ChannelMsg::BTEMT_AUTO_READ_ENABLED !=
-                                               channelEvents[i].d_data.event())
+                if (ChannelState::BTEMT_AUTO_READ_ENABLED !=
+                                               channelEvents[i].d_event)
                 {
                     backup.push_back(channelEvents[i]);
                 }
@@ -15854,24 +15401,24 @@ void TestDriver::testCase6()
 
             for (int i = 0; i < (int)backup.size(); ++i) {
                 if (veryVerbose) {
-                    P(backup[i].d_data.channelId());
+                    P(backup[i].d_channelId);
                 }
-                mX.shutdown(backup[i].d_data.channelId(),
+                mX.shutdown(backup[i].d_channelId,
                             btlmt::ChannelPool::BTEMT_IMMEDIATE);
             }
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bdlmtt::ThreadUtil::microSleep(0, 2);
 
             numEvents = channelEvents.size();
             if (veryVerbose) { P(numEvents); PV(channelEvents); }
 
             bsl::fill_n(importedFlag, NUM_SOCKETS, 0);
             for (int i = 0; i < numEvents; ++i) {
-                LOOP_ASSERT(i, btlmt::ChannelMsg::BTEMT_CHANNEL_DOWN ==
-                                              channelEvents[i].d_data.event());
+                LOOP_ASSERT(i, ChannelState::BTEMT_CHANNEL_DOWN ==
+                                              channelEvents[i].d_event);
                 LOOP_ASSERT(i, NUM_SOCKETS >
-                                        channelEvents[i].d_data.allocatorId());
-                LOOP_ASSERT(i, 0 <= channelEvents[i].d_data.allocatorId());
-                importedFlag[channelEvents[i].d_data.allocatorId()] = 1;
+                                        channelEvents[i].d_allocatorId);
+                LOOP_ASSERT(i, 0 <= channelEvents[i].d_allocatorId);
+                importedFlag[channelEvents[i].d_allocatorId] = 1;
             }
 
             for (int i = 0; i < NUM_SOCKETS; ++i) {
@@ -15881,7 +15428,7 @@ void TestDriver::testCase6()
             for (int i = 0; i < NUM_SOCKETS; ++i) {
                 factory.deallocate(socketVecB[i]);
             }
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bdlmtt::ThreadUtil::microSleep(0, 2);
             mX.stop();
         }
         ASSERT(0 <  ta.numAllocations());
@@ -15913,7 +15460,7 @@ void TestDriver::testCase5()
         //
         // Testing:
         //   int listen(int port, int backlog, int id);
-        //   int listen(const btlso::IPv4Address& address, int backlog, int id);
+        //   int listen(const IPv4Address& address, int backlog, int id);
         //   const btlso::IPv4Address *serverAddress(int);
         // --------------------------------------------------------------------
 
@@ -15929,11 +15476,7 @@ void TestDriver::testCase5()
 
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
         btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-        btlmt::ChannelPool::DataReadCallback           dataCb;
-
-        makeNull(&channelCb);
-        makeNull(&poolCb);
-        makeNull(&dataCb);
+        btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
         enum {
             // For a future version of channel pool, with no accessors.
@@ -16100,15 +15643,15 @@ void TestDriver::testCase4()
             btlso::IPv4Address peer("127.0.0.1", PORT);
 
             case4WorkerInfo info;
-            bdlqq::ThreadUtil::Handle worker;
+            bdlmtt::ThreadUtil::Handle worker;
             info.d_i           = 0;
             info.d_portNumber  = PORT;
             info.d_queueSize   = QUEUE_SIZE;
             info.d_timeOut     = TIMEOUT;
             info.d_worker_p    = &worker;
-            ASSERT(0 == bdlqq::ThreadUtil::create(&worker,
-                                                 &case4OpenConnectThread,
-                                                 (void *)&info));
+            ASSERT(0 == bdlmtt::ThreadUtil::create(&worker,
+                                                   &case4OpenConnectThread,
+                                                   (void *)&info));
 
             if (veryVerbose) {
                 MTCOUT << "Creating channel pool." << MTENDL;
@@ -16120,8 +15663,8 @@ void TestDriver::testCase4()
             config.setReadTimeout(600);    // in seconds
 
             int channelId = -1;
-            bsls::AtomicInt numFailures(0);
-            bsls::AtomicInt isConnected(0);
+            bdlmtt::AtomicInt numFailures = 0;
+            bdlmtt::AtomicInt isConnected = 0;
 
             btlmt::ChannelPool *pMX;
 
@@ -16140,8 +15683,7 @@ void TestDriver::testCase4()
                                        , &info
                                        , &pMX));
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
-            makeNull(&dataCb);
+            btlmt::ChannelPool::BlobBasedReadCallback dataCb;
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
             pMX = &mX;
@@ -16170,7 +15712,7 @@ void TestDriver::testCase4()
                     info.d_portNumber = PORT;
                 }
 
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bdlmtt::ThreadUtil::microSleep(0, 1);
                 if (veryVerbose) {
                     MTCOUT << "--->ATTEMPT " << i << ' '
                            << bdlt::CurrentTime::now()
@@ -16182,7 +15724,7 @@ void TestDriver::testCase4()
                                                bsls::TimeInterval(TIMEOUT),
                                                info.d_expUserId));
 
-                bdlqq::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
+                bdlmtt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
                 if (0 == info.d_portNumber)
                 {
                     LOOP2_ASSERT(numFailures, info.d_expNumFailures,
@@ -16201,10 +15743,10 @@ void TestDriver::testCase4()
                     P_(numFailures); P(info.d_expNumFailures);
                     cout << MTENDL;
                 }
-                bdlqq::ThreadUtil::join(worker);
-                bdlqq::ThreadUtil::microSleep(0, 2 * TIMEOUT);
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+                bdlmtt::ThreadUtil::join(worker);
+                bdlmtt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+                bdlmtt::ThreadUtil::yield();
+                bdlmtt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
             }
             ASSERT(0 == mX.stop());
         }
@@ -16235,13 +15777,13 @@ void TestDriver::testCase4()
             btlso::IPv4Address peer("127.0.0.1", PORT);
 
             case4WorkerInfo info;
-            bdlqq::ThreadUtil::Handle worker;
+            bdlmtt::ThreadUtil::Handle worker;
             info.d_i           = 0;
             info.d_portNumber  = PORT;
             info.d_queueSize   = QUEUE_SIZE;
             info.d_timeOut     = TIMEOUT;
             info.d_worker_p    = &worker;
-            ASSERT(0 == bdlqq::ThreadUtil::create(&worker,
+            ASSERT(0 == bdlmtt::ThreadUtil::create(&worker,
                                                  &case4OpenConnectThread,
                                                  (void *)&info));
 
@@ -16255,8 +15797,8 @@ void TestDriver::testCase4()
             config.setReadTimeout(600);    // in seconds
 
             int channelId = -1;
-            bsls::AtomicInt numFailures(0);
-            bsls::AtomicInt isConnected(0);
+            bdlmtt::AtomicInt numFailures = 0;
+            bdlmtt::AtomicInt isConnected = 0;
 
             btlmt::ChannelPool *pMX;
 
@@ -16275,8 +15817,7 @@ void TestDriver::testCase4()
                                        , &info
                                        , &pMX));
 
-            btlmt::ChannelPool::DataReadCallback         dataCb;
-            makeNull(&dataCb);
+            btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
             pMX = &mX;
@@ -16305,7 +15846,7 @@ void TestDriver::testCase4()
                     info.d_portNumber = PORT;
                 }
 
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bdlmtt::ThreadUtil::microSleep(0, 1);
                 if (veryVerbose) {
                     MTCOUT << "--->ATTEMPT " << i << ' '
                            << bdlt::CurrentTime::now()
@@ -16320,10 +15861,10 @@ void TestDriver::testCase4()
                           bsls::TimeInterval(TIMEOUT),
                           info.d_expUserId,
                           (i % 2)
-                          ? btlmt::ChannelPool::BTEMT_RESOLVE_ONCE
-                          : btlmt::ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT));
+                         ? btlmt::ChannelPool::BTEMT_RESOLVE_ONCE
+                         : btlmt::ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT));
 
-                bdlqq::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
+                bdlmtt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
                 if (0 == info.d_portNumber)
                 {
                     LOOP2_ASSERT(numFailures, info.d_expNumFailures,
@@ -16342,10 +15883,10 @@ void TestDriver::testCase4()
                     P_(numFailures); P(info.d_expNumFailures);
                     cout << MTENDL;
                 }
-                bdlqq::ThreadUtil::join(worker);
-                bdlqq::ThreadUtil::microSleep(0, 2 * TIMEOUT);
-                bdlqq::ThreadUtil::yield();
-                bdlqq::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+                bdlmtt::ThreadUtil::join(worker);
+                bdlmtt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+                bdlmtt::ThreadUtil::yield();
+                bdlmtt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
             }
             ASSERT(0 == mX.stop());
         }
@@ -16385,17 +15926,14 @@ void TestDriver::testCase4()
             config.setMaxConnections(1);
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
-            btlmt::ChannelPool::DataReadCallback         dataCb;
-
-            makeNull(&channelCb);
-            makeNull(&dataCb);
+            btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
             if (verbose)
                 cout << "\tWhen channel pool is running: test 1\n";
             {
                 for (int i = 0; i < NUM_DATA; ++i) {
                     for (int j = 0; j < MAX_NUM_ATTEMPTS; ++j) {
-                        bsls::AtomicInt isInvoked(0);
+                        bdlmtt::AtomicInt isInvoked = 0;
 
                         btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                                 bdlf::BindUtil::bindA( &ta
@@ -16422,13 +15960,13 @@ void TestDriver::testCase4()
                                                            DATA[i].d_sourceId);
                         LOOP3_ASSERT(i, j, ret, 0 == ret);
                         while (j + 1 != isInvoked) {
-                            bdlqq::ThreadUtil::sleep(TIMEOUT);
+                            bdlmtt::ThreadUtil::sleep(TIMEOUT);
                         }
                         if (veryVerbose) {
                             MTCOUT << "Succeded at "
                                 << bdlt::CurrentTime::now() << MTENDL;
                         }
-                        bdlqq::ThreadUtil::sleep(TIMEOUT);
+                        bdlmtt::ThreadUtil::sleep(TIMEOUT);
                         LOOP2_ASSERT(i, j, j + 1 == isInvoked);
                         if (veryVerbose) { P(isInvoked); }
                         ASSERT(0 == mX.stop());
@@ -16440,9 +15978,9 @@ void TestDriver::testCase4()
                 cout << "\tWhen channel pool is running: test 2\n";
             {
                 bsl::vector<my_ChannelEvent> channelEvents;
-                bdlqq::Mutex                  channelEventsMutex;
+                bdlmtt::Mutex                  channelEventsMutex;
                 bsl::vector<my_PoolEvent>    poolEvents;
-                bdlqq::Mutex                  poolEventsMutex;
+                bdlmtt::Mutex                  poolEventsMutex;
 
                 btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                         bdlf::BindUtil::bind( &recordPoolState
@@ -16456,8 +15994,7 @@ void TestDriver::testCase4()
                                        , &channelEvents
                                        , &channelEventsMutex));
 
-                btlmt::ChannelPool::DataReadCallback         dataCb;
-                makeNull(&dataCb);
+                btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
                 config.setMaxThreads(4);
                 btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
@@ -16475,10 +16012,10 @@ void TestDriver::testCase4()
                                                            DATA[j].d_sourceId);
                         LOOP3_ASSERT(i, j, ret, 0 == ret);
                     }
-                    bdlqq::ThreadUtil::sleep(TIMEOUT + TIMEOUT + TIMEOUT);
+                    bdlmtt::ThreadUtil::sleep(TIMEOUT + TIMEOUT + TIMEOUT);
                 }
 
-                bdlqq::ThreadUtil::sleep(TIMEOUT + TIMEOUT);
+                bdlmtt::ThreadUtil::sleep(TIMEOUT + TIMEOUT);
                 ASSERT(0 == mX.stop());
 
                 if (veryVerbose) {
@@ -16489,7 +16026,7 @@ void TestDriver::testCase4()
             if (verbose) cout << "\tWhen channel pool is NOT running.\n";
             for (int i = 0; i < NUM_DATA; ++i) {
                 for (int j = 0; j < MAX_NUM_ATTEMPTS; ++j) {
-                    bsls::AtomicInt isInvoked(0);
+                    bdlmtt::AtomicInt isInvoked = 0;
 
                     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                             bdlf::BindUtil::bindA( &ta
@@ -16509,7 +16046,7 @@ void TestDriver::testCase4()
                     }
                     LOOP2_ASSERT(i, j, -1 == mX.connect(peer, j + 1, TIMEOUT,
                                                         DATA[i].d_sourceId));
-                    bdlqq::ThreadUtil::sleep(TIMEOUT);
+                    bdlmtt::ThreadUtil::sleep(TIMEOUT);
                     LOOP2_ASSERT(i, j, 0 == isInvoked);
                 }
             }
@@ -16551,14 +16088,14 @@ void TestDriver::testCase3()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::DataReadCallback           dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
 
             ASSERT(0 == mX.start());
             ASSERT(1 == mX.numThreads());
 
-            bdlqq::ThreadUtil::microSleep(0, 5);
+            bdlmtt::ThreadUtil::microSleep(0, 5);
 
             ASSERT(0 == mX.stop());
         }
@@ -16613,7 +16150,7 @@ void TestDriver::testCase1()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::DataReadCallback           dataCb;
+            btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
 
@@ -16736,10 +16273,10 @@ static void negativeCase2()
         using namespace TEST_CASE_N2_NAMESPACE;
 
         bslma::TestAllocator ta;
-        btlmt::ChannelPool::DataReadCallback         dataCb;
+        btlmt::ChannelPool::BlobBasedReadCallback    dataCb;
         btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
 
-        bdlqq::Barrier channelBarrier(2);
+        bdlmtt::Barrier channelBarrier(2);
 
         btlmt::ChannelPool  *poolAddr;
         int                 poolEvent = -1;
@@ -16754,9 +16291,6 @@ static void negativeCase2()
                                         , &eventAddr
                                         , &channelBarrier
                                         , &channelId));
-
-        makeNull(&poolCb);
-        makeNull(&dataCb);
 
         btlmt::ChannelPoolConfiguration cpc;
         cpc.setMaxConnections(1024);
@@ -16805,7 +16339,7 @@ static void negativeCase2()
             }
             else {
                 cout << "Failed to connect to channelpool.  Abort.\n";
-                return;
+                return;                                               // RETURN
             }
             const int newNumBytes = ta.numBytesInUse();
             bsl::cout << "Channel " << i << ": "
@@ -16936,7 +16470,7 @@ int main(int argc, char **argv)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

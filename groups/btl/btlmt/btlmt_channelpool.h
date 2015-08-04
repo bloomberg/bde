@@ -40,12 +40,11 @@ BSLS_IDENT("$Id: $")
 // an alert is generated.
 //
 // The channel pool tries to achieve optimal performance by enabling zero-copy
-// semantics whenever appropriate.  On the read side, a message is read
-// into a buffer that is subsequently passed to the user (via the
-// 'DataReadCallback') for accessing and eventual deallocation.  On the write
-// side, the channel pool adopts ownership of the buffers passed to 'write()'.
-// Note that page-like allocation is used for the data buffers created by a
-// channel pool (see 'bdlmca_xxxpooledbufferchain').
+// semantics whenever appropriate.  On the read side, a message is read into a
+// buffer that is subsequently passed to the user (via the
+// 'BlobBasedReadCallback') for accessing and eventual deallocation.  On the
+// write side, the channel pool adopts ownership of the buffers passed to
+// 'write()'.
 //
 ///Channel Identification
 ///----------------------
@@ -77,10 +76,10 @@ BSLS_IDENT("$Id: $")
 // In particular, it is possible at the creation of the channel to specify what
 // the channel pool should do if only half of the channel is closed.  Passing
 // in the following optional parameter (of enumeration type
-// 'btlmt::ChannelPool::KeepHalfOpenMode') to 'close', 'import', or 'listen' has
-// the following behavior.
+// 'btlmt::ChannelPool::KeepHalfOpenMode') to 'close', 'import', or 'listen'
+// has the following behavior.
 //..
-//  BTEMT_KEEP_HALF_OPEN    If a peer closes its write part of the channel,
+//  e_KEEP_HALF_OPEN    If a peer closes its write part of the channel,
 //                          but keeps its receive part open, then the channel
 //                          pool will keep sending messages to the peer, but
 //                          will disable reading on the channel.
@@ -90,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //                          further calls to writeMessage on this channel will
 //                          fail.
 //
-//  BTEMT_CLOSE_BOTH        If a peer closes either its write or receive part
+//  e_CLOSE_BOTH        If a peer closes either its write or receive part
 //                          of the channel, the channel pool will simply shut
 //                          down the channel.  This is the default behavior.
 //..
@@ -184,22 +183,22 @@ BSLS_IDENT("$Id: $")
 // maximum data size (high-water mark) that can be enqueued for writing on a
 // channel.  If the write cache size exceeds this high-water mark value, then
 // 'write' calls on that channel will fail.  This information is also
-// communicated by providing a 'BTEMT_WRITE_CACHE_HIWAT' alert to the client
+// communicated by providing a 'e_WRITE_CACHE_HIWAT' alert to the client
 // via the channel state callback.  Note that 'write' calls can also fail if
 // the write cache size exceeds the optionally specified 'enqueueWatermark'
-// argument provided to 'write', but a 'BTEMT_WRITE_CACHE_HIWAT' alert is not
+// argument provided to 'write', but a 'e_WRITE_CACHE_HIWAT' alert is not
 // provided in this scenario.
 //
 // In addition to the high-water mark, users can also specify a low-water mark,
 // again via the 'setWriteCacheWatermarks' function of
 // 'btlmt::ChannelPoolConfiguration'.  After a write fails because the write
 // cache size would be exceeded, the channel pool will later provide a
-// 'BTEMT_WRITE_CACHE_LOWWAT' alert to the client via the channel state
+// 'e_WRITE_CACHE_LOWWAT' alert to the client via the channel state
 // callback when the write cache size falls to, or below, the low-water mark.
 // Typically, clients will suspend writing to a channel if the write cache
 // exceeds the high-water mark or the optionally provided 'enqueueWatermark',
 // and then resume writing after they receive a low-water mark event.  Note
-// that a 'BTEMT_WRITE_CACHE_LOWWAT' alert is also provided if the write cache
+// that a 'e_WRITE_CACHE_LOWWAT' alert is also provided if the write cache
 // size exceeds the optionally specified 'enqueueWatermark' argument provided
 // to 'write'.
 //
@@ -232,13 +231,13 @@ BSLS_IDENT("$Id: $")
 //                          btlmt::ChannelPool **poolAddr)
 //      {
 //          assert(sourceId == d_sourceId);
-//          if (btlmt::ChannelPool::BTEMT_CHANNEL_DOWN == status) {
+//          if (btlmt::ChannelPool::e_CHANNEL_DOWN == status) {
 //              // Client disconnected from the server.
 //              assert(poolAddr && *poolAddr);
 //              (*poolAddr)->shutdown(channelId,
-//                                    btlmt::ChannelPool::BTEMT_IMMEDIATE);
+//                                    btlmt::ChannelPool::e_IMMEDIATE);
 //          } else
-//          if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == status) {
+//          if (btlmt::ChannelPool::e_CHANNEL_UP == status) {
 //              // Connected to the server.
 //              // ...
 //          }
@@ -286,7 +285,7 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == pool.start());
 //      btlso::IPv4Address peer("127.0.0.1", 7); // echo server
 //      assert(0 == pool.connect(peer, 1, bsls::TimeInterval(10.0), 5));
-//      bdlqq::ThreadUtil::sleep(15000000); // Give enough time to connect.
+//      bdlmtt::ThreadUtil::sleep(15000000); // Give enough time to connect.
 //      return 0;
 //  }
 //..
@@ -314,10 +313,10 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //      // DATA
-//      btlmt::ChannelPoolConfiguration d_config;        // pool's configuration
+//      btlmt::ChannelPoolConfiguration d_config;        // pool's config
 //      btlmt::ChannelPool             *d_channelPool_p; // managed pool
-//      bslma::Allocator              *d_allocator_p;   // memory manager
-//      bdlqq::Mutex                   *d_coutLock_p;    // synchronize 'cout'
+//      bslma::Allocator              *d_allocator_p;    // memory manager
+//      bdlmtt::Mutex                   *d_coutLock_p;   // synchronize 'cout'
 //
 //    private:
 //      // Callback functions:
@@ -325,16 +324,16 @@ BSLS_IDENT("$Id: $")
 //          // Output a message to 'stdout' indicating the specified 'state'
 //          // associated with the specified 'source' has occurred, with the
 //          // specified 'severity'.  Note that 'state' is one of the
-//          // 'btlmt::PoolMsg' constants (see 'btlmt_message'), 'source'
-//          // identifies the channel pool operation associated with this state
-//          // (in this case, the 'SERVER_ID' passed to 'listen()' or 0 for
-//          // pool states with no associated source), and 'severity' is one
-//          // of the 'btlmt::ChannelPool::Severity' values.
+//          // 'PoolEvents' constants, 'source' identifies the channel pool
+//          // operation associated with this state (in this case, the
+//          // 'SERVER_ID' passed to 'listen()' or 0 for pool states with no
+//          // associated source), and 'severity' is one of the
+//          // 'btlmt::ChannelPool::Severity' values.
 //
 //      void channelStateCb(int channelId, int sourceId, int state, void *ctx);
 //          // Output a message to 'stdout' indicating the specified 'state',
 //          // associated with the specified 'channelId' and 'sourceId', has
-//          // occurred.  If 'state' is 'btlmt::ChannelPool::BTEMT_CHANNEL_DOWN'
+//          // occurred.  If 'state' is 'btlmt::ChannelPool::e_CHANNEL_DOWN'
 //          // then shutdown the channel.  Note that the 'channelId' is a
 //          // unique identifier chosen by the channel pool for each connection
 //          // channel, 'sourceId' identifies the channel pool operation
@@ -345,28 +344,26 @@ BSLS_IDENT("$Id: $")
 //          // (using 'setChannelContext()'), in this example we do not
 //          // specify a context, so the value will be 0.
 //
-//      void dataCb(int           *numConsumed,
-//                  int           *numNeeded,
-//                  btlmt::DataMsg  msg,
+//      void dataCb(int           *numNeeded,
+//                  bdlmca::Blob  *msg,
+//                  int            channelId
 //                  void          *context);
 //          // Echo the specified 'msg' to the client on the channel
-//          // identified by 'msg.channelId()' channel, load into the
-//          // specified 'numConsumed' the number of bytes processed from
-//          // 'msg', load into 'numNeeeded' the minimum length of
+//          // identified by 'channelId' channel, load into the
+//          // specified 'numNeeeded' the minimum length of
 //          // additional data that is needed to complete a message, and close
 //          // the communication channel.  Because this echo server is not
 //          // interested in a discrete messages in a particular message
-//          /// format, 'numConsumed' will always be set to the length of
-//          // 'msg', and 'numNeeded' will be set to 1 (indicating this
-//          // callback should be invoked again as soon as any new data is
-//          // read).
+//          // format, the entire message in 'msg' is read, and 'numNeeded'
+//          // will be set to 1 (indicating this callback should be invoked
+//          // again as soon as any new data is read).
 //
 //      // NOT IMPLEMENTED
 //      my_EchoServer(const my_EchoServer&);
 //      my_EchoServer& operator=(const my_EchoServer&);
 //
 //    public:
-//      my_EchoServer(bdlqq::Mutex      *coutLock,
+//      my_EchoServer(bdlmtt::Mutex      *coutLock,
 //                    int               portNumber,
 //                    int               numConnections,
 //                    bslma::Allocator *basicAllocator = 0);
@@ -390,7 +387,7 @@ BSLS_IDENT("$Id: $")
 // the channel pool is created, configured, and started.  The listening port
 // is established:
 //..
-//  my_EchoServer::my_EchoServer(bdlqq::Mutex      *coutLock,
+//  my_EchoServer::my_EchoServer(bdlmtt::Mutex      *coutLock,
 //                               int               portNumber,
 //                               int               numConnections,
 //                               bslma::Allocator *basicAllocator)
@@ -461,16 +458,16 @@ BSLS_IDENT("$Id: $")
 //      assert(SERVER_ID == sourceId);
 //
 //      switch(state) {
-//        case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+//        case btlmt::ChannelPool::e_CHANNEL_DOWN: {
 //            btlso::IPv4Address peer;
 //            d_channelPool_p->getPeerAddress(&peer, channelId);
 //            d_coutLock_p->lock();
 //            cout << "Client from " << peer << " has disconnected." << endl;
 //            d_coutLock_p->unlock();
 //            d_channelPool_p->shutdown(channelId,
-//                                      btlmt::ChannelPool::BTEMT_IMMEDIATE);
+//                                      btlmt::ChannelPool::e_IMMEDIATE);
 //        } break;
-//        case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+//        case btlmt::ChannelPool::e_CHANNEL_UP: {
 //            btlso::IPv4Address peer;
 //            d_channelPool_p->getPeerAddress(&peer, channelId);
 //            d_coutLock_p->lock();
@@ -480,22 +477,22 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  void my_EchoServer::dataCb(int           *numConsumed,
-//                             int           *numNeeded,
-//                             btlmt::DataMsg  msg,
-//                             void          *context)
+//  void my_EchoServer::dataCb(int          *numNeeded,
+//                             bdlmca::Blob *msg,
+//                             int           channelId,
+//                             void         *context)
 //  {
-//      assert(numConsumed);
-//      assert(msg.data());
-//      assert(0 < msg.data()->length());
+//      assert(msg);
+//      assert(0 < msg->length());
 //
-//      assert(0 == d_channelPool_p->write(msg.channelId(), msg));
+//      assert(0 == d_channelPool_p->write(channelId, *msg));
 //
-//      *numConsumed = msg.data()->length();
-//      *numNeeded   = 1;
+//      msg->removeAll();
+
+//      *numNeeded = 1;
 //
-//      d_channelPool_p->shutdown(msg.channelId(),
-//                                btlmt::ChannelPool::BTEMT_IMMEDIATE);
+//      d_channelPool_p->shutdown(channelId,
+//                                btlmt::ChannelPool::e_IMMEDIATE);
 //  }
 //..
 // The implementation of an echo server is now complete.  Let's create
@@ -504,7 +501,7 @@ BSLS_IDENT("$Id: $")
 // its busy metrics.  For simplicity, we will use the following function
 // for monitoring:
 //..
-//  static void monitorPool(bdlqq::Mutex              *coutLock,
+//  static void monitorPool(bdlmtt::Mutex              *coutLock,
 //                          const btlmt::ChannelPool&  pool,
 //                          int                       numTimes)
 //      // Every 10 seconds, output the percent busy of the specified channel
@@ -518,7 +515,7 @@ BSLS_IDENT("$Id: $")
 //          cout << "The pool is " << pool.busyMetrics() << "% busy ("
 //              << pool.numThreads() << " threads)." << endl;
 //          coutLock->unlock();
-//          bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));  // 10 seconds
+//          bdlmtt::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));  // 10 secs
 //      }
 //  }
 //..
@@ -530,7 +527,7 @@ BSLS_IDENT("$Id: $")
 //         , MAX_CONNECTIONS = 1000
 //         , NUM_MONITOR     = 50
 //       };
-//       bdlqq::Mutex coutLock;
+//       bdlmtt::Mutex coutLock;
 //       my_EchoServer echoServer(&coutLock, PORT_NUMBER, MAX_CONNECTIONS);
 //       monitorPool(&coutLock, echoServer.pool(), NUM_MONITOR);
 //       return 0;
@@ -574,14 +571,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectcatalog.h>
 #endif
 
-#ifndef INCLUDED_BDLCFXXX_VFUNC3
-#include <bdlcfxxx_vfunc3.h>        // @DEPRECATED
-#endif
-
-#ifndef INCLUDED_BDLCFXXX_VFUNC4
-#include <bdlcfxxx_vfunc4.h>        // @DEPRECATED
-#endif
-
 #ifndef INCLUDED_BDLMCA_BLOB
 #include <bdlmca_blob.h>
 #endif
@@ -594,24 +583,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_pooledblobbufferfactory.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_XXXPOOLEDBUFFERCHAIN
-#include <bdlmca_xxxpooledbufferchain.h>
+#ifndef INCLUDED_BDLMTT_MUTEX
+#include <bdlmtt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
-#endif
-
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
+#ifndef INCLUDED_BDLMTT_THREADUTIL
+#include <bdlmtt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -663,20 +640,21 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 // Used in name only
+
 namespace btlso { class IPv4Address; }
 namespace btlso { class SocketOptions; }
-namespace btlsc { class TimedCbChannel; }
-namespace btesc { class TimedCbChannelAllocator; }
 
 // Local classes
 
-namespace btlmt {class Channel;
+namespace btlmt {
+
+class Channel;
 class Connector;
 class ServerState;
 
-                       //========================
+                       //==================
                        // struct TimerState
-                       //========================
+                       //==================
 
 struct TimerState {
     // Provide a description of a scheduled timer event.  Note that a
@@ -690,25 +668,25 @@ struct TimerState {
     void                       *d_eventManagerId; // identifies the timer in
                                                   // 'd_eventManager_p'
 
-    TcpTimerEventManager *d_eventManager_p; // event manager the timer
+    TcpTimerEventManager       *d_eventManager_p; // event manager the timer
                                                   // is registered with
 
-    bsls::TimeInterval           d_absoluteTime;   // next scheduled occurrence
+    bsls::TimeInterval          d_absoluteTime;   // next scheduled occurrence
                                                   // (as an offset from the
                                                   // epoch time)
 
-    bsls::TimeInterval           d_period;         // if a positive value, the
+    bsls::TimeInterval          d_period;         // if a positive value, the
                                                   // periodic interval for
                                                   // the timer; otherwise it
                                                   // is a non-recurring timer
 
-    bdlf::Function<void (*)()>   d_callback;       // callback function to
+    bdlf::Function<void (*)()>  d_callback;       // callback function to
                                                   // invoke
 };
 
-                       //=========================
+                       //===================
                        // struct ChannelPool
-                       //=========================
+                       //===================
 
 class ChannelPool {
     // This class provides a channel pool, i.e., a mechanism by which
@@ -722,25 +700,21 @@ class ChannelPool {
     // messages through any of the channels (see the section "Outgoing
     // Messages") via the 'write' methods; the processing of incoming data to
     // any of the channels is done asynchronously through a data callback
-    // passed at construction of this pool.  An existing socket can be
-    // imported and this will create a channel enabled both for read and for
-    // write.  This channel pool can dispatch events to be executed at
-    // different times at recurring intervals (see the section "Clock
-    // management").    All this processing will be performed in a number of
-    // threads.  The channel pool can be started or stopped (see the section
-    // "Threads management").  Once started and until stopped, the channel pool
-    // dispatches incoming and outgoing connections, messages, and other
-    // channel functions to the processing threads.  Once stopped, the channel
-    // pool can be started again and the channels will resume their operations.
-    // This channel pool keeps a set of metrics (see the "Metrics" section).
-    // It can be configured at construction by passing a
-    // 'ChannelPoolConfiguration' object.
+    // passed at construction of this pool.  An existing socket can be imported
+    // and this will create a channel enabled both for read and for write.
+    // This channel pool can dispatch events to be executed at different times
+    // at recurring intervals (see the section "Clock management").  All this
+    // processing will be performed in a number of threads.  The channel pool
+    // can be started or stopped (see the section "Threads management").  Once
+    // started and until stopped, the channel pool dispatches incoming and
+    // outgoing connections, messages, and other channel functions to the
+    // processing threads.  Once stopped, the channel pool can be started again
+    // and the channels will resume their operations.  This channel pool keeps
+    // a set of metrics (see the "Metrics" section).  It can be configured at
+    // construction by passing a 'ChannelPoolConfiguration' object.
 
   public:
     // TYPES
-    typedef bdlcfxxx::Vfunc4<int, int, int, void*> ChannelStateCallback;
-        // @DEPRECATED - use 'ChannelStateChangeCallback'
-
     typedef bdlf::Function<void (*)(int, int, int, void*)>
                                                     ChannelStateChangeCallback;
         // The callback of this type is invoked whenever a channel's state
@@ -753,10 +727,10 @@ class ChannelPool {
         // 'connect()').  The third argument is the new state of this channel
         // (can be any one of the 'ChannelEvents' enumerations).  The fourth
         // and last parameter is passed the user-specified (via
-        // 'setChannelContext') channel context or '(void*)0' if no context
-        // was specified.  Users MUST handle the 'BTEMT_CHANNEL_DOWN' event,
-        // minimally by calling 'shutdown' on the channel ID.  The prototype
-        // for a channel state callback might look like:
+        // 'setChannelContext') channel context or '(void*)0' if no context was
+        // specified.  Users MUST handle the 'e_CHANNEL_DOWN' event, minimally
+        // by calling 'shutdown' on the channel ID.  The prototype for a
+        // channel state callback might look like:
         //..
         //  void channelStateCallback(int   channelId,
         //                            int   sourceId,
@@ -764,45 +738,15 @@ class ChannelPool {
         //                            void *context);
         //..
 
-    typedef bdlcfxxx::Vfunc4<int *, int *, DataMsg, void*> DataCallback;
-        // @DEPRECATED - use 'DataReadCallback'
-
-    typedef bdlf::Function<void (*)(int *, int *, const DataMsg&, void*)>
-                                                              DataReadCallback;
-        // The callback of this type is invoked every time data is read from a
-        // channel.  The third argument to this callback is passed the data
-        // read from the channel (including the channel ID, found using
-        // 'DataMsg::channelId()').  The fourth and last parameter is
-        // passed the user-specified channel context (set using
-        // 'setChannelContext()') or '(void*)0' if no context was specified.
-        // The callback, when invoked, must indicate the length of consumed
-        // data by storing it into the first argument of the callback.  It
-        // should store into the second argument the minimum length of
-        // additional data that is needed to complete a message.  The
-        // channel will cache the remaining data (that was not consumed) and
-        // deliver it on the next invocation of this callback.  If there is
-        // not enough data for a single message for a particular protocol, 0
-        // must be stored into the first argument.  If at least one byte is
-        // consumed, the user takes the ownership of the message; the channel
-        // will use message's buffer only for the copying out the remaining
-        // (un-consumed) bytes.  The prototype for a data callback might look
-        // like:
-        //..
-        //  void dataCallback(int           *numConsumed,
-        //                    int           *numNeeded,
-        //                    DataMsg  message,
-        //                    void          *context);
-        //..
-
     typedef bdlf::Function<void (*)(int *, bdlmca::Blob *, int, void *)>
                                                          BlobBasedReadCallback;
         // The callback of this type is invoked every time there is a
         // sufficiently large amount of data read from a channel.  The second
         // argument to this callback is passed the data read from the channel
-        // in the form of a modifiable 'bdlmca::Blob'.  The channel pool expects
-        // that clients take ownership of some of the data in the passed
-        // 'bdlmca::Blob' and readjust the 'bdlmca::Blob' accordingly.  The
-        // third argument specifies the channel ID.  The fourth and last
+        // in the form of a modifiable 'bdlmca::Blob'.  The channel pool
+        // expects that clients take ownership of some of the data in the
+        // passed 'bdlmca::Blob' and readjust the 'bdlmca::Blob' accordingly.
+        // The third argument specifies the channel ID.  The fourth and last
         // parameter is passed the user-specified channel context (set using
         // 'setChannelContext()') or '(void *)0' if no context was specified.
         // The callback, when invoked, must store into the first argument the
@@ -811,23 +755,20 @@ class ChannelPool {
         // particular protocol, 0 must be stored into the first argument.  The
         // prototype for a data callback might look like:
         //..
-        //  void blobDataCallback(int        *numNeeded,
+        //  void blobDataCallback(int          *numNeeded,
         //                        bdlmca::Blob *message,
-        //                        int         channelId,
-        //                        void       *context);
+        //                        int           channelId,
+        //                        void         *context);
         //..
-
-    typedef bdlcfxxx::Vfunc3<int, int, int> PoolStateCallback;
-        // @DEPRECATED - use 'PoolStateChangeCallback'
 
     typedef bdlf::Function<void (*)(int, int, int)> PoolStateChangeCallback;
         // The callback of this type is invoked whenever a change affecting the
         // pool occurs.  The first parameter indicates the type of event which
-        // triggered the callback (i.e., one of the 'PoolMsg::PoolState'
-        // enumerations).  The second parameter indicates the source of the
-        // event (e.g., the 'serverId' passed to 'listen()' or the 'sourceId'
-        // passed to 'connect()'), or is 0 if there is no associated source
-        // (e.g. a 'CHANNEL_LIMIT' alert).  The third parameter indicates the
+        // triggered the callback (i.e., one of the 'PoolEvents' enumerations).
+        // The second parameter indicates the source of the event (e.g., the
+        // 'serverId' passed to 'listen()' or the 'sourceId' passed to
+        // 'connect()'), or is 0 if there is no associated source (e.g. a
+        // 'e_CHANNEL_LIMIT' alert).  The third parameter indicates the
         // severity of the event (must be one of the 'Severity' enumerations).
         // The prototype of a pool state callback might look like:
         //..
@@ -839,30 +780,71 @@ class ChannelPool {
         // the third argument to 'ChannelCallback' to discriminate between
         // various changes in the state of a channel.
 
-        BTEMT_CHANNEL_DOWN         = 0,
-        BTEMT_CHANNEL_UP           = 1,
-        BTEMT_READ_TIMEOUT         = 2,
-        BTEMT_WRITE_BUFFER_FULL    = 3,
-        BTEMT_MESSAGE_DISCARDED    = 4,
-        BTEMT_AUTO_READ_ENABLED    = 5,
-        BTEMT_AUTO_READ_DISABLED   = 6,
-        BTEMT_WRITE_CACHE_LOWWAT   = 7,          // write cache low-water mark
-        BTEMT_WRITE_CACHE_HIWAT    = BTEMT_WRITE_BUFFER_FULL,
-                                                 // write cache high-water mark
-        BTEMT_CHANNEL_DOWN_READ    = 8,
-        BTEMT_CHANNEL_DOWN_WRITE   = 9
+        e_CHANNEL_DOWN         = 0,
+        e_CHANNEL_UP           = 1,
+        e_READ_TIMEOUT         = 2,
+        e_WRITE_BUFFER_FULL    = 3,
+        e_MESSAGE_DISCARDED    = 4,
+        e_AUTO_READ_ENABLED    = 5,
+        e_AUTO_READ_DISABLED   = 6,
+        e_WRITE_CACHE_LOWWAT   = 7,
+        e_WRITE_CACHE_HIWAT    = e_WRITE_BUFFER_FULL,
+        e_CHANNEL_DOWN_READ    = 8,
+        e_CHANNEL_DOWN_WRITE   = 9
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , CHANNEL_DOWN       = BTEMT_CHANNEL_DOWN
-      , CHANNEL_UP         = BTEMT_CHANNEL_UP
-      , READ_TIMEOUT       = BTEMT_READ_TIMEOUT
-      , WRITE_BUFFER_FULL  = BTEMT_WRITE_BUFFER_FULL
-      , MESSAGE_DISCARDED  = BTEMT_MESSAGE_DISCARDED
-      , AUTO_READ_ENABLED  = BTEMT_AUTO_READ_ENABLED
-      , AUTO_READ_DISABLED = BTEMT_AUTO_READ_DISABLED
-      , WRITE_CACHE_LOWWAT = BTEMT_WRITE_CACHE_LOWWAT
-      , WRITE_CACHE_HIWAT  = BTEMT_WRITE_CACHE_HIWAT
-      , CHANNEL_DOWN_READ  = BTEMT_CHANNEL_DOWN_READ
-      , CHANNEL_DOWN_WRITE = BTEMT_CHANNEL_DOWN_WRITE
+      , CHANNEL_DOWN       = e_CHANNEL_DOWN
+      , CHANNEL_UP         = e_CHANNEL_UP
+      , READ_TIMEOUT       = e_READ_TIMEOUT
+      , WRITE_BUFFER_FULL  = e_WRITE_BUFFER_FULL
+      , MESSAGE_DISCARDED  = e_MESSAGE_DISCARDED
+      , AUTO_READ_ENABLED  = e_AUTO_READ_ENABLED
+      , AUTO_READ_DISABLED = e_AUTO_READ_DISABLED
+      , WRITE_CACHE_LOWWAT = e_WRITE_CACHE_LOWWAT
+      , WRITE_CACHE_HIWAT  = e_WRITE_CACHE_HIWAT
+      , CHANNEL_DOWN_READ  = e_CHANNEL_DOWN_READ
+      , CHANNEL_DOWN_WRITE = e_CHANNEL_DOWN_WRITE
+
+      , BTEMT_CHANNEL_DOWN         = e_CHANNEL_DOWN
+      , BTEMT_CHANNEL_UP           = e_CHANNEL_UP
+      , BTEMT_READ_TIMEOUT         = e_READ_TIMEOUT
+      , BTEMT_WRITE_BUFFER_FULL    = e_WRITE_BUFFER_FULL
+      , BTEMT_MESSAGE_DISCARDED    = e_MESSAGE_DISCARDED
+      , BTEMT_AUTO_READ_ENABLED    = e_AUTO_READ_ENABLED
+      , BTEMT_AUTO_READ_DISABLED   = e_AUTO_READ_DISABLED
+      , BTEMT_WRITE_CACHE_LOWWAT   = e_WRITE_CACHE_LOWWAT
+      , BTEMT_WRITE_CACHE_HIWAT    = e_WRITE_CACHE_HIWAT
+      , BTEMT_CHANNEL_DOWN_READ    = e_CHANNEL_DOWN_READ
+      , BTEMT_CHANNEL_DOWN_WRITE   = e_CHANNEL_DOWN_WRITE
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+    };
+
+    enum PoolEvents {
+        e_ACCEPT_TIMEOUT = 0,           // timed out accepting a connection
+        e_ERROR_ACCEPTING,              // error accepting a connection
+        e_ERROR_CONNECTING,             // error connecting to the peer
+        e_CHANNEL_LIMIT,                // channel limit reached
+        e_CAPACITY_LIMIT,               // capacity limit reached
+        e_ERROR_BINDING_CLIENT_ADDR,    // error binding client address
+        e_ERROR_SETTING_OPTIONS,        // error setting socket options
+        e_EVENT_MANAGER_LIMIT           // event manager limit reached
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ACCEPT_TIMEOUT   = e_ACCEPT_TIMEOUT
+      , ERROR_ACCEPTING  = e_ERROR_ACCEPTING
+      , ERROR_CONNECTING = e_ERROR_CONNECTING
+      , CHANNEL_LIMIT    = e_CHANNEL_LIMIT
+      , CAPACITY_LIMIT   = e_CAPACITY_LIMIT
+
+      , BTEMT_ACCEPT_TIMEOUT            = e_ACCEPT_TIMEOUT
+      , BTEMT_ERROR_ACCEPTING           = e_ERROR_ACCEPTING
+      , BTEMT_ERROR_CONNECTING          = e_ERROR_CONNECTING
+      , BTEMT_CHANNEL_LIMIT             = e_CHANNEL_LIMIT
+      , BTEMT_CAPACITY_LIMIT            = e_CAPACITY_LIMIT
+      , BTEMT_ERROR_BINDING_CLIENT_ADDR = e_ERROR_BINDING_CLIENT_ADDR
+      , BTEMT_ERROR_SETTING_OPTIONS     = e_ERROR_SETTING_OPTIONS
+      , BTEMT_EVENT_MANAGER_LIMIT       = e_EVENT_MANAGER_LIMIT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -870,14 +852,18 @@ class ChannelPool {
         // Mode indicating whether to perform name resolution at each connect
         // attempt in 'connect'.
 
-        BTEMT_RESOLVE_ONCE            = 0,  // perform resolution once prior
-                                            // to the first connect attempt
+        e_RESOLVE_ONCE            = 0,  // perform resolution once prior
+                                        // to the first connect attempt
 
-        BTEMT_RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
-                                            // connect attempt
+        e_RESOLVE_AT_EACH_ATTEMPT = 1   // perform resolution prior to each
+                                        // connect attempt
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , RESOLVE_ONCE            = BTEMT_RESOLVE_ONCE
-      , RESOLVE_AT_EACH_ATTEMPT = BTEMT_RESOLVE_AT_EACH_ATTEMPT
+      , RESOLVE_ONCE            = e_RESOLVE_ONCE
+      , RESOLVE_AT_EACH_ATTEMPT = e_RESOLVE_AT_EACH_ATTEMPT
+
+      , BTEMT_RESOLVE_ONCE            = e_RESOLVE_ONCE
+      , BTEMT_RESOLVE_AT_EACH_ATTEMPT = e_RESOLVE_AT_EACH_ATTEMPT
+
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -885,39 +871,47 @@ class ChannelPool {
         // Mode affecting how half-open connections are handled by a server or
         // a client channel, passed to 'connect', 'import' or 'listen'.
 
-        BTEMT_CLOSE_BOTH         = 0,  // close whole channel if half-open
-                                       // connection
+        e_CLOSE_BOTH         = 0,  // close whole channel if half-open
+                                   // connection
 
-        BTEMT_KEEP_HALF_OPEN     = 1   // keep either part alive, if the other
-                                       // half senses a closed connection by
-                                       // the peer
+        e_KEEP_HALF_OPEN     = 1   // keep either part alive, if the other
+                                   // half senses a closed connection by
+                                   // the peer
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , CLOSE_BOTH     = BTEMT_CLOSE_BOTH
-      , KEEP_HALF_OPEN = BTEMT_KEEP_HALF_OPEN
+      , CLOSE_BOTH     = e_CLOSE_BOTH
+      , KEEP_HALF_OPEN = e_KEEP_HALF_OPEN
+
+      , BTEMT_CLOSE_BOTH     = e_CLOSE_BOTH
+      , BTEMT_KEEP_HALF_OPEN = e_KEEP_HALF_OPEN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum ShutdownMode {
         // Mode affecting how channel is terminated, passed to 'shutdown'.
 
-        BTEMT_IMMEDIATE = 0  // The channel is terminated immediately, all
+        e_IMMEDIATE = 0  // The channel is terminated immediately, all
                              // pending messages are discarded.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , IMMEDIATE = BTEMT_IMMEDIATE
+      , IMMEDIATE = e_IMMEDIATE
+
+      , BTEMT_IMMEDIATE = e_IMMEDIATE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum Severity {
         // This enumeration provides names for different levels of severity.
 
-        BTEMT_CRITICAL  = 0, // A critical condition occurred and the channel
+        e_CRITICAL  = 0, // A critical condition occurred and the channel
                              // pool is unable to operate normally.
 
-        BTEMT_ALERT     = 1  // An alerting condition occurred and the channel
+        e_ALERT     = 1  // An alerting condition occurred and the channel
                              // pool can operate normally.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , CRITICAL = BTEMT_CRITICAL
-      , ALERT    = BTEMT_ALERT
+      , CRITICAL = e_CRITICAL
+      , ALERT    = e_ALERT
+
+      , BTEMT_CRITICAL  = e_CRITICAL
+      , BTEMT_ALERT     = e_ALERT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -932,19 +926,19 @@ class ChannelPool {
         // yet have a channel ID, in which case -1 is used for 'd_channelId'
         // and for 'd_userId' instead.
 
-        btlso::SocketHandle::Handle  d_handle;       // socket handle (file
+        btlso::SocketHandle::Handle d_handle;       // socket handle (file
                                                     // descriptor)
 
-        ChannelType::Value    d_channelType;  // indicates how the
+        ChannelType::Value          d_channelType;  // indicates how the
                                                     // channel was created
 
         int                         d_channelId;    // channel using this
                                                     // file descriptor
 
-        bsls::TimeInterval           d_creationTime; // when was this channel
+        bsls::TimeInterval          d_creationTime; // when was this channel
                                                     // created
 
-        bdlqq::ThreadUtil::Handle    d_threadHandle; // manager's dispatcher
+        bdlmtt::ThreadUtil::Handle  d_threadHandle; // manager's dispatcher
                                                     // thread
 
         int                         d_userId;       // 'serverId' or 'sourceId'
@@ -957,36 +951,34 @@ class ChannelPool {
 
     // INSTANCE DATA
                                         // *** Transport-related state ***
-    bdlcc::ObjectCatalog<ChannelHandle>   d_channels;
+    bdlcc::ObjectCatalog<ChannelHandle> d_channels;
 
-    bsl::vector<TcpTimerEventManager *>
-                                        d_managers;
+    bsl::vector<TcpTimerEventManager *> d_managers;
 
-    mutable bdlqq::Mutex                 d_managersStateChangeLock;
+    mutable bdlmtt::Mutex               d_managersStateChangeLock;
                                                     // mutex to synchronize
                                                     // changing the state of
                                                     // the event managers
 
-    bsl::map<int, Connector>      d_connectors;
-    mutable bdlqq::Mutex                 d_connectorsLock;
+    bsl::map<int, Connector>            d_connectors;
+    mutable bdlmtt::Mutex               d_connectorsLock;
 
     bsl::map<int, ServerHandle>         d_acceptors;
-    mutable bdlqq::Mutex                 d_acceptorsLock;
+    mutable bdlmtt::Mutex               d_acceptorsLock;
 
-    bdlma::ConcurrentPoolAllocator                 d_sharedPtrRepAllocator;
-    bdlmca::PooledBufferChainFactory      d_messageFactory;
-    bdlmca::PooledBufferChainFactory      d_vecMessageFactory;
-    bslma::ManagedPtr<bdlmca::BlobBufferFactory> 
+    bdlma::ConcurrentPoolAllocator      d_sharedPtrRepAllocator;
+    bslma::ManagedPtr<bdlmca::BlobBufferFactory>
                                         d_writeBlobFactory;
-    bslma::ManagedPtr<bdlmca::BlobBufferFactory> 
+    bslma::ManagedPtr<bdlmca::BlobBufferFactory>
                                         d_readBlobFactory;
 
-    bdlqq::Mutex                         d_timersLock;
-    bsl::map<int, TimerState>     d_timers;
+    bdlmtt::Mutex                       d_timersLock;
+    bsl::map<int, TimerState>           d_timers;
 
                                         // *** Parameters ***
-    ChannelPoolConfiguration      d_config;
-    bsls::AtomicOperations::AtomicTypes::Int                d_capacity;
+
+    ChannelPoolConfiguration            d_config;
+    bdlmtt::AtomicUtil::Int             d_capacity;
     int                                 d_startFlag;
     bool                                d_collectTimeMetrics;
                                                // whether to collect time
@@ -994,16 +986,14 @@ class ChannelPool {
 
                                         // *** Capacity monitoring ***
     bdlb::NullableValue<void *>         d_metricsTimerId;
-    bdlf::Function<void (*)()>           d_metricsFunctor;
+    bdlf::Function<void (*)()>          d_metricsFunctor;
     ChannelStateChangeCallback          d_channelStateCb;
     PoolStateChangeCallback             d_poolStateCb;
-    DataReadCallback                    d_pooledBufferChainBasedReadCb;
     BlobBasedReadCallback               d_blobBasedReadCb;
-    bool                                d_useBlobForDataReads;
 
                                         // *** Metrics ***
-    bsls::AtomicInt                      d_totalConnectionsLifetime;
-    bsls::TimeInterval                   d_lastResetTime;
+    bdlmtt::AtomicInt                   d_totalConnectionsLifetime;
+    bsls::TimeInterval                  d_lastResetTime;
     volatile bsls::Types::Int64         d_totalBytesReadAdjustment;
                                                // adjustment to
                                                // the sum of individual
@@ -1028,7 +1018,7 @@ class ChannelPool {
                                                // channels and calls to
                                                // reset
 
-    mutable bdlqq::Mutex                 d_metricAdjustmentMutex;
+    mutable bdlmtt::Mutex               d_metricAdjustmentMutex;
                                                // synchronize operations on
                                                // two metric adjustment values
 
@@ -1036,7 +1026,7 @@ class ChannelPool {
     btlso::InetStreamSocketFactory<btlso::IPv4Address>
                                         d_factory;
 
-    bdlma::ConcurrentPool                          d_pool;        // for Channel
+    bdlma::ConcurrentPool               d_pool;        // for Channel
                                                        // (owned)
 
     bslma::Allocator                   *d_allocator_p; // (held, not owned)
@@ -1066,15 +1056,14 @@ class ChannelPool {
         // 'it->first'.  All other information (e.g., listening socket and
         // event manager) is held in the server state 'it->second'.
 
-    void acceptRetryCb(int serverID, ServerHandle server);
+    void acceptRetryCb(int serverId, ServerHandle server);
         // Re-register listening socket for the server whose ID is 'serverId'
         // to match 'ACCEPT' events (and invoke callback 'acceptCb' on such
         // events).  This callback is called after no resources were available
         // to accept a connection, and the socket was subsequently
         // deregistered.  This callback is scheduled in an exponential backoff
         // sequence fashion.  The exponential series is reset once a call to
-        // 'accept' stops returning
-        // 'btlso::SocketHandle::BTESO_ERROR_NORESOURCES'.
+        // 'accept' stops returning 'btlso::SocketHandle::e_ERROR_NORESOURCES'.
 
     void acceptTimeoutCb(int serverId, ServerHandle server);
         // Issue a pool callback with 'ACCEPT_TIMEOUT' and re-schedule this
@@ -1085,17 +1074,17 @@ class ChannelPool {
         // callback.
 
     int listen(const btlso::IPv4Address&   endpoint,
-               int                        backlog,
-               int                        serverId,
-               int                        reuseAddress,
-               bool                       readEnabledFlag,
-               KeepHalfOpenMode           mode,
-               bool                       isTimedFlag,
+               int                         backlog,
+               int                         serverId,
+               int                         reuseAddress,
+               bool                        readEnabledFlag,
+               KeepHalfOpenMode            mode,
+               bool                        isTimedFlag,
                const bsls::TimeInterval&   timeout = bsls::TimeInterval(),
                const btlso::SocketOptions *socketOptions = 0);
         // Establish a listening socket having the specified 'backlog' maximum
         // number of pending connections on the specified 'endpoint' and the
-        // specified 'reuseAddress' used in setting 'REUSEADDRESS' socket
+        // specified 'reuseAddress' used in setting 'e_REUSEADDRESS' socket
         // option, and associate this newly established socket with the
         // specified 'serverId'.  If the specified 'readEnabledFlag' is
         // non-zero, any channel created by 'acceptCb' will be enabled for read
@@ -1109,7 +1098,7 @@ class ChannelPool {
         // 0 on success, a positive value if there is a listening socket
         // associated with 'serverId' (i.e., 'serverId' is not unique) and a
         // negative value if an error occurred.  The behavior is undefined
-        // unless 0 < 'backlog'.
+        // unless '0 < backlog'.
 
                                   // *** Client part ***
     void connectCb(bsl::map<int,Connector>::iterator it);
@@ -1122,7 +1111,7 @@ class ChannelPool {
 
     void connectEventCb(bsl::map<int,Connector>::iterator it);
         // Check the connection status of the connection socket upon call back
-        // from the socket event 'btlso::EventType::BTESO_CONNECT'.  If the
+        // from the socket event 'btlso::EventType::e_CONNECT'.  If the
         // connection is valid then call 'connectCb', otherwise this socket
         // timed out and we must close it, reopen another socket, and
         // re-attempt a connection.  All other information (e.g., connection
@@ -1134,8 +1123,8 @@ class ChannelPool {
         // and upon success proceed to 'connectCb'.  Otherwise, register
         // 'connectEventCb' for when this connection is established or times
         // out, or upon failure, invoke a pool state callback with
-        // 'ERROR_CONNECTING', clientId given by the specified 'it->first', and
-        // severity 'BTEMT_ALERT'.  All other information (e.g., connection
+        // 'e_ERROR_CONNECTING', clientId given by the specified 'it->first',
+        // and severity 'e_ALERT'.  All other information (e.g., connection
         // socket and event manager) is held in the connector state
         // 'it->second'.
 
@@ -1150,13 +1139,13 @@ class ChannelPool {
         // 'connectInitiateCb'.
 
     int connectImp(const btlso::IPv4Address&   serverAddress,
-                   int                        numAttempts,
+                   int                         numAttempts,
                    const bsls::TimeInterval&   interval,
-                   int                        sourceId,
+                   int                         sourceId,
                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                             *socket,
-                   bool                       readEnabledFlag,
-                   KeepHalfOpenMode           mode,
+                                              *socket,
+                   bool                        readEnabledFlag,
+                   KeepHalfOpenMode            mode,
                    const btlso::SocketOptions *socketOptions,
                    const btlso::IPv4Address   *localAddress);
         // Asynchronously issue up to the specified 'numAttempts' connection
@@ -1166,10 +1155,10 @@ class ChannelPool {
         // or the connection attempts are abandoned (if 'numAttempts' is
         // reached).  When the connection is established, an internal channel
         // is created and a channel state callback, with the event
-        // 'BTEMT_CHANNEL_UP', the newly created channel ID, and the specified
+        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
         // 'sourceId' is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'ERROR_CONNECTING',
-        // 'CHANNEL_LIMIT', or 'CAPACITY_LIMIT'), a pool state callback is
+        // reached, or in case other events occur (e.g., 'e_ERROR_CONNECTING',
+        // 'e_CHANNEL_LIMIT', or 'e_CAPACITY_LIMIT'), a pool state callback is
         // invoked with the event type, 'sourceId' and a severity.  Use the
         // specified 'readEnabledFlag' to indicate whether automatic reading
         // should be enabled on this channel immediately after creation and the
@@ -1190,16 +1179,16 @@ class ChannelPool {
         // '0 < numAttempts', '0 < interval || 1 == numAttempts', and
         // '0 == socketOptions || (0 == socket && 0 == localAddress)'.
 
-    int connectImp(const char                *hostname,
-                   int                        portNumber,
-                   int                        numAttempts,
+    int connectImp(const char                 *hostname,
+                   int                         portNumber,
+                   int                         numAttempts,
                    const bsls::TimeInterval&   interval,
-                   int                        sourceId,
+                   int                         sourceId,
                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                             *socket,
-                   ConnectResolutionMode      resolutionMode,
-                   bool                       readEnabledFlag,
-                   KeepHalfOpenMode           halfCloseMode,
+                                              *socket,
+                   ConnectResolutionMode       resolutionMode,
+                   bool                        readEnabledFlag,
+                   KeepHalfOpenMode            halfCloseMode,
                    const btlso::SocketOptions *socketOptions,
                    const btlso::IPv4Address   *localAddress);
         // Asynchronously issue up to the specified 'numAttempts' connection
@@ -1210,15 +1199,15 @@ class ChannelPool {
         // or the connection attempts are abandoned (if 'numAttempts' is
         // reached).  When the connection is established, an internal channel
         // is created and a channel state callback, with the event
-        // 'BTEMT_CHANNEL_UP', the newly created channel ID, and the specified
+        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
         // 'sourceId', is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'ERROR_CONNECTING',
-        // 'CHANNEL_LIMIT', or 'CAPACITY_LIMIT'), a pool state callback is
+        // reached, or in case other events occur (e.g., 'e_ERROR_CONNECTING',
+        // 'e_CHANNEL_LIMIT', or 'e_CAPACITY_LIMIT'), a pool state callback is
         // invoked with the event type, 'sourceId' and a severity.  Use the
         // specified 'resolutionMode' to indicate whether the name resolution
-        // is performaed once (if 'resolutionMode' is 'BTEMT_RESOLVE_ONCE'), or
+        // is performaed once (if 'resolutionMode' is 'e_RESOLVE_ONCE'), or
         // performed anew prior to each attempt (if 'resolutionMode' is
-        // 'BTEMT_RESOLVE_AT_EACH_ATTEMPT'), the specified 'readEnabledFlag' to
+        // 'e_RESOLVE_AT_EACH_ATTEMPT'), the specified 'readEnabledFlag' to
         // indicate whether automatic reading should be enabled on this channel
         // immediately after creationo, and the specified 'halfCloseMode' in
         // case the channel created for this connection is half-closed.
@@ -1239,23 +1228,22 @@ class ChannelPool {
         // '0 == socketOptions || (0 == socket && 0 == localAddress)'
 
                                   // *** Channel management part ***
-    void importCb(
-                btlso::StreamSocket<btlso::IPv4Address>        *socket,
-                const bslma::ManagedPtrDeleter&               deleter,
-                TcpTimerEventManager                   *manager,
-                TcpTimerEventManager                   *srcManager,
-                int                                           sourceId,
-                bool                                          readEnabledFlag,
-                bool                                          mode,
-                bool                                          imported);
+    void importCb(btlso::StreamSocket<btlso::IPv4Address> *socket,
+                  const bslma::ManagedPtrDeleter&          deleter,
+                  TcpTimerEventManager                    *manager,
+                  TcpTimerEventManager                    *srcManager,
+                  int                                      sourceId,
+                  bool                                     readEnabledFlag,
+                  bool                                     mode,
+                  bool                                     imported);
         // Add a newly allocated channel to the set of channels managed by this
         // channel pool and invoke the channel pool callback in the specified
         // 'manager'.  Upon destruction, 'socket' will be destroyed via the
         // specified 'factory'.  Note that this method is executed whenever a
-        // connection is imported on the 'socket' corresponding to
-        // 'sourceId'.  In addition, it is invoked by 'connectCb' to create a
-        // newly allocated channel once the socket connection is established.
-        // This function should be executed in the dispatcher thread of the
+        // connection is imported on the 'socket' corresponding to 'sourceId'.
+        // In addition, it is invoked by 'connectCb' to create a newly
+        // allocated channel once the socket connection is established.  This
+        // function should be executed in the dispatcher thread of the
         // specified 'srcManager'.
 
                                   // *** Clock management ***
@@ -1285,95 +1273,29 @@ class ChannelPool {
 
   public:
     // CREATORS
-    ChannelPool(
-           ChannelStateCallback                   channelStateCb,
-           DataCallback                           pooledBufferChainBasedReadCb,
-           PoolStateCallback                      poolStateCb,
-           const ChannelPoolConfiguration&  parameters,
-           bslma::Allocator                      *basicAllocator = 0);
-        // Create a channel pool with the specified 'channelStateCb',
-        // 'pooledBufferChainBasedReadCb' and 'poolStateCb' callbacks to be
-        // invoked, correspondingly, when a channel state changes, data
-        // arrives, or pool state changes.  The channel pool is configured
-        // using the specified configuration 'parameters'.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 
-        // 0, the currently installed default allocator is used.
-        //
-        // The exact description of the argument to the callbacks
-        // are given in the type definitions of the
-        // 'ChannelStateChangeCallback', 'DataReadCallback', and
-        // 'PoolStateChangeCallback'.
-        //
-        // @DEPRECATED - use the constructor that uses
-        // 'ChannelStateChangeCallback' and 'PoolStateChangeCallback'.
-
-    ChannelPool(
-           ChannelStateChangeCallback             channelStateCb,
-           DataReadCallback                       pooledBufferChainBasedReadCb,
-           PoolStateChangeCallback                poolStateCb,
-           const ChannelPoolConfiguration&  parameters,
-           bslma::Allocator                      *basicAllocator = 0);
-        // Create a channel pool with the specified 'channelStateCb',
-        // 'pooledBufferChainBasedReadCb' and 'poolStateCb' callbacks to be
-        // invoked, correspondingly, when a channel state changes, data
-        // arrives, or pool state changes.  The channel pool is configured
-        // using the specified configuration 'parameters'.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 
-        // 0, the currently installed default allocator is used.
-        //
-        // The exact description of the argument to the callbacks
-        // are given in the type definitions of the
-        // 'ChannelStateChangeCallback', 'DataReadCallback', and
-        // 'PoolStateChangeCallback'.
-
-    ChannelPool(
-            ChannelStateCallback                   channelStateCb,
-            BlobBasedReadCallback                  blobBasedReadCb,
-            PoolStateCallback                      poolStateCb,
-            const ChannelPoolConfiguration&  parameters,
-            bslma::Allocator                      *basicAllocator = 0);
+    ChannelPool(ChannelStateChangeCallback       channelStateCb,
+                BlobBasedReadCallback            blobBasedReadCb,
+                PoolStateChangeCallback          poolStateCb,
+                const ChannelPoolConfiguration&  parameters,
+                bslma::Allocator                *basicAllocator = 0);
         // Create a channel pool with the specified 'channelStateCb',
         // 'blobBasedReadCb' and 'poolStateCb' callbacks to be invoked,
-        // correspondingly, when a channel state changes, data arrives, or
-        // pool state changes.  The channel pool is configured using the
-        // specified configuration 'parameters'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0, 
-        // the currently installed default allocator is used.
+        // correspondingly, when a channel state changes, data arrives, or pool
+        // state changes.  The channel pool is configured using the specified
+        // configuration 'parameters'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
         //
-        // The exact description of the argument to the callbacks
-        // are given in the type definitions of the
-        // 'ChannelStateChangeCallback', 'BlobBasedReadCallback', and
-        // 'PoolStateChangeCallback'.
-        //
-        // @DEPRECATED - use the constructor that uses
-        // 'ChannelStateChangeCallback' and 'PoolStateChangeCallback'.
+        // The exact description of the argument to the callbacks are given in
+        // the type definitions of the 'ChannelStateChangeCallback',
+        // 'BlobBasedReadCallback', and 'PoolStateChangeCallback'.
 
-    ChannelPool(
-            ChannelStateChangeCallback             channelStateCb,
-            BlobBasedReadCallback                  blobBasedReadCb,
-            PoolStateChangeCallback                poolStateCb,
-            const ChannelPoolConfiguration&  parameters,
-            bslma::Allocator                      *basicAllocator = 0);
-        // Create a channel pool with the specified 'channelStateCb',
-        // 'blobBasedReadCb' and 'poolStateCb' callbacks to be invoked,
-        // correspondingly, when a channel state changes, data arrives, or
-        // pool state changes.  The channel pool is configured using the
-        // specified configuration 'parameters'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0, 
-        // the currently installed default allocator is used.
-        //
-        // The exact description of the argument to the callbacks
-        // are given in the type definitions of the
-        // 'ChannelStateChangeCallback', 'BlobBasedReadCallback', and
-        // 'PoolStateChangeCallback'.
-
-    ChannelPool(
-            bdlmca::BlobBufferFactory                   *blobBufferFactory,
-            ChannelStateChangeCallback                 channelStateCb,
-            BlobBasedReadCallback                      blobBasedReadCb,
-            PoolStateChangeCallback                    poolStateCb,
-            const ChannelPoolConfiguration&      parameters,
-            bslma::Allocator                          *basicAllocator = 0);
+    ChannelPool(bdlmca::BlobBufferFactory       *blobBufferFactory,
+                ChannelStateChangeCallback       channelStateCb,
+                BlobBasedReadCallback            blobBasedReadCb,
+                PoolStateChangeCallback          poolStateCb,
+                const ChannelPoolConfiguration&  parameters,
+                bslma::Allocator                *basicAllocator = 0);
         // Create a channel pool having the specified 'channelStateCb',
         // 'blobBasedReadCb' and 'poolStateCb' callbacks to be invoked, when a
         // channel state changes, data arrives, or pool state changes
@@ -1389,8 +1311,8 @@ class ChannelPool {
         // 'BlobBasedReadCallback', and 'PoolStateChangeCallback'.
 
     ~ChannelPool();
-        // Destroy this channel pool.  The behavior is undefined if the
-        // channel pool was not shut down properly.
+        // Destroy this channel pool.  The behavior is undefined if the channel
+        // pool was not shut down properly.
 
     // MANIPULATORS
                                   // *** Server part ***
@@ -1401,32 +1323,32 @@ class ChannelPool {
         // Note that closing a listening socket has no effect on any channels
         // managed by this pool.
 
-    int listen(int                        portNumber,
-               int                        backlog,
-               int                        serverId,
-               int                        reuseAddress = 1,
-               bool                       readEnabledFlag = true,
+    int listen(int                         portNumber,
+               int                         backlog,
+               int                         serverId,
+               int                         reuseAddress = 1,
+               bool                        readEnabledFlag = true,
                const btlso::SocketOptions *socketOptions = 0);
-    int listen(int                        portNumber,
-               int                        backlog,
-               int                        serverId,
+    int listen(int                         portNumber,
+               int                         backlog,
+               int                         serverId,
                const bsls::TimeInterval&   timeout,
-               int                        reuseAddress = 1,
-               bool                       readEnabledFlag = true,
+               int                         reuseAddress = 1,
+               bool                        readEnabledFlag = true,
                const btlso::SocketOptions *socketOptions = 0);
     int listen(const btlso::IPv4Address&   endpoint,
-               int                        backlog,
-               int                        serverId,
-               int                        reuseAddress = 1,
-               bool                       readEnabledFlag = true,
+               int                         backlog,
+               int                         serverId,
+               int                         reuseAddress = 1,
+               bool                        readEnabledFlag = true,
                const btlso::SocketOptions *socketOptions = 0);
     int listen(const btlso::IPv4Address&   endpoint,
-               int                        backlog,
-               int                        serverId,
+               int                         backlog,
+               int                         serverId,
                const bsls::TimeInterval&   timeout,
-               int                        reuseAddress = 1,
-               bool                       readEnabledFlag = true,
-               KeepHalfOpenMode           mode = BTEMT_CLOSE_BOTH,
+               int                         reuseAddress = 1,
+               bool                        readEnabledFlag = true,
+               KeepHalfOpenMode            mode = e_CLOSE_BOTH,
                const btlso::SocketOptions *socketOptions = 0);
         // Establish a listening socket having the specified 'backlog' maximum
         // number of pending connections on the specified 'portNumber' on all
@@ -1436,10 +1358,10 @@ class ChannelPool {
         // 'timeout' *duration* for accepting a connection.  If no connection
         // attempt is received for a period of 'timeout' since the last
         // connection or the last timeout, a pool state callback is invoked
-        // with event equal to 'ACCEPT_TIMEOUT'.  Optionally specify a
-        // 'reuseAddress' value to be used in setting 'REUSEADDRESS' socket
+        // with event equal to 'e_ACCEPT_TIMEOUT'.  Optionally specify a
+        // 'reuseAddress' value to be used in setting 'e_REUSEADDRESS' socket
         // option; if 'reuseAddress' is not specified, 1 is used (i.e.,
-        // 'REUSEADDRESS' is enabled).  Optionally specify via a
+        // 'e_REUSEADDRESS' is enabled).  Optionally specify via a
         // 'readEnabledFlag' whether automatic reading should be enabled on
         // this channel immediately after creation; if 'readEnabledFlag' is not
         // specified, then 'true' is used (i.e., reading on new channels is
@@ -1447,37 +1369,37 @@ class ChannelPool {
         // and 'readEnabledFlag' are all specified, also optionally specify a
         // 'mode' to keep channel half-open in case a channel established by
         // the server with this 'serverId' is half-closed; if 'mode' is not
-        // specified, then 'BTEMT_CLOSE_BOTH' is used (i.e., half-open
-        // connections lead to closing the channel completely).  Optionally
-        // specify 'socketOptions' that will be used to indicate what options
-        // should be set on the listening socket.  Return 0 on success, a
-        // positive value if there is a listening socket associated with
-        // 'serverId' (i.e., 'serverId' is not unique) and a negative value if
-        // an error occurred.  Every time a connection is accepted by this pool
-        // on this (newly established) listening socket, 'serverId' is passed
-        // to the callback provided in the configuration at construction.  The
-        // behavior is undefined unless '0 < backlog'.
+        // specified, then 'e_CLOSE_BOTH' is used (i.e., half-open connections
+        // lead to closing the channel completely).  Optionally specify
+        // 'socketOptions' that will be used to indicate what options should be
+        // set on the listening socket.  Return 0 on success, a positive value
+        // if there is a listening socket associated with 'serverId' (i.e.,
+        // 'serverId' is not unique) and a negative value if an error occurred.
+        // Every time a connection is accepted by this pool on this (newly
+        // established) listening socket, 'serverId' is passed to the callback
+        // provided in the configuration at construction.  The behavior is
+        // undefined unless '0 < backlog'.
 
                                   // *** Client part ***
 
-    int connect(const char                *hostname,
-                int                        portNumber,
-                int                        numAttempts,
+    int connect(const char                 *hostname,
+                int                         portNumber,
+                int                         numAttempts,
                 const bsls::TimeInterval&   interval,
-                int                        sourceId,
+                int                         sourceId,
                 bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                          *socket,
-                ConnectResolutionMode      resolutionMode = BTEMT_RESOLVE_ONCE,
-                bool                       readEnabledFlag = true,
-                KeepHalfOpenMode           halfCloseMode = BTEMT_CLOSE_BOTH);
-    int connect(const char                *hostname,
-                int                        portNumber,
-                int                        numAttempts,
+                                           *socket,
+                ConnectResolutionMode       resolutionMode = e_RESOLVE_ONCE,
+                bool                        readEnabledFlag = true,
+                KeepHalfOpenMode            halfCloseMode = e_CLOSE_BOTH);
+    int connect(const char                 *hostname,
+                int                         portNumber,
+                int                         numAttempts,
                 const bsls::TimeInterval&   interval,
-                int                        sourceId,
-                ConnectResolutionMode      resolutionMode = BTEMT_RESOLVE_ONCE,
-                bool                       readEnabledFlag = true,
-                KeepHalfOpenMode           halfCloseMode = BTEMT_CLOSE_BOTH,
+                int                         sourceId,
+                ConnectResolutionMode       resolutionMode = e_RESOLVE_ONCE,
+                bool                        readEnabledFlag = true,
+                KeepHalfOpenMode            halfCloseMode = e_CLOSE_BOTH,
                 const btlso::SocketOptions *socketOptions = 0,
                 const btlso::IPv4Address   *localAddress = 0);
         // Asynchronously issue up to the specified 'numAttempts' connection
@@ -1488,22 +1410,22 @@ class ChannelPool {
         // or the connection attempts are abandoned (if 'numAttempts' is
         // reached).  When the connection is established, an internal channel
         // is created and a channel state callback, with the event
-        // 'BTEMT_CHANNEL_UP', the newly created channel ID, and the specified
+        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
         // 'sourceId' is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'ERROR_CONNECTING',
-        // 'CHANNEL_LIMIT', or 'CAPACITY_LIMIT'), a pool state callback is
+        // reached, or in case other events occur (e.g., 'e_ERROR_CONNECTING',
+        // 'e_CHANNEL_LIMIT', or 'e_CAPACITY_LIMIT'), a pool state callback is
         // invoked with the event type, 'sourceId' and a severity.  Optionally
         // specify a 'resolutionMode' to indicate whether the name resolution
-        // is performed once (if 'resolutionMode' is 'BTEMT_RESOLVE_ONCE'), or
+        // is performed once (if 'resolutionMode' is 'e_RESOLVE_ONCE'), or
         // performed anew prior to each attempt (if 'resolutionMode' is
-        // 'BTEMT_RESOLVE_AT_EACH_ATTEMPT'); if 'resolutionMode' is not
-        // specified, 'BTEMT_RESOLVE_ONCE' is used.  Optionally specify via a
+        // 'e_RESOLVE_AT_EACH_ATTEMPT'); if 'resolutionMode' is not specified,
+        // 'e_RESOLVE_ONCE' is used.  Optionally specify via a
         // 'readEnabledFlag' whether automatic reading should be enabled on
         // this channel immediately after creation; if 'readEnabledFlag' is not
         // specified, then 'true' is used (i.e., reading on new channels is
         // automatically enabled).  Optionally specify a 'halfCloseMode' in
         // case the channel created for this connection is half-closed; if
-        // 'mode' is not specified, then 'BTEMT_CLOSE_BOTH' is used (i.e.,
+        // 'mode' is not specified, then 'e_CLOSE_BOTH' is used (i.e.,
         // so-called half-open connections, that is, anything less than full
         // duplex, lead to close the channel).  Optionally specify either
         // 'socketOptions' that will be used to specify what options should be
@@ -1521,7 +1443,7 @@ class ChannelPool {
         // The behavior is undefined unless '0 < numAttempts', and either
         // '0 < interval' or '1 == numAttempts' or both.  Note that if the
         // connection cannot be established, up to 'numAttempts' pool state
-        // callbacks with 'ERROR_CONNECTING' may be generated, one for each
+        // callbacks with 'e_ERROR_CONNECTING' may be generated, one for each
         // 'interval'.  Also note that this function will fail if this channel
         // pool is not running, and that no callbacks will be invoked if the
         // return value is non-zero.  Also note that the same 'sourceId' can be
@@ -1532,19 +1454,19 @@ class ChannelPool {
         // until the last connection attempt but can be deleted upon return.
 
     int connect(const btlso::IPv4Address&   serverAddress,
-                int                        numAttempts,
+                int                         numAttempts,
                 const bsls::TimeInterval&   interval,
-                int                        sourceId,
+                int                         sourceId,
                 bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                          *socket,
-                bool                       readEnabledFlag = true,
-                KeepHalfOpenMode           mode = BTEMT_CLOSE_BOTH);
+                                           *socket,
+                bool                        readEnabledFlag = true,
+                KeepHalfOpenMode            mode = e_CLOSE_BOTH);
     int connect(const btlso::IPv4Address&   serverAddress,
-                int                        numAttempts,
+                int                         numAttempts,
                 const bsls::TimeInterval&   interval,
-                int                        sourceId,
-                bool                       readEnabledFlag = true,
-                KeepHalfOpenMode           mode = BTEMT_CLOSE_BOTH,
+                int                         sourceId,
+                bool                        readEnabledFlag = true,
+                KeepHalfOpenMode            mode = e_CLOSE_BOTH,
                 const btlso::SocketOptions *socketOptions = 0,
                 const btlso::IPv4Address   *localAddress = 0);
         // Asynchronously issue up to the specified 'numAttempts' connection
@@ -1554,10 +1476,10 @@ class ChannelPool {
         // or the connection attempts are abandoned (if 'numAttempts' is
         // reached).  When the connection is established, an internal channel
         // is created and a channel state callback, with the event
-        // 'BTEMT_CHANNEL_UP', the newly created channel ID, and the specified
+        // 'e_CHANNEL_UP', the newly created channel ID, and the specified
         // 'sourceId' is invoked in an internal thread.  If the 'interval' is
-        // reached, or in case other events occur (e.g., 'ERROR_CONNECTING',
-        // 'CHANNEL_LIMIT', or 'CAPACITY_LIMIT'), a pool state callback is
+        // reached, or in case other events occur (e.g., 'e_ERROR_CONNECTING',
+        // 'e_CHANNEL_LIMIT', or 'e_CAPACITY_LIMIT'), a pool state callback is
         // invoked with the event type, 'sourceId' and a severity.  Optionally
         // specify via a 'readEnabledFlag' whether automatic reading should be
         // enabled on this channel immediately after creation; if
@@ -1565,9 +1487,9 @@ class ChannelPool {
         // reading on new channels is automatically enabled).  Optionally
         // specify a half-close 'mode' in case the channel created for this
         // connection is half-closed; if 'mode' is not specified, then
-        // 'BTEMT_CLOSE_BOTH' is used (i.e., half-open connections lead to
-        // close the channel).  Optionally specify either 'socketOptions' that
-        // will be used to specify what options should be set on the connecting
+        // 'e_CLOSE_BOTH' is used (i.e., half-open connections lead to close
+        // the channel).  Optionally specify either 'socketOptions' that will
+        // be used to specify what options should be set on the connecting
         // socket and/or the specified 'localAddress' to be used as the source
         // address, or specify 'socket' to use as the connecting socket (with
         // any desired options and/or source address already set).  If 'socket'
@@ -1580,7 +1502,7 @@ class ChannelPool {
         // not running.  The behavior is undefined unless '0 < numAttempts',
         // and either '0 < interval' or '1 == numAttempts' or both.  Note that
         // if the connection cannot be established, up to 'numAttempts' pool
-        // state callbacks with 'ERROR_CONNECTING' may be generated, one for
+        // state callbacks with 'e_ERROR_CONNECTING' may be generated, one for
         // each 'interval'.  Also note that this function will fail if this
         // channel pool is not running, and that no callbacks will be invoked
         // if the return value is non-zero.  Also note that the same 'sourceId'
@@ -1590,17 +1512,17 @@ class ChannelPool {
                                   // *** Channel management ***
 
     int disableRead(int channelId);
-        // Enqueue a request to disable automatic reading on the channel
-        // having the specified 'channelId'.  Return 0 on success and
-        // a non-zero value otherwise.  Once automatic reading is disabled
-        // a channel state callback for this channel is invoked with
-        // 'BTEMT_AUTO_READ_DISABLED' state.
+        // Enqueue a request to disable automatic reading on the channel having
+        // the specified 'channelId'.  Return 0 on success and a non-zero value
+        // otherwise.  Once automatic reading is disabled a channel state
+        // callback for this channel is invoked with 'e_AUTO_READ_DISABLED'
+        // state.
         //
         // This method offers the following specific guarantees:
-        // - When shutting down a channel, 'BTEMT_AUTO_READ_DISABLED' message
+        // - When shutting down a channel, 'e_AUTO_READ_DISABLED' message
         //   is *not* generated.
         // - A data callback will always happen in between
-        //   'BTEMT_AUTO_READ_ENABLED' and 'BTEMT_AUTO_READ_DISABLED'
+        //   'e_AUTO_READ_ENABLED' and 'e_AUTO_READ_DISABLED'
         //   callbacks.
         // - The data currently enqueued in the channel pool for this channel
         //   is *not* discarded.
@@ -1610,30 +1532,29 @@ class ChannelPool {
         // having the specified 'channelId'.  Return 0 on success and
         // a non-zero value otherwise.  Once automatic reading is enabled
         // a channel state callback for this channel is invoked with
-        // 'BTEMT_AUTO_READ_ENABLED' state.
+        // 'e_AUTO_READ_ENABLED' state.
         //
         // This method offers the following specific guarantees:
         // - By default, a newly created channel is in
-        //   'BTEMT_AUTO_READ_ENABLED' state (except imported channels with
+        //   'e_AUTO_READ_ENABLED' state (except imported channels with
         //   'readEnabledFlag' not set), unless the 'readEnabledFlag was set to
         //   'false'.
         // - When a new channel is created and read is enabled, both
-        //   'BTEMT_CHANNEL_UP' and BTEMT_AUTO_READ_ENABLED messages are
-        //   generated, in this order.  However, 'BTEMT_CHANNEL_UP' and
-        //   'BTEMT_AUTO_READ_ENABLED' may be generated from different threads.
+        //   'e_CHANNEL_UP' and e_AUTO_READ_ENABLED messages are
+        //   generated, in this order.  However, 'e_CHANNEL_UP' and
+        //   'e_AUTO_READ_ENABLED' may be generated from different threads.
         // - A data callback will always happen in between
-        //   'BTEMT_AUTO_READ_ENABLED' and 'BTEMT_AUTO_READ_DISABLED'
+        //   'e_AUTO_READ_ENABLED' and 'e_AUTO_READ_DISABLED'
         //   callbacks.
 
-    int import(
-         bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+    int import(bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
                                                       *streamSocket,
-         int                                           sourceId,
-         bool                                          readEnabledFlag = true,
-         KeepHalfOpenMode                              mode =BTEMT_CLOSE_BOTH);
+               int                                     sourceId,
+               bool                                    readEnabledFlag = true,
+               KeepHalfOpenMode                        mode = e_CLOSE_BOTH);
         // Add the specified 'streamSocket' to this channel pool.  Assign a
         // channel ID and invoke a channel state callback, passing
-        // 'BTEMT_CHANNEL_UP' and the specified 'sourceId', in an internal
+        // 'e_CHANNEL_UP' and the specified 'sourceId', in an internal
         // thread.  Assume ownership from 'streamSocket', leaving it null, if
         // this function returns successfully, and leave it unchanged if an
         // error is returned.  Optionally specify via 'readEnabledFlag' whether
@@ -1642,7 +1563,7 @@ class ChannelPool {
         // is used (i.e., reading on new channels is automatically enabled).
         // Optionally specify a half-close 'mode' in case the channel created
         // for this connection is half-closed; if 'mode' is not specified, then
-        // 'BTEMT_CLOSE_BOTH' is used (i.e., half-open connections lead to
+        // 'e_CLOSE_BOTH' is used (i.e., half-open connections lead to
         // close the channel).  Return 0 on success and a non-zero value, with
         // no effect on the channel pool, otherwise.  Note that the same
         // 'sourceId' can be used in several calls to 'connect' or 'import' as
@@ -1651,14 +1572,14 @@ class ChannelPool {
         // imported into this channel pool, irrespective of 'mode'.
 
     int import(
-         btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
-         btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-         int                                           sourceId,
-         bool                                          readEnabledFlag = true,
-         KeepHalfOpenMode                              mode =BTEMT_CLOSE_BOTH);
+        btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
+        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+        int                                             sourceId,
+        bool                                            readEnabledFlag = true,
+        KeepHalfOpenMode                                mode = e_CLOSE_BOTH);
         // Add the specified 'streamSocket' to this channel pool.  Assign a
         // channel ID and invoke a channel state callback, passing
-        // 'BTEMT_CHANNEL_UP' and the specified 'sourceId', in an internal
+        // 'e_CHANNEL_UP' and the specified 'sourceId', in an internal
         // thread.  Use the specified 'factory' to destroy 'streamSocket' upon
         // destruction of the corresponding channel.  Optionally specify via
         // 'readEnabledFlag' whether automatic reading should be enabled on
@@ -1666,7 +1587,7 @@ class ChannelPool {
         // specified, then 'true' is used (i.e., reading on new channels is
         // automatically enabled).  Optionally specify a half-close 'mode' in
         // case the channel created for this connection is half-closed; if
-        // 'mode' is not specified, then 'BTEMT_CLOSE_BOTH' is used (i.e.,
+        // 'mode' is not specified, then 'e_CLOSE_BOTH' is used (i.e.,
         // half-open connections lead to close the channel).  Return 0 on
         // success and a non-zero value, with no effect on the channel pool,
         // otherwise.  Note that the same 'sourceId' can be used in several
@@ -1676,7 +1597,8 @@ class ChannelPool {
         // of 'mode'.
         //
         // DEPRECATED: Use the 'import' method supplying a
-        // 'bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >' instead.
+        // 'bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >'
+        // instead.
 
     void setChannelContext(int channelId, void *context);
         // Associate the specified (opaque) 'context' with the channel having
@@ -1684,29 +1606,29 @@ class ChannelPool {
         // any invocation of a callback related to this channel.
 
     int shutdown(int                      channelId,
-                 ShutdownMode             mode = BTEMT_IMMEDIATE);
+                 ShutdownMode             mode = e_IMMEDIATE);
     int shutdown(int                      channelId,
                  bteso_Flag::ShutdownType type,
-                 ShutdownMode             mode = BTEMT_IMMEDIATE);
+                 ShutdownMode             mode = e_IMMEDIATE);
         // Shut down the communication channel having the specified 'channelId'
         // in the optionally specified 'mode' and return 0 on success, and a
         // non-zero value otherwise.  Optionally specify a shutdown 'type' to
         // close only the reading or the writing part; by default,
-        // 'BTEMT_CLOSE_BOTH' is used (i.e., both halves of the channel are
+        // 'e_CLOSE_BOTH' is used (i.e., both halves of the channel are
         // closed).  Note that shutting down a channel will deallocate all
         // system resources associated with 'channel' and subsequent references
         // to channel will result in undefined behavior.  Also note that, if
         // the channel does not support half-open connections (i.e., the 'mode'
         // passed to 'connect', 'listen', or 'import' was set to
-        // 'BTEMT_CLOSE_BOTH'), then shutting down the channel leads to a
-        // complete shutdown, irrespective of the shutdown 'type'.  If the
-        // channel does support half-open connections, but is already
-        // half-closed, and the 'type' (set to 'SHUTDOWN_BOTH',
-        // 'SHUTDOWN_RECEIVE' or 'SHUTDOWN_SEND') closes the other half, then
-        // the channel is shut down completely; otherwise, only one half of the
-        // channel is closed but the channel itself is not, and subsequent
-        // calls to write (if 'type' is 'SHUTDOWN_SEND'), or to 'enableRead'
-        // (if 'type' is 'SHUTDOWN_RECEIVE'), will fail.
+        // 'e_CLOSE_BOTH'), then shutting down the channel leads to a complete
+        // shutdown, irrespective of the shutdown 'type'.  If the channel does
+        // support half-open connections, but is already half-closed, and the
+        // 'type' (set to 'e_SHUTDOWN_BOTH', 'e_SHUTDOWN_RECEIVE' or
+        // 'e_SHUTDOWN_SEND') closes the other half, then the channel is shut
+        // down completely; otherwise, only one half of the channel is closed
+        // but the channel itself is not, and subsequent calls to write (if
+        // 'type' is 'e_SHUTDOWN_SEND'), or to 'enableRead' (if 'type' is
+        // 'e_SHUTDOWN_RECEIVE'), will fail.
 
     int stopAndRemoveAllChannels();
         // Terminate all threads managed by this channel pool, close all
@@ -1726,29 +1648,28 @@ class ChannelPool {
         // Set the write cache high-water mark for the specified 'channelId' to
         // the specified 'numBytes'; return 0 on success, and a non-zero value
         // if either 'channelId' does not exist or 'numBytes' is less than the
-        // low-water mark for the write cache.  A 'BTEMT_WRITE_CACHE_HIWAT'
-        // alert is provided (via the channel state callback) if 'numBytes' is
-        // less than or equal to the current size of the write cache.  (See the
+        // low-water mark for the write cache.  A 'e_WRITE_CACHE_HIWAT' alert
+        // is provided (via the channel state callback) if 'numBytes' is less
+        // than or equal to the current size of the write cache.  (See the
         // "Invocation of High- and Low-Water Mark Callbacks" section under
         // @DESCRIPTION in the component-level documentation for details on
-        // 'BTEMT_WRITE_CACHE_HIWAT' and 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)
-        // The behavior is undefined unless '0 <= numBytes'.  Note that this
-        // method overrides the value configured (for all channels) by the
+        // 'e_WRITE_CACHE_HIWAT' and 'e_WRITE_CACHE_LOWWAT' alerts.)  The
+        // behavior is undefined unless '0 <= numBytes'.  Note that this method
+        // overrides the value configured (for all channels) by the
         // 'ChannelPoolConfiguration' supplied at construction.
 
     int setWriteCacheLowWatermark(int channelId, int numBytes);
         // Set the write cache low-water mark for the specified 'channelId' to
         // the specified 'numBytes'; return 0 on success, and a non-zero value
         // if either 'channelId' does not exist or 'numBytes' is greater than
-        // the high-water mark for the write cache.  A
-        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided (via the channel state
-        // callback) if 'numBytes' is greater than or equal to the current size
-        // of the write cache.  (See the "Invocation of High- and Low-Water
-        // Mark Callbacks" section under @DESCRIPTION in the component-level
-        // documentation for details on 'BTEMT_WRITE_CACHE_HIWAT' and
-        // 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)  The behavior is undefined
-        // unless '0 <= numBytes'.  Note that this method overrides the value
-        // configured (for all channels) by the
+        // the high-water mark for the write cache.  A 'e_WRITE_CACHE_LOWWAT'
+        // alert is provided (via the channel state callback) if 'numBytes' is
+        // greater than or equal to the current size of the write cache.  (See
+        // the "Invocation of High- and Low-Water Mark Callbacks" section under
+        // @DESCRIPTION in the component-level documentation for details on
+        // 'e_WRITE_CACHE_HIWAT' and 'e_WRITE_CACHE_LOWWAT' alerts.)  The
+        // behavior is undefined unless '0 <= numBytes'.  Note that this method
+        // overrides the value configured (for all channels) by the
         // 'ChannelPoolConfiguration' supplied at construction.
 
     int setWriteCacheWatermarks(int channelId,
@@ -1756,16 +1677,16 @@ class ChannelPool {
                                 int hiWatermark);
         // Set the write cache low- and high-water marks for the specified
         // 'channelId' to the specified 'lowWatermark' and 'hiWatermark'
-        // values, respectively; return 0 on success, and a non-zero value
-        // if 'channelId' does not exist.  A 'BTEMT_WRITE_CACHE_LOWWAT' alert
-        // is provided (via the channel state callback) if 'lowWatermark' is
+        // values, respectively; return 0 on success, and a non-zero value if
+        // 'channelId' does not exist.  A 'e_WRITE_CACHE_LOWWAT' alert is
+        // provided (via the channel state callback) if 'lowWatermark' is
         // greater than or equal to the current size of the write cache, and a
-        // 'BTEMT_WRITE_CACHE_HIWAT' alert is provided if 'hiWatermark' is less
+        // 'e_WRITE_CACHE_HIWAT' alert is provided if 'hiWatermark' is less
         // than or equal to the current size of the write cache.  (See the
         // "Invocation of High- and Low-Water Mark Callbacks" section under
         // @DESCRIPTION in the component-level documentation for details on
-        // 'BTEMT_WRITE_CACHE_HIWAT' and 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)
-        // The behavior is undefined unless '0 <= lowWatermark' and
+        // 'e_WRITE_CACHE_HIWAT' and 'e_WRITE_CACHE_LOWWAT' alerts.)  The
+        // behavior is undefined unless '0 <= lowWatermark' and
         // 'lowWatermark <= hiWatermark'.  Note that this method overrides the
         // values configured (for all channels) by the
         // 'ChannelPoolConfiguration' supplied at construction.
@@ -1797,49 +1718,25 @@ class ChannelPool {
 
                                   // *** Incoming messages ***
 
-    bdlmca::PooledBufferChainFactory *incomingBufferFactory();
-        // Return the address of the pooled buffer chain factory used by this
-        // channel pool to produce buffer chains for incoming messages.
-        // 
-        // Note that if a blob-based data callback was supplied on 
-        // construction, this factory is not used by this channel pool (but 
-        // is still a valid factory).  
-
     bdlmca::BlobBufferFactory *incomingBlobBufferFactory();
         // Return the address of the pooled blob buffer factory used by this
         // channel pool to produce blobs for incoming messages.
 
                                   // *** Outgoing messages ***
 
-    bdlmca::PooledBufferChainFactory *outboundBufferFactory();
-        // Return the address of the pooled buffer chain factory used by this
-        // channel pool to produce buffer chains for outbound messages.
-        //
-        // Note that this version of channel pool now uses blob internally.
-        // Although this method returns a valid (i.e., properly initialized)
-        // pooled buffer chain factory which can be used to create data
-        // messages, it is more efficient to create blob messages, using the
-        // 'outboundBlobBufferFactory()'.
-
     bdlmca::BlobBufferFactory *outboundBlobBufferFactory();
-        // Return the address of the blob buffer factory used by this
-        // channel pool to produce blobs for outbound messages.
+        // Return the address of the blob buffer factory used by this channel
+        // pool to produce blobs for outbound messages.
         //
-        // Note that this version of channel pool now uses blob internally.
-        // It is more efficient to create blob messages, using the
+        // Note that this version of channel pool now uses blob internally.  It
+        // is more efficient to create blob messages, using the
         // 'outboundBlobBufferFactory()', than to create data messages using
         // 'outboundBufferFactory()'.
 
-    int write(int                  channelId,
-              const bdlmca::Blob&    message);
-    int write(int                  channelId,
-              const bdlmca::Blob&    message,
-              int                  enqueueWatermark);
-    int write(int                  channelId,
-              const BlobMsg& message);
-    int write(int                  channelId,
-              const BlobMsg& message,
-              int                  enqueueWatermark);
+    int write(int channelId, const bdlmca::Blob& message);
+    int write(int                 channelId,
+              const bdlmca::Blob& message,
+              int                 enqueueWatermark);
         // Enqueue a request to write the specified 'message' into the channel
         // having the specified 'channelId'.  Optionally specify an
         // 'enqueueWaterMark' to limit the size of the enqueued portion of the
@@ -1847,38 +1744,13 @@ class ChannelPool {
         // error, the return value *may* equal to one of the enumerators in
         // 'ChannelStatus::Enum'.
 
-    int write(int                   channelId,
-              const DataMsg&  message);
-    int write(int                   channelId,
-              const DataMsg&  message,
-              int                   enqueueWatermark);
-        // Enqueue a request to write the specified 'message' into the channel
-        // having the specified 'channelId'.  Optionally specify an
-        // 'enqueueWaterMark' to limit the size of the enqueued portion of the
-        // message.  Return 0 on success, and a non-zero value otherwise.  On
-        // error, the return value *may* equal to one of the enumerators in
-        // 'ChannelStatus::Enum'.
-
-    int write(int                   channelId,
-              const DataMsg&  message,
-              BlobMsg        *blobMsg);
-    int write(int                   channelId,
-              const DataMsg&  message,
-              int                   enqueueWatermark,
-              BlobMsg        *blobMsg);
-        // Deprecated.  Note that the 'blobMsg' parameter is ignored.
-
-    int write(int               channelId,
-              const btls::Iovec  vecs[],
-              int               numVecs);
-    int write(int               channelId,
-              const btls::Ovec   vecs[],
-              int               numVecs);
+    int write(int channelId, const btls::Iovec vecs[], int numVecs);
+    int write(int channelId, const btls::Ovec  vecs[], int numVecs);
         // Enqueue a request to write the specified 'vecs' into the channel
         // having the specified 'channelId'.  Return 0 on success, and a
         // non-zero value otherwise.  On error, the return value *may* equal to
-        // one of the enumerators in 'ChannelStatus::Enum'.  Note that
-        // you should prefer this method over the other 'write()' method *only*
+        // one of the enumerators in 'ChannelStatus::Enum'.  Note that you
+        // should prefer this method over the other 'write()' method *only*
         // *if* you expect that this object will be able to write most of the
         // data contained in the specified 'vecs' atomically.  If the 'vecs'
         // must be enqueued, an inefficient data copy will occur to allow to
@@ -1889,12 +1761,12 @@ class ChannelPool {
     int registerClock(const bdlf::Function<void (*)()>& command,
                       const bsls::TimeInterval&         startTime,
                       const bsls::TimeInterval&         period,
-                      int                              clockId);
+                      int                               clockId);
     int registerClock(const bdlf::Function<void (*)()>& command,
                       const bsls::TimeInterval&         startTime,
                       const bsls::TimeInterval&         period,
-                      int                              clockId,
-                      int                              channelId);
+                      int                               clockId,
+                      int                               channelId);
         // Register the specified 'command' to be invoked after the specified
         // 'startTime' absolute time and associate this registration with the
         // specified 'clockId'.  If the specified 'period' (relative time) is
@@ -1915,7 +1787,7 @@ class ChannelPool {
                                   // *** Socket Options ***
 
     int getLingerOption(btlso::SocketOptUtil::LingerData *result,
-                        int                              channelId) const;
+                        int                               channelId) const;
         // Load into the specified 'result', the value of the linger option for
         // the channel having the specified 'channelId'.  Return 0 on success
         // and a non-zero value otherwise.  The behavior is undefined if
@@ -1942,10 +1814,10 @@ class ChannelPool {
         // options.)
 
     int setLingerOption(const btlso::SocketOptUtil::LingerData& value,
-                        int                                    channelId);
+                        int                                     channelId);
         // Set the linger option on the channel with the specified 'channelId'
-        // to the specified 'value'.  Return 0 on success and a non-zero
-        // value otherwise.
+        // to the specified 'value'.  Return 0 on success and a non-zero value
+        // otherwise.
 
     int setServerSocketOption(int option, int level, int value, int serverId);
         // Set the specified 'option' (of the specified 'level') socket option
@@ -1957,9 +1829,8 @@ class ChannelPool {
     int setSocketOption(int option, int level, int value, int channelId);
         // Set the specified 'option' (of the specified 'level') socket option
         // on the channel with the specified 'channelId' to the specified
-        // 'value'.  Return 0 on success and a non-zero value otherwise.
-        // (See 'btlso_socketoptutil' for the list of commonly supported
-        // options.)
+        // 'value'.  Return 0 on success and a non-zero value otherwise.  (See
+        // 'btlso_socketoptutil' for the list of commonly supported options.)
 
                                   // *** Metrics ***
 
@@ -1967,11 +1838,10 @@ class ChannelPool {
         // Return the weighted average of the connections lifetime since the
         // previous call to this method or, for the first call, since this
         // object construction, if at least one millisecond passed since then,
-        // otherwise return -1.
-        // If all the connections at the time of the call have been up during
-        // the considered period of time and were already up at the time of the
-        // previous reset, this method will return the same number as
-        // 'numChannels()'.  0 means that they were all down.
+        // otherwise return -1.  If all the connections at the time of the call
+        // have been up during the considered period of time and were already
+        // up at the time of the previous reset, this method will return the
+        // same number as 'numChannels()'.  0 means that they were all down.
 
     void totalBytesReadReset(bsls::Types::Int64 *result);
         // Load, into the specified 'result', and atomically reset the total
@@ -1992,9 +1862,8 @@ class ChannelPool {
         // the last period).  If the 'collectTimeMetrics' property of the
         // configuration supplied at construction is 'false' (i.e., the
         // collection of time metrics has been disable), then the returned
-        // value is unspecified.  The value 0 indicates that the pool
-        // is idle and 100 indicates that pool operates at the configured
-        // capacity.
+        // value is unspecified.  The value 0 indicates that the pool is idle
+        // and 100 indicates that pool operates at the configured capacity.
 
     void *channelContext(int channelId) const;
         // Return a user-defined channel context associated with the specified
@@ -2006,8 +1875,8 @@ class ChannelPool {
                              bsls::Types::Int64 *numWritten,
                              int                 channelId) const;
         // Load into the specified 'numRead', 'numRequestedToBeWritten' and
-        // 'numWritten' respectively the number of bytes read, requested to
-        // be written and written by the channel identified by the specified
+        // 'numWritten' respectively the number of bytes read, requested to be
+        // written and written by the channel identified by the specified
         // 'channelId' and return 0 if the specified 'channelId' is a valid
         // channel id.  Otherwise, return a non-zero value.  Note that for
         // performance reasons this *sequence* is not captured atomically: by
@@ -2065,14 +1934,10 @@ class ChannelPool {
         // success, and a non-zero value with no effect on 'result' otherwise.
 
     int getLocalAddress(btlso::IPv4Address *result, int channelId) const;
-        // Load into the specified 'result' the complete IP address
-        // associated with the local (i.e., this process) end-point of the
-        // communication channel having the specified 'channelId'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise.
-
-    bool useBlobForDataReads() const;
-        // Return 'true' if the read callback registered with this channel
-        // pool is blob based, and 'false' otherwise.
+        // Load into the specified 'result' the complete IP address associated
+        // with the local (i.e., this process) end-point of the communication
+        // channel having the specified 'channelId'.  Return 0 on success, and
+        // a non-zero value with no effect on 'result' otherwise.
 
     int getPeerAddress(btlso::IPv4Address *result, int channelId) const;
         // Load into the specified 'result' the complete IP address
@@ -2109,10 +1974,10 @@ class ChannelPool {
         // undefined unless '0 <= index < numThreads'.
 
     int numThreads() const;
-        // Return the number of threads currently managed by this channel
-        // pool.  Note that each thread corresponds to a single event manager,
-        // and, therefore, the number of threads is the number of active
-        // event managers.
+        // Return the number of threads currently managed by this channel pool.
+        // Note that each thread corresponds to a single event manager, and,
+        // therefore, the number of threads is the number of active event
+        // managers.
 
     const btlso::IPv4Address *serverAddress(int serverId) const;
         // Return the address of the server IPv4 address for the server with
@@ -2147,20 +2012,20 @@ class ChannelPool {
         // by the pool.
 };
 
-                 // ==================================
+                 // ============================
                  // class ChannelPool_IovecArray
-                 // ==================================
+                 // ============================
 
 template <typename IOVEC>
 class ChannelPool_IovecArray {
-    // This is an implementation type of 'ChannelPool' and should not
-    // be used by clients of this component.  An 'IovecArray' is an in-core
+    // This is an implementation type of 'ChannelPool' and should not be used
+    // by clients of this component.  An 'IovecArray' is an in-core
     // value-semantic type describing a array of iovec objects of templatized
     // type 'IOVEC'.  The parameterized 'IOVEC' type must be either
     // 'bteso::Iovec' or 'btls::Ovec'.  Note that the each 'IOVEC' object in
-    // the 'iovecs()' array  refers to an array of data, so an 'IovecArray' is
-    // an array of arrays, and the total data length of an 'IovecArray' is
-    // the sum of the lengths of the 'IOVEC' objects in 'iovecs()'.
+    // the 'iovecs()' array refers to an array of data, so an 'IovecArray' is
+    // an array of arrays, and the total data length of an 'IovecArray' is the
+    // sum of the lengths of the 'IOVEC' objects in 'iovecs()'.
 
     // DATA
     const IOVEC        *d_iovecs;       // array of iovecs
@@ -2171,27 +2036,25 @@ class ChannelPool_IovecArray {
 
     // CREATORS
     ChannelPool_IovecArray(const IOVEC *iovecs, int numIovecs);
-            // Create an 'IovecArray' object for the specified array of
-            // 'iovecs' of length 'numIovecs'.
+        // Create an 'IovecArray' object for the specified array of 'iovecs'
+        // of length 'numIovecs'.
 
     // ~ChannelPool_IovecArray();
         // Destroy this array of iovec objects.  Note that this operation
         // is supplied by the compiler.
 
     ChannelPool_IovecArray(const ChannelPool_IovecArray& original);
-        // Create an iovec array with the same value as the specified
-        // original.
+        // Create an iovec array with the same value as the specified original.
 
     // MANIPULATORS
-    ChannelPool_IovecArray& operator=(
-                                      const ChannelPool_IovecArray& rhs);
-        // Assign this iovec array the value of the specified 'rhs', and
-        // return a reference to this modifiable iovec array.
+    ChannelPool_IovecArray& operator=(const ChannelPool_IovecArray& rhs);
+        // Assign this iovec array the value of the specified 'rhs', and return
+        // a reference to this modifiable iovec array.
 
     // ACCESSORS
     const IOVEC *iovecs() const;
-        // Return the array of 'IOVEC' objects.  Note that each 'IOVEC'
-        // object in the returned array refers to an array of data.
+        // Return the array of 'IOVEC' objects.  Note that each 'IOVEC' object
+        // in the returned array refers to an array of data.
 
     int numIovecs() const;
         // Return the length of the array of 'IOVEC' objects returned by
@@ -2208,107 +2071,114 @@ inline
 bool operator==(const ChannelPool_IovecArray<IOVEC> &lhs,
                 const ChannelPool_IovecArray<IOVEC> &rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' iovec arrays have the
-    // same value, and 'false' otherwise.  Two iovec arrays have the same
-    // value if their respective array addresses, array lengths, and total
-    // data lengths are the same.
+    // same value, and 'false' otherwise.  Two iovec arrays have the same value
+    // if their respective array addresses, array lengths, and total data
+    // lengths are the same.
 
 template <typename IOVEC>
 inline
 bool operator!=(const ChannelPool_IovecArray<IOVEC> &lhs,
                 const ChannelPool_IovecArray<IOVEC> &rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' iovec arrays do not have
-    // the same value, and 'false' otherwise.  Two iovec arrays do not have
-    // the same value if their respective array addresses, array lengths, or
-    // total data lengths are not the name.
+    // the same value, and 'false' otherwise.  Two iovec arrays do not have the
+    // same value if their respective array addresses, array lengths, or total
+    // data lengths are not the name.
 
-                 // =====================================
+                 // =============================
                  // class ChannelPool_MessageUtil
-                 // =====================================
+                 // =============================
 
 struct ChannelPool_MessageUtil {
-    // This is an implementation type of 'ChannelPool' and should not
-    // be used by clients of this component.  The
-    // 'ChannelPool_MessageUtil' struct provides a namespace for a
-    // set of common functions that can be applied to the different message
-    // container types supported by a 'ChannelPool'.
+    // This is an implementation type of 'ChannelPool' and should not be used
+    // by clients of this component.  The 'ChannelPool_MessageUtil' struct
+    // provides a namespace for a set of common functions that can be applied
+    // to the different message container types supported by a 'ChannelPool'.
 
     // PUBLIC CONSTANTS
     enum {
-        // This enumeration defines the constant 'BTEMT_MAX_IOVEC_SIZE', which
-        // is used to indicate the maximum length of an array of iovecs
-        // that can be directly read from or written to a socket.  Note that
-        // 'IOV_MAX' is defined (on POSIX unix platforms) in "limits.h", and
-        // indicates the  maximum number of iovecs that can be supplied to
-        // 'writev'.
+        // This enumeration defines the constant 'e_MAX_IOVEC_SIZE', which is
+        // used to indicate the maximum length of an array of iovecs that can
+        // be directly read from or written to a socket.  Note that 'IOV_MAX'
+        // is defined (on POSIX unix platforms) in "limits.h", and indicates
+        // the maximum number of iovecs that can be supplied to 'writev'.
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #ifdef IOV_MAX
 #if IOV_MAX > 32
 // If too big, this would make 'Channel' really big.
-        BTEMT_MAX_IOVEC_SIZE = 32
+        e_MAX_IOVEC_SIZE = 32
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , BTEMT_MAX_IOVEC_SIZE = e_MAX_IOVEC_SIZE
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 #else
-        BTEMT_MAX_IOVEC_SIZE = IOV_MAX
+        e_MAX_IOVEC_SIZE = IOV_MAX
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , BTEMT_MAX_IOVEC_SIZE = e_MAX_IOVEC_SIZE
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 #endif
 #else
-        BTEMT_MAX_IOVEC_SIZE = 16
+        e_MAX_IOVEC_SIZE = 16
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , BTEMT_MAX_IOVEC_SIZE = e_MAX_IOVEC_SIZE
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 #endif
 #else // Windows
-        BTEMT_MAX_IOVEC_SIZE = 16
+        e_MAX_IOVEC_SIZE = 16
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , BTEMT_MAX_IOVEC_SIZE = e_MAX_IOVEC_SIZE
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 #endif
      };
 
     // CLASS METHODS
     template <typename IOVEC>
-    static bsls::Types::Int64 length(
-                               const ChannelPool_IovecArray<IOVEC>& msg);
-    static bsls::Types::Int64 length(const DataMsg& msg);
+    static bsls::Types::Int64 length(const ChannelPool_IovecArray<IOVEC>& msg);
     static bsls::Types::Int64 length(const bdlmca::Blob& msg);
         // Return the length of the specified 'msg'.
 
     template <typename IOVEC>
-    static int write(btlso::StreamSocket<btlso::IPv4Address>      *socket,
-                     btls::Iovec                                 *temp,
-                     const ChannelPool_IovecArray<IOVEC>&  msg);
     static int write(btlso::StreamSocket<btlso::IPv4Address> *socket,
-                     btls::Iovec                            *temp,
+                     btls::Iovec                             *temp,
+                     const ChannelPool_IovecArray<IOVEC>&     msg);
+    static int write(btlso::StreamSocket<btlso::IPv4Address> *socket,
+                     btls::Iovec                             *temp,
                      const bdlmca::Blob&                      msg);
-    static int write(btlso::StreamSocket<btlso::IPv4Address> *socket,
-                     btls::Iovec                            *temp,
-                     const DataMsg&                   msg);
         // Write, to the specified 'socket', the buffers in the specified
-        // 'msg', up to 'BTEMT_MAX_IOVEC_SIZE' buffers, using the
-        // specified 'temp' array of iovec objects as a (temporary)
-        // intermediary for 'StreamSocket::writev' (if required).  Return the
-        // return value from 'StreamSocket::writev'.
+        // 'msg', up to 'e_MAX_IOVEC_SIZE' buffers, using the specified 'temp'
+        // array of iovec objects as a (temporary) intermediary for
+        // 'StreamSocket::writev' (if required).  Return the return value from
+        // 'StreamSocket::writev'.
 
     static int loadIovec(btls::Iovec *dest, const bdlmca::Blob& msg);
-    static int loadIovec(btls::Iovec *dest, const DataMsg& msg);
         // Load into the specified 'dest' iovec the data buffers from the
-        // specified 'msg', up to 'BTEMT_MAX_IOVEC_SIZE' buffers.  Return the
+        // specified 'msg', up to 'e_MAX_IOVEC_SIZE' buffers.  Return the
         // number of buffers loaded into 'dest'.
 
     template <typename IOVEC>
-    static int loadBlob(bdlmca::Blob                                 *dest,
+    static int loadBlob(bdlmca::Blob                         *dest,
                         const ChannelPool_IovecArray<IOVEC>&  msg,
-                        int                                         msgOffset);
-    static int loadBlob(bdlmca::Blob           *dest,
-                        const DataMsg&  msg,
-                        int                   msgOffset);
+                        int                                   msgOffset);
     static int loadBlob(bdlmca::Blob        *dest,
                         const bdlmca::Blob&  msg,
-                        int                msgOffset);
+                        int                  msgOffset);
         // Load into the specified 'dest' the data in the specified 'msg'
         // starting at the specified 'msgOffset'.  For performance reasons the
-        // first blob buffer added to 'dest' may start *before* the
-        // 'msgOffset' byte in 'msg'; return the offset into the first blob
-        // buffer in 'dest' of the corresponding 'msgOffset' byte in
-        // 'msg'.  The behavior is undefined unless 'dest' is empty.
+        // first blob buffer added to 'dest' may start *before* the 'msgOffset'
+        // byte in 'msg'; return the offset into the first blob buffer in
+        // 'dest' of the corresponding 'msgOffset' byte in 'msg'.  The behavior
+        // is undefined unless 'dest' is empty.
 
     template <typename IOVEC>
-    static void appendToBlob(bdlmca::Blob                                 *dest,
+    static void appendToBlob(bdlmca::Blob                         *dest,
                              const ChannelPool_IovecArray<IOVEC>&  msg);
-    static void appendToBlob(bdlmca::Blob           *dest,
-                             const DataMsg&  msg);
     static void appendToBlob(bdlmca::Blob        *dest,
                              const bdlmca::Blob&  msg);
         // Append, to the specified 'dest' blob, the data buffers in the
@@ -2320,14 +2190,13 @@ struct ChannelPool_MessageUtil {
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                       //-------------------------
+                       //-------------------
                        // struct ChannelPool
-                       //-------------------------
+                       //-------------------
 
 // PRIVATE ACCESSORS
 inline
-int ChannelPool::findChannelHandle(
-                                    ChannelHandle *handle, int channelId) const
+int ChannelPool::findChannelHandle(ChannelHandle *handle, int channelId) const
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                        0 == d_channels.find(channelId, handle))
@@ -2346,43 +2215,12 @@ int ChannelPool::write(int channelId, const bdlmca::Blob& message)
 }
 
 inline
-int ChannelPool::write(int channelId, const BlobMsg& message)
-{
-    return write(channelId, message, 0x7FFFFFFF);
-}
-
-inline
-int ChannelPool::write(int                   channelId,
-                             const DataMsg&  message)
-{
-    return write(channelId, message,  0x7FFFFFFF);
-}
-
-inline
-int ChannelPool::write(int                   channelId,
-                             const DataMsg&  message,
-                             int                   enqueueWatermark,
-                             BlobMsg        *)
-{
-    return write(channelId, message, enqueueWatermark);
-}
-
-inline
-int ChannelPool::write(int                   channelId,
-                             const DataMsg&  message,
-                             BlobMsg        *)
-{
-    return write(channelId, message, 0x7FFFFFFF);
-}
-
-inline
-int ChannelPool::connect(
-                         const btlso::IPv4Address&   serverAddress,
-                         int                        numAttempts,
+int ChannelPool::connect(const btlso::IPv4Address&   serverAddress,
+                         int                         numAttempts,
                          const bsls::TimeInterval&   interval,
-                         int                        sourceId,
-                         bool                       readEnabledFlag,
-                         KeepHalfOpenMode           mode,
+                         int                         sourceId,
+                         bool                        readEnabledFlag,
+                         KeepHalfOpenMode            mode,
                          const btlso::SocketOptions *socketOptions,
                          const btlso::IPv4Address   *localAddress)
 {
@@ -2398,17 +2236,16 @@ int ChannelPool::connect(
 }
 
 inline
-int ChannelPool::connect(
-                  const char                *hostname,
-                  int                        portNumber,
-                  int                        numAttempts,
-                  const bsls::TimeInterval&   interval,
-                  int                        sourceId,
-                  ConnectResolutionMode      resolutionMode,
-                  bool                       readEnabledFlag,
-                  KeepHalfOpenMode           halfCloseMode,
-                  const btlso::SocketOptions *socketOptions,
-                  const btlso::IPv4Address   *localAddress)
+int ChannelPool::connect(const char                 *hostname,
+                         int                         portNumber,
+                         int                         numAttempts,
+                         const bsls::TimeInterval&   interval,
+                         int                         sourceId,
+                         ConnectResolutionMode       resolutionMode,
+                         bool                        readEnabledFlag,
+                         KeepHalfOpenMode            halfCloseMode,
+                         const btlso::SocketOptions *socketOptions,
+                         const btlso::IPv4Address   *localAddress)
 {
     return connectImp(hostname,
                       portNumber,
@@ -2424,21 +2261,9 @@ int ChannelPool::connect(
 }
 
 inline
-bdlmca::PooledBufferChainFactory *ChannelPool::incomingBufferFactory()
-{
-    return &d_messageFactory;
-}
-
-inline
 bdlmca::BlobBufferFactory *ChannelPool::incomingBlobBufferFactory()
 {
     return d_readBlobFactory.ptr();
-}
-
-inline
-bdlmca::PooledBufferChainFactory *ChannelPool::outboundBufferFactory()
-{
-    return &d_vecMessageFactory;
 }
 
 inline
@@ -2451,13 +2276,7 @@ bdlmca::BlobBufferFactory *ChannelPool::outboundBlobBufferFactory()
 inline
 int ChannelPool::busyMetrics() const
 {
-    return bsls::AtomicOperations::getInt(&d_capacity);
-}
-
-inline
-bool ChannelPool::useBlobForDataReads() const
-{
-    return d_useBlobForDataReads;
+    return bdlmtt::AtomicUtil::getInt(d_capacity);
 }
 
 inline
@@ -2472,16 +2291,15 @@ int ChannelPool::numThreads() const
     return d_startFlag ? static_cast<int>(d_managers.size()) : 0;
 }
 
-                 // ----------------------------------
+                 // ----------------------------
                  // class ChannelPool_IovecArray
-                 // ----------------------------------
+                 // ----------------------------
 
 // CREATORS
 template <typename IOVEC>
 inline
-ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(
-                                                        const IOVEC *iovecs,
-                                                        int          numIovecs)
+ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(const IOVEC *iovecs,
+                                                      int          numIovecs)
 : d_iovecs(iovecs)
 , d_numIovecs(numIovecs)
 , d_totalLength(btls::IovecUtil::length(iovecs, numIovecs))
@@ -2491,7 +2309,7 @@ ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(
 template <typename IOVEC>
 inline
 ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(
-                                  const ChannelPool_IovecArray& original)
+                                        const ChannelPool_IovecArray& original)
 : d_iovecs(original.d_iovecs)
 , d_numIovecs(original.d_numIovecs)
 , d_totalLength(original.d_totalLength)
@@ -2502,8 +2320,7 @@ ChannelPool_IovecArray<IOVEC>::ChannelPool_IovecArray(
 template <typename IOVEC>
 inline
 ChannelPool_IovecArray<IOVEC>&
-ChannelPool_IovecArray<IOVEC>::operator=(
-                                       const ChannelPool_IovecArray& rhs)
+ChannelPool_IovecArray<IOVEC>::operator=(const ChannelPool_IovecArray& rhs)
 {
     d_iovecs      = rhs.d_iovecs;
     d_numIovecs   = rhs.d_numIovecs;
@@ -2535,18 +2352,11 @@ int ChannelPool_IovecArray<IOVEC>::numIovecs() const
     return d_numIovecs;
 }
 
-                 // -----------------------------------
+                 // -----------------------------
                  // class ChannelPool_MessageUtil
-                 // -----------------------------------
+                 // -----------------------------
 
 // CLASS METHODS
-inline
-bsls::Types::Int64
-ChannelPool_MessageUtil::length(const DataMsg& msg)
-{
-    return msg.data()->length();
-}
-
 inline
 bsls::Types::Int64
 ChannelPool_MessageUtil::length(const bdlmca::Blob& msg)
@@ -2557,8 +2367,7 @@ ChannelPool_MessageUtil::length(const bdlmca::Blob& msg)
 template <typename IOVEC>
 inline
 bsls::Types::Int64
-ChannelPool_MessageUtil::length(
-                                const ChannelPool_IovecArray<IOVEC>& msg)
+ChannelPool_MessageUtil::length(const ChannelPool_IovecArray<IOVEC>& msg)
 {
     return msg.length();
 }
@@ -2566,14 +2375,13 @@ ChannelPool_MessageUtil::length(
 template <typename IOVEC>
 inline
 int ChannelPool_MessageUtil::write(
-                           btlso::StreamSocket<btlso::IPv4Address>      *socket,
-                           btls::Iovec                                 *,
-                           const ChannelPool_IovecArray<IOVEC>&  msg)
+                               btlso::StreamSocket<btlso::IPv4Address> *socket,
+                               btls::Iovec                             *,
+                               const ChannelPool_IovecArray<IOVEC>&     msg)
 {
     int minNumVecs = msg.numIovecs();
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                          minNumVecs > BTEMT_MAX_IOVEC_SIZE)) {
-        minNumVecs = BTEMT_MAX_IOVEC_SIZE;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(minNumVecs > e_MAX_IOVEC_SIZE)) {
+        minNumVecs = e_MAX_IOVEC_SIZE;
     }
 
     return socket->writev(msg.iovecs(), minNumVecs);
@@ -2581,20 +2389,9 @@ int ChannelPool_MessageUtil::write(
 
 inline
 int ChannelPool_MessageUtil::write(
-                                 btlso::StreamSocket<btlso::IPv4Address> *socket,
-                                 btls::Iovec                            *temp,
-                                 const bdlmca::Blob&                      msg)
-{
-    int numVecs = loadIovec(temp, msg);
-    BSLS_ASSERT(0 < numVecs);
-    return socket->writev(temp, numVecs);
-}
-
-inline
-int ChannelPool_MessageUtil::write(
-                               btlso::StreamSocket<btlso::IPv4Address>  *socket,
+                               btlso::StreamSocket<btlso::IPv4Address> *socket,
                                btls::Iovec                             *temp,
-                               const DataMsg&                    msg)
+                               const bdlmca::Blob&                      msg)
 {
     int numVecs = loadIovec(temp, msg);
     BSLS_ASSERT(0 < numVecs);
@@ -2604,9 +2401,9 @@ int ChannelPool_MessageUtil::write(
 template <typename IOVEC>
 inline
 int ChannelPool_MessageUtil::loadBlob(
-                         bdlmca::Blob                                 *dest,
-                         const ChannelPool_IovecArray<IOVEC>&  msg,
-                         int                                         msgOffset)
+                               bdlmca::Blob                         *dest,
+                               const ChannelPool_IovecArray<IOVEC>&  msg,
+                               int                                   msgOffset)
 {
     btls::IovecUtil::appendToBlob(
                               dest, msg.iovecs(), msg.numIovecs(), msgOffset);
@@ -2617,18 +2414,19 @@ int ChannelPool_MessageUtil::loadBlob(
 template <typename IOVEC>
 inline
 void ChannelPool_MessageUtil::appendToBlob(
-                             bdlmca::Blob                                 *dest,
-                             const ChannelPool_IovecArray<IOVEC>&  msg)
+                                    bdlmca::Blob                         *dest,
+                                    const ChannelPool_IovecArray<IOVEC>&  msg)
 {
     btls::IovecUtil::appendToBlob(dest, msg.iovecs(), msg.numIovecs());
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 template <typename IOVEC>
 inline
 bool btlmt::operator==(const ChannelPool_IovecArray<IOVEC> &lhs,
-                const ChannelPool_IovecArray<IOVEC> &rhs)
+                       const ChannelPool_IovecArray<IOVEC> &rhs)
 {
     return lhs.iovecs()    == rhs.iovecs()
         && lhs.numIovecs() == rhs.numIovecs()
@@ -2638,7 +2436,7 @@ bool btlmt::operator==(const ChannelPool_IovecArray<IOVEC> &lhs,
 template <typename IOVEC>
 inline
 bool btlmt::operator!=(const ChannelPool_IovecArray<IOVEC> &lhs,
-                const ChannelPool_IovecArray<IOVEC> &rhs)
+                       const ChannelPool_IovecArray<IOVEC> &rhs)
 {
     return !(lhs == rhs);
 }
@@ -2649,7 +2447,7 @@ bool btlmt::operator!=(const ChannelPool_IovecArray<IOVEC> &lhs,
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
