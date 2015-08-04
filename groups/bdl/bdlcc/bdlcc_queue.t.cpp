@@ -284,76 +284,130 @@ int getWorkData(my_WorkData *)
     return !(++i%100);
 }
 
-enum {
-    k_MAX_CONSUMER_THREADS = 10
-};
-
-struct my_WorkData{
-    // Work data...
-};
-
-struct my_WorkRequest {
-    enum RequestType {
-        k_WORK = 1,
-        k_STOP = 2
+///Usage
+///-----
+///Example 1: Simple Thread Pool
+///- - - - - - - - - - - - - - -
+// The following example demonstrates a typical usage of a 'bdlcc::Queue'.
+//
+// This 'bdlcc::Queue' is used to communicate between a single "producer"
+// thread and multiple "consumer" threads.  The "producer" will push work
+// requests onto the queue, and each "consumer" will iteratively take a work
+// request from the queue and service the request.  This example shows a
+// partial, simplified implementation of the 'bdlmt::ThreadPool' class.  See
+// component 'bdlmt_threadpool' for more information.
+//
+// We begin our example with some utility classes that define a simple "work
+// item":
+//..
+    enum {
+        k_MAX_CONSUMER_THREADS = 10
     };
 
-    RequestType d_type;
-    my_WorkData d_data;
-    // Work data...
-};
+    struct my_WorkData {
+        // Work data...
+    };
 
-void myDoWork(my_WorkData&)
-{
-    // do some stuff...
-}
+    struct my_WorkRequest {
+        enum RequestType {
+            e_WORK = 1,
+            e_STOP = 2
+        };
 
-void myConsumer(bdlcc::Queue<my_WorkRequest> *queue)
-{
-    while (1) {
-        my_WorkRequest item = queue->popFront();
-        if (item.d_type == my_WorkRequest::k_STOP) break;
-        myDoWork(item.d_data);
+        RequestType d_type;
+        my_WorkData d_data;
+        // Work data...
+    };
+//..
+// Next, we provide a simple function to service an individual work item.  The
+// details are unimportant for this example.
+//..
+    void myDoWork(my_WorkData& data)
+    {
+        // do some stuff...
+        (void)data;
     }
-}
+//..
+// The 'myConsumer' function will pop items off the queue and process them.  As
+// discussed above, note that the call to 'queue->popFront()' will block until
+// there is an item available on the queue.  This function will be executed in
+// multiple threads, so that each thread waits in 'queue->popFront()', and
+// 'bdlcc::Queue' guarantees that each thread gets a unique item from the
+// queue.
+//..
+    void myConsumer(bdlcc::Queue<my_WorkRequest> *queue)
+    {
+        while (1) {
+            // 'popFront()' will wait for a 'my_WorkRequest' until available.
 
-extern "C" void *myConsumerThread(void *queuePtr)
-{
-    myConsumer ((bdlcc::Queue<my_WorkRequest>*)queuePtr);
-    return queuePtr;
-}
-
-void myProducer(int numThreads)
-{
-    my_WorkRequest item;
-    my_WorkData workData;
-
-    bdlcc::Queue<my_WorkRequest> queue;
-
-    ASSERT(0 < numThreads && numThreads <= k_MAX_CONSUMER_THREADS);
-    bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
-
-    for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&consumerHandles[i],
-                                 myConsumerThread,
-                                 &queue);
+            my_WorkRequest item = queue->popFront();
+            if (item.d_type == my_WorkRequest::e_STOP) break;
+            myDoWork(item.d_data);
+        }
     }
-
-    while (!getWorkData(&workData)) {
-        item.d_type = my_WorkRequest::k_WORK;
-        item.d_data = workData;
-        queue.pushBack(item);
+//..
+// The function below is a callback for 'bdlqq::ThreadUtil', which requires a
+// "C" signature.  'bdlqq::ThreadUtil::create()' expects a pointer to this
+// function, and provides that function pointer to the newly created thread.
+// The new thread then executes this function.
+//
+// Since 'bdlqq::ThreadUtil::create()' uses the familiar "C" convention of
+// passing a 'void' pointer, our function simply casts that pointer to our
+// required type ('bdlcc::Queue<my_WorkRequest*> *'), and then delegates to the
+// queue-specific function 'myConsumer', above.
+//..
+    extern "C" void *myConsumerThread(void *queuePtr)
+    {
+        myConsumer ((bdlcc::Queue<my_WorkRequest> *)queuePtr);
+        return queuePtr;
     }
+//..
+// In this simple example, the 'myProducer' function serves multiple roles: it
+// creates the 'bdlcc::Queue', starts out the consumer threads, and then
+// produces and queues work items.  When work requests are exhausted, this
+// function queues one 'STOP' item for each consumer queue.
+//
+// When each Consumer thread reads a 'STOP', it terminates its thread-handling
+// function.  Note that, although the producer cannot control which thread
+// 'pop's a particular work item, it can rely on the knowledge that each
+// Consumer thread will read a single 'STOP' item and then terminate.
+//
+// Finally, the 'myProducer' function "joins" each Consumer thread, which
+// ensures that the thread itself will terminate correctly; see the
+// 'bdlqq_threadutil' component for details.
+//..
+    void myProducer(int numThreads)
+    {
+        my_WorkRequest item;
+        my_WorkData    workData;
 
-    for (int i = 0; i < numThreads; ++i) {
-        item.d_type = my_WorkRequest::k_STOP;
-        queue.pushBack(item);
-    }
+        bdlcc::Queue<my_WorkRequest> queue;
 
-    for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(consumerHandles[i]);
+        ASSERT(0 < numThreads && numThreads <= k_MAX_CONSUMER_THREADS);
+        bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
+
+        for (int i = 0; i < numThreads; ++i) {
+            bdlqq::ThreadUtil::create(&consumerHandles[i],
+                                      myConsumerThread,
+                                      &queue);
+        }
+
+        while (!getWorkData(&workData)) {
+            item.d_type = my_WorkRequest::e_WORK;
+            item.d_data = workData;
+            queue.pushBack(item);
+        }
+
+        for (int i = 0; i < numThreads; ++i) {
+            item.d_type = my_WorkRequest::e_STOP;
+            queue.pushBack(item);
+        }
+
+        for (int i = 0; i < numThreads; ++i) {
+            bdlqq::ThreadUtil::join(consumerHandles[i]);
+        }
     }
-}
+//..
 
 }  // close namespace QUEUE_USAGE_EXAMPLE_1
 
@@ -363,59 +417,148 @@ void myProducer(int numThreads)
 
 namespace QUEUE_USAGE_EXAMPLE_2 {
 
-enum {
-    k_MAX_CONSUMER_THREADS = 10,
-    k_MAX_EVENT_TEXT       = 80
-};
-
-struct my_Event {
-    enum EventType {
-        e_IN_PROGRESS   = 1,
-        e_TASK_COMPLETE = 2
+///Example 2: Multi-Threaded Observer
+/// - - - - - - - - - - - - - - - - -
+// The previous example shows a simple mechanism for distributing work requests
+// over multiple threads.  This approach works well for large tasks that can be
+// decomposed into discrete, independent tasks that can benefit from parallel
+// execution.  Note also that the various threads are synchronized only at the
+// end of execution, when the Producer "joins" the various consumer threads.
+//
+// The simple strategy used in the first example works well for tasks that
+// share no state, and are completely independent of one another.  For
+// instance, a web server might use a similar strategy to distribute http
+// requests across multiple worker threads.
+//
+// In more complicated examples, it is often necessary or desirable to
+// synchronize the separate tasks during execution.  The second example below
+// shows a single "Observer" mechanism that receives event notification from
+// the various worker threads.
+//
+// We first create a simple 'my_Event' data type.  Worker threads will use this
+// data type to report information about their work.  In our example, we will
+// report the "worker Id", the event number, and some arbitrary text.
+//
+// As with the previous example, class 'my_Event' also contains an 'EventType',
+// which is an enumeration which that indicates whether the worker has
+// completed all work.  The "Observer" will use this enumerated value to note
+// when a Worker thread has completed its work.
+//..
+    enum {
+        k_MAX_CONSUMER_THREADS = 10,
+        k_MAX_EVENT_TEXT       = 80
     };
 
-    EventType d_type;
-    int d_workerId;
-    int d_eventNumber;
-    char d_eventText[k_MAX_EVENT_TEXT];
-};
+    struct my_Event {
+        enum EventType {
+            e_IN_PROGRESS   = 1,
+            e_TASK_COMPLETE = 2
+        };
 
-struct my_WorkerData {
-    int d_workerId;
-    bdlcc::Queue<my_Event> *d_queue_p;
-};
+        EventType d_type;
+        int       d_workerId;
+        int       d_eventNumber;
+        char      d_eventText[k_MAX_EVENT_TEXT];
+    };
+//..
+// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns a new
+// thread, which invokes a simple "C" function taking a 'void' pointer.  In the
+// previous example, we simply converted that 'void' pointer into a pointer to
+// the parameterized 'bdlcc::Queue<TYPE>' object.
+//
+// In this example, we want to pass an additional data item.  Each worker
+// thread is initialized with a unique integer value ("worker Id") that
+// identifies that thread.  We create a simple data structure that contains
+// both of these values:
+//..
+    struct my_WorkerData {
+        int                     d_workerId;
+        bdlcc::Queue<my_Event> *d_queue_p;
+    };
+//..
+// Function 'myWorker' simulates a working thread by enqueuing multiple
+// 'my_Event' events during execution.  In a normal application, each
+// 'my_Event' structure would likely contain different textual information; for
+// the sake of simplicity, our loop uses a constant value for the text field.
+//..
+    void myWorker(int workerId, bdlcc::Queue<my_Event> *queue)
+    {
+        const int NEVENTS = 5;
+        int evnum;
 
-void myWorker(int workerId, bdlcc::Queue<my_Event> *queue)
-{
-    const int NEVENTS = 5;
-    int evnum;
+        for (evnum = 0; evnum < NEVENTS; ++evnum) {
+            my_Event ev = {
+                my_Event::e_IN_PROGRESS,
+                workerId,
+                evnum,
+                "In-Progress Event"
+            };
+            queue->pushBack(ev);
+        }
 
-    for (evnum = 0; evnum < NEVENTS; ++evnum) {
         my_Event ev = {
-            my_Event::e_IN_PROGRESS,
+            my_Event::e_TASK_COMPLETE,
             workerId,
             evnum,
-            "In-Progress Event"
+            "Task Complete"
         };
         queue->pushBack(ev);
     }
+//..
+// The callback function invoked by 'bdlqq::ThreadUtil::create()' takes the
+// traditional 'void' pointer.  The expected data is the composite structure
+// 'my_WorkerData'.  The callback function casts the 'void' pointer to the
+// application-specific data type and then uses the referenced object to
+// construct a call to the 'myWorker' function.
+//..
+    extern "C" void *myWorkerThread(void *v_worker_p)
+    {
+        my_WorkerData *worker_p = (my_WorkerData *) v_worker_p;
+        myWorker(worker_p->d_workerId, worker_p->d_queue_p);
+        return v_worker_p;
+    }
+//..
+// For the sake of simplicity, we will implement the Observer behavior in the
+// main thread.  The 'void' function 'myObserver' starts out multiple threads
+// running the 'myWorker' function, reads 'my_Event's from the queue, and logs
+// all messages in the order of arrival.
+//
+// As each 'myWorker' thread terminates, it sends a 'e_TASK_COMPLETE' event.
+// Upon receiving this event, the 'myObserver' function uses the 'd_workerId'
+// to find the relevant thread, and then "joins" that thread.
+//
+// The 'myObserver' function determines when all tasks have completed simply by
+// counting the number of 'e_TASK_COMPLETE' messages received.
+//..
+    void myObserver()
+    {
+        const int NTHREADS = 10;
+        bdlcc::Queue<my_Event> queue;
 
-    my_Event ev = {
-        my_Event::e_TASK_COMPLETE,
-        workerId,
-        evnum,
-        "Task Complete"
-    };
-    queue->pushBack(ev);
-}
+        ASSERT(NTHREADS > 0 && NTHREADS <= k_MAX_CONSUMER_THREADS);
+        bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
-extern "C"
-void *myWorkerThread(void *v_worker_p)
-{
-    my_WorkerData  *worker_p = (my_WorkerData *) v_worker_p;
-    myWorker(worker_p->d_workerId, worker_p->d_queue_p);
-    return v_worker_p;
-}
+        my_WorkerData workerData;
+        workerData.d_queue_p = &queue;
+        for (int i = 0; i < NTHREADS; ++i) {
+            workerData.d_workerId = i;
+            bdlqq::ThreadUtil::create(&workerHandles[i],
+                                      myWorkerThread,
+                                      &workerData);
+        }
+        int nStop = 0;
+        while (nStop < NTHREADS) {
+            my_Event ev = queue.popFront();
+            bsl::cout << "[" << ev.d_workerId    << "] "
+                             << ev.d_eventNumber << ". "
+                             << ev.d_eventText   << bsl::endl;
+            if (my_Event::e_TASK_COMPLETE == ev.d_type) {
+                ++nStop;
+                bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
+            }
+        }
+    }
+//..
 
 }  // close namespace QUEUE_USAGE_EXAMPLE_2
 

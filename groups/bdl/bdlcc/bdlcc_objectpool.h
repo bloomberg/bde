@@ -126,44 +126,36 @@ BSLS_IDENT("$Id: $")
 // The class 'Query' encapsulates a database query and 'queryFactory' is an
 // object of a query factory class 'QueryFactory'.
 //..
-//    enum {
-//        k_CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
-//                                          //  a connection (in microseconds)
+//  enum {
+//      k_CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
+//                                        //  a connection (in microseconds)
 //
-//        k_CONNECTION_CLOSE_TIME = 8,     // (simulated) time to close
-//                                         //  a connection (in microseconds)
+//      k_CONNECTION_CLOSE_TIME = 8,     // (simulated) time to close
+//                                       //  a connection (in microseconds)
 //
-//        k_QUERY_EXECUTION_TIME  = 4      // (simulated) time to execute
-//                                         //  a query (in microseconds)
-//    };
+//      k_QUERY_EXECUTION_TIME  = 4      // (simulated) time to execute
+//                                       //  a query (in microseconds)
+//  };
 //
-//    class my_DatabaseConnection
-//        // This class simulates a database connection.
-//    {
-//      bslma::Allocator *d_allocator_p; // held
-//      int               d_connectionId;
-//      public:
-//        BSLALG_DECLARE_NESTED_TRAITS(my_DatabaseConnection,
-//                                     bslalg::TypeTraitUsesBslmaAllocator);
+//  class my_DatabaseConnection
+//      // This class simulates a database connection.
+//  {
+//    public:
+//      my_DatabaseConnection()
+//      {
+//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
+//      }
 //
-//        my_DatabaseConnection(int               connectionId   = 0,
-//                              bslma::Allocator *basicAllocator = 0)
-//          : d_allocator_p(bslma::Default::allocator(basicAllocator))
-//          , d_connectionId(connectionId)
-//        {
-//            bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
-//        }
+//      ~my_DatabaseConnection()
+//      {
+//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
+//      }
 //
-//        ~my_DatabaseConnection()
-//        {
-//            bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
-//        }
-//
-//        void executeQuery(Query *query)
-//        {
-//            bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
-//        }
-//    };
+//      void executeQuery(Query *query)
+//      {
+//          bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+//      }
+//  };
 //..
 // The server runs several threads which, on each iteration, obtain a new
 // client request from the query factory, and process it, until the desired

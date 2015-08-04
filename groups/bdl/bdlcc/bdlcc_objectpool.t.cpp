@@ -14,7 +14,9 @@
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_usesbslmaallocator.h>
 #include <bslma_testallocator.h>
 #include <bsls_alignmentfromtype.h>
 #include <bsls_platform.h>
@@ -1117,60 +1119,69 @@ namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
 
 {
 
-enum {
-    k_CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
-                                      //  a connection (in microseconds)
-
-    k_CONNECTION_CLOSE_TIME = 8,      // (simulated) time to close
-                                      //  a connection (in microseconds)
-
-    k_QUERY_EXECUTION_TIME  = 4       // (simulated) time to execute
-                                      //  a query (in microseconds)
-};
-
-class Query
-    // Dummy query class.
-{
-};
-
-class QueryFactory
-    // Dummy query factory class.
-{
-  public:
-    // MANIPULATORS
-    Query *createQuery()
-        // Return a dummy query.
+    class Query
+        // Dummy query class.
     {
-        return (Query *)NULL;
-    }
+    };
 
-    void destroyQuery(Query *query)
-        // Simulate query destruction.
+    class QueryFactory
+        // Dummy query factory class.
     {
-        (void *)query;
-    }
-} *queryFactory;
+      public:
+        // MANIPULATORS
+        Query *createQuery()
+            // Return a dummy query.
+        {
+            return (Query *)NULL;
+        }
 
-class my_DatabaseConnection
-    // This class simulates a database connection.
-{
-  public:
-    my_DatabaseConnection()
-    {
-        bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
-    }
+        void destroyQuery(Query *query)
+            // Simulate query destruction.
+        {
+            (void *)query;
+        }
+    } *queryFactory;
 
-    ~my_DatabaseConnection()
-    {
-        bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
-    }
+///Usage
+///-----
+// In this example, we simulate a database server accepting queries from
+// clients and executing each query in a separate thread.  Client requests are
+// simulated by function 'getClientQuery' which returns a query to be executed.
+// The class 'Query' encapsulates a database query and 'queryFactory' is an
+// object of a query factory class 'QueryFactory'.
+//..
+    enum {
+        k_CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
+                                          //  a connection (in microseconds)
 
-    void executeQuery(Query *query)
+        k_CONNECTION_CLOSE_TIME = 8,      // (simulated) time to close
+                                          //  a connection (in microseconds)
+
+        k_QUERY_EXECUTION_TIME  = 4       // (simulated) time to execute
+                                          //  a query (in microseconds)
+    };
+
+    class my_DatabaseConnection
+        // This class simulates a database connection.
     {
-        bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
-        (void *)query;
-    }
-};
+      public:
+        my_DatabaseConnection()
+        {
+            bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
+        }
+
+        ~my_DatabaseConnection()
+        {
+            bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
+        }
+
+        void executeQuery(Query *query)
+        {
+            bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+           (void *)query;
+        }
+    };
+//..
 
 bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
 bsls::AtomicInt64 totalResponseTime1; // total response time when

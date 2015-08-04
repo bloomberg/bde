@@ -967,62 +967,101 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
-struct my_WorkData {
-    // Work data...
-};
-
-struct my_WorkRequest {
-    enum RequestType {
-        e_WORK = 1,
-        e_STOP = 2
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: A Simple Thread Pool
+///- - - - - - - - - - - - - - - -
+// In the following example a 'bdlcc::FixedQueue' is used to communicate
+// between a single "producer" thread and multiple "consumer" threads.  The
+// "producer" will push work requests onto the queue, and each "consumer" will
+// iteratively take a work request from the queue and service the request.
+// This example shows a partial, simplified implementation of the
+// 'bdlmt::FixedThreadPool' class.  See component 'bdlmt_fixedthreadpool' for
+// more information.
+//
+// First, we define a utility classes that handles a simple "work item":
+//..
+    struct my_WorkData {
+        // Work data...
     };
 
-    RequestType d_type;
-    my_WorkData d_data;
-    // Work data...
-};
+    struct my_WorkRequest {
+        enum RequestType {
+            e_WORK = 1,
+            e_STOP = 2
+        };
 
-void myDoWork(my_WorkData& )
-{
-    // do some stuff...
-}
-
-void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
-{
-    while (1) {
-        // 'popFront()' will wait for a 'my_WorkRequest' until available.
-        my_WorkRequest item = queue->popFront();
-        if (item.d_type == my_WorkRequest::e_STOP) { break; }
-        myDoWork(item.d_data);
-    }
-}
-
-void myProducer(int numThreads)
-{
-    enum {
-       k_MAX_QUEUE_LENGTH = 100,
-       k_NUM_WORK_ITEMS   = 1000
+        RequestType d_type;
+        my_WorkData d_data;
+        // Work data...
     };
-
-    bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
-
-    bdlqq::ThreadGroup consumerThreads;
-    consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
-                               numThreads);
-
-    for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
-        my_WorkRequest item;
-        item.d_type = my_WorkRequest::e_WORK;
-        item.d_data = my_WorkData(); // some stuff to do
-        queue.pushBack(item);
+//..
+// Next, we provide a simple function to service an individual work item.  The
+// details are unimportant for this example:
+//..
+    void myDoWork(my_WorkData& )
+    {
+        // do some stuff...
     }
+//..
+// Then, we define a 'myConsumer' function that will pop elements off the queue
+// and process them.  Note that the call to 'queue->popFront()' will block
+// until there is an element available on the queue.  This function will be
+// executed in multiple threads, so that each thread waits in
+// 'queue->popFront()', and 'bdlcc::FixedQueue' guarantees that each thread
+// gets a unique element from the queue:
+//..
+    void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
+    {
+        while (1) {
+            // 'popFront()' will wait for a 'my_WorkRequest' until available.
 
-    for (int i = 0; i < numThreads; ++i) {
-        my_WorkRequest item;
-        item.d_type = my_WorkRequest::e_STOP;
-        queue.pushBack(item);
+            my_WorkRequest item = queue->popFront();
+            if (item.d_type == my_WorkRequest::e_STOP) { break; }
+            myDoWork(item.d_data);
+        }
     }
-}
+//..
+// Finally, we define a 'myProducer' function that serves multiple roles: it
+// creates the 'bdlcc::FixedQueue', starts the consumer threads, and then
+// produces and enqueues work items.  When work requests are exhausted, this
+// function enqueues one 'e_STOP' item for each consumer queue.  This 'e_STOP'
+// item indicates to the consumer thread to terminate its thread-handling
+// function.
+//
+// Note that, although the producer cannot control which thread 'pop's a
+// particular work item, it can rely on the knowledge that each consumer thread
+// will read a single 'e_STOP' item and then terminate.
+//..
+    void myProducer(int numThreads)
+    {
+        enum {
+            k_MAX_QUEUE_LENGTH = 100,
+            k_NUM_WORK_ITEMS   = 1000
+        };
+
+        bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
+
+        bdlqq::ThreadGroup consumerThreads;
+        consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
+                                   numThreads);
+
+        for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
+            my_WorkRequest item;
+            item.d_type = my_WorkRequest::e_WORK;
+            item.d_data = my_WorkData(); // some stuff to do
+            queue.pushBack(item);
+        }
+
+        for (int i = 0; i < numThreads; ++i) {
+            my_WorkRequest item;
+            item.d_type = my_WorkRequest::e_STOP;
+            queue.pushBack(item);
+        }
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM

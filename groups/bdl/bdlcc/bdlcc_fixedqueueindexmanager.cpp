@@ -818,7 +818,7 @@ bsl::size_t FixedQueueIndexManager::length() const
 
             return 0;                                                 // RETURN
         }
-        return static_cast<bsl::size_t>(difference);                 // RETURN
+        return static_cast<bsl::size_t>(difference);                  // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(

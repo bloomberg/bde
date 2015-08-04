@@ -710,15 +710,15 @@ class SkipList {
   public:
     // CONSTANTS
     enum {
-        k_SUCCESS   = 0,
-        k_NOT_FOUND = 1,
-        k_DUPLICATE = 2,
-        k_INVALID   = 3
+        e_SUCCESS   = 0,
+        e_NOT_FOUND = 1,
+        e_DUPLICATE = 2,
+        e_INVALID   = 3
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , k_RET_SUCCESS    = k_SUCCESS
-      , k_RET_NOT_FOUND  = k_NOT_FOUND
-      , k_RET_DUPLICATE  = k_DUPLICATE
-      , k_RET_INVALID    = k_INVALID
+      , e_RET_SUCCESS    = e_SUCCESS
+      , e_RET_NOT_FOUND  = e_NOT_FOUND
+      , e_RET_DUPLICATE  = e_DUPLICATE
+      , e_RET_INVALID    = e_INVALID
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -843,7 +843,7 @@ class SkipList {
 
     int removeNode(Node *node);
         // Acquire the lock, remove 'node' from the list, and release the lock.
-        // Return 0 on success, and 'k_NOT_FOUND' if the node is no longer in
+        // Return 0 on success, and 'e_NOT_FOUND' if the node is no longer in
         // the list.
 
     int updateNode(bool       *isNewFront,
@@ -855,8 +855,8 @@ class SkipList {
         // value of 'node' to the specified 'newKey' value.  If 'isNewFront' is
         // not 0, load into it a 'true' value if the new location of the node
         // is the front of the list, and a 'false' value otherwise.  Return 0
-        // on success, 'k_NOT_FOUND' if the node is no longer in the list, or
-        // 'k_DUPLICATE' if 'allowDuplicates' is 'false' and 'newKey' already
+        // on success, 'e_NOT_FOUND' if the node is no longer in the list, or
+        // 'e_DUPLICATE' if 'allowDuplicates' is 'false' and 'newKey' already
         // appears in the list.
 
     int updateNodeR(bool       *isNewFront,
@@ -870,7 +870,7 @@ class SkipList {
         // to the specified 'newKey' value.  If 'isNewFront' is not 0, load
         // into it a 'true' value if the new location of the node is the front
         // of the list, and a 'false' value otherwise.  Return 0 on success,
-        // 'k_NOT_FOUND' if the node is no longer in the list, or 'k_DUPLICATE'
+        // 'e_NOT_FOUND' if the node is no longer in the list, or 'e_DUPLICATE'
         // if 'allowDuplicates' is 'false' and 'newKey' already appears in the
         // list.
 
@@ -916,14 +916,14 @@ class SkipList {
       // If the item identified by the specified 'node' is not at the front of
       // the list, load a reference to the previous item in the list into
       // 'node'; otherwise load 0 into 'node'.  Return 0 on success, and
-      // 'k_NOT_FOUND' (with no effect on the value of 'node') if 'node' is no
+      // 'e_NOT_FOUND' (with no effect on the value of 'node') if 'node' is no
       // longer in the list.  Note that this method acquires and releases the
       // lock.
 
     int skipForward(Node **node) const;
       // If the item identified by the specified 'node' is not at the back of
       // the list, load a reference to the next item in the list into 'node';
-      // otherwise load 0 into 'node'.  Return 0 on success, and 'k_NOT_FOUND'
+      // otherwise load 0 into 'node'.  Return 0 on success, and 'e_NOT_FOUND'
       // (with no effect on the value of 'node') if 'node' is no longer in the
       // list.  Note that this method acquires and releases the lock.
 
@@ -1229,8 +1229,8 @@ class SkipList {
       // specified 'reference', moving the pair within the list as necessary.
       // Load into the optionally specified 'newFrontFlag' a 'true' value if
       // the new location of the pair is the front of the list.  Return 0 on
-      // success, 'k_NOT_FOUND' if the pair referred to by 'reference' is no
-      // longer in the list, or 'k_DUPLICATE' if 'allowDuplicates' is 'false'
+      // success, 'e_NOT_FOUND' if the pair referred to by 'reference' is no
+      // longer in the list, or 'e_DUPLICATE' if 'allowDuplicates' is 'false'
       // and 'newKey' already appears in the list.
 
     int updateR(const Pair *reference,
@@ -1242,8 +1242,8 @@ class SkipList {
       // Search for the new position from the back of the list (in descending
       // order by key value).  Load into the optionally specified
       // 'newFrontFlag' a 'true' value if the new location of the pair is the
-      // front of the list.  Return 0 on success, 'k_NOT_FOUND' if the pair
-      // referred to by 'reference' is no longer in the list, or 'k_DUPLICATE'
+      // front of the list.  Return 0 on success, 'e_NOT_FOUND' if the pair
+      // referred to by 'reference' is no longer in the list, or 'e_DUPLICATE'
       // if 'allowDuplicates' is 'false' and 'newKey' already appears in the
       // list.
 
@@ -1357,7 +1357,7 @@ class SkipList {
       // If the item identified by the specified 'item' is not at the front of
       // the list, load a reference to the previous item in the list into
       // 'item'; otherwise reset the value of 'item'.  Return 0 on success, and
-      // 'k_NOT_FOUND' (with no effect on the value of 'item') if 'item' is no
+      // 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item' is no
       // longer in the list.
 
     int skipForward(PairHandle *item) const;
@@ -1365,7 +1365,7 @@ class SkipList {
       // If the item identified by the specified 'item' is not at the end of
       // the list, load a reference to the next item in the list into 'item';
       // otherwise reset the value of 'item'.  Return 0 on success, and
-      // 'k_NOT_FOUND' (with no effect on the value of 'item') if 'item' is no
+      // 'e_NOT_FOUND' (with no effect on the value of 'item') if 'item' is no
       // longer in the list.
 };
 
@@ -1685,7 +1685,7 @@ int SkipList<KEY, DATA>::addNodeUnique(bool *newFrontFlag, Node *node)
 
     Node *q = update[0]->d_ptrs[0].d_next_p;
     if (q != d_tail_p && q->d_key == node->d_key) {
-        return k_DUPLICATE;
+        return e_DUPLICATE;
     }
 
     insertImp(newFrontFlag, update, node);
@@ -1705,7 +1705,7 @@ int SkipList<KEY, DATA>::addNodeUniqueR(bool *newFrontFlag, Node *node)
 
     Node *q = update[0]->d_ptrs[0].d_next_p;
     if (q != d_tail_p && q->d_key == node->d_key) {
-        return k_DUPLICATE;
+        return e_DUPLICATE;
     }
 
     insertImp(newFrontFlag, update, node);
@@ -1938,7 +1938,7 @@ int SkipList<KEY, DATA>::removeNode(Node *node)
     LockGuard guard(&d_lock);
 
     if (0 == node->d_ptrs[0].d_next_p) {
-        return k_NOT_FOUND;
+        return e_NOT_FOUND;
     }
 
     int level = node->level();
@@ -1965,7 +1965,7 @@ int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
     LockGuard guard(&d_lock);
 
     if (0 == node->d_ptrs[0].d_next_p) {
-        return k_NOT_FOUND;
+        return e_NOT_FOUND;
     }
 
     Node *update[k_MAX_NUM_LEVELS];
@@ -1974,7 +1974,7 @@ int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
     if (!allowDuplicates) {
         Node *q = update[0]->d_ptrs[0].d_next_p;
         if (q != d_tail_p && q != node && q->d_key == key) {
-            return k_DUPLICATE;
+            return e_DUPLICATE;
         }
     }
 
@@ -1995,7 +1995,7 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *isNewFront,
     LockGuard guard(&d_lock);
 
     if (0 == node->d_ptrs[0].d_next_p) {
-        return k_NOT_FOUND;
+        return e_NOT_FOUND;
     }
 
     Node *update[k_MAX_NUM_LEVELS];
@@ -2004,7 +2004,7 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *isNewFront,
     if (!allowDuplicates) {
         Node *p = update[0];
         if (p != d_head_p && p != node && p->d_key == key) {
-            return k_DUPLICATE;
+            return e_DUPLICATE;
         }
     }
 
@@ -2158,7 +2158,7 @@ int SkipList<KEY, DATA>::skipBackward(Node **node_p) const
 
     if (0 == node->d_ptrs[0].d_next_p) {
         // We set this pointer to 0 only when removing from the list.
-        return k_NOT_FOUND;
+        return e_NOT_FOUND;
     }
 
     const int count = node->decrementRefCount();
@@ -2187,7 +2187,7 @@ int SkipList<KEY, DATA>::skipForward(Node **node_p) const
 
     if (0 == node->d_ptrs[0].d_next_p) {
         // We set this pointer to 0 only when removing from the list.
-        return k_NOT_FOUND;
+        return e_NOT_FOUND;
     }
 
     const int count = node->decrementRefCount();
@@ -2324,7 +2324,7 @@ int SkipList<KEY, DATA>::popFront(PairHandle *item)
 {
     Node *node = popFrontImp();
     if (!node) {
-        return k_NOT_FOUND;
+        return e_NOT_FOUND;
     }
 
     if (item) {
@@ -2343,7 +2343,7 @@ int SkipList<KEY, DATA>::popFrontRaw(Pair **handle)
 {
     Node *node = popFrontImp();
     if (!node) {
-        return k_NOT_FOUND;
+        return e_NOT_FOUND;
     }
 
     if (handle) {
@@ -2595,7 +2595,7 @@ inline
 int SkipList<KEY, DATA>::remove(const Pair *reference)
 {
     if (0 == reference) {
-        return k_INVALID;
+        return e_INVALID;
     }
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
@@ -2649,7 +2649,7 @@ int SkipList<KEY, DATA>::update(const Pair  *reference,
                                      bool         allowDuplicates)
 {
     if (0 == reference) {
-        return k_INVALID;
+        return e_INVALID;
     }
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
@@ -2664,7 +2664,7 @@ int SkipList<KEY, DATA>::updateR(const Pair  *reference,
                                       bool         allowDuplicates)
 {
     if (0 == reference) {
-        return k_INVALID;
+        return e_INVALID;
     }
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
@@ -2812,7 +2812,7 @@ int
 SkipList<KEY, DATA>::next(PairHandle *next, const Pair *reference) const
 {
     if (0 == reference) {
-        return k_INVALID;
+        return e_INVALID;
     }
 
     Node *node  = (Node *)(void *)const_cast<Pair *>(reference);
@@ -2842,7 +2842,7 @@ SkipList<KEY, DATA>::previous(PairHandle *prevPair,
                                    const Pair *reference) const
 {
     if (0 == reference) {
-        return k_INVALID;
+        return e_INVALID;
     }
 
     Node *node  = (Node *)(void *)const_cast<Pair *>(reference);

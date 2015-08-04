@@ -83,28 +83,28 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a utility classes that handles a simple "work item":
 //..
-// struct my_WorkData {
-//     // Work data...
-// };
+//  struct my_WorkData {
+//      // Work data...
+//  };
 //
-// struct my_WorkRequest {
-//     enum RequestType {
-//         e_WORK = 1,
-//         e_STOP = 2
-//     };
+//  struct my_WorkRequest {
+//      enum RequestType {
+//          e_WORK = 1,
+//          e_STOP = 2
+//      };
 //
-//     RequestType d_type;
-//     my_WorkData d_data;
-//     // Work data...
-// };
+//      RequestType d_type;
+//      my_WorkData d_data;
+//      // Work data...
+//  };
 //..
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
 //..
-// void myDoWork(my_WorkData& )
-// {
-//     // do some stuff...
-// }
+//  void myDoWork(my_WorkData& )
+//  {
+//      // do some stuff...
+//  }
 //..
 // Then, we define a 'myConsumer' function that will pop elements off the queue
 // and process them.  Note that the call to 'queue->popFront()' will block
@@ -113,16 +113,16 @@ BSLS_IDENT("$Id: $")
 // 'queue->popFront()', and 'bdlcc::FixedQueue' guarantees that each thread
 // gets a unique element from the queue:
 //..
-// void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
-// {
-//     while (1) {
-//         // 'popFront()' will wait for a 'my_WorkRequest' until available.
+//  void myConsumer(bdlcc::FixedQueue<my_WorkRequest> *queue)
+//  {
+//      while (1) {
+//          // 'popFront()' will wait for a 'my_WorkRequest' until available.
 //
-//         my_WorkRequest item = queue->popFront();
-//         if (item.d_type == my_WorkRequest::e_STOP) { break; }
-//         myDoWork(item.d_data);
-//     }
-// }
+//          my_WorkRequest item = queue->popFront();
+//          if (item.d_type == my_WorkRequest::e_STOP) { break; }
+//          myDoWork(item.d_data);
+//      }
+//  }
 //..
 // Finally, we define a 'myProducer' function that serves multiple roles: it
 // creates the 'bdlcc::FixedQueue', starts the consumer threads, and then
@@ -135,32 +135,32 @@ BSLS_IDENT("$Id: $")
 // particular work item, it can rely on the knowledge that each consumer thread
 // will read a single 'e_STOP' item and then terminate.
 //..
-// void myProducer(int numThreads)
-// {
-//     enum {
-//         k_MAX_QUEUE_LENGTH = 100,
-//         k_NUM_WORK_ITEMS   = 1000
-//     };
+//  void myProducer(int numThreads)
+//  {
+//      enum {
+//          k_MAX_QUEUE_LENGTH = 100,
+//          k_NUM_WORK_ITEMS   = 1000
+//      };
 //
-//     bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
+//      bdlcc::FixedQueue<my_WorkRequest> queue(k_MAX_QUEUE_LENGTH);
 //
-//     bdlqq::ThreadGroup consumerThreads;
-//     consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
-//                                numThreads);
+//      bdlqq::ThreadGroup consumerThreads;
+//      consumerThreads.addThreads(bdlf::BindUtil::bind(&myConsumer, &queue),
+//                                 numThreads);
 //
-//     for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
-//         my_WorkRequest item;
-//         item.d_type = my_WorkRequest::e_WORK;
-//         item.d_data = my_WorkData(); // some stuff to do
-//         queue.pushBack(item);
-//     }
+//      for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
+//          my_WorkRequest item;
+//          item.d_type = my_WorkRequest::e_WORK;
+//          item.d_data = my_WorkData(); // some stuff to do
+//          queue.pushBack(item);
+//      }
 //
-//     for (int i = 0; i < numThreads; ++i) {
-//         my_WorkRequest item;
-//         item.d_type = my_WorkRequest::e_STOP;
-//         queue.pushBack(item);
-//     }
-// }
+//      for (int i = 0; i < numThreads; ++i) {
+//          my_WorkRequest item;
+//          item.d_type = my_WorkRequest::e_STOP;
+//          queue.pushBack(item);
+//      }
+//  }
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

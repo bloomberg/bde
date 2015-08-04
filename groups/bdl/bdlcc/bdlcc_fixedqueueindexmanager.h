@@ -61,10 +61,10 @@ BSLS_IDENT("$Id: $")
 //      // fixed maximum capacity.
 //
 //      // DATA
-//      bdlcc::FixedQueueIndexManager d_indexManager;  // manages indices
-//                                                         // of 'd_values'
+//      bdlcc::FixedQueueIndexManager d_indexManager;  // manages 'd_values'
+//                                                     // indices
 //
-//      bsl::vector<int>                  d_values;        // maintain values
+//      bsl::vector<int>              d_values;        // maintains values
 //
 //    public:
 //..

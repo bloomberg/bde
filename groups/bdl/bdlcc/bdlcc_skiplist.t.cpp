@@ -956,7 +956,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   * skipping at the front/end resets the handle (as appropriate)
         //     and returns 0
-        //   * skipping a removed item returns k_NOT_FOUND
+        //   * skipping a removed item returns e_NOT_FOUND
         //   * reference counting is correct
         // ----------------------------------------------------
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -1009,15 +1009,15 @@ int main(int argc, char *argv[])
             ASSERT(!b.isValid());
 
             obj.remove(h3);
-            ASSERT(SkipList::k_NOT_FOUND == obj.skipBackward(&h3));
+            ASSERT(SkipList::e_NOT_FOUND == obj.skipBackward(&h3));
             ASSERT(h3.isValid());
-            ASSERT(SkipList::k_NOT_FOUND == obj.skipForward(&h3));
+            ASSERT(SkipList::e_NOT_FOUND == obj.skipForward(&h3));
             ASSERT(h3.isValid());
 
             obj.remove(p4);
-            ASSERT(SkipList::k_NOT_FOUND == obj.skipBackwardRaw(&p4));
+            ASSERT(SkipList::e_NOT_FOUND == obj.skipBackwardRaw(&p4));
             ASSERT(0 != p4);
-            ASSERT(SkipList::k_NOT_FOUND == obj.skipForwardRaw(&p4));
+            ASSERT(SkipList::e_NOT_FOUND == obj.skipForwardRaw(&p4));
             ASSERT(0 != p4);
 
             obj.releaseReferenceRaw(p4);
@@ -1405,7 +1405,7 @@ int main(int argc, char *argv[])
                 if (verbose) Obj.print(cout, 0, -1) << endl;
 
                 ret = Obj.updateR(h3, 0, 0, false);
-                ASSERT(ret==SkipList::k_DUPLICATE);
+                ASSERT(ret==SkipList::e_DUPLICATE);
                 if (verbose) Obj.print(cout, 0, -1) << endl;
 
                 Obj.updateR(h3, 10);
@@ -1525,7 +1525,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj.isEmpty());
 
             ret = Obj.popFront(&h);
-            ASSERT(ret==SkipList::k_NOT_FOUND);
+            ASSERT(ret==SkipList::e_NOT_FOUND);
         }
       } break;
       case 11: {
@@ -1809,8 +1809,8 @@ int main(int argc, char *argv[])
         // 'update' test
         //
         // Concerns:
-        //   (1) Update on an item that's been removed returns k_NOT_FOUND.
-        //   (2) Update to an existing position returns k_DUPLICATE if
+        //   (1) Update on an item that's been removed returns e_NOT_FOUND.
+        //   (2) Update to an existing position returns e_DUPLICATE if
         //       allowDuplicates is false
         //   (3) Update updates the key value stored on the node.
         //   (4) After an update, the data can be looked up by its new value
@@ -1886,7 +1886,7 @@ int main(int argc, char *argv[])
 
                         int rc = (obj.*updater)(fromH, p.d_to, 0, false);
                         if (p.d_isDuplicate) {
-                            ASSERT(rc == Obj::k_DUPLICATE);
+                            ASSERT(rc == Obj::e_DUPLICATE);
                         }
                         else {
                             LOOP3_ASSERT(i, p.d_line, rc, 0 == rc);
@@ -1912,17 +1912,17 @@ int main(int argc, char *argv[])
 
                     //Now check concerns (1) and (5)
                     ASSERT(0 == obj2.remove(items[0]));
-                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[0],
+                    ASSERT(Obj::e_NOT_FOUND == (obj2.*updater)(items[0],
                                                                  100,
                                                                  0, false));
-                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[0],
+                    ASSERT(Obj::e_NOT_FOUND == (obj2.*updater)(items[0],
                                                                  100,
                                                                  0, true));
                     ASSERT(0 == obj2.remove(items[3]));
-                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[3],
+                    ASSERT(Obj::e_NOT_FOUND == (obj2.*updater)(items[3],
                                                                  100,
                                                                  0, false));
-                    ASSERT(Obj::k_NOT_FOUND == (obj2.*updater)(items[3],
+                    ASSERT(Obj::e_NOT_FOUND == (obj2.*updater)(items[3],
                                                                  100,
                                                                  0, true));
 
@@ -2045,7 +2045,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == da.numBytesInUse());
 
                 ret = Obj.popFront(&h);
-                ASSERT(ret==SkipList::k_NOT_FOUND);
+                ASSERT(ret==SkipList::e_NOT_FOUND);
                 V(da.numBytesInUse());
                 ASSERT(0 == da.numBytesInUse());
             }
@@ -2207,7 +2207,7 @@ int main(int argc, char *argv[])
             ASSERT(Obj2.isEmpty());
 
             ret = Obj2.popFront(&h2h);
-            ASSERT(ret==SkipList::k_NOT_FOUND);
+            ASSERT(ret==SkipList::e_NOT_FOUND);
         }
       } break;
       case -101: {

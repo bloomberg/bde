@@ -40,6 +40,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+//
+/// Example 1: Catalog Usage
+/// - - - - - - - - - - - -
 // Consider a client sending queries to a server asynchronously.  When the
 // response to a query arrives, the client needs to invoke the callback
 // associated with that query.  For good performance, the callback should be
@@ -56,117 +59,194 @@ BSLS_IDENT("$Id: $")
 // Assume the following declarations (we leave the implementations as
 // undefined, as the definitions are largely irrelevant to this example):
 //..
-//   struct Query;
-//       // Class simulating the query.
+//  struct Query {
+//      // Class simulating the query.
+//  };
 //
-//   class QueryResult;
-//       // Class simulating the result of a query.
+//  class QueryResult {
+//      // Class simulating the result of a query.
+//  };
 //
-//   class RequestMsg
-//       // Class encapsulating the request message.  It encapsulates the
-//       // actual query and the handle associated with the callback for
-//       // the query.
-//   {
-//     public:
-//       RequestMsg(Query query, int handle);
-//           // Create a request message with the specified 'query' and
-//           // 'handle'.
-//   };
+//  class RequestMsg
+//      // Class encapsulating the request message.  It encapsulates the
+//      // actual query and the handle associated with the callback for
+//      // the query.
+//  {
+//      Query d_query;
+//      int   d_handle;
 //
-//   class ResponseMsg
-//       // Class encapsulating the response message.  It encapsulates the
-//       // query result and the handle associated with the callback for
-//       // the query.
-//   {
-//     public:
-//       QueryResult queryResult() const;
-//           // Return the query result contained in this response message.
-//       int handle() const;
-//           // Return the handle contained in this response message.
-//   };
+//    public:
+//      RequestMsg(Query query, int handle)
+//          // Create a request message with the specified 'query' and
+//          // 'handle'.
+//      : d_query(query)
+//      , d_handle(handle)
+//      {
+//      }
 //
-//   void sendMessage(RequestMsg msg, RemoteAddress peer);
-//       // Send the specified 'msg' to the specified 'peer'.
+//      int handle() const
+//          // Return the handle contained in this response message.
+//      {
+//          return d_handle;
+//      }
+//  };
 //
-//   void recvMessage(ResponseMsg *msg, RemoteAddress peer);
-//       // Get the response from the specified 'peer' into '*msg'.
+//  class ResponseMsg
+//      // Class encapsulating the response message.  It encapsulates the
+//      // query result and the handle associated with the callback for
+//      // the query.
+//  {
+//      int d_handle;
 //
-//   void getQueryAndCallback(Query                                *query,
-//                            bdlf::Function<void (*)(QueryResult)> *callBack);
-//       // Set the '*query' and '*callBack' to the next query and its
-//       // associated callback (the functor to be called when the response
-//       // to this query comes in).
+//    public:
+//      void setHandle(int handle)
+//          // Set the handle contained in this response message.
+//      {
+//          d_handle = handle;
+//      }
+//
+//      QueryResult queryResult() const
+//          // Return the query result contained in this response message.
+//      {
+//          return QueryResult();
+//      }
+//
+//      int handle() const
+//          // Return the handle contained in this response message.
+//      {
+//          return d_handle;
+//      }
+//  };
+//
+//  void sendMessage(RequestMsg msg, RemoteAddress peer)
+//      // Send the specified 'msg' to the specified 'peer'.
+//  {
+//      serverMutex.lock();
+//      peer->push(msg.handle());
+//      serverNotEmptyCondition.signal();
+//      serverMutex.unlock();
+//  }
+//
+//  void recvMessage(ResponseMsg *msg, RemoteAddress peer)
+//      // Get the response from the specified 'peer' into '*msg'.
+//  {
+//      serverMutex.lock();
+//      while (peer->empty()) {
+//          serverNotEmptyCondition.wait(&serverMutex);
+//      }
+//      msg->setHandle(peer->front());
+//      peer->pop();
+//      serverMutex.unlock();
+//  }
+//
+//  void getQueryAndCallback(Query                                 *query,
+//                           bdlf::Function<void (*)(QueryResult)> *callBack)
+//      // Set the '*query' and '*callBack' to the next query and its
+//      // associated callback (the functor to be called when the response
+//      // to this query comes in).
+//  {
+//      (void *)query;
+//      *callBack = &queryCallBack;
+//  }
 //..
 // Furthermore, let also the following variables be declared:
 //..
-//   RemoteAddress serverAddress;
-//       // Address of remote server.
+//  RemoteAddress serverAddress;  // address of remote server
 //
-//   bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
-//       // Catalog of query callbacks, used by the client internally to
-//       // keep track of callback functions across multiple queries.  The
-//       // invariant is that each element corresponds to a pending query
-//       // (i.e., the callback function has not yet been or is in the
-//       // process of being invoked).
+//  bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
+//      // Catalog of query callbacks, used by the client internally to
+//      // keep track of callback functions across multiple queries.  The
+//      // invariant is that each element corresponds to a pending query
+//      // (i.e., the callback function has not yet been or is in the
+//      // process of being invoked).
+//..
+// Now we define functions that will be used in the thread entry functions:
+//..
+//  void testClientProcessQueryCpp()
+//  {
+//      int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
+//      while (queriesToBeProcessed--) {
+//          Query query;
+//          bdlf::Function<void (*)(QueryResult)> callBack;
 //
+//          // The following call blocks until a query becomes available.
+//          getQueryAndCallback(&query, &callBack);
+//
+//          // Register 'callBack' in the object catalog.
+//          int handle = catalog.add(callBack);
+//          assert(handle);
+//
+//          // Send query to server in the form of a 'RequestMsg'.
+//          RequestMsg msg(query, handle);
+//          sendMessage(msg, serverAddress);
+//      }
+//  }
+//
+//  void testClientProcessResponseCpp()
+//  {
+//      int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
+//      while (queriesToBeProcessed--) {
+//          // The following call blocks until some response is available
+//          // in the form of a 'ResponseMsg'.
+//
+//          ResponseMsg msg;
+//          recvMessage(&msg, serverAddress);
+//          int handle = msg.handle();
+//          QueryResult result = msg.queryResult();
+//
+//          // Process query 'result' by applying registered 'callBack'
+//          // to it.  The 'callBack' function is retrieved from the
+//          // 'catalog' using the given 'handle'.
+//
+//          bdlf::Function<void (*)(QueryResult)> callBack;
+//          assert(0 == catalog.find(handle, &callBack));
+//          callBack(result);
+//
+//          // Finally, remove the no-longer-needed 'callBack' from the
+//          // 'catalog'.  Assert so that 'catalog' may not grow unbounded
+//          // if remove fails.
+//
+//          assert(0 == catalog.remove(handle));
+//      }
+//  }
 //..
 // In some thread, the client executes the following code.
 //..
-//   while (1)
-//   {
-//       Query query;
-//       bdlf::Function<void (*)(QueryResult)> callBack;
-//
-//       // The following call blocks until a query becomes available.
-//       getQueryAndCallback(&query, &callBack);
-//
-//       // Register 'callBack' in the object catalog.
-//       int handle = catalog.add(callBack);
-//       ASSERT(handle);
-//
-//       // Send query to server in the form of a 'RequestMsg'.
-//       RequestMsg msg(query, handle);
-//       sendMessage(msg, serverAddress);
-//   }
+//  extern "C" void *testClientProcessQuery(void *)
+//  {
+//      testClientProcessQueryCpp();
+//      return 0;
+//  }
 //..
 // In some other thread, the client executes the following code.
 //..
-//   while (1)
-//   {
-//       // The following call blocks until some response is available
-//       // in the form of a 'ResponseMsg'.
-//       ResponseMsg msg;
-//       recvMessage(&msg, serverAddress);
-//       int handle = msg.handle();
-//       QueryResult result = msg.queryResult();
-//
-//       // Process query 'result' by applying registered 'callBack'
-//       // to it.  The 'callBack' function is retrieved from the
-//       // 'catalog' using the given 'handle'.
-//       bdlf::Function<void (*)(QueryResult)> callBack;
-//       ASSERT(0 == catalog.find(handle, &callBack));
-//       callBack(result);
-//
-//       // Finally, remove the no-longer-needed 'callBack' from the
-//       // 'catalog'.  Assert so that 'catalog' may not grow unbounded
-//       // if remove fails.
-//       ASSERT(0 == catalog.remove(handle));
-//   }
+//  extern "C" void *testClientProcessResponse(void *)
+//  {
+//      testClientProcessResponseCpp();
+//      return 0;
+//  }
 //..
 //
-///Iterator Usage
-///- - - - - - -
+///Example 2: Iterator Usage
+///- - - - - - - - - - - - -
 // The following code fragment shows how to use bdlcc::ObjectCatalogIter to
 // iterate through all the objects of 'catalog' (a catalog of objects of type
 // 'MyType').
 //..
-//      for (bdlcc::ObjectCatalogIter<MyType> it(catalog); it; ++it) {
-//          bsl::pair<int, MyType> p = it(); // p.first contains the handle and
-//                                           // p.second contains the object
-//          use(p.second);                   // the function 'use' uses the
-//                                           // object in some way
-//      }
-//      // 'it' is now destroyed out of the scope, releasing the lock.
+//  void use(bdlf::Function<void (*)(QueryResult)> object)
+//  {
+//      (void)object;
+//  }
+//..
+// Now iterate through the 'catalog':
+//..
+//  for (bdlcc::ObjectCatalogIter<MyType> it(catalog); it; ++it) {
+//      bsl::pair<int, MyType> p = it(); // p.first contains the handle and
+//                                       // p.second contains the object
+//      use(p.second);                   // the function 'use' uses the
+//                                       // object in some way
+//  }
+//  // 'it' is now destroyed out of the scope, releasing the lock.
 //..
 // Note that the associated catalog is (read)locked when the iterator is
 // constructed and is unlocked only when the iterator is destroyed.  This means

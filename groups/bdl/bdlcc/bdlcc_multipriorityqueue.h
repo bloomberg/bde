@@ -82,8 +82,8 @@ BSLS_IDENT("$Id: $")
 //
 //  struct MyWorkRequest {
 //      enum RequestType {
-//            e_WORK = 1
-//          , e_STOP = 2
+//          e_WORK = 1,
+//          e_STOP = 2
 //      };
 //
 //      RequestType d_type;
@@ -97,7 +97,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  void myDoWork(MyWorkData& data)
 //  {
-//      int j = data.d_i * data.d_i;
+//      // Do work...
+//      (void)data;
 //  }
 //
 //  int getWorkData(MyWorkData *result)
@@ -165,7 +166,7 @@ BSLS_IDENT("$Id: $")
 // ensures that the thread itself will terminate correctly (see the
 // 'bdlqq_threadutil' component-level documentation for details):
 //..
-//  void myProducer(int numThreads)
+//  void myProducer()
 //  {
 //      enum {
 //          k_NUM_PRIORITIES = 8,
@@ -181,7 +182,8 @@ BSLS_IDENT("$Id: $")
 //
 //      // Start the specified number of threads.
 //
-//      assert(0 < k_NUM_THREADS && k_NUM_THREADS <= k_MAX_CONSUMER_THREADS);
+//      assert(0 < k_NUM_THREADS
+//          && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
 //      bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
 //
 //      for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -258,7 +260,7 @@ BSLS_IDENT("$Id: $")
 //      EventType d_type;
 //      int       d_workerId;
 //      int       d_eventNumber;
-//      char      d_eventText[MAX_EVENT_TEXT];
+//      char      d_eventText[k_MAX_EVENT_TEXT];
 //  };
 //..
 // As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns a new
@@ -286,12 +288,12 @@ BSLS_IDENT("$Id: $")
 //  void myWorker(int workerId, bdlcc::MultipriorityQueue<MyEvent> *queue)
 //  {
 //      const int N = queue->numPriorities();
-//      const int k_NUM_EVENTS = 5;
+//      const int NUM_EVENTS = 5;
 //      int eventNumber;    // used also to generate mixed priorities
 //
-//      // First push 'k_NUM_EVENTS' events onto 'queue' with mixed priorities.
+//      // First push 'NUM_EVENTS' events onto 'queue' with mixed priorities.
 //
-//      for (eventNumber = 0; eventNumber < k_NUM_EVENTS; ++eventNumber) {
+//      for (eventNumber = 0; eventNumber < NUM_EVENTS; ++eventNumber) {
 //          MyEvent ev = {
 //              MyEvent::e_IN_PROGRESS,
 //              workerId,
@@ -345,7 +347,8 @@ BSLS_IDENT("$Id: $")
 //
 //      bdlcc::MultipriorityQueue<MyEvent> queue(k_NUM_PRIORITIES);
 //
-//      assert(0 < k_NUM_THREADS && k_NUM_THREADS <= k_MAX_CONSUMER_THREADS);
+//      assert(0 < k_NUM_THREADS
+//          && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
 //      bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 //
 //      // Create 'k_NUM_THREADS' threads, each having a unique "worker id".

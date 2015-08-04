@@ -256,91 +256,120 @@ void gg(Obj          *result,
 //                          USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-class IntegerQueue {
-    // This class provides a fully thread-safe queue of integers with a fixed
-    // maximum capacity.
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Thread-Safe Queue of Integers
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we create a simple thread-safe queue of integers
+// using a 'bdlcc::FixedQueueIndexManager' to synchronize the queue operations.
+//
+// We start by declaring the data members of an 'IntegerQueue', a vector of
+// integers, to hold the values in the queue, and an index manager to ensure
+// thread-safe access to the indices of the vector:
+//..
+    class IntegerQueue {
+        // This class provides a fully thread-safe queue of integers with a
+        // fixed maximum capacity.
 
-    // DATA
-    bdlcc::FixedQueueIndexManager d_indexManager;  // manages 'd_values'
+        // DATA
+        bdlcc::FixedQueueIndexManager d_indexManager;  // manages 'd_values'
                                                        // indices
 
-    bsl::vector<int>                  d_values;        // maintains values
+        bsl::vector<int>              d_values;        // maintains values
 
-  public:
+      public:
+//..
+// Then, we declare the methods of an integer queue:
+//..
+        // CREATORS
+        explicit IntegerQueue(bsl::size_t       capacity,
+                              bslma::Allocator *basicAllocator = 0);
+            // Create a queue capable of holding up to the specified
+            // 'capacity' number of integer values.
 
+        ~IntegerQueue();
+            // Destroy this queue.
+
+        // MANIPULATORS
+        int tryPushBack(int value);
+            // Attempt to push the specified 'value' onto the back of this
+            // queue.  Return 0 on success, and a non-zero value if this queue
+            // is full.
+
+        int tryPopFront(int *result);
+            // Attempt to remove an element from the front of this queue and
+            // load the removed value into the specified 'result'.  Return 0
+            // on success, and a non-zero value otherwise.
+
+        // ACCESSORS
+        bsl::size_t length() const;
+            // Return a snapshot of the number of elements currently in this
+            // queue.
+
+        bsl::size_t capacity() const;
+            // Return the maximum number of elements that this queue can hold.
+    };
+//..
+//  Next, we define the constructor, which initializes both the index manager
+//  and vector with the supplied capacity:
+//..
     // CREATORS
-    explicit IntegerQueue(unsigned int      capacity,
-                          bslma::Allocator *basicAllocator = 0);
-        // Create an queue capable of holding up to the specified 'capacity'
-        // number of integer values.
+    IntegerQueue::IntegerQueue(bsl::size_t       capacity,
+                               bslma::Allocator *basicAllocator)
+    : d_indexManager(capacity, basicAllocator)
+    , d_values(capacity, 0, basicAllocator)
+    {
+    }
 
-    ~IntegerQueue();
-        // Destroy this queue.
-
+    IntegerQueue::~IntegerQueue()
+    {
+    }
+//..
+// Now, we define 'tryPushBack' and 'tryPopFront', which use the index manager
+// to reserve an index in the vector, operate on that index, and then commit
+// that index back to the index manager:
+//..
     // MANIPULATORS
-    int tryPushBack(int value);
-        // Attmpt to push the specified 'value' onto the back of this queue
-        // Return 0 on success, and a non-zero value if this queue is full.
+    int IntegerQueue::tryPushBack(int value)
+    {
+        unsigned int generation, index;
+        if (0 == d_indexManager.reservePushIndex(&generation, &index)) {
+            d_values[index] = value;
+            d_indexManager.commitPushIndex(generation, index);
+            return 0;
+        }
+        return -1;
+    }
 
-    int tryPopFront(int *result);
-        // Attempt to remove an element from the front of this queue and load
-        // that value into the specified 'result'.  Return 0 int on success,
-        // and a non-zero value otherwise.
-
+    int IntegerQueue::tryPopFront(int *result)
+    {
+        unsigned int generation, index;
+        if (0 == d_indexManager.reservePopIndex(&generation, &index)) {
+            *result = d_values[index];
+            d_indexManager.commitPopIndex(generation, index);
+            return 0;
+        }
+        return -1;
+    }
+//..
+// Notice that because none of these operations allocate memory, we do not need
+// to add code to ensure exception safety.
+//
+// Then, we define the accessors to the integer queue:
+//..
     // ACCESSORS
-    bsl::size_t length() const;
-        // Return the number of elements currently in this queue.
-
-    bsl::size_t capacity() const;
-        // Return the maximum number of elements that can be added to this
-        // queue.
-};
-
-// CREATORS
-IntegerQueue::IntegerQueue(unsigned int      capacity,
-                           bslma::Allocator *basicAllocator)
-: d_indexManager(capacity, basicAllocator)
-, d_values(capacity, 0, basicAllocator)
-{
-}
-
-IntegerQueue::~IntegerQueue()
-{
-}
-
-// MANIPULATORS
-int IntegerQueue::tryPushBack(int value)
-{
-    unsigned int generation, index;
-    if (0 == d_indexManager.reservePushIndex(&generation, &index)) {
-        d_values[index] = value;
-        d_indexManager.commitPushIndex(generation, index);
-        return 0;
+    bsl::size_t IntegerQueue::length() const
+    {
+        return d_indexManager.length();
     }
-    return -1;
-}
 
-int IntegerQueue::tryPopFront(int *result)
-{
-    unsigned int generation, index;
-    if (0 == d_indexManager.reservePopIndex(&generation, &index)) {
-        *result = d_values[index];
-        d_indexManager.commitPopIndex(generation, index);
-        return 0;
+    bsl::size_t IntegerQueue::capacity() const
+    {
+        return d_indexManager.capacity();
     }
-    return -1;
-}
-
-// ACCESSORS
-bsl::size_t IntegerQueue::length() const
-{
-    return d_indexManager.length();
-}
-
-bsl::size_t IntegerQueue::capacity() const
-{
-    return d_indexManager.capacity();
-}
+//..
 
 //=============================================================================
 //                  *IMPLEMENTATION SPECIFIC* TOOLS
@@ -954,24 +983,27 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING USAGE EXAMPLE" << endl
                                   << "=====================" << endl;
 
-        IntegerQueue intQueue(2);
-        int rc = intQueue.tryPushBack(1);
-        ASSERT(0 == rc);
+// Finally, we create an 'IntegerQueue', and push and pop a couple of elements
+// into the queue:
+//..
+    IntegerQueue intQueue(2);
+    int rc = intQueue.tryPushBack(1);
+    ASSERT(0 == rc);
 
-        rc = intQueue.tryPushBack(2);
-        ASSERT(0 == rc);
+    rc = intQueue.tryPushBack(2);
+    ASSERT(0 == rc);
 
-        rc = intQueue.tryPushBack(3);
-        ASSERT(0 != rc);
+    rc = intQueue.tryPushBack(3);
+    ASSERT(0 != rc);
 
-        ASSERT(2 == intQueue.length());
+    ASSERT(2 == intQueue.length());
 
-        int result;
+    int result;
 
-        rc = intQueue.tryPopFront(&result);
-        ASSERT(0 == rc);
-        ASSERT(1 == result);
-
+    rc = intQueue.tryPopFront(&result);
+    ASSERT(0 == rc);
+    ASSERT(1 == result);
+//..
       } break;
       case 12: {
         // --------------------------------------------------------------------
