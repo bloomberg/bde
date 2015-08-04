@@ -134,14 +134,6 @@ struct ConvertibleType {
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -940,14 +932,6 @@ bsl::ostream& ChoiceA::print(
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -1739,18 +1723,6 @@ bsl::ostream& ChoiceB::print(
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -2097,18 +2069,6 @@ const char CustomizedA::CLASS_NAME[] = "CustomizedA";
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -2453,18 +2413,6 @@ const char CustomizedB::CLASS_NAME[] = "CustomizedB";
 
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
 #endif
 
 namespace BloombergLP {
@@ -2815,18 +2763,6 @@ int EnumerationA::fromString(EnumerationA::Value *result,
 
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
 #endif
 
 namespace BloombergLP {
@@ -3181,14 +3117,6 @@ int EnumerationB::fromString(EnumerationB::Value *result,
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BDLB_PRINTMETHODS
@@ -3876,14 +3804,6 @@ bsl::ostream& SequenceA::print(
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
 #endif
@@ -4567,14 +4487,6 @@ bsl::ostream& SequenceB::print(
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BDLB_PRINTMETHODS
@@ -5410,14 +5322,6 @@ bsl::ostream& Employee::print(
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
 #endif
@@ -6166,14 +6070,6 @@ bsl::ostream& Trainee::print(
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BDLB_PRINTMETHODS

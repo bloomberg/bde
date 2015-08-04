@@ -317,14 +317,6 @@ bool streq(const char* s1, const char* s2)
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -1118,18 +1110,6 @@ bsl::ostream& MyChoice::print(
 #include <bsl_ostream.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 namespace BloombergLP {
 
 namespace test {
@@ -1482,14 +1462,6 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BDLB_PRINTMETHODS
@@ -2172,18 +2144,6 @@ bsl::ostream& MySequence::print(
 
 #ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
