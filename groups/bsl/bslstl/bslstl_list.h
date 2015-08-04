@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // 'list' is "'const' Thread-Safe [TS.2]" (see {'bsldoc_glossary'}).  Separate
 // threads can safely access and modify separate 'list' objects.  Separate
@@ -687,41 +687,41 @@ class List_Iterator
     List_Iterator& operator++();
         // Advance this iterator to the next element in this list and return
         // its new value.  The behavior is undefined unless this iterator is in
-        // the range '[ begin(), end() )' for some list (i.e., the iterator is
-        // not singular, is not 'end()' and has not be invalidated).
+        // the range '[begin() .. end())' for some list (i.e., the iterator is
+        // not singular, is not 'end()', and has not been invalidated).
 
     List_Iterator& operator--();
         // Move this iterator to the previous element in this list and return
         // its new value.  The behavior is undefined unless this iterator is in
         // the range '( begin(), end() ]' for some list (i.e., the iterator is
-        // not singular, is not 'begin()' and has not be invalidated).
+        // not singular, is not 'begin()', and has not been invalidated).
 
     List_Iterator operator++(int);
         // Advance this iterator to the next element in this list and return
         // its previous value.  The behavior is undefined unless this iterator
-        // is in the range '[ begin(), end() )' for some list (i.e., the
-        // iterator is not singular, is not 'end()' and has not be
+        // is in the range '[begin() .. end())' for some list (i.e., the
+        // iterator is not singular, is not 'end()', and has not been
         // invalidated).
 
     List_Iterator operator--(int);
         // Move this iterator to the previous element in this list and return
         // its previous value.  The behavior is undefined unless this iterator
         // is in the range '( begin(), end() ]' for some list (i.e., the
-        // iterator is not singular, is not 'begin()' and has not be
+        // iterator is not singular, is not 'begin()', and has not been
         // invalidated).
 
     // ACCESSORS
     reference operator*() const;
         // Return a reference to this list object referenced by this iterator.
         // The behavior is undefined unless this iterator is in the range
-        // '[ begin(), end() )' for some list (i.e., the iterator is not
-        // singular, is not 'end()' and has not be invalidated).
+        // '[begin() .. end())' for some list (i.e., the iterator is not
+        // singular, is not 'end()', and has not been invalidated).
 
     pointer operator->() const;
         // Return a pointer to this list object referenced by this iterator.
         // The behavior is undefined unless this iterator is in the range
-        // '[ begin(), end() )' for some list (i.e., the iterator is not
-        // singular, is not 'end()' and has not be invalidated).
+        // '[begin() .. end())' for some list (i.e., the iterator is not
+        // singular, is not 'end()', and has not been invalidated).
 };
 
 // FREE OPERATORS
@@ -972,13 +972,14 @@ class list
                       NodePtr node2,
                       NodePtr finish,
                       COMPARE comp);
-        // Given a contiguous sequence of nodes, '[node1, finish)' with
-        // 'node2', pointing somewhere in the middle of the sequence, merge
-        // sequence '[node2, finish)' into '[node1, node2)' and return a
+        // Given a contiguous sequence of nodes, '[node1 .. finish)', with
+        // 'node2' pointing somewhere in the middle of the sequence, merge
+        // sequence '[node2 .. finish)' into '[node1 .. node2)', and return a
         // pointer to the beginning of the merged sequence.  If an exception is
         // thrown, all nodes remain in this list, but their order is
-        // unspecified.  The behavior is undefined unless '[node1, node2)' and
-        // '[node2, finish)' each describe a contiguous sequence of nodes.
+        // unspecified.  The behavior is undefined unless '[node1 .. node2)'
+        // and '[node2 .. finish)' each describe a contiguous sequence of
+        // nodes.
 
     template <class COMPARE>
     NodePtr sort_imp(NodePtr       *pnode1,
@@ -1021,11 +1022,13 @@ class list
          >::type * = 0)
         // Create a list using the specified 'basicAllocator' and insert the
         // number of elements determined by the size of the specified range
-        // '[first, last)'.  Each initial element is created by
-        // "copy-insertion" from the corresponding element in '[first, last)'.
-        // Does not participate in overload resolution unless 'InputIter' is an
-        // iterator type.  The behavior is undefined unless '[first, last)'
-        // defines a range of valid objects.
+        // '[first .. last)'.  Each initial element is created by
+        // "copy-insertion" from the corresponding element in
+        // '[first .. last)'.  The behavior is undefined unless 'first' and
+        // 'last' refer to a sequence of valid values where 'first' is at a
+        // position at or before 'last'.  Note that this method does not
+        // participate in overload resolution unless 'InputIter' is an iterator
+        // type.
         //
         // TBD: It would be better to use 'std::is_arithmetic' (a currently
         // unavailable metafunction) instead of 'is_fundamental' in the
@@ -1097,8 +1100,8 @@ class list
         // and return a reference providing modifiable access to this list.  If
         // 'rhs.get_allocator() == this->get_allocator()', then no move or copy
         // operations are applied to any individual elements; otherwise each
-        // element of this list is created by either copy-assignment or
-        // "copy-insertion" from the corresponding element of 'rhs'.  After the
+        // element of this list is created by either copy assignment or
+        // "copy insertion" from the corresponding element of 'rhs'.  After the
         // construction, the value of 'rhs' is valid, but unspecified.
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1110,12 +1113,13 @@ class list
                     !is_enum<InputIter>::value
                 >::type * = 0)
         // Assign to this list the values of the elements in the specified
-        // range '[first, last)'.  Each element in this list is set by either
+        // range '[first .. last)'.  Each element in this list is set by either
         // copy-assignment or "copy-insertion" from the corresponding element
-        // in '[first, last)'.  Does not participate in overload resolution
-        // unless 'InputIter' is an iterator type.  The behavior is undefined
-        // unless '[first, last)' is a range of valid iterators not into this
-        // list.
+        // in '[first .. last)'.  The behavior is undefined unless 'first' and
+        // 'last' refer to a sequence of valid values where 'first' is at a
+        // position at or before 'last', and the sequence is not in this list.
+        // Note that this method does not participate in overload resolution
+        // unless 'InputIter' is an iterator type.
         //
         // TBD: It would be better to use 'std::is_arithmetic' (a currently
         // unavailable metafunction) instead of 'is_fundamental' in the
@@ -1141,7 +1145,7 @@ class list
     void assign(size_type n, const VALUE& value);
         // Replace the contents of this list with the specified 'n' copies of
         // the specified 'value'.  Each element in this list is set by either
-        // copy-assignment or "copy-insertion" from 'value'.
+        // copy assignment or "copy insertion" from 'value'.
 
     // iterators:
 
@@ -1398,10 +1402,13 @@ class list
                         !is_fundamental<InputIter>::value &&
                         !is_enum<InputIter>::value
                     >::type * = 0)
-        // Insert the specified range '[first, last)' into this list at the
-        // specified 'position' and return an iterator to the first inserted
-        // element or 'position' if the range is empty.  Does not participate
-        // in overload resolution unless 'InputIter' is an iterator type.
+        // Insert the specified range '[first .. last)' into this list at the
+        // specified 'position', and return an iterator to the first inserted
+        // element or 'position' if the range is empty.  The behavior is
+        // undefined unless 'first' and 'last' refer to a sequence of valid
+        // values where 'first' is at a position at or before 'last'.  Note
+        // that this method does not participate in overload resolution unless
+        // 'InputIter' is an iterator type.
         //
         // TBD: It would be better to use 'std::is_arithmetic' (a currently
         // unavailable metafunction) instead of 'is_fundamental' in the
@@ -1430,7 +1437,7 @@ class list
         // the removed element, or to the position returned by the 'end' method
         // if the removed element was the last in the sequence.  The behavior
         // is undefined unless 'position' is an iterator in the range
-        // '[ begin(), end() )'.
+        // '[ begin() .. end())'.
 
     iterator erase(const_iterator position, const_iterator last);
         // Remove from this list the elements starting at the specified 'first'
@@ -1439,8 +1446,8 @@ class list
         // removed element, or the position returned by the method 'end' if the
         // removed elements were last in the sequence.  The behavior is
         // undefined unless 'first' is an iterator in the range
-        // '[ begin(), end() ]' and 'last' is an iterator in the range
-        // '[ first, end() ]' (both endpoints included).
+        // '[begin() .. end()]' and 'last' is an iterator in the range
+        // '[first .. end()]' (both endpoints included).
 
     void swap(list& other);
         // Exchange the value of this list with that of the specified 'other'
@@ -1473,8 +1480,8 @@ class list
         // before the specified 'last' position into this list, right before
         // the element at the specified 'position', and remove those elements
         // from the specified list 'x'.  The behavior is undefined unless
-        // '[first, last)' represents a range of valid elements in 'x', and
-        // 'position' is not in the range '[first, last)'.
+        // '[first .. last)' represents a range of valid elements in 'x', and
+        // 'position' is not in the range '[first .. last)'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     void splice(const_iterator position, list&& x);
@@ -1619,8 +1626,8 @@ bool operator==(const list<VALUE, ALLOCATOR>& lhs,
     // value, and 'false' otherwise.  The 'lhs' and the 'rhs' objects have the
     // same value if they have the same number of elements, and each element of
     // 'lhs' has same value as that of the corresponding element in 'rhs'.
-    // This method requires that the (template parameter) 'VALUE' type has
-    // 'operator==' defined.
+    // Note that this method requires that the (template parameter) 'VALUE'
+    // type has 'operator==' defined.
 
 template <class VALUE, class ALLOCATOR>
 bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
@@ -1629,8 +1636,8 @@ bool operator!=(const list<VALUE, ALLOCATOR>& lhs,
     // same value, and 'false' otherwise.  The 'lhs' and the 'rhs' objects do
     // have the same value if they do not have the same number of elements, or
     // at least one element of 'lhs' does not have same value as that of the
-    // corresponding element in 'rhs'.  This method requires that the (template
-    // parameter) 'VALUE' type has 'operator==' defined.
+    // corresponding element in 'rhs'.  Note that this method requires that the
+    // (template parameter) 'VALUE' type has 'operator==' defined.
 
 template <class VALUE, class ALLOCATOR>
 bool operator< (const list<VALUE, ALLOCATOR>& lhs,
@@ -1640,31 +1647,32 @@ bool operator< (const list<VALUE, ALLOCATOR>& lhs,
     // lexicographically smaller than the 'rhs' if there exists an element 'v'
     // in 'lhs' such that 'v' is smaller than the corresponding element in
     // 'rhs', and all elements before 'v' in 'lhs' have the same values as
-    // those of the corresponding elements in 'rhs'.  This method requires that
-    // the (template parameter) 'VALUE' type has 'operator<' defined.
+    // those of the corresponding elements in 'rhs'.  Note that this method
+    // requires that the (template parameter) 'VALUE' type has 'operator<'
+    // defined.
 
 template <class VALUE, class ALLOCATOR>
 bool operator> (const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' list is lexicographically larger
-    // than the specified 'rhs' list, and 'false' otherwise.  This method
-    // requires that the (template parameter) 'VALUE' type has 'operator<'
-    // defined.
+    // than the specified 'rhs' list, and 'false' otherwise.  Note that this
+    // method requires that the (template parameter) 'VALUE' type has
+    // 'operator<' defined.
 
 template <class VALUE, class ALLOCATOR>
 bool operator<=(const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' list is lexicographically smaller
-    // than or equal to the specified 'rhs' list, and 'false' otherwise.  This
-    // method requires that the (template parameter) 'VALUE' type has
+    // than or equal to the specified 'rhs' list, and 'false' otherwise.  Note
+    // that this method requires that the (template parameter) 'VALUE' type has
     // 'operator<' defined.
 
 template <class VALUE, class ALLOCATOR>
 bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
                 const list<VALUE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' list is lexicographically larger
-    // than or equal to the specified 'rhs' list, and 'false' otherwise.  This
-    // method requires that the (template parameter) 'VALUE' type has
+    // than or equal to the specified 'rhs' list, and 'false' otherwise.  Note
+    // that this method requires that the (template parameter) 'VALUE' type has
     // 'operator<' defined.
 
 // SPECIALIZED ALGORITHMS
@@ -1801,7 +1809,7 @@ bool bsl::operator==(List_Iterator<T1,NODEPTR,DIFFTYPE> lhs,
     // 'lhs' and 'rhs' have the same 'NODEPTR' type; their 'd_nodeptr' members
     // can thus be compared for equality regardless of 'T1' and 'T2'.  However,
     // all instantiations of 'List_Iterator' with the same 'NODEPTR' will have
-    // types 'T1' or 'T2' that differ only in their const qualification.
+    // types 'T1' or 'T2' that differ only in their 'const' qualification.
 
     return lhs.d_nodeptr == rhs.d_nodeptr;
 }
@@ -2100,7 +2108,7 @@ list<VALUE, ALLOCATOR>::list(list&& original)
 , d_alloc_and_size(original.allocator(), 0)
 {
     // Allocator should be copied, not moved, to ensure identical allocators
-    // between this and 'original', otherwise 'swap' will be undefined.
+    // between this and 'original', otherwise 'swap' is undefined.
 
     create_sentinel();
     quick_swap(original);

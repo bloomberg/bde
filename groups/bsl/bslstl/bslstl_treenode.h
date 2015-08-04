@@ -219,7 +219,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      Set(const ALLOCATOR& allocator = ALLOCATOR());
-//          // Create an empty set. Optionally specify a 'allocator' used to
+//          // Create an empty set.  Optionally specify a 'allocator' used to
 //          // supply memory.  If 'allocator' is not specified, a default
 //          // constructed 'ALLOCATOR' object is used.
 //

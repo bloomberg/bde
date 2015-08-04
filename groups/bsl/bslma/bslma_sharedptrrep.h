@@ -44,7 +44,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'acquireWeakRef' should be called when a new weak reference is created and
 // 'releaseWeakRef' should be called when a weak reference is removed.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // 'bslma::SharedPtrRep' is thread-safe provided that 'disposeObject' and
 // 'disposeRep' are not called explicitly, meaning that all non-creator

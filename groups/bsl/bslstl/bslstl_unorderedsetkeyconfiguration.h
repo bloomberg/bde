@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //  template <class VALUE_TYPE, class KEY_EXTRACTOR>
 //  void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
 //      // This function provides an order-preserving sort of the items in the
-//      // range '[ begin, end )', where 'KEY_EXTRACTOR::extractKey' yields the
+//      // range '[begin .. end)', where 'KEY_EXTRACTOR::extractKey' yields the
 //      // key being sorted over.  We require that 'VALUE_TYPE' support copy
 //      // construction and assignment.
 //  {
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //              }
 //          }
 //
-//          // '*end' is now the highest element in the range '[ begin, end ]',
+//          // '*end' is now the highest element in the range '[begin .. end]',
 //          // so we only have to sort the elements before it in the next pass.
 //      }
 //  }

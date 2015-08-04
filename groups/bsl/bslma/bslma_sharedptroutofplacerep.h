@@ -25,7 +25,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // out-of-place object are released using 'releaseRef', the deleter of the
 // parameterized 'DELETER' type is invoked to delete the shared object.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // 'bslma::SharedPtrOutofplaceRep' is thread-safe provided that 'disposeObject'
 // and 'disposeRep' are not called explicitly, meaning that all non-creator
@@ -564,7 +564,7 @@ struct SharedPtrOutofplaceRep_InitProctor {
     // is not released before it's destruction, a copy of the deleter is
     // instantiated to delete the pointer (in case 'operator()' is
     // non-'const').  Also note that if the deleter throws during
-    // copy-construction, the provided pointer will not be destroyed.
+    // copy construction, the provided pointer will not be destroyed.
 
     // DATA
     TYPE           *d_ptr_p;    // address of the managed object (held, not

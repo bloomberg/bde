@@ -1,17 +1,17 @@
  bdlscm.txt
 
-@PURPOSE: Provide versioning information for BDL library components.
+@PURPOSE: Provide versioning information for BDE library components.
 
 @MNEMONIC: Basic Development Library Source Control Management (bdlscm)
 
 @SEE_ALSO: bslscm
 
 @DESCRIPTION: This package provides versioning information that is incorporated
- into every release of the 'bsl' Package Group Library.  This versioning
- information is in turn available to all clients of 'bsl' both at run-time and
+ into every release of the 'bdl' Package Group Library.  This versioning
+ information is in turn available to all clients of 'bdl' both at run-time and
  by inspection of appropriate '.o' files.  Note that, except for the package
  name, this version functionality is repeated in every package group within the
- BDL library suite.
+ BDE library suite.
 
 /Hierarchical Synopsis
 /---------------------

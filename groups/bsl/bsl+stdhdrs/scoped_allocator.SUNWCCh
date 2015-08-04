@@ -1,0 +1,72 @@
+// scoped_allocator                                                   -*-C++-*-
+#ifndef INCLUDED_NATIVE_SCOPED_ALLOCATOR
+#define INCLUDED_NATIVE_SCOPED_ALLOCATAOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
+//
+//@SEE_ALSO: package bsl+stdhdrs
+//
+//@DESCRIPTION: Provide functionality of the corresponding C++ standard
+// header.  This file includes the compiler provided native standard header.
+// In addition, in 'bde-stl' mode (used by Bloomberg managed code, see
+// 'bsl+stdhdrs.txt' for more information) include the corresponding header in
+// 'bsl+bslhdrs' as well as 'bsl_stdhdrs_prologue.h' and
+// 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
+// places them in the 'std' namespace.
+
+#ifndef BSL_OVERRIDES_STD
+
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   include <bsl_stdhdrs_incpaths.h>
+#   endif
+
+#   include BSL_NATIVE_CPP_RUNTIME_HEADER(scoped_allocator)
+
+#else // defined(BSL_OVERRIDES_STD)
+
+#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+#   include <bsl_stdhdrs_prologue.h>
+#   endif
+
+#   ifndef BSL_STDHDRS_RUN_EPILOGUE
+#   define BSL_STDHDRS_RUN_EPILOGUE
+#   define BSL_STDHDRS_EPILOGUE_RUN_BY_scoped_allocator
+#   endif
+
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   include <bsl_stdhdrs_incpaths.h>
+#   endif
+
+#   include BSL_NATIVE_CPP_RUNTIME_HEADER(scoped_allocator)
+
+#   include <bsl_scoped_allocator.h>
+
+#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_scoped_allocator
+#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_scoped_allocator
+#   include <bsl_stdhdrs_epilogue.h>
+#   endif
+
+#endif  // BSL_OVERRIDES_STD
+
+#endif  // INCLUDED_NATIVE_SCOPED_ALLOCATOR
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
