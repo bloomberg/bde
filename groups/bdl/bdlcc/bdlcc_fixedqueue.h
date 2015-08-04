@@ -207,6 +207,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
@@ -283,7 +287,7 @@ class FixedQueue {
     // CREATORS
     explicit
     FixedQueue(bsl::size_t       capacity,
-                          bslma::Allocator *basicAllocator = 0);
+               bslma::Allocator *basicAllocator = 0);
         // Create a thread-enabled lock-free queue having the specified
         // 'capacity'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -477,9 +481,8 @@ class FixedQueue_PushProctor {
                            // ---------------------
 // CREATORS
 template <class TYPE>
-FixedQueue<TYPE>::FixedQueue(
-                                             bsl::size_t       capacity,
-                                             bslma::Allocator *basicAllocator)
+FixedQueue<TYPE>::FixedQueue(bsl::size_t       capacity,
+                             bslma::Allocator *basicAllocator)
 : d_elements()
 , d_elementsPad()
 , d_impl(capacity, basicAllocator)
@@ -699,7 +702,7 @@ template <class TYPE>
 inline
 int FixedQueue<TYPE>::capacity() const
 {
-    return d_impl.capacity();
+    return static_cast<int>(d_impl.capacity());
 }
 
 template <class TYPE>
@@ -734,14 +737,14 @@ template <class TYPE>
 inline
 int FixedQueue<TYPE>::numElements() const
 {
-    return d_impl.length();
+    return static_cast<int>(d_impl.length());
 }
 
 template <class TYPE>
 inline
 int FixedQueue<TYPE>::size() const
 {
-    return capacity();
+    return static_cast<int>(capacity());
 }
 
                         // -------------------------

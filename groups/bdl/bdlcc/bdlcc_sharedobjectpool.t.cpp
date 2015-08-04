@@ -565,7 +565,10 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i],
+                                  attributes,
+                                  func,
+                                  static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);

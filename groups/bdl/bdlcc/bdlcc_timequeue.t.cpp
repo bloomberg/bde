@@ -19,7 +19,9 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -494,7 +496,7 @@ void threadFunc(bdlcc::TimeQueue<int> *timeQueue,
         // "resend" replies
         bsls::TimeInterval now(currentTime, 0);
         timeQueue->popLE(now, &resubmit);
-        int numResubmitted = resubmit.size();
+        int numResubmitted = static_cast<int>(resubmit.size());
         for (int retry=0; retry<numResubmitted; retry++) {
             int newdelay = resubmit[retry].data() * 2;
             bsls::TimeInterval t(currentTime + newdelay, 0);
@@ -836,7 +838,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
                 }
             }
 
-            int length = expiredTimers.size();
+            int length = static_cast<int>(expiredTimers.size());
             if (length) {
                 bdlcc::TimeQueueItem<my_Connection*> *data =
                                                         &expiredTimers.front();
@@ -1337,7 +1339,7 @@ int main(int argc, char *argv[])
         int size = 0;
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             bdlqq::ThreadUtil::join(threads[i]);
-            size += items[i].size();
+            size += static_cast<int>(items[i].size());
         }
         bdlqq::ThreadUtil::join(threads[k_NUM_THREADS]);
 
@@ -1662,7 +1664,7 @@ int main(int argc, char *argv[])
                 const char *EXPITEMS     = POP_DATA[i].d_expItems;
                 const bsls::TimeInterval TIME(SECS,NSECS);
                 const int   OLDLENGTH    = X.length();
-                const int   OLDSIZE      = buffer.size();
+                const int   OLDSIZE      = static_cast<int>(buffer.size());
 
                 int newLength = 0;
                 bsls::TimeInterval newMinTime;
@@ -2046,7 +2048,7 @@ int main(int argc, char *argv[])
                 const char *EXPITEMS     = POP_DATA[i].d_expItems;
                 const bsls::TimeInterval TIME(SECS,NSECS);
                 const int   OLDLENGTH    = X.length();
-                const int   OLDSIZE      = buffer.size();
+                const int   OLDSIZE      = static_cast<int>(buffer.size());
 
                 int newLength = 0;
                 bsls::TimeInterval newMinTime;
@@ -2873,13 +2875,13 @@ int main(int argc, char *argv[])
             const int                HANDLE = 0xffff;
             const Obj::Key           KEY((const void*)&HANDLE);
 
-            const int NUM_ALLOC2 = ta2.numAllocations();
+            const bsls::Types::Int64 NUM_ALLOC2 = ta2.numAllocations();
 
             // CREATORS, ACCESSORS
             if (verbose) cout << "\t\tDefault constructor.\n";
             Obj mX(&ta);  const Obj& X = mX;
             {
-                const int NUM_ALLOC = ta.numAllocations();
+                const bsls::Types::Int64 NUM_ALLOC = ta.numAllocations();
                 ASSERT(bsls::TimeInterval() == X.time());
                 ASSERT(TestString()        == X.data());
                 // ASSERT(0 == X.handle());
@@ -2891,7 +2893,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t\tConstructor without key.\n";
             Obj mY(TIME, STRDATA, HANDLE, &ta);  const Obj& Y = mY;
             {
-                const int NUM_ALLOC = ta.numAllocations();
+                const bsls::Types::Int64 NUM_ALLOC = ta.numAllocations();
                 ASSERT(TIME                == Y.time());
                 ASSERT(STRDATA             == Y.data());
                 ASSERT(HANDLE              == Y.handle());
@@ -2903,7 +2905,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t\tConstructor with key.\n";
             Obj mZ(TIME, STRDATA, HANDLE, KEY, &ta);  const Obj& Z = mZ;
             {
-                const int NUM_ALLOC = ta.numAllocations();
+                const bsls::Types::Int64 NUM_ALLOC = ta.numAllocations();
                 ASSERT(TIME                == Z.time());
                 ASSERT(STRDATA             == Z.data());
                 ASSERT(HANDLE              == Z.handle());
@@ -2912,8 +2914,8 @@ int main(int argc, char *argv[])
                 ASSERT(NUM_ALLOC2          == ta2.numAllocations());
             }
 
-            bslma::TestAllocator ta3(veryVeryVerbose);
-            const int NUM_ALLOC = ta.numAllocations();
+            bslma::TestAllocator     ta3(veryVeryVerbose);
+            const bsls::Types::Int64 NUM_ALLOC = ta.numAllocations();
 
             if (verbose) cout << "\t\tCopy constructor.\n";
             Obj mU(Z, &ta3);  const Obj& U = mU;
@@ -2939,7 +2941,7 @@ int main(int argc, char *argv[])
             mX.time() = TIME;
             ASSERT(TIME == X.time());
 
-            const int NUM_ALLOC3 = ta3.numAllocations();
+            const bsls::Types::Int64 NUM_ALLOC3 = ta3.numAllocations();
             mU.data() = STRDATA2;
             ASSERT(STRDATA2 == U.data());
             ASSERT(NUM_ALLOC  == ta.numAllocations());
@@ -3221,7 +3223,7 @@ int main(int argc, char *argv[])
         vector<bsls::TimeInterval> timers(NUM_TOTAL_ITERATIONS, TIME);
         vector<bsls::TimeInterval> popTimes(NUM_OUTER_ITERATIONS, TIME);
 
-        srand(time(0));
+        srand(static_cast<unsigned int>(time(0)));
 
         for (int i = 0, k = 0; i < NUM_OUTER_ITERATIONS; ++i) {
             for (int j = 0; j < NUM_INNER_ITERATIONS; ++j, ++k) {

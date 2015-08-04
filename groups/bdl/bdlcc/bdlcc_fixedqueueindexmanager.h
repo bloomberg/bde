@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 // Then, we declare the methods of an integer queue:
 //..
 //      // CREATORS
-//      explicit IntegerQueue(unsigned int      capacity,
+//      explicit IntegerQueue(bsl::size_t       capacity,
 //                            bslma::Allocator *basicAllocator = 0);
 //          // Create a queue capable of holding up to the specified
 //          // 'capacity' number of integer values.
@@ -91,11 +91,11 @@ BSLS_IDENT("$Id: $")
 //          // on success, and a non-zero value otherwise.
 //
 //      // ACCESSORS
-//      unsigned int length() const;
+//      bsl::size_t length() const;
 //          // Return a snapshot of the number of elements currently in this
 //          // queue.
 //
-//      unsigned int capacity() const;
+//      bsl::size_t capacity() const;
 //          // Return the maximum number of elements that this queue can hold.
 //  };
 //..
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //  and vector with the supplied capacity:
 //..
 //  // CREATORS
-//  IntegerQueue::IntegerQueue(unsigned int      capacity,
+//  IntegerQueue::IntegerQueue(bsl::size_t       capacity,
 //                             bslma::Allocator *basicAllocator)
 //  : d_indexManager(capacity, basicAllocator)
 //  , d_values(capacity, 0, basicAllocator)
@@ -147,12 +147,12 @@ BSLS_IDENT("$Id: $")
 // Then, we define the accessors to the integer queue:
 //..
 //  // ACCESSORS
-//  unsigned int IntegerQueue::length() const
+//  bsl::size_t IntegerQueue::length() const
 //  {
 //      return d_indexManager.length();
 //  }
 //
-//  unsigned int IntegerQueue::capacity() const
+//  bsl::size_t IntegerQueue::capacity() const
 //  {
 //      return d_indexManager.capacity();
 //  }
@@ -255,7 +255,7 @@ class FixedQueueIndexManager {
     const char          d_popIndexPad[k_PADDING];
                            // padding to prevent false sharing
 
-    const unsigned int  d_capacity;
+    const bsl::size_t   d_capacity;
                            // maximum number of elements that can be held in
                            // the circular buffer
 
@@ -330,13 +330,13 @@ class FixedQueueIndexManager {
         // The behavior is undefined unless 'minuend < modulo',
         // 'subtrahend < modulo', and 'modulo <= INT_MAX + 1'.
 
-    static unsigned int numRepresentableGenerations(unsigned int capacity);
+    static unsigned int numRepresentableGenerations(bsl::size_t capacity);
         // Return the number of representable generations for a circular buffer
         // of the specified 'capacity'.
 
     // PUBLIC CONSTANTS
     enum {
-        e_MAX_CAPACITY = 1 << ((sizeof(int) * 8) - 2)
+        k_MAX_CAPACITY = 1 << ((sizeof(int) * 8) - 2)
                                     // maximum capacity of an index manager;
                                     // note that 2 bits of 'd_pushIndex' are
                                     // reserved for holding the disabled status
@@ -350,14 +350,14 @@ class FixedQueueIndexManager {
 
     // CREATORS
     explicit
-    FixedQueueIndexManager(unsigned int      capacity,
-                                      bslma::Allocator *basicAllocator = 0);
+    FixedQueueIndexManager(bsl::size_t       capacity,
+                           bslma::Allocator *basicAllocator = 0);
         // Create an index manager for a circular buffer having the specified
         // maximum 'capacity'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  'isEnabled' will be 'true' for the newly
         // created index manager.  The behavior is undefined unless
-        // '0 < capacity' and 'capacity <= e_MAX_CAPACITY'.
+        // '0 < capacity' and 'capacity <= k_MAX_CAPACITY'.
 
     ~FixedQueueIndexManager();
         // Destroy this object.
@@ -466,10 +466,10 @@ class FixedQueueIndexManager {
         // Return 'true' if the queue is enabled, and 'false' if it is
         // disabled.
 
-    unsigned int length() const;
+    bsl::size_t length() const;
         // Return a snapshot of the number of items in the queue.
 
-    unsigned int capacity() const;
+    bsl::size_t capacity() const;
         // Return the maximum number of items that may be stored in the queue.
 
     bsl::ostream& print(bsl::ostream& stream) const;
@@ -517,12 +517,12 @@ unsigned int FixedQueueIndexManager::nextGeneration(
 
 // ACCESSORS
 inline
-unsigned int FixedQueueIndexManager::capacity() const
+bsl::size_t FixedQueueIndexManager::capacity() const
 {
     return d_capacity;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

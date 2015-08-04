@@ -64,7 +64,7 @@ using namespace bsl;
 // [ 8] unsigned int numRepresentableGenerations(unsigned int );
 // [ 9] unsigned int numRepresentableGenerations(unsigned int );
 // PUBLIC CONSTANTS
-// [ 2] e_MAX_CAPACITY
+// [ 2] k_MAX_CAPACITY
 // CREATORS
 // [ 2] bdlcc::FixedQueueIndexManager(unsigned int, bslma::Allocator *);
 // [ 2] ~bdlcc::FixedQueueIndexManager();
@@ -288,10 +288,10 @@ class IntegerQueue {
         // and a non-zero value otherwise.
 
     // ACCESSORS
-    unsigned int length() const;
+    bsl::size_t length() const;
         // Return the number of elements currently in this queue.
 
-    unsigned int capacity() const;
+    bsl::size_t capacity() const;
         // Return the maximum number of elements that can be added to this
         // queue.
 };
@@ -332,12 +332,12 @@ int IntegerQueue::tryPopFront(int *result)
 }
 
 // ACCESSORS
-unsigned int IntegerQueue::length() const
+bsl::size_t IntegerQueue::length() const
 {
     return d_indexManager.length();
 }
 
-unsigned int IntegerQueue::capacity() const
+bsl::size_t IntegerQueue::capacity() const
 {
     return d_indexManager.capacity();
 }
@@ -371,7 +371,7 @@ struct FixedQueueIndexManagerDataMembers {
     const char          d_pushIndexPad[e_PADDING];
     bsls::AtomicInt     d_popIndex;
     const char          d_popIndexPad[e_PADDING];
-    const unsigned int  d_capacity;
+    const bsl::size_t   d_capacity;
     const unsigned int  d_maxGeneration;
     const unsigned int  d_maxCombinedIndex;
     bsls::AtomicInt    *d_states;
@@ -385,9 +385,9 @@ enum ElementState {
     e_READING  = 3    // element is reserved for reading
 };
 
-static const unsigned int e_ELEMENT_STATE_MASK     = 0x3;
-static const unsigned int e_GENERATION_COUNT_SHIFT = 0x2;
-static const unsigned int e_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
+static const unsigned int k_ELEMENT_STATE_MASK     = 0x3;
+static const unsigned int k_GENERATION_COUNT_SHIFT = 0x2;
+static const unsigned int k_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
 
 BSLMF_ASSERT(sizeof(FixedQueueIndexManagerDataMembers) ==
              sizeof(bdlcc::FixedQueueIndexManager));
@@ -477,13 +477,13 @@ unsigned int FixedQueueState::popGeneration() const
 
 unsigned int FixedQueueState::elementGeneration(unsigned int index) const
 {
-    return d_data->d_states[index] >> e_GENERATION_COUNT_SHIFT;
+    return d_data->d_states[index] >> k_GENERATION_COUNT_SHIFT;
 }
 
 ElementState FixedQueueState::elementState(unsigned int index) const
 {
     return static_cast<ElementState>(
-                              d_data->d_states[index] & e_ELEMENT_STATE_MASK);
+                              d_data->d_states[index] & k_ELEMENT_STATE_MASK);
 }
 
 unsigned int FixedQueueState::maxGeneration() const
@@ -498,7 +498,7 @@ unsigned int FixedQueueState::maxCombinedIndex() const
 
 unsigned int FixedQueueState::capacity() const
 {
-    return d_data->d_capacity;
+    return static_cast<unsigned int>(d_data->d_capacity);
 }
 
 void dirtyAdjustGeneration(Obj          *result,
@@ -511,15 +511,15 @@ void dirtyAdjustGeneration(Obj          *result,
     // large values.
 {
    FixedQueueIndexManagerDataMembers *data =
-        reinterpret_cast<FixedQueueIndexManagerDataMembers *>(result);
+                 reinterpret_cast<FixedQueueIndexManagerDataMembers *>(result);
 
-    unsigned int capacity = result->capacity();
-    for (unsigned int i = 0; i < capacity; ++i) {
-        data->d_states[i] = generation << e_GENERATION_COUNT_SHIFT;
-    }
+   bsl::size_t capacity = result->capacity();
+   for (bsl::size_t i = 0; i < capacity; ++i) {
+       data->d_states[i] = generation << k_GENERATION_COUNT_SHIFT;
+   }
 
-    data->d_pushIndex = generation * capacity;
-    data->d_popIndex  = generation * capacity;
+   data->d_pushIndex = static_cast<int>(generation * capacity);
+   data->d_popIndex  = static_cast<int>(generation * capacity);
 }
 
 void dirtyGG(Obj          *result,
@@ -531,12 +531,15 @@ void dirtyGG(Obj          *result,
     BSLS_ASSERT(pushCombinedIndex >= popCombinedIndex);
     BSLS_ASSERT(pushCombinedIndex - popCombinedIndex <= result->capacity());
 
-    unsigned int startGeneration = popCombinedIndex / result->capacity();
+    unsigned int startGeneration = static_cast<int>(popCombinedIndex
+                                                  / result->capacity());
 
     dirtyAdjustGeneration(result, startGeneration);
     gg(result,
-       pushCombinedIndex - startGeneration * result->capacity(),
-       popCombinedIndex  - startGeneration * result->capacity());
+       pushCombinedIndex - startGeneration
+                              * static_cast<unsigned int>(result->capacity()),
+       popCombinedIndex  - startGeneration
+                              * static_cast<unsigned int>(result->capacity()));
 }
 
 //=============================================================================
@@ -664,7 +667,7 @@ void writerThread(Obj                    *x,
     // test (running, paused, exiting), and periodically inserting delays using
     // the specified 'delayPeriod'.
 {
-    const unsigned int CAPACITY = x->capacity();
+    const bsl::size_t CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
 
@@ -677,7 +680,7 @@ void writerThread(Obj                    *x,
             testState->blockUntilStateChange();
             continue;
         }
-        unsigned int length = x->length();
+        bsl::size_t length = x->length();
         ASSERTV(length, length <= CAPACITY);
 
         for (int i = 0; i < 5; ++i) {
@@ -700,7 +703,7 @@ void readerThread(Obj                    *x,
     // test (running, paused, exiting), and periodically inserting delays using
     // the specified 'delayPeriod'.
 {
-    const unsigned int CAPACITY = x->capacity();
+    const bsl::size_t CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
 
@@ -713,7 +716,7 @@ void readerThread(Obj                    *x,
             testState->blockUntilStateChange();
             continue;
         }
-        unsigned int length = x->length();
+        bsl::size_t length = x->length();
         ASSERTV(length, length <= CAPACITY);
 
         for (int i = 0; i < 5; ++i) {
@@ -737,7 +740,7 @@ void exceptionThread(Obj                    *x,
     // 'delayPeriod'.
 {
 
-    const unsigned int CAPACITY = x->capacity();
+    const bsl::size_t CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
 
@@ -751,7 +754,7 @@ void exceptionThread(Obj                    *x,
             continue;
         }
 
-        unsigned int length = x->length();
+        bsl::size_t length = x->length();
         ASSERTV(length, length <= CAPACITY);
 
         unsigned int endGeneration, endIndex;
@@ -776,7 +779,7 @@ void exceptionThread(Obj                    *x,
 void assertValidState(Obj *x)
     // Use 'ASSERT' to verify the properties of the specified 'x' test object.
 {
-    const unsigned int CAPACITY = x->capacity();
+    const bsl::size_t CAPACITY = x->capacity();
 
     ASSERT(CAPACITY >= x->length());
 
@@ -787,8 +790,12 @@ void assertValidState(Obj *x)
     unsigned int pushGeneration = state.pushGeneration();
     unsigned int popGeneration  = state.popGeneration();
 
-    unsigned int combinedPushIndex = pushGeneration * CAPACITY + pushIndex;
-    unsigned int combinedPopIndex  = popGeneration  * CAPACITY + popIndex;
+    unsigned int combinedPushIndex = pushGeneration
+                                   * static_cast<unsigned int>(CAPACITY)
+                                   + pushIndex;
+    unsigned int combinedPopIndex  = popGeneration
+                                   * static_cast<unsigned int>(CAPACITY)
+                                   + popIndex;
 
     ASSERT(combinedPushIndex >= combinedPopIndex &&
            combinedPushIndex <= combinedPopIndex + CAPACITY);
@@ -849,7 +856,7 @@ void writerThread(Obj                    *x,
     // test (running, paused, exiting).
 {
     bsls::Types::Int64 count = 0;
-    const unsigned int CAPACITY = x->capacity();
+    const bsl::size_t CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
 
@@ -863,7 +870,7 @@ void writerThread(Obj                    *x,
             testState->blockUntilStateChange();
             continue;
         }
-        unsigned int length = x->length();
+        bsl::size_t length = x->length();
         ASSERTV(length, length <= CAPACITY);
 
         for (int i = 0; i < 5; ++i) {
@@ -887,7 +894,7 @@ void readerThread(Obj                    *x,
     // the specified 'delayPeriod'.
 {
     bsls::Types::Int64 count = 0;
-    const unsigned int CAPACITY = x->capacity();
+    const bsl::size_t CAPACITY = x->capacity();
 
     testState->blockUntilStateChange();
 
@@ -901,7 +908,7 @@ void readerThread(Obj                    *x,
             testState->blockUntilStateChange();
             continue;
         }
-        unsigned int length = x->length();
+        bsl::size_t length = x->length();
         ASSERTV(length, length <= CAPACITY);
         for (int i = 0; i < 5; ++i) {
             unsigned int generation, index;
@@ -1307,8 +1314,8 @@ int main(int argc, char *argv[])
 
             };
             const int NUM_DATA = COMPLETE
-                             ? sizeof(DATA)/sizeof(*DATA)
-                             : 5;
+                               ? static_cast<int>(sizeof(DATA) / sizeof(*DATA))
+                               : 5;
 
             const double ELAPSED_TIME_PER_TEST = (double)TOTAL_TIME_S /
                                                          NUM_DATA;
@@ -1464,8 +1471,8 @@ int main(int argc, char *argv[])
         };
 
         const int NUM_DATA = COMPLETE
-                             ? sizeof(DATA)/sizeof(*DATA)
-                             : 5;
+                           ? static_cast<int>(sizeof(DATA) / sizeof(*DATA))
+                           : 5;
 
         const double ELAPSED_TIME_PER_TEST =  (double)TOTAL_TIME_S / NUM_DATA;
 
@@ -1757,8 +1764,8 @@ int main(int argc, char *argv[])
                 15,
                 16,
                 17,
-                Obj::e_MAX_CAPACITY - 1,
-                Obj::e_MAX_CAPACITY
+                Obj::k_MAX_CAPACITY - 1,
+                Obj::k_MAX_CAPACITY
             };
             const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
@@ -2967,7 +2974,7 @@ int main(int argc, char *argv[])
                 Obj obj(10, &oa);
                 obj.reservePushIndex(&generation, &index);
                 ASSERT_FAIL(obj.commitPushIndex(generation,
-                                                Obj::e_MAX_CAPACITY));
+                                                Obj::k_MAX_CAPACITY));
                 ASSERT_FAIL(obj.commitPushIndex(UINT_MAX, index));
                 ASSERT_PASS(obj.commitPushIndex(generation, index));
                 ASSERT_FAIL(obj.commitPushIndex(generation, index));
@@ -2995,7 +3002,7 @@ int main(int argc, char *argv[])
 
                 obj.reservePopIndex(&generation, &index);
                 ASSERT_FAIL(obj.commitPopIndex(generation,
-                                               Obj::e_MAX_CAPACITY));
+                                               Obj::k_MAX_CAPACITY));
                 ASSERT_FAIL(obj.commitPopIndex(UINT_MAX, index));
                 ASSERT_PASS(obj.commitPopIndex(generation, index));
                 ASSERT_FAIL(obj.commitPopIndex(generation, index));
@@ -3023,7 +3030,7 @@ int main(int argc, char *argv[])
         //
         // 4 All allocated memory is released on destruction.
         //
-        // 5 e_MAX_CAPACITY is the maximum capacity the allows for at least 2
+        // 5 k_MAX_CAPACITY is the maximum capacity the allows for at least 2
         //   generations and a disabled status to be represented in a 32bit
         //   integer.
         //
@@ -3043,7 +3050,7 @@ int main(int argc, char *argv[])
         //   allocator. Verify allocated memory is released on destruction.
         //   (C-3,4)
         //
-        // 4 Verify that representing 'e_MAX_CAPACITY' in an unsigned int
+        // 4 Verify that representing 'k_MAX_CAPACITY' in an unsigned int
         //   leaves 2 bits to represent the disabled state and 2 complete
         //   generations. (C-5).
         //
@@ -3071,8 +3078,8 @@ int main(int argc, char *argv[])
                 10000,
 
                 // Note that the following test cases are not enabled as they
-                // exhaust memory on many platforms.  Obj::e_MAX_CAPACITY - 1,
-                // Obj::e_MAX_CAPACITY
+                // exhaust memory on many platforms.  Obj::k_MAX_CAPACITY - 1,
+                // Obj::k_MAX_CAPACITY
             };
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
@@ -3108,9 +3115,9 @@ int main(int argc, char *argv[])
             ASSERTV(da.numBytesInUse(), 0 == da.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTest 'e_MAX_CAPACITY' properties." << endl;
+        if (verbose) cout << "\nTest 'k_MAX_CAPACITY' properties." << endl;
         {
-            bsls::Types::Uint64 maxCapacity = Obj::e_MAX_CAPACITY;
+            bsls::Types::Uint64 maxCapacity = Obj::k_MAX_CAPACITY;
             ASSERTV(UINT_MAX == maxCapacity * 4 - 1);
         }
 
@@ -3122,7 +3129,7 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             ASSERT_OPT_PASS(Obj obj(1, &oa));
-            ASSERT_OPT_FAIL_RAW(Obj obj(Obj::e_MAX_CAPACITY + 1, &oa));
+            ASSERT_OPT_FAIL_RAW(Obj obj(Obj::k_MAX_CAPACITY + 1, &oa));
 
             // The following test is disabled because it causes a divide by 0
             // failure prior to reaching the assertion.  ASSERT_OPT_FAIL(Obj

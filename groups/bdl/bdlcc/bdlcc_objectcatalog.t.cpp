@@ -379,7 +379,7 @@ const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
 void printSpec(const char *spec)
 {
-    int len = strlen(spec);
+    int len = static_cast<int>(strlen(spec));
     cout << "[" ;
     for (int i=0; i<len; ++i) {
         cout << ((spec[i] == '0') ? "free" : "busy")
@@ -437,7 +437,7 @@ void gg(Obj         *o1,
     // entries still present, and to 'gens + 1' for freed entries.
 
     int v1, v2;
-    int len = strlen(spec);
+    int len = static_cast<int>(strlen(spec));
     for (int i=0 ;i < len; ++i) {
         if (veryVerbose) {
             cout << "\thandles1[" << i << "] = o1->add(" << i << "); // "
@@ -738,7 +738,7 @@ void *testAddFindReplaceRemove(void *arg)
     // Invoke 'add', 'find', 'replace' and 'remove' in a loop.
 {
     barrier.wait();
-    int id = (bsls::Types::IntPtr)arg;
+    int id = static_cast<int>(reinterpret_cast<bsls::Types::IntPtr>(arg));
     int v;
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int h = catalog.add(id);
@@ -760,6 +760,7 @@ void *testAddFindReplaceRemove(void *arg)
 void *testLength(void *arg)
     // Invoke 'length' in a loop.
 {
+    (void *)arg;
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int len = catalog.length();
@@ -772,6 +773,7 @@ void *testLength(void *arg)
 void *testIteration(void *arg)
     // Iterate the 'catalog' in a loop.
 {
+    (void *)arg;
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
 
@@ -788,6 +790,7 @@ void *testIteration(void *arg)
 void *verifyStateThread(void *arg)
     // Verify the 'catalog' in a loop.
 {
+    (void *)arg;
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         catalog.verifyState();
@@ -1219,8 +1222,8 @@ int main(int argc, char *argv[])
         HA = x.add(VA);
         x.remove(HA);
 
-        for (int j=0; j < k_NUM_ITERATIONS; ++j) {
-            for (int i = 1; i < k_RECYCLE_COUNT; ++i) {
+        for (bsl::size_t j=0; j < k_NUM_ITERATIONS; ++j) {
+            for (bsl::size_t i = 1; i < k_RECYCLE_COUNT; ++i) {
                 ASSERT(0 != x.find(HA)); // stale handle should be rejected
                                          // until the corresponding 'd_nodes'
                                          // entry is reused 'k_RECYCLE_COUNT'
@@ -1412,10 +1415,10 @@ int main(int argc, char *argv[])
                 printSpec(SPECS[i]);
                 cout << "\""<< endl;
             }
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             bslma::TestAllocator ta(veryVeryVerbose);
 
-            for (int g=0; g < 2*k_RECYCLE_COUNT; g = 2*g+1) {
+            for (bsl::size_t g = 0; g < 2 * k_RECYCLE_COUNT; g = 2 * g + 1) {
                 if (veryVerbose)
                     cout  << "\tUsing handles with " << g << " generations\n";
 
@@ -1426,7 +1429,12 @@ int main(int argc, char *argv[])
                 my_Obj o2;
                 vector<int> handles1(len, -1);
                 vector<int> handles2(len, -1);
-                gg(&o1, handles1, &o2, handles2, SPECS[i], g);
+                gg(&o1,
+                   handles1,
+                   &o2,
+                   handles2,
+                   SPECS[i],
+                   static_cast<int>(g));
 
                 if (veryVeryVerbose)
                     cout << "\t\tbrought the catalog into the desired state\n";
@@ -1654,7 +1662,7 @@ int main(int argc, char *argv[])
                 cout << "\"" << endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             if (veryVerbose) {
                 cout  << "\tbringing the catalog in the desired state\n";
             }
@@ -1714,7 +1722,7 @@ int main(int argc, char *argv[])
                 cout << "\""<< endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             for (int j=0; j<len; ++j) {
                 if (veryVerbose) {
                     cout  << "\tbringing the catalog in the desired state\n";
@@ -1793,7 +1801,7 @@ int main(int argc, char *argv[])
                 cout << "\""<< endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             for (int j=0; j<len; ++j) {
                 if (veryVerbose) {
                     cout  << "\tbringing the catalog in the desired state\n";
@@ -1872,7 +1880,7 @@ int main(int argc, char *argv[])
                 cout << "\""<< endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             for (int j=0; j<len; ++j) {
                 if (veryVerbose) {
                   cout  << "\tbringing the catalog in the desired state\n";
@@ -1962,7 +1970,7 @@ int main(int argc, char *argv[])
             Obj o1(&ta);
 
             my_Obj o2;
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             vector<int> handles1(len, -1);
             vector<int> handles2(len, -1);
 

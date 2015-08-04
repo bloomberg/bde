@@ -188,7 +188,10 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i],
+                                  attributes,
+                                  func,
+                                  static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);
@@ -236,11 +239,6 @@ struct ConstructorTestHelp3Creator
 void constructor4(int count, void* arena)
 {
    new(arena) ConstructorTestHelp3(count);
-}
-
-void constructor5(int count, void* arena, bslma::Allocator * basicAllocator)
-{
-   new(arena) ConstructorTestHelp3(count, basicAllocator);
 }
 
 struct ConstructorTestHelp1a
@@ -297,8 +295,6 @@ void createConstructorTestHelp1a(void* arena, bslma::Allocator * alloc)
 {
     new(arena) ConstructorTestHelp1a(alloc);
 }
-
-int creatorCount1a = 0;
 
 void createConstructorTestHelp1b(void* arena, bslma::Allocator *)
 {
@@ -361,19 +357,19 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
    };
 
    class Case13Type {
-      Address                      d_address;
+      Address                       d_address;
       bdlf::Function<void(*)(int*)> d_callback;
-      bsl::shared_ptr<int>         d_sp1;
-      int                          d_offset;
-      bsl::shared_ptr<int>         d_sp2;
-      int                          d_bytesLeft;
+      bsl::shared_ptr<int>          d_sp1;
+      int                           d_offset;
+      bsl::shared_ptr<int>          d_sp2;
+      int                           d_bytesLeft;
       bsls::AtomicInt               d_state;
-      int                          d_index;
+      int                           d_index;
       bsls::AtomicInt               d_count;
 
    public:
       Case13Type()
-         : d_offset(0), d_state(2), d_count(0), d_index(0) {}
+         : d_offset(0), d_state(2), d_index(0), d_count(0) {}
 
       ~Case13Type() {
          ASSERT(2 == d_state.testAndSwap(2, -2));
@@ -653,6 +649,7 @@ extern "C"
 
     void *workerThread9(void *arg)
     {
+        (void *)arg;
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i){
             Counter *c = pool->getObject();
@@ -695,6 +692,7 @@ extern "C"
 #endif
     void *workerThread8(void *arg)
     {
+        (void *)arg;
         my_Class *p = pool->getObject();
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
@@ -745,6 +743,7 @@ extern "C"
 #endif
     void *workerThread7(void *arg)
     {
+        (void *)arg;
         int previous = 0, current;
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
@@ -792,7 +791,8 @@ extern "C"
     void *workerThread6(void *arg)
     {
         my_Class *arr[k_NUM_OBJECTS];
-        int remainder = (bsls::Types::IntPtr)arg % 4;
+        int remainder = static_cast<int>(
+                              reinterpret_cast<bsls::Types::UintPtr>(arg) % 4);
 
         // 0-order threads
         if (remainder == 0) {
@@ -894,6 +894,7 @@ extern "C"
 
     void *workerThread5(void *arg)
     {
+        (void *)arg;
         barrier.wait();
         for (int i = 0; i < k_NUM_ITERATIONS; ++i){
             my_Class *p = pool->getObject();
@@ -939,7 +940,8 @@ extern "C"
     void *workerThread4(void *arg)
     {
         my_Class *arr[k_NUM_OBJECTS];
-        int remainder = (bsls::Types::IntPtr)arg % 2;
+        int remainder = static_cast<int>(
+                              reinterpret_cast<bsls::Types::UintPtr>(arg) % 2);
 
         // even numbered threads
         if (remainder == 0) {
@@ -1145,6 +1147,7 @@ class QueryFactory
     void destroyQuery(Query *query)
         // Simulate query destruction.
     {
+        (void *)query;
     }
 } *queryFactory;
 
@@ -1165,6 +1168,7 @@ class my_DatabaseConnection
     void executeQuery(Query *query)
     {
         bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+        (void *)query;
     }
 };
 
@@ -1524,7 +1528,9 @@ int main(int argc, char *argv[])
               {5, 500, 500}
            };
 
-           for (int i = 0; i < sizeof(parameters)/sizeof(Parameters); ++i) {
+           for (int i = 0;
+                i < static_cast<int>(sizeof(parameters) / sizeof(Parameters));
+                ++i) {
               const Parameters& p = parameters[i];
 
               if (verbose) {
@@ -1542,7 +1548,8 @@ int main(int argc, char *argv[])
 
               bsls::AtomicInt done(0);
 
-              bdlcc::FixedQueue<Case13Type*> queue(p.d_maxCount);
+              bdlcc::FixedQueue<Case13Type *>
+                                queue(static_cast<bsl::size_t>(p.d_maxCount));
               bdlqq::ThreadGroup procTg;
               for (int j = 0; j < 2; ++j) {
                  procTg.addThread(bdlf::BindUtil::bind(&case13Processor,
@@ -1597,6 +1604,7 @@ int main(int argc, char *argv[])
             bdlcc::ObjectPool<bsl::string> pool(objectCreator, -1, &ta);
 
             bsl::string *myString = pool.getObject();
+            (void *)myString;
             ASSERT(0 == defaultAlloc.numBytesInUse())
         }
 
@@ -1607,6 +1615,7 @@ int main(int argc, char *argv[])
                                      bdlf::PlaceHolders::_1), -1, &ta);
 
             bsl::string *myString = pool.getObject();
+            (void *)myString;
             ASSERT(0 < defaultAlloc.numBytesInUse())
         }
       } break;
@@ -1649,6 +1658,7 @@ int main(int argc, char *argv[])
             createBThrow = 1;  // first construction will throw
             try {
                 B *b2Ptr = mX.getObject();  // throws
+                (void *)b2Ptr;
             }
             catch(const Exception& e) {
                 if (verbose)
@@ -2224,8 +2234,9 @@ int main(int argc, char *argv[])
                 LOOP4_ASSERT(i, j, lastAdr1, lastAdr2, lastAdr1 >= lastAdr2);
 
                 // verify that enough memory is allocated
-                int size1 = sizeof(BlockNode) + DATA[i][j]*k_OBJECT_FRAME_SIZE;
-                int size2 = ta.lastAllocatedNumBytes();
+                int size1 = static_cast<int>(sizeof(BlockNode))
+                          + DATA[i][j] * k_OBJECT_FRAME_SIZE;
+                bsls::Types::Int64 size2 = ta.lastAllocatedNumBytes();
                 LOOP4_ASSERT(i, j, size1, size2, size1 <= size2);
 
                 numLastCreated = pool->numObjects();
@@ -2264,7 +2275,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(oC, oC == 0);
 
             // verify that all the memory is deallocated
-            int nUse = ta.numBytesInUse();  // number of bytes in use
+            bsls::Types::Int64 nUse = ta.numBytesInUse();
             LOOP_ASSERT(nUse, nUse == 0);
         }
       } break;

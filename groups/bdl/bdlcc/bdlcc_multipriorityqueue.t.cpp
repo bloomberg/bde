@@ -11,7 +11,9 @@
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadutil.h>
 #include <bdlqq_threadgroup.h>
+
 #include <bsls_atomic.h>
+#include <bsls_types.h>
 
 #include <bdlt_currenttime.h>
 
@@ -454,8 +456,8 @@ struct ConsumerThread {
     };
 
     static bdlqq::Barrier  *s_barrier;
-    static Obj            *s_queue_p;
-    static OutPair        *s_outPairVec;
+    static Obj             *s_queue_p;
+    static OutPair         *s_outPairVec;
     static bsls::AtomicInt *s_outPairVecIdx;
 
     int operator()() {
@@ -466,7 +468,7 @@ struct ConsumerThread {
 
             Element e;
             s_queue_p->popFront(&e, &outPair.d_priority);
-            outPair.d_value = e;
+            outPair.d_value = static_cast<int>(e);
 
             if (0 > outPair.d_value) {
                 break;
@@ -489,8 +491,8 @@ struct ConsumerThread {
     }
 };
 bdlqq::Barrier  *ConsumerThread::s_barrier;
-Obj            *ConsumerThread::s_queue_p;
-OutPair        *ConsumerThread::s_outPairVec;
+Obj             *ConsumerThread::s_queue_p;
+OutPair         *ConsumerThread::s_outPairVec;
 bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_9
@@ -562,8 +564,8 @@ struct ConsumerThread {
     };
 
     static bdlqq::Barrier  *s_barrier;
-    static Iobj           *s_queue_p;
-    static OutPair        *s_outPairVec;
+    static Iobj            *s_queue_p;
+    static OutPair         *s_outPairVec;
     static bsls::AtomicInt *s_outPairVecIdx;
 
     int operator()() {
@@ -738,7 +740,8 @@ int main(int argc, char *argv[])
 
         // Start the specified number of threads.
 
-        ASSERT(0 < k_NUM_THREADS && k_NUM_THREADS <= k_MAX_CONSUMER_THREADS);
+        ASSERT(0 < k_NUM_THREADS
+            && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
         bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -981,7 +984,7 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == mpq.length());
 
-        int memUsed = ta.numBytesInUse();
+        bsls::Types::Int64 memUsed = ta.numBytesInUse();
 
         for (int i = 0; i < 10000; ++i) {
             ASSERT(0 != mpq.pushBack(8, 3));
@@ -1010,9 +1013,9 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator silentTa;   // always silent
 
-        bsl::list<int> numAllocList(&silentTa);
+        bsl::list<bsls::Types::Int64> numAllocList(&silentTa);
 
-        int start;
+        bsls::Types::Int64 start;
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             numAllocList.clear();
@@ -1051,8 +1054,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             cout << "AllocLimits: ";
 
-            for (bsl::list<int>::iterator it = numAllocList.begin();
-                                              numAllocList.end() != it; ++it) {
+            for (bsl::list<bsls::Types::Int64>::iterator it
+                                                        = numAllocList.begin();
+                 numAllocList.end() != it;
+                 ++it) {
                 cout << (it != numAllocList.begin() ? ", " : "");
                 cout << *it - start;
             }
@@ -1216,12 +1221,13 @@ int main(int argc, char *argv[])
                 Sobj& mX = *pMX;   const Sobj& X = *pMX;
 
                 LOOP_ASSERT(taDefault.numBytesInUse(),
-                                            0 == taDefault.numBytesInUse());
+                            0 == taDefault.numBytesInUse());
 
                 const bsl::string woof("woof", &taString);
                 const bsl::string meow("meow", &taString);
 
-                const int stringMemoryUse = taString.numBytesInUse();
+                const bsls::Types::Int64 stringMemoryUse =
+                                                      taString.numBytesInUse();
 
                 for (int i = 0; 10 > i; ++i) {
                     mX.pushBack(woof, 0);
@@ -1232,7 +1238,7 @@ int main(int argc, char *argv[])
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
                 ASSERT(0 < ta.numBytesInUse());
                 LOOP_ASSERT(taDefault.numBytesInUse(),
-                                            0 == taDefault.numBytesInUse());
+                            0 == taDefault.numBytesInUse());
 
                 for (int i = 0; 3 > i; ++i) {
                     bsl::string s(&taString);
@@ -1248,25 +1254,25 @@ int main(int argc, char *argv[])
 
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
                 LOOP_ASSERT(taDefault.numBytesInUse(),
-                                            0 == taDefault.numBytesInUse());
+                            0 == taDefault.numBytesInUse());
 
                 mX.removeAll();
                 ASSERT(0 == X.length());
 
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
                 LOOP_ASSERT(taDefault.numBytesInUse(),
-                                            0 == taDefault.numBytesInUse());
+                            0 == taDefault.numBytesInUse());
 
                 ta.deleteObjectRaw(pMX);
 
                 ASSERT(stringMemoryUse == taString.numBytesInUse());
                 LOOP_ASSERT(taDefault.numBytesInUse(),
-                                            0 == taDefault.numBytesInUse());
+                            0 == taDefault.numBytesInUse());
                 LOOP_ASSERT(ta.numBytesInUse(), 0 == ta.numBytesInUse());
             }
 
             LOOP_ASSERT(taString.numBytesInUse(),
-                                                0 == taString.numBytesInUse());
+                        0 == taString.numBytesInUse());
         }  // for construct
       }  break;
       case 9: {
@@ -1317,10 +1323,15 @@ int main(int argc, char *argv[])
         ProducerThread::s_removeMask          =  k_REMOVE_MASK;
 
         bdlqq::Barrier  consumerBarrier(k_NUM_CONSUMERS + 1);
-        OutPair        outPairVec[k_NUM_PRODUCERS * k_NUM_ITEMS_PER_PRODUCER];
         bsls::AtomicInt outPairVecIdx(0);
 
-        bsl::memset(outPairVec, k_GARBAGE_CHAR, sizeof(outPairVec));
+        OutPair *outPairVec =
+                       new OutPair[k_NUM_PRODUCERS * k_NUM_ITEMS_PER_PRODUCER];
+
+        bsl::memset(
+                 outPairVec,
+                 k_GARBAGE_CHAR,
+                 sizeof(OutPair) * k_NUM_PRODUCERS * k_NUM_ITEMS_PER_PRODUCER);
 
         ConsumerThread::s_barrier       = &consumerBarrier;
         ConsumerThread::s_queue_p       = &mX;
@@ -1424,6 +1435,8 @@ int main(int argc, char *argv[])
             ASSERT(outPairVec[i].d_value > lastValue);
             lastValue = outPairVec[i].d_value;
         }
+
+        delete [] outPairVec;
       }  break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1494,7 +1507,7 @@ int main(int argc, char *argv[])
         ProducerThread::s_queue_p             = &mX;
 
         bdlqq::Barrier   consumerBarrier(k_NUM_CONSUMERS + 1);
-        int             outPairVecNumBytes = sizeof(OutPair) * k_NUM_PRODUCERS
+        bsl::size_t      outPairVecNumBytes = sizeof(OutPair) * k_NUM_PRODUCERS
                                                          * numItemsPerProducer;
         OutPair        *outPairVec = (OutPair *)
                                                ta.allocate(outPairVecNumBytes);
@@ -1784,7 +1797,7 @@ int main(int argc, char *argv[])
                                     { 3.1, 2 }, { 3.2, 3 }, { 3.3, 2 },
                                     { 4.1, 3 }, { 4.2, 1 }, { 4.3, 2 },
                                     { 5.1, 0 } };
-        int VPUSH_LEN = static_cast<int>(sizeof vPush / sizeof *vPush);
+        const int VPUSH_LEN = static_cast<int>(sizeof vPush / sizeof *vPush);
 
         if (veryVerbose) {
             cout << "First, testing popFront\n";
@@ -1801,7 +1814,6 @@ int main(int argc, char *argv[])
         bsl::stable_sort(expected, expected + VPUSH_LEN);
                                                 // stable sorts by priority
 
-        int lastPriority = -1;
         for (int i = 0; VPUSH_LEN > i; ++i) {
             double value;
             int priority;
@@ -1814,8 +1826,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 P_(value);  P_(priority);  P(X.length());
             }
-
-            lastPriority = priority;
         }
 
         if (veryVerbose) {
@@ -1826,7 +1836,6 @@ int main(int argc, char *argv[])
             mX.pushBack(vPush[i].d_value, vPush[i].d_priority);
         }
 
-        lastPriority = -1;
         for (int i = 0; VPUSH_LEN > i; ++i) {
             double value;
             int priority;
@@ -1839,8 +1848,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 P_(value);  P_(priority);  P(X.length());
             }
-
-            lastPriority = priority;
         }
       }  break;
       case 4: {

@@ -11,7 +11,9 @@
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadutil.h>
 #include <bdlqq_threadgroup.h>
+
 #include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -115,7 +117,7 @@ void aSsErTT(int c, const char *s, int i)
 void case18(bdlcc::SkipList<int, int>* list, int numIterations, int level,
             bool unique)
 {
-    int id = bdlqq::ThreadUtil::selfIdAsInt() + 2;
+    int id = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()) + 2;
 
     if (0 <= level) {
         for (int i = 0; i < numIterations; ++i) {
@@ -214,7 +216,7 @@ void case20(bdlcc::SkipList<int, CountedDelete>* list, int maxRefCount)
 void case19(bdlcc::SkipList<int, int>* list, int numIterations, int level,
             bool unique, bool getHandles)
 {
-    int id = bdlqq::ThreadUtil::selfIdAsInt() + 2;
+    int id = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()) + 2;
 
     bdlcc::SkipListPairHandle<int,int> uniqueH;
 

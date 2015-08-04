@@ -180,18 +180,18 @@ const char *toString(ElementState state)
 // The following constants are used to manipulate the bits of elements in the
 // 'd_states' array.
 
-static const unsigned int e_ELEMENT_STATE_MASK     = 0x3;
+static const unsigned int k_ELEMENT_STATE_MASK     = 0x3;
                                   // bitmask used to determine the
                                   // 'ElementState' value from a 'd_states'
                                   // element
 
-static const unsigned int e_GENERATION_COUNT_SHIFT = 0x2;
+static const unsigned int k_GENERATION_COUNT_SHIFT = 0x2;
                                   // number of bits to left-shift the
                                   // generation count in a 'd_states' element
                                   // to make room for 'ElementState' value --
                                   // must be base2Log(e_ELEMENT_STATE_MASK)
 
-static const unsigned int e_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS =
+static const bsl::size_t  k_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS =
                                                       1 << (sizeof(int)*8 - 2);
                                   // The maximum generation count that can be
                                   // represented in a 'd_states' element.
@@ -203,12 +203,12 @@ static const unsigned int e_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS =
 // next element to be pushed, as well as the current generation count and a
 // flag indicating whether the queue is disabled.
 
-static const unsigned int e_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
+static const unsigned int k_DISABLED_STATE_MASK = 1 << ((sizeof(int) * 8) - 1);
                                       // bitmask for the disabled state bit in
                                       // 'd_pushIndex'
 
-static const unsigned int e_NUM_REPRESENTABLE_COMBINED_INDICES =
-                                                         e_DISABLED_STATE_MASK;
+static const unsigned int k_NUM_REPRESENTABLE_COMBINED_INDICES =
+                                                         k_DISABLED_STATE_MASK;
                                       // maximum representable number of
                                       // combinations of index and generation
                                       // count value for 'd_pushIndex' and
@@ -227,7 +227,7 @@ static unsigned int encodeElementState(unsigned int generation,
     // the specified 'indexState'.  Note that the resulting encoded value is
     // appropriate for storage in the 'd_states' array.
 {
-    return (generation << e_GENERATION_COUNT_SHIFT) | indexState;
+    return (generation << k_GENERATION_COUNT_SHIFT) | indexState;
 }
 
 inline
@@ -237,7 +237,7 @@ static unsigned int decodeGenerationFromElementState(unsigned int encodedState)
     // 'encodeElementState'.  Note that 'encodedState' is typically obtained
     // from the 'd_states' array.
 {
-    return encodedState >> e_GENERATION_COUNT_SHIFT;
+    return encodedState >> k_GENERATION_COUNT_SHIFT;
 }
 
 inline
@@ -247,7 +247,7 @@ static ElementState decodeStateFromElementState(unsigned int encodedState)
     // Note that 'encodedState' is typically obtained from the 'd_states'
     // array.
 {
-    return ElementState(encodedState & e_ELEMENT_STATE_MASK);
+    return ElementState(encodedState & k_ELEMENT_STATE_MASK);
 }
 
 ///Index Operations
@@ -260,7 +260,7 @@ static bool isDisabledFlagSet(unsigned int encodedPushIndex)
     // Return 'true' if the specified 'encodedPushIndex' has the disabled flag
     // set, and 'false otherwise.
 {
-    return (encodedPushIndex & e_DISABLED_STATE_MASK);
+    return (encodedPushIndex & k_DISABLED_STATE_MASK);
 }
 
 inline
@@ -268,7 +268,7 @@ static unsigned int discardDisabledFlag(unsigned int encodedPushIndex)
     // Return the push-index of the specified 'encodedPushIndex', discarding
     // the disabled flag.
 {
-    return (encodedPushIndex & ~e_DISABLED_STATE_MASK);
+    return (encodedPushIndex & ~k_DISABLED_STATE_MASK);
 }
 
 }  // close unnamed namespace
@@ -299,15 +299,16 @@ int FixedQueueIndexManager::circularDifference(unsigned int minuend,
 }
 
 unsigned int FixedQueueIndexManager::numRepresentableGenerations(
-                                                         unsigned int capacity)
+                                                          bsl::size_t capacity)
 {
-    return bsl::min(e_NUM_REPRESENTABLE_COMBINED_INDICES / capacity,
-                    e_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS);
+    return static_cast<unsigned int>(
+                      bsl::min(k_NUM_REPRESENTABLE_COMBINED_INDICES / capacity,
+                               k_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS));
 }
 
 // CREATORS
 FixedQueueIndexManager::FixedQueueIndexManager(
-                                              unsigned int      capacity,
+                                              bsl::size_t       capacity,
                                               bslma::Allocator *basicAllocator)
 : d_pushIndex(0)
 , d_pushIndexPad()
@@ -315,11 +316,13 @@ FixedQueueIndexManager::FixedQueueIndexManager(
 , d_popIndexPad()
 , d_capacity(capacity)
 , d_maxGeneration(numRepresentableGenerations(capacity) - 1)
-, d_maxCombinedIndex(numRepresentableGenerations(capacity) * capacity - 1)
+, d_maxCombinedIndex(numRepresentableGenerations(capacity)
+                   * static_cast<unsigned int>(capacity)
+                   - 1)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT_OPT(0        <  capacity);
-    BSLS_ASSERT_OPT(capacity <= e_MAX_CAPACITY);
+    BSLS_ASSERT_OPT(capacity <= k_MAX_CAPACITY);
 
     d_states = static_cast<bsls::AtomicInt*>(
                 d_allocator_p->allocate(sizeof(bsls::AtomicInt) * capacity));
@@ -367,8 +370,8 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
 
         combinedIndex  = discardDisabledFlag(loadedPushIndex);
 
-        currGeneration = combinedIndex / d_capacity;
-        currIndex      = combinedIndex % d_capacity;
+        currGeneration = static_cast<unsigned int>(combinedIndex / d_capacity);
+        currIndex      = static_cast<unsigned int>(combinedIndex % d_capacity);
 
         const int compare = encodeElementState(currGeneration, e_EMPTY);
         const int swap    = encodeElementState(currGeneration, e_WRITING);
@@ -494,8 +497,10 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
     unsigned int currIndex, currGeneration;
 
     for (;;) {
-        currGeneration = loadedPopIndex / d_capacity;
-        currIndex      = loadedPopIndex % d_capacity;
+        currGeneration = static_cast<unsigned int>(loadedPopIndex
+                                                 / d_capacity);
+        currIndex      = static_cast<unsigned int>(loadedPopIndex
+                                                 % d_capacity);
 
         // Attempt to swap this cell's state from e_FULL to 'e_READING'
 
@@ -622,7 +627,7 @@ void FixedQueueIndexManager::disable()
 
         if (pushIndex == static_cast<unsigned int>(
                 d_pushIndex.testAndSwap(pushIndex,
-                                        pushIndex | e_DISABLED_STATE_MASK))) {
+                                        pushIndex | k_DISABLED_STATE_MASK))) {
             // The queue has been successfully disabled.
 
             break;
@@ -647,7 +652,7 @@ void FixedQueueIndexManager::enable()
 
         if (pushIndex == static_cast<unsigned int>(
                 d_pushIndex.testAndSwap(pushIndex,
-                                        pushIndex & ~e_DISABLED_STATE_MASK))) {
+                                        pushIndex & ~k_DISABLED_STATE_MASK))) {
             // The queue has been successfully enabled.
 
             break;
@@ -670,7 +675,9 @@ int FixedQueueIndexManager::reservePopIndexForClear (
 
     unsigned int loadedCombinedIndex = d_popIndex.loadRelaxed();
     for (;;) {
-        unsigned int endCombinedIndex = endGeneration * d_capacity + endIndex;
+        unsigned int endCombinedIndex = endGeneration
+                                      * static_cast<unsigned int>(d_capacity)
+                                      + endIndex;
 
         if (0 == circularDifference(endCombinedIndex,
                                     loadedCombinedIndex,
@@ -685,8 +692,10 @@ int FixedQueueIndexManager::reservePopIndexForClear (
                                            loadedCombinedIndex,
                                            d_maxCombinedIndex + 1));
 
-        unsigned int currentIndex      = loadedCombinedIndex % d_capacity;
-        unsigned int currentGeneration = loadedCombinedIndex / d_capacity;
+        unsigned int currentIndex      =
+                   static_cast<unsigned int>(loadedCombinedIndex % d_capacity);
+        unsigned int currentGeneration =
+                   static_cast<unsigned int>(loadedCombinedIndex / d_capacity);
 
         // Attempt to swap this cell's state from e_FULL to 'e_READING'.  Note
         // that we set this to 'e_EMPTY' only after we attempt to increment the
@@ -767,7 +776,7 @@ void FixedQueueIndexManager::abortPushIndexReservation(
 }
 
 // ACCESSORS
-unsigned int FixedQueueIndexManager::length() const
+bsl::size_t FixedQueueIndexManager::length() const
 {
     // Note that 'FixedQueue::pushBack' and 'FixedQueue::popFront' rely on the
     // fact that the following atomic loads are sequentially consistent.  If
@@ -809,7 +818,7 @@ unsigned int FixedQueueIndexManager::length() const
 
             return 0;                                                 // RETURN
         }
-        return static_cast<unsigned int>(difference);                 // RETURN
+        return static_cast<bsl::size_t>(difference);                 // RETURN
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
@@ -819,7 +828,7 @@ unsigned int FixedQueueIndexManager::length() const
                                            d_maxCombinedIndex + 1));
 
         difference += d_maxCombinedIndex + 1;
-        return bsl::min(static_cast<unsigned int>(difference), d_capacity);
+        return bsl::min(static_cast<bsl::size_t>(difference), d_capacity);
                                                                       // RETURN
     }
     return 0;
@@ -845,8 +854,11 @@ bsl::ostream& FixedQueueIndexManager::print(bsl::ostream& stream) const
            << "   popGeneration: " << popIndex / capacity()  << bsl::endl
            << "        popIndex: " << popIndex % capacity()  << bsl::endl;
 
-    const unsigned int popIdx  = d_popIndex % d_capacity;
-    const unsigned int pushIdx = discardDisabledFlag(d_pushIndex) % d_capacity;
+    const unsigned int popIdx  = static_cast<unsigned int>(d_popIndex
+                                                         % d_capacity);
+    const unsigned int pushIdx =
+                     static_cast<unsigned int>(discardDisabledFlag(d_pushIndex)
+                                             % d_capacity);
 
     for (unsigned int i = 0; i < capacity(); ++i) {
         unsigned int state = d_states[i];
