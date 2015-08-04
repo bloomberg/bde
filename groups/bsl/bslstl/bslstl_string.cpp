@@ -275,6 +275,7 @@ float bsl::stof(const string& str, std::size_t* pos){
     int original_errno = errno;
 
     errno = 0;
+
     float value = strtof(str.c_str(), &ptr);
 
     if (errno == ERANGE){
