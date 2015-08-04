@@ -2,6 +2,8 @@
 
 #include <bdlcc_timequeue.h>
 
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_barrier.h>
@@ -71,12 +73,16 @@ using namespace bsl;  // automatically added by script
 // [12] CONCERN: The queue can be used after a call to 'drain'.
 // [13] CONCERN: Memory Pooling
 // [14] Usage example
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -85,49 +91,28 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define NL() cout << endl;                    // End of line
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define Q_(X) cout << "<| " #X " |>, ";       // Q(X) without '\n'
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 bdlqq::Mutex coutMutex;
 
@@ -290,7 +275,7 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 //                          CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_TIMEQUEUE_TEST_CASE_11 {
+namespace TIMEQUEUE_TEST_CASE_11 {
 
 enum {
     k_NUM_THREADS    = 10,
@@ -330,7 +315,7 @@ void *testAddUpdatePopRemoveAll(void *arg)
     DATA V(oss.str());
     if (verbose) {
         coutMutex.lock();
-        T_(); P_(THREAD_ID); Q_(CREATION); P(V);
+        T_; P_(THREAD_ID); Q(CREATION); P(V);
         coutMutex.unlock(); }
 
     barrier.wait();
@@ -341,7 +326,7 @@ void *testAddUpdatePopRemoveAll(void *arg)
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         if (veryVerbose) {
             coutMutex.lock();
-            T_(); P_(THREAD_ID); Q_(ITERATION); P(i);
+            T_; P_(THREAD_ID); Q(ITERATION); P(i);
             coutMutex.unlock();
         }
         const bsls::TimeInterval TIME((i * (i + 3)) % k_NUM_ITERATIONS);
@@ -359,7 +344,7 @@ void *testAddUpdatePopRemoveAll(void *arg)
             timequeue.removeAll(vPtr);
             if (veryVerbose) {
                 coutMutex.lock();
-                T_(); P_(THREAD_ID); Q_(REMOVE_ALL); P(i);
+                T_; P_(THREAD_ID); Q(REMOVE_ALL); P(i);
                 coutMutex.unlock();
             }
         }
@@ -381,12 +366,12 @@ void *testLength(void *)
 
 } // extern "C"
 
-}  // close namespace BCEC_TIMEQUEUE_TEST_CASE_11
+}  // close namespace TIMEQUEUE_TEST_CASE_11
 //=============================================================================
 //                      CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_TIMEQUEUE_TEST_CASE_10 {
+namespace TIMEQUEUE_TEST_CASE_10 {
 
                            // ====================
                            // class TestLockObject
@@ -458,13 +443,13 @@ void TestLockObject::reset()
     d_timeQueue_p = 0;
 }
 
-}  // close namespace BCEC_TIMEQUEUE_TEST_CASE_10
+}  // close namespace TIMEQUEUE_TEST_CASE_10
 
 //=============================================================================
 //                      CASE -100 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_TIMEQUEUE_TEST_CASE_MINUS_100 {
+namespace TIMEQUEUE_TEST_CASE_MINUS_100 {
 
 static bsls::AtomicInt currentTime(0);
 
@@ -556,13 +541,13 @@ void run()
 
 }
 
-}  // close namespace BCEC_TIMEQUEUE_TEST_CASE_MINUS_100
+}  // close namespace TIMEQUEUE_TEST_CASE_MINUS_100
 
 //=============================================================================
 //          USAGE EXAMPLE from header (with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
 
-namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
+namespace TIMEQUEUE_USAGE_EXAMPLE {
 
 // The following shows a typical usage of the 'bdlcc::TimeQueue' class,
 // implementing a simple threaded server 'my_Server' that manages individual
@@ -1055,7 +1040,7 @@ namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE {
 //  17:10:42.000: Closing connection 0x00161880
 //..
 
-}  // close namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE
+}  // close namespace TIMEQUEUE_USAGE_EXAMPLE
 
 bsls::TimeInterval makeTimeInterval()
 {
@@ -1106,7 +1091,7 @@ int main(int argc, char *argv[])
                           << "Testing USAGE example" << endl
                           << "=====================" << endl;
 
-        using namespace BCEC_TIMEQUEUE_USAGE_EXAMPLE;
+        using namespace TIMEQUEUE_USAGE_EXAMPLE;
         {
             usageExample(verbose);
         }
@@ -1333,7 +1318,7 @@ int main(int argc, char *argv[])
                           << "Concurrency test" << endl
                           << "================" << endl;
 
-        using namespace BCEC_TIMEQUEUE_TEST_CASE_11;
+        using namespace TIMEQUEUE_TEST_CASE_11;
 
         Case11ThreadInfo info[k_NUM_THREADS];
         bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS + 1];
@@ -1384,7 +1369,7 @@ int main(int argc, char *argv[])
                           << "Testing Concern: Callback deadlock" << endl
                           << "==================================" << endl;
 
-        using namespace BCEC_TIMEQUEUE_TEST_CASE_10;
+        using namespace TIMEQUEUE_TEST_CASE_10;
 
         int numDestructions = 0;
         {
@@ -1543,7 +1528,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL); P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL); P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -1567,9 +1552,8 @@ int main(int argc, char *argv[])
                 mX.popLE(TIME, &buffer, &newLength, &newMinTime);
 
                 if (veryVerbose) {
-                    NL();
-                    T_(); P_(LINE); P_(EXPNUMITEMS);P(TIME);
-                    T_(); P_(OLDLENGTH); P_(X.length()); P(buffer.size());
+                    T_; P_(LINE); P_(EXPNUMITEMS);P(TIME);
+                    T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
                 LOOP_ASSERT(LINE, EXPNUMITEMS == (int)buffer.size());
@@ -1583,7 +1567,7 @@ int main(int argc, char *argv[])
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
                     LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
-                        T_(); P_(EXPNEWMINTIME); P(newMinTime);
+                        T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
@@ -1598,8 +1582,8 @@ int main(int argc, char *argv[])
                                                         VALUES[I].d_nsecs);
 
                         if (veryVerbose) {
-                            T_(); T_(); P_(I); P_(EXPVAL); P(EXPTIME);
-                            T_(); T_(); P_(buffer[j].time());
+                            T_; T_; P_(I); P_(EXPVAL); P(EXPTIME);
+                            T_; T_; P_(buffer[j].time());
                             P(buffer[j].data());
                         }
 
@@ -1661,7 +1645,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -1686,9 +1670,8 @@ int main(int argc, char *argv[])
                 mX.popLE(TIME, MAXNUMITEMS, &buffer, &newLength, &newMinTime);
 
                 if (veryVerbose) {
-                    NL();
-                    T_(); P_(LINE); P_(MAXNUMITEMS); P_(EXPNUMITEMS); P(TIME);
-                    T_(); P_(OLDLENGTH); P_(X.length()); P(buffer.size());
+                    T_; P_(LINE); P_(MAXNUMITEMS); P_(EXPNUMITEMS); P(TIME);
+                    T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
                 LOOP_ASSERT(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
@@ -1702,7 +1685,7 @@ int main(int argc, char *argv[])
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
                     LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
-                       T_(); P_(EXPNEWMINTIME); P(newMinTime);
+                       T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
@@ -1717,8 +1700,8 @@ int main(int argc, char *argv[])
                                                         VALUES[I].d_nsecs);
 
                         if (veryVerbose) {
-                            T_(); T_(); P_(I); P_(EXPVAL);P(EXPTIME);
-                            T_(); T_(); P_(buffer[OLDSIZE + j].time());
+                            T_; T_; P_(I); P_(EXPVAL);P(EXPTIME);
+                            T_; T_; P_(buffer[OLDSIZE + j].time());
                             P(buffer[j].data());
                         }
 
@@ -1799,7 +1782,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -1930,7 +1913,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL); P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL); P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -1954,9 +1937,8 @@ int main(int argc, char *argv[])
                 mX.popLE(TIME, &buffer, &newLength, &newMinTime);
 
                 if (veryVerbose) {
-                    NL();
-                    T_(); P_(LINE); P_(EXPNUMITEMS);P(TIME);
-                    T_(); P_(OLDLENGTH); P_(X.length()); P(buffer.size());
+                    T_; P_(LINE); P_(EXPNUMITEMS);P(TIME);
+                    T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
                 LOOP_ASSERT(LINE, EXPNUMITEMS == (int)buffer.size());
@@ -1970,7 +1952,7 @@ int main(int argc, char *argv[])
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
                     LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
-                        T_(); P_(EXPNEWMINTIME); P(newMinTime);
+                        T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
@@ -1985,8 +1967,8 @@ int main(int argc, char *argv[])
                                                         VALUES[I].d_nsecs);
 
                         if (veryVerbose) {
-                            T_(); T_(); P_(I); P_(EXPVAL);P(EXPTIME);
-                            T_(); T_(); P_(buffer[j].time());
+                            T_; T_; P_(I); P_(EXPVAL);P(EXPTIME);
+                            T_; T_; P_(buffer[j].time());
                             P(buffer[j].data());
                         }
 
@@ -2047,7 +2029,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -2072,9 +2054,8 @@ int main(int argc, char *argv[])
                 mX.popLE(TIME, MAXNUMITEMS, &buffer, &newLength, &newMinTime);
 
                 if (veryVerbose) {
-                    NL();
-                    T_(); P_(LINE); P_(MAXNUMITEMS); P_(EXPNUMITEMS); P(TIME);
-                    T_(); P_(OLDLENGTH); P_(X.length()); P(buffer.size());
+                    T_; P_(LINE); P_(MAXNUMITEMS); P_(EXPNUMITEMS); P(TIME);
+                    T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
                 LOOP_ASSERT(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
@@ -2088,7 +2069,7 @@ int main(int argc, char *argv[])
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
                     LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
-                       T_(); P_(EXPNEWMINTIME); P(newMinTime);
+                       T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
@@ -2103,8 +2084,8 @@ int main(int argc, char *argv[])
                                                         VALUES[I].d_nsecs);
 
                         if (veryVerbose) {
-                            T_(); T_(); P_(I); P_(EXPVAL);P(EXPTIME);
-                            T_(); T_(); P_(buffer[OLDSIZE + j].time());
+                            T_; T_; P_(I); P_(EXPVAL);P(EXPTIME);
+                            T_; T_; P_(buffer[OLDSIZE + j].time());
                             P(buffer[j].data());
                         }
 
@@ -2182,7 +2163,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -2277,7 +2258,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -2381,7 +2362,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -2435,7 +2416,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -2519,7 +2500,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -2575,7 +2556,7 @@ int main(int argc, char *argv[])
 
                 handles[i] = mX.add(TIME,VAL);
                 if (veryVerbose) {
-                    T_(); P_(LINE); P_(VAL);P_(TIME); P(X.length());
+                    T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
                 LOOP_ASSERT(LINE, (i+1) == X.length());
                 LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
@@ -2702,8 +2683,8 @@ int main(int argc, char *argv[])
                     int  handle;
                     handle = mX.add(TIME, VAL, &isNewTop, &newLength);
                     if (veryVerbose) {
-                        T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                        T_();  P_(isNewTop); P(newMinTime); P_(newLength);
+                        T_; P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                        T_;  P_(isNewTop); P(newMinTime); P_(newLength);
                         P(X.length());
                     }
                     LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
@@ -2781,8 +2762,8 @@ int main(int argc, char *argv[])
                     int handle;
                     handle = mX.add(TIME, VAL, &isNewTop, &newLength);
                     if (veryVerbose) {
-                        T_(); P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
-                        T_();  P_(isNewTop); P_(newLength); P(X.length());
+                        T_; P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
+                        T_; P_(isNewTop); P_(newLength); P(X.length());
                     }
                     LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
                     LOOP_ASSERT(LINE, (i+1) == newLength);
@@ -3305,7 +3286,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // The router simulation (kind of) test
         // --------------------------------------------------------------------
-        BCEC_TIMEQUEUE_TEST_CASE_MINUS_100::run();
+        TIMEQUEUE_TEST_CASE_MINUS_100::run();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

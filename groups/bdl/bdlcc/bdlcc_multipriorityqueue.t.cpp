@@ -2,6 +2,8 @@
 
 #include <bdlcc_multipriorityqueue.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_semaphore.h>
@@ -80,7 +82,7 @@ using bsl::flush;
 // [14] USAGE EXAMPLE 1
 //
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                      NON-STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -110,7 +112,7 @@ int veryVeryVeryVerbose;
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                  NON-STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { COUT << #I << ": " << I << ENDL; aSsErT(1, #X, __LINE__); }}
@@ -141,7 +143,7 @@ int veryVeryVeryVerbose;
        aSsErT(1, #X, __LINE__); } }
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                  NON-SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 #define P(X) COUT << #X " = " << (X) << ENDL // Print identifier and value.
 #define Q(X) COUT << "<| " #X " |>" << ENDL  // Quote identifier literally.

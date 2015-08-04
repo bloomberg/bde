@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 // key or by position).  There is an implementation-defined maximum number of
 // references (whether by 'PairHandle' or 'Pair' pointer) to any single
 // association element in the list, not less than
-// '2^bdlcc::SkipList_Control::BCEC_NUM_REFERENCE_BITS - 1'.  The behavior of
-// this component is undefined if more than that number of references are
+// '2^bdlcc::SkipList_Control::k_NUM_REFERENCE_BITS - 1'.  The behavior of this
+// component is undefined if more than that number of references are
 // simultaneously acquired for a single element.  Note that in addition to
 // 'addPairReferenceRaw', member functions of 'bdlcc::SkipList' such as
 // 'front', 'back', and 'find' also add a reference to the specified element.

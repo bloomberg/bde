@@ -1,6 +1,8 @@
 // bdlcc_objectcatalog.t.cpp                                          -*-C++-*-
 #include <bdlcc_objectcatalog.h>
 
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
@@ -92,8 +94,9 @@ using namespace bsl;  // automatically added by script
 // [12] TESTING STALE HANDLE REJECTION
 // [13] CONCURRENCY TEST
 // [14] USAGE EXAMPLE
+
 //=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -111,37 +114,27 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << #M << ": " <<  \
-       M << "\n"; aSsErT(1, #X, __LINE__); } }
-
 //=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
@@ -489,7 +482,7 @@ void gg(Obj         *o1,
 //                          USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_USAGE_EXAMPLE
+namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 
 {
 // For testing only
@@ -690,12 +683,12 @@ void use(MyType object)
 }
 //..
 
-} // namespace BCEC_OBJECTCATALOG_TEST_USAGE_EXAMPLE
+} // namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 //=============================================================================
 //                          CASE 13 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_13
+namespace OBJECTCATALOG_TEST_CASE_13
 
 {
 
@@ -804,21 +797,21 @@ void *verifyStateThread(void *arg)
 
 } // extern "C"
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_13
+} // namespace OBJECTCATALOG_TEST_CASE_13
 //=============================================================================
 //                          CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_12
+namespace OBJECTCATALOG_TEST_CASE_12
 
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_12
+} // namespace OBJECTCATALOG_TEST_CASE_12
 //=============================================================================
 //                          CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_11
+namespace OBJECTCATALOG_TEST_CASE_11
 
 {
 
@@ -887,12 +880,12 @@ class AllocPattern {
 
 int AllocPattern::objCount = 0;
 
-}// namespace BCEC_OBJECTCATALOG_TEST_CASE_11
+}// namespace OBJECTCATALOG_TEST_CASE_11
 //=============================================================================
 //                          CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_10
+namespace OBJECTCATALOG_TEST_CASE_10
 
 {
 
@@ -940,12 +933,12 @@ class Pattern {
 
 int Pattern::objCount = 0;
 
-}// namespace BCEC_OBJECTCATALOG_TEST_CASE_10
+}// namespace OBJECTCATALOG_TEST_CASE_10
 //=============================================================================
 //                          CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_9
+namespace OBJECTCATALOG_TEST_CASE_9
 
 {
 
@@ -1009,75 +1002,75 @@ void verifyAccessors(Obj         *o1,
     }
 }
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_9
+} // namespace OBJECTCATALOG_TEST_CASE_9
 //=============================================================================
 //                          CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_8
+namespace OBJECTCATALOG_TEST_CASE_8
 
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_8
+} // namespace OBJECTCATALOG_TEST_CASE_8
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_7
+namespace OBJECTCATALOG_TEST_CASE_7
 
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_7
+} // namespace OBJECTCATALOG_TEST_CASE_7
 //=============================================================================
 //                          CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_6
+namespace OBJECTCATALOG_TEST_CASE_6
 
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_6
+} // namespace OBJECTCATALOG_TEST_CASE_6
 //=============================================================================
 //                          CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_5
+namespace OBJECTCATALOG_TEST_CASE_5
 
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_5
+} // namespace OBJECTCATALOG_TEST_CASE_5
 //=============================================================================
 //                          CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_4
+namespace OBJECTCATALOG_TEST_CASE_4
 
 {
-}// namespace BCEC_OBJECTCATALOG_TEST_CASE_4
+}// namespace OBJECTCATALOG_TEST_CASE_4
 //=============================================================================
 //                          CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_3
+namespace OBJECTCATALOG_TEST_CASE_3
 
 {
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_3
+} // namespace OBJECTCATALOG_TEST_CASE_3
 //=============================================================================
 //                          CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_2
+namespace OBJECTCATALOG_TEST_CASE_2
 
 {
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_2
+} // namespace OBJECTCATALOG_TEST_CASE_2
 //=============================================================================
 //                          CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTCATALOG_TEST_CASE_1
+namespace OBJECTCATALOG_TEST_CASE_1
 
 {
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_1
+} // namespace OBJECTCATALOG_TEST_CASE_1
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1109,7 +1102,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
                                << "\n-------------" << bsl::endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_USAGE_EXAMPLE;
+        using namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE;
 
         {
             if (verbose) bsl::cout << "\n\tCatalog usage"
@@ -1165,7 +1158,7 @@ int main(int argc, char *argv[])
                           << "CONCURRENCY TEST" << endl
                           << "================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_13;
+        using namespace OBJECTCATALOG_TEST_CASE_13;
 
         bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS + 3];
 
@@ -1209,7 +1202,7 @@ int main(int argc, char *argv[])
                           << "TESTING STALE HANDLE REJECTION" << endl
                           << "==============================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_12;
+        using namespace OBJECTCATALOG_TEST_CASE_12;
         typedef bdlcc::ObjectCatalog<double> Obj;
         enum {
             k_NUM_ITERATIONS = 5
@@ -1280,7 +1273,7 @@ int main(int argc, char *argv[])
                           << "TESTING OBJECT CONSTRUCTION/DESTRUCTION" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_11;
+        using namespace OBJECTCATALOG_TEST_CASE_11;
 
         typedef bdlcc::ObjectCatalog<AllocPattern> Obj;
 
@@ -1347,7 +1340,7 @@ int main(int argc, char *argv[])
                           << "TESTING OBJECT CONSTRUCTION/DESTRUCTION" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_10;
+        using namespace OBJECTCATALOG_TEST_CASE_10;
 
         typedef bdlcc::ObjectCatalog<Pattern> Obj;
 
@@ -1410,7 +1403,7 @@ int main(int argc, char *argv[])
                           << "TESTING ACCESSORS" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_9;
+        using namespace OBJECTCATALOG_TEST_CASE_9;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1469,7 +1462,7 @@ int main(int argc, char *argv[])
                           << "TESTING ITERATION" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_8;
+        using namespace OBJECTCATALOG_TEST_CASE_8;
         typedef bdlcc::ObjectCatalog<double> Obj;
         typedef bdlcc::ObjectCatalogIter<double> Iter;
         int HA, HB, HC, HD, HE;
@@ -1485,7 +1478,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1500,7 +1493,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1516,7 +1509,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1532,7 +1525,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1549,7 +1542,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1566,7 +1559,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1584,7 +1577,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1607,7 +1600,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1628,7 +1621,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1652,7 +1645,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REMOVEALL'" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_7;
+        using namespace OBJECTCATALOG_TEST_CASE_7;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1712,7 +1705,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REMOVE(handle, &valueBuf)'\n"
                           << "===================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_6;
+        using namespace OBJECTCATALOG_TEST_CASE_6;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1791,7 +1784,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REMOVE(handle)'" << endl
                           << "========================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_5;
+        using namespace OBJECTCATALOG_TEST_CASE_5;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1870,7 +1863,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REPLACE'" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_4;
+        using namespace OBJECTCATALOG_TEST_CASE_4;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1962,7 +1955,7 @@ int main(int argc, char *argv[])
                           << "TESTING PRIMARY MANIPULATORS" << endl
                           << "============================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_3;
+        using namespace OBJECTCATALOG_TEST_CASE_3;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             bslma::TestAllocator ta(veryVeryVerbose);
@@ -2025,7 +2018,7 @@ int main(int argc, char *argv[])
                           << "TESTING ALTERNATE IMPLEMENTATION" << endl
                           << "================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_2;
+        using namespace OBJECTCATALOG_TEST_CASE_2;
 
         typedef my_bcec_ObjectCatalog<double> Obj;
         const double VA = 1.0;
@@ -2134,7 +2127,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_1;
+        using namespace OBJECTCATALOG_TEST_CASE_1;
 
         typedef bdlcc::ObjectCatalog<double> Obj;
         const double VA = 1.0;
@@ -2241,7 +2234,7 @@ int main(int argc, char *argv[])
             ASSERT(x1.find(p.first, &vbuffer) == 0);
             ASSERT(vbuffer == p.second);
             sum += (int)p.second;
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         LOOP2_ASSERT(sum, expectedSum, sum == expectedSum);
         }

@@ -5,20 +5,21 @@
 #include <bdlcc_queue.h>
 #include <bdlcc_skiplist.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlqq_barrier.h>
+#include <bdlqq_condition.h>
 #include <bdlqq_configuration.h>
 #include <bdlqq_lockguard.h>
+#include <bdlqq_mutex.h>
 #include <bdlqq_qlock.h>
+#include <bdlqq_recursivemutex.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_timedsemaphore.h>
-#include <bdlqq_threadgroup.h>
-#include <bdlqq_turnstile.h>
-
-#include <bdlqq_condition.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_recursivemutex.h>
 #include <bdlqq_threadattributes.h>
+#include <bdlqq_threadgroup.h>
 #include <bdlqq_threadutil.h>
+#include <bdlqq_turnstile.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -43,20 +44,12 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
-static bdlqq::QLock coutMutex;
 
-static void aSsErTT(int c, const char *s, int i)
-{
-    if (c) {
-        bdlqq::QLockGuard guard(&coutMutex);
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
-    }
-}
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -65,57 +58,75 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-#define ASSERTT(X) { aSsErTT(!(X), #X, __LINE__); }
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                    THREAD-SAFE OUTPUT AND ASSERT MACROS
+//-----------------------------------------------------------------------------
+typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
+bdlqq::Mutex coutMutex;
+
+#define PT(X)  { LockGuard guard(&printMutex); P(X);  }
+#define PT_(X) { LockGuard guard(&printMutex); P_(X); }
+
+#define ASSERTT(X) { \
+   if (!(X)) {                                                                \
+       LockGuard guard(&coutMutex);                                           \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP_ASSERTT(I,X) { \
+   if (!(X)) {                                                                \
+       LockGuard guard(&coutMutex);                                           \
+       cout << #I << ": " << I << "\n";                                       \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP2_ASSERTT(I,J,X) {                                                \
+   if (!(X)) { LockGuard guard(&coutMutex);                                   \
+       cout << #I << ": " << I << "\t"                                        \
+       << #J << ": " << J << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP3_ASSERTT(I,J,K,X) { \
+   if (!(X)) { LockGuard guard(&coutMutex); cout << #I << ": " << I << "\t"   \
+       << #J << ": " << J << "\t" << #K << ": " << K << "\n";                 \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP4_ASSERTT(I,J,K,L,X) { \
+   if (!(X)) { LockGuard guard(&coutMutex); cout << #I << ": " << I << "\t"   \
+       << #J << ": " << J << "\t" << #K << ": " << K << "\t" << #L            \
+       << ": " << L << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP5_ASSERTT(I,J,K,L,M,X) { \
+   if (!(X)) { LockGuard guard(&coutMutex); cout << #I << ": " << I << "\t"   \
+       << #J << ": " << J << "\t" << #K << ": " << K << "\t" << #L            \
+       << ": " << L << "\t" << #M << ": " << M << "\n";                       \
+       aSsErT(1, #X, __LINE__); } }
+
+#define V(X) { if (verbose) P(X) }            // Print in verbose mode
 
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
-
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP_ASSERTT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErTT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define V(X) { if (verbose) P(X) }            // Print in verbose mode
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -363,7 +374,7 @@ void* pushBackTestThread(void *ptr)
     char* reserved = args->d_reserved;
     for (int i=1; i<args->d_iterations+1; ++i) {
         if (veryVerbose && i%10000 == 0) {
-            bdlqq::QLockGuard guard(&coutMutex);
+            LockGuard guard(&coutMutex);
             cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
                  << " pushing i=" << i << endl;
         }
@@ -372,7 +383,7 @@ void* pushBackTestThread(void *ptr)
     }
 
     if (veryVerbose) {
-        bdlqq::QLockGuard guard(&coutMutex);
+        LockGuard guard(&coutMutex);
         cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
              << "done, pushing sentinal value..." << endl;
     }
@@ -596,7 +607,7 @@ void abaThread(char *firstValue, char *lastValue,
     }
     if (sendSentinal) {
         if (veryVerbose) {
-            bdlqq::QLockGuard guard(&coutMutex);
+            LockGuard guard(&coutMutex);
             cout << "Thread " << bdlqq::ThreadUtil::selfIdAsInt()
                  << " done, pushing sentinal value" << endl;
         }

@@ -2,6 +2,8 @@
 
 #include <bdlcc_queue.h>
 
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
@@ -104,51 +106,46 @@ using namespace bsl;  // automatically added by script
 // [ 8] Usage example 2
 // [ 9] Usage example 1
 // [10] Use of the 'bdlc::Queue' interface example
+
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
 namespace {
 
-volatile int testStatus = 0;
+int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
-                 << "    (failed)" << endl;
+             << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
-
 //=============================================================================
-//                      STANDARD BDE LOOP-ASSERT TEST MACRO
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-        if (!(X)) { cout << #I << ":" << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-        if (!(X)) { cout << #I << ":" << I << "\n" << #J << ":" << J << "\n"; \
-                    aSsErT(1, #X, __LINE__);}}
-
-//=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
-
-#define PP(X) (cout << #X " = " << (X) << endl, false) // Print identifier and
-                                         // value, return false, as expression.
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                                    GLOBALS
@@ -3246,7 +3243,7 @@ int main(int argc, char *argv[])
                 for (int tj = 0; tj < ti; ++tj) {
                     ASSERT(V[tj] != V[ti]);
                 }
-                if (veryVerbose) { T_() T_() P_(ti); P(V[ti]); }
+                if (veryVerbose) { T_ T_ P_(ti); P(V[ti]); }
             }
 
             Obj x(&ta);    const Obj& X = x;
@@ -3348,7 +3345,7 @@ int main(int argc, char *argv[])
                             x.pushBack(v);
                             d.push_back(v);
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPUB: " << v << endl;
                             }
                         }
@@ -3356,7 +3353,7 @@ int main(int argc, char *argv[])
                             x.pushFront(v);
                             d.push_front(v);
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPUF: " << v << endl;
                             }
                         }
@@ -3377,7 +3374,7 @@ int main(int argc, char *argv[])
                             d.pop_back();
                             ASSERT(popped == x.popBack());
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPOB: " << popped << endl;
                             }
                         }
@@ -3386,7 +3383,7 @@ int main(int argc, char *argv[])
                             d.pop_front();
                             ASSERT(popped == x.popFront());
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPOF: " << popped << endl;
                             }
                         }
