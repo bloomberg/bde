@@ -5,7 +5,6 @@
 #include <bdlqq_mutex.h>
 #include <bsls_atomic.h>
 
-#include <bdlimpxxx_fuzzy.h>
 #include <bdlt_currenttime.h>
 
 #include <bsls_stopwatch.h>
@@ -91,7 +90,8 @@ int main(int argc, char *argv[])
               bsls::Stopwatch timer;
               timer.start();
               x.timedWait(&lock, bdlt::CurrentTime::now() + 2);
-              ASSERT(bdlimpxxx::Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));
+              double elapsed = timer.elapsedTime();
+              ASSERT(1.8 <= elapsed && elapsed <= 2.2);
               lock.unlock();
           }
 
@@ -106,7 +106,8 @@ int main(int argc, char *argv[])
               bsls::Stopwatch timer;
               timer.start();
               x.timedWait(&lock, bsls::SystemTime::nowRealtimeClock() + 2);
-              ASSERT(bdlimpxxx::Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));
+              double elapsed = timer.elapsedTime();
+              ASSERT(1.8 <= elapsed && elapsed <= 2.2);
               lock.unlock();
           }
 
@@ -122,7 +123,8 @@ int main(int argc, char *argv[])
               bsls::Stopwatch timer;
               timer.start();
               x.timedWait(&lock, bsls::SystemTime::nowMonotonicClock() + 2);
-              ASSERT(bdlimpxxx::Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));
+              double elapsed = timer.elapsedTime();
+              ASSERT(1.8 <= elapsed && elapsed <= 2.2);
               lock.unlock();
           }
       } break;
