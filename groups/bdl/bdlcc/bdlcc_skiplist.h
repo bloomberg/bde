@@ -1685,7 +1685,7 @@ int SkipList<KEY, DATA>::addNodeUnique(bool *newFrontFlag, Node *node)
 
     Node *q = update[0]->d_ptrs[0].d_next_p;
     if (q != d_tail_p && q->d_key == node->d_key) {
-        return e_DUPLICATE;
+        return e_DUPLICATE;                                           // RETURN
     }
 
     insertImp(newFrontFlag, update, node);
@@ -1705,7 +1705,7 @@ int SkipList<KEY, DATA>::addNodeUniqueR(bool *newFrontFlag, Node *node)
 
     Node *q = update[0]->d_ptrs[0].d_next_p;
     if (q != d_tail_p && q->d_key == node->d_key) {
-        return e_DUPLICATE;
+        return e_DUPLICATE;                                           // RETURN
     }
 
     insertImp(newFrontFlag, update, node);
@@ -1856,7 +1856,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::popFrontImp()
 
     Node *node = d_head_p->d_ptrs[0].d_next_p;
     if (node == d_tail_p) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int level = node->level();
@@ -1938,7 +1938,7 @@ int SkipList<KEY, DATA>::removeNode(Node *node)
     LockGuard guard(&d_lock);
 
     if (0 == node->d_ptrs[0].d_next_p) {
-        return e_NOT_FOUND;
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     int level = node->level();
@@ -1965,7 +1965,7 @@ int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
     LockGuard guard(&d_lock);
 
     if (0 == node->d_ptrs[0].d_next_p) {
-        return e_NOT_FOUND;
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     Node *update[k_MAX_NUM_LEVELS];
@@ -1974,7 +1974,7 @@ int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
     if (!allowDuplicates) {
         Node *q = update[0]->d_ptrs[0].d_next_p;
         if (q != d_tail_p && q != node && q->d_key == key) {
-            return e_DUPLICATE;
+            return e_DUPLICATE;                                       // RETURN
         }
     }
 
@@ -1995,7 +1995,7 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *isNewFront,
     LockGuard guard(&d_lock);
 
     if (0 == node->d_ptrs[0].d_next_p) {
-        return e_NOT_FOUND;
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     Node *update[k_MAX_NUM_LEVELS];
@@ -2004,7 +2004,7 @@ int SkipList<KEY, DATA>::updateNodeR(bool       *isNewFront,
     if (!allowDuplicates) {
         Node *p = update[0];
         if (p != d_head_p && p != node && p->d_key == key) {
-            return e_DUPLICATE;
+            return e_DUPLICATE;                                       // RETURN
         }
     }
 
@@ -2025,7 +2025,7 @@ SkipList<KEY, DATA>::backNode() const
 
     Node *node = d_tail_p->d_ptrs[0].d_prev_p;
     if (node == d_head_p) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     node->incrementRefCount();
@@ -2044,7 +2044,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNode(
     Node *q = locator[0]->d_ptrs[0].d_next_p;
     if (q != d_tail_p && q->d_key == key) {
         q->incrementRefCount();
-        return q;
+        return q;                                                     // RETURN
     }
 
     return 0;
@@ -2062,7 +2062,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeR(
     Node *p = locator[0];
     if (p != d_head_p && p->d_key == key) {
         p->incrementRefCount();
-        return p;
+        return p;                                                     // RETURN
     }
 
     return 0;
@@ -2075,7 +2075,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::frontNode() const
 
     Node *node = d_head_p->d_ptrs[0].d_next_p;
     if (node == d_tail_p) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     node->incrementRefCount();

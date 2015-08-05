@@ -187,6 +187,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -209,6 +213,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR

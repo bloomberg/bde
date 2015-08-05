@@ -452,7 +452,7 @@ namespace bdlcc {
                 // local class MultipriorityQueue_Node<TYPE>
                 // =========================================
 
-template <typename TYPE>
+template <class TYPE>
 class MultipriorityQueue_Node {
     // This class handles storage of one item of parameterized 'TYPE' as a node
     // in a linked list of items stored in a multipriority queue for a given
@@ -473,10 +473,9 @@ class MultipriorityQueue_Node {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    MultipriorityQueue_Node(
-                        const TYPE&                   item,
-                        MultipriorityQueue_Node *next,
-                        bslma::Allocator             *basicAllocator);
+    MultipriorityQueue_Node(const TYPE&              item,
+                            MultipriorityQueue_Node *next,
+                            bslma::Allocator        *basicAllocator);
         // Create a node containing a copy of the specified 'item' and having
         // the specified 'next' pointer.  Use the specified 'basicAllocator' to
         // supply memory.  The behavior is undefined unless 'basicAllocator' is
@@ -504,7 +503,7 @@ class MultipriorityQueue_Node {
                       // class MultipriorityQueue<TYPE>
                       // ==============================
 
-template <typename TYPE>
+template <class TYPE>
 class MultipriorityQueue {
     // This class implements a thread-enabled multipriority queue whose
     // priorities are restricted to a (small) set of contiguous 'N' integer
@@ -595,7 +594,7 @@ class MultipriorityQueue {
     // CREATORS
     explicit MultipriorityQueue(bslma::Allocator *basicAllocator = 0);
     explicit MultipriorityQueue(int               numPriorities,
-                                     bslma::Allocator *basicAllocator = 0);
+                                bslma::Allocator *basicAllocator = 0);
         // Create a multipriority queue.  Optionally specify 'numPriorities',
         // the number of distinct priorities supported by the multipriority
         // queue.  If 'numPriorities' is not specified, the
@@ -643,21 +642,22 @@ class MultipriorityQueue {
         // 'itemPriority' onto the back of this multipriority queue before any
         // queued items having a less urgent priority (higher value) than
         // 'itemPriority', and after any items having the same or more urgent
-        // priority (lower value) than 'itemPriority'.  All 'numItems' items
-        // are pushed as a single atomic action, unless the copy constructor
-        // for one of them throws an exception, in which case a possibly empty
-        // subset of the pushes will have completed and no memory will be
-        // leaked.  'Raw' means that the push will succeed even if the
-        // multipriority queue is disabled.  Note that this method is targeted
-        // for specific use by the class 'bdlmt::MultipriorityThreadPool'.  The
-        // behavior is undefined unless '0 <= itemPriority < numPriorities()'.
+        // priority (lower value) than 'itemPriority'.  All of the specified
+        // 'numItems' items are pushed as a single atomic action, unless the
+        // copy constructor for one of them throws an exception, in which case
+        // a possibly empty subset of the pushes will have completed and no
+        // memory will be leaked.  'Raw' means that the push will succeed even
+        // if the multipriority queue is disabled.  Note that this method is
+        // targeted for specific use by the class
+        // 'bdlmt::MultipriorityThreadPool'.  The behavior is undefined unless
+        // '0 <= itemPriority < numPriorities()'.
 
     void popFront(TYPE *item, int *itemPriority = 0);
         // Remove the least-recently added item having the most urgent priority
         // (lowest value) from this multi-priority queue and load its value
         // into the specified 'item'.  If this queue is empty, this method
         // blocks the calling thread until an item becomes available.  If the
-        // optionally-specified 'itemPriority' is non-null, load the priority
+        // optionally specified 'itemPriority' is non-null, load the priority
         // of the popped item into 'itemPriority'.  The behavior is undefined
         // unless 'item' is non-null.  Note this is unaffected by the enabled /
         // disabled state of the queue.
@@ -666,7 +666,7 @@ class MultipriorityQueue {
         // Attempt to remove (immediately) the least-recently added item having
         // the most urgent priority (lowest value) from this multi-priority
         // queue.  On success, load the value of the popped item into the
-        // specified 'item'; if the optionally-specified 'itemPriority' is
+        // specified 'item'; if the optionally specified 'itemPriority' is
         // non-null, load the priority of the popped item into 'itemPriority';
         // and return 0.  Otherwise, leave 'item' and 'itemPriority'
         // uneffected, and return a non-zero value indicating that this queue
@@ -711,34 +711,33 @@ class MultipriorityQueue {
                 // -----------------------------------------
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 MultipriorityQueue_Node<TYPE>::MultipriorityQueue_Node(
-                                  const TYPE&                   item,
-                                  MultipriorityQueue_Node *next,
-                                  bslma::Allocator             *basicAllocator)
+                                       const TYPE&              item,
+                                       MultipriorityQueue_Node *next,
+                                       bslma::Allocator        *basicAllocator)
 : d_item(item, basicAllocator)
 , d_next_p(next)
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 MultipriorityQueue_Node<TYPE>::~MultipriorityQueue_Node()
 {
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
-MultipriorityQueue_Node<TYPE>*&
-                                MultipriorityQueue_Node<TYPE>::nextPtr()
+MultipriorityQueue_Node<TYPE>*& MultipriorityQueue_Node<TYPE>::nextPtr()
 {
     return d_next_p;
 }
 
 // ACCESSORS
-template <typename TYPE>
+template <class TYPE>
 inline
 const MultipriorityQueue_Node<TYPE> *
                             MultipriorityQueue_Node<TYPE>::nextPtr() const
@@ -746,7 +745,7 @@ const MultipriorityQueue_Node<TYPE> *
     return d_next_p;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const TYPE& MultipriorityQueue_Node<TYPE>::item() const
 {
@@ -758,10 +757,10 @@ const TYPE& MultipriorityQueue_Node<TYPE>::item() const
                       // ------------------------------
 
 // PRIVATE MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
-                                                   int  *itemPriority,
-                                                   bool  blockFlag)
+                                              int  *itemPriority,
+                                              bool  blockFlag)
 {
     enum { e_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -821,7 +820,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
 }
 
 // CREATORS
-template <typename TYPE>
+template <class TYPE>
 MultipriorityQueue<TYPE>::MultipriorityQueue(
                                               bslma::Allocator *basicAllocator)
 : d_heads((typename NodePtrVector::size_type)k_DEFAULT_NUM_PRIORITIES, 0,
@@ -836,7 +835,7 @@ MultipriorityQueue<TYPE>::MultipriorityQueue(
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 MultipriorityQueue<TYPE>::MultipriorityQueue(
                                               int               numPriorities,
                                               bslma::Allocator *basicAllocator)
@@ -852,7 +851,7 @@ MultipriorityQueue<TYPE>::MultipriorityQueue(
     BSLS_ASSERT(k_MAX_NUM_PRIORITIES >= numPriorities);
 }
 
-template <typename TYPE>
+template <class TYPE>
 MultipriorityQueue<TYPE>::~MultipriorityQueue()
 {
     removeAll();
@@ -871,9 +870,9 @@ MultipriorityQueue<TYPE>::~MultipriorityQueue()
 }
 
 // MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 int MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
-                                            int         itemPriority)
+                                       int         itemPriority)
 {
     enum { e_SUCCESS = 0, e_FAILURE = -1 };
 
@@ -920,7 +919,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
     return e_SUCCESS;
 }
 
-template <typename TYPE>
+template <class TYPE>
 void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(
                                                     const TYPE& item,
                                                     int         itemPriority,
@@ -960,7 +959,7 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(
     }  // release mutex
 }
 
-template <typename TYPE>
+template <class TYPE>
 void MultipriorityQueue<TYPE>::pushBackMultipleRaw(
                                                     const TYPE& item,
                                                     int         itemPriority,
@@ -1001,21 +1000,21 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(
     }  // release mutex
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int MultipriorityQueue<TYPE>::tryPopFront(TYPE *item, int *itemPriority)
 {
     return tryPopFrontImpl(item, itemPriority, false);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void MultipriorityQueue<TYPE>::popFront(TYPE *item, int *itemPriority)
 {
     tryPopFrontImpl(item, itemPriority, true);
 }
 
-template <typename TYPE>
+template <class TYPE>
 void MultipriorityQueue<TYPE>::removeAll()
 {
     Node *condemnedList = 0;
@@ -1053,7 +1052,7 @@ void MultipriorityQueue<TYPE>::removeAll()
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void MultipriorityQueue<TYPE>::enable()
 {
@@ -1062,7 +1061,7 @@ void MultipriorityQueue<TYPE>::enable()
     d_enabledFlag = true;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 void MultipriorityQueue<TYPE>::disable()
 {
@@ -1072,28 +1071,28 @@ void MultipriorityQueue<TYPE>::disable()
 }
 
 // ACCESSORS
-template <typename TYPE>
+template <class TYPE>
 inline
 int MultipriorityQueue<TYPE>::numPriorities() const
 {
     return static_cast<int>(d_heads.size());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int MultipriorityQueue<TYPE>::length() const
 {
     return d_length;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bool MultipriorityQueue<TYPE>::isEmpty() const
 {
     return 0 == d_length;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 bool MultipriorityQueue<TYPE>::isEnabled() const
 {

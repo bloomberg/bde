@@ -329,15 +329,14 @@ class ObjectCatalog_AutoCleanup {
     // from the 'ObjectCatalog', and (2) deallocates all associated memory as
     // necessary.
 
-    ObjectCatalog<TYPE> *d_catalog_p;    // temporarily managed catalog
+    ObjectCatalog<TYPE> *d_catalog_p;       // temporarily managed catalog
     typename ObjectCatalog<TYPE>::Node
-                           *d_node_p;         // temporarily managed node
-    bool                    d_deallocateFlag; // how to return the managed node
+                        *d_node_p;          // temporarily managed node
+    bool                 d_deallocateFlag;  // how to return the managed node
 
     // NOT IMPLEMENTED
     ObjectCatalog_AutoCleanup(const ObjectCatalog_AutoCleanup&);
-    ObjectCatalog_AutoCleanup& operator=(const
-                                              ObjectCatalog_AutoCleanup&);
+    ObjectCatalog_AutoCleanup& operator=(const ObjectCatalog_AutoCleanup&);
 
     public:
     // CREATORS
@@ -351,7 +350,7 @@ class ObjectCatalog_AutoCleanup {
 
     // MANIPULATORS
     void manageNode(typename ObjectCatalog<TYPE>::Node *node,
-                    bool                                     deallocateFlag);
+                    bool                                deallocateFlag);
         // Release from management the catalog node, if any, currently managed
         // by this object and begin managing the specified catalog 'node'.  The
         // specified 'deallocateFlag' tells the destructor how to dispose of
@@ -446,27 +445,27 @@ class ObjectCatalog {
         // future calls to this catalog.
 
     int remove(int handle, TYPE *valueBuffer = 0);
-        // Optionally load into the specified 'valueBuffer' the value of the
-        // object having the specified 'handle' and remove it from this
-        // catalog.  Return zero on success, and a non-zero value if the
-        // specified 'handle' is not contained in this catalog.  Note that
-        // 'valueBuffer' is assigned into, and thus must point to a valid
-        // 'TYPE' instance.
+        // Optionally load into the optionally specified 'valueBuffer' the
+        // value of the object having the specified 'handle' and remove it from
+        // this catalog.  Return zero on success, and a non-zero value if the
+        // 'handle' is not contained in this catalog.  Note that 'valueBuffer'
+        // is assigned into, and thus must point to a valid 'TYPE' instance.
 
     void removeAll(bsl::vector<TYPE> *buffer = 0);
         // Remove all objects that are currently held in this catalog and
-        // optionally load into the specified 'buffer' the removed objects.
+        // optionally load into the optionally specified 'buffer' the removed
+        // objects.
 
     int replace(int handle, const TYPE& newObject);
         // Replace the object having the specified 'handle' with the specified
         // 'newObject'.  Return 0 on success, and a non-zero value if the
-        // specified handle is not contained in this catalog.
+        // handle is not contained in this catalog.
 
     // ACCESSORS
     int find(int handle, TYPE *valueBuffer = 0) const;
         // Locate the object having the specified 'handle' and optionally load
-        // its value into the specified 'valueBuffer'.  Return zero on success,
-        // and a non-zero value if the specified 'handle' is not contained in
+        // its value into the optionally specified 'valueBuffer'.  Return zero
+        // on success, and a non-zero value if the 'handle' is not contained in
         // this catalog.  Note that 'valueBuffer' is assigned into, and thus
         // must point to a valid 'TYPE' instance.
 
@@ -578,8 +577,8 @@ ObjectCatalog_AutoCleanup<TYPE>::~ObjectCatalog_AutoCleanup()
 // MANIPULATORS
 template <class TYPE>
 void ObjectCatalog_AutoCleanup<TYPE>::manageNode(
-        typename ObjectCatalog<TYPE>::Node *node,
-        bool                                     deallocateFlag)
+                            typename ObjectCatalog<TYPE>::Node *node,
+                            bool                                deallocateFlag)
 {
     d_node_p = node;
     d_deallocateFlag = deallocateFlag;
