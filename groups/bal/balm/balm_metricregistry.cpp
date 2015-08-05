@@ -178,7 +178,7 @@ MetricId MetricRegistry::addId(const char *category,
     bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_lock);
 
     bsl::pair<MetricId, bool> ret = insertId(category, name);
-    return ret.second ? ret.first : MetricId();
+    return ret.second ? ret.first : MetricId();                       // RETURN
 }
 
 MetricId MetricRegistry::getId(const char *category,

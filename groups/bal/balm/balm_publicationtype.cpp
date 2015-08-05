@@ -44,6 +44,7 @@ int PublicationType::fromInt(PublicationType::Value *result,
       default:
         return -1;                                                    // RETURN
     }
+    return -1;
 }
 
 int PublicationType::fromString(PublicationType::Value *result,

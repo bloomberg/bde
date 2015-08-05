@@ -1,7 +1,7 @@
 // balm_publicationtype.t.cpp                                         -*-C++-*-
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(baem_publicationtype_t_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balm_publicationtype_t_cpp,"$Id$ $CSID$")
 
 #include <balm_publicationtype.h>
 
