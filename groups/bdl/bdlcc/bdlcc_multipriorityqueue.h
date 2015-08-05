@@ -897,7 +897,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
         bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
         if (!d_enabledFlag) {
-            return e_FAILURE;
+            return e_FAILURE;                                         // RETURN
         }
 
         deleter.release();

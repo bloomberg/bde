@@ -627,7 +627,7 @@ ObjectCatalog<TYPE>::findNode(int handle) const
     if (0 > index                    ||
         index >= (int)d_nodes.size() ||
         !(handle & k_BUSY_INDICATOR)) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     Node *node = d_nodes[index];
@@ -710,7 +710,7 @@ int ObjectCatalog<TYPE>::remove(int handle, TYPE *valueBuffer)
     Node *node = findNode(handle);
 
     if (!node) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (valueBuffer) {
@@ -756,7 +756,7 @@ int ObjectCatalog<TYPE>::replace(int handle, const TYPE& newObject)
     Node *node = findNode(handle);
 
     if (!node) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     ((TYPE *)(void *)&node->d_value)->~TYPE();
@@ -778,7 +778,7 @@ int ObjectCatalog<TYPE>::find(int handle, TYPE *valueBuffer) const
     Node *node = findNode(handle);
 
     if (!node) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     if (valueBuffer) {

@@ -2120,7 +2120,7 @@ SkipList<KEY, DATA>::nextNode(Node *node) const
 
     Node *next = node->d_ptrs[0].d_next_p;
     if (0 == next || d_tail_p == next) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     next->incrementRefCount();
@@ -2135,12 +2135,12 @@ SkipList<KEY, DATA>::prevNode(Node *node) const
 
     LockGuard guard(&d_lock);
     if (0 == node->d_ptrs[0].d_next_p) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     Node *prev = node->d_ptrs[0].d_prev_p;
     if (d_head_p == prev) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     prev->incrementRefCount();
@@ -2158,7 +2158,7 @@ int SkipList<KEY, DATA>::skipBackward(Node **node_p) const
 
     if (0 == node->d_ptrs[0].d_next_p) {
         // We set this pointer to 0 only when removing from the list.
-        return e_NOT_FOUND;
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     const int count = node->decrementRefCount();
@@ -2168,7 +2168,7 @@ int SkipList<KEY, DATA>::skipBackward(Node **node_p) const
     Node *prev = node->d_ptrs[0].d_prev_p;
     if (d_head_p == prev) {
         *node_p = 0;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     prev->incrementRefCount();
@@ -2187,7 +2187,7 @@ int SkipList<KEY, DATA>::skipForward(Node **node_p) const
 
     if (0 == node->d_ptrs[0].d_next_p) {
         // We set this pointer to 0 only when removing from the list.
-        return e_NOT_FOUND;
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     const int count = node->decrementRefCount();
@@ -2197,7 +2197,7 @@ int SkipList<KEY, DATA>::skipForward(Node **node_p) const
     Node *next = node->d_ptrs[0].d_next_p;
     if (d_tail_p == next) {
         *node_p = 0;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     next->incrementRefCount();
@@ -2277,7 +2277,7 @@ SkipList<KEY, DATA>&
 SkipList<KEY, DATA>::operator=(const SkipList& rhs)
 {
     if (&rhs == this) {
-        return *this;
+        return *this;                                                 // RETURN
     }
 
     // first empty this list
@@ -2324,7 +2324,7 @@ int SkipList<KEY, DATA>::popFront(PairHandle *item)
 {
     Node *node = popFrontImp();
     if (!node) {
-        return e_NOT_FOUND;
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     if (item) {
@@ -2343,7 +2343,7 @@ int SkipList<KEY, DATA>::popFrontRaw(Pair **handle)
 {
     Node *node = popFrontImp();
     if (!node) {
-        return e_NOT_FOUND;
+        return e_NOT_FOUND;                                           // RETURN
     }
 
     if (handle) {
@@ -2424,7 +2424,7 @@ int SkipList<KEY, DATA>::addAtLevelUniqueRaw(Pair        **result,
             *result = 0;
         }
         releaseNode(node);
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return 0;
@@ -2450,7 +2450,7 @@ int SkipList<KEY, DATA>::addUnique(PairHandle  *result,
     Pair *handle;
     int rc = addUniqueRaw(&handle, key, data, newFrontFlag);
     if (0 != rc) {
-        return rc;
+        return rc;                                                    // RETURN
     }
     result->reset(this, handle);
     return 0;
@@ -2508,7 +2508,7 @@ int SkipList<KEY, DATA>::addUniqueR(PairHandle  *result,
     Pair *handle;
     int rc = addUniqueRawR(&handle, key, data, newFrontFlag);
     if (0 != rc) {
-        return rc;
+        return rc;                                                    // RETURN
     }
     result->reset(this, handle);
 
@@ -2565,7 +2565,7 @@ int SkipList<KEY, DATA>::addAtLevelUniqueRawR(Pair        **result,
             *result = 0;
         }
         releaseNode(node);
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     return 0;
@@ -2595,14 +2595,14 @@ inline
 int SkipList<KEY, DATA>::remove(const Pair *reference)
 {
     if (0 == reference) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
 
     int ret = removeNode(node);
     if (ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     releaseNode(node);
@@ -2616,7 +2616,7 @@ int SkipList<KEY, DATA>::removeAll(bsl::vector<PairHandle> *removed)
 
     int rc = removeAllRaw(removed ? &removedRaw : 0);
     if (0 == removed) {
-        return rc;
+        return rc;                                                    // RETURN
     }
     else {
         for (typename bsl::vector<Pair *>::iterator it = removedRaw.begin();
@@ -2649,7 +2649,7 @@ int SkipList<KEY, DATA>::update(const Pair  *reference,
                                      bool         allowDuplicates)
 {
     if (0 == reference) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
@@ -2664,7 +2664,7 @@ int SkipList<KEY, DATA>::updateR(const Pair  *reference,
                                       bool         allowDuplicates)
 {
     if (0 == reference) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
@@ -2689,7 +2689,7 @@ int SkipList<KEY, DATA>::back(PairHandle *back) const
     Pair *backPtr = reinterpret_cast<Pair *>(backNode());
     if (backPtr) {
         back->reset(this, backPtr);
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -2712,7 +2712,7 @@ bool SkipList<KEY, DATA>::exists(const KEY& key) const
 
     Node *q = locator[0]->d_ptrs[0].d_next_p;
     if (q != d_tail_p && q->d_key == key) {
-        return true;
+        return true;                                                  // RETURN
     }
 
     return false;
@@ -2741,7 +2741,7 @@ int SkipList<KEY, DATA>::find(PairHandle *item, const KEY& key) const
     Pair *itemPtr = reinterpret_cast<Pair *>(findNode(key));
     if (itemPtr) {
         item->reset(this, itemPtr);
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -2753,7 +2753,7 @@ int SkipList<KEY, DATA>::findR(PairHandle *item, const KEY& key) const
     Pair *itemPtr = reinterpret_cast<Pair *>(findNodeR(key));
     if (itemPtr) {
         item->reset(this, itemPtr);
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -2773,7 +2773,7 @@ int SkipList<KEY, DATA>::front(PairHandle *front) const
     Pair *frontPtr = reinterpret_cast<Pair *>(frontNode());
     if (frontPtr) {
         front->reset(this, frontPtr);
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -2812,14 +2812,14 @@ int
 SkipList<KEY, DATA>::next(PairHandle *next, const Pair *reference) const
 {
     if (0 == reference) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
 
     Node *node  = (Node *)(void *)const_cast<Pair *>(reference);
     Node *nNode = nextNode(node);
     if (nNode) {
         next->reset(this, reinterpret_cast<Pair *>(nNode));
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -2842,14 +2842,14 @@ SkipList<KEY, DATA>::previous(PairHandle *prevPair,
                                    const Pair *reference) const
 {
     if (0 == reference) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
 
     Node *node  = (Node *)(void *)const_cast<Pair *>(reference);
     Node *pNode = prevNode(node);
     if (pNode) {
         prevPair->reset(this, reinterpret_cast<Pair *>(pNode));
-        return 0;
+        return 0;                                                     // RETURN
     }
     return -1;
 }
@@ -2861,7 +2861,7 @@ SkipList<KEY, DATA>::print(bsl::ostream& stream,
                                 int           spacesPerLevel) const
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     bdlb::Print::indent(stream, level, spacesPerLevel);
@@ -2974,6 +2974,7 @@ int SkipList<KEY, DATA>::skipBackwardRaw(Pair **handle) const
     Node **node_p = reinterpret_cast<Node **>(handle);
     return skipBackward(node_p);
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -2982,7 +2983,7 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
                 const SkipList<KEY, DATA>& rhs)
 {
     if (&lhs == &rhs) {
-        return true;
+        return true;                                                  // RETURN
     }
     bdlqq::LockGuard<bdlqq::Mutex> lhsGuard(&lhs.d_lock);
     bdlqq::LockGuard<bdlqq::Mutex> rhsGuard(&rhs.d_lock);
@@ -3000,17 +3001,17 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
         if ((!lhsNode && !rhsNode)
          || (lhsNode == lhs.d_tail_p && rhsNode == rhs.d_tail_p)) {
             // we reached the end of both lists at the same time
-            return true;
+            return true;                                              // RETURN
         }
         if (!lhsNode || !rhsNode
          || lhsNode == lhs.d_tail_p || rhsNode == rhs.d_tail_p) {
             // We reached the end of one list before the other
-            return false;
+            return false;                                             // RETURN
         }
 
         if (!(lhsNode->d_key  == rhsNode->d_key
            && lhsNode->d_data == rhsNode->d_data)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
 
@@ -3024,7 +3025,7 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
                 const SkipList<KEY, DATA>& rhs)
 {
     if (&lhs == &rhs) {
-        return false;
+        return false;                                                 // RETURN
     }
     bdlqq::LockGuard<bdlqq::Mutex> lhsGuard(&lhs.d_lock);
     bdlqq::LockGuard<bdlqq::Mutex> rhsGuard(&rhs.d_lock);
@@ -3042,17 +3043,17 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
         if ((!lhsNode && !rhsNode)
          || (lhsNode == lhs.d_tail_p && rhsNode == rhs.d_tail_p)) {
             // we reached the end of both lists at the same time
-            return false;
+            return false;                                             // RETURN
         }
         if (!lhsNode || !rhsNode
          || lhsNode == lhs.d_tail_p || rhsNode == rhs.d_tail_p) {
             // We reached the end of one list before the other
-            return true;
+            return true;                                              // RETURN
         }
 
         if (lhsNode->d_key  != rhsNode->d_key
          || lhsNode->d_data != rhsNode->d_data) {
-            return true;
+            return true;                                              // RETURN
         }
     }
 

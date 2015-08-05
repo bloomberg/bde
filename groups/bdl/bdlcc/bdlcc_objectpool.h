@@ -1200,7 +1200,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
                     // Taken!
                     p->d_inUse.d_next_p = 0;  // not strictly necessary
                     d_numAvailableObjects.addRelaxed(-1);
-                    return (TYPE*)(p + 1);
+                    return (TYPE*)(p + 1);                            // RETURN
 
                 }
             }
@@ -1258,7 +1258,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
             // have it.
 
             d_numAvailableObjects.addRelaxed(1);
-            return;
+            return;                                                   // RETURN
         }
 
     } while (1);
