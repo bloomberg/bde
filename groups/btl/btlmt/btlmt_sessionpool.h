@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 //                                                        // server is
 //                                                        // listening
 //
-//      bdlmtt::Mutex                   *d_coutLock_p;    // mutex protecting
+//      bdlqq::Mutex                    *d_coutLock_p;    // mutex protecting
 //                                                        // bsl::cout
 //
 //      bslma::Allocator                *d_allocator_p;   // memory allocator
@@ -293,7 +293,7 @@ BSLS_IDENT("$Id: $")
 //                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      my_EchoServer(bdlmtt::Mutex      *coutLock,
+//      my_EchoServer(bdlqq::Mutex     *coutLock,
 //                    int               portNumber,
 //                    int               numConnections,
 //                    bool              reuseAddressFlag,
@@ -372,7 +372,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // CREATORS
-//  my_EchoServer::my_EchoServer(bdlmtt::Mutex      *lock,
+//  my_EchoServer::my_EchoServer(bdlqq::Mutex     *lock,
 //                               int               portNumber,
 //                               int               numConnections,
 //                               bslma::Allocator *basicAllocator)
@@ -506,6 +506,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -687,7 +691,7 @@ class SessionPool {
                                     d_blobBufferFactory;  // blob buffer
                                                           // factory
 
-    bdlmtt::AtomicInt               d_numSessions;        // number of
+    bsls::AtomicInt                 d_numSessions;        // number of
                                                           // allocated
                                                           // sessions
 

@@ -11,7 +11,8 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 #include <btlso_socketoptions.h>
 
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlmtt_lockguard.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_lockguard.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -49,7 +50,7 @@ struct SessionPool_Handle {
     };
 
     // DATA
-    bdlmtt::Mutex                      d_mutex;
+    bdlqq::Mutex                       d_mutex;
     SessionPool::SessionStateCallback  d_sessionStateCB;
     int                                d_numAttemptsRemaining;
     int                                d_handleId;
@@ -154,7 +155,7 @@ void SessionPool::channelStateCb(int   channelId,
 
           int handleId = handle->d_handleId;
           {
-              bdlmtt::LockGuard<bdlmtt::Mutex> lock(&handle->d_mutex);
+              bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
 
               if (handle->d_session_p) {
                   int handleId = handle->d_handleId;
@@ -210,7 +211,7 @@ void SessionPool::channelStateCb(int   channelId,
           // CHANNEL_DOWN will be received with a NULL userData and thus will
           // ignored.
 
-          bdlmtt::LockGuard<bdlmtt::Mutex> lock(&handle->d_mutex);
+          bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
           if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
               // We raced against 'closeHandle()'.
 
@@ -384,7 +385,7 @@ void SessionPool::poolStateCb(int state, int source, int)
         if (d_handles.find(source, &handle)) {
             return;
         }
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&handle->d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
         if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
             return;                                                   // RETURN
         }
@@ -682,7 +683,7 @@ int SessionPool::closeHandle(int handleId)
         handle->d_handleId = 0;
     }
     else {
-        bdlmtt::LockGuard<bdlmtt::Mutex> lock(&handle->d_mutex);
+        bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
         if (handle->d_channel_p) {
             // Let channel down cleanup.
 

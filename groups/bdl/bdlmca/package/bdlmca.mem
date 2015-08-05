@@ -2,7 +2,3 @@ bdlmca_blob
 bdlmca_blobstreambuf
 bdlmca_blobutil
 bdlmca_pooledblobbufferfactory
-bdlmca_xxxprotectableblockdispenseradapter
-bdlmca_xxxprotectablemultipool
-bdlmca_xxxprotectablemultipoolallocator
-bdlmca_xxxprotectablesequentialallocator

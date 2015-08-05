@@ -41,12 +41,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_blob.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
+#ifndef INCLUDED_BDLQQ_LOCKGUARD
+#include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_MUTEX
-#include <bdlmtt_mutex.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -111,7 +111,7 @@ class ChannelPoolChannel: public AsyncChannel {
     typedef bsl::list<ReadQueueEntry> ReadQueue;
 
     // DATA
-    bdlmtt::Mutex          d_mutex;                // mutex used to control
+    bdlqq::Mutex           d_mutex;                // mutex used to control
                                                    // access to this channel
 
     volatile bool          d_callbackInProgress;   // indicates when a callback
