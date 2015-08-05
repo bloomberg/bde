@@ -278,12 +278,12 @@ namespace BCEF_BIND_TEST_CASE_5 {
         typedef int ResultType;
 
         // MANIPULATORS
-        int operator()(int x) const
+        int operator()(int) const
         {
             return 1;
         }
 
-        int operator()(const NoAllocTestArg1& x) const
+        int operator()(const NoAllocTestArg1&) const
         {
             return 2;
         }
@@ -328,6 +328,12 @@ namespace BCEF_BIND_TEST_CASE_4 {
     // little repetitive for no benefits, it is clearer to make it into a
     // macro.
 
+#define USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS                              \
+        (void) a1, (void) a2, (void) a3, (void) a4, (void) a5, (void) a6,     \
+        (void) a7, (void) a8, (void) a9, (void) a10, (void) a11, (void) a12,  \
+        (void) a13, (void) a14;
+
+
 int sumOf14Arguments( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     return a1.value()
@@ -348,84 +354,98 @@ int sumOf14Arguments( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 
 NoAllocTestArg1 selectArgument1( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a1.value(),  1);
     return a1;
 }
 
 NoAllocTestArg2 selectArgument2( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a2.value(),  2);
     return a2;
 }
 
 NoAllocTestArg3 selectArgument3( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a3.value(),  3);
     return a3;
 }
 
 NoAllocTestArg4 selectArgument4( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a4.value(),  4);
     return a4;
 }
 
 NoAllocTestArg5 selectArgument5( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a5.value(),  5);
     return a5;
 }
 
 NoAllocTestArg6 selectArgument6( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a6.value(),  6);
     return a6;
 }
 
 NoAllocTestArg7 selectArgument7( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a7.value(),  7);
     return a7;
 }
 
 NoAllocTestArg8 selectArgument8( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a8.value(),  8);
     return a8;
 }
 
 NoAllocTestArg9 selectArgument9( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a9.value(),  9);
     return a9;
 }
 
 NoAllocTestArg10 selectArgument10( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a10.value(),  10);
     return a10;
 }
 
 NoAllocTestArg11 selectArgument11( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a11.value(),  11);
     return a11;
 }
 
 NoAllocTestArg12 selectArgument12( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a12.value(),  12);
     return a12;
 }
 
 NoAllocTestArg13 selectArgument13( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a13.value(),  13);
     return a13;
 }
 
 NoAllocTestArg14 selectArgument14( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a14.value(),  14);
     return a14;
 }
@@ -446,89 +466,104 @@ NoAllocTestArg14 selectArgument14( BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 
 AllocTestArg1 const& selectAllocArgument1(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a1.allocator(),  1);
     return a1;
 }
 
 AllocTestArg2 const& selectAllocArgument2(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a2.allocator(),  2);
     return a2;
 }
 
 AllocTestArg3 const& selectAllocArgument3(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a3.allocator(),  3);
     return a3;
 }
 
 AllocTestArg4 const& selectAllocArgument4(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a4.allocator(),  4);
     return a4;
 }
 
 AllocTestArg5 const& selectAllocArgument5(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a5.allocator(),  5);
     return a5;
 }
 
 AllocTestArg6 const& selectAllocArgument6(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a6.allocator(),  6);
     return a6;
 }
 
 AllocTestArg7 const& selectAllocArgument7(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a7.allocator(),  7);
     return a7;
 }
 
 AllocTestArg8 const& selectAllocArgument8(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a8.allocator(),  8);
     return a8;
 }
 
 AllocTestArg9 const& selectAllocArgument9(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a9.allocator(),  9);
     return a9;
 }
 
 AllocTestArg10 const& selectAllocArgument10(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a10.allocator(),  10);
     return a10;
 }
 
 AllocTestArg11 const& selectAllocArgument11(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a11.allocator(),  11);
     return a11;
 }
 
 AllocTestArg12 const& selectAllocArgument12(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a12.allocator(),  12);
     return a12;
 }
 
 AllocTestArg13 const& selectAllocArgument13(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a13.allocator(),  13);
     return a13;
 }
 
 AllocTestArg14 const& selectAllocArgument14(BCEF_BIND_TEST_ALLOC_14_ARGUMENTS)
 {
+    USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a14.allocator(),  14);
     return a14;
 }
 
 #undef BCEF_BIND_TEST_ALLOC_14_ARGUMENTS
+#undef USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
 
 }  // close namespace BCEF_BIND_TEST_CASE_4
 
@@ -863,9 +898,10 @@ using namespace bdlf::PlaceHolders;
 // ignored.  But 'allocator' *will* be used to make the copy of 'myString' held
 // by the binder:
 //..
-        callBinder(bdlcf::BindUtil::bind(&allocator,
-                                       &invocable,
-                                       _1, _2, myString));
+        callBinder(bdlcf::BindUtil::bind(static_cast<bslma::Allocator *>(
+                                             &allocator),
+                                         &invocable,
+                                         _1, _2, myString));
 //..
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
@@ -949,7 +985,7 @@ using namespace bdlf::PlaceHolders;
 // various signatures by passing a binder as the callback function of the
 // scheduler, and how to use the binder to match the signature of the callback
 // function.  Note that at the point of invocation in 'run' the binder will be
-// invoked with two invocation arguments, thus we may only use place-holders
+// invoked with two invocation arguments, thusl we may only use place-holders
 // '_1' and '_2'.  In the following snippet of code, the binder passes its
 // invocation arguments straight through to the callback:
 //..
@@ -1121,9 +1157,10 @@ using namespace bdlf::PlaceHolders;
     void myMainLoop9(bslma::Allocator *allocator = 0)
     {
         MyCallbackObjectWithoutResultType obj;
-        MyEventScheduler sched(bdlcf::BindUtil::bindR<GlobalResultType>(
-                                                      allocator, obj, _1, _2));
-        sched.run(10);
+        // TBD: Uncomment
+//         MyEventScheduler sched(bdlcf::BindUtil::bindR<GlobalResultType>(
+//                                                       allocator, obj, _1, _2));
+//         sched.run(10);
     }
 //..
 // Another situation where the return type (in fact, the whole signature)
@@ -1224,9 +1261,13 @@ int main(int argc, char *argv[])
     bslma::TestAllocator allocator1(veryVeryVerbose);
     bslma::TestAllocator allocator2(veryVeryVerbose);
 
-    bslma::TestAllocator *Z0 = &allocator0;
-    bslma::TestAllocator *Z1 = &allocator1;
-    bslma::TestAllocator *Z2 = &allocator2;
+    bslma::Allocator *Z0 = &allocator0;
+    bslma::Allocator *Z1 = &allocator1;
+    bslma::Allocator *Z2 = &allocator2;
+
+    bslma::TestAllocator *TZ0 = &allocator0;
+    bslma::TestAllocator *TZ1 = &allocator1;
+    bslma::TestAllocator *TZ2 = &allocator2;
 
     bslma::DefaultAllocatorGuard allocGuard(Z0);
     SlotsAlloc::setZ0(Z0);
@@ -1290,7 +1331,7 @@ int main(int argc, char *argv[])
                                           bdlf::PlaceHolder<2>,
                                           int*> LIST;
             typedef int (*FUNC)(const int &, int &, int *);
-            bdlcf::BindWrapper<bslmf::Nil,FUNC,LIST> b(onMasterCommand,
+            bdlf::BindWrapper<bslmf::Nil,FUNC,LIST> b(onMasterCommand,
                                                     LIST(_1, _2, &extra), Z0);
 
             int stream, prefix;
@@ -1591,9 +1632,9 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // ------------------------------------------------------------------
-        // PASSING 'bdlcf::BindWrapper' OBJECTS AS PARAMETERS
+        // PASSING 'bdlf::BindWrapper' OBJECTS AS PARAMETERS
         // Concerns:
-        //   That 'bdlcf::BindWrapper' objects can be passed as bound arguments,
+        //   That 'bdlf::BindWrapper' objects can be passed as bound arguments,
         //   and that the invocation arguments are properly passed to the
         //   place-holders of the nested 'bdlf::Bind' objects.  We want this to
         //   work on an arbitrary number of levels of recursion.
@@ -1606,7 +1647,7 @@ int main(int argc, char *argv[])
         //   level will work) and again check that return value is correct.
         //
         // Testing:
-        //   PASSING 'bdlcf::BindWrapper' OBJECTS AS PARAMETERS
+        //   PASSING 'bdlf::BindWrapper' OBJECTS AS PARAMETERS
         // ------------------------------------------------------------------
 
         if (verbose)
@@ -1664,8 +1705,8 @@ int main(int argc, char *argv[])
             // temporary copy of 'mX'.  When invoked with V1 up to V14 (which
             // use 'Z0') the allocator slots are set to 'Z0'.
 
-            const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const int NUM_DEFAULT_ALLOCS_BEFORE = TZ0->numAllocations();
+            const int NUM_ALLOCS_BEFORE = TZ1->numAllocations();
 
             ASSERT(14 == bdlcf::BindUtil::bind(Z2, mX,
                              // first bound argument below
@@ -1681,9 +1722,9 @@ int main(int argc, char *argv[])
 
             ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS_DEFAULT, veryVerbose));
 
-            const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
+            const int NUM_DEFAULT_ALLOCS = TZ0->numAllocations()
                                          - NUM_DEFAULT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
+            const int NUM_ALLOCS = TZ1->numAllocations() - NUM_ALLOCS_BEFORE;
             LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 15 == NUM_DEFAULT_ALLOCS);
             LOOP_ASSERT(NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
@@ -1704,8 +1745,8 @@ int main(int argc, char *argv[])
             // the temporary copy of 'mX' and another 14 for the temporary
             // copies of the nested binder's bound arguments.
 
-            const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
+            const int NUM_DEFAULT_ALLOCS_BEFORE = TZ0->numAllocations();
+            const int NUM_ALLOCS_BEFORE = TZ1->numAllocations();
 
             ASSERT(14 == bdlcf::BindUtil::bind(Z2, mX,
                               // first bound argument below
@@ -1718,12 +1759,12 @@ int main(int argc, char *argv[])
                                        // invocation arguments follow
                                        ());
 
-            const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
+            const int NUM_DEFAULT_ALLOCS = TZ0->numAllocations()
                                          - NUM_DEFAULT_ALLOCS_BEFORE;
             LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 43 == NUM_DEFAULT_ALLOCS);
             ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS, veryVerbose));
 
-            const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
+            const int NUM_ALLOCS = TZ1->numAllocations() - NUM_ALLOCS_BEFORE;
             LOOP_ASSERT(NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
 
@@ -1907,17 +1948,17 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============\n");
 
-        if (verbose) printf("\tAsserting traits of 'bdlcf::BindWrapper'.\n");
+        if (verbose) printf("\tAsserting traits of 'bdlf::BindWrapper'.\n");
         {
             typedef NoAllocTestType *FUNC;
             typedef bdlf::Bind_Tuple1<PH1> ListType;
 
-            ASSERT(0 == (bslalg::HasTrait<bdlcf::BindWrapper<bslmf::Nil,
+            ASSERT(0 == (bslalg::HasTrait<bdlf::BindWrapper<bslmf::Nil,
                                                           FUNC,
                                                           ListType>,
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
 
-            ASSERT(1 == (bslalg::HasTrait<bdlcf::BindWrapper<bslmf::Nil,
+            ASSERT(1 == (bslalg::HasTrait<bdlf::BindWrapper<bslmf::Nil,
                                                           FUNC,
                                                           ListType>,
                                 bslalg::TypeTraitHasPointerSemantics>::VALUE));

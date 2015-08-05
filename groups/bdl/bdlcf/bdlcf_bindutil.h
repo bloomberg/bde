@@ -604,439 +604,17 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_bind.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>
-#endif
-
 namespace BloombergLP {
 
+namespace bdlf {
+    struct BindUtil;
+}
+
 namespace bdlcf {
-                        // ======================
-                        // class BindWrapper
-                        // ======================
 
-template <class RET, class FUNC, class TUPLE>
-class BindWrapper {
-    // This wrapper class provides a binder with shared pointer semantics to a
-    // non-modifiable binder (both 'operator*' and 'operator->' accessors) and
-    // forward its construction arguments to the underlying binder.  Note that
-    // instances of this class should not be created explicitly, instead use
-    // the 'BindUtil' factory methods.  Note also that instances of this
-    // class can be invoked directly, in order to meet user expectations that
-    // the result of 'BindUtil::bind' be an invocable just as the result
-    // of 'bdlf::BindUtil::bind' is; in that case, the invocation parameters are
-    // simply forwarded to the shared binder.  Note finally that even though
-    // this wrapper has pointer semantics for the 'operator*' and 'operator->',
-    // it has value semantics for the invocation: invoking a non-modifiable
-    // wrapper will forward the invocation to the non-modifiable binder shared
-    // by that wrapper, even though pointer semantics have it .
+typedef bdlf::BindUtil BindUtil;
 
-    // DATA
-    bsl::shared_ptr<const bdlf::Bind<RET,FUNC,TUPLE> > d_impl;
-
-  public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BindWrapper,
-                                 bslalg::TypeTraitHasPointerSemantics);
-
-    // PUBLIC TYPES
-    typedef typename bdlf::Bind<RET,FUNC,TUPLE>::ResultType ResultType;
-        // The return type of this binder object.
-
-    //CREATORS
-    BindWrapper(typename bslmf::ForwardingType<FUNC>::Type func,
-                     const TUPLE&                               tuple,
-                     bslma::Allocator                          *allocator = 0);
-        // Create a wrapper with shared pointer semantics around a binder
-        // constructed with the specified 'func' invocable and specified
-        // 'tuple' bound arguments.
-
-    BindWrapper(const BindWrapper<RET,FUNC,TUPLE>& original);
-        // Create a wrapper that shares ownership of the binder of the
-        // specified 'original'.
-
-    //ACCESSORS
-    template <class ARGS>
-    inline ResultType invoke(ARGS& arguments) const
-        // Invoke the bound object using the invocation parameters provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for their respective values in the specified 'arguments'.
-    {
-        return d_impl->invoke(arguments);
-    }
-
-    const bdlf::Bind<RET,FUNC,TUPLE>& operator*() const;
-        // Return a reference to the non-modifiable binder shared by this
-        // wrapper.
-
-    const bdlf::Bind<RET,FUNC,TUPLE>* operator->() const;
-        // Return the address of the non-modifiable binder shared by this
-        // wrapper.
-
-    inline ResultType operator()() const
-        // Invoke the bound object using only the invocation parameters
-        // provided at construction of this 'bdlf::Bind' object and return
-        // the result.
-    {
-        return (*d_impl)();
-    }
-
-    template <class P1>
-    inline ResultType operator()(P1& p1)  const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for argument 1 with the value of the argument 'p1'.  Return the
-        // result.
-    {
-        return (*d_impl)(p1);
-    }
-
-    template <class P1>
-    inline ResultType operator()(P1 const& p1)  const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for argument 1 with the value of the argument 'p1'.  Return the
-        // result.
-    {
-        return (*d_impl)(p1);
-    }
-
-    template <class P1, class P2>
-    inline ResultType operator()(P1& p1, P2& p2) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2);
-    }
-
-    template <class P1, class P2>
-    inline ResultType operator()(P1 const& p1, P2 const& p2) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2);
-    }
-
-    template <class P1, class P2, class P3>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1, 2, and 3 with the values of the arguments 'p1',
-        // 'p2' and 'p3' respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3);
-    }
-
-    template <class P1, class P2, class P3>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3)
-    const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1, 2, and 3 with the values of the arguments 'p1',
-        // 'p2' and 'p3' respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3);
-    }
-
-    template <class P1, class P2, class P3, class P4>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4);
-    }
-
-    template <class P1, class P2, class P3, class P4>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6)
-    const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
-        // respectively.  Return the result.
-
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
-        // respectively.  Return the result.
-
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7, P8& p8) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7, P8 const& p8) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7, P8& p8, P9& p9) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7, P8 const& p8, P9 const& p9)
-    const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7, P8& p8, P9& p9,
-                                 P10& p10) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7, P8 const& p8, P9 const& p9,
-                                 P10 const& p10) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
-                                 P11& p11) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 11 with the values of the arguments 'p1' - 'p11'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7, P8 const& p8, P9 const& p9,
-                                 P10 const& p10, P11 const& p11) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 11 with the values of the arguments 'p1' - 'p11'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11, class P12>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
-                                 P11& p11, P12& p12) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11, class P12>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7, P8 const& p8, P9 const& p9,
-                                 P10 const& p10, P11 const& p11,
-                                 P12 const& p12) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11, class P12,
-              class P13>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
-                                 P11& p11, P12& p12, P13& p13) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
-                         p13);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11, class P12,
-              class P13>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7, P8 const& p8, P9 const& p9,
-                                 P10 const& p10, P11 const& p11,
-                                 P12 const& p12, P13 const& p13) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
-                         p13);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11, class P12,
-              class P13, class P14>
-    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
-                                 P11& p11, P12& p12, P13& p13, P14& p14) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
-                         p13, p14);
-    }
-
-    template <class P1, class P2, class P3, class P4, class P5, class P6,
-              class P7, class P8, class P9, class P10, class P11, class P12,
-              class P13, class P14>
-    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5, P6 const& p6,
-                                 P7 const& p7, P8 const& p8, P9 const& p9,
-                                 P10 const& p10, P11 const& p11,
-                                 P12 const& p12, P13 const& p13,
-                                 P14 const& p14) const
-        // Invoke the bound object using the invocation template provided at
-        // construction of this 'bdlf::Bind' object, substituting place-holders
-        // for arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
-        // respectively.  Return the result.
-    {
-        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
-                         p13, p14);
-    }
-};
-
+#if 0
                         // ===================
                         // class BindUtil
                         // ===================
@@ -1056,41 +634,37 @@ struct BindUtil {
 
     // CLASS METHODS
     template <class FUNC>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple0 >
     bind(bslma::Allocator *allocator, FUNC func)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // 'func' invocable object which can be invoked with no parameters.
     {
-        return BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0>
-                   (func, bdlf::Bind_BoundTuple0(),allocator);
+        return bdlf::BindUtil::bind(allocator, func);
     }
 
     template <class FUNC, class P1>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple1<P1> >
     bind(bslma::Allocator *allocator, FUNC func,P1 const&p1)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameters.
     {
-        return BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple1<P1> >
-                   (func, bdlf::Bind_BoundTuple1<P1>(p1,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1);
     }
 
     template <class FUNC, class P1, class P2>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple2<P1,P2> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const &p1, P2 const &p2)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters.
     {
-        typedef bdlf::Bind_BoundTuple2<P1,P2> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2);
     }
 
     template <class FUNC, class P1, class P2, class P3>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple3<P1,P2,P3> >
     bind(bslma::Allocator *allocator, FUNC  func, P1 const&p1, P2 const&p2,
             P3 const&p3)
@@ -1098,54 +672,47 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with three
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple3<P1,P2,P3> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple4<P1,P2,P3,P4> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
             P3 const&p3, P4 const&p4)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with four parameters.
     {
-        typedef bdlf::Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with five parameters.
     {
-        typedef bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with six parameters.
     {
-        typedef bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7>
-    static inline BindWrapper<
+    static inline bdlf::BindWrapper<
                                   bslmf::Nil,
                                   FUNC,
                                   bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
@@ -1155,14 +722,13 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with seven
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
                                                          P8> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1172,14 +738,13 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with eight
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-                (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7, p8);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
                                                          P8,P9> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1188,14 +753,13 @@ struct BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with nine parameters.
     {
-        typedef bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7, p8, p9);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
                                                             P8,P9,P10> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1204,16 +768,13 @@ struct BindUtil {
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with ten parameters.
     {
-        typedef bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
-                                                                      ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
-             allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7, p8, p9, p10);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
                                                             P8,P9,P10,P11> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1223,17 +784,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with eleven
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
-            ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
-             allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7, p8, p9, p10, p11);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
                                               P8,P9,P10,P11,P12> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1243,17 +801,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with twelve
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
-            ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
-             allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7, p8, p9, p10, p11, p12);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
                                               P8,P9,P10,P11,P12,P13> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1264,17 +819,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with thirteen
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
-                            allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7, p8, p9, p10, p11, p12, p13);
     }
 
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10, class P11,
               class P12, class P13, class P14>
-    static inline BindWrapper<bslmf::Nil, FUNC,
+    static inline bdlf::BindWrapper<bslmf::Nil, FUNC,
                                    bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
                                               P8,P9,P10,P11,P12,P13,P14> >
     bind(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1285,62 +837,57 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with fourteen
         // parameters.
     {
-        typedef bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13,P14> ListType;
-        return BindWrapper<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
-                            allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5,
+                                     p6, p7, p8, p9, p10, p11, p12, p13, p14);
     }
 
     template <class RET, class FUNC>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0 >
+    static inline bdlf::BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0 >
     bindR(bslma::Allocator *allocator, FUNC func)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with no parameters
         // and returns a value of type 'RET'.
     {
-        return BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0>
-                   (func, bdlf::Bind_BoundTuple0(), allocator);
+        return bdlf::BindUtil::bind(allocator, func);
     }
 
     template <class RET, class FUNC, class P1>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple1<P1> >
+    static inline bdlf::BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple1<P1> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with one parameter
         // and returns a value of type 'RET'.
     {
-        return BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple1<P1> >
-                   (func, bdlf::Bind_BoundTuple1<P1>(p1, allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1);
     }
 
     template <class RET, class FUNC, class P1, class P2>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple2<P1,P2> >
+    static inline bdlf::BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple2<P1,P2> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with two parameters
         // and returns a value of type 'RET'.
     {
         typedef bdlf::Bind_BoundTuple2<P1,P2> ListType;
-        return BindWrapper<RET,FUNC,ListType>
+        return bdlf::BindWrapper<RET,FUNC,ListType>
                    (func, ListType(p1,p2,allocator), allocator);
+        // TBD:
+//         return bdlf::BindUtil::bind(allocator, func, p1, p2);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3>
-    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple3<P1,P2,P3> >
+    static inline bdlf::BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple3<P1,P2,P3> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3)
         // Return a 'bdlf::Bind' object that is bound to the specified
         // invocable object 'func', which can be invoked with three parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple3<P1,P2,P3> ListType;
-        return BindWrapper<RET,FUNC,ListType>
-                   (func, ListType(p1,p2,p3,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple4<P1,P2,P3,P4> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4)
@@ -1348,14 +895,12 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with four parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return BindWrapper<RET,FUNC,ListType>
-                   (func, ListType(p1,p2,p3,p4,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5)
@@ -1363,14 +908,12 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with five parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return BindWrapper<RET,FUNC,ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
@@ -1378,14 +921,12 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with six parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return BindWrapper<RET, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,
                                                    P7> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1394,14 +935,13 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with seven parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return BindWrapper<RET, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
                                                          P8> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1411,14 +951,13 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with eight parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7, p8);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
                                                          P8,P9> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1428,14 +967,13 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with nine parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return BindWrapper<RET, FUNC, ListType>
-             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7, p8, p9);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
                                                           P8,P9,P10> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1445,17 +983,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with ten parameters
         // and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
-                                                                      ListType;
-        return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
-             allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7, p8, p9, p10);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
                                                           P8,P9,P10,P11> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1465,17 +1000,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with eleven
         // parameters and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
-            ListType;
-        return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
-             allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7, p8, p9, p10, p11);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
                                                           P8,P9,P10,P11,P12> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1486,17 +1018,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with twelve
         // parameters and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
-            ListType;
-        return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
-             allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7, p8, p9, p10, p11, p12);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12, class P13>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
                                                        P8,P9,P10,P11,P12,P13> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1507,17 +1036,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with thirteen
         // parameters and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13> ListType;
-        return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
-                            allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7, p8, p9, p10, p11, p12, p13);
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12, class P13, class P14>
-    static inline BindWrapper<RET, FUNC,
+    static inline bdlf::BindWrapper<RET, FUNC,
                                    bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
                                                    P8,P9,P10,P11,P12,P13,P14> >
     bindR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
@@ -1528,98 +1054,14 @@ struct BindUtil {
         // invocable object 'func', which can be invoked with fourteen
         // parameters and returns a value of type 'RET'.
     {
-        typedef bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13,P14> ListType;
-        return BindWrapper<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
-                            allocator), allocator);
+        return bdlf::BindUtil::bind(allocator, func, p1, p2, p3, p4, p5, p6,
+                                      p7, p8, p9, p10, p11, p12, p13, p14);
     }
 
 };
-}  // close package namespace
 
-namespace bdlf {
-// ---- Anything below this line is implementation specific.  Do not use.  ----
+#endif
 
-                        // ============================
-                        // class bcef::Bind_ArgumentMask
-                        // ============================
-
-template <class RET, class FUNC, class LIST>
-struct Bind_ArgumentMask<bdlcf::BindWrapper<RET, FUNC, LIST> > {
-    // This specialization of 'Bind_ArgumentMask' defines a mask for a
-    // 'bdlcf::BindWrapper' object passed recursively as a bound argument.  The
-    // value is not important, as long as it is out of range.  This makes sure
-    // that a binder with a nested 'bdlcf::BindWrapper' object is treated as
-    // non-explicit, in the same way as if the the nested binder was of type
-    // 'Bind'.
-
-    enum {
-        VALUE = 1 << 24
-    };
-};
-
-                        // =========================
-                        // class bcef::Bind_Evaluator
-                        // =========================
-
-template <class RET, class FUNC, class BINDLIST, class LIST>
-struct Bind_Evaluator<bdlcf::BindWrapper<RET,FUNC,BINDLIST>, LIST> {
-    // This utility provides an evaluator for nested 'bdlcf::BindWrapper'
-    // arguments.  It is a specialization of the 'Bind_Evaluator' declared
-    // in the 'bdlf_bind' component to enable nested 'bdlcf::BindWrapper' objects
-    // in the same fashion as nested 'Bind' objects.
-    // The underlying 'Bind' function object is invoked using the provided
-    // argument list and the result is returned.
-
-    static inline typename Bind<RET,FUNC,BINDLIST>::ResultType
-    eval(LIST& args, const bdlcf::BindWrapper<RET,FUNC,BINDLIST>& func)
-        // Call the specified 'func' functor with the specified 'args'
-        // arguments and return the result.
-    {
-        return func.invoke(args);
-    }
-};
-}  // close package namespace
-
-namespace bdlcf {
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-template <class RET, class FUNC, class TUPLE>
-inline
-BindWrapper<RET,FUNC,TUPLE>::BindWrapper(
-    typename BloombergLP::bslmf::ForwardingType<FUNC>::Type  func,
-    TUPLE const&                                             tuple,
-    bslma::Allocator                                        *allocator)
-{
-    this->d_impl.createInplace(allocator, func, tuple, allocator);
-}
-
-template <class RET, class FUNC, class TUPLE>
-inline
-BindWrapper<RET,FUNC,TUPLE>::BindWrapper(
-    BindWrapper<RET,FUNC,TUPLE> const&original)
-: d_impl(original.d_impl)
-{
-}
-
-template <class RET, class FUNC, class TUPLE>
-inline
-const bdlf::Bind<RET,FUNC,TUPLE>&
-BindWrapper<RET,FUNC,TUPLE>::operator*() const
-{
-    return *(this->d_impl);
-}
-
-template <class RET, class FUNC, class TUPLE>
-inline
-const bdlf::Bind<RET,FUNC,TUPLE>*
-BindWrapper<RET,FUNC,TUPLE>::operator->() const
-{
-    return this->d_impl.ptr();
-}
 }  // close package namespace
 
 }  // close namespace BloombergLP
