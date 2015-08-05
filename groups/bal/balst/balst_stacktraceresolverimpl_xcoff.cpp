@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
+#include <balst_stacktrace.h>
 #include <balst_stacktraceresolver_filehelper.h>
 
 #include <bdlqq_lockguard.h>

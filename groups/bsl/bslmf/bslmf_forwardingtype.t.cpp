@@ -1288,8 +1288,10 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(int *const(&&)[5]        , int *const *            );
         TEST_FWD_TYPE(int(&&)[5]               , int*                    );
         TEST_FWD_TYPE(int(&&)[5][6]            , int(*)[6]               );
+# if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_FWD_TYPE(Class(&&)[]              , Class*                  );
         TEST_FWD_TYPE(Struct(&&)[][6]          , Struct(*)[6]            );
+# endif
         TEST_FWD_TYPE(const int(&&)[5]         , const int*              );
         TEST_FWD_TYPE(volatile int(&&)[5]      , volatile int*           );
         TEST_FWD_TYPE(const volatile int(&&)[5], const volatile int*     );

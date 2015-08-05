@@ -25,42 +25,101 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#include <cstdint>
-
-namespace bsl {
-    using native_std::intmax_t;
-    using native_std::uintmax_t;
-    using native_std::int_least8_t;
-    using native_std::int_least16_t;
-    using native_std::int_least32_t;
-    using native_std::int_least64_t;
-    using native_std::uint_least8_t;
-    using native_std::uint_least16_t;
-    using native_std::uint_least32_t;
-    using native_std::uint_least64_t;
-    using native_std::int_fast8_t;
-    using native_std::int_fast16_t;
-    using native_std::int_fast32_t;
-    using native_std::int_fast64_t;
-    using native_std::uint_fast8_t;
-    using native_std::uint_fast16_t;
-    using native_std::uint_fast32_t;
-    using native_std::uint_fast64_t;
-
-#ifdef BSL_CSTDINT_SUPPORTS_OPTIONAL_TYPEDEFS
-    using native_std::int8_t;
-    using native_std::int16_t;
-    using native_std::int32_t;
-    using native_std::int64_t;
-    using native_std::uint8_t;
-    using native_std::uint16_t;
-    using native_std::uint32_t;
-    using native_std::uint64_t;
-    using native_std::intptr_t;
-    using native_std::uintptr_t;
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
+# define BSL_CSTDINT_NO_STDINT
 #endif
 
+#ifndef BSL_CSTDINT_NO_STDINT
+# include <stdint.h>
+
+namespace bsl {
+
+    using ::intmax_t;
+    using ::uintmax_t;
+
+    using ::int_least8_t;
+    using ::int_least16_t;
+    using ::int_least32_t;
+    using ::int_least64_t;
+
+    using ::uint_least8_t;
+    using ::uint_least16_t;
+    using ::uint_least32_t;
+    using ::uint_least64_t;
+
+    using ::int_fast8_t;
+    using ::int_fast16_t;
+    using ::int_fast32_t;
+    using ::int_fast64_t;
+
+    using ::uint_fast8_t;
+    using ::uint_fast16_t;
+    using ::uint_fast32_t;
+    using ::uint_fast64_t;
+
+    using ::int8_t;
+    using ::int16_t;
+    using ::int32_t;
+    using ::int64_t;
+
+    using ::uint8_t;
+    using ::uint16_t;
+    using ::uint32_t;
+    using ::uint64_t;
+
+    using ::intptr_t;
+    using ::uintptr_t;
+
 }  // close namespace bsl
+
+#else
+
+namespace bsl {
+
+    typedef long long          intmax_t;
+    typedef unsigned long long uintmax_t;
+
+    typedef signed char        int_least8_t;
+    typedef short              int_least16_t;
+    typedef int                int_least32_t;
+    typedef long long          int_least64_t;
+
+    typedef unsigned char      uint_least8_t;
+    typedef unsigned short     uint_least16_t;
+    typedef unsigned int       uint_least32_t;
+    typedef unsigned long long uint_least64_t;
+
+    typedef signed char        int_fast8_t;
+    typedef int                int_fast16_t;
+    typedef int                int_fast32_t;
+    typedef long long          int_fast64_t;
+
+    typedef unsigned char      uint_fast8_t;
+    typedef unsigned int       uint_fast16_t;
+    typedef unsigned int       uint_fast32_t;
+    typedef unsigned long long uint_fast64_t;
+
+    typedef signed char        int8_t;
+    typedef short              int16_t;
+    typedef int                int32_t;
+    typedef long long          int64_t;
+
+    typedef unsigned char      uint8_t;
+    typedef unsigned short     uint16_t;
+    typedef unsigned int       uint32_t;
+    typedef unsigned long long uint64_t;
+
+# ifdef BSLS_PLATFORM_CPU_32_BIT
+    typedef int                intptr_t;
+    typedef unsigned int       uintptr_t;
+# else
+    typedef long long          intptr_t;
+    typedef unsigned long long uintptr_t;
+# endif
+
+}  // close namespace bsl
+
+#endif
 
 #endif
 

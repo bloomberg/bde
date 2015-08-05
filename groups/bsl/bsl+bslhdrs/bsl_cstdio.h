@@ -54,7 +54,9 @@ namespace bsl
     using native_std::getchar;
     using native_std::putc;
     using native_std::putchar;
+#if __cplusplus <= 201103L       // std::gets has been removed in C++14
     using native_std::gets;
+#endif
     using native_std::perror;
     using native_std::printf;
     using native_std::puts;
