@@ -670,9 +670,9 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_ERRNO
+#ifndef INCLUDED_ERRNO_H
 #include <errno.h>
-#define INCLUDED_ERRNO
+#define INCLUDED_ERRNO_H
 #endif
 
 #ifndef INCLUDED_ISTREAM
@@ -728,19 +728,19 @@ BSL_OVERRIDES_STD mode"
 #if defined(BDE_BUILD_TARGET_STLPORT)
 // Code in Robo depends on these headers included transitively with <string>
 // and it fails to build otherwise in the stlport4 mode on Sun.
-#ifndef INCLUDED_STDIO
+#ifndef INCLUDED_STDIO_H
 #include <stdio.h>
-#define INCLUDED_STDIO
+#define INCLUDED_STDIO_H
 #endif
 
-#ifndef INCLUDED_STDLIB
+#ifndef INCLUDED_STDLIB_H
 #include <stdlib.h>
-#define INCLUDED_STDLIB
+#define INCLUDED_STDLIB_H
 #endif
 
-#ifndef INCLUDED_STRING
+#ifndef INCLUDED_STRING_H
 #include <string.h>
-#define INCLUDED_STRING
+#define INCLUDED_STRING_H
 #endif
 
 #endif

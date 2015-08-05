@@ -1359,7 +1359,7 @@ void validateManagedState(unsigned int                     LINE,
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
-        LOOP_ASSERT(LINE, false == obj);
+        LOOP_ASSERT(LINE, false == static_cast<bool>(obj));
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
         LOOP_ASSERT(LINE, 0 == obj.get());
@@ -1423,7 +1423,7 @@ void validateManagedState(unsigned int                     LINE,
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
-        LOOP_ASSERT(LINE, false == obj);
+        LOOP_ASSERT(LINE, false == static_cast<bool>(obj));
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
         LOOP_ASSERT(LINE, 0 == obj.get());
@@ -1486,7 +1486,7 @@ void validateManagedState(unsigned int                          LINE,
 
     if (!ptr) {
         // Different negative testing constraints when 'ptr' is null.
-        LOOP_ASSERT(LINE, false == obj);
+        LOOP_ASSERT(LINE, false == static_cast<bool>(obj));
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
         LOOP_ASSERT(LINE, 0 == obj.get());
