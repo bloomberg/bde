@@ -5,7 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <btlmt_message.h>
 #include <btls_iovecutil.h>
 #include <btlso_resolveutil.h>
 #include <btlso_socketimputil.h>

@@ -3769,7 +3769,7 @@ void case22PoolStateCallback(
     int             severity)
 {
     switch (state) {
-      case btlmt::PoolMsg::BTEMT_ACCEPT_TIMEOUT: {
+      case PoolState::BTEMT_ACCEPT_TIMEOUT: {
         if (verbose) {
             MTCOUT << "\tAccept timed out:"
                    << " sourceId=" << sourceId
@@ -3777,7 +3777,7 @@ void case22PoolStateCallback(
                    << MTENDL;
         }
       } break;
-      case btlmt::PoolMsg::BTEMT_ERROR_CONNECTING: {
+      case PoolState::BTEMT_ERROR_CONNECTING: {
         if (verbose) {
             MTCOUT << "\tError Connecting:"
                    << " sourceId=" << sourceId
@@ -3785,7 +3785,7 @@ void case22PoolStateCallback(
                    << MTENDL;
         }
       } break;
-      case btlmt::PoolMsg::BTEMT_ERROR_ACCEPTING: {
+      case PoolState::BTEMT_ERROR_ACCEPTING: {
         if (verbose) {
             MTCOUT << "\tError Accepting:"
                    << " sourceId=" << sourceId
@@ -3793,7 +3793,7 @@ void case22PoolStateCallback(
                    << MTENDL;
         }
       } break;
-      case btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT: {
+      case PoolState::BTEMT_CHANNEL_LIMIT: {
         if (verbose) {
             MTCOUT << "\tChannel Limit Reached:"
                    << " sourceId=" << sourceId
@@ -5069,7 +5069,7 @@ void case19PoolStateCallback(
     ASSERT(acceptErrors);
 
     switch (state) {
-      case btlmt::PoolMsg::BTEMT_ERROR_ACCEPTING: {
+      case PoolState::BTEMT_ERROR_ACCEPTING: {
         if (veryVerbose) {
             MTCOUT << "Error Accepting:"
                    << " serverId=" << serverId
@@ -5144,7 +5144,7 @@ void case18PoolStateCallback(
     **eventAddr = state;
 
     switch (state) {
-      case btlmt::PoolMsg::BTEMT_ACCEPT_TIMEOUT: {
+      case PoolState::BTEMT_ACCEPT_TIMEOUT: {
         if (veryVerbose) {
             MTCOUT << "Accept timed out:"
                    << " serverId=" << serverId
@@ -5152,7 +5152,7 @@ void case18PoolStateCallback(
                    << MTENDL;
         }
       } break;
-      case btlmt::PoolMsg::BTEMT_ERROR_CONNECTING: {
+      case PoolState::BTEMT_ERROR_CONNECTING: {
         if (veryVerbose) {
             MTCOUT << "Error Connecting:"
                    << " serverId=" << serverId
@@ -5160,7 +5160,7 @@ void case18PoolStateCallback(
                    << MTENDL;
         }
       } break;
-      case btlmt::PoolMsg::BTEMT_ERROR_ACCEPTING: {
+      case PoolState::BTEMT_ERROR_ACCEPTING: {
         if (veryVerbose) {
             MTCOUT << "Error Accepting:"
                    << " serverId=" << serverId
@@ -5168,7 +5168,7 @@ void case18PoolStateCallback(
                    << MTENDL;
         }
       } break;
-      case btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT: {
+      case PoolState::BTEMT_CHANNEL_LIMIT: {
         if (veryVerbose) {
             MTCOUT << "Channel Limit Reached:"
                    << " serverId=" << serverId
@@ -6924,11 +6924,11 @@ static void case4PoolStateCb(int              poolState,
                << bdlt::CurrentTime::now() << endl;
         switch(poolState) {
 #define CASE(X) case X: cout << "\tstate = " << #X << endl; break;
-            CASE(btlmt::PoolMsg::BTEMT_ACCEPT_TIMEOUT);
-            CASE(btlmt::PoolMsg::BTEMT_ERROR_ACCEPTING);
-            CASE(btlmt::PoolMsg::BTEMT_ERROR_CONNECTING);
-            CASE(btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT);
-            CASE(btlmt::PoolMsg::BTEMT_CAPACITY_LIMIT);
+            CASE(PoolState::BTEMT_ACCEPT_TIMEOUT);
+            CASE(PoolState::BTEMT_ERROR_ACCEPTING);
+            CASE(PoolState::BTEMT_ERROR_CONNECTING);
+            CASE(PoolState::BTEMT_CHANNEL_LIMIT);
+            CASE(PoolState::BTEMT_CAPACITY_LIMIT);
 #undef CASE
             default: cout << "Unknown pool state: "; P(poolState); break;
         }
@@ -6937,12 +6937,12 @@ static void case4PoolStateCb(int              poolState,
         cout << MTENDL;
     }
 
-    if (btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolState) {
+    if (PoolState::BTEMT_CHANNEL_LIMIT == poolState) {
         ASSERT(btlmt::ChannelPool::BTEMT_ALERT == severity);  // ALERT
         return;                                                       // RETURN
     }
 
-    ASSERT(btlmt::PoolMsg::BTEMT_ERROR_CONNECTING == poolState);
+    ASSERT(PoolState::BTEMT_ERROR_CONNECTING == poolState);
     ASSERT(0 <= *numFailures);
     ++(*numFailures);
     LOOP3_ASSERT(*numFailures, info->d_expNumFailures, info->d_portNumber,
@@ -7027,10 +7027,10 @@ static void case4ErrorPoolStateCb(int               poolState,
 {
     ASSERT(expectedSourceId == sourceId);
     ASSERT(expectedSeverity == severity);
-    ASSERT(btlmt::PoolMsg::BTEMT_ERROR_CONNECTING == poolState);
+    ASSERT(PoolState::BTEMT_ERROR_CONNECTING == poolState);
     if (veryVerbose) {
         PT(bdlt::CurrentTime::now());
-        PT(btlmt::PoolMsg::PoolState(poolState));
+        PT(poolState);
         PT(sourceId);
         PT(severity);
     }
@@ -7623,7 +7623,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
             // Output a message to 'stdout' indicating the specified 'state'
             // associated with the specified 'source' has occurred, with the
             // specified 'severity'.  Note that 'state' is one of the
-            // 'btlmt::PoolMsg' constants (see 'btlmt_message'), 'source'
+            // 'PoolState' constants (see 'btlmt_message'), 'source'
             // identifies the channel pool operation associated with this state
             // (in this case, this must be the 'SERVER_ID' passed to
             // 'listen()'), and 'severity' is one of the
@@ -12869,7 +12869,7 @@ void TestDriver::testCase18()
                     bdlqq::ThreadUtil::microSleep(200000);
                     bdlqq::ThreadUtil::yield();
                 }
-                ASSERT(btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolEvent);
+                ASSERT(PoolState::BTEMT_CHANNEL_LIMIT == poolEvent);
                 ASSERT(MAX_CLIENTS == X.numChannels());
             }
             if (veryVerbose) { P(ta); }
@@ -12924,7 +12924,7 @@ void TestDriver::testCase18()
                         bdlqq::ThreadUtil::microSleep(200000);
                         bdlqq::ThreadUtil::yield();
                     }
-                    ASSERT(btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolEvent);
+                    ASSERT(PoolState::BTEMT_CHANNEL_LIMIT == poolEvent);
                     ASSERT(MAX_CLIENTS == X.numChannels());
                 }
                 if (veryVerbose) { P(ta); }
@@ -12946,7 +12946,7 @@ void TestDriver::testCase18()
                 bdlqq::ThreadUtil::yield();
                 bdlqq::ThreadUtil::microSleep(400000);
                 ASSERT(MAX_CLIENTS == X.numChannels());
-                ASSERT(btlmt::PoolMsg::BTEMT_CHANNEL_LIMIT == poolEvent);
+                ASSERT(PoolState::BTEMT_CHANNEL_LIMIT == poolEvent);
 
                 channel.invalidate();
                 factory.deallocate(socket);

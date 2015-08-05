@@ -547,10 +547,6 @@ BSLS_IDENT("$Id: $")
 #include <btlmt_channeltype.h>
 #endif
 
-#ifndef INCLUDED_BTLMT_MESSAGE
-#include <btlmt_message.h>
-#endif
-
 #ifndef INCLUDED_BTLMT_TCPTIMEREVENTMANAGER
 #include <btlmt_tcptimereventmanager.h>
 #endif
