@@ -205,9 +205,9 @@ class SlowerBlobPool {
 // them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
 //..
     class SlowBlobPool {
-        bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
         bdlma::ConcurrentPoolAllocator  d_spAllocator;  // alloc. shared ptr.
         bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+        bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
 
         enum { k_BUFFER_SIZE = 65536 };
 

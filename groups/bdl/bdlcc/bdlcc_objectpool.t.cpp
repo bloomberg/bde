@@ -1142,8 +1142,17 @@ namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
         }
     } *queryFactory;
 
+bsls::AtomicInt64 totalResponseTime1; // total response time when
+                                     // we do not use object pool
+
+bsls::AtomicInt64 totalResponseTime2; // total response time when
+                                     // we use object pool
+
 ///Usage
 ///-----
+//
+///Example 1
+/// - - - -
 // In this example, we simulate a database server accepting queries from
 // clients and executing each query in a separate thread.  Client requests are
 // simulated by function 'getClientQuery' which returns a query to be executed.
@@ -1151,14 +1160,14 @@ namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
 // object of a query factory class 'QueryFactory'.
 //..
     enum {
-        k_CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
-                                          //  a connection (in microseconds)
+        k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open
+                                        // a connection (in microseconds)
 
-        k_CONNECTION_CLOSE_TIME = 8,      // (simulated) time to close
-                                          //  a connection (in microseconds)
+        k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close
+                                        // a connection (in microseconds)
 
-        k_QUERY_EXECUTION_TIME  = 4       // (simulated) time to execute
-                                          //  a query (in microseconds)
+        k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute
+                                        // a query (in microseconds)
     };
 
     class my_DatabaseConnection
@@ -1178,58 +1187,50 @@ namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
         void executeQuery(Query *query)
         {
             bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
-           (void *)query;
+            (void *)query;
         }
     };
 //..
+// The server runs several threads which, on each iteration, obtain a new
+// client request from the query factory, and process it, until the desired
+// total number of requests is achieved.
+//..
+    extern "C" void serverThread(bsls::AtomicInt *queries,
+                                 int              max,
+                                 void(*queryHandler)(Query*))
+    {
+        while (++(*queries) <= max) {
+            Query *query = queryFactory->createQuery();
+            queryHandler(query);
+        }
+    }
+//..
+// We first give an implementation that does not uses the object pool.  Later
+// we will give an implementation using an object pool to manage the database
+// connections.  We also keep track of total response time for each case.  When
+// object pool is *not* used, each thread, in order to execute a query, creates
+// a *new* database connection, calls its 'executeQuery' method to execute the
+// query and finally closes the connection.
+//..
+    void queryHandler1(Query *query)
+        // Handle the specified 'query' without using an objectpool.
+    {
+        bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
+        my_DatabaseConnection connection;
+        connection.executeQuery(query);
+        bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+
+        totalResponseTime1 += t2 - t1;
+
+        queryFactory->destroyQuery(query);
+
+        // 'connection' is implicitly destroyed on function return.
+    }
+//..
 
 bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
-bsls::AtomicInt64 totalResponseTime1; // total response time when
-                                     // we do not use object pool
 
-bsls::AtomicInt64 totalResponseTime2; // total response time when
-                                     // we use object pool
-
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
-extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
-
-void serverThread(bsls::AtomicInt* queries, int max,
-                  void(*queryHandler)(Query*))
-{
-    while (++(*queries) <= max) {
-        Query* query = queryFactory->createQuery();
-        queryHandler(query);
-    }
-}
-
-void queryHandler1(Query *query)
-    // Handle the specified 'query' without using an objectpool.
-{
-    bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
-    my_DatabaseConnection connection;
-    connection.executeQuery(query);
-    bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
-
-    totalResponseTime1 += t2 - t1;
-
-    queryFactory->destroyQuery(query);
-}
-
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
-extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.  This was fixed in Sun Studio
-    // 8 compiler.
-#endif
-void queryHandler2(Query *query)
+extern "C" void queryHandler2(Query *query)
         // Handle the specified 'query' using an objectpool.
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
@@ -1477,38 +1478,121 @@ int main(int argc, char *argv[])
         using namespace OBJECTPOOL_TEST_USAGE_EXAMPLE;
 
         QueryFactory *queryFactory = new QueryFactory;
-        enum {
-            k_NUM_THREADS = 8,
-            k_NUM_QUERIES = 10000
-        };
 
-        bsls::AtomicInt numQueries(0);
-        bdlqq::ThreadGroup tg;
+// The main thread starts and joins these threads:
+//..
+    enum {
+        k_NUM_THREADS = 8,
+        k_NUM_QUERIES = 10000
+    };
 
-        tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
-                                          (int)k_NUM_QUERIES, &queryHandler1),
-                      k_NUM_THREADS);
-        tg.joinAll();
+    bsls::AtomicInt numQueries(0);
+    bdlqq::ThreadGroup tg;
 
-        if (verbose) {
-            P(totalResponseTime1);
-        }
+    tg.addThreads(bdlf::BindUtil::bind(&serverThread,
+                                       &numQueries,
+                                       static_cast<int>(k_NUM_QUERIES),
+                                       &queryHandler1),
+                  k_NUM_THREADS);
+    tg.joinAll();
+//..
+// In above strategy, clients always incur the delay associated with opening
+// and closing a database connection.  Now we show an implementation that will
+// use object pool to *pool* the database connections.
+//
+///Object pool creation and functor argument
+/// - - - - - - - - - - - - - - - - - - - -
+// In order to create an object pool, we may specify, at construction time, a
+// functor encapsulating object creation.  The pool invokes this this functor
+// to create an object in a memory location supplied by the allocator specified
+// at construction and owned by the pool.  By default, the creator invokes the
+// default constructor of the underlying type, passing the pool's allocator if
+// the type uses the bslma::Allocator protocol to supply memory (as specified
+// by the "Uses Bslma Allocator" trait, see 'bslalg_typetraits').  If this
+// behavior is not sufficient, we can supply our own functor for type creation.
+//
+///Creating an object pool that constructs default objects
+/// - - - - - - - - - - - - - - - - - - -
+// When the default constructor of our type is sufficient, whether or not that
+// type uses 'bslma::Allocator', we can simply use the default behavior of
+// 'bdlcc::ObjectPool':
+//..
+    bdlcc::ObjectPool<my_DatabaseConnection> pool(-1);
+//..
+///Creating an object pool that constructs non-default objects
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// In this example, if we decide that connection IDs must be supplied to
+// objects allocated from the pool, we must define a function which invokes
+// placement new appropriately.  When using a custom creator functor, it is the
+// responsibility of client code to pass the pool's allocator (supplied as the
+// second argument to the functor) to the new object if it uses
+// bslma::Allocator.
+//..
+//    void createConnection(void *arena, bslma::Allocator *alloc, int id)
+//    {
+//       new (arena) my_DatabaseConnection(id, alloc);
+//    }
+//..
+// then...
+//..
+//    int myId = 100;
+//    bdlcc::ObjectPool<my_DatabaseConnection> pool(
+//                             bdlf::BindUtil::bind(&createConnection,
+//                                                 bdlf::PlaceHolders::_1,
+//                                                 bdlf::PlaceHolders::_2,
+//                                                 myId));
+//..
+// Whichever creator we choose, the modified server looks like
+//..
+//  connectionPool = &pool;
+//
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      my_Query *query = getClientQuery();
+//      bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//  }
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      bdlqq::ThreadUtil::join(threads[i]);
+//  }
+//..
+///Modified 'queryHandler'
+///- - - - - - - - - - - -
+// Now each thread, instead of creating a new connection, gets a connection
+// from the object pool.  After using the connection, the client returns it
+// back to the pool for further reuse.  The modified 'queryHandler' is
+// following.
+//..
+//    bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
+//
+//    void queryHandler2(Query *query)
+//        // Process the specified 'query'.
+//    {
+//        bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
+//        my_DatabaseConnection *connection = connectionPool->getObject();
+//        connection->executeQuery(query);
+//        bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+//
+//        totalResponseTime2 += t2 - t1;
+//
+//        connectionPool->releaseObject(connection);
+//        queryFactory->destroyQuery(query);
+//    }
+//..
+// The total response time for each strategy is:
+//..
+// totalResponseTime1 = 199970775520
+// totalResponseTime2 = 100354490480
+//..
 
-        // server using object pool
-        bslma::TestAllocator ta(veryVeryVerbose);
-        bdlcc::ObjectPool<my_DatabaseConnection> pool(-1, &ta);
         connectionPool = &pool;
 
         numQueries = 0;
 
-        tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
-                                          (int)k_NUM_QUERIES, &queryHandler2),
+        tg.addThreads(bdlf::BindUtil::bind(&serverThread,
+                                           &numQueries,
+                                           static_cast<int>(k_NUM_QUERIES),
+                                           &queryHandler2),
                       k_NUM_THREADS);
         tg.joinAll();
-
-        if (verbose) {
-            P(totalResponseTime2);
-        }
 
         delete queryFactory;
 

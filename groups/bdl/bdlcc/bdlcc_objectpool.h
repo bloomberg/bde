@@ -120,6 +120,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+//
+///Example 1
+/// - - - -
 // In this example, we simulate a database server accepting queries from
 // clients and executing each query in a separate thread.  Client requests are
 // simulated by function 'getClientQuery' which returns a query to be executed.
@@ -127,14 +130,14 @@ BSLS_IDENT("$Id: $")
 // object of a query factory class 'QueryFactory'.
 //..
 //  enum {
-//      k_CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
-//                                        //  a connection (in microseconds)
+//      k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open
+//                                      // a connection (in microseconds)
 //
-//      k_CONNECTION_CLOSE_TIME = 8,     // (simulated) time to close
-//                                       //  a connection (in microseconds)
+//      k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close
+//                                      // a connection (in microseconds)
 //
-//      k_QUERY_EXECUTION_TIME  = 4      // (simulated) time to execute
-//                                       //  a query (in microseconds)
+//      k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute
+//                                      // a query (in microseconds)
 //  };
 //
 //  class my_DatabaseConnection
@@ -154,6 +157,7 @@ BSLS_IDENT("$Id: $")
 //      void executeQuery(Query *query)
 //      {
 //          bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+//          (void *)query;
 //      }
 //  };
 //..
@@ -161,29 +165,15 @@ BSLS_IDENT("$Id: $")
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-//    void serverThread(bsls::AtomicInt *queries, int max,
-//                      void(*queryHandler)(Query*))
-//    {
-//        while (++(*queries) <= max) {
-//            Query *query = queryFactory->createQuery();
-//            queryHandler(query);
-//        }
-//    }
-//..
-// The main thread starts and joins these threads:
-//..
-//    enum {
-//       k_NUM_THREADS = 8,
-//       k_NUM_QUERIES = 10000
-//    };
-//
-//    bsls::AtomicInt numQueries = 0;
-//    bdlqq::ThreadGroup tg;
-//
-//    tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
-//                                      k_NUM_QUERIES, &queryHandler1),
-//                  k_NUM_THREADS);
-//    tg.joinAll();
+//  extern "C" void serverThread(bsls::AtomicInt *queries,
+//                               int              max,
+//                               void(*queryHandler)(Query*))
+//  {
+//      while (++(*queries) <= max) {
+//          Query *query = queryFactory->createQuery();
+//          queryHandler(query);
+//      }
+//  }
 //..
 // We first give an implementation that does not uses the object pool.  Later
 // we will give an implementation using an object pool to manage the database
@@ -192,26 +182,44 @@ BSLS_IDENT("$Id: $")
 // a *new* database connection, calls its 'executeQuery' method to execute the
 // query and finally closes the connection.
 //..
-//     void queryHandler1(Query *query)
-//         // Handle the specified 'query' without using an objectpool.
-//     {
-//         bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
-//         my_DatabaseConnection connection;
-//         connection.executeQuery(query);
-//         bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+//  void queryHandler1(Query *query)
+//      // Handle the specified 'query' without using an objectpool.
+//  {
+//      bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
+//      my_DatabaseConnection connection;
+//      connection.executeQuery(query);
+//      bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
 //
-//         totalResponseTime1 += t2 - t1;
+//      totalResponseTime1 += t2 - t1;
 //
-//         queryFactory->destroyQuery(query);
-//             // 'connection' is implicitly destroyed on function return.
-//     }
+//      queryFactory->destroyQuery(query);
+//
+//      // 'connection' is implicitly destroyed on function return.
+//  }
+//..
+// The main thread starts and joins these threads:
+//..
+//  enum {
+//      k_NUM_THREADS = 8,
+//      k_NUM_QUERIES = 10000
+//  };
+//
+//  bsls::AtomicInt numQueries(0);
+//  bdlqq::ThreadGroup tg;
+//
+//  tg.addThreads(bdlf::BindUtil::bind(&serverThread,
+//                                     &numQueries,
+//                                     static_cast<int>(k_NUM_QUERIES),
+//                                     &queryHandler1),
+//                k_NUM_THREADS);
+//  tg.joinAll();
 //..
 // In above strategy, clients always incur the delay associated with opening
 // and closing a database connection.  Now we show an implementation that will
 // use object pool to *pool* the database connections.
 //
 ///Object pool creation and functor argument
-///- - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - -
 // In order to create an object pool, we may specify, at construction time, a
 // functor encapsulating object creation.  The pool invokes this this functor
 // to create an object in a memory location supplied by the allocator specified
@@ -222,12 +230,12 @@ BSLS_IDENT("$Id: $")
 // behavior is not sufficient, we can supply our own functor for type creation.
 //
 ///Creating an object pool that constructs default objects
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+/// - - - - - - - - - - - - - - - - - - -
 // When the default constructor of our type is sufficient, whether or not that
 // type uses 'bslma::Allocator', we can simply use the default behavior of
 // 'bdlcc::ObjectPool':
 //..
-//    bdlcc::ObjectPool<my_DatabaseConnection> pool;
+//  bdlcc::ObjectPool<my_DatabaseConnection> pool(-1);
 //..
 ///Creating an object pool that constructs non-default objects
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
@@ -254,15 +262,15 @@ BSLS_IDENT("$Id: $")
 //..
 // Whichever creator we choose, the modified server looks like
 //..
-//    connectionPool = &pool;
+//  connectionPool = &pool;
 //
-//    for (int i = 0; i < k_NUM_QUERIES; ++i) {
-//        my_Query *query = getClientQuery();
-//        bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
-//    }
-//    for (int i = 0; i < k_NUM_QUERIES; ++i) {
-//        bdlqq::ThreadUtil::join(threads[i]);
-//    }
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      my_Query *query = getClientQuery();
+//      bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//  }
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      bdlqq::ThreadUtil::join(threads[i]);
+//  }
 //..
 ///Modified 'queryHandler'
 ///- - - - - - - - - - - -
@@ -272,6 +280,7 @@ BSLS_IDENT("$Id: $")
 // following.
 //..
 //    bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
+//
 //    void queryHandler2(Query *query)
 //        // Process the specified 'query'.
 //    {
