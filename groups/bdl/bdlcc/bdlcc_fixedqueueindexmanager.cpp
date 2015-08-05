@@ -554,7 +554,7 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
         }
         BSLS_ASSERT(0 >= circularDifference(currGeneration,
                                             elementGeneration,
-                                            d_maxGeneration+1));
+                                            d_maxGeneration + 1));
 
         if (0 == difference && e_EMPTY == state) {
             // The cell is empty in the current generation, meaning the queue

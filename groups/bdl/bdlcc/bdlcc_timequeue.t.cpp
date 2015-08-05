@@ -551,6 +551,8 @@ void run()
 
 namespace TIMEQUEUE_USAGE_EXAMPLE {
 
+///Usage
+///-----
 // The following shows a typical usage of the 'bdlcc::TimeQueue' class,
 // implementing a simple threaded server 'my_Server' that manages individual
 // Connections ('my_Connection') on behalf of multiple Sessions ('my_Session').
@@ -576,9 +578,9 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 //..
     extern "C" {
 
-    void* my_connectionMonitorThreadEntry(void *server);
+    void *my_connectionMonitorThreadEntry(void *server);
 
-    void* my_timerMonitorThreadEntry(void *server);
+    void *my_timerMonitorThreadEntry(void *server);
 
     }
 //..
@@ -612,7 +614,6 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 //..
 // The constructor and destructor do nothing:
 //..
-    inline
     my_Session::my_Session()
     {
     }
@@ -634,14 +635,14 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         // Simple server supporting multiple Connections.
 
       private:
-        bsl::vector<my_Connection*>     d_connections;
-        bdlcc::TimeQueue<my_Connection*>  d_timeQueue;
-        int                             d_ioTimeout;
+        bsl::vector<my_Connection*>      d_connections;
+        bdlcc::TimeQueue<my_Connection*> d_timeQueue;
+        int                              d_ioTimeout;
         bdlqq::Mutex                     d_timerMonitorMutex;
         bdlqq::Condition                 d_timerChangedCond;
         bdlqq::ThreadUtil::Handle        d_connectionThreadHandle;
         bdlqq::ThreadUtil::Handle        d_timerThreadHandle;
-        volatile bool                   d_done;
+        volatile bool                    d_done;
 
       protected:
         void newConnection(my_Connection *connection);
@@ -683,15 +684,15 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             // Monitor all timers in the current 'my_Server', and handle each
             // timer as it expires.
 
-        friend void* my_connectionMonitorThreadEntry(void *);
-        friend void* my_timerMonitorThreadEntry(void *);
+        friend void *my_connectionMonitorThreadEntry(void *server);
+        friend void *my_timerMonitorThreadEntry(void *server);
 
       public:
         // CREATORS
         explicit
-        my_Server(int ioTimeout, bslma::Allocator *allocator=0);
+        my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
             // Construct a 'my_Server' object with a timeout value of
-            // 'ioTimeout' seconds.  Use the specified 'allocator' for all
+            // 'ioTimeout' seconds.  Use the specified 'basicAllocator' for all
             // memory allocation for data members of 'my_Server'.
 
         virtual ~my_Server();
@@ -704,8 +705,8 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 // The constructor is simple: it initializes the internal 'bdlcc::TimeQueue'
 // and sets the I/O timeout value.  The virtual destructor does nothing.
 //..
-    my_Server::my_Server(int ioTimeout, bslma::Allocator *allocator)
-    : d_timeQueue(allocator)
+    my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
+    : d_timeQueue(basicAllocator)
     , d_ioTimeout(ioTimeout)
     , d_connectionThreadHandle(bdlqq::ThreadUtil::invalidHandle())
     , d_timerThreadHandle(bdlqq::ThreadUtil::invalidHandle())
@@ -733,11 +734,11 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     void my_Server::newConnection(my_Connection *connection)
     {
         d_connections.push_back(connection);
-        int isNewTop=0;
+        int isNewTop = 0;
         connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-                                                     d_ioTimeout,
-                                                 connection,
-                                                 &isNewTop);
+                                                                   d_ioTimeout,
+                                                connection,
+                                                &isNewTop);
         if (isNewTop) {
             bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
             d_timerChangedCond.signal();
@@ -793,10 +794,10 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         }
         connection->d_session_p->processData(data, length);
 
-        int isNewTop=0;
+        int isNewTop = 0;
 
         connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-                                                    d_ioTimeout,
+                                                                   d_ioTimeout,
                                                 connection,
                                                 &isNewTop);
         if (isNewTop) {
@@ -854,7 +855,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 // internal timer queue and removes connections that have timed out.  Function
 // 'start' calls 'bdlqq::ThreadUtil::create', which expects a function pointer
 // to a function with the standard "C" callback signature
-// 'void *fn(void* data)'.  This non-member function will call back into the
+// 'void *fn(void *data)'.  This non-member function will call back into the
 // 'my_Server' object immediately.
 //..
     int my_Server::start()
@@ -906,6 +907,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         // timeouts.
 
         int d_verbose;
+
       public:
         // CREATORS
         explicit
@@ -956,11 +958,11 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         explicit
         my_TestServer(int               ioTimeout,
                       int               verbose = 0,
-                      bslma::Allocator *allocator = 0)
-        : my_Server(ioTimeout,allocator)
+                      bslma::Allocator *basicAllocator = 0)
+        : my_Server(ioTimeout, basicAllocator)
         , d_verbose(verbose)
         {
-        };
+        }
 
         virtual ~my_TestServer();
     };
@@ -1013,7 +1015,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         }
         dataAvailable(connection1, buffer, length);
 
-        // Wait for timeout to occur, otherwise session get destroyed from
+        // Wait for timeout to occur, otherwise session gets destroyed from
         // stack too early.
 
         bdlqq::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s

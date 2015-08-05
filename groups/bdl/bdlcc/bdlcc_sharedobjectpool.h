@@ -99,46 +99,48 @@ BSLS_IDENT("$Id: $")
 // them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
 //..
 //  class SlowBlobPool {
-//     bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
-//     bdlma::ConcurrentPoolAllocator  d_spAllocator;  // alloc. shared pointer
-//     bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+//      bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
+//      bdlma::ConcurrentPoolAllocator  d_spAllocator;  // alloc. shared ptr.
+//      bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
 //
-//     enum { k_BUFFER_SIZE=65536 };
+//      enum { k_BUFFER_SIZE = 65536 };
 //
-//     static void createBlob(void                      *address,
-//                            bdlmca::BlobBufferFactory *factory,
-//                            bslma::Allocator          *allocator) {
-//         new (address) bdlmca::Blob(factory, allocator);
-//     }
+//      static void createBlob(void                      *address,
+//                             bdlmca::BlobBufferFactory *factory,
+//                             bslma::Allocator          *allocator) {
+//          new (address) bdlmca::Blob(factory, allocator);
+//      }
 //
-//     static void resetAndReturnBlob(bdlmca::Blob                    *blob,
-//                                    bdlcc::ObjectPool<bdlmca::Blob> *pool) {
-//         blob->removeAll();
-//         pool->releaseObject(blob);
-//     }
+//      static void resetAndReturnBlob(bdlmca::Blob                    *blob,
+//                                     bdlcc::ObjectPool<bdlmca::Blob> *pool) {
+//          blob->removeAll();
+//          pool->releaseObject(blob);
+//      }
 //
-//   public:
+//    public:
 //
-//     SlowBlobPool(bslma::Allocator *basicAllocator = 0)
-//       : d_spAllocator(basicAllocator)
-//       , d_blobFactory(k_BUFFER_SIZE, basicAllocator)
-//       , d_blobPool(bdlf::BindUtil::bind(&SlowBlobPool::createBlob,
-//                                         bdlf::PlaceHolders::_1,
-//                                         &d_blobFactory,
-//                                         basicAllocator),
-//                    -1,
-//                    basicAllocator)
-//    {}
+//      SlowBlobPool(bslma::Allocator *basicAllocator = 0)
+//      : d_spAllocator(basicAllocator)
+//      , d_blobFactory(k_BUFFER_SIZE, basicAllocator)
+//      , d_blobPool(bdlf::BindUtil::bind(&SlowBlobPool::createBlob,
+//                                        bdlf::PlaceHolders::_1,
+//                                        &d_blobFactory,
+//                                        basicAllocator),
+//                   -1,
+//                   basicAllocator)
+//      {
+//      }
 //
-//    void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
-//    {
-//        blob_sp->load(d_blobPool.getObject(),
+//      void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+//      {
+//          blob_sp->reset(
+//                      d_blobPool.getObject(),
 //                      bdlf::BindUtil::bind(&SlowBlobPool::resetAndReturnBlob,
 //                                           bdlf::PlaceHolders::_1,
 //                                           &d_blobPool),
 //                      &d_spAllocator);
-//    }
-// };
+//      }
+//  };
 //..
 // Note that 'SlowBlobPool' must allocate the shared pointer itself from its
 // 'd_spAllocator' in addition to allocating the blob from its pool.  Moreover,
@@ -150,39 +152,41 @@ BSLS_IDENT("$Id: $")
 // instead:
 //..
 //  class FastBlobPool {
-//     typedef bdlcc::SharedObjectPool<
+//      typedef bdlcc::SharedObjectPool<
 //               bdlmca::Blob,
 //               bdlcc::ObjectPoolFunctors::DefaultCreator,
 //               bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
 //
-//     BlobPool                      d_blobPool;     // supply blobs
-//     bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+//      bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+//      BlobPool                        d_blobPool;     // supply blobs
 //
-//     enum { k_BUFFER_SIZE=65536 };
+//      enum { k_BUFFER_SIZE = 65536 };
 //
-//     static void createBlob(void                      *address,
-//                            bdlmca::BlobBufferFactory *factory,
-//                            bslma::Allocator          *allocator)
-//     {
-//         new (address) bdlmca::Blob(factory, allocator);
-//     }
+//      static void createBlob(void                      *address,
+//                             bdlmca::BlobBufferFactory *factory,
+//                             bslma::Allocator          *allocator)
+//      {
+//          new (address) bdlmca::Blob(factory, allocator);
+//      }
 //
-//   public:
+//    public:
 //
-//     FastBlobPool(bslma::Allocator *basicAllocator = 0)
-//       : d_blobFactory(k_BUFFER_SIZE, basicAllocator)
-//       , d_blobPool(bdlf::BindUtil::bind(
-//                                  &FastBlobPool::createBlob,
-//                                  bdlf::PlaceHolders::_1,
-//                                  &d_blobFactory,
-//                                  bdlf::PlaceHolders::_2),
-//                    -1, basicAllocator)
-//    {}
+//      FastBlobPool(bslma::Allocator *basicAllocator = 0)
+//      : d_blobFactory(k_BUFFER_SIZE, basicAllocator)
+//      , d_blobPool(bdlf::BindUtil::bind(&FastBlobPool::createBlob,
+//                                        bdlf::PlaceHolders::_1,
+//                                        &d_blobFactory,
+//                                        bdlf::PlaceHolders::_2),
+//                   -1,
+//                   basicAllocator)
+//      {
+//      }
 //
-//    void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp) {
-//        *blob_sp = d_blobPool.getObject();
-//    }
-// };
+//      void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+//      {
+//          *blob_sp = d_blobPool.getObject();
+//      }
+//  };
 //..
 // Now the shared pointer and the object are allocated as one unit from the
 // same allocator.  In addition, the resetter method is a fully-inlined class
@@ -190,22 +194,21 @@ BSLS_IDENT("$Id: $")
 // simplifying the design.  We can verify that use of 'bdlcc::SharedObjectPool'
 // reduces the number of allocation requests:
 //..
+//  bslma::TestAllocator slowAllocator, fastAllocator;
+//  {
+//      SlowBlobPool slowPool(&slowAllocator);
+//      FastBlobPool fastPool(&fastAllocator);
 //
-// bslma::TestAllocator slowAllocator, fastAllocator;
-// {
-//   SlowBlobPool slowPool(&slowAllocator);
-//   FastBlobPool fastPool(&fastAllocator);
+//      bsl::shared_ptr<bdlmca::Blob> blob_sp;
 //
-//   bsl::shared_ptr<bdlmca::Blob> blob_sp;
+//      fastPool.getBlob(&blob_sp);
+//      slowPool.getBlob(&blob_sp);  // throw away the first blob
+//  }
 //
-//   fastPool.getBlob(&blob_sp);
-//   slowPool.getBlob(&blob_sp); // throw away the first blob
-// }
-//
-// ASSERT(2 == slowAllocator.numAllocations());
-// ASSERT(1 == fastAllocator.numAllocations());
-// ASSERT(0 == slowAllocator.numBytesInUse());
-// ASSERT(0 == fastAllocator.numBytesInUse());
+//  assert(2 == slowAllocator.numAllocations());
+//  assert(1 == fastAllocator.numAllocations());
+//  assert(0 == slowAllocator.numBytesInUse());
+//  assert(0 == fastAllocator.numBytesInUse());
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

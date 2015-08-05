@@ -113,7 +113,6 @@ BSLS_IDENT("$Id: $")
 //
 //  }
 //..
-//
 ///struct 'my_Connection'
 ///- - - - - - - - - - -
 // The 'my_Connection' structure is used by 'my_Server' to manage a single
@@ -121,11 +120,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  class my_Session;
 //  struct my_Connection {
-//      bdlcc::TimeQueue<my_Connection*>::Handle d_timerId;
+//      int         d_timerId;
 //      my_Session *d_session_p;
 //  };
 //..
-//
 ///Protocol classes
 ///- - - - - - - -
 // Protocol class 'my_Session' provides a pure abstract protocol to manage a
@@ -137,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //      // manage an external connection like a socket.
 //
 //    public:
-//      inline my_Session();
+//      my_Session();
 //      virtual int processData(void *data, int length) = 0;
 //      virtual int handleTimeout(my_Connection *connection) = 0;
 //      virtual ~my_Session();
@@ -166,13 +164,14 @@ BSLS_IDENT("$Id: $")
 //      // Simple server supporting multiple Connections.
 //
 //    private:
-//      bsl::vector<my_Connection*>     d_connections;
-//      bdlcc::TimeQueue<my_Connection*>  d_timeQueue;
-//      int                             d_ioTimeout;
+//      bsl::vector<my_Connection*>      d_connections;
+//      bdlcc::TimeQueue<my_Connection*> d_timeQueue;
+//      int                              d_ioTimeout;
 //      bdlqq::Mutex                     d_timerMonitorMutex;
 //      bdlqq::Condition                 d_timerChangedCond;
 //      bdlqq::ThreadUtil::Handle        d_connectionThreadHandle;
 //      bdlqq::ThreadUtil::Handle        d_timerThreadHandle;
+//      volatile bool                    d_done;
 //
 //    protected:
 //      void newConnection(my_Connection *connection);
@@ -219,7 +218,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_Server(int ioTimeout, bslma::Allocator *basicAllocator=0);
+//      explicit
+//      my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
 //          // Construct a 'my_Server' object with a timeout value of
 //          // 'ioTimeout' seconds.  Use the specified 'basicAllocator' for all
 //          // memory allocation for data members of 'my_Server'.
@@ -237,11 +237,21 @@ BSLS_IDENT("$Id: $")
 //  my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
 //  : d_timeQueue(basicAllocator)
 //  , d_ioTimeout(ioTimeout)
+//  , d_connectionThreadHandle(bdlqq::ThreadUtil::invalidHandle())
+//  , d_timerThreadHandle(bdlqq::ThreadUtil::invalidHandle())
 //  {
 //  }
 //
 //  my_Server::~my_Server()
 //  {
+//      d_done = true;
+//      d_timerChangedCond.broadcast();
+//      if (bdlqq::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
+//          bdlqq::ThreadUtil::join(d_connectionThreadHandle);
+//      }
+//      if (bdlqq::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
+//          bdlqq::ThreadUtil::join(d_timerThreadHandle);
+//      }
 //  }
 //..
 // Member function 'newConnection' adds the 'connection' to the current set of
@@ -255,7 +265,7 @@ BSLS_IDENT("$Id: $")
 //      d_connections.push_back(connection);
 //      int isNewTop = 0;
 //      connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-//                                                   d_ioTimeout,
+//                                                                 d_ioTimeout,
 //                                              connection,
 //                                              &isNewTop);
 //      if (isNewTop) {
@@ -316,7 +326,7 @@ BSLS_IDENT("$Id: $")
 //      int isNewTop = 0;
 //
 //      connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-//                                                  d_ioTimeout,
+//                                                                 d_ioTimeout,
 //                                              connection,
 //                                              &isNewTop);
 //      if (isNewTop) {
@@ -332,7 +342,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void my_Server::monitorTimers()
 //  {
-//      while (1) {
+//      while (!d_done) {
 //          bsl::vector<bdlcc::TimeQueueItem<my_Connection*> > expiredTimers;
 //          {
 //              bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
@@ -358,11 +368,11 @@ BSLS_IDENT("$Id: $")
 //              }
 //          }
 //
-//          int length = expiredTimers.size();
+//          int length = static_cast<int>(expiredTimers.size());
 //          if (length) {
 //              bdlcc::TimeQueueItem<my_Connection*> *data =
-//                                                   &expiredTimers.front();
-//              for ( int i=0; i < length; ++i) {
+//                                                      &expiredTimers.front();
+//              for (int i = 0; i < length; ++i) {
 //                  closeConnection(data[i].data());
 //              }
 //          }
@@ -384,13 +394,13 @@ BSLS_IDENT("$Id: $")
 //      if (bdlqq::ThreadUtil::create(&d_connectionThreadHandle, attr,
 //                                   &my_connectionMonitorThreadEntry,
 //                                   this)) {
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //
 //      if (bdlqq::ThreadUtil::create(&d_timerThreadHandle, attr,
 //                                   &my_timerMonitorThreadEntry,
 //                                   this)) {
-//          return -1;
+//          return -1;                                                // RETURN
 //      }
 //      return 0;
 //  }
@@ -425,23 +435,32 @@ BSLS_IDENT("$Id: $")
 //      // connection, and virtual function handleTimeout() for handling
 //      // timeouts.
 //
+//      int d_verbose;
+//
 //    public:
 //      // CREATORS
-//      my_TestSession() : my_Session() { }
+//      explicit
+//      my_TestSession(int verbose) : my_Session(), d_verbose(verbose) { }
 //
 //      // MANIPULATORS
-//      virtual int handleTimeout(my_Connection *connection) {
+//      virtual int handleTimeout(my_Connection *connection)
+//      {
 //          // Do something to handle timeout.
-//          bsl::cout << bdetu::Time::currentTime() << ": ";
-//          bsl::cout << "Connection " << connection << "timed out.\n";
+//          if (d_verbose) {
+//              bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//              bsl::cout << "Connection " << connection << "timed out.\n";
+//          }
 //          return 0;
 //      }
 //
-//      virtual int processData(void *data, int length) {
+//      virtual int processData(void *data, int length)
+//      {
 //          // Do something with the data...
-//          bsl::cout << bdetu::Time::currentTime() << ": ";
-//          bsl::cout << "Processing data at address " << data
-//                    << " and length " << length << ".\n";
+//          if (d_verbose) {
+//              bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//              bsl::cout << "Processing data at address " << data
+//                        << " and length " << length << ".\n";
+//          }
 //          return 0;
 //      }
 //  };
@@ -450,6 +469,8 @@ BSLS_IDENT("$Id: $")
 //
 //  class my_TestServer :  public my_Server {
 //      // Concrete implementation of my_Server, providing connection logic.
+//
+//      int d_verbose;
 //
 //    protected:
 //      virtual void closeConnection(my_Connection *connection);
@@ -463,10 +484,14 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_TestServer(int ioTimeout, bslma::Allocator *basicAllocator=0)
-//      : my_Server(ioTimeout,basicAllocator)
+//      explicit
+//      my_TestServer(int               ioTimeout,
+//                    int               verbose = 0,
+//                    bslma::Allocator *basicAllocator = 0)
+//      : my_Server(ioTimeout, basicAllocator)
+//      , d_verbose(verbose)
 //      {
-//      };
+//      }
 //
 //      virtual ~my_TestServer();
 //  };
@@ -479,39 +504,47 @@ BSLS_IDENT("$Id: $")
 //
 //  void my_TestServer::closeConnection(my_Connection *connection)
 //  {
-//      bsl::cout << bdetu::Time::currentTime() << ": ";
-//      bsl::cout << "Closing connection " << connection << bsl::endl;
+//      if (d_verbose) {
+//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//          bsl::cout << "Closing connection " << connection << bsl::endl;
+//      }
 //      delete connection;
 //  }
 //
 //  void my_TestServer::monitorConnections()
 //  {
-//      my_Session *session = new my_TestSession();
+//      my_Session *session = new my_TestSession(d_verbose);
 //
 //      // Simulate connection monitor logic...
 //      my_Connection *connection1 = new my_Connection;
 //      connection1->d_session_p = session;
 //      newConnection(connection1);
-//      bsl::cout << bdetu::Time::currentTime() << ": ";
-//      bsl::cout << "Opening connection " << connection1 << endl;
+//      if (d_verbose) {
+//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//          bsl::cout << "Opening connection " << connection1 << endl;
+//      }
 //
 //      my_Connection *connection2 = new my_Connection;
 //      connection2->d_session_p = session;
 //      newConnection(connection2);
-//      bsl::cout << bdetu::Time::currentTime() << ": ";
-//      bsl::cout << "Opening connection " << connection2 << endl;
+//      if (d_verbose) {
+//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//          bsl::cout << "Opening connection " << connection2 << endl;
+//      }
 //
 //      bdlqq::ThreadUtil::sleep(bsls::TimeInterval(2)); // 2s
 //
 //      // Simulate transmission...
 //      const int  length = 1024;
 //      const char*buffer[length];
-//      bsl::cout << bdetu::Time::currentTime() << ": ";
-//      bsl::cout << "Connection " << connection1
-//                << " receives " << length << " bytes " << endl;
+//      if (d_verbose) {
+//          bsl::cout << bdlt::CurrentTime::utc() << ": ";
+//          bsl::cout << "Connection " << connection1
+//                    << " receives " << length << " bytes " << endl;
+//      }
 //      dataAvailable(connection1, buffer, length);
 //
-//      // Wait for timeout to occur, otherwise session get destroyed from
+//      // Wait for timeout to occur, otherwise session gets destroyed from
 //      // stack too early.
 //
 //      bdlqq::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
@@ -519,9 +552,9 @@ BSLS_IDENT("$Id: $")
 //..
 // The program that would exercise this test server would simply consist of:
 //..
-//  int main()
+//  int usageExample(int verbose)
 //  {
-//      my_TestServer mX(5); // timeout for connections: 5s
+//      my_TestServer mX(5, verbose); // timeout for connections: 5s
 //      mX.start();
 //
 //      // Wait sufficiently long to observe all events.

@@ -2314,7 +2314,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (const Obj::Event *) eh);
 
         rc = scheduler.cancelEvent(&eh);
-        ASSERT((bdlcc::SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT((bdlcc::SkipList<int, int>::e_INVALID == rc));
         ASSERT(0 == scheduler.numEvents());
         ASSERT(0 == (const Obj::Event *) eh);
 
@@ -2328,7 +2328,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (const Obj::Event *) eh);
 
         rc = scheduler.cancelEventAndWait(&eh);
-        ASSERT((bdlcc::SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT((bdlcc::SkipList<int, int>::e_INVALID == rc));
         ASSERT(0 == scheduler.numEvents());
         ASSERT(0 == (const Obj::Event *) eh);
 
@@ -2346,7 +2346,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (const Obj::RecurringEvent *) reh);
 
         rc = scheduler.cancelEvent(&reh);
-        ASSERT((bdlcc::SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT((bdlcc::SkipList<int, int>::e_INVALID == rc));
         ASSERT(0 == scheduler.numRecurringEvents());
         ASSERT(0 == (const Obj::RecurringEvent *) reh);
 
@@ -2363,7 +2363,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == (const Obj::RecurringEvent *) reh);
 
         rc = scheduler.cancelEventAndWait(&reh);
-        ASSERT((bdlcc::SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT((bdlcc::SkipList<int, int>::e_INVALID == rc));
         ASSERT(0 == scheduler.numRecurringEvents());
         ASSERT(0 == (const Obj::RecurringEvent *) reh);
       } break;
@@ -4048,7 +4048,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == (const Event*) handleToBeCancelled);
                 int rc = x.cancelEvent(&handleToBeCancelled);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_INVALID == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_INVALID == rc));
 
                 x.scheduleEvent(&handleToBeCancelled, now + T1,
                                 bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -4065,7 +4065,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 != (const Event *) handle2);
                 rc = x.cancelEvent(&handle2);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_NOT_FOUND == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_NOT_FOUND == rc));
 
                 microSleep(T2, 0);
 
@@ -4093,7 +4093,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == (const Event*) handleToBeCancelled);
                 int rc = x.cancelEventAndWait(&handleToBeCancelled);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_INVALID == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_INVALID == rc));
 
                 x.scheduleEvent(&handleToBeCancelled, now + T1,
                                 bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -4110,7 +4110,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 != (const Event *) handle2);
                 rc = x.cancelEventAndWait(&handle2);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_NOT_FOUND == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_NOT_FOUND == rc));
 
                 microSleep(T2, 0);
 
@@ -4138,7 +4138,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
                 int rc = x.cancelEvent(&handleToBeCancelled);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_INVALID == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_INVALID == rc));
 
                 x.scheduleRecurringEvent(&handleToBeCancelled, T1,
                                 bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -4155,7 +4155,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 != (const RecurringEvent *) handle2);
                 rc = x.cancelEvent(&handle2);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_NOT_FOUND == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_NOT_FOUND == rc));
 
                 microSleep(T2, 0);
 
@@ -4183,7 +4183,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
                 int rc = x.cancelEvent(&handleToBeCancelled);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_INVALID == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_INVALID == rc));
 
                 x.scheduleRecurringEvent(&handleToBeCancelled, T1,
                                 bdlf::MemFnUtil::memFn(&TestClass1::callback,
@@ -4200,7 +4200,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 != (const RecurringEvent *) handle2);
                 rc = x.cancelEvent(&handle2);
-                ASSERT((bdlcc::SkipList<int,int>::BCEC_NOT_FOUND == rc));
+                ASSERT((bdlcc::SkipList<int,int>::e_NOT_FOUND == rc));
 
                 microSleep(T2, 0);
 
