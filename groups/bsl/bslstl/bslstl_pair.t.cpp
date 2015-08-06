@@ -479,14 +479,22 @@ struct is_trivially_default_constructible<my_EqualityTrivial>
      : bsl::true_type {};
 }  // close namespace bsl
 
+struct my_NoTraits {};
+
 namespace BloombergLP {
 namespace bslmf {
 template <>
 struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
+
+// Empty classes are bitwise moveable by default.  Specialize for 'my_NoTraits'
+// to make it NOT bitwise moveable.
+template<>
+struct IsBitwiseMoveable<my_NoTraits> : bsl::false_type {};
+
 }  // close namespace bslmf
 }  // close namespace BloombergLP
 
-struct my_NoTraits {};
+
 
 //=============================================================================
 //                HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP
@@ -538,6 +546,12 @@ struct TypeWithoutSwap {
     explicit TypeWithoutSwap(int d)
     : data(d)
     {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    // Nothrow moves needed so that std::swap doesn't get SFINAEd out.
+    TypeWithoutSwap(const TypeWithoutSwap&) noexcept = default;
+    TypeWithoutSwap& operator=(const TypeWithoutSwap&) noexcept = default;
+#endif
 
     bool operator==(const TypeWithoutSwap& rhs) const {
         return data == rhs.data;

@@ -299,11 +299,34 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_UTILITY
-#include <utility> // 'std::pair'
+#include <utility> // 'std::pair' and (in C++11 mode) 'std::swap'
 #define INCLUDED_UTILITY
 #endif
 
 namespace bsl {
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// If the compiler supports rvalue references, then 'std::swap' has a
+// complicated SFINAE clause.  Fortunately, it is defined in <utility>, which
+// is included, so we can simply import it into the 'bsl' namespace.
+using std::swap;
+
+#else
+
+// If the compiler does not support rvalue references, then 'std::swap' has a
+// trivial signature and implementation.  We define it here because otherwise
+// we'd have to '#include <algorithm>', which causes difficult-to-fix cyclic
+// dependencies between the native library and bsl.
+template <class TYPE>
+void swap(TYPE& a, TYPE b)
+    // Swap the values of the specified 'a' and 'b' objects.
+{
+    TYPE tmp(a);
+    b = a;
+    a = tmp;
+}
+#endif
 
                         // ===============
                         // struct Pair_Imp
@@ -930,10 +953,7 @@ void pair<T1, T2>::swap(pair& other)
     // Find either 'std::swap' or a specialized 'swap' for 'T1' and 'T2' via
     // ADL.
 
-    // To find std::swap.  We cannot say 'using std::swap' because 'std::swap'
-    // may not be declared at declaration time, though it must be declared at
-    // instantiation time if 'first' or 'second' require it.
-    using namespace std;
+    using bsl::swap;
 
     swap(first, other.first);
     swap(second, other.second);
