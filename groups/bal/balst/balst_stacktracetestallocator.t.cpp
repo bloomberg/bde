@@ -3202,8 +3202,8 @@ int main(int argc, char *argv[])
                 ASSERT((npos != report.find("woof")) == isWoof);
                 if (CAN_FIND_SYMBOLS) {
                     ASSERT(npos != report.find("BloombergLP"));
-                    ASSERT(npos != report.find(
-                                             "balst::StackTraceTestAllocator"));
+                    ASSERT(npos != report.find("balst"));
+                    ASSERT(npos != report.find("StackTraceTestAllocator"));
                     ASSERT(npos != report.find("allocate"));
                     ASSERT(npos != report.find("main"));
                 }

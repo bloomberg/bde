@@ -882,7 +882,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     break;
                 }
 
-                if (bsl::strstr(sn, "bdlf::Function")) {
+                if (bsl::strstr(sn, "bdlf") && bsl::strstr(sn, "Function")) {
                     continue;
                 }
 

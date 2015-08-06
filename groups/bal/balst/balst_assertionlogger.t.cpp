@@ -160,9 +160,9 @@ AlwaysAssert::~AlwaysAssert()
 // want to avoid causing crashes in production applications, since we expect
 // that frequently the overflow in "working" legacy code is only overwriting
 // the null terminating byte and is otherwise harmless.  We can use the
-// 'bdesu::AssertionLogger::failTrace' assertion-failure callback to replace the
-// default callback, which aborts the task, with one that will log the failure
-// and the call-stack at which it occurred.
+// 'bdesu::AssertionLogger::failTrace' assertion-failure callback to replace
+// the default callback, which aborts the task, with one that will log the
+// failure and the call-stack at which it occurred.
 //
 // First, we write a dubious legacy date routine:
 //..
@@ -221,7 +221,7 @@ void protect_the_subsystem()
     // Protect your job, too!
 {
     bsls::AssertFailureHandlerGuard guard(
-                               balst::AssertionLogger::assertionFailureHandler);
+                              balst::AssertionLogger::assertionFailureHandler);
     big_important_highly_visible_subsystem();
 }
 //..
@@ -315,9 +315,9 @@ int main(int argc, char *argv[])
         //:   returns 'BAEL_WARN' and verify that a record is not logged on
         //:   assertion failure. (C-3)
         //:
-        //: 4 Set the 'ball::LoggerManager' pass threshold to 255 (meaning all),
-        //:   set the defualt log severity to 'BAEL_OFF', trigger an assertion,
-        //:   and verify that a record is not logged. (C-4)
+        //: 4 Set the 'ball::LoggerManager' pass threshold to 255 (meaning
+        //:   all), set the defualt log severity to 'BAEL_OFF', trigger an
+        //:   assertion, and verify that a record is not logged.  (C-4)
         //
         // Testing:
         // [ 1] void assertionFailureHandler(*text, *file, int line);
@@ -336,61 +336,63 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration c;
         ball::LoggerManagerScopedGuard   lmsg(&to, c);
         bsls::AssertFailureHandlerGuard guard(
-                               balst::AssertionLogger::assertionFailureHandler);
+                              balst::AssertionLogger::assertionFailureHandler);
 
         LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity OFF" << endl; }
-        balst::AssertionLogger::setDefaultLogSeverity(ball::Severity::BAEL_OFF);
+        balst::AssertionLogger::setDefaultLogSeverity(
+                                                     ball::Severity::BAEL_OFF);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_OFF ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_OFF ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 0 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity FATAL" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                    ball::Severity::BAEL_FATAL);
+                                                   ball::Severity::BAEL_FATAL);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_FATAL ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_FATAL ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 1 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         if (veryVeryVerbose) { P(o.str()) }
-        ASSERT(string::npos != o.str().find(" 0x"));
+        LOOP_ASSERT(o.str(), string::npos != o.str().find(" 0x"));
         o.str(string());
         ASSERT(string::npos == o.str().find(" 0x"));
 
         if (veryVerbose) { T_ cout << "Severity ERROR" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                    ball::Severity::BAEL_ERROR);
+                                                   ball::Severity::BAEL_ERROR);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_ERROR ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_ERROR ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         if (veryVeryVerbose) { P(o.str()) }
-        ASSERT(string::npos != o.str().find(" 0x"));
+        LOOP_ASSERT(o.str(), string::npos != o.str().find(" 0x"));
         o.str(string());
         ASSERT(string::npos == o.str().find(" 0x"));
 
         if (veryVerbose) { T_ cout << "Severity WARN" << endl; }
-        balst::AssertionLogger::setDefaultLogSeverity(ball::Severity::BAEL_WARN);
+        balst::AssertionLogger::setDefaultLogSeverity(
+                                                    ball::Severity::BAEL_WARN);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_WARN ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_WARN ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
         if (veryVerbose) { T_ cout << "Severity TRACE" << endl; }
         balst::AssertionLogger::setDefaultLogSeverity(
-                                                    ball::Severity::BAEL_TRACE);
+                                                   ball::Severity::BAEL_TRACE);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_TRACE ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_TRACE ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
         SeverityCB<ball::Severity::BAEL_FATAL>        fatalCb;
@@ -405,12 +407,12 @@ int main(int argc, char *argv[])
         ASSERT(&cb              == cl);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_TRACE ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_TRACE ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
         o << to.lastPublishedRecord();
         if (veryVeryVerbose) { P(o.str()) }
-        ASSERT(string::npos != o.str().find(" 0x"));
+        LOOP_ASSERT(o.str(), string::npos != o.str().find(" 0x"));
         o.str(string());
         ASSERT(string::npos == o.str().find(" 0x"));
 
@@ -420,8 +422,8 @@ int main(int argc, char *argv[])
         ASSERT(&cb             == cl);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_TRACE ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_TRACE ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
 
         balst::AssertionLogger::setLogSeverityCallback(0, 0);
@@ -432,11 +434,12 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ cout << "BAEL_OFF disables tracing" << endl; }
         ball::LoggerManager::singleton().setDefaultThresholdLevels(
                                                                  0, 255, 0, 0);
-        balst::AssertionLogger::setDefaultLogSeverity(ball::Severity::BAEL_OFF);
+        balst::AssertionLogger::setDefaultLogSeverity(
+                                                     ball::Severity::BAEL_OFF);
         { AlwaysAssert(); }
         LOOP_ASSERT(balst::AssertionLogger::defaultLogSeverity(),
-                                  ball::Severity::BAEL_OFF ==
-                                  balst::AssertionLogger::defaultLogSeverity());
+                                 ball::Severity::BAEL_OFF ==
+                                 balst::AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 3 == to.numPublishedRecords());
       } break;
       default: {

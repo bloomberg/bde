@@ -1104,8 +1104,8 @@ extern "C" void *_DYNAMIC;    // global pointer that leads to the link map
 
 // CLASS METHODS
 int local::StackTraceResolver::resolve(
-                                     balst::StackTrace *stackTrace,
-                                     bool              demanglingPreferredFlag)
+                                    balst::StackTrace *stackTrace,
+                                    bool               demanglingPreferredFlag)
 {
 #if defined(BSLS_PLATFORM_OS_HPUX)
 

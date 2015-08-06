@@ -434,7 +434,6 @@ bool operator!=(const StackTraceFrame& lhs,
 
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          const StackTraceFrame& object);
-}  // close package namespace
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -443,9 +442,8 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     // 'object.print(stream, 0, -1)', but with the attribute names elided.
 
 // FREE FUNCTIONS
-void swap(balst::StackTraceFrame& a, balst::StackTraceFrame& b);
-
-namespace balst {    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+void swap(StackTraceFrame& a, StackTraceFrame& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.  The
     // behavior is undefined unless the two objects were created with the same
     // allocator.
@@ -700,6 +698,14 @@ bslma::Allocator *StackTraceFrame::allocator() const
 {
     return d_symbolName.get_allocator().mechanism();
 }
+
+// FREE FUNCTIONS
+inline
+void swap(StackTraceFrame& a, StackTraceFrame& b)
+{
+    a.swap(b);
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -727,13 +733,6 @@ bool balst::operator!=(const StackTraceFrame& lhs,
         || lhs.offsetFromSymbol()  != rhs.offsetFromSymbol()
         || lhs.sourceFileName()    != rhs.sourceFileName()
         || lhs.symbolName()        != rhs.symbolName();
-}
-
-// FREE FUNCTIONS
-inline
-void swap(balst::StackTraceFrame& a, balst::StackTraceFrame& b)
-{
-    a.swap(b);
 }
 
 }  // close enterprise namespace

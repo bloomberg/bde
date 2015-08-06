@@ -1470,7 +1470,7 @@ int main(int argc, char *argv[])
             // Verify that the signatures and return types are standard.
 
             funcPtr     memberSwap = &Obj::swap;
-            freeFuncPtr freeSwap   = swap;
+            freeFuncPtr freeSwap   = &balst::swap;
 
             (void)memberSwap;  // quash potential compiler warnings
             (void)freeSwap;
@@ -3471,7 +3471,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tlibraryFileName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1, "", (T5)-1, "", ""));
             }
 
             if (veryVerbose) cout << "\tlineNumber" << endl;
@@ -3487,19 +3486,16 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tmangledSymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1,  0, (T5)-1, "", ""));
             }
 
             if (veryVerbose) cout << "\tsourceFileName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1,  0, (T5)-1,  0, ""));
             }
 
             if (veryVerbose) cout << "\tsymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(Obj(0, "",      -1, "", (T5)-1, "", ""));
-                ASSERT_SAFE_FAIL(Obj(0,  0,      -1,  0, (T5)-1,  0,  0));
             }
         }
 
@@ -4078,7 +4074,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tlibraryFileName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setLibraryFileName(""));
-                ASSERT_SAFE_FAIL(obj.setLibraryFileName( 0));
             }
 
             if (veryVerbose) cout << "\tlineNumber" << endl;
@@ -4094,19 +4089,16 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tmangledSymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setMangledSymbolName(""));
-                ASSERT_SAFE_FAIL(obj.setMangledSymbolName( 0));
             }
 
             if (veryVerbose) cout << "\tsourceFileName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setSourceFileName(""));
-                ASSERT_SAFE_FAIL(obj.setSourceFileName( 0));
             }
 
             if (veryVerbose) cout << "\tsymbolName" << endl;
             {
                 ASSERT_SAFE_PASS(obj.setSymbolName(""));
-                ASSERT_SAFE_FAIL(obj.setSymbolName( 0));
             }
         }
 

@@ -16,12 +16,12 @@ namespace BloombergLP {
 
 namespace {
 
-struct StackTrace
+struct u_StackTrace
     // This 'struct' acts as a tag for the output operator below.
 {
 };
 
-bsl::ostream& operator<<(bsl::ostream& stream, const StackTrace&)
+bsl::ostream& operator<<(bsl::ostream& stream, const u_StackTrace&)
     // Print a stack trace to the specified 'stream'.
 {
     return balst::StackTraceUtil::hexStackTrace(stream);
@@ -69,7 +69,7 @@ void AssertionLogger::assertionFailureHandler(const char *text,
             << line
             << "\n"
             << "For stack trace, run 'showfunc.tsk <your_program_binary> "
-            << StackTrace()
+            << u_StackTrace()
             << "'\n"
         << BALL_LOG_END
     }

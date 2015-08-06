@@ -90,8 +90,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace balst {
 
-namespace balst {template <typename RESOLVER_POLICY>
+template <typename RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
       // =================================================================

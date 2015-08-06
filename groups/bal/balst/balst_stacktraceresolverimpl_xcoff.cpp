@@ -587,7 +587,8 @@ local::UintPtr parseNumber(const TYPE& text)
 }
 
  // ===========================================================================
- // struct balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>::AuxInfo
+ // struct balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>::
+ //                                                                     AuxInfo
  //               == struct local::StackTraceResolver::AuxInfo
  // ===========================================================================
 
@@ -659,15 +660,15 @@ struct local::StackTraceResolver::LoadAuxInfosInfo {
     AUXENT   *d_savedSourceAuxEnt;   // pointer to 'savedSourceAuxEnt'
 };
 
-      // -----------------------------------------------------------------
-      // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
-      //                == class local::StackTraceResolver
-      // -----------------------------------------------------------------
+     // -------------------------------------------------------------------
+     // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
+     //                == class local::StackTraceResolver
+     // -------------------------------------------------------------------
 
 // PRIVATE CREATORS
-local::StackTraceResolver::balst::StackTraceResolverImpl(
+local::StackTraceResolver::StackTraceResolverImpl(
                                               balst::StackTrace *stackTrace,
-                                              bool              demangle)
+                                              bool               demangle)
 : d_helper(0)
 , d_stackTrace_p(stackTrace)
 , d_segFramePtrs_p(0)
@@ -700,7 +701,7 @@ local::StackTraceResolver::balst::StackTraceResolverImpl(
     d_symbolBuf_p  = (char *) allocator()->allocate(local::SYMBOL_BUF_LEN);
 }
 
-local::StackTraceResolver::~balst::StackTraceResolverImpl()
+local::StackTraceResolver::~StackTraceResolverImpl()
 {
 }
 
@@ -1620,7 +1621,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
 // PUBLIC CLASS METHODS
 int local::StackTraceResolver::resolve(balst::StackTrace *stackTrace,
-                                       bool              demangle)
+                                       bool               demangle)
 {
     local::StackTraceResolver resolver(stackTrace,
                                        demangle);

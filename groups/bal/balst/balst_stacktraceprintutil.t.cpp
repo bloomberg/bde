@@ -288,7 +288,8 @@ void top()
         // Windows doesn't provide the source file name for an inline routine.
 
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("balst::StackTracePrintUtil_Test");
+        matches.push_back("balst");
+        matches.push_back("StackTracePrintUtil_Test");
         matches.push_back("printStackTraceToString");
         matches.push_back(" source:balst_stacktraceprintutil.h");
         matches.push_back(" in balst_stacktraceprintutil.t");
@@ -305,7 +306,8 @@ void top()
     }
     else {
         bsl::vector<const char *> matches(&ta);
-        matches.push_back("balst::StackTracePrintUtil_Test");
+        matches.push_back("balst");
+        matches.push_back("StackTracePrintUtil_Test");
         matches.push_back("printStackTraceToString");
         matches.push_back("\n");
         matches.push_back("CASE_4");
