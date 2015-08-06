@@ -13,7 +13,6 @@
 #include <bdlqq_platform.h>
 
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
 #include <bsls_timeutil.h>
 #include <bsls_types.h>

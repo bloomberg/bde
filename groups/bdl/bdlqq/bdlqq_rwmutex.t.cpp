@@ -10,7 +10,6 @@
 #include <bdlqq_threadgroup.h>
 #include <bdlqq_platform.h>
 #include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
 
 #include <bsls_systemtime.h>
 #include <bsls_types.h>

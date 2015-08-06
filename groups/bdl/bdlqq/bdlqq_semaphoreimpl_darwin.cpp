@@ -42,7 +42,7 @@ bsl::string makeUniqueName(const char *prefix, bsls::Types::UintPtr suffix)
     return out.str();
 }
 
-}
+}  // close unnamed namespace
 
 // CREATORS
 bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::SemaphoreImpl(

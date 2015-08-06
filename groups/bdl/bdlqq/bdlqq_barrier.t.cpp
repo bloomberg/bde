@@ -12,7 +12,6 @@
 #include <bsls_timeutil.h>
 
 #include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_functional.h>

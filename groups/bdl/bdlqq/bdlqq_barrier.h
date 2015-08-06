@@ -46,11 +46,11 @@ BSLS_IDENT("$Id: $")
 // based.  If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
 // 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----

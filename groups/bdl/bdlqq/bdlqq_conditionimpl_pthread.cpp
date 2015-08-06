@@ -6,17 +6,18 @@ BSLS_IDENT_RCSID(bdlqq_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_saturatedtimeconversionimputil.h>
 
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 
+namespace {
+
 #if !defined(BSLS_PLATFORM_OS_DARWIN)
 // Set the condition clock type, except on Darwin which doesn't support it.
 
-namespace {
 
 class CondAttr {
     // This class is a thin wrapper over 'pthread_condattr_t' structure which
@@ -129,8 +130,8 @@ int bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
     if (d_clockType != bsls::SystemClockType::e_REALTIME) {
         // since cond_timedwait operates only with the realtime clock, adjust
         // the timeout value to make it consistent with the realtime clock
-        realTimeout += bsls::SystemTime::nowRealtimeClock()
-                                         - bdlt::CurrentTime::now(d_clockType);
+        realTimeout += bsls::SystemTime::nowRealtimeClock() -
+                       bsls::SystemTime::now(d_clockType);
     }
 
     timespec ts;

@@ -8,8 +8,8 @@ BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bdlqq_saturatedtimeconversionimputil.h>
 #include <bdlqq_threadutil.h>
 
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
 #include <bsls_assert.h>
 
@@ -225,8 +225,8 @@ int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>
     if (d_clockType != bsls::SystemClockType::e_REALTIME) {
         // since cond_timedwait operates only with the realtime clock, adjust
         // the timeout value to make it consistent with the realtime clock
-        realTimeout += bsls::SystemTime::nowRealtimeClock()
-                       - bdlt::CurrentTime::now(d_clockType);
+        realTimeout += bsls::SystemTime::nowRealtimeClock() -
+                       bsls::SystemTime::now(d_clockType);
     }
 
     timespec ts;
