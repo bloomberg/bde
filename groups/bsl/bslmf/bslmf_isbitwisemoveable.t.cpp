@@ -220,6 +220,13 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         ASSERT(  IsBitwiseMoveable<const int*>::value);
         ASSERT(  IsBitwiseMoveable<MoveableEnum>::value);
         ASSERT(! IsBitwiseMoveable<int&>::value);
+        ASSERT(! IsBitwiseMoveable<const int&>::value);
+        ASSERT(  IsBitwiseMoveable<MoveableClass1>::value);
+        ASSERT(  IsBitwiseMoveable<const MoveableClass1>::value);
+        ASSERT(  IsBitwiseMoveable<MoveableClass2>::value);
+        ASSERT(  IsBitwiseMoveable<volatile MoveableClass2>::value);
+        ASSERT(! IsBitwiseMoveable<NonMoveableClass>::value);
+        ASSERT(! IsBitwiseMoveable<const NonMoveableClass>::value);
 
         // For each of our test classes, allocate an array, construct three
         // objects into it, then move it into another array.
@@ -489,6 +496,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         ASSERT(  IsBitwiseMoveable<MoveableEmptyClass>::value);
         ASSERT(! IsBitwiseMoveable<NonMoveableEmptyClass>::value);
+
+        return 0;
     }
 
     } // Close enterprise namespace

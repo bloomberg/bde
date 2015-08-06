@@ -273,6 +273,13 @@ BSLS_IDENT("$Id: $")
 //      assert(  IsBitwiseMoveable<const int*>::value);
 //      assert(  IsBitwiseMoveable<MoveableEnum>::value);
 //      assert(! IsBitwiseMoveable<int&>::value);
+//      assert(! IsBitwiseMoveable<const int&>::value);
+//      assert(  IsBitwiseMoveable<MoveableClass1>::value);
+//      assert(  IsBitwiseMoveable<const MoveableClass1>::value);
+//      assert(  IsBitwiseMoveable<MoveableClass2>::value);
+//      assert(  IsBitwiseMoveable<volatile MoveableClass2>::value);
+//      assert(! IsBitwiseMoveable<NonMoveableClass>::value);
+//      assert(! IsBitwiseMoveable<const NonMoveableClass>::value);
 //
 //      // For each of our test classes, allocate an array, construct three
 //      // objects into it, then move it into another array.
@@ -646,8 +653,7 @@ public:
                         // ========================
 
 template <class TYPE>
-struct IsBitwiseMoveable
-   : IsBitwiseMoveable_Imp<typename bsl::remove_cv<TYPE>::type>::type
+struct IsBitwiseMoveable : IsBitwiseMoveable_Imp<TYPE>::type
 {
     // Trait metafunction that determines whether the specified parameter
     // 'TYPE' is bitwise moveable.  If 'IsBitwiseMoveable<TYPE>' is derived
@@ -655,6 +661,30 @@ struct IsBitwiseMoveable
     // bitwise moveability cannot be inferred for 'TYPE'.  This trait can be
     // associated with a bitwise moveable user-defined class by specializing
     // this class or by using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
+};
+
+template <class TYPE>
+struct IsBitwiseMoveable<const TYPE> : IsBitwiseMoveable<TYPE>::type
+{
+    // Trait metafunction that determines whether the specified parameter
+    // 'TYPE' is bitwise moveable by stripping off the 'const' qualifier and
+    // forwarding to the base-case of 'IsBitwiseMoveable'.
+};
+
+template <class TYPE>
+struct IsBitwiseMoveable<volatile TYPE> : IsBitwiseMoveable<TYPE>::type
+{
+    // Trait metafunction that determines whether the specified parameter
+    // 'TYPE' is bitwise moveable by stripping off the 'volatile' qualifier
+    // and forwarding to the base-case of 'IsBitwiseMoveable'.
+};
+
+template <class TYPE>
+struct IsBitwiseMoveable<const volatile TYPE> : IsBitwiseMoveable<TYPE>::type
+{
+    // Trait metafunction that determines whether the specified parameter
+    // 'TYPE' is bitwise moveable by stripping off the 'const' and 'volatile'
+    // qualifiers and forwarding to the base-case of 'IsBitwiseMoveable'.
 };
 
 }  // close package namespace
