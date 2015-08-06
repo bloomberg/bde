@@ -114,8 +114,10 @@ void aSsErTT(int c, const char *s, int i)
     }
 }
 
-void case18(bdlcc::SkipList<int, int>* list, int numIterations, int level,
-            bool unique)
+void case18(bdlcc::SkipList<int, int>* list,
+            int                        numIterations,
+            int                        level,
+            bool                       unique)
 {
     int id = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()) + 2;
 
@@ -213,8 +215,11 @@ void case20(bdlcc::SkipList<int, CountedDelete>* list, int maxRefCount)
     }
 }
 
-void case19(bdlcc::SkipList<int, int>* list, int numIterations, int level,
-            bool unique, bool getHandles)
+void case19(bdlcc::SkipList<int, int>* list,
+            int                        numIterations,
+            int                        level,
+            bool                       unique,
+            bool                       getHandles)
 {
     int id = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()) + 2;
 
@@ -376,7 +381,7 @@ public:
     }
 
     void scheduleEvent(const bdlf::Function<void(*)()>& event,
-                       const bdlt::Datetime& when)
+                       const bdlt::Datetime&            when)
     {
         // Use 'addR' since this event will probably be placed near the end of
         // the list.
@@ -408,8 +413,7 @@ struct IDATA {
     int level;
 };
 
-void case16Produce (bdlcc::SkipList<int, int> *list,
-                    bsls::AtomicInt          *done)
+void case16Produce (bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
 {
     int count = 0;
     while (!(*done)) {
@@ -423,8 +427,7 @@ void case16Produce (bdlcc::SkipList<int, int> *list,
     }
 }
 
-void case16Consume(bdlcc::SkipList<int, int> *list,
-                   bsls::AtomicInt          *done)
+void case16Consume(bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
 {
     while (!(*done)) {
         bdlcc::SkipList<int, int>::Pair *h1;
@@ -570,9 +573,7 @@ enum {
     k_NUM_ITERATIONS = 100
 };
 
-void threadFunc(List                *list,
-                int                  numIterations,
-                int                  threadNum)
+void threadFunc(List *list, int numIterations, int threadNum)
 {
     for (int j=0; j<numIterations; j++) {
         for (int i=0; i<numIterations; i++) {
@@ -654,11 +655,11 @@ enum {
     k_DELAY = 500
 };
 
-void threadFunc(TimeQ               *timeQueue,
-                int                  numIterations,
-                int                  sendCount,
-                int                  rcvCount,
-                int                  delay)
+void threadFunc(TimeQ *timeQueue,
+                int    numIterations,
+                int    sendCount,
+                int    rcvCount,
+                int    delay)
 {
     bsl::vector<TimeQ::Pair*> timers;
     timers.resize(sendCount);
@@ -751,8 +752,7 @@ void run()
 
 namespace {
 
-void pushBackWrapper(bsl::vector<int> *vector,
-                     int               item)
+void pushBackWrapper(bsl::vector<int> *vector, int item)
 {
     vector->push_back(item);
 }

@@ -162,7 +162,7 @@ typedef bdlcc::FixedQueueIndexManager Obj;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-bsl::ostream& operator<<(bsl::ostream&                            stream,
+bsl::ostream& operator<<(bsl::ostream&                        stream,
                          const bdlcc::FixedQueueIndexManager& indexManager)
 {
     indexManager.print(stream);
@@ -213,9 +213,9 @@ bsl::ostream& operator<<(bsl::ostream&                            stream,
 //                                               ^-popIndex
 //..
 
-void gg(Obj          *result,
-        unsigned int  pushCombinedIndex,
-        unsigned int  popCombinedIndex)
+void gg(Obj      *result,
+        unsigned  int pushCombinedIndex,
+        unsigned  int popCombinedIndex)
     // Initialize the specified 'result' to have the specified
     // 'pushCombinedIndex' and the specified 'popCombinedIndex'.  The behavior
     // is undefined unless 'result' is empty, the push and pop index refer to
@@ -434,7 +434,7 @@ class FixedQueueState {
 
     // CREATORS
     explicit FixedQueueState(
-                        const bdlcc::FixedQueueIndexManager *indexManager);
+                            const bdlcc::FixedQueueIndexManager *indexManager);
         // Create an an 'FixedQueueState' object to access the state of the
         // specified 'indexManager'.
 
@@ -477,7 +477,7 @@ class FixedQueueState {
 
 // CREATORS
 FixedQueueState::FixedQueueState(
-                         const bdlcc::FixedQueueIndexManager *indexManager)
+                             const bdlcc::FixedQueueIndexManager *indexManager)
 : d_data(reinterpret_cast<const FixedQueueIndexManagerDataMembers *>(
                                                                  indexManager))
 {
@@ -530,8 +530,7 @@ unsigned int FixedQueueState::capacity() const
     return static_cast<unsigned int>(d_data->d_capacity);
 }
 
-void dirtyAdjustGeneration(Obj          *result,
-                           unsigned int  generation)
+void dirtyAdjustGeneration(Obj *result, unsigned int generation)
     // Load into 'result' the state of an empty queue at the beginning of the
     // specified 'generation' (i.e., the push and pop index both refer to the
     // first cell.  Note that this operation is equivalent to 'gg' but
@@ -551,9 +550,9 @@ void dirtyAdjustGeneration(Obj          *result,
    data->d_popIndex  = static_cast<int>(generation * capacity);
 }
 
-void dirtyGG(Obj          *result,
-             unsigned int  pushCombinedIndex,
-             unsigned int  popCombinedIndex)
+void dirtyGG(Obj      *result,
+             unsigned  int pushCombinedIndex,
+             unsigned  int popCombinedIndex)
     // Initialize the specified 'result' to have the specified
     // 'pushCombinedIndex' and the specified 'popCombinedIndex'.
 {
@@ -688,9 +687,7 @@ void performDelay(int period)
     }
 }
 
-void writerThread(Obj                    *x,
-                  TestThreadStateBarrier *testState,
-                  int                     delayPeriod)
+void writerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
     // Simulate a client pushing elements from the specified 'x' test object,
     // using the specified 'testState' to determine the current state of the
     // test (running, paused, exiting), and periodically inserting delays using
@@ -724,9 +721,7 @@ void writerThread(Obj                    *x,
 
 }
 
-void readerThread(Obj                    *x,
-                  TestThreadStateBarrier *testState,
-                  int                     delayPeriod)
+void readerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
     // Simulate a client popping elements from the specified 'x' test object,
     // using the specified 'testState' to determine the current state of the
     // test (running, paused, exiting), and periodically inserting delays using

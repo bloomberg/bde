@@ -149,9 +149,9 @@ void hardwork(int* item, int spin)
 }
 
 void pushpopThread(bdlcc::FixedQueue<int> *queue,
-                   bdlqq::Barrier *barrier,
-                   int numIterations,
-                   int workSpin)
+                   bdlqq::Barrier         *barrier,
+                   int                     numIterations,
+                   int                     workSpin)
 {
     barrier->wait();
 
@@ -174,9 +174,9 @@ void pushpopThread(bdlcc::FixedQueue<int> *queue,
 }  // close namespace Backoff
 
 void rolloverPusher(bdlcc::FixedQueue<int> *queue,
-                    bsls::AtomicInt *doneFlag,
-                    bdlqq::Turnstile *turnstile,
-                    int threadId)
+                    bsls::AtomicInt        *doneFlag,
+                    bdlqq::Turnstile       *turnstile,
+                    int                     threadId)
 {
     enum {
         k_NUM_ITEMS = 50000 // num to push in this thread
@@ -193,7 +193,7 @@ void rolloverPusher(bdlcc::FixedQueue<int> *queue,
 }
 
 void rolloverLengthChecker(bdlcc::FixedQueue<int> *queue,
-                           bsls::AtomicInt *doneFlag)
+                           bsls::AtomicInt        *doneFlag)
 {
     const int minLength = queue->size() / 2;
     const int maxLength = queue->size();
@@ -209,8 +209,8 @@ void rolloverLengthChecker(bdlcc::FixedQueue<int> *queue,
 }
 
 void rolloverPopper(bdlcc::FixedQueue<int> *queue,
-                    bsls::AtomicInt *doneFlag,
-                    bdlqq::Turnstile *turnstile)
+                    bsls::AtomicInt        *doneFlag,
+                    bdlqq::Turnstile       *turnstile)
 {
     const int minLength = queue->size() / 2;
 
@@ -240,8 +240,7 @@ void rolloverPopper(bdlcc::FixedQueue<int> *queue,
     ASSERTT(lastSeen2 > minLength);
 }
 
-void pushpopThread(bdlcc::FixedQueue<int> *queue,
-                   bsls::AtomicInt *stop)
+void pushpopThread(bdlcc::FixedQueue<int> *queue, bsls::AtomicInt *stop)
 {
     while (!stop->loadRelaxed()) {
         queue->pushBack(1);
@@ -284,8 +283,8 @@ public:
 bsls::AtomicInt64 ExceptionTester::s_throwFrom(0);
 
 void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
-                       bdlqq::TimedSemaphore                   *sema,
-                       bsls::AtomicInt                         *numCaught) {
+                       bdlqq::TimedSemaphore              *sema,
+                       bsls::AtomicInt                    *numCaught) {
     enum { k_NUM_ITERATIONS = 3 };
 
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
@@ -415,8 +414,7 @@ void* popFrontTestThread(void *ptr)
 
 }
 
-void case9pusher(bdlcc::FixedQueue<int> *queue,
-                 volatile bool              *done)
+void case9pusher(bdlcc::FixedQueue<int> *queue, volatile bool *done)
 {
     while (!*done) {
         queue->pushBack(static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt()));
@@ -424,7 +422,7 @@ void case9pusher(bdlcc::FixedQueue<int> *queue,
 }
 
 void case9drainer(bdlcc::FixedQueue<int> *queue,
-                  bdlqq::Barrier *drainDoneBarrier)
+                  bdlqq::Barrier         *drainDoneBarrier)
 {
     int result;
     while (0 == queue->tryPopFront(&result)) ;
@@ -434,8 +432,8 @@ void case9drainer(bdlcc::FixedQueue<int> *queue,
 }
 
 void case9disabler(bdlcc::FixedQueue<int> *queue,
-                   bdlqq::Barrier *drainDoneBarrier,
-                   bdlqq::Barrier *reEnableBarrier)
+                   bdlqq::Barrier         *drainDoneBarrier,
+                   bdlqq::Barrier         *reEnableBarrier)
 {
     queue->disable();
 
@@ -571,11 +569,11 @@ static const char* fmt(int n) {
 }
 
 void test9PushBack(bdlcc::FixedQueue<int> *queue,
-                   double                rate,
-                   int                   threshold,
-                   bool                 *stop,
-                   bool                 *thresholdExceeded,
-                   bdlqq::Condition      *thresholdExceededCondition)
+                   double                  rate,
+                   int                     threshold,
+                   bool                   *stop,
+                   bool                   *thresholdExceeded,
+                   bdlqq::Condition       *thresholdExceededCondition)
 {
     bdlqq::Turnstile turnstile(rate);
 
@@ -597,9 +595,11 @@ void sleepAndWait(int numMicroseconds, bdlqq::Barrier *barrier)
     barrier->wait();
 }
 
-void abaThread(char *firstValue, char *lastValue,
-               bdlcc::FixedQueue<char*> *queue, bdlqq::Barrier *barrier,
-               bool sendSentinal)
+void abaThread(char                     *firstValue,
+               char                     *lastValue,
+               bdlcc::FixedQueue<char*> *queue,
+               bdlqq::Barrier           *barrier,
+               bool                      sendSentinal)
 {
     barrier->wait();
     for (char* value = firstValue; value <= lastValue; ++value) {
@@ -1001,9 +1001,10 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
 //..
-    void myDoWork(my_WorkData& )
+    void myDoWork(my_WorkData& data)
     {
         // do some stuff...
+        (void)data;
     }
 //..
 // Then, we define a 'myConsumer' function that will pop elements off the queue

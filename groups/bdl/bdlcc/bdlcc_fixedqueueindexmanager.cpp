@@ -2,7 +2,7 @@
 #include <bdlcc_fixedqueueindexmanager.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp, "$Id$ $CSID$")
 
 #include <bdlqq_threadutil.h>
 
@@ -221,7 +221,7 @@ static const unsigned int k_NUM_REPRESENTABLE_COMBINED_INDICES =
 // and generation count from 'd_states' elements.
 
 inline
-static unsigned int encodeElementState(unsigned int generation,
+static unsigned int encodeElementState(unsigned     int generation,
                                        ElementState indexState)
     // Return an encoded state value comprising the specified 'generation' and
     // the specified 'indexState'.  Note that the resulting encoded value is
@@ -281,8 +281,8 @@ namespace bdlcc {
 
 // CLASS METHODS
 int FixedQueueIndexManager::circularDifference(unsigned int minuend,
-                                                    unsigned int subtrahend,
-                                                    unsigned int modulo)
+                                               unsigned int subtrahend,
+                                               unsigned int modulo)
 {
     BSLS_ASSERT(modulo     <= static_cast<unsigned int>(INT_MAX) + 1);
     BSLS_ASSERT(minuend    <  modulo);
@@ -344,7 +344,7 @@ FixedQueueIndexManager::~FixedQueueIndexManager()
 
 // MANIPULATORS
 int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
-                                                  unsigned int *index)
+                                             unsigned int *index)
 {
     BSLS_ASSERT(0 != generation);
     BSLS_ASSERT(0 != index);
@@ -463,7 +463,7 @@ int FixedQueueIndexManager::reservePushIndex(unsigned int *generation,
 }
 
 void FixedQueueIndexManager::commitPushIndex(unsigned int generation,
-                                                  unsigned int index)
+                                             unsigned int index)
 {
     BSLS_ASSERT(generation <= d_maxGeneration);
     BSLS_ASSERT(index      <  d_capacity);
@@ -480,7 +480,7 @@ void FixedQueueIndexManager::commitPushIndex(unsigned int generation,
 }
 
 int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
-                                                 unsigned int *index)
+                                            unsigned int *index)
 {
     BSLS_ASSERT(0 != generation);
     BSLS_ASSERT(0 != index);
@@ -593,7 +593,7 @@ int FixedQueueIndexManager::reservePopIndex(unsigned int *generation,
 }
 
 void FixedQueueIndexManager::commitPopIndex(unsigned int generation,
-                                                 unsigned int index)
+                                            unsigned int index)
 {
     BSLS_ASSERT(generation <= d_maxGeneration);
     BSLS_ASSERT(index      <  d_capacity);
@@ -663,8 +663,8 @@ void FixedQueueIndexManager::enable()
 int FixedQueueIndexManager::reservePopIndexForClear (
                                               unsigned int *disposedGeneration,
                                               unsigned int *disposedIndex,
-                                              unsigned int  endGeneration,
-                                              unsigned int  endIndex)
+                                              unsigned int endGeneration,
+                                              unsigned int endIndex)
 {
     BSLS_ASSERT(disposedGeneration);
     BSLS_ASSERT(disposedIndex);
@@ -738,8 +738,7 @@ int FixedQueueIndexManager::reservePopIndexForClear (
     return e_SUCCESS;
 }
 
-void FixedQueueIndexManager::abortPushIndexReservation(
-                                                       unsigned int generation,
+void FixedQueueIndexManager::abortPushIndexReservation(unsigned int generation,
                                                        unsigned int index)
 {
     BSLS_ASSERT(generation <= d_maxGeneration);

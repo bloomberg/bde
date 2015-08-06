@@ -278,10 +278,9 @@ class FixedQueueIndexManager {
 
   private:
     // NOT IMPLEMENTED
-    FixedQueueIndexManager(
-                        const FixedQueueIndexManager&); // = delete;
+    FixedQueueIndexManager(const FixedQueueIndexManager&); // = delete;
     FixedQueueIndexManager& operator=(
-                        const FixedQueueIndexManager&); // = delete;
+                                   const FixedQueueIndexManager&); // = delete;
 
   private:
 
@@ -365,8 +364,7 @@ class FixedQueueIndexManager {
     // MANIPULATORS
                          // Pushing Elements
 
-    int reservePushIndex(unsigned int *generation,
-                         unsigned int *index);
+    int reservePushIndex(unsigned int *generation, unsigned int *index);
         // Reserve the next available index at which to enqueue an element in
         // an (externally managed) circular buffer; load the specified 'index'
         // with the reserved index and load the specified 'generation' with the
@@ -392,8 +390,7 @@ class FixedQueueIndexManager {
 
                          // Popping Elements
 
-    int reservePopIndex(unsigned int *generation,
-                        unsigned int *index);
+    int reservePopIndex(unsigned int *generation, unsigned int *index);
         // Reserve the next available index from which to dequeue an element
         // from an (externally managed) circular buffer; load the specified
         // 'index' with the reserved index and load the specified 'generation'
@@ -431,8 +428,8 @@ class FixedQueueIndexManager {
 
     int reservePopIndexForClear(unsigned int *disposedGeneration,
                                 unsigned int *disposedIndex,
-                                unsigned int  endGeneration,
-                                unsigned int  endIndex);
+                                unsigned int endGeneration,
+                                unsigned int endIndex);
         // If the next available index from which an element can be popped is
         // before the specified 'endGeneration' and 'endIndex' then reserve
         // that index for popping and load the specified 'disposedGeneration'

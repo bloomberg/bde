@@ -464,8 +464,7 @@ class MultipriorityQueue_Node {
 
     // NOT IMPLEMENTED
     MultipriorityQueue_Node(const MultipriorityQueue_Node&);
-    MultipriorityQueue_Node& operator=(
-                                 const MultipriorityQueue_Node&);
+    MultipriorityQueue_Node& operator=(const MultipriorityQueue_Node&);
 
   public:
     // TRAITS
@@ -635,9 +634,7 @@ class MultipriorityQueue {
         // Note that this method is targeted at specific uses by the class
         // 'bdlmt::MultipriorityThreadPool'.
 
-    void pushBackMultipleRaw(const TYPE& item,
-                             int         itemPriority,
-                             int         numItems);
+    void pushBackMultipleRaw(const TYPE& item, int itemPriority, int numItems);
         // Insert the value of the specified 'item' with the specified
         // 'itemPriority' onto the back of this multipriority queue before any
         // queued items having a less urgent priority (higher value) than
@@ -821,8 +818,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
 
 // CREATORS
 template <class TYPE>
-MultipriorityQueue<TYPE>::MultipriorityQueue(
-                                              bslma::Allocator *basicAllocator)
+MultipriorityQueue<TYPE>::MultipriorityQueue(bslma::Allocator *basicAllocator)
 : d_heads((typename NodePtrVector::size_type)k_DEFAULT_NUM_PRIORITIES, 0,
           basicAllocator)
 , d_tails((typename NodePtrVector::size_type)k_DEFAULT_NUM_PRIORITIES, 0,
@@ -836,9 +832,8 @@ MultipriorityQueue<TYPE>::MultipriorityQueue(
 }
 
 template <class TYPE>
-MultipriorityQueue<TYPE>::MultipriorityQueue(
-                                              int               numPriorities,
-                                              bslma::Allocator *basicAllocator)
+MultipriorityQueue<TYPE>::MultipriorityQueue(int               numPriorities,
+                                             bslma::Allocator *basicAllocator)
 : d_heads((typename NodePtrVector::size_type)numPriorities, 0, basicAllocator)
 , d_tails((typename NodePtrVector::size_type)numPriorities, 0, basicAllocator)
 , d_notEmptyFlags(0)
@@ -871,8 +866,7 @@ MultipriorityQueue<TYPE>::~MultipriorityQueue()
 
 // MANIPULATORS
 template <class TYPE>
-int MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
-                                       int         itemPriority)
+int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
 {
     enum { e_SUCCESS = 0, e_FAILURE = -1 };
 
@@ -920,8 +914,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
 }
 
 template <class TYPE>
-void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(
-                                                    const TYPE& item,
+void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
                                                     int         itemPriority,
                                                     int         numItems)
 {
@@ -960,10 +953,9 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(
 }
 
 template <class TYPE>
-void MultipriorityQueue<TYPE>::pushBackMultipleRaw(
-                                                    const TYPE& item,
-                                                    int         itemPriority,
-                                                    int         numItems)
+void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
+                                                   int         itemPriority,
+                                                   int         numItems)
 {
     BSLS_ASSERT((unsigned)itemPriority < d_heads.size());
 

@@ -556,8 +556,8 @@ class SkipList_NodeCreationHelper {
   public:
     // CREATORS
     SkipList_NodeCreationHelper(PoolManager      *poolManager,
-                                     Node             *node,
-                                     bslma::Allocator *basicAllocator = 0);
+                                Node             *node,
+                                bslma::Allocator *basicAllocator = 0);
       // Create a new scoped guard object to assist in exception-safe
       // initialization of the specified 'node', which was allocated from the
       // specified 'poolManager'.  Use the specified 'basicAllocator' to supply
@@ -636,14 +636,12 @@ class SkipListPairHandle {
 
   private:
     // PRIVATE MANIPULATORS
-    SkipListPairHandle(SkipList<KEY, DATA> *list,
-                            Pair                     *reference);
+    SkipListPairHandle(SkipList<KEY, DATA> *list, Pair *reference);
           // Construct a new pair handle for the specified 'list' that manages
           // the specified 'reference'.  Note that it is assumed that the
           // creating (calling) scope already owns the 'reference'.
 
-    void reset(const SkipList<KEY, DATA> *list,
-               Pair                           *reference);
+    void reset(const SkipList<KEY, DATA> *list, Pair *reference);
           // Change this 'PairHandle' to refer to manage the specified
           // 'reference' in the specified 'list'.  If this 'PairHandle' refers
           // to a pair, release the reference.  Note that it is assumed that
@@ -671,8 +669,7 @@ class SkipListPairHandle {
     void release();
           // Release the reference (if any) managed by this 'PairHandle'.
 
-    void releaseReferenceRaw(SkipList<KEY, DATA> **list,
-                             Pair                     **reference);
+    void releaseReferenceRaw(SkipList<KEY, DATA> **list, Pair **reference);
           // Invoke 'release' and populate the specified 'list' and 'reference'
           // pointers with the list and reference values of this 'PairHandle'.
 
@@ -966,8 +963,7 @@ class SkipList {
       // supply memory.  If 'basicAllocator' is 0, the currently installed
       // default allocator is used.
 
-    SkipList(const SkipList&  original,
-                  bslma::Allocator     *basicAllocator = 0);
+    SkipList(const SkipList& original, bslma::Allocator *basicAllocator = 0);
       // Create a new Skip List initialized to the value of the specified
       // 'original' list.  Optionally specify a 'basicAllocator' used to supply
       // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -988,9 +984,7 @@ class SkipList {
 
                          // Insertion Methods
 
-    void add(const KEY&   key,
-             const DATA&  data,
-             bool        *newFrontFlag = 0);
+    void add(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
        // Add the specified 'key' / 'data' pair to this list.  Load into the
        // the optionally specified 'newFrontFlag' a 'true' value if the pair is
        // at the front of the list, and a 'false' value otherwise.
@@ -1047,9 +1041,7 @@ class SkipList {
        // 'newFrontFlag' a 'true' value if the pair is at the front of the
        // list, and a 'false' value otherwise.
 
-    int addUnique(const KEY&   key,
-                  const DATA&  data,
-                  bool        *newFrontFlag = 0);
+    int addUnique(const KEY& key, const DATA& data, bool *newFrontFlag = 0);
        // Add the specified 'key' / 'data' pair to this list.  Load into the
        // the optionally specified 'newFrontFlag' a 'true' value if the pair is
        // at the front of the list, and a 'false' value otherwise.  Return 0 on
@@ -1394,7 +1386,7 @@ bool operator!=(const SkipList<KEY, DATA>& lhs,
       // pair from the front of B.
 
 template<class KEY, class DATA>
-bsl::ostream& operator<<(bsl::ostream&                   stream,
+bsl::ostream& operator<<(bsl::ostream&              stream,
                          const SkipList<KEY, DATA>& list);
     // Write the specified 'list' to the specified output 'stream' and return a
     // reference to the modifiable 'stream'.
@@ -1438,8 +1430,8 @@ SkipListPairHandle<KEY, DATA>::SkipListPairHandle()
 template <class KEY, class DATA>
 inline
 SkipListPairHandle<KEY, DATA>::SkipListPairHandle(
-                                           SkipList<KEY, DATA> *list,
-                                           Pair                     *reference)
+                                                SkipList<KEY, DATA> *list,
+                                                Pair                *reference)
 : d_list_p(list)
 , d_node_p(reference)
 {
@@ -1448,7 +1440,7 @@ SkipListPairHandle<KEY, DATA>::SkipListPairHandle(
 template <class KEY, class DATA>
 inline
 SkipListPairHandle<KEY, DATA>::SkipListPairHandle(
-                                       const SkipListPairHandle& original)
+                                            const SkipListPairHandle& original)
 : d_list_p(original.d_list_p)
 , d_node_p(original.d_node_p
            ? d_list_p->addPairReferenceRaw(original.d_node_p)
@@ -1479,8 +1471,7 @@ void SkipListPairHandle<KEY, DATA>::release()
 template <class KEY, class DATA>
 inline
 SkipListPairHandle<KEY, DATA>&
-SkipListPairHandle<KEY, DATA>::operator=(
-                                            const SkipListPairHandle& rhs)
+SkipListPairHandle<KEY, DATA>::operator=(const SkipListPairHandle& rhs)
 {
     reset(rhs.d_list_p, 0);
     d_node_p = rhs.d_node_p ? d_list_p->addPairReferenceRaw(rhs.d_node_p) : 0;
@@ -1490,8 +1481,8 @@ SkipListPairHandle<KEY, DATA>::operator=(
 template <class KEY, class DATA>
 inline
 void SkipListPairHandle<KEY, DATA>::releaseReferenceRaw(
-                                          SkipList<KEY, DATA> **list,
-                                          Pair                     **reference)
+                                               SkipList<KEY, DATA> **list,
+                                               Pair                **reference)
 {
     *list      = d_list_p;
     *reference = d_node_p;
@@ -1500,9 +1491,8 @@ void SkipListPairHandle<KEY, DATA>::releaseReferenceRaw(
 
 template <class KEY, class DATA>
 inline
-void SkipListPairHandle<KEY, DATA>::reset(
-                                    const SkipList<KEY, DATA> *list,
-                                    Pair                           *reference)
+void SkipListPairHandle<KEY, DATA>::reset(const SkipList<KEY, DATA> *list,
+                                          Pair                      *reference)
 {
     release();
     d_list_p = const_cast<SkipList<KEY, DATA> *>(list);
@@ -1614,7 +1604,7 @@ SkipList_NodeCreationHelper<KEY, DATA>::
 template<class KEY, class DATA>
 inline
 void SkipList_NodeCreationHelper<KEY, DATA>::construct(const KEY&  key,
-                                                            const DATA& data)
+                                                       const DATA& data)
 {
     BSLS_ASSERT_SAFE(d_node_p);
 
@@ -1650,8 +1640,8 @@ void SkipList<KEY, DATA>::addNode(bool *newFrontFlag, Node *node)
 
 template<class KEY, class DATA>
 void SkipList<KEY, DATA>::addNodeImpR(bool *newFrontFlag,
-                                           Node *node,
-                                           bool  lock)
+                                      Node *node,
+                                      bool  lock)
 {
     LockGuard lockGuard(&d_lock, !lock);
     if (!lock) {
@@ -1715,9 +1705,7 @@ int SkipList<KEY, DATA>::addNodeUniqueR(bool *newFrontFlag, Node *node)
 
 template<class KEY, class DATA>
 SkipList_Node<KEY, DATA> *
-SkipList<KEY, DATA>::allocateNode(int         level,
-                                       const KEY&  key,
-                                       const DATA& data)
+SkipList<KEY, DATA>::allocateNode(int level, const KEY& key, const DATA& data)
 {
     int listLevel = d_listLevel;
     if (level > listLevel) {
@@ -1777,8 +1765,8 @@ void SkipList<KEY, DATA>::initialize()
 
 template<class KEY, class DATA>
 void SkipList<KEY, DATA>::insertImp(bool *isNewFront,
-                                         Node *location[],
-                                         Node *node)
+                                    Node *location[],
+                                    Node *node)
 {
     int level = node->level();
     if (level > d_listLevel) {
@@ -1815,8 +1803,8 @@ void SkipList<KEY, DATA>::insertImp(bool *isNewFront,
 
 template<class KEY, class DATA>
 void SkipList<KEY, DATA>::moveImp(bool *isNewFront,
-                                       Node *location[],
-                                       Node *node)
+                                  Node *location[],
+                                  Node *node)
 {
     int level = node->level();
     BSLS_ASSERT(level <= d_listLevel);
@@ -1888,7 +1876,7 @@ void SkipList<KEY, DATA>::releaseNode(Node *node)
 
 template<class KEY, class DATA>
 int SkipList<KEY, DATA>::removeAllImp(bsl::vector<Pair *> *removed,
-                                           bool                 unlock)
+                                      bool                 unlock)
 {
     Node *p = d_head_p;
     Node *q = p->d_ptrs[0].d_next_p;
@@ -1958,9 +1946,9 @@ int SkipList<KEY, DATA>::removeNode(Node *node)
 
 template<class KEY, class DATA>
 int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
-                                         Node       *node,
-                                         const KEY&  key,
-                                         bool        allowDuplicates)
+                                    Node       *node,
+                                    const KEY&  key,
+                                    bool        allowDuplicates)
 {
     LockGuard guard(&d_lock);
 
@@ -1988,9 +1976,9 @@ int SkipList<KEY, DATA>::updateNode(bool       *isNewFront,
 
 template<class KEY, class DATA>
 int SkipList<KEY, DATA>::updateNodeR(bool       *isNewFront,
-                                          Node       *node,
-                                          const KEY&  key,
-                                          bool        allowDuplicates)
+                                     Node       *node,
+                                     const KEY&  key,
+                                     bool        allowDuplicates)
 {
     LockGuard guard(&d_lock);
 
@@ -2033,8 +2021,7 @@ SkipList<KEY, DATA>::backNode() const
 }
 
 template<class KEY, class DATA>
-SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNode(
-                                                          const KEY& key) const
+SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNode(const KEY& key) const
 {
     Node *locator[k_MAX_NUM_LEVELS];
 
@@ -2051,8 +2038,7 @@ SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNode(
 }
 
 template<class KEY, class DATA>
-SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeR(
-                                                          const KEY& key) const
+SkipList_Node<KEY, DATA> *SkipList<KEY, DATA>::findNodeR(const KEY& key) const
 {
     Node *locator[k_MAX_NUM_LEVELS];
 
@@ -2243,8 +2229,8 @@ SkipList<KEY, DATA>::SkipList(bslma::Allocator *basicAllocator)
 }
 
 template<class KEY, class DATA>
-SkipList<KEY, DATA>::SkipList(const SkipList&  original,
-                                        bslma::Allocator     *basicAllocator)
+SkipList<KEY, DATA>::SkipList(const SkipList&   original,
+                              bslma::Allocator *basicAllocator)
 : d_listLevel(0)
 , d_length(0)
 , d_poolManager_p(0)
@@ -2369,9 +2355,9 @@ void SkipList<KEY, DATA>::releaseReferenceRaw(const Pair *reference)
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::add(PairHandle  *result,
-                                   const KEY&   key,
-                                   const DATA&  data,
-                                   bool        *newFrontFlag)
+                              const KEY&   key,
+                              const DATA&  data,
+                              bool        *newFrontFlag)
 {
     Pair *handle;
     addRaw(&handle, key, data, newFrontFlag);
@@ -2381,8 +2367,8 @@ void SkipList<KEY, DATA>::add(PairHandle  *result,
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::add(const KEY&   key,
-                                   const DATA&  data,
-                                   bool        *newFrontFlag)
+                              const DATA&  data,
+                              bool        *newFrontFlag)
 {
     addRaw((Pair **)0, key, data, newFrontFlag);
 }
@@ -2390,10 +2376,10 @@ void SkipList<KEY, DATA>::add(const KEY&   key,
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::addAtLevelRaw(Pair        **result,
-                                             int           level,
-                                             const KEY&    key,
-                                             const DATA&   data,
-                                             bool         *newFrontFlag)
+                                        int           level,
+                                        const KEY&    key,
+                                        const DATA&   data,
+                                        bool         *newFrontFlag)
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
@@ -2406,10 +2392,10 @@ void SkipList<KEY, DATA>::addAtLevelRaw(Pair        **result,
 
 template<class KEY, class DATA>
 int SkipList<KEY, DATA>::addAtLevelUniqueRaw(Pair        **result,
-                                                  int           level,
-                                                  const KEY&    key,
-                                                  const DATA&   data,
-                                                  bool         *newFrontFlag)
+                                             int           level,
+                                             const KEY&    key,
+                                             const DATA&   data,
+                                             bool         *newFrontFlag)
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
@@ -2433,9 +2419,9 @@ int SkipList<KEY, DATA>::addAtLevelUniqueRaw(Pair        **result,
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::addRaw(Pair        **result,
-                                      const KEY&    key,
-                                      const DATA&   data,
-                                      bool         *newFrontFlag)
+                                 const KEY&    key,
+                                 const DATA&   data,
+                                 bool         *newFrontFlag)
 {
     addAtLevelRaw(result, d_rand.randomLevel(), key, data, newFrontFlag);
 }
@@ -2443,9 +2429,9 @@ void SkipList<KEY, DATA>::addRaw(Pair        **result,
 template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::addUnique(PairHandle  *result,
-                                        const KEY&   key,
-                                        const DATA&  data,
-                                        bool        *newFrontFlag)
+                                   const KEY&   key,
+                                   const DATA&  data,
+                                   bool        *newFrontFlag)
 {
     Pair *handle;
     int rc = addUniqueRaw(&handle, key, data, newFrontFlag);
@@ -2459,8 +2445,8 @@ int SkipList<KEY, DATA>::addUnique(PairHandle  *result,
 template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::addUnique(const KEY&   key,
-                                        const DATA&  data,
-                                        bool        *newFrontFlag)
+                                   const DATA&  data,
+                                   bool        *newFrontFlag)
 {
     return addUniqueRaw((Pair **)0, key, data, newFrontFlag);
 }
@@ -2468,9 +2454,9 @@ int SkipList<KEY, DATA>::addUnique(const KEY&   key,
 template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::addUniqueRaw(Pair        **result,
-                                           const KEY&    key,
-                                           const DATA&   data,
-                                           bool         *newFrontFlag)
+                                      const KEY&    key,
+                                      const DATA&   data,
+                                      bool         *newFrontFlag)
 {
     return addAtLevelUniqueRaw(result, d_rand.randomLevel(), key, data,
                                newFrontFlag);
@@ -2481,9 +2467,9 @@ int SkipList<KEY, DATA>::addUniqueRaw(Pair        **result,
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::addR(PairHandle  *result,
-                                    const KEY&   key,
-                                    const DATA&  data,
-                                    bool        *newFrontFlag)
+                               const KEY&   key,
+                               const DATA&  data,
+                               bool        *newFrontFlag)
 {
     Pair *handle;
     addRawR(&handle, key, data, newFrontFlag);
@@ -2493,17 +2479,17 @@ void SkipList<KEY, DATA>::addR(PairHandle  *result,
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::addR(const KEY&   key,
-                                    const DATA&  data,
-                                    bool        *newFrontFlag)
+                               const DATA&  data,
+                               bool        *newFrontFlag)
 {
     addRawR((Pair **)0, key, data, newFrontFlag);
 }
 
 template<class KEY, class DATA>
 int SkipList<KEY, DATA>::addUniqueR(PairHandle  *result,
-                                         const KEY&   key,
-                                         const DATA&  data,
-                                         bool        *newFrontFlag)
+                                    const KEY&   key,
+                                    const DATA&  data,
+                                    bool        *newFrontFlag)
 {
     Pair *handle;
     int rc = addUniqueRawR(&handle, key, data, newFrontFlag);
@@ -2518,8 +2504,8 @@ int SkipList<KEY, DATA>::addUniqueR(PairHandle  *result,
 template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::addUniqueR(const KEY&   key,
-                                         const DATA&  data,
-                                         bool        *newFrontFlag)
+                                    const DATA&  data,
+                                    bool        *newFrontFlag)
 {
     return addUniqueRawR((Pair **)0, key, data, newFrontFlag);
 }
@@ -2527,9 +2513,9 @@ int SkipList<KEY, DATA>::addUniqueR(const KEY&   key,
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::addRawR(Pair        **result,
-                                       const KEY&    key,
-                                       const DATA&   data,
-                                       bool         *newFrontFlag)
+                                  const KEY&    key,
+                                  const DATA&   data,
+                                  bool         *newFrontFlag)
 {
     addAtLevelRawR(result, d_rand.randomLevel(), key, data, newFrontFlag);
 }
@@ -2537,9 +2523,9 @@ void SkipList<KEY, DATA>::addRawR(Pair        **result,
 template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::addUniqueRawR(Pair        **result,
-                                            const KEY&    key,
-                                            const DATA&   data,
-                                            bool         *newFrontFlag)
+                                       const KEY&    key,
+                                       const DATA&   data,
+                                       bool         *newFrontFlag)
 {
     return addAtLevelUniqueRawR(result, d_rand.randomLevel(), key, data,
                                 newFrontFlag);
@@ -2547,10 +2533,10 @@ int SkipList<KEY, DATA>::addUniqueRawR(Pair        **result,
 
 template<class KEY, class DATA>
 int SkipList<KEY, DATA>::addAtLevelUniqueRawR(Pair        **result,
-                                                   int           level,
-                                                   const KEY&    key,
-                                                   const DATA&   data,
-                                                   bool         *newFrontFlag)
+                                              int           level,
+                                              const KEY&    key,
+                                              const DATA&   data,
+                                              bool         *newFrontFlag)
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
@@ -2574,10 +2560,10 @@ int SkipList<KEY, DATA>::addAtLevelUniqueRawR(Pair        **result,
 template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::addAtLevelRawR(Pair        **result,
-                                              int           level,
-                                              const KEY&    key,
-                                              const DATA&   data,
-                                              bool         *newFrontFlag)
+                                         int           level,
+                                         const KEY&    key,
+                                         const DATA&   data,
+                                         bool         *newFrontFlag)
 {
     Node *node = allocateNode(level, key, data);
     if (result) {
@@ -2643,10 +2629,10 @@ int SkipList<KEY, DATA>::removeAllRaw(bsl::vector<Pair *> *removed)
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::update(const Pair  *reference,
-                                     const KEY&   newKey,
-                                     bool        *newFrontFlag,
-                                     bool         allowDuplicates)
+int SkipList<KEY, DATA>::update(const Pair *reference,
+                                const KEY&  newKey,
+                                bool       *newFrontFlag,
+                                bool        allowDuplicates)
 {
     if (0 == reference) {
         return e_INVALID;                                             // RETURN
@@ -2658,10 +2644,10 @@ int SkipList<KEY, DATA>::update(const Pair  *reference,
 
 template<class KEY, class DATA>
 inline
-int SkipList<KEY, DATA>::updateR(const Pair  *reference,
-                                      const KEY&   newKey,
-                                      bool        *newFrontFlag,
-                                      bool         allowDuplicates)
+int SkipList<KEY, DATA>::updateR(const Pair *reference,
+                                 const KEY&  newKey,
+                                 bool       *newFrontFlag,
+                                 bool        allowDuplicates)
 {
     if (0 == reference) {
         return e_INVALID;                                             // RETURN
@@ -2827,8 +2813,7 @@ SkipList<KEY, DATA>::next(PairHandle *next, const Pair *reference) const
 template<class KEY, class DATA>
 inline
 int
-SkipList<KEY, DATA>::previousRaw(Pair       **prevPair,
-                                      const Pair  *reference) const
+SkipList<KEY, DATA>::previousRaw(Pair **prevPair, const Pair *reference) const
 {
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
     *prevPair = prevNode(node);
@@ -2839,7 +2824,7 @@ template<class KEY, class DATA>
 inline
 int
 SkipList<KEY, DATA>::previous(PairHandle *prevPair,
-                                   const Pair *reference) const
+                              const Pair *reference) const
 {
     if (0 == reference) {
         return e_INVALID;                                             // RETURN
@@ -2857,8 +2842,8 @@ SkipList<KEY, DATA>::previous(PairHandle *prevPair,
 template<class KEY, class DATA>
 bsl::ostream&
 SkipList<KEY, DATA>::print(bsl::ostream& stream,
-                                int           level,
-                                int           spacesPerLevel) const
+                           int           level,
+                           int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -2980,7 +2965,7 @@ int SkipList<KEY, DATA>::skipBackwardRaw(Pair **handle) const
 // FREE OPERATORS
 template<class KEY, class DATA>
 bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
-                const SkipList<KEY, DATA>& rhs)
+                       const SkipList<KEY, DATA>& rhs)
 {
     if (&lhs == &rhs) {
         return true;                                                  // RETURN
@@ -3022,7 +3007,7 @@ bool bdlcc::operator==(const SkipList<KEY, DATA>& lhs,
 
 template<class KEY, class DATA>
 bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
-                const SkipList<KEY, DATA>& rhs)
+                       const SkipList<KEY, DATA>& rhs)
 {
     if (&lhs == &rhs) {
         return false;                                                 // RETURN
@@ -3064,8 +3049,8 @@ bool bdlcc::operator!=(const SkipList<KEY, DATA>& lhs,
 
 template<class KEY, class DATA>
 inline
-bsl::ostream& bdlcc::operator<<(bsl::ostream&                   stream,
-                         const SkipList<KEY, DATA>& list)
+bsl::ostream& bdlcc::operator<<(bsl::ostream&              stream,
+                                const SkipList<KEY, DATA>& list)
 {
     return list.print(stream, 0, -1);
 }

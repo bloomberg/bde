@@ -3,7 +3,7 @@
 #include <bdlcc_fixedqueue.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_fixedqueue_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_fixedqueue_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 

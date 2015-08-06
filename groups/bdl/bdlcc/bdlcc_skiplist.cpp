@@ -2,7 +2,7 @@
 #include <bdlcc_skiplist.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_skiplist_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_skiplist_cpp, "$Id$ $CSID$")
 
 #include <bdlma_infrequentdeleteblocklist.h>
 #include <bdlb_random.h>
@@ -198,8 +198,8 @@ class SkipList_PoolManager {
 
   public:
     explicit SkipList_PoolManager(int              *objectSizes,
-                                       int               numPools,
-                                       bslma::Allocator *basicAllocator);
+                                  int               numPools,
+                                  bslma::Allocator *basicAllocator);
     ~SkipList_PoolManager();
 
     void *allocate(int level);
@@ -338,8 +338,7 @@ void SkipList_PoolManager::deallocate(Pool *pool, void *node)
 }
 
 inline
-void SkipList_PoolManager::initPool(
-    Pool *pool, int level, int objectSize)
+void SkipList_PoolManager::initPool(Pool *pool, int level, int objectSize)
 {
     pool->d_freeList = 0;
     pool->d_objectSize = objectSize;
@@ -347,10 +346,9 @@ void SkipList_PoolManager::initPool(
     pool->d_level = level;
 }
 
-SkipList_PoolManager::SkipList_PoolManager(
-    int              *objectSizes,
-    int               numPools,
-    bslma::Allocator *basicAllocator)
+SkipList_PoolManager::SkipList_PoolManager(int              *objectSizes,
+                                           int               numPools,
+                                           bslma::Allocator *basicAllocator)
 : d_blockList(basicAllocator)
 {
     BSLS_ASSERT(numPools > 0);
@@ -397,18 +395,17 @@ void SkipList_PoolUtil::deallocate(PoolManager *poolManager, void *node)
 }
 
 SkipList_PoolManager *SkipList_PoolUtil::createPoolManager(
-    int              *objectSizes,
-    int               numPools,
-    bslma::Allocator *basicAllocator)
+                                              int              *objectSizes,
+                                              int               numPools,
+                                              bslma::Allocator *basicAllocator)
 {
     return new (*basicAllocator) PoolManager(objectSizes,
                                              numPools,
                                              basicAllocator);
 }
 
-void SkipList_PoolUtil::deletePoolManager(
-    bslma::Allocator *basicAllocator,
-    PoolManager      *poolManager)
+void SkipList_PoolUtil::deletePoolManager(bslma::Allocator *basicAllocator,
+                                          PoolManager      *poolManager)
 {
     basicAllocator->deleteObject(poolManager);
 }
