@@ -59,10 +59,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BDLT_CURRENTTIME
-#include <bdlt_currenttime.h>
-#endif
-
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif

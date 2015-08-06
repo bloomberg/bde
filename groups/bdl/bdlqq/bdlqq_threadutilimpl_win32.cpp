@@ -12,7 +12,6 @@ BSLS_IDENT_RCSID(bdlqq_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bdlqq_threadattributes.h>
 
 #include <bsls_systemclocktype.h>
-#include <bdlt_currenttime.h>
 
 #include <bsl_cstring.h>  // 'memcpy'
 

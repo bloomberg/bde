@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(bdlqq_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>

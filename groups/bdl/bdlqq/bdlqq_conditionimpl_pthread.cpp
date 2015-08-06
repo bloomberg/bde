@@ -6,17 +6,18 @@ BSLS_IDENT_RCSID(bdlqq_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_saturatedtimeconversionimputil.h>
 
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 
+namespace {
+
 #if !defined(BSLS_PLATFORM_OS_DARWIN)
 // Set the condition clock type, except on Darwin which doesn't support it.
 
-namespace {
 
 class CondAttr {
     // This class is a thin wrapper over 'pthread_condattr_t' structure which
