@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace defining enumeration functions.
 //
 //@CLASSES:
-//  bdeat_EnumFunctions: namespace for calling enumeration functions
+//  bdlat_EnumFunctions: namespace for calling enumeration functions
 //
 //@SEE_ALSO:
 //
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: The 'bdeat_EnumFunctions' 'namespace' provided in this
+//@DESCRIPTION: The 'bdlat_EnumFunctions' 'namespace' provided in this
 // component defines parameterized functions that expose "enumeration" behavior
 // for "enumeration" types.  See the package-level documentation for a full
 // description of "enumeration" types.  The functions in this namespace allow
@@ -31,13 +31,13 @@ BSLS_IDENT("$Id: $")
 //..
 // Also, the meta-function 'IsEnumeration' contains a compile-time constant
 // 'VALUE' that is non-zero if the parameterized 'TYPE' exposes "enumeration"
-// behavior through the 'bdeat_EnumFunctions' 'namespace'.
+// behavior through the 'bdlat_EnumFunctions' 'namespace'.
 //
 // This component specializes all of these functions for types that have the
-// 'bdeat_TypeTraitBasicEnumeration' trait.
+// 'bdlat_TypeTraitBasicEnumeration' trait.
 //
-// Types that do not have the 'bdeat_TypeTraitBasicEnumeration' trait may have
-// the functions in the 'bdeat_EnumFunctions' 'namespace' specialized for them.
+// Types that do not have the 'bdlat_TypeTraitBasicEnumeration' trait may have
+// the functions in the 'bdlat_EnumFunctions' 'namespace' specialized for them.
 // An example of this is provided in the 'Usage' section of this document.
 //
 ///Usage
@@ -61,18 +61,18 @@ BSLS_IDENT("$Id: $")
 // };
 //..
 // We can now make 'MyEnum' expose "enumeration" behavior by implementing
-// all the necessary 'bdeat_enum*' functions for 'MyEnum' inside the 'mine
+// all the necessary 'bdlat_enum*' functions for 'MyEnum' inside the 'mine
 // namespace'.  First we should forward declare all the functions that we
 // will implement inside the 'mine' namespace:
 //..
 //      // MANIPULATORS
-//      int bdeat_enumFromInt(MyEnum *result, int number);
+//      int bdlat_enumFromInt(MyEnum *result, int number);
 //          // Load into the specified 'result' the enumerator matching the
 //          // specified 'number'.  Return 0 on success, and a non-zero value
 //          // with no effect on 'result' if 'number' does not match any
 //          // enumerator.
 //
-//      int bdeat_enumFromString(MyEnum *result,
+//      int bdlat_enumFromString(MyEnum *result,
 //                               const char *string, int stringLength);
 //          // Load into the specified 'result' the enumerator matching the
 //          // specified 'string' of the specified 'stringLength'.  Return 0 on
@@ -80,12 +80,12 @@ BSLS_IDENT("$Id: $")
 //          // 'string' and 'stringLength' do not match any enumerator.
 //
 //      // ACCESSORS
-//      void bdeat_enumToInt(int *result, const MyEnum& value);
+//      void bdlat_enumToInt(int *result, const MyEnum& value);
 //          // Return the integer representation exactly matching the
 //          // enumerator name corresponding to the specified enumeration
 //          // 'value'.
 //
-//      void bdeat_enumToString(bsl::string *result, const MyEnum& value);
+//      void bdlat_enumToString(bsl::string *result, const MyEnum& value);
 //          // Return the string representation exactly matching the enumerator
 //          // name corresponding to the specified enumeration 'value'.
 //
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //
 //  inline
-//  int mine::bdeat_enumFromInt(MyEnum *result, int number)
+//  int mine::bdlat_enumFromInt(MyEnum *result, int number)
 //  {
 //      enum { SUCCESS = 0, NOT_FOUND = -1 };
 //
@@ -123,7 +123,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  int mine::bdeat_enumFromString(MyEnum    *result,
+//  int mine::bdlat_enumFromString(MyEnum    *result,
 //                                 const char *string,
 //                                 int         stringLength)
 //  {
@@ -158,12 +158,12 @@ BSLS_IDENT("$Id: $")
 //
 //  // ACCESSORS
 //
-//  void mine::bdeat_enumToInt(int *result, const MyEnum& value)
+//  void mine::bdlat_enumToInt(int *result, const MyEnum& value)
 //  {
 //      *result = static_cast<int>(value);
 //  }
 //
-//  void mine::bdeat_enumToString(bsl::string    *result, const MyEnum&  value)
+//  void mine::bdlat_enumToString(bsl::string    *result, const MyEnum&  value)
 //  {
 //      switch (value) {
 //        case RED: {
@@ -182,20 +182,20 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Finally, we need to specialize the 'IsEnum' meta-function in the
-// 'bdeat_EnumFunctions' namespace for the 'mine::MyEnum' type.  This makes the
-// 'bdeat' infrastructure recognize 'MyEnum' as an enumeration abstraction:
+// 'bdlat_EnumFunctions' namespace for the 'mine::MyEnum' type.  This makes the
+// 'bdlat' infrastructure recognize 'MyEnum' as an enumeration abstraction:
 //..
-//  namespace bdeat_EnumFunctions {
+//  namespace bdlat_EnumFunctions {
 //
 //      template <>
 //      struct IsEnumeration<mine::MyEnum> {
 //          enum { VALUE = 1 };
 //      };
 //
-//  }  // close namespace 'bdeat_EnumFunctions'
+//  }  // close namespace 'bdlat_EnumFunctions'
 //  }  // close namespace 'BloombergLP'
 //..
-// The 'bdeat' infrastructure (and any component that uses this infrastructure)
+// The 'bdlat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'MyEnum' as an "enumeration" type.  For example, suppose
 // we have the following XML data:
 //..
@@ -224,7 +224,7 @@ BSLS_IDENT("$Id: $")
 //      assert(GREEN == object);
 //  }
 //..
-// Note that the 'bdeat' framework can be used for functionality other than
+// Note that the 'bdlat' framework can be used for functionality other than
 // encoding/decoding into XML.  When 'mine::MyEnum' is plugged into the
 // framework, then it will be automatically usable within the framework.
 // For example, the following snippets of code will convert a string from a
@@ -236,7 +236,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::string value;
 //      stream >> value;
 //
-//      return bdeat_EnumType::fromString(object, value);
+//      return bdlat_EnumType::fromString(object, value);
 //  }
 //..
 // Now we have a generic function that takes an input stream and a 'Cusip'
@@ -262,6 +262,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
 #endif
 
 #ifndef INCLUDED_BDLAT_TYPETRAITS
@@ -295,10 +299,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
                       // =============================
-                      // namespace bdeat_EnumFunctions
+                      // namespace bdlat_EnumFunctions
                       // =============================
 
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
     // This 'namespace' provides functions that expose "enumeration" behavior
     // for "enumeration" types.  See the component-level documentation for more
     // information.
@@ -306,7 +310,7 @@ namespace bdeat_EnumFunctions {
     // META-FUNCTIONS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     bslmf::MetaInt<0> isEnumerationMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
@@ -317,7 +321,7 @@ namespace bdeat_EnumFunctions {
         // 'IsEnumeration' meta-function.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-    template <typename TYPE>
+    template <class TYPE>
     struct IsEnumeration {
         // This 'struct' should be specialized for third-party types that need
         // to expose "enumeration" behavior.  See the component-level
@@ -325,7 +329,7 @@ namespace bdeat_EnumFunctions {
 
         enum {
             VALUE = bslalg::HasTrait<TYPE,
-                                    bdeat_TypeTraitBasicEnumeration>::VALUE
+                                    bdlat_TypeTraitBasicEnumeration>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isEnumerationMetaFunction(
                                                   bslmf::TypeRep<TYPE>::rep()))
@@ -334,13 +338,13 @@ namespace bdeat_EnumFunctions {
     };
 
     // MANIPULATORS
-    template <typename TYPE>
+    template <class TYPE>
     int fromInt(TYPE *result, int number);
         // Load into the specified 'result' the enumerator matching the
         // specified 'number'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' if 'number' does not match any enumerator.
 
-    template <typename TYPE>
+    template <class TYPE>
     int fromString(TYPE *result, const char *string, int stringLength);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string' of the specified 'stringLength'.  Return 0 on
@@ -348,12 +352,12 @@ namespace bdeat_EnumFunctions {
         // and 'stringLength' do not match any enumerator.
 
     // ACCESSORS
-    template <typename TYPE>
+    template <class TYPE>
     void toInt(int *result, const TYPE& value);
         // Return the integer representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
-    template <typename TYPE>
+    template <class TYPE>
     void toString(bsl::string *result, const TYPE& value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
@@ -366,70 +370,70 @@ namespace bdeat_EnumFunctions {
     // these functions directly.  Use the functions above instead.
 
     // MANIPULATORS
-    template <typename TYPE>
-    int bdeat_enumFromInt(TYPE *result, int number);
-    template <typename TYPE>
-    int bdeat_enumFromString(TYPE       *result,
+    template <class TYPE>
+    int bdlat_enumFromInt(TYPE *result, int number);
+    template <class TYPE>
+    int bdlat_enumFromString(TYPE       *result,
                              const char *string,
                              int         stringLength);
 
     // ACCESSORS
-    template <typename TYPE>
-    void bdeat_enumToInt(int *result, const TYPE& value);
-    template <typename TYPE>
-    void bdeat_enumToString(bsl::string *result, const TYPE& value);
+    template <class TYPE>
+    void bdlat_enumToInt(int *result, const TYPE& value);
+    template <class TYPE>
+    void bdlat_enumToString(bsl::string *result, const TYPE& value);
 #endif
 
-}  // close namespace bdeat_EnumFunctions
+}  // close namespace bdlat_EnumFunctions
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                       // -----------------------------
-                      // namespace bdeat_EnumFunctions
+                      // namespace bdlat_EnumFunctions
                       // -----------------------------
 
 // MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_EnumFunctions::fromInt(TYPE *result, int number)
+int bdlat_EnumFunctions::fromInt(TYPE *result, int number)
 {
-    return bdeat_enumFromInt(result, number);
+    return bdlat_enumFromInt(result, number);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_EnumFunctions::fromString(TYPE       *result,
+int bdlat_EnumFunctions::fromString(TYPE       *result,
                                     const char *string,
                                     int         stringLength)
 {
-    return bdeat_enumFromString(result, string, stringLength);
+    return bdlat_enumFromString(result, string, stringLength);
 }
 
 // ACCESSORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_EnumFunctions::toInt(int *result, const TYPE& value)
+void bdlat_EnumFunctions::toInt(int *result, const TYPE& value)
 {
-    bdeat_enumToInt(result, value);
+    bdlat_enumToInt(result, value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_EnumFunctions::toString(bsl::string *result, const TYPE& value)
+void bdlat_EnumFunctions::toString(bsl::string *result, const TYPE& value)
 {
-    bdeat_enumToString(result, value);
+    bdlat_enumToString(result, value);
 }
 
            // ------------------------------------------------------
-           // namespace bdeat_EnumFunctions (OVERLOADABLE FUNCTIONS)
+           // namespace bdlat_EnumFunctions (OVERLOADABLE FUNCTIONS)
            // ------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-namespace bdeat_EnumFunctions {
+namespace bdlat_EnumFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of
     // the template function *definition* (not instantiation).  We work around
@@ -444,81 +448,79 @@ namespace bdeat_EnumFunctions {
 
     // MANIPULATORS
     template <typename TYPE>
-    int bdeat_enumFromInt(TYPE *result, int number);
+    int bdlat_enumFromInt(TYPE *result, int number);
     template <typename TYPE>
-    int bdeat_enumFromString(TYPE       *result,
+    int bdlat_enumFromString(TYPE       *result,
                              const char *string,
                              int         stringLength);
 
     // ACCESSORS
     template <typename TYPE>
-    void bdeat_enumToInt(int *result, const TYPE& value);
+    void bdlat_enumToInt(int *result, const TYPE& value);
     template <typename TYPE>
-    void bdeat_enumToString(bsl::string *result, const TYPE& value);
+    void bdlat_enumToString(bsl::string *result, const TYPE& value);
 
-} // Close namespace bdeat_EnumFunctions
+} // Close namespace bdlat_EnumFunctions
 #endif
 
 // MANIPULATORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_EnumFunctions::bdeat_enumFromInt(TYPE *result, int number)
+int bdlat_EnumFunctions::bdlat_enumFromInt(TYPE *result, int number)
 {
-    BSLMF_ASSERT(bdeat_IsBasicEnumeration<TYPE>::value);
+    BSLMF_ASSERT(bdlat_IsBasicEnumeration<TYPE>::value);
 
-    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     return Wrapper::fromInt(result, number);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_EnumFunctions::bdeat_enumFromString(TYPE       *result,
+int bdlat_EnumFunctions::bdlat_enumFromString(TYPE       *result,
                                               const char *string,
                                               int         stringLength)
 {
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     return Wrapper::fromString(result, string, stringLength);
 }
 
 // ACCESSORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_EnumFunctions::bdeat_enumToInt(int *result, const TYPE& value)
+void bdlat_EnumFunctions::bdlat_enumToInt(int *result, const TYPE& value)
 {
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
 
     *result = static_cast<int>(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_EnumFunctions::bdeat_enumToString(bsl::string *result,
+void bdlat_EnumFunctions::bdlat_enumToString(bsl::string *result,
                                              const TYPE&  value)
 {
     BSLMF_ASSERT(
-             (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE));
+             (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE));
 
-    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     *result = Wrapper::toString(value);
 }
 
-}  // close namespace BloombergLP
-
-
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

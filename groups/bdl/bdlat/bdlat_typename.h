@@ -1,4 +1,4 @@
-// bdlat_typename.h          -*-C++-*-
+// bdlat_typename.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLAT_TYPENAME
 #define INCLUDED_BDLAT_TYPENAME
 
@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide string representations for data type names.
 //
 //@CLASSES:
-//  bdeat_TypeName: namespace for type-name functions
+//  bdlat_TypeName: namespace for type-name functions
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/#built-in-datatypes
 //
-//@DESCRIPTION: This component defines a structure 'bdeat_TypeName' which
+//@DESCRIPTION: This component defines a structure 'bdlat_TypeName' which
 // provides a namespace for functions returning information about the object
 // types.  Functions in this namespace allow users to get access to three
 // categories of information:
@@ -31,22 +31,22 @@ BSLS_IDENT("$Id: $")
 // metadata associated with given object type.  Metadata is available for
 // the C++ types that have one the following traits:
 //..
-//  'bdeat_TypeTraitBasicChoice'
-//  'bdeat_TypeTraitBasicSequence'
-//  'bdeat_TypeTraitBasicCustomizedType'
-//  'bdeat_TypeTraitBasicEnumeration'
+//  'bdlat_TypeTraitBasicChoice'
+//  'bdlat_TypeTraitBasicSequence'
+//  'bdlat_TypeTraitBasicCustomizedType'
+//  'bdlat_TypeTraitBasicEnumeration'
 //..
 // If metadata is not available for the object type, the function 'className'
-// returns 0 unless the function 'bdeat_TypeName_className' is overloaded by
+// returns 0 unless the function 'bdlat_TypeName_className' is overloaded by
 // developer.
 //
 ///Overloable Class Name Functions For User Defined Classes
 ///--------------------------------------------------------
 // To provide the custom name for the given user-defined C++ class, the
-// developer should overload the template function 'bdeat_TypeName_className'
+// developer should overload the template function 'bdlat_TypeName_className'
 // for this type in the namespace where the type is defined.
 //
-//WARNING! Do not extend 'bdeat_TypeName_Overloadable' namespace.
+//WARNING! Do not extend 'bdlat_TypeName_Overloadable' namespace.
 //
 ///Generic Type Name Information
 ///-----------------------------
@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // object.  The generic type name is one of the following:
 //..
 //  o predefined name for fundamental types
-//  o class name from 'bdeat_TypeName_className', if such function returns a
+//  o class name from 'bdlat_TypeName_className', if such function returns a
 //    non-null value
 //  o name obtained from 'type_info' object provided by C++ runtime, if no
 //    class name is available
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 // following:
 //..
 //   o predefined name for built-in XSD types
-//   o class name from 'bdeat_TypeName_className', if such function returns
+//   o class name from 'bdlat_TypeName_className', if such function returns
 //     a non-null value
 //   o the "anyType" string, if no class name is available
 //..
@@ -111,11 +111,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main() {
 //
-//      static const int DEFAULT = bdeat_FormattingMode::DEFAULT;
-//      static const int DEC     = bdeat_FormattingMode::DEC;
-//      static const int HEX     = bdeat_FormattingMode::HEX;
-//      static const int BASE64  = bdeat_FormattingMode::BASE64;
-//      static const int TEXT    = bdeat_FormattingMode::TEXT;
+//      static const int DEFAULT = bdlat_FormattingMode::DEFAULT;
+//      static const int DEC     = bdlat_FormattingMode::DEC;
+//      static const int HEX     = bdlat_FormattingMode::HEX;
+//      static const int BASE64  = bdlat_FormattingMode::BASE64;
+//      static const int TEXT    = bdlat_FormattingMode::TEXT;
 //
 //      short                    theShort;
 //      unsigned                 theUint;
@@ -131,36 +131,36 @@ BSLS_IDENT("$Id: $")
 // None of these types are generated types with metadata, so 'className' will
 // return a null pointer for each of them:
 //..
-//      assert(0 == bdeat_TypeName::className(theShort));
-//      assert(0 == bdeat_TypeName::className(theUint));
-//      assert(0 == bdeat_TypeName::className(theFloat));
-//      assert(0 == bdeat_TypeName::className(theCharPtr));
-//      assert(0 == bdeat_TypeName::className(theString));
+//      assert(0 == bdlat_TypeName::className(theShort));
+//      assert(0 == bdlat_TypeName::className(theUint));
+//      assert(0 == bdlat_TypeName::className(theFloat));
+//      assert(0 == bdlat_TypeName::className(theCharPtr));
+//      assert(0 == bdlat_TypeName::className(theString));
 //
-//      assert(0 == bdeat_TypeName::className(theDate));
-//      assert(0 == bdeat_TypeName::className(theDatetime));
-//      assert(0 == bdeat_TypeName::className(theCharVector));
-//      assert(0 == bdeat_TypeName::className(theStrVector));
+//      assert(0 == bdlat_TypeName::className(theDate));
+//      assert(0 == bdlat_TypeName::className(theDatetime));
+//      assert(0 == bdlat_TypeName::className(theCharVector));
+//      assert(0 == bdlat_TypeName::className(theStrVector));
 //..
 // The 'name' function will never return a null pointer.  For each of the
 // fundamental and vocabulary types, it returns the known type name.  For
 // vector types, it returns the appropriate "vector<X>" string:
 //..
-//      assert(0 == bsl::strcmp("short", bdeat_TypeName::name(theShort)));
+//      assert(0 == bsl::strcmp("short", bdlat_TypeName::name(theShort)));
 //      assert(0 == bsl::strcmp("unsigned int",
-//                              bdeat_TypeName::name(theUint)));
-//      assert(0 == bsl::strcmp("float", bdeat_TypeName::name(theFloat)));
+//                              bdlat_TypeName::name(theUint)));
+//      assert(0 == bsl::strcmp("float", bdlat_TypeName::name(theFloat)));
 //      assert(0 == bsl::strcmp("const char*",
-//                              bdeat_TypeName::name(theCharPtr)));
+//                              bdlat_TypeName::name(theCharPtr)));
 //
-//      assert(0 == bsl::strcmp("string", bdeat_TypeName::name(theString)));
-//      assert(0 == bsl::strcmp("bdlt::Date", bdeat_TypeName::name(theDate)));
+//      assert(0 == bsl::strcmp("string", bdlat_TypeName::name(theString)));
+//      assert(0 == bsl::strcmp("bdlt::Date", bdlat_TypeName::name(theDate)));
 //      assert(0 == bsl::strcmp("bdlt::DatetimeTz",
-//                              bdeat_TypeName::name(theDatetime)));
+//                              bdlat_TypeName::name(theDatetime)));
 //      assert(0 == bsl::strcmp("vector<char>",
-//                              bdeat_TypeName::name(theCharVector)));
+//                              bdlat_TypeName::name(theCharVector)));
 //      assert(0 == bsl::strcmp("vector<string>",
-//                              bdeat_TypeName::name(theStrVector)));
+//                              bdlat_TypeName::name(theStrVector)));
 //..
 // Each of the above types except 'vector<string>' has one or more
 // corresponding XSD types.  The XSD type is affected by a formatting mode so
@@ -169,23 +169,23 @@ BSLS_IDENT("$Id: $")
 // 'HEX' or 'BASE64').
 //..
 //      assert(0 == bsl::strcmp("short",
-//                              bdeat_TypeName::xsdName(theShort, DEFAULT)));
+//                              bdlat_TypeName::xsdName(theShort, DEFAULT)));
 //      assert(0 == bsl::strcmp("unsignedInt",
-//                              bdeat_TypeName::xsdName(theUint, DEFAULT)));
+//                              bdlat_TypeName::xsdName(theUint, DEFAULT)));
 //      assert(0 == bsl::strcmp("float",
-//                              bdeat_TypeName::xsdName(theFloat, DEFAULT)));
+//                              bdlat_TypeName::xsdName(theFloat, DEFAULT)));
 //      assert(0 == bsl::strcmp("decimal",
-//                              bdeat_TypeName::xsdName(theFloat, DEC)));
+//                              bdlat_TypeName::xsdName(theFloat, DEC)));
 //      assert(0 == bsl::strcmp("base64Binary",
-//                           bdeat_TypeName::xsdName(theCharVector, DEFAULT)));
+//                           bdlat_TypeName::xsdName(theCharVector, DEFAULT)));
 //      assert(0 == bsl::strcmp("string",
-//                              bdeat_TypeName::xsdName(theCharVector, TEXT)));
+//                              bdlat_TypeName::xsdName(theCharVector, TEXT)));
 //..
 // For types that have not corresponding XSD type, 'xsdName' returns
 // "anyType", regardless of formatting mode:
 //..
 //      assert(0 == bsl::strcmp("anyType",
-//                            bdeat_TypeName::xsdName(theStrVector, DEFAULT)));
+//                            bdlat_TypeName::xsdName(theStrVector, DEFAULT)));
 //
 //      return 0;
 //  }
@@ -199,30 +199,30 @@ BSLS_IDENT("$Id: $")
 //      };
 //..
 // Then we can assign it a printable name by overloading the
-// 'bdeat_TypeName_className' function in the class's namespace:
+// 'bdlat_TypeName_className' function in the class's namespace:
 //..
-//      const char *bdeat_TypeName_className(const MyClass&) {
+//      const char *bdlat_TypeName_className(const MyClass&) {
 //          return "MyClass";
 //      }
 //
 //  } // Close MyNamespace
 //..
-// Note that 'bdeat_TypeName_className' must return a string that is
+// Note that 'bdlat_TypeName_className' must return a string that is
 // valid and does not change for remaining duration the program.  The
-// overloaded 'bdeat_TypeName_className' function is automatically used for
+// overloaded 'bdlat_TypeName_className' function is automatically used for
 // 'name' and 'xsdName', as well as for 'className':
 //..
 //  int main()
 //  {
-//      static const int DEFAULT = bdeat_FormattingMode::DEFAULT;
+//      static const int DEFAULT = bdlat_FormattingMode::DEFAULT;
 //
 //      MyNamespace::MyClass myClassObj;
 //
 //      assert(0 == bsl::strcmp("MyClass",
-//                              bdeat_TypeName::className(myClassObj)));
-//      assert(0 == bsl::strcmp("MyClass", bdeat_TypeName::name(myClassObj)));
+//                              bdlat_TypeName::className(myClassObj)));
+//      assert(0 == bsl::strcmp("MyClass", bdlat_TypeName::name(myClassObj)));
 //      assert(0 == bsl::strcmp("MyClass",
-//                              bdeat_TypeName::xsdName(myClassObj, DEFAULT)));
+//                              bdlat_TypeName::xsdName(myClassObj, DEFAULT)));
 //
 //      return 0;
 //  }
@@ -230,6 +230,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
 #endif
 
 #ifndef INCLUDED_BDLAT_FORMATTINGMODE
@@ -289,55 +293,55 @@ namespace BloombergLP {
 namespace bdlt { class Date; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Date Date;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DateTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DateTz DateTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Datetime; }                              // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class Time; }                                  // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::Time Time;                    // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
 namespace bdlt { class TimeTz; }                                // bdet -> bdlt
 
 namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bdet -> bdlt
-}  // close package namespace
+}  // close namespace bdet
 
                           // =====================
-                          // struct bdeat_TypeName
+                          // struct bdlat_TypeName
                           // =====================
 
-struct bdeat_TypeName {
+struct bdlat_TypeName {
     // Static template functions for returning a string representation for the
     // name of a type.
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *className(const TYPE& object);
         // Return a null-terminated string containing the exported name for
         // the specified 'TYPE', or a 0 pointer if 'TYPE' does not export a
         // name.  A type exports a name by overloading the function
-        // 'bdeat_TypeName_className(const TYPE&)' in TYPE's namespace.  The
-        // default implementation of 'bdeat_TypeName_className' will
+        // 'bdlat_TypeName_className(const TYPE&)' in TYPE's namespace.  The
+        // default implementation of 'bdlat_TypeName_className' will
         // automatically return the 'CLASS_NAME' value for types that have the
-        // 'bdeat_TypeTraitBasicChoice', 'bdeat_TypeTraitBasicSequence',
-        // 'bdeat_TypeTraitBasicCustomizedType', or
-        // 'bdeat_TypeTraitBasicEnumeration' trait (i.e., types generated
+        // 'bdlat_TypeTraitBasicChoice', 'bdlat_TypeTraitBasicSequence',
+        // 'bdlat_TypeTraitBasicCustomizedType', or
+        // 'bdlat_TypeTraitBasicEnumeration' trait (i.e., types generated
         // using 'bas_codegen.pl').
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *name(const TYPE& object);
         // Return a null-terminated string containing the name of the
         // specified 'TYPE'.  If 'TYPE' is a fundamental type, string, date,
@@ -347,14 +351,14 @@ struct bdeat_TypeName {
         // 'typeid(TYPE).name()'.  Note that the returned name refers to the
         // *static* 'TYPE', not to the dynamic type of 'object'.
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *xsdName(const TYPE& object, int format);
         // Return a null-terminated text string containing the name of the the
         // specified 'TYPE' with the specified 'format' as it would appear in
         // an XML Schema (XSD) element declaration.  The 'format' is
         // interpreted as the bit-wise OR of one or more of the values defined
         // in the 'bdlat_formattingmode' component.  Formatting mode bits
-        // outside of 'bdeat_FormattingMode::TYPE_MASK' are ignored.  If
+        // outside of 'bdlat_FormattingMode::TYPE_MASK' are ignored.  If
         // 'object' corresponds to one of the XSD built-in types, then return
         // the XSD type's name.  Otherwise, if 'className(object)' returns a
         // non-null value, then return that value.  Otherwise, return
@@ -362,104 +366,104 @@ struct bdeat_TypeName {
         // for the specified 'TYPE'.
 };
 
-namespace bdeat_TypeName_Overloadable {
+namespace bdlat_TypeName_Overloadable {
     // Namespace that provides default implementations.
 
-    template <typename TYPE>
-    const char *bdeat_TypeName_className(const TYPE& object);
+    template <class TYPE>
+    const char *bdlat_TypeName_className(const TYPE& object);
         // Default implementation for 'className'
 
-    template <typename TYPE>
-    const char *bdeat_TypeName_name(const TYPE& object);
+    template <class TYPE>
+    const char *bdlat_TypeName_name(const TYPE& object);
         // Default implementation for 'name'
 
-    template <typename TYPE>
-    const char *bdeat_TypeName_xsdName(const TYPE& object, int format);
+    template <class TYPE>
+    const char *bdlat_TypeName_xsdName(const TYPE& object, int format);
         // Default implementation for 'xsdName'
-}
+}  // close namespace bdlat_TypeName_Overloadable
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 
                           // =========================
-                          // struct bdeat_TypeName_Imp
+                          // struct bdlat_TypeName_Imp
                           // =========================
 
-struct bdeat_TypeName_Imp {
-    // Private class providing implementation of 'bdeat_TypeName'.
+struct bdlat_TypeName_Imp {
+    // Private class providing implementation of 'bdlat_TypeName'.
 
   private:
     // PRIVATE TYPES
-    typedef bdeat_FormattingMode FMode;
+    typedef bdlat_FormattingMode FMode;
 
     struct HasClassName       { };
     struct IsBasicEnumeration { };
     struct Other              { };
 
     // PRIVATE CLASS METHODS
-    template <typename TYPE>
+    template <class TYPE>
     static const char *classNameImp(const TYPE *object, HasClassName);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *classNameImp(const TYPE *object, IsBasicEnumeration);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *classNameImp(const TYPE *object, Other);
 
     // PRIVATE CLASS DATA
-    static const char BDEAT_NAME_BOOL[];
-    static const char BDEAT_NAME_CHAR[];
-    static const char BDEAT_NAME_SIGNED_CHAR[];
-    static const char BDEAT_NAME_UNSIGNED_CHAR[];
-    static const char BDEAT_NAME_SHORT[];
-    static const char BDEAT_NAME_UNSIGNED_SHORT[];
-    static const char BDEAT_NAME_INT[];
-    static const char BDEAT_NAME_UNSIGNED_INT[];
-    static const char BDEAT_NAME_LONG[];
-    static const char BDEAT_NAME_UNSIGNED_LONG[];
-    static const char BDEAT_NAME_INT64[];
-    static const char BDEAT_NAME_UINT64[];
-    static const char BDEAT_NAME_FLOAT[];
-    static const char BDEAT_NAME_DOUBLE[];
-    static const char BDEAT_NAME_CONST_CHAR_PTR[];
-    static const char BDEAT_NAME_CONST_SIGNED_CHAR_PTR[];
-    static const char BDEAT_NAME_CONST_UNSIGNED_CHAR_PTR[];
-    static const char BDEAT_NAME_STRING[];
-    static const char BDEAT_NAME_DATE[];
-    static const char BDEAT_NAME_DATE_TZ[];
-    static const char BDEAT_NAME_DATETIME[];
-    static const char BDEAT_NAME_DATETIME_TZ[];
-    static const char BDEAT_NAME_TIME[];
-    static const char BDEAT_NAME_TIME_TZ[];
-    static const char BDEAT_NAME_VECTOR_BEGIN[];
-    static const char BDEAT_NAME_VECTOR_END[];
+    static const char BDLAT_NAME_BOOL[];
+    static const char BDLAT_NAME_CHAR[];
+    static const char BDLAT_NAME_SIGNED_CHAR[];
+    static const char BDLAT_NAME_UNSIGNED_CHAR[];
+    static const char BDLAT_NAME_SHORT[];
+    static const char BDLAT_NAME_UNSIGNED_SHORT[];
+    static const char BDLAT_NAME_INT[];
+    static const char BDLAT_NAME_UNSIGNED_INT[];
+    static const char BDLAT_NAME_LONG[];
+    static const char BDLAT_NAME_UNSIGNED_LONG[];
+    static const char BDLAT_NAME_INT64[];
+    static const char BDLAT_NAME_UINT64[];
+    static const char BDLAT_NAME_FLOAT[];
+    static const char BDLAT_NAME_DOUBLE[];
+    static const char BDLAT_NAME_CONST_CHAR_PTR[];
+    static const char BDLAT_NAME_CONST_SIGNED_CHAR_PTR[];
+    static const char BDLAT_NAME_CONST_UNSIGNED_CHAR_PTR[];
+    static const char BDLAT_NAME_STRING[];
+    static const char BDLAT_NAME_DATE[];
+    static const char BDLAT_NAME_DATE_TZ[];
+    static const char BDLAT_NAME_DATETIME[];
+    static const char BDLAT_NAME_DATETIME_TZ[];
+    static const char BDLAT_NAME_TIME[];
+    static const char BDLAT_NAME_TIME_TZ[];
+    static const char BDLAT_NAME_VECTOR_BEGIN[];
+    static const char BDLAT_NAME_VECTOR_END[];
 
-    static const char BDEAT_XSDNAME_BOOLEAN[];
-    static const char BDEAT_XSDNAME_BYTE[];
-    static const char BDEAT_XSDNAME_UNSIGNED_BYTE[];
-    static const char BDEAT_XSDNAME_SHORT[];
-    static const char BDEAT_XSDNAME_UNSIGNED_SHORT[];
-    static const char BDEAT_XSDNAME_INT[];
-    static const char BDEAT_XSDNAME_UNSIGNED_INT[];
-    static const char BDEAT_XSDNAME_LONG[];
-    static const char BDEAT_XSDNAME_UNSIGNED_LONG[];
-    static const char BDEAT_XSDNAME_FLOAT[];
-    static const char BDEAT_XSDNAME_DOUBLE[];
-    static const char BDEAT_XSDNAME_DECIMAL[];
-    static const char BDEAT_XSDNAME_STRING[];
-    static const char BDEAT_XSDNAME_BASE64_BINARY[];
-    static const char BDEAT_XSDNAME_HEX_BINARY[];
-    static const char BDEAT_XSDNAME_DATE[];
-    static const char BDEAT_XSDNAME_DATETIME[];
-    static const char BDEAT_XSDNAME_TIME[];
-    static const char BDEAT_XSDNAME_ANY_TYPE[];
+    static const char BDLAT_XSDNAME_BOOLEAN[];
+    static const char BDLAT_XSDNAME_BYTE[];
+    static const char BDLAT_XSDNAME_UNSIGNED_BYTE[];
+    static const char BDLAT_XSDNAME_SHORT[];
+    static const char BDLAT_XSDNAME_UNSIGNED_SHORT[];
+    static const char BDLAT_XSDNAME_INT[];
+    static const char BDLAT_XSDNAME_UNSIGNED_INT[];
+    static const char BDLAT_XSDNAME_LONG[];
+    static const char BDLAT_XSDNAME_UNSIGNED_LONG[];
+    static const char BDLAT_XSDNAME_FLOAT[];
+    static const char BDLAT_XSDNAME_DOUBLE[];
+    static const char BDLAT_XSDNAME_DECIMAL[];
+    static const char BDLAT_XSDNAME_STRING[];
+    static const char BDLAT_XSDNAME_BASE64_BINARY[];
+    static const char BDLAT_XSDNAME_HEX_BINARY[];
+    static const char BDLAT_XSDNAME_DATE[];
+    static const char BDLAT_XSDNAME_DATETIME[];
+    static const char BDLAT_XSDNAME_TIME[];
+    static const char BDLAT_XSDNAME_ANY_TYPE[];
 
   public:
     // CLASS METHODS
-    template <typename TYPE>
+    template <class TYPE>
     static const char *className(const TYPE                 *object);
         // Overloads for basic class types.
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *name(const TYPE                      *object);
         // Generic implementation for non-fundamental types.
 
@@ -489,7 +493,7 @@ struct bdeat_TypeName_Imp {
     static const char *name(const bdlt::TimeTz               *object);
         // Overloads for fundamental types and char pointers.
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *name(const bsl::vector<TYPE>         *object);
         // Specialization for vectors.
         // Return the null-terminated string constructed by replacing the "X"
@@ -499,7 +503,7 @@ struct bdeat_TypeName_Imp {
         // may itself be a vector, leading to a recursive call to this
         // function.
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char *xsdName(const TYPE                 *object, int format);
         // Generic implementation for non-fundamental and not predefined types.
 
@@ -546,43 +550,43 @@ struct bdeat_TypeName_Imp {
 // ============================================================================
 
                           // -------------------------
-                          // struct bdeat_TypeName_Imp
+                          // struct bdlat_TypeName_Imp
                           // -------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName_Imp::classNameImp(const TYPE *, HasClassName)
+const char *bdlat_TypeName_Imp::classNameImp(const TYPE *, HasClassName)
 {
     return TYPE::CLASS_NAME;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName_Imp::classNameImp(const TYPE *, IsBasicEnumeration)
+const char *bdlat_TypeName_Imp::classNameImp(const TYPE *, IsBasicEnumeration)
 {
-    typedef typename bdeat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
+    typedef typename bdlat_BasicEnumerationWrapper<TYPE>::Wrapper Wrapper;
     return Wrapper::CLASS_NAME;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName_Imp::classNameImp(const TYPE *, Other)
+const char *bdlat_TypeName_Imp::classNameImp(const TYPE *, Other)
 {
     return 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName_Imp::className(const TYPE *object)
+const char *bdlat_TypeName_Imp::className(const TYPE *object)
 {
     enum {
         HAS_CLASS_NAME =
-             bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicChoice>::VALUE
-           | bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicSequence>::VALUE
-           | bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicCustomizedType>::VALUE,
+             bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicChoice>::VALUE
+           | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
+           | bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::VALUE,
 
         IS_BASIC_ENUMERATION =
-            bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicEnumeration>::VALUE,
+            bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicEnumeration>::VALUE,
 
         SELECTOR = (HAS_CLASS_NAME ? 0 : (IS_BASIC_ENUMERATION ? 1 : 2))
     };
@@ -596,160 +600,160 @@ const char *bdeat_TypeName_Imp::className(const TYPE *object)
     return classNameImp(object, Switch());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName_Imp::name(const TYPE *object)
+const char *bdlat_TypeName_Imp::name(const TYPE *object)
 {
-    const char *cname = bdeat_TypeName::className(*object);
+    const char *cname = bdlat_TypeName::className(*object);
     return cname ? cname : typeid(TYPE).name();
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bool *)
+const char *bdlat_TypeName_Imp::name(const bool *)
 {
-    return BDEAT_NAME_BOOL;
+    return BDLAT_NAME_BOOL;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const char *)
+const char *bdlat_TypeName_Imp::name(const char *)
 {
-    return BDEAT_NAME_CHAR;
+    return BDLAT_NAME_CHAR;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const unsigned char *)
+const char *bdlat_TypeName_Imp::name(const unsigned char *)
 {
-    return BDEAT_NAME_UNSIGNED_CHAR;
+    return BDLAT_NAME_UNSIGNED_CHAR;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const signed char *)
+const char *bdlat_TypeName_Imp::name(const signed char *)
 {
-    return BDEAT_NAME_SIGNED_CHAR;
+    return BDLAT_NAME_SIGNED_CHAR;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const short *)
+const char *bdlat_TypeName_Imp::name(const short *)
 {
-    return BDEAT_NAME_SHORT;
+    return BDLAT_NAME_SHORT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const unsigned short *)
+const char *bdlat_TypeName_Imp::name(const unsigned short *)
 {
-    return BDEAT_NAME_UNSIGNED_SHORT;
+    return BDLAT_NAME_UNSIGNED_SHORT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const int *)
+const char *bdlat_TypeName_Imp::name(const int *)
 {
-    return BDEAT_NAME_INT;
+    return BDLAT_NAME_INT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const unsigned int *)
+const char *bdlat_TypeName_Imp::name(const unsigned int *)
 {
-    return BDEAT_NAME_UNSIGNED_INT;
+    return BDLAT_NAME_UNSIGNED_INT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const long *)
+const char *bdlat_TypeName_Imp::name(const long *)
 {
-    return BDEAT_NAME_LONG;
+    return BDLAT_NAME_LONG;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const unsigned long *)
+const char *bdlat_TypeName_Imp::name(const unsigned long *)
 {
-    return BDEAT_NAME_UNSIGNED_LONG;
+    return BDLAT_NAME_UNSIGNED_LONG;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bsls::Types::Int64 *)
+const char *bdlat_TypeName_Imp::name(const bsls::Types::Int64 *)
 {
-    return BDEAT_NAME_INT64;
+    return BDLAT_NAME_INT64;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bsls::Types::Uint64 *)
+const char *bdlat_TypeName_Imp::name(const bsls::Types::Uint64 *)
 {
-    return BDEAT_NAME_UINT64;
+    return BDLAT_NAME_UINT64;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const float *)
+const char *bdlat_TypeName_Imp::name(const float *)
 {
-    return BDEAT_NAME_FLOAT;
+    return BDLAT_NAME_FLOAT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const double *)
+const char *bdlat_TypeName_Imp::name(const double *)
 {
-    return BDEAT_NAME_DOUBLE;
+    return BDLAT_NAME_DOUBLE;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const char *const *)
+const char *bdlat_TypeName_Imp::name(const char *const *)
 {
-    return BDEAT_NAME_CONST_CHAR_PTR;
+    return BDLAT_NAME_CONST_CHAR_PTR;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const signed char *const *)
+const char *bdlat_TypeName_Imp::name(const signed char *const *)
 {
-    return BDEAT_NAME_CONST_SIGNED_CHAR_PTR;
+    return BDLAT_NAME_CONST_SIGNED_CHAR_PTR;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const unsigned char *const *)
+const char *bdlat_TypeName_Imp::name(const unsigned char *const *)
 {
-    return BDEAT_NAME_CONST_UNSIGNED_CHAR_PTR;
+    return BDLAT_NAME_CONST_UNSIGNED_CHAR_PTR;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bsl::string *)
+const char *bdlat_TypeName_Imp::name(const bsl::string *)
 {
-    return BDEAT_NAME_STRING;
+    return BDLAT_NAME_STRING;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bdlt::Date *)
+const char *bdlat_TypeName_Imp::name(const bdlt::Date *)
 {
-    return BDEAT_NAME_DATE;
+    return BDLAT_NAME_DATE;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bdlt::DateTz *)
+const char *bdlat_TypeName_Imp::name(const bdlt::DateTz *)
 {
-    return BDEAT_NAME_DATE_TZ;
+    return BDLAT_NAME_DATE_TZ;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bdlt::Datetime *)
+const char *bdlat_TypeName_Imp::name(const bdlt::Datetime *)
 {
-    return BDEAT_NAME_DATETIME;
+    return BDLAT_NAME_DATETIME;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bdlt::DatetimeTz *)
+const char *bdlat_TypeName_Imp::name(const bdlt::DatetimeTz *)
 {
-    return BDEAT_NAME_DATETIME_TZ;
+    return BDLAT_NAME_DATETIME_TZ;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bdlt::Time *)
+const char *bdlat_TypeName_Imp::name(const bdlt::Time *)
 {
-    return BDEAT_NAME_TIME;
+    return BDLAT_NAME_TIME;
 }
 
 inline
-const char *bdeat_TypeName_Imp::name(const bdlt::TimeTz *)
+const char *bdlat_TypeName_Imp::name(const bdlt::TimeTz *)
 {
-    return BDEAT_NAME_TIME_TZ;
+    return BDLAT_NAME_TIME_TZ;
 }
 
-template <typename TYPE>
-const char *bdeat_TypeName_Imp::name(const bsl::vector<TYPE> *)
+template <class TYPE>
+const char *bdlat_TypeName_Imp::name(const bsl::vector<TYPE> *)
 {
     static const int MAX_LEN = 100;
     static char name[MAX_LEN + 1];
@@ -761,12 +765,12 @@ const char *bdeat_TypeName_Imp::name(const bsl::vector<TYPE> *)
         // other (i.e., the operations are idempotent).
 
         const char *segments[3] = {
-            (const char*)BDEAT_NAME_VECTOR_BEGIN,
-            bdeat_TypeName::name(*(TYPE*)0),
-            (const char*)BDEAT_NAME_VECTOR_END,
+            (const char*)BDLAT_NAME_VECTOR_BEGIN,
+            bdlat_TypeName::name(*(TYPE*)0),
+            (const char*)BDLAT_NAME_VECTOR_END,
         };
 
-        initialized = bdeat_TypeName_Imp::idempotentConcat(name,
+        initialized = bdlat_TypeName_Imp::idempotentConcat(name,
                                                            MAX_LEN + 1,
                                                            segments,
                                                            3);
@@ -775,275 +779,275 @@ const char *bdeat_TypeName_Imp::name(const bsl::vector<TYPE> *)
     return name;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName_Imp::xsdName(const TYPE *object, int)
+const char *bdlat_TypeName_Imp::xsdName(const TYPE *object, int)
 {
-    const char *cname = bdeat_TypeName::className(*object);
-    return cname ? cname : (const char *)BDEAT_XSDNAME_ANY_TYPE;
+    const char *cname = bdlat_TypeName::className(*object);
+    return cname ? cname : (const char *)BDLAT_XSDNAME_ANY_TYPE;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const bool *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const bool *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_TEXT    == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_TEXT    == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_BOOLEAN;
+    return BDLAT_XSDNAME_BOOLEAN;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const char *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const char *, int format)
 {
     return xsdName((const signed char*)0, format);
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const unsigned short *, int format)
+bdlat_TypeName_Imp::xsdName(const unsigned short *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_UNSIGNED_SHORT;
+    return BDLAT_XSDNAME_UNSIGNED_SHORT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const int *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const int *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_INT;
+    return BDLAT_XSDNAME_INT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const unsigned int *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const unsigned int *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_UNSIGNED_INT;
+    return BDLAT_XSDNAME_UNSIGNED_INT;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const long *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const long *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_INT;
-}
-
-inline
-const char*
-bdeat_TypeName_Imp::xsdName(const unsigned long *, int format)
-{
-    BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK));
-
-    (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_UNSIGNED_INT;
+    return BDLAT_XSDNAME_INT;
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const bsls::Types::Int64 *, int format)
+bdlat_TypeName_Imp::xsdName(const unsigned long *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_LONG;
+    return BDLAT_XSDNAME_UNSIGNED_INT;
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const bsls::Types::Uint64 *, int format)
+bdlat_TypeName_Imp::xsdName(const bsls::Types::Int64 *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK)
-                 || FMode::BDEAT_DEC     == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_UNSIGNED_LONG;
+    return BDLAT_XSDNAME_LONG;
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const char *const *, int format)
+bdlat_TypeName_Imp::xsdName(const bsls::Types::Uint64 *, int format)
+{
+    BSLS_ASSERT_SAFE(
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK)
+                 || FMode::BDLAT_DEC     == (format & FMode::BDLAT_TYPE_MASK));
+
+    (void)format;  // suppress warning if assert is disabled
+    return BDLAT_XSDNAME_UNSIGNED_LONG;
+}
+
+inline
+const char*
+bdlat_TypeName_Imp::xsdName(const char *const *, int format)
 {
     return xsdName((const bsl::string*) 0, format);
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const signed char *const *, int format)
+bdlat_TypeName_Imp::xsdName(const signed char *const *, int format)
 {
     return xsdName((const bsl::string*) 0, format);
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const unsigned char *const *, int format)
+bdlat_TypeName_Imp::xsdName(const unsigned char *const *, int format)
 {
     return xsdName((const bsl::string*) 0, format);
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const bdlt::Date *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const bdlt::Date *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_DATE;
+    return BDLAT_XSDNAME_DATE;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const bdlt::DateTz *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const bdlt::DateTz *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_DATE;
+    return BDLAT_XSDNAME_DATE;
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const bdlt::Datetime *, int format)
+bdlat_TypeName_Imp::xsdName(const bdlt::Datetime *, int format)
 {
     BSLS_ASSERT_SAFE(
-                    FMode::BDEAT_DEFAULT == (format & FMode::BDEAT_TYPE_MASK));
+                    FMode::BDLAT_DEFAULT == (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_DATETIME;
+    return BDLAT_XSDNAME_DATETIME;
 }
 
 inline
 const char*
-bdeat_TypeName_Imp::xsdName(const bdlt::DatetimeTz *, int format)
+bdlat_TypeName_Imp::xsdName(const bdlt::DatetimeTz *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::BDEAT_DEFAULT ==
-                                            (format & FMode::BDEAT_TYPE_MASK));
+    BSLS_ASSERT_SAFE(FMode::BDLAT_DEFAULT ==
+                                            (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_DATETIME;
+    return BDLAT_XSDNAME_DATETIME;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const bdlt::Time *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const bdlt::Time *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::BDEAT_DEFAULT ==
-                                            (format & FMode::BDEAT_TYPE_MASK));
+    BSLS_ASSERT_SAFE(FMode::BDLAT_DEFAULT ==
+                                            (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_TIME;
+    return BDLAT_XSDNAME_TIME;
 }
 
 inline
-const char *bdeat_TypeName_Imp::xsdName(const bdlt::TimeTz *, int format)
+const char *bdlat_TypeName_Imp::xsdName(const bdlt::TimeTz *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::BDEAT_DEFAULT ==
-                                            (format & FMode::BDEAT_TYPE_MASK));
+    BSLS_ASSERT_SAFE(FMode::BDLAT_DEFAULT ==
+                                            (format & FMode::BDLAT_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
-    return BDEAT_XSDNAME_TIME;
+    return BDLAT_XSDNAME_TIME;
 }
 
                           // -------------------------------------
-                          // namespace bdeat_TypeName_Overloadable
+                          // namespace bdlat_TypeName_Overloadable
                           // -------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const char *
-bdeat_TypeName_Overloadable::bdeat_TypeName_className(const TYPE& object)
+bdlat_TypeName_Overloadable::bdlat_TypeName_className(const TYPE& object)
 {
     // Indirection prevents conversion to 'TYPE':
-    return bdeat_TypeName_Imp::className(&object);
+    return bdlat_TypeName_Imp::className(&object);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const char *
-bdeat_TypeName_Overloadable::bdeat_TypeName_name(const TYPE& object)
+bdlat_TypeName_Overloadable::bdlat_TypeName_name(const TYPE& object)
 {
     // Indirection prevents conversion to 'TYPE':
-    return bdeat_TypeName_Imp::name(&object);
+    return bdlat_TypeName_Imp::name(&object);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const char *
-bdeat_TypeName_Overloadable::bdeat_TypeName_xsdName(const TYPE& object,
+bdlat_TypeName_Overloadable::bdlat_TypeName_xsdName(const TYPE& object,
                                                     int         format)
 {
     // Indirection prevents conversion to 'TYPE':
 
-    return bdeat_TypeName_Imp::xsdName(&object, format);
+    return bdlat_TypeName_Imp::xsdName(&object, format);
 }
 
                           // --------------------
-                          // class bdeat_TypeName
+                          // class bdlat_TypeName
                           // --------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName::className(const TYPE& object)
+const char *bdlat_TypeName::className(const TYPE& object)
 {
-    using namespace bdeat_TypeName_Overloadable;
+    using namespace bdlat_TypeName_Overloadable;
 
     // Select function using Koenig lookup:
 
-    return bdeat_TypeName_className(object);
+    return bdlat_TypeName_className(object);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName::name(const TYPE& object)
+const char *bdlat_TypeName::name(const TYPE& object)
 {
-    using namespace bdeat_TypeName_Overloadable;
+    using namespace bdlat_TypeName_Overloadable;
 
     // Select function using Koenig lookup:
 
-    return bdeat_TypeName_name(object);
+    return bdlat_TypeName_name(object);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char *bdeat_TypeName::xsdName(const TYPE& object, int format)
+const char *bdlat_TypeName::xsdName(const TYPE& object, int format)
 {
-    using namespace bdeat_TypeName_Overloadable;
+    using namespace bdlat_TypeName_Overloadable;
 
     // Select function using Koenig lookup:
 
-    return bdeat_TypeName_xsdName(object, format);
+    return bdlat_TypeName_xsdName(object, format);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

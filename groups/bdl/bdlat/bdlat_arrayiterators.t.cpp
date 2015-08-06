@@ -1,4 +1,4 @@
-// bdlat_arrayiterators.t.cpp                  -*-C++-*-
+// bdlat_arrayiterators.t.cpp                                         -*-C++-*-
 
 #include <bdlat_arrayiterators.h>
 #include <bdlat_arrayfunctions.h>
@@ -34,9 +34,9 @@ using namespace BloombergLP;
 // [ 2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -48,7 +48,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -115,31 +115,31 @@ namespace Test {
                        // class FixedArray
                        // ================
 
-template <int SIZE, typename TYPE> class FixedArray;
+template <int SIZE, class TYPE> class FixedArray;
     // Fixed-sized array that conforms to the 'bdlat_arrayfunctions'
     // interface and can only be manipulated and accessed through that
     // interface.
 
 // FREE MANIPULATORS (bdlat_arrayfunctions manipulators for FixedArray)
-template <int SIZE, typename TYPE, typename MANIPULATOR>
+template <int SIZE, class TYPE, class MANIPULATOR>
 int bdeat_arrayManipulateElement(FixedArray<SIZE, TYPE> *array,
                                  MANIPULATOR&            manipulator,
                                  int                     index);
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 void bdeat_arrayResize(FixedArray<SIZE, TYPE> *array, int newSize);
 
 // FREE ACCESSORS (bdlat_arrayfunctions accessors for FixedArray)
-template <int SIZE, typename TYPE, typename ACCESSOR>
+template <int SIZE, class TYPE, class ACCESSOR>
 int bdeat_arrayAccessElement(const FixedArray<SIZE, TYPE>& array,
                              ACCESSOR&                     accessor,
                              int                           index);
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 bsl::size_t bdeat_arraySize(const FixedArray<SIZE, TYPE>& array);
     // Return the number of elements in the specified 'array'.
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 class FixedArray
 {
     // Fixed-sized array that conforms to the 'bdlat_arrayfunctions'
@@ -149,24 +149,24 @@ class FixedArray
 #ifndef BSLS_PLATFORM_CMP_MSVC // MSVC has problems with friend templates.
 
     // FRIEND MANIPULATORS (only way to change an object of this class)
-    template <int SIZE2, typename TYPE2, typename MANIPULATOR>
+    template <int SIZE2, class TYPE2, class MANIPULATOR>
     friend int
     bdeat_arrayManipulateElement(FixedArray<SIZE2, TYPE2> *array,
                                  MANIPULATOR&             manipulator,
                                  int                      index);
 
-    template <int SIZE2, typename TYPE2>
+    template <int SIZE2, class TYPE2>
     friend void bdeat_arrayResize(FixedArray<SIZE2, TYPE2> *array,
                                   int                       newSize);
 
     // FRIEND ACCESSORS (only way to access attributes of the array)
-    template <int SIZE2, typename TYPE2, typename ACCESSOR>
+    template <int SIZE2, class TYPE2, class ACCESSOR>
     friend int
     bdeat_arrayAccessElement(const FixedArray<SIZE2, TYPE2>& array,
                              ACCESSOR&                       accessor,
                              int                             index);
 
-    template <int SIZE2, typename TYPE2>
+    template <int SIZE2, class TYPE2>
     friend bsl::size_t bdeat_arraySize(const FixedArray<SIZE2, TYPE2>& array);
 
 #else
@@ -191,7 +191,7 @@ class FixedArray
                        // class FixedArrayElement
                        // ============================
 
-template <typename TYPE> class FixedArrayElement;
+template <class TYPE> class FixedArrayElement;
     // Proxy object to access an element of a FixedArray.  The 'accessElement'
     // and 'manipulateElement' methods in 'FixedArray' used this proxy to
     // simulate a complex array that does not provide direct references to the
@@ -199,18 +199,18 @@ template <typename TYPE> class FixedArrayElement;
     // 'bdeat_valuefunction'.
 
 // FREE MANIPULATORS (bdeat_valuefunctions manipulators for FixedArrayElement)
-template <typename TYPE>
+template <class TYPE>
 void bdeat_valueTypeReset(FixedArrayElement<TYPE> *object);
 
-template <typename TYPE, typename RHS_TYPE>
+template <class TYPE, class RHS_TYPE>
 int bdeat_valueTypeAssign(FixedArrayElement<TYPE> *lhs, const RHS_TYPE& rhs);
 
 // FREE ACCESSORS (bdeat_valuefunctions accessors for FixedArrayElement)
-template <typename LHS_TYPE, typename TYPE>
+template <class LHS_TYPE, class TYPE>
 int bdeat_valueTypeAssign(LHS_TYPE                       *lhs,
                           const FixedArrayElement<TYPE>&  rhs);
 
-template <typename TYPE>
+template <class TYPE>
 class FixedArrayElement {
     // Proxy object to access an element of a FixedArray.  The 'accessElement'
     // and 'manipulateElement' methods in 'FixedArray' use this proxy to
@@ -220,18 +220,18 @@ class FixedArrayElement {
 
 #ifndef BSLS_PLATFORM_CMP_MSVC // MSVC has problems with friend templates.
 
-    template <int SIZE, typename TYPE2>
+    template <int SIZE, class TYPE2>
     friend class FixedArray;
         // The 'FixedArray' class template is a friend of this class template.
 
-    template <typename TYPE2>
+    template <class TYPE2>
     friend void bdeat_valueTypeReset(FixedArrayElement<TYPE2> *object);
 
-    template <typename TYPE2, typename RHS_TYPE>
+    template <class TYPE2, class RHS_TYPE>
     friend int bdeat_valueTypeAssign(FixedArrayElement<TYPE2> *lhs,
                                      const RHS_TYPE&           rhs);
 
-    template <typename LHS_TYPE, typename TYPE2>
+    template <class LHS_TYPE, class TYPE2>
     friend int bdeat_valueTypeAssign(LHS_TYPE                        *lhs,
                                      const FixedArrayElement<TYPE2>&  rhs);
 
@@ -256,28 +256,28 @@ class FixedArrayElement {
 };
 
 
-} // Close namespace Test
+}  // close namespace Test
 
 namespace BloombergLP {
 namespace bdeat_ArrayFunctions {
     // META FUNCTIONS
-    template <int SIZE, typename TYPE>
+    template <int SIZE, class TYPE>
     struct ElementType<Test::FixedArray<SIZE, TYPE> > {
         typedef Test::FixedArrayElement<TYPE> Type;
     };
 
-    template <int SIZE, typename TYPE>
+    template <int SIZE, class TYPE>
     struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
     };
-}
-}
+}  // close namespace bdeat_ArrayFunctions
+}  // close enterprise namespace
 
                        // ----------------------
                        // class Test::FixedArray
                        // ----------------------
 
 // CREATOR
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 inline
 Test::FixedArray<SIZE, TYPE>::FixedArray()
 : d_length(0)
@@ -285,7 +285,7 @@ Test::FixedArray<SIZE, TYPE>::FixedArray()
 }
 
 // FREE MANIPULATORS
-template <int SIZE, typename TYPE, typename MANIPULATOR>
+template <int SIZE, class TYPE, class MANIPULATOR>
 int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
                                        MANIPULATOR&                  manip,
                                        int                           index)
@@ -297,7 +297,7 @@ int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
     return manip(&proxy);
 }
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 void Test::bdeat_arrayResize(Test::FixedArray<SIZE, TYPE> *array, int newSize)
 {
     // If growing, then null out new elements
@@ -309,7 +309,7 @@ void Test::bdeat_arrayResize(Test::FixedArray<SIZE, TYPE> *array, int newSize)
 }
 
 // FREE ACCESSORS
-template <int SIZE, typename TYPE, typename ACCESSOR>
+template <int SIZE, class TYPE, class ACCESSOR>
 int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
                                    ACCESSOR&                           acc,
                                    int                                 index)
@@ -321,7 +321,7 @@ int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
     return acc(proxy);
 }
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 bsl::size_t Test::bdeat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 {
     return array.d_length;
@@ -332,14 +332,14 @@ bsl::size_t Test::bdeat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
                        // -----------------------------
 
 // FREE MANIPULATORS
-template <typename TYPE>
+template <class TYPE>
 inline
 void Test::bdeat_valueTypeReset(FixedArrayElement<TYPE> *object)
 {
     *object->d_element = TYPE();
 }
 
-template <typename TYPE, typename RHS_TYPE>
+template <class TYPE, class RHS_TYPE>
 inline
 int Test::bdeat_valueTypeAssign(FixedArrayElement<TYPE> *lhs,
                                 const RHS_TYPE&          rhs)
@@ -349,7 +349,7 @@ int Test::bdeat_valueTypeAssign(FixedArrayElement<TYPE> *lhs,
 }
 
 // FREE ACCESSORS
-template <typename LHS_TYPE, typename TYPE>
+template <class LHS_TYPE, class TYPE>
 inline
 int Test::bdeat_valueTypeAssign(LHS_TYPE                       *lhs,
                                 const FixedArrayElement<TYPE>&  rhs)
@@ -362,7 +362,7 @@ int Test::bdeat_valueTypeAssign(LHS_TYPE                       *lhs,
                         // class TestValue
                         // ===============
 
-template <typename TYPE>
+template <class TYPE>
 struct TestValue {
     // Visitor to test that a value is as expected.
     TYPE d_expected;
@@ -372,7 +372,7 @@ struct TestValue {
 
     bool result() const { return d_result; }
 
-    template <typename T2>
+    template <class T2>
     int operator()(const T2& value) {
         int item;
         int rc = bdeat_ValueTypeFunctions::assign(&item, value);
@@ -384,7 +384,7 @@ struct TestValue {
     }
 };
 
-template <typename ARRAY_TYPE, typename ITEM_TYPE>
+template <class ARRAY_TYPE, class ITEM_TYPE>
 bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
     // Return true if the item at the specified 'index' in the specified
     // 'array' has the value specified in 'exp'.
@@ -408,7 +408,7 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
 // end of an object of type 'ARRAY' that adheres to the 'bdeat_ArrayFunctions'
 // interface.  It starts by creating a 'BackInsertIterator':
 //..
-    template <typename ARRAY>
+    template <class ARRAY>
     void appendSome(ARRAY *arrayObj)
     {
         bdeat_ArrayIterators::BackInsertIterator<ARRAY> it(arrayObj);
@@ -433,7 +433,7 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
 // case we do not create a variable 'it', but simply pass the iterator to a
 // standard algorithm:
 //..
-    template <typename ARRAY>
+    template <class ARRAY>
     void appendSome2(ARRAY *arrayObj)
     {
         const int VALUES[] = { 5, 4, 3, 2, 1 };
@@ -575,11 +575,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2006
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

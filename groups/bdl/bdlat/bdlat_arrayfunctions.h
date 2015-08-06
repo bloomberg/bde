@@ -1,4 +1,4 @@
-// bdlat_arrayfunctions.h                  -*-C++-*-
+// bdlat_arrayfunctions.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #define INCLUDED_BDLAT_ARRAYFUNCTIONS
 
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace defining array functions.
 //
 //@CLASSES:
-//  bdeat_ArrayFunctions: namespace for calling array functions
+//  bdlat_ArrayFunctions: namespace for calling array functions
 //
 //@SEE_ALSO:
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 // TBD: update this documentation to reflect the new overloaded functions
 //
-//@DESCRIPTION: The 'bdeat_ArrayFunctions' 'namespace' provided in this
+//@DESCRIPTION: The 'bdlat_ArrayFunctions' 'namespace' provided in this
 // component defines parameterized functions that expose "array" behavior for
 // "array" types.  See the package-level documentation for a full description
 // of "array" types.  The functions in this namespace allow users to:
@@ -34,23 +34,23 @@ BSLS_IDENT("$Id: $")
 //..
 // Also, the meta-function 'IsArray' contains a compile-time constant 'VALUE'
 // that is non-zero if the parameterized 'TYPE' exposes "array" behavior
-// through the 'bdeat_ArrayFunctions' 'namespace'.
+// through the 'bdlat_ArrayFunctions' 'namespace'.
 //
 // The 'ElementType' meta-function contains a typedef 'Type' that specifies the
 // type of element stored in the parameterized "array" type.
 //
 // This component specializes all of these functions for 'bsl::vector<TYPE>'.
 //
-// Custom types can be plugged into the bdeat framework.  This is done by
-// overloading the 'bdeat_array*' functions inside the namespace of the plugged
+// Custom types can be plugged into the bdlat framework.  This is done by
+// overloading the 'bdlat_array*' functions inside the namespace of the plugged
 // in type.  For example, suppose there is a type called 'mine::MyArray'.  In
-// order to plug this type into the 'bdeat' framework as an "array", the
+// order to plug this type into the 'bdlat' framework as an "array", the
 // following functions must be declared and implemented in the 'mine'
 // namespace:
 //..
 //  // MANIPULATORS
 //  template <typename TYPE, typename MANIPULATOR>
-//  int bdeat_arrayManipulateElement(TYPE         *array,
+//  int bdlat_arrayManipulateElement(TYPE         *array,
 //                                   MANIPULATOR&  manipulator,
 //                                   int           index);
 //      // Invoke the specified 'manipulator' on the address of the element at
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // ACCESSORS
 //  template <typename TYPE, typename ACCESSOR>
-//  int bdeat_arrayAccessElement(const TYPE& array,
+//  int bdlat_arrayAccessElement(const TYPE& array,
 //                               ACCESSOR&   accessor,
 //                               int         index);
 //      // Invoke the specified 'accessor' on the non-modifiable element at the
@@ -78,14 +78,14 @@ BSLS_IDENT("$Id: $")
 //      // '0 <= index' and 'index < size(array)'.
 //
 //  template <typename TYPE>
-//  bsl::size_t bdeat_arraySize(const TYPE& array);
+//  bsl::size_t bdlat_arraySize(const TYPE& array);
 //      // Return the number of elements in the specified 'array'.
 //..
 // Also, the 'IsArray' meta-function must be specialized for the
-// 'mine::MyArray' type in the 'bdeat_ArrayFunctions' namespace.
+// 'mine::MyArray' type in the 'bdlat_ArrayFunctions' namespace.
 //
-// An example of plugging in a user-defined sequence type into the 'bdeat'
-// framework is shown in the 'Usage' section of the 'bdeat_SequenceFunctions'
+// An example of plugging in a user-defined sequence type into the 'bdlat'
+// framework is shown in the 'Usage' section of the 'bdlat_SequenceFunctions'
 // component.
 //
 ///Usage
@@ -138,13 +138,13 @@ BSLS_IDENT("$Id: $")
 // For the array type implementation, first we need to obtain the number of
 // elements in the array so that we can loop over them:
 //..
-//          int numElements = bdeat_ArrayFunctions::size(value);
+//          int numElements = bdlat_ArrayFunctions::size(value);
 //..
 // Next, access each element in a loop using a reference to 'this' object as
 // the parameterized accessor:
 //..
 //          for (int index = 0; index < numElements; ++index) {
-//              if (0 != bdeat_ArrayFunctions::accessElement(value,
+//              if (0 != bdlat_ArrayFunctions::accessElement(value,
 //                                                           *this,
 //                                                           index)) {
 //                  return FAILURE;
@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //      int operator()(const TYPE& value)
 //      {
 //          typedef typename
-//          bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+//          bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
 //                   IsArrayType,
 //                   IsNotArrayType>::Type Toggle;
 //
@@ -215,10 +215,10 @@ BSLS_IDENT("$Id: $")
 //      {
 //          enum { SUCCESS = 0, FAILURE = -1 };
 //
-//          int numElements = bdeat_ArrayFunctions::size(value);
+//          int numElements = bdlat_ArrayFunctions::size(value);
 //
 //          for (int index = 0; index < numElements; ++index) {
-//              if (0 != bdeat_ArrayFunctions::accessElement(value,
+//              if (0 != bdlat_ArrayFunctions::accessElement(value,
 //                                                           *this,
 //                                                           index)) {
 //                  return FAILURE;
@@ -240,7 +240,7 @@ BSLS_IDENT("$Id: $")
 //      int operator()(const TYPE& value)
 //      {
 //          typedef typename
-//          bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
+//          bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
 //                   IsArrayType,
 //                   IsNotArrayType>::Type Toggle;
 //
@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
 //  };  // end 'class PrintValue'
 //..
 // The 'PrintValue' function class can be used for types that expose "array"
-// behavior through the 'bdeat_ArrayFunctions' 'namespace' (e.g.,
+// behavior through the 'bdlat_ArrayFunctions' 'namespace' (e.g.,
 // 'bsl::vector') and any other type that has 'operator<<' defined for it.  For
 // example:
 //..
@@ -277,6 +277,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
 #endif
@@ -296,23 +300,23 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
                        // ==============================
-                       // namespace bdeat_ArrayFunctions
+                       // namespace bdlat_ArrayFunctions
                        // ==============================
 
-namespace bdeat_ArrayFunctions {
+namespace bdlat_ArrayFunctions {
     // This 'namespace' provides functions that expose "array" behavior for
     // "array" types.  Specializations are provided for 'bsl::vector<TYPE>'.
     // See the component-level documentation for more information.
 
     // META-FUNCTIONS
-    template <typename TYPE>
+    template <class TYPE>
     struct ElementType;
         // This meta-function should contain a typedef 'Type' that specifies
         // the type of element stored in an array of the parameterized 'TYPE'.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     bslmf::MetaInt<0> isArrayMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
@@ -324,7 +328,7 @@ namespace bdeat_ArrayFunctions {
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     struct IsArray {
         // This 'struct' should be specialized for third-party types that are
         // need to expose "array" behavior.  See the component-level
@@ -342,7 +346,7 @@ namespace bdeat_ArrayFunctions {
     };
 
     // MANIPULATORS
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateElement(TYPE         *array,
                           MANIPULATOR&  manipulator,
                           int           index);
@@ -351,7 +355,7 @@ namespace bdeat_ArrayFunctions {
         // from the invocation of 'manipulator'.  The behavior is undefined
         // unless '0 <= index' and 'index < size(*array)'.
 
-    template <typename TYPE>
+    template <class TYPE>
     void resize(TYPE *array, int newSize);
         // Set the size of the specified modifiable 'array' to the specified
         // 'newSize'.  If newSize > size(array), then newSize - size(array)
@@ -361,7 +365,7 @@ namespace bdeat_ArrayFunctions {
         // '0 <= newSize'.
 
     // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessElement(const TYPE& array,
                       ACCESSOR&   accessor,
                       int         index);
@@ -370,7 +374,7 @@ namespace bdeat_ArrayFunctions {
         // the invocation of 'accessor'.  The behavior is undefined unless
         // '0 <= index' and 'index < size(array)'.
 
-    template <typename TYPE>
+    template <class TYPE>
     bsl::size_t size(const TYPE& array);
         // Return the number of elements in the specified 'array'.
 
@@ -389,63 +393,63 @@ namespace bdeat_ArrayFunctions {
 #if 0
     // MANIPULATORS
     template <typename TYPE, typename MANIPULATOR>
-    int bdeat_arrayManipulateElement(TYPE         *array,
+    int bdlat_arrayManipulateElement(TYPE         *array,
                                      MANIPULATOR&  manipulator,
                                      int           index);
     template <typename TYPE>
-    void bdeat_arrayResize(TYPE *array, int newSize);
+    void bdlat_arrayResize(TYPE *array, int newSize);
 
     // ACCESSORS
     template <typename TYPE, typename ACCESSOR>
-    int bdeat_arrayAccessElement(const TYPE& array,
+    int bdlat_arrayAccessElement(const TYPE& array,
                                  ACCESSOR&   accessor,
                                  int         index);
     template <typename TYPE>
-    bsl::size_t bdeat_arraySize(const TYPE& array);
+    bsl::size_t bdlat_arraySize(const TYPE& array);
         // Return the number of elements in the specified 'array'.
 #endif
 
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace bdlat_ArrayFunctions
 
                         // ===========================
                         // bsl::vector specializations
                         // ===========================
 
-namespace bdeat_ArrayFunctions {
+namespace bdlat_ArrayFunctions {
 
     // META-FUNCTIONS
-    template <typename TYPE, typename ALLOC>
+    template <class TYPE, class ALLOC>
     struct IsArray<bsl::vector<TYPE, ALLOC> > : bslmf::MetaInt<1> {
     };
 
-    template <typename TYPE, typename ALLOC>
+    template <class TYPE, class ALLOC>
     struct ElementType<bsl::vector<TYPE, ALLOC> > {
         typedef TYPE Type;
     };
 
     // MANIPULATORS
-    template <typename TYPE, typename ALLOC, typename MANIPULATOR>
-    int bdeat_arrayManipulateElement(bsl::vector<TYPE, ALLOC> *array,
+    template <class TYPE, class ALLOC, class MANIPULATOR>
+    int bdlat_arrayManipulateElement(bsl::vector<TYPE, ALLOC> *array,
                                      MANIPULATOR&              manipulator,
                                      int                       index);
 
-    template <typename TYPE, typename ALLOC>
-    void bdeat_arrayResize(bsl::vector<TYPE, ALLOC> *array, int newSize);
+    template <class TYPE, class ALLOC>
+    void bdlat_arrayResize(bsl::vector<TYPE, ALLOC> *array, int newSize);
 
     // ACCESSORS
-    template <typename TYPE, typename ALLOC, typename ACCESSOR>
-    int bdeat_arrayAccessElement(const bsl::vector<TYPE, ALLOC>& array,
+    template <class TYPE, class ALLOC, class ACCESSOR>
+    int bdlat_arrayAccessElement(const bsl::vector<TYPE, ALLOC>& array,
                                  ACCESSOR&                       accessor,
                                  int                             index);
 
-    template <typename TYPE, typename ALLOC>
-    bsl::size_t bdeat_arraySize(const bsl::vector<TYPE, ALLOC>& array);
+    template <class TYPE, class ALLOC>
+    bsl::size_t bdlat_arraySize(const bsl::vector<TYPE, ALLOC>& array);
 
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace bdlat_ArrayFunctions
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                        // -------------------------
                        // namespace-level functions
@@ -453,38 +457,38 @@ namespace bdeat_ArrayFunctions {
 
 // MANIPULATORS
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_ArrayFunctions::manipulateElement(TYPE         *array,
+int bdlat_ArrayFunctions::manipulateElement(TYPE         *array,
                                             MANIPULATOR&  manipulator,
                                             int           index)
 {
-    return bdeat_arrayManipulateElement(array, manipulator, index);
+    return bdlat_arrayManipulateElement(array, manipulator, index);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-void bdeat_ArrayFunctions::resize(TYPE *array, int newSize)
+void bdlat_ArrayFunctions::resize(TYPE *array, int newSize)
 {
-    bdeat_arrayResize(array, newSize);
+    bdlat_arrayResize(array, newSize);
 }
 
 // ACCESSORS
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_ArrayFunctions::accessElement(const TYPE& array,
+int bdlat_ArrayFunctions::accessElement(const TYPE& array,
                                         ACCESSOR&   accessor,
                                         int         index)
 {
-    return bdeat_arrayAccessElement(array, accessor, index);
+    return bdlat_arrayAccessElement(array, accessor, index);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-bsl::size_t bdeat_ArrayFunctions::size(const TYPE& array)
+bsl::size_t bdlat_ArrayFunctions::size(const TYPE& array)
 {
-    return bdeat_arraySize(array);
+    return bdlat_arraySize(array);
 }
 
 
@@ -494,9 +498,9 @@ bsl::size_t bdeat_ArrayFunctions::size(const TYPE& array)
 
 // MANIPULATORS
 
-template <typename TYPE, typename ALLOC, typename MANIPULATOR>
+template <class TYPE, class ALLOC, class MANIPULATOR>
 inline
-int bdeat_ArrayFunctions::bdeat_arrayManipulateElement(
+int bdlat_ArrayFunctions::bdlat_arrayManipulateElement(
                                          bsl::vector<TYPE, ALLOC> *array,
                                          MANIPULATOR&              manipulator,
                                          int                       index)
@@ -505,9 +509,9 @@ int bdeat_ArrayFunctions::bdeat_arrayManipulateElement(
     return manipulator(&element);
 }
 
-template <typename TYPE, typename ALLOC>
+template <class TYPE, class ALLOC>
 inline
-void bdeat_ArrayFunctions::bdeat_arrayResize(bsl::vector<TYPE, ALLOC> *array,
+void bdlat_ArrayFunctions::bdlat_arrayResize(bsl::vector<TYPE, ALLOC> *array,
                                              int                       newSize)
 {
     array->resize(newSize);
@@ -515,9 +519,9 @@ void bdeat_ArrayFunctions::bdeat_arrayResize(bsl::vector<TYPE, ALLOC> *array,
 
 // ACCESSORS
 
-template <typename TYPE, typename ALLOC, typename ACCESSOR>
+template <class TYPE, class ALLOC, class ACCESSOR>
 inline
-int bdeat_ArrayFunctions::bdeat_arrayAccessElement(
+int bdlat_ArrayFunctions::bdlat_arrayAccessElement(
                                       const bsl::vector<TYPE, ALLOC>& array,
                                       ACCESSOR&                       accessor,
                                       int                             index)
@@ -525,25 +529,23 @@ int bdeat_ArrayFunctions::bdeat_arrayAccessElement(
     return accessor(array[index]);
 }
 
-template <typename TYPE, typename ALLOC>
+template <class TYPE, class ALLOC>
 inline
-bsl::size_t bdeat_ArrayFunctions::bdeat_arraySize(
+bsl::size_t bdlat_ArrayFunctions::bdlat_arraySize(
                                          const bsl::vector<TYPE, ALLOC>& array)
 {
     return array.size();
 }
 
-}  // close namespace BloombergLP
-
-
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

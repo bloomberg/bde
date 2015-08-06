@@ -1,4 +1,4 @@
-// bdlat_arrayfunctions.t.cpp                  -*-C++-*-
+// bdlat_arrayfunctions.t.cpp                                         -*-C++-*-
 
 #include <bdlat_arrayfunctions.h>
 
@@ -22,7 +22,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 // [ 2] struct IsArray<TYPE>
 // [ 2] struct ElementType<TYPE>
@@ -100,7 +100,7 @@ namespace Obj = bdeat_ArrayFunctions;
                         // class GetValue<LVALUE_TYPE>
                         // ===========================
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 class GetValue {
     // This visitor assigns the value of the visited member to
     // 'd_destination_p'.
@@ -116,7 +116,7 @@ class GetValue {
     int operator()(const LVALUE_TYPE& object) const;
         // Assign 'object' to '*d_destination_p'.
 
-    template <typename RVALUE_TYPE>
+    template <class RVALUE_TYPE>
     int operator()(const RVALUE_TYPE& object) const;
         // Do nothing.
 };
@@ -125,7 +125,7 @@ class GetValue {
                        // class AssignValue<RVALUE_TYPE>
                        // ==============================
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 class AssignValue {
     // This visitor assigns 'd_value' to the visited member.
 
@@ -140,7 +140,7 @@ class AssignValue {
     int operator()(RVALUE_TYPE *object) const;
         // Assign 'd_value' to '*object'.
 
-    template <typename LVALUE_TYPE>
+    template <class LVALUE_TYPE>
     int operator()(LVALUE_TYPE *object) const;
         // Do nothing.
 };
@@ -151,7 +151,7 @@ class AssignValue {
 
 namespace Test {
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 class FixedArray
 {
     // Fixed-sized array that conforms to the 'bdeat_ArrayFunctions'
@@ -173,50 +173,50 @@ class FixedArray
 
     void resize(int newSize);
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int manipulateElement(MANIPULATOR& manip, int index);
 
     // ACCESSORS
     int length() const;
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int accessElement(ACCESSOR& acc, int index) const;
 };
 
 // FREE MANIPULATORS
-template <int SIZE, typename TYPE, typename MANIPULATOR>
+template <int SIZE, class TYPE, class MANIPULATOR>
 int bdeat_arrayManipulateElement(FixedArray<SIZE, TYPE> *array,
                                  MANIPULATOR&            manipulator,
                                  int                     index);
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 void bdeat_arrayResize(FixedArray<SIZE, TYPE> *array, int newSize);
 
 // FREE ACCESSORS
-template <int SIZE, typename TYPE, typename ACCESSOR>
+template <int SIZE, class TYPE, class ACCESSOR>
 int bdeat_arrayAccessElement(const FixedArray<SIZE, TYPE>& array,
                              ACCESSOR&                     accessor,
                              int                           index);
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 bsl::size_t bdeat_arraySize(const FixedArray<SIZE, TYPE>& array);
     // Return the number of elements in the specified 'array'.
 
-} // Close namespace Test
+}  // close namespace Test
 
 namespace BloombergLP {
 namespace bdeat_ArrayFunctions {
     // META FUNCTIONS
-    template <int SIZE, typename TYPE>
+    template <int SIZE, class TYPE>
     struct ElementType<Test::FixedArray<SIZE, TYPE> > {
         typedef TYPE Type;
     };
 
-    template <int SIZE, typename TYPE>
+    template <int SIZE, class TYPE>
     struct IsArray<Test::FixedArray<SIZE, TYPE> > : public bslmf::MetaInt<1> {
     };
-}
-}
+}  // close namespace bdeat_ArrayFunctions
+}  // close enterprise namespace
 
 
 
@@ -226,7 +226,7 @@ namespace bdeat_ArrayFunctions {
 
 // CREATORS
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 : d_lValue_p(lValue)
 {
@@ -234,15 +234,15 @@ GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 
 // ACCESSORS
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object) const
 {
     *d_lValue_p = object;
     return 0;
 }
 
-template <typename LVALUE_TYPE>
-template <typename RVALUE_TYPE>
+template <class LVALUE_TYPE>
+template <class RVALUE_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object) const
 {
     return -1;
@@ -254,7 +254,7 @@ int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object) const
 
 // CREATORS
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 : d_value(value)
 {
@@ -262,15 +262,15 @@ AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 
 // ACCESSORS
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object) const
 {
     *object = d_value;
     return 0;
 }
 
-template <typename RVALUE_TYPE>
-template <typename LVALUE_TYPE>
+template <class RVALUE_TYPE>
+template <class LVALUE_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object) const
 {
     return -1;
@@ -280,21 +280,21 @@ int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object) const
                        // class Test::FixedArray
                        // ----------------------
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 inline
 Test::FixedArray<SIZE, TYPE>::FixedArray()
 : d_length(0)
 {
 }
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 inline
 void Test::FixedArray<SIZE, TYPE>::append(const TYPE& v)
 {
     d_values[d_length++] = v;
 }
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 void Test::FixedArray<SIZE, TYPE>::resize(int newSize)
 {
     // If growing, then null out new elements
@@ -305,8 +305,8 @@ void Test::FixedArray<SIZE, TYPE>::resize(int newSize)
     d_length = newSize;
 }
 
-template <int SIZE, typename TYPE>
-template <typename MANIPULATOR>
+template <int SIZE, class TYPE>
+template <class MANIPULATOR>
 inline
 int Test::FixedArray<SIZE, TYPE>::manipulateElement(MANIPULATOR& manip,
                                                     int          index)
@@ -314,15 +314,15 @@ int Test::FixedArray<SIZE, TYPE>::manipulateElement(MANIPULATOR& manip,
     return manip(&d_values[index]);
 }
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 inline
 int Test::FixedArray<SIZE, TYPE>::length() const
 {
     return d_length;
 }
 
-template <int SIZE, typename TYPE>
-template <typename ACCESSOR>
+template <int SIZE, class TYPE>
+template <class ACCESSOR>
 inline
 int Test::FixedArray<SIZE, TYPE>::accessElement(ACCESSOR& acc, int index) const
 {
@@ -330,7 +330,7 @@ int Test::FixedArray<SIZE, TYPE>::accessElement(ACCESSOR& acc, int index) const
 }
 
 // FREE MANIPULATORS
-template <int SIZE, typename TYPE, typename MANIPULATOR>
+template <int SIZE, class TYPE, class MANIPULATOR>
 int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
                                        MANIPULATOR&                  manip,
                                        int                           index)
@@ -338,14 +338,14 @@ int Test::bdeat_arrayManipulateElement(Test::FixedArray<SIZE, TYPE> *array,
     return array->manipulateElement(manip, index);
 }
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 void Test::bdeat_arrayResize(Test::FixedArray<SIZE, TYPE> *array, int newSize)
 {
     array->resize(newSize);
 }
 
 // FREE ACCESSORS
-template <int SIZE, typename TYPE, typename ACCESSOR>
+template <int SIZE, class TYPE, class ACCESSOR>
 int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
                                    ACCESSOR&                           acc,
                                    int                                 index)
@@ -353,7 +353,7 @@ int Test::bdeat_arrayAccessElement(const Test::FixedArray<SIZE, TYPE>& array,
     return array.accessElement(acc, index);
 }
 
-template <int SIZE, typename TYPE>
+template <int SIZE, class TYPE>
 bsl::size_t Test::bdeat_arraySize(const Test::FixedArray<SIZE, TYPE>& array)
 {
     return array.length();
@@ -391,7 +391,7 @@ class PrintValue {
     struct IsArrayType    { };
 
     // PRIVATE OPERATIONS
-    template <typename TYPE>
+    template <class TYPE>
     int execute(const TYPE& value, IsNotArrayType)
     {
         enum { SUCCESS = 0 };
@@ -402,7 +402,7 @@ class PrintValue {
         return SUCCESS;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(const TYPE& value, IsArrayType)
     {
         enum { SUCCESS = 0, FAILURE = -1 };
@@ -413,7 +413,7 @@ class PrintValue {
             if (0 != bdeat_ArrayFunctions::accessElement(value,
                                                          *this,
                                                          index)) {
-                return FAILURE;
+                return FAILURE;                                       // RETURN
             }
         }
 
@@ -428,7 +428,7 @@ class PrintValue {
     }
 
     // OPERATIONS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& value)
     {
         typedef typename
@@ -461,7 +461,7 @@ void usageExample(int verbose)
     printValue(intArray);  // expected output: '345 456 567 '
 }
 //..
-} // namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE
+}  // close namespace BDEAT_ARRAYFUNCTIONS_USAGE_EXAMPLE
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -633,11 +633,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

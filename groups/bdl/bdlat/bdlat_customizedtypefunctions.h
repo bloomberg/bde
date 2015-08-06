@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace defining customized type functions.
 //
 //@CLASSES:
-//  bdeat_CustomizedTypeFunctions: namespace for customized type functions
+//  bdlat_CustomizedTypeFunctions: namespace for customized type functions
 //
 //@SEE_ALSO:
 //
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: The 'bdeat_CustomizedTypeFunctions' 'namespace' provided in
+//@DESCRIPTION: The 'bdlat_CustomizedTypeFunctions' 'namespace' provided in
 // this component defines parameterized functions that expose
 // "customized type" behavior for "customized type" types.  See the
 // package-level documentation for a full description of "customized type"
@@ -29,26 +29,26 @@ BSLS_IDENT("$Id: $")
 //..
 // Also, the meta-function 'IsCustomizedType' contains a compile-time constant
 // 'VALUE' that is non-zero if the parameterized 'TYPE' exposes
-// "customized type" behavior through the 'bdeat_CustomizedTypeFunctions'
+// "customized type" behavior through the 'bdlat_CustomizedTypeFunctions'
 // 'namespace'.
 //
 // The 'BaseType' meta-function contains a typedef 'Type' that specifies the
 // base type of the value for the parameterized "customized type" type.
 //
 // This component specializes all of these functions for types that have the
-// 'bdeat_TypeTraitBasicCustomizedType' trait.
+// 'bdlat_TypeTraitBasicCustomizedType' trait.
 //
-// Types that do not have the 'bdeat_TypeTraitBasicCustomizedType' trait
-// can be plugged into the bdeat framework.  This is done by overloading
-// the 'bdeat_choice*' functions inside the namespace of the plugged in
+// Types that do not have the 'bdlat_TypeTraitBasicCustomizedType' trait
+// can be plugged into the bdlat framework.  This is done by overloading
+// the 'bdlat_choice*' functions inside the namespace of the plugged in
 // type.  For example, suppose there is a type called 'mine::Cusip'
 // (defined in the example below).  In order to plug this type into the
-// 'bdeat' framework as a "CustomizedType", the following functions must be
+// 'bdlat' framework as a "CustomizedType", the following functions must be
 // declared and implemented in the 'mine' namespace:
 //..
 //      // MANIPULATORS
 //      template <typename TYPE, typename BASE_TYPE>
-//      int bdeat_customizedTypeConvertFromBaseType(TYPE             *object,
+//      int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
 //                                                  const BASE_TYPE&  value);
 //          // Convert from the specified 'value' to the specified customized
 //          // 'object'.  Return 0 if successful and non-zero otherwise.
@@ -56,12 +56,12 @@ BSLS_IDENT("$Id: $")
 //      // ACCESSORS
 //      template <typename TYPE>
 //      const typename BaseType<TYPE>::Type&
-//      bdeat_customizedTypeConvertToBaseType(const TYPE& object);
+//      bdlat_customizedTypeConvertToBaseType(const TYPE& object);
 //          // Load into the specified 'result' the value of the specified
 //          // 'object'.
 //..
 // Also, the 'IsCustomizedType' meta-function must be specialized for the
-// 'mine::Cusip' type in the 'bdeat_CustomizedTypeFunctions' namespace.
+// 'mine::Cusip' type in the 'bdlat_CustomizedTypeFunctions' namespace.
 //
 ///Usage
 ///-----
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // the following code:
 //..
 //    Cusip       myCusip = "281C82UE";
-//    bsl::string base    = bdeat_CustomizedTypeFunctions::convertToBaseType(
+//    bsl::string base    = bdlat_CustomizedTypeFunctions::convertToBaseType(
 //                                                                    myCusip);
 //
 //    assert("281C82UE" == base);
@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    bsl::string invalidCusip = "1234567890";
 //
-//    int retCode = bdeat_CustomizedTypeFunctions::convertFromBaseType(
+//    int retCode = bdlat_CustomizedTypeFunctions::convertFromBaseType(
 //                                                               &myCusip,
 //                                                               invalidCusip);
 //
@@ -197,10 +197,10 @@ BSLS_IDENT("$Id: $")
 // of this usage example.
 //
 // We can now make 'Cusip' expose "customized type" behavior by implementing
-// 'bdeat_CustomizedTypeFunctions' for 'Cusip'.  The first method (the
-// longer one) overloads all the 'bdeat_customizedType*' functions.
+// 'bdlat_CustomizedTypeFunctions' for 'Cusip'.  The first method (the
+// longer one) overloads all the 'bdlat_customizedType*' functions.
 // In the second method, we show how to bypass this by simply declaring the
-// class 'mine::Cusip' to have the 'bdeat_TypeTraitBasicCustomizedType'
+// class 'mine::Cusip' to have the 'bdlat_TypeTraitBasicCustomizedType'
 // trait.
 //
 /// Longer usage
@@ -210,7 +210,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      // MANIPULATORS
 //      template <typename TYPE, typename BASE_TYPE>
-//      int bdeat_customizedTypeConvertFromBaseType(TYPE             *object,
+//      int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
 //                                                  const BASE_TYPE&  value);
 //          // Convert from the specified 'value' to the specified customized
 //          // 'object'.  Return 0 if successful and non-zero otherwise.
@@ -218,7 +218,7 @@ BSLS_IDENT("$Id: $")
 //      // ACCESSORS
 //      template <typename TYPE>
 //      const typename BaseType<TYPE>::Type&
-//      bdeat_customizedTypeConvertToBaseType(const TYPE& object);
+//      bdlat_customizedTypeConvertToBaseType(const TYPE& object);
 //          // Load into the specified 'result' the value of the specified
 //          // 'object'.
 //
@@ -228,7 +228,7 @@ BSLS_IDENT("$Id: $")
 //..
 // // MANIPULATORS
 // template <typename TYPE, typename BASE_TYPE>
-// int mine::bdeat_customizedTypeConvertFromBaseType(TYPE             *object,
+// int mine::bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
 //                                                   const BASE_TYPE&  value);
 // {
 //     return object->fromString(value);
@@ -237,40 +237,40 @@ BSLS_IDENT("$Id: $")
 // // ACCESSORS
 // template <typename TYPE>
 // const typename BaseType<TYPE>::Type&
-// mine::bdeat_customizedTypeConvertToBaseType(const TYPE& object);
+// mine::bdlat_customizedTypeConvertToBaseType(const TYPE& object);
 // {
 //     return object.toString();
 // }
 //..
 // Finally, we need to specialize the 'IsCustomizedType' meta-function in the
-// 'bdeat_CustomizedTypeFunctions' namespace for the 'mine::Cusip'
-// type.  This makes the 'bdeat' infrastructure recognize
+// 'bdlat_CustomizedTypeFunctions' namespace for the 'mine::Cusip'
+// type.  This makes the 'bdlat' infrastructure recognize
 // 'mine::Cusip' as a customized type abstraction:
 //..
-//  namespace bdeat_CustomizedTypeFunctions {
+//  namespace bdlat_CustomizedTypeFunctions {
 //
 //      template <>
 //      struct IsCustomizedType<mine::Cusip> {
 //          enum { VALUE = 1 };
 //      };
 //
-//  } // close namespace 'bdeat_CustomizedTypeFunctions'
+//  } // close namespace 'bdlat_CustomizedTypeFunctions'
 //  } // close namespace 'BloombergLP'
 //..
-// The 'bdeat' infrastructure (and any component that uses this infrastructure)
+// The 'bdlat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'mine::Cusip' as a "customized" type.
 //
 /// Shorter usage
 ///- - - - - - -
 // We can bypass all the code from the longer usage example by simply
-// declaring 'mine::Cusip' to have the 'bdeat_TypeTraitBasicCustomizedType'
+// declaring 'mine::Cusip' to have the 'bdlat_TypeTraitBasicCustomizedType'
 // trait as follows:
 //..
 //  // TRAITS
 //
 //  BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(mine::Cusip)
 //..
-// Again, the 'bdeat' infrastructure (and any component that uses this
+// Again, the 'bdlat' infrastructure (and any component that uses this
 // infrastructure) will now recognize 'mine::Cusip' as a "customized" type.
 //
 // For example, suppose we have the following XML data:
@@ -302,7 +302,7 @@ BSLS_IDENT("$Id: $")
 //      assert("281C82UE" == object.toString());
 //  }
 //..
-// Note that the 'bdeat' framework can be used for functionality other than
+// Note that the 'bdlat' framework can be used for functionality other than
 // encoding/decoding into XML.  When 'mine::Cusip' is plugged into
 // the framework, then it will be automatically usable within the framework.
 // For example, the following snippets of code will convert a string
@@ -314,7 +314,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::string value;
 //      stream >> value;
 //
-//      return bdeat_CustomizedType::convertFromBaseType(cusip, value);
+//      return bdlat_CustomizedType::convertFromBaseType(cusip, value);
 //  }
 //..
 // Now we have a generic function that takes an input stream and a 'Cusip'
@@ -377,7 +377,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void Cusip::reset()
 //  {
-//      // bdeat_ValueTypeFunctions::reset(&d_value);
+//      // bdlat_ValueTypeFunctions::reset(&d_value);
 //      d_value.erase();
 //  }
 //
@@ -447,6 +447,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
+#endif
+
 #ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
 #endif
@@ -505,10 +509,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
                   // =======================================
-                  // namespace bdeat_CustomizedTypeFunctions
+                  // namespace bdlat_CustomizedTypeFunctions
                   // =======================================
 
-namespace bdeat_CustomizedTypeFunctions {
+namespace bdlat_CustomizedTypeFunctions {
     // This 'namespace' provides functions that expose "customized type"
     // behavior for "customized type" types.  See the component-level
     // documentation for more information.
@@ -516,7 +520,7 @@ namespace bdeat_CustomizedTypeFunctions {
     // META-FUNCTIONS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-    template <typename TYPE>
+    template <class TYPE>
     bslmf::MetaInt<0> isCustomizedTypeMetaFunction(const TYPE&);
         // This function can be overloaded to support partial specialization
         // (Sun5.2 compiler is unable to partially specialize the 'struct'
@@ -527,7 +531,7 @@ namespace bdeat_CustomizedTypeFunctions {
         // 'IsCustomizedType' meta-function.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-    template <typename TYPE>
+    template <class TYPE>
     struct IsCustomizedType {
         // This 'struct' should be specialized for third-party types that need
         // to expose "customized type" behavior.  See the component-level
@@ -535,7 +539,7 @@ namespace bdeat_CustomizedTypeFunctions {
 
         enum {
             VALUE = bslalg::HasTrait<TYPE,
-                                    bdeat_TypeTraitBasicCustomizedType>::VALUE
+                                    bdlat_TypeTraitBasicCustomizedType>::VALUE
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                  || BSLMF_METAINT_TO_BOOL(isCustomizedTypeMetaFunction(
                                                   bslmf::TypeRep<TYPE>::rep()))
@@ -543,25 +547,25 @@ namespace bdeat_CustomizedTypeFunctions {
         };
     };
 
-    template <typename TYPE>
+    template <class TYPE>
     struct BaseType {
         // This meta-function should contain a typedef 'Type' that specifies
         // the default base type for the parameterized 'TYPE'.
 
         BSLMF_ASSERT(
-          (bslalg::HasTrait<TYPE, bdeat_TypeTraitBasicCustomizedType>::VALUE));
+          (bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
         typedef typename TYPE::BaseType Type;
     };
 
     // MANIPULATORS
-    template <typename TYPE, typename BASE_TYPE>
+    template <class TYPE, class BASE_TYPE>
     int convertFromBaseType(TYPE *object, const BASE_TYPE& value);
         // Convert from the specified 'value' to the specified customized
         // 'object'.  Return 0 if successful and non-zero otherwise.
 
     // ACCESSORS
-    template <typename TYPE>
+    template <class TYPE>
     const typename BaseType<TYPE>::Type& convertToBaseType(const TYPE& object);
         // Load into the specified 'result' the value of the specified
         // 'object'.
@@ -574,151 +578,151 @@ namespace bdeat_CustomizedTypeFunctions {
     // these functions directly.  Use the functions above instead.
 
     // MANIPULATORS
-    template <typename TYPE, typename BASE_TYPE>
-    int bdeat_customizedTypeConvertFromBaseType(TYPE             *object,
+    template <class TYPE, class BASE_TYPE>
+    int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
                                                 const BASE_TYPE&  value);
         // Convert from the specified 'value' to the specified customized
         // 'object'.  Return 0 if successful and non-zero otherwise.
 
     // ACCESSORS
-    template <typename TYPE>
+    template <class TYPE>
     const typename BaseType<TYPE>::Type&
-    bdeat_customizedTypeConvertToBaseType(const TYPE& object);
+    bdlat_customizedTypeConvertToBaseType(const TYPE& object);
         // Load into the specified 'result' the value of the specified
         // 'object'.
 #endif
 
-}  // close namespace bdeat_CustomizedTypeFunctions
+}  // close namespace bdlat_CustomizedTypeFunctions
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
                   // ========================================
-                  // struct bdeat_CustomizedTypeFunctions_Imp
+                  // struct bdlat_CustomizedTypeFunctions_Imp
                   // ========================================
 
-struct bdeat_CustomizedTypeFunctions_Imp {
+struct bdlat_CustomizedTypeFunctions_Imp {
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, bool value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, int value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, char value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, short value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE               *object,
                                    bsls::Types::Int64  value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, unsigned int value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, unsigned char value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, unsigned short value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE                *object,
                                    bsls::Types::Uint64  value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, float value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, double value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, const bdlt::Date& value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, const bdlt::DateTz& value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, const bdlt::Datetime& value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, const bdlt::DatetimeTz& value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, const bdlt::Time& value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, const bdlt::TimeTz& value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE *object, const bsl::string& value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static int convertFromBaseType(TYPE                     *object,
                                    const bsl::vector<char>&  value);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bool& convertToBaseType(const TYPE& object, bool*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const char& convertToBaseType(const TYPE& object, char*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const short& convertToBaseType(const TYPE& object, short*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const int& convertToBaseType(const TYPE& object, int*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bsls::Types::Int64& convertToBaseType(const TYPE& object,
                                                        bsls::Types::Int64*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const unsigned char& convertToBaseType(const TYPE& object,
                                                   unsigned char*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const unsigned short& convertToBaseType(const TYPE& object,
                                                    unsigned short*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const unsigned int& convertToBaseType(const TYPE& object,
                                                  unsigned int*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bsls::Types::Uint64& convertToBaseType(const TYPE& object,
                                                         bsls::Types::Uint64*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const float& convertToBaseType(const TYPE& object, float*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const double& convertToBaseType(const TYPE& object, double*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bdlt::Date& convertToBaseType(const TYPE& object, bdlt::Date*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bdlt::DateTz& convertToBaseType(const TYPE& object,
                                                 bdlt::DateTz*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bdlt::Datetime& convertToBaseType(const TYPE& object,
                                                   bdlt::Datetime*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bdlt::DatetimeTz& convertToBaseType(const TYPE& object,
                                                     bdlt::DatetimeTz*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bdlt::Time& convertToBaseType(const TYPE& object, bdlt::Time*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bdlt::TimeTz& convertToBaseType(const TYPE& object,
                                                 bdlt::TimeTz*);
 
-    template <typename TYPE>
+    template <class TYPE>
     static const bsl::string& convertToBaseType(const TYPE& object,
                                                 bsl::string*);
     template <typename TYPE>
@@ -731,36 +735,36 @@ struct bdeat_CustomizedTypeFunctions_Imp {
 // ============================================================================
 
                    // ---------------------------------------
-                   // namespace bdeat_CustomizedTypeFunctions
+                   // namespace bdlat_CustomizedTypeFunctions
                    // ---------------------------------------
 
 // MANIPULATORS
 
-template <typename TYPE, typename BASE_TYPE>
+template <class TYPE, class BASE_TYPE>
 inline
-int bdeat_CustomizedTypeFunctions::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions::convertFromBaseType(
                                                       TYPE             *object,
                                                       const BASE_TYPE&  value)
 {
-    return bdeat_customizedTypeConvertFromBaseType(object, value);
+    return bdlat_customizedTypeConvertFromBaseType(object, value);
 }
 
 // ACCESSORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type&
-bdeat_CustomizedTypeFunctions::convertToBaseType(const TYPE&  object)
+const typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type&
+bdlat_CustomizedTypeFunctions::convertToBaseType(const TYPE&  object)
 {
-    return bdeat_customizedTypeConvertToBaseType(object);
+    return bdlat_customizedTypeConvertToBaseType(object);
 }
 
       // ----------------------------------------------------------------
-      // namespace bdeat_CustomizedTypeFunctions (OVERLOADABLE FUNCTIONS)
+      // namespace bdlat_CustomizedTypeFunctions (OVERLOADABLE FUNCTIONS)
       // ----------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-namespace bdeat_CustomizedTypeFunctions {
+namespace bdlat_CustomizedTypeFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of
     // the template function *definition* (not instantiation).  We work around
@@ -775,7 +779,7 @@ namespace bdeat_CustomizedTypeFunctions {
 
     // MANIPULATORS
     template <typename TYPE, typename BASE_TYPE>
-    int bdeat_customizedTypeConvertFromBaseType(TYPE             *object,
+    int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
                                                 const BASE_TYPE&  value);
         // Convert from the specified 'value' to the specified customized
         // 'object'.  Return 0 if successful and non-zero otherwise.
@@ -783,502 +787,502 @@ namespace bdeat_CustomizedTypeFunctions {
     // ACCESSORS
     template <typename TYPE>
     const typename BaseType<TYPE>::Type&
-    bdeat_customizedTypeConvertToBaseType(const TYPE& object);
+    bdlat_customizedTypeConvertToBaseType(const TYPE& object);
         // Load into the specified 'result' the value of the specified
         // 'object'.
-} // Close namespace bdeat_CustomizedTypeFunctions
+} // Close namespace bdlat_CustomizedTypeFunctions
 #endif
 
 // MANIPULATORS
 
-template <typename TYPE, typename BASE_TYPE>
+template <class TYPE, class BASE_TYPE>
 inline
-int bdeat_CustomizedTypeFunctions::bdeat_customizedTypeConvertFromBaseType(
+int bdlat_CustomizedTypeFunctions::bdlat_customizedTypeConvertFromBaseType(
                                                       TYPE             *object,
                                                       const BASE_TYPE&  value)
 {
-    return bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(object,
+    return bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(object,
                                                                   value);
 }
 
 // ACCESSORS
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type&
-bdeat_CustomizedTypeFunctions::bdeat_customizedTypeConvertToBaseType(
+const typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type&
+bdlat_CustomizedTypeFunctions::bdlat_customizedTypeConvertToBaseType(
                                                            const TYPE&  object)
 {
     typedef typename
-    bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
 
-    return bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(object,
+    return bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(object,
                                                                 (BaseType*)0);
 }
 
                   // ----------------------------------------
-                  // struct bdeat_CustomizedTypeFunctions_Imp
+                  // struct bdlat_CustomizedTypeFunctions_Imp
                   // ----------------------------------------
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE *object,
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE *object,
                                                            bool  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromBool(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE *object,
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE *object,
                                                            int   value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromInt(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE *object,
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE *object,
                                                            char  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromChar(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE  *object,
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE  *object,
                                                            short  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromShort(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                     TYPE               *object,
                                                     bsls::Types::Int64  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromInt64(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                           TYPE         *object,
                                                           unsigned int  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromUnsignedInt(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                          TYPE          *object,
                                                          unsigned char  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromUnsignedChar(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                         TYPE           *object,
                                                         unsigned short  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromUnsignedShort(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                    TYPE                *object,
                                                    bsls::Types::Uint64  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromUnsignedInt64(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE  *object,
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE  *object,
                                                            float  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromFloat(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE   *object,
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(TYPE   *object,
                                                            double  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromDouble(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                       TYPE             *object,
                                                       const bdlt::Date&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromDate(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                     TYPE               *object,
                                                     const bdlt::DateTz&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromDateTz(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                   TYPE                 *object,
                                                   const bdlt::Datetime&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromDatetime(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                 TYPE                   *object,
                                                 const bdlt::DatetimeTz&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromDatetimeTz(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                       TYPE             *object,
                                                       const bdlt::Time&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromTime(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                     TYPE               *object,
                                                     const bdlt::TimeTz&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromTimeTz(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                                     TYPE               *object,
                                                     const bsl::string&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromString(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-int bdeat_CustomizedTypeFunctions_Imp::convertFromBaseType(
+int bdlat_CustomizedTypeFunctions_Imp::convertFromBaseType(
                                               TYPE                     *object,
                                               const bsl::vector<char>&  value)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object->fromVector(value);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bool& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bool& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bool*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toBool();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const int& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const int& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             int*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toInt();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const char& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const char& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             char*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toChar();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const short& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const short& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             short*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toShort();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const bsls::Types::Int64&
-bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(const TYPE& object,
+bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(const TYPE& object,
                                                      bsls::Types::Int64*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toInt64();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const unsigned int& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const unsigned int& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             unsigned int*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toUnsignedInt();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const unsigned char& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const unsigned char& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             unsigned char*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toUnsignedChar();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const unsigned short& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const unsigned short& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             unsigned short*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toUnsignedShort();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 const bsls::Types::Uint64&
-bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(const TYPE& object,
+bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(const TYPE& object,
                                                      bsls::Types::Uint64*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toUnsignedInt64();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const float& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const float& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             float*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toFloat();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const double& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const double& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             double*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toDouble();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bdlt::Date& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bdlt::Date& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bdlt::Date*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toDate();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bdlt::DateTz& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bdlt::DateTz& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bdlt::DateTz*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toDateTz();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bdlt::Datetime& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bdlt::Datetime& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bdlt::Datetime*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toDatetime();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bdlt::DatetimeTz& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bdlt::DatetimeTz& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bdlt::DatetimeTz*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toDatetimeTz();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bdlt::Time& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bdlt::Time& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bdlt::Time*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toTime();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bdlt::TimeTz& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bdlt::TimeTz& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bdlt::TimeTz*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toTimeTz();
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-const bsl::string& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bsl::string& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bsl::string*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toString();
 }
 
 template <typename TYPE>
 inline
-const bsl::vector<char>& bdeat_CustomizedTypeFunctions_Imp::convertToBaseType(
+const bsl::vector<char>& bdlat_CustomizedTypeFunctions_Imp::convertToBaseType(
                                                             const TYPE& object,
                                                             bsl::vector<char>*)
 {
     BSLMF_ASSERT((bslalg::HasTrait<TYPE,
-                                  bdeat_TypeTraitBasicCustomizedType>::VALUE));
+                                  bdlat_TypeTraitBasicCustomizedType>::VALUE));
 
     return object.toVector();
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

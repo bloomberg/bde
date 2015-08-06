@@ -1,4 +1,4 @@
-// bdlat_typecategory.t.cpp                  -*-C++-*-
+// bdlat_typecategory.t.cpp                                           -*-C++-*-
 
 #include <bdlat_typecategory.h>
 
@@ -23,7 +23,7 @@ using bsl::endl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ namespace bdeat_ArrayFunctions {
         enum { VALUE = 1 };
     };
 }  // close namespace bdeat_ArrayFunctions
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct MyChoiceType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY };
@@ -117,7 +117,7 @@ namespace bdeat_ChoiceFunctions {
         enum { VALUE = 1 };
     };
 }  // close namespace bdeat_ChoiceFunctions
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct MyCustomizedType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY };
@@ -131,7 +131,7 @@ namespace bdeat_CustomizedTypeFunctions {
         enum { VALUE = 1 };
     };
 }  // close namespace bdeat_CustomizedTypeFunctions
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct MyEnumerationType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY };
@@ -145,7 +145,7 @@ namespace bdeat_EnumFunctions {
         enum { VALUE = 1 };
     };
 }  // close namespace bdeat_EnumFunctions
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct MyNullableValueType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY };
@@ -159,7 +159,7 @@ namespace bdeat_NullableValueFunctions {
         enum { VALUE = 1 };
     };
 }  // close namespace bdeat_NullableValueFunctions
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct MySequenceType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY };
@@ -173,7 +173,7 @@ namespace bdeat_SequenceFunctions {
         enum { VALUE = 1 };
     };
 }  // close namespace bdeat_SequenceFunctions
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 struct MyDeclaredDynamicType {
@@ -198,7 +198,7 @@ namespace BloombergLP {
     struct bdeat_TypeCategoryDeclareDynamic<MyDeclaredDynamicType> {
         enum { VALUE = 1 };
     };
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 bdeat_TypeCategory::Value
 bdeat_typeCategorySelect(const MyDeclaredDynamicType& object)
@@ -207,7 +207,7 @@ bdeat_typeCategorySelect(const MyDeclaredDynamicType& object)
     return object.d_currentCategory;
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_typeCategoryManipulateChoice(MyDeclaredDynamicType *object,
                                        MANIPULATOR&           manipulator)
 {
@@ -215,7 +215,7 @@ int bdeat_typeCategoryManipulateChoice(MyDeclaredDynamicType *object,
     return manipulator(object, bdeat_TypeCategory::Choice());
 }
 
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int bdeat_typeCategoryManipulateSequence(MyDeclaredDynamicType *object,
                                          MANIPULATOR&           manipulator)
 {
@@ -223,7 +223,7 @@ int bdeat_typeCategoryManipulateSequence(MyDeclaredDynamicType *object,
     return manipulator(object, bdeat_TypeCategory::Sequence());
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_typeCategoryAccessChoice(const MyDeclaredDynamicType& object,
                                    ACCESSOR&                    accessor)
 {
@@ -231,7 +231,7 @@ int bdeat_typeCategoryAccessChoice(const MyDeclaredDynamicType& object,
     return accessor(object, bdeat_TypeCategory::Choice());
 }
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int bdeat_typeCategoryAccessSequence(const MyDeclaredDynamicType& object,
                                      ACCESSOR&                    accessor)
 {
@@ -271,7 +271,7 @@ namespace bdeat_NullableValueFunctions {
         enum { VALUE = 1 };
     };
 }  // close namespace bdeat_NullableValueFunctions
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 bdeat_TypeCategory::Value
 bdeat_typeCategorySelect(const MyAutoDetectDynamicType& object)
@@ -283,63 +283,63 @@ bdeat_typeCategorySelect(const MyAutoDetectDynamicType& object)
 
 struct MyManipulator {
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bslmf::Nil)
     {
         (void)object;
         return -1;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::DynamicType)
     {
         (void)object;
         return 0;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Array)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Choice)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::CustomizedType)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Enumeration)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::NullableValue)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Sequence)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Simple)
     {
         (void)object;
@@ -349,63 +349,63 @@ struct MyManipulator {
 
 struct MyAccessor {
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bslmf::Nil)
     {
         (void)object;
         return -1;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::DynamicType)
     {
         (void)object;
         return 0;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Array)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Choice)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::CustomizedType)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Enumeration)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::NullableValue)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Sequence)
     {
         (void)object;
         return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
     {
         (void)object;
@@ -427,7 +427,7 @@ struct MyAccessor {
 // will create a 'printCategoryAndValue' function that is parameterized by
 // 'TYPE':
 //..
-    template <typename TYPE>
+    template <class TYPE>
     void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
         // Print the category of the specified 'object' followed by the value
         // of 'object' to the specified output 'stream'.
@@ -480,7 +480,7 @@ struct MyAccessor {
 // Now we can implement the 'printCategoryAndValue' function in terms of the
 // 'printCategory' helper functions:
 //..
-    template <typename TYPE>
+    template <class TYPE>
     void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
     {
         typedef typename
@@ -574,7 +574,7 @@ struct MyAccessor {
             enum { VALUE = 1 };
         };
 
-    }  // close namespace BloombergLP
+    }  // close enterprise namespace
 
 //..
 // Next, we define bdeat_typeCategorySelect', and a suite of four function,
@@ -595,7 +595,7 @@ struct MyAccessor {
         return static_cast<bdeat_TypeCategory::Value>(-1);
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
                                           MANIPULATOR&        manipulator)
     {
@@ -607,7 +607,7 @@ struct MyAccessor {
         return manipulator(object, bslmf::Nil());
     }
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
                                            MANIPULATOR&        manipulator)
     {
@@ -619,7 +619,7 @@ struct MyAccessor {
         return manipulator(object, bslmf::Nil());
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
                                       ACCESSOR&                 accessor)
     {
@@ -631,7 +631,7 @@ struct MyAccessor {
         return accessor(object, bslmf::Nil());
     }
 
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
                                        ACCESSOR&                 accessor)
     {
@@ -650,7 +650,7 @@ struct MyAccessor {
     struct DumpObject {
         bsl::ostream *d_stream_p;
 
-        template <typename TYPE>
+        template <class TYPE>
         int operator()(const TYPE& object, bslmf::Nil)
         {
             ASSERT(0);  // received invalid object
@@ -658,7 +658,7 @@ struct MyAccessor {
             return -1;
         }
 
-        template <typename TYPE>
+        template <class TYPE>
         int operator()(const TYPE& object, bdeat_TypeCategory::Array)
         {
             (*d_stream_p) << "Array = ";
@@ -666,7 +666,7 @@ struct MyAccessor {
             return 0;
         }
 
-        template <typename TYPE>
+        template <class TYPE>
         int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
         {
             (*d_stream_p) << "Simple = ";
@@ -2086,11 +2086,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlat_typecategory.h                  -*-C++-*-
+// bdlat_typecategory.h                                               -*-C++-*-
 #ifndef INCLUDED_BDLAT_TYPECATEGORY
 #define INCLUDED_BDLAT_TYPECATEGORY
 
@@ -10,17 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide type category tags and a tag selection meta-function.
 //
 //@CLASSES:
-//  bdeat_TypeCategory::Array          : tag for array types
-//  bdeat_TypeCategory::Choice         : tag for choice types
-//  bdeat_TypeCategory::CustomizedType : tag for customized types
-//  bdeat_TypeCategory::Enumeration    : tag for enumeration types
-//  bdeat_TypeCategory::NullableValue  : tag for nullable types
-//  bdeat_TypeCategory::Sequence       : tag for sequence types
-//  bdeat_TypeCategory::Simple         : tag for simple types
-//  bdeat_TypeCategory::Select         : meta-function for selecting tag
-//  bdeat_TypeCategoryDeclareDynamic   : meta-function to declare dynamic type
-//  bdeat_TypeCategoryFunctions        : overloadable type category functions
-//  bdeat_TypeCategoryUtil             : type category utility
+//  bdlat_TypeCategory::Array          : tag for array types
+//  bdlat_TypeCategory::Choice         : tag for choice types
+//  bdlat_TypeCategory::CustomizedType : tag for customized types
+//  bdlat_TypeCategory::Enumeration    : tag for enumeration types
+//  bdlat_TypeCategory::NullableValue  : tag for nullable types
+//  bdlat_TypeCategory::Sequence       : tag for sequence types
+//  bdlat_TypeCategory::Simple         : tag for simple types
+//  bdlat_TypeCategory::Select         : meta-function for selecting tag
+//  bdlat_TypeCategoryDeclareDynamic   : meta-function to declare dynamic type
+//  bdlat_TypeCategoryFunctions        : overloadable type category functions
+//  bdlat_TypeCategoryUtil             : type category utility
 //
 //@SEE_ALSO: bdlat_arrayfunctions, bdlat_choicefunctions,
 //           bdlat_customizedtypefunctions, bdlat_enumfunctions,
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 //
 // TBD: update this documentation to reflect the new overloaded functions
 //
-//@DESCRIPTION: The tag selection meta-function ('bdeat_TypeCategory::Select')
+//@DESCRIPTION: The tag selection meta-function ('bdlat_TypeCategory::Select')
 // provided in this component can be used to categorize a parameterized 'TYPE'
 // into one of the following categories:
 //..
@@ -40,24 +40,24 @@ BSLS_IDENT("$Id: $")
 //  ------------     -----------
 //
 //  Array            types that expose "array" behavior through the
-//                   'bdeat_ArrayFunctions' 'namespace'.
+//                   'bdlat_ArrayFunctions' 'namespace'.
 //
 //  Choice           types that expose "choice" behavior through the
-//                   'bdeat_ChoiceFunctions' 'namespace'.
+//                   'bdlat_ChoiceFunctions' 'namespace'.
 //
 //  CustomizedType   types that expose "customized type" behavior through the
-//                   'bdeat_CustomizedTypeFunctions' 'namespace'.
+//                   'bdlat_CustomizedTypeFunctions' 'namespace'.
 //
 //  DynamicType      types that can select a category at runtime
 //
 //  Enumeration      types that expose "enumeration" behavior through the
-//                   'bdeat_EnumFunctions' 'namespace'.
+//                   'bdlat_EnumFunctions' 'namespace'.
 //
 //  NullableValue    types that expose "nullable" behavior through the
-//                   'bdeat_NullableValueFunctions' 'namespace'.
+//                   'bdlat_NullableValueFunctions' 'namespace'.
 //
 //  Sequence         types that expose "sequence" behavior through the
-//                   'bdeat_SequenceFunctions' 'namespace'.
+//                   'bdlat_SequenceFunctions' 'namespace'.
 //
 //  Simple           all other types.
 //..
@@ -67,17 +67,17 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // There are two ways that a type can be categorized as a dynamic type:
 //..
-//  o by specializing the 'bdeat_TypeCategoryDeclareDynamic' meta-function
+//  o by specializing the 'bdlat_TypeCategoryDeclareDynamic' meta-function
 //    and providing a 'VALUE' of 1
-//  o by implementing more than one of the 'bdeat' category functions (i.e.,
-//    more than one of 'bdeat_ArrayFunctions', 'bdeat_ChoiceFunctions',
-//    'bdeat_CustomizedTypeFunctions', 'bdeat_EnumFunctions',
-//    'bdeat_NullableValueFunctions', or 'bdeat_SequenceFunctions').
+//  o by implementing more than one of the 'bdlat' category functions (i.e.,
+//    more than one of 'bdlat_ArrayFunctions', 'bdlat_ChoiceFunctions',
+//    'bdlat_CustomizedTypeFunctions', 'bdlat_EnumFunctions',
+//    'bdlat_NullableValueFunctions', or 'bdlat_SequenceFunctions').
 //..
 // Note that AIX and GCC compilers require that the first way be used.
 //
 // When a type is categorized as a dynamic type, it *must* overload the
-// 'bdeat_TypeCategoryFunctions::select' function to provide the necessary
+// 'bdlat_TypeCategoryFunctions::select' function to provide the necessary
 // runtime logic that determines its runtime category.
 //
 ///Usage
@@ -98,43 +98,43 @@ BSLS_IDENT("$Id: $")
 // In order to implement this function, we will use a set of helper functions
 // that are overloaded based on the category tag:
 //..
-//  void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Array)
+//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Array)
 //  {
 //      stream << "Array";
 //  }
 //
-//  void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Choice)
+//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Choice)
 //  {
 //      stream << "Choice";
 //  }
 //
 //  void printCategory(bsl::ostream& stream,
-//                     bdeat_TypeCategory::CustomizedType)
+//                     bdlat_TypeCategory::CustomizedType)
 //  {
 //      stream << "CustomizedType";
 //  }
 //
-//  void printCategory(bsl::ostream& stream, bdeat_TypeCategory::DynamicType)
+//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::DynamicType)
 //  {
 //      stream << "DynamicType";
 //  }
 //
-//  void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Enumeration)
+//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Enumeration)
 //  {
 //      stream << "Enumeration";
 //  }
 //
-//  void printCategory(bsl::ostream& stream, bdeat_TypeCategory::NullableValue)
+//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::NullableValue)
 //  {
 //      stream << "NullableValue";
 //  }
 //
-//  void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Sequence)
+//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Sequence)
 //  {
 //      stream << "Sequence";
 //  }
 //
-//  void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Simple)
+//  void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Simple)
 //  {
 //      stream << "Simple";
 //  }
@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 //  void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
 //  {
 //      typedef typename
-//      bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+//      bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 //
 //      printCategory(stream, TypeCategory());
 //
@@ -226,80 +226,80 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // To make this type dynamic, we will specialize the
-// 'bdeat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
+// 'bdlat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
 // namespace:
 //..
 //  namespace BloombergLP {
 //
 //      template <>
-//      struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
+//      struct bdlat_TypeCategoryDeclareDynamic<VectorCharOrString> {
 //          enum { VALUE = 1 };
 //      };
 //
 //  }  // close namespace BloombergLP
 //
 //..
-// Next, we define bdeat_typeCategorySelect', and a suite of four function,
-// 'bdeat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
+// Next, we define bdlat_typeCategorySelect', and a suite of four function,
+// 'bdlat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
 // our type, 'VectorCharOrString'.
 //..
-//  bdeat_TypeCategory::Value
-//  bdeat_typeCategorySelect(const VectorCharOrString& object)
+//  bdlat_TypeCategory::Value
+//  bdlat_typeCategorySelect(const VectorCharOrString& object)
 //  {
 //      if (object.isVectorChar()) {
-//          return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;          // RETURN
+//          return bdlat_TypeCategory::BDLAT_ARRAY_CATEGORY;          // RETURN
 //      }
 //      else if (object.isString()) {
-//          return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;         // RETURN
+//          return bdlat_TypeCategory::BDLAT_SIMPLE_CATEGORY;         // RETURN
 //      }
 //
 //      assert(0);
-//      return static_cast<bdeat_TypeCategory::Value>(-1);
+//      return static_cast<bdlat_TypeCategory::Value>(-1);
 //  }
 //
 //  template <typename MANIPULATOR>
-//  int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
+//  int bdlat_typeCategoryManipulateArray(VectorCharOrString *object,
 //                                        MANIPULATOR&        manipulator)
 //  {
 //      if (object->isVectorChar()) {
 //          return manipulator(&object->theVectorChar(),
-//                             bdeat_TypeCategory::Array());          // RETURN
+//                             bdlat_TypeCategory::Array());          // RETURN
 //      }
 //
 //      return manipulator(object, bslmf::Nil());
 //  }
 //
 //  template <typename MANIPULATOR>
-//  int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
+//  int bdlat_typeCategoryManipulateSimple(VectorCharOrString *object,
 //                                         MANIPULATOR&        manipulator)
 //  {
 //      if (object->isString()) {
 //          return manipulator(&object->theString(),
-//                             bdeat_TypeCategory::Simple());         // RETURN
+//                             bdlat_TypeCategory::Simple());         // RETURN
 //      }
 //
 //      return manipulator(object, bslmf::Nil());
 //  }
 //
 //  template <typename ACCESSOR>
-//  int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
+//  int bdlat_typeCategoryAccessArray(const VectorCharOrString& object,
 //                                    ACCESSOR&                 accessor)
 //  {
 //      if (object.isVectorChar()) {
 //          return accessor(object.theVectorChar(),
-//                          bdeat_TypeCategory::Array());             // RETURN
+//                          bdlat_TypeCategory::Array());             // RETURN
 //      }
 //
 //      return accessor(object, bslmf::Nil());
 //  }
 //
 //  template <typename ACCESSOR>
-//  int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
+//  int bdlat_typeCategoryAccessSimple(const VectorCharOrString& object,
 //                                     ACCESSOR&                 accessor)
 //  {
 //      if (object.isString()) {
 //          return accessor(object.theString(),
-//                          bdeat_TypeCategory::Simple());            // RETURN
+//                          bdlat_TypeCategory::Simple());            // RETURN
 //      }
 //
 //      return accessor(object, bslmf::Nil());
@@ -320,7 +320,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      template <typename TYPE>
-//      int operator()(const TYPE& object, bdeat_TypeCategory::Array)
+//      int operator()(const TYPE& object, bdlat_TypeCategory::Array)
 //      {
 //          (*d_stream_p) << "Array = ";
 //          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
@@ -328,7 +328,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      template <typename TYPE>
-//      int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
+//      int operator()(const TYPE& object, bdlat_TypeCategory::Simple)
 //      {
 //          (*d_stream_p) << "Simple = ";
 //          bdlb::PrintMethods::print(*d_stream_p, object, 0, -1);
@@ -356,14 +356,14 @@ BSLS_IDENT("$Id: $")
 //      object.theVectorChar().push_back('l');
 //      object.theVectorChar().push_back('o');
 //
-//      ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+//      ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
 //      assert("Array = \"Hello\"" == oss.str());
 //      oss.str("");
 //
 //      object.makeString();
 //      object.theString() = "World";
 //
-//      ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+//      ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
 //      assert("Simple = World" == oss.str());
 //  }
 //..
@@ -374,6 +374,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #include <bdlat_arrayfunctions.h>
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
 #endif
 
 #ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
@@ -417,36 +421,36 @@ namespace BloombergLP {
 
 
                          // =========================
-                         // struct bdeat_TypeCategory
+                         // struct bdlat_TypeCategory
                          // =========================
 
 
-template <typename TYPE>
-struct bdeat_TypeCategoryDeclareDynamic {
+template <class TYPE>
+struct bdlat_TypeCategoryDeclareDynamic {
     // Types that have more than one of the following traits:
     //..
-    //  o bdeat_ArrayFunctions::IsArray<TYPE>::VALUE
-    //  o bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE
-    //  o bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE
-    //  o bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE
-    //  o bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE
-    //  o bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE
+    //  o bdlat_ArrayFunctions::IsArray<TYPE>::VALUE
+    //  o bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE
+    //  o bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE
+    //  o bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE
+    //  o bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE
+    //  o bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE
     //..
     // are automatically recognized as dynamic types.  However, there may exist
     // types that have *none* or only one of the above traits and still be
     // considered dynamic (e.g., "variants" of simple types etc).  In order for
-    // the 'bdeat' framework to treat these types as dynamic types, this
+    // the 'bdlat' framework to treat these types as dynamic types, this
     // 'struct' must be specialized with a 'VALUE' of 1, and the
-    // 'bdeat_TypeCategoryFunctions::select' function must be implemented,
-    // along with the appropriate 'bdeat_TypeCategoryFunctions::manipulate*'
-    // and 'bdeat_TypeCategoryFunctions::access*' functions.  Inside these
+    // 'bdlat_TypeCategoryFunctions::select' function must be implemented,
+    // along with the appropriate 'bdlat_TypeCategoryFunctions::manipulate*'
+    // and 'bdlat_TypeCategoryFunctions::access*' functions.  Inside these
     // 'manipulate*' and 'access*' functions, the dynamic object should expose
     // its real type.
 
     enum { VALUE = 0 };
 };
 
-struct bdeat_TypeCategory {
+struct bdlat_TypeCategory {
     // This struct provides the different category tags and also a
     // meta-function for selecting the tags based on the parameterized 'TYPE'.
 
@@ -462,75 +466,89 @@ struct bdeat_TypeCategory {
 
     // ENUMERATIONS
     enum Value {
-        BDEAT_DYNAMIC_CATEGORY         = 0,
-        BDEAT_ARRAY_CATEGORY           = 1,
-        BDEAT_CHOICE_CATEGORY          = 2,
-        BDEAT_CUSTOMIZED_TYPE_CATEGORY = 3,
-        BDEAT_ENUMERATION_CATEGORY     = 4,
-        BDEAT_NULLABLE_VALUE_CATEGORY  = 5,
-        BDEAT_SEQUENCE_CATEGORY        = 6,
-        BDEAT_SIMPLE_CATEGORY          = 7
+        BDLAT_DYNAMIC_CATEGORY         = 0,
+        BDLAT_ARRAY_CATEGORY           = 1,
+        BDLAT_CHOICE_CATEGORY          = 2,
+        BDLAT_CUSTOMIZED_TYPE_CATEGORY = 3,
+        BDLAT_ENUMERATION_CATEGORY     = 4,
+        BDLAT_NULLABLE_VALUE_CATEGORY  = 5,
+        BDLAT_SEQUENCE_CATEGORY        = 6,
+        BDLAT_SIMPLE_CATEGORY          = 7
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , DYNAMIC_CATEGORY         = BDEAT_DYNAMIC_CATEGORY
-      , ARRAY_CATEGORY           = BDEAT_ARRAY_CATEGORY
-      , CHOICE_CATEGORY          = BDEAT_CHOICE_CATEGORY
-      , CUSTOMIZED_TYPE_CATEGORY = BDEAT_CUSTOMIZED_TYPE_CATEGORY
-      , ENUMERATION_CATEGORY     = BDEAT_ENUMERATION_CATEGORY
-      , NULLABLE_VALUE_CATEGORY  = BDEAT_NULLABLE_VALUE_CATEGORY
-      , SEQUENCE_CATEGORY        = BDEAT_SEQUENCE_CATEGORY
-      , SIMPLE_CATEGORY          = BDEAT_SIMPLE_CATEGORY
+      , DYNAMIC_CATEGORY         = BDLAT_DYNAMIC_CATEGORY
+      , ARRAY_CATEGORY           = BDLAT_ARRAY_CATEGORY
+      , CHOICE_CATEGORY          = BDLAT_CHOICE_CATEGORY
+      , CUSTOMIZED_TYPE_CATEGORY = BDLAT_CUSTOMIZED_TYPE_CATEGORY
+      , ENUMERATION_CATEGORY     = BDLAT_ENUMERATION_CATEGORY
+      , NULLABLE_VALUE_CATEGORY  = BDLAT_NULLABLE_VALUE_CATEGORY
+      , SEQUENCE_CATEGORY        = BDLAT_SEQUENCE_CATEGORY
+      , SIMPLE_CATEGORY          = BDLAT_SIMPLE_CATEGORY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+      , BDEAT_DYNAMIC_CATEGORY         = BDLAT_DYNAMIC_CATEGORY
+      , BDEAT_ARRAY_CATEGORY           = BDLAT_ARRAY_CATEGORY
+      , BDEAT_CHOICE_CATEGORY          = BDLAT_CHOICE_CATEGORY
+      , BDEAT_CUSTOMIZED_TYPE_CATEGORY = BDLAT_CUSTOMIZED_TYPE_CATEGORY
+      , BDEAT_ENUMERATION_CATEGORY     = BDLAT_ENUMERATION_CATEGORY
+      , BDEAT_NULLABLE_VALUE_CATEGORY  = BDLAT_NULLABLE_VALUE_CATEGORY
+      , BDEAT_SEQUENCE_CATEGORY        = BDLAT_SEQUENCE_CATEGORY
+      , BDEAT_SIMPLE_CATEGORY          = BDLAT_SIMPLE_CATEGORY
+#endif
     };
 
     // META-FUNCTION
-    template <typename TYPE>
+    template <class TYPE>
     struct Select {
         // This meta-function contains a typedef 'Type' that specifies the
         // category tag for the parameterized 'TYPE'.
 
       private:
         enum {
-            BDEAT_IS_ARRAY = bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
-            BDEAT_IS_CHOICE = bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-            BDEAT_IS_CUSTOMIZED_TYPE
-                = bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-            BDEAT_IS_ENUMERATION
-                             = bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-            BDEAT_IS_NULLABLE_VALUE
-                  = bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-            BDEAT_IS_SEQUENCE
-                            = bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-            BDEAT_NUM_CATEGORIES = BDEAT_IS_ARRAY
-                                 + BDEAT_IS_CHOICE
-                                 + BDEAT_IS_CUSTOMIZED_TYPE
-                                 + BDEAT_IS_ENUMERATION
-                                 + BDEAT_IS_NULLABLE_VALUE
-                                 + BDEAT_IS_SEQUENCE,
-            BDEAT_IS_DYNAMIC = BDEAT_NUM_CATEGORIES > 1
-                               || bdeat_TypeCategoryDeclareDynamic<TYPE>::VALUE
+            BDLAT_IS_ARRAY = bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
+            BDLAT_IS_CHOICE = bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+            BDLAT_IS_CUSTOMIZED_TYPE
+                = bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
+            BDLAT_IS_ENUMERATION
+                             = bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
+            BDLAT_IS_NULLABLE_VALUE
+                  = bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+            BDLAT_IS_SEQUENCE
+                            = bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+            BDLAT_NUM_CATEGORIES = BDLAT_IS_ARRAY
+                                 + BDLAT_IS_CHOICE
+                                 + BDLAT_IS_CUSTOMIZED_TYPE
+                                 + BDLAT_IS_ENUMERATION
+                                 + BDLAT_IS_NULLABLE_VALUE
+                                 + BDLAT_IS_SEQUENCE,
+            BDLAT_IS_DYNAMIC = BDLAT_NUM_CATEGORIES > 1
+                               || bdlat_TypeCategoryDeclareDynamic<TYPE>::VALUE
         };
 
       public:
         enum {
-            BDEAT_SELECTION =
-                      BDEAT_IS_DYNAMIC         ? BDEAT_DYNAMIC_CATEGORY
-                    : BDEAT_IS_ARRAY           ? BDEAT_ARRAY_CATEGORY
-                    : BDEAT_IS_CHOICE          ? BDEAT_CHOICE_CATEGORY
-                    : BDEAT_IS_CUSTOMIZED_TYPE ? BDEAT_CUSTOMIZED_TYPE_CATEGORY
-                    : BDEAT_IS_ENUMERATION     ? BDEAT_ENUMERATION_CATEGORY
-                    : BDEAT_IS_NULLABLE_VALUE  ? BDEAT_NULLABLE_VALUE_CATEGORY
-                    : BDEAT_IS_SEQUENCE        ? BDEAT_SEQUENCE_CATEGORY
-                    : BDEAT_SIMPLE_CATEGORY
+            BDLAT_SELECTION =
+                      BDLAT_IS_DYNAMIC         ? BDLAT_DYNAMIC_CATEGORY
+                    : BDLAT_IS_ARRAY           ? BDLAT_ARRAY_CATEGORY
+                    : BDLAT_IS_CHOICE          ? BDLAT_CHOICE_CATEGORY
+                    : BDLAT_IS_CUSTOMIZED_TYPE ? BDLAT_CUSTOMIZED_TYPE_CATEGORY
+                    : BDLAT_IS_ENUMERATION     ? BDLAT_ENUMERATION_CATEGORY
+                    : BDLAT_IS_NULLABLE_VALUE  ? BDLAT_NULLABLE_VALUE_CATEGORY
+                    : BDLAT_IS_SEQUENCE        ? BDLAT_SEQUENCE_CATEGORY
+                    : BDLAT_SIMPLE_CATEGORY
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-          , SELECTION = BDEAT_SELECTION
+          , SELECTION = BDLAT_SELECTION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
+      , BDEAT_SELECTION = BDLAT_SELECTION
+#endif
         };
 
         typedef typename
-        bslmf::Switch<BDEAT_SELECTION, DynamicType,
+        bslmf::Switch<BDLAT_SELECTION, DynamicType,
                                        Array,
                                        Choice,
                                        CustomizedType,
@@ -542,189 +560,189 @@ struct bdeat_TypeCategory {
 };
 
                        // =============================
-                       // struct bdeat_TypeCategoryUtil
+                       // struct bdlat_TypeCategoryUtil
                        // =============================
 
-struct bdeat_TypeCategoryUtil {
+struct bdlat_TypeCategoryUtil {
     // This 'struct' contains utility functions pertaining to type category.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     static int manipulateByCategory(TYPE         *object,
                                     MANIPULATOR&  manipulator);
         // Invoke one of the following functions, based on the result of
-        // 'bdeat_TypeCategoryFunctions::select':
+        // 'bdlat_TypeCategoryFunctions::select':
         //..
-        //  o bdeat_TypeCategoryFunctions::manipulateArray
-        //  o bdeat_TypeCategoryFunctions::manipulateChoice
-        //  o bdeat_TypeCategoryFunctions::manipulateCustomizedType
-        //  o bdeat_TypeCategoryFunctions::manipulateEnumeration
-        //  o bdeat_TypeCategoryFunctions::manipulateNullableValue
-        //  o bdeat_TypeCategoryFunctions::manipulateSequence
-        //  o bdeat_TypeCategoryFunctions::manipulateSimple
+        //  o bdlat_TypeCategoryFunctions::manipulateArray
+        //  o bdlat_TypeCategoryFunctions::manipulateChoice
+        //  o bdlat_TypeCategoryFunctions::manipulateCustomizedType
+        //  o bdlat_TypeCategoryFunctions::manipulateEnumeration
+        //  o bdlat_TypeCategoryFunctions::manipulateNullableValue
+        //  o bdlat_TypeCategoryFunctions::manipulateSequence
+        //  o bdlat_TypeCategoryFunctions::manipulateSimple
         //..
         // Return the value that was returned by the invoked function.  The
         // behavior is undefined unless the parameterized 'TYPE' supports the
         // type category that was returned by the call to the
-        // 'bdeat_TypeCategoryFunctions::select' function.
+        // 'bdlat_TypeCategoryFunctions::select' function.
 
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     static int accessByCategory(const TYPE& object,
                                 ACCESSOR&   accessor);
         // Invoke one of the following functions, based on the result of
-        // 'bdeat_TypeCategoryFunctions::select':
+        // 'bdlat_TypeCategoryFunctions::select':
         //..
-        //  o bdeat_TypeCategoryFunctions::accessArray
-        //  o bdeat_TypeCategoryFunctions::accessChoice
-        //  o bdeat_TypeCategoryFunctions::accessCustomizedType
-        //  o bdeat_TypeCategoryFunctions::accessEnumeration
-        //  o bdeat_TypeCategoryFunctions::accessNullableValue
-        //  o bdeat_TypeCategoryFunctions::accessSequence
-        //  o bdeat_TypeCategoryFunctions::accessSimple
+        //  o bdlat_TypeCategoryFunctions::accessArray
+        //  o bdlat_TypeCategoryFunctions::accessChoice
+        //  o bdlat_TypeCategoryFunctions::accessCustomizedType
+        //  o bdlat_TypeCategoryFunctions::accessEnumeration
+        //  o bdlat_TypeCategoryFunctions::accessNullableValue
+        //  o bdlat_TypeCategoryFunctions::accessSequence
+        //  o bdlat_TypeCategoryFunctions::accessSimple
         //..
         // Return the value that was returned by the invoked function.  The
         // behavior is undefined unless the parameterized 'TYPE' supports the
         // type category that was returned by the call to the
-        // 'bdeat_TypeCategoryFunctions::select' function.
+        // 'bdlat_TypeCategoryFunctions::select' function.
 };
 
                    // =====================================
-                   // namespace bdeat_TypeCategoryFunctions
+                   // namespace bdlat_TypeCategoryFunctions
                    // =====================================
 
-namespace bdeat_TypeCategoryFunctions {
+namespace bdlat_TypeCategoryFunctions {
     // This namespace contains overloadable functions pertaining to type
     // categories.
 
     // MANIPULATORS
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateArray(TYPE *object, MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Array' tag object as the second argument if the
+        // 'bdlat_TypeCategory::Array' tag object as the second argument if the
         // first argument can be used with 'bdlat_arrayfunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateChoice(TYPE *object, MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Choice' tag object as the second argument if
+        // 'bdlat_TypeCategory::Choice' tag object as the second argument if
         // the first argument can be used with 'bdlat_choicefunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateCustomizedType(TYPE *object, MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::CustomizedType' tag object as the second
+        // 'bdlat_TypeCategory::CustomizedType' tag object as the second
         // argument if the first argument can be used with
         // 'bdlat_customizedtypefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'manipulator'.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateEnumeration(TYPE *object, MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Enumeration' tag object as the second argument
+        // 'bdlat_TypeCategory::Enumeration' tag object as the second argument
         // if the first argument can be used with 'bdlat_enumfunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateNullableValue(TYPE *object, MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::NullableValue' tag object as the second
+        // 'bdlat_TypeCategory::NullableValue' tag object as the second
         // argument if the first argument can be used with
         // 'bdlat_nullablevaluefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'manipulator'.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateSequence(TYPE *object, MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Sequence' tag object as the second argument if
+        // 'bdlat_TypeCategory::Sequence' tag object as the second argument if
         // the first argument can be used with 'bdlat_sequencefunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'manipulator'.
 
-    template <typename TYPE, typename MANIPULATOR>
+    template <class TYPE, class MANIPULATOR>
     int manipulateSimple(TYPE *object, MANIPULATOR& manipulator);
         // Invoke the specified 'manipulator', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Simple' tag object as the second argument if
+        // 'bdlat_TypeCategory::Simple' tag object as the second argument if
         // the first argument can be used as a simple type, or a 'bslmf::Nil'
         // tag object otherwise.  Return the result from the invocation of
         // 'manipulator'.
 
     // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessArray(const TYPE& object, ACCESSOR& accessor);
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Array' tag object as the second argument if the
+        // 'bdlat_TypeCategory::Array' tag object as the second argument if the
         // first argument can be used with 'bdlat_arrayfunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessChoice(const TYPE& object, ACCESSOR& accessor);
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Choice' tag object as the second argument if
+        // 'bdlat_TypeCategory::Choice' tag object as the second argument if
         // the first argument can be used with 'bdlat_choicefunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessCustomizedType(const TYPE& object, ACCESSOR& accessor);
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::CustomizedType' tag object as the second
+        // 'bdlat_TypeCategory::CustomizedType' tag object as the second
         // argument if the first argument can be used with
         // 'bdlat_customizedtypefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'accessor'.
 
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessEnumeration(const TYPE& object, ACCESSOR& accessor);
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Enumeration' tag object as the second argument
+        // 'bdlat_TypeCategory::Enumeration' tag object as the second argument
         // if the first argument can be used with 'bdlat_enumfunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessNullableValue(const TYPE& object, ACCESSOR& accessor);
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::NullableValue' tag object as the second
+        // 'bdlat_TypeCategory::NullableValue' tag object as the second
         // argument if the first argument can be used with
         // 'bdlat_nullablevaluefunctions', or a 'bslmf::Nil' tag object
         // otherwise.  Return the result from the invocation of 'accessor'.
 
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessSequence(const TYPE& object, ACCESSOR& accessor);
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Sequence' tag object as the second argument if
+        // 'bdlat_TypeCategory::Sequence' tag object as the second argument if
         // the first argument can be used with 'bdlat_sequencefunctions', or a
         // 'bslmf::Nil' tag object otherwise.  Return the result from the
         // invocation of 'accessor'.
 
-    template <typename TYPE, typename ACCESSOR>
+    template <class TYPE, class ACCESSOR>
     int accessSimple(const TYPE& object, ACCESSOR& accessor);
         // Invoke the specified 'accessor', passing it an appropriate
         // representation of 'object' as the first argument, and either a
-        // 'bdeat_TypeCategory::Simple' tag object as the second argument if
+        // 'bdlat_TypeCategory::Simple' tag object as the second argument if
         // the first argument can be used as a simple type, or a 'bslmf::Nil'
         // tag object otherwise.  Return the result from the invocation of
         // 'accessor'.
 
-    template <typename TYPE>
-    bdeat_TypeCategory::Value select(const TYPE& object);
+    template <class TYPE>
+    bdlat_TypeCategory::Value select(const TYPE& object);
         // Return the *runtime* type category for the specified 'object'.
         // Dynamic types *must* overload this function and implement the
         // appropriate logic for detecting the runtime type category.
@@ -737,91 +755,91 @@ namespace bdeat_TypeCategoryFunctions {
     // these functions directly.  Use the functions above instead.
 
     // MANIPULATORS
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateArray(TYPE         *object,
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_typeCategoryManipulateArray(TYPE         *object,
                                           MANIPULATOR&  manipulator);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateChoice(TYPE         *object,
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_typeCategoryManipulateChoice(TYPE         *object,
                                            MANIPULATOR&  manipulator);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateCustomizedType(TYPE         *object,
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_typeCategoryManipulateCustomizedType(TYPE         *object,
                                                    MANIPULATOR&  manipulator);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateEnumeration(TYPE         *object,
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_typeCategoryManipulateEnumeration(TYPE         *object,
                                                 MANIPULATOR&  manipulator);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateNullableValue(TYPE         *object,
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_typeCategoryManipulateNullableValue(TYPE         *object,
                                                   MANIPULATOR&  manipulator);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateSequence(TYPE         *object,
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_typeCategoryManipulateSequence(TYPE         *object,
                                              MANIPULATOR&  manipulator);
-    template <typename TYPE, typename MANIPULATOR>
-    int bdeat_typeCategoryManipulateSimple(TYPE         *object,
+    template <class TYPE, class MANIPULATOR>
+    int bdlat_typeCategoryManipulateSimple(TYPE         *object,
                                            MANIPULATOR&  manipulator);
 
     // ACCESSORS
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_typeCategoryAccessArray(const TYPE& object, ACCESSOR& accessor);
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_typeCategoryAccessChoice(const TYPE& object, ACCESSOR& accessor);
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_typeCategoryAccessCustomizedType(const TYPE& object,
+    template <class TYPE, class ACCESSOR>
+    int bdlat_typeCategoryAccessArray(const TYPE& object, ACCESSOR& accessor);
+    template <class TYPE, class ACCESSOR>
+    int bdlat_typeCategoryAccessChoice(const TYPE& object, ACCESSOR& accessor);
+    template <class TYPE, class ACCESSOR>
+    int bdlat_typeCategoryAccessCustomizedType(const TYPE& object,
                                                ACCESSOR&   accessor);
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_typeCategoryAccessEnumeration(const TYPE& object,
+    template <class TYPE, class ACCESSOR>
+    int bdlat_typeCategoryAccessEnumeration(const TYPE& object,
                                             ACCESSOR&   accessor);
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_typeCategoryAccessNullableValue(const TYPE& object,
+    template <class TYPE, class ACCESSOR>
+    int bdlat_typeCategoryAccessNullableValue(const TYPE& object,
                                               ACCESSOR&   accessor);
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_typeCategoryAccessSequence(const TYPE& object,
+    template <class TYPE, class ACCESSOR>
+    int bdlat_typeCategoryAccessSequence(const TYPE& object,
                                          ACCESSOR&   accessor);
-    template <typename TYPE, typename ACCESSOR>
-    int bdeat_typeCategoryAccessSimple(const TYPE& object, ACCESSOR& accessor);
-    template <typename TYPE>
-    bdeat_TypeCategory::Value bdeat_typeCategorySelect(const TYPE& object);
+    template <class TYPE, class ACCESSOR>
+    int bdlat_typeCategoryAccessSimple(const TYPE& object, ACCESSOR& accessor);
+    template <class TYPE>
+    bdlat_TypeCategory::Value bdlat_typeCategorySelect(const TYPE& object);
 
-}  // close namespace bdeat_TypeCategoryFunctions
+}  // close namespace bdlat_TypeCategoryFunctions
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                        // -----------------------------
-                       // struct bdeat_TypeCategoryUtil
+                       // struct bdlat_TypeCategoryUtil
                        // -----------------------------
 
-template <typename TYPE, typename MANIPULATOR>
-int bdeat_TypeCategoryUtil::manipulateByCategory(TYPE         *object,
+template <class TYPE, class MANIPULATOR>
+int bdlat_TypeCategoryUtil::manipulateByCategory(TYPE         *object,
                                                  MANIPULATOR&  manipulator)
 {
-    using namespace bdeat_TypeCategoryFunctions;
+    using namespace bdlat_TypeCategoryFunctions;
 
     switch (select(*object)) {
-      case bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY: {
+      case bdlat_TypeCategory::BDLAT_DYNAMIC_CATEGORY: {
         BSLS_ASSERT_SAFE("'select' must not return 'DYNAMIC_CATEGORY'." && 0);
-        return -1;
+        return -1;                                                    // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY: {
-        return manipulateArray(object, manipulator);
+      case bdlat_TypeCategory::BDLAT_ARRAY_CATEGORY: {
+        return manipulateArray(object, manipulator);                  // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY: {
-        return manipulateChoice(object, manipulator);
+      case bdlat_TypeCategory::BDLAT_CHOICE_CATEGORY: {
+        return manipulateChoice(object, manipulator);                 // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY: {
-        return manipulateCustomizedType(object, manipulator);
+      case bdlat_TypeCategory::BDLAT_CUSTOMIZED_TYPE_CATEGORY: {
+        return manipulateCustomizedType(object, manipulator);         // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY: {
-        return manipulateEnumeration(object, manipulator);
+      case bdlat_TypeCategory::BDLAT_ENUMERATION_CATEGORY: {
+        return manipulateEnumeration(object, manipulator);            // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY: {
-        return manipulateNullableValue(object, manipulator);
+      case bdlat_TypeCategory::BDLAT_NULLABLE_VALUE_CATEGORY: {
+        return manipulateNullableValue(object, manipulator);          // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY: {
-        return manipulateSequence(object, manipulator);
+      case bdlat_TypeCategory::BDLAT_SEQUENCE_CATEGORY: {
+        return manipulateSequence(object, manipulator);               // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY: {
-        return manipulateSimple(object, manipulator);
+      case bdlat_TypeCategory::BDLAT_SIMPLE_CATEGORY: {
+        return manipulateSimple(object, manipulator);                 // RETURN
       }
     }
 
@@ -831,37 +849,37 @@ int bdeat_TypeCategoryUtil::manipulateByCategory(TYPE         *object,
     return -1;
 }
 
-template <typename TYPE, typename ACCESSOR>
-int bdeat_TypeCategoryUtil::accessByCategory(const TYPE& object,
+template <class TYPE, class ACCESSOR>
+int bdlat_TypeCategoryUtil::accessByCategory(const TYPE& object,
                                              ACCESSOR&   accessor)
 {
-    using namespace bdeat_TypeCategoryFunctions;
+    using namespace bdlat_TypeCategoryFunctions;
 
     switch (select(object)) {
-      case bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY: {
+      case bdlat_TypeCategory::BDLAT_DYNAMIC_CATEGORY: {
         BSLS_ASSERT_SAFE("'select' must not return 'DYNAMIC_CATEGORY'." && 0);
-        return -1;
+        return -1;                                                    // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY: {
-        return accessArray(object, accessor);
+      case bdlat_TypeCategory::BDLAT_ARRAY_CATEGORY: {
+        return accessArray(object, accessor);                         // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY: {
-        return accessChoice(object, accessor);
+      case bdlat_TypeCategory::BDLAT_CHOICE_CATEGORY: {
+        return accessChoice(object, accessor);                        // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY: {
-        return accessCustomizedType(object, accessor);
+      case bdlat_TypeCategory::BDLAT_CUSTOMIZED_TYPE_CATEGORY: {
+        return accessCustomizedType(object, accessor);                // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY: {
-        return accessEnumeration(object, accessor);
+      case bdlat_TypeCategory::BDLAT_ENUMERATION_CATEGORY: {
+        return accessEnumeration(object, accessor);                   // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY: {
-        return accessNullableValue(object, accessor);
+      case bdlat_TypeCategory::BDLAT_NULLABLE_VALUE_CATEGORY: {
+        return accessNullableValue(object, accessor);                 // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY: {
-        return accessSequence(object, accessor);
+      case bdlat_TypeCategory::BDLAT_SEQUENCE_CATEGORY: {
+        return accessSequence(object, accessor);                      // RETURN
       }
-      case bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY: {
-        return accessSimple(object, accessor);
+      case bdlat_TypeCategory::BDLAT_SIMPLE_CATEGORY: {
+        return accessSimple(object, accessor);                        // RETURN
       }
     }
 
@@ -872,321 +890,321 @@ int bdeat_TypeCategoryUtil::accessByCategory(const TYPE& object,
 }
 
                    // -------------------------------------
-                   // namespace bdeat_TypeCategoryFunctions
+                   // namespace bdlat_TypeCategoryFunctions
                    // -------------------------------------
 
 // MANIPULATORS
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::manipulateArray(TYPE         *object,
+int bdlat_TypeCategoryFunctions::manipulateArray(TYPE         *object,
                                                  MANIPULATOR&  manipulator)
 {
-    return bdeat_typeCategoryManipulateArray(object, manipulator);
+    return bdlat_typeCategoryManipulateArray(object, manipulator);
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::manipulateChoice(TYPE         *object,
+int bdlat_TypeCategoryFunctions::manipulateChoice(TYPE         *object,
                                                   MANIPULATOR&  manipulator)
 {
-    return bdeat_typeCategoryManipulateChoice(object, manipulator);
+    return bdlat_typeCategoryManipulateChoice(object, manipulator);
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::manipulateCustomizedType(
+int bdlat_TypeCategoryFunctions::manipulateCustomizedType(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    return bdeat_typeCategoryManipulateCustomizedType(object, manipulator);
+    return bdlat_typeCategoryManipulateCustomizedType(object, manipulator);
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::manipulateEnumeration(
+int bdlat_TypeCategoryFunctions::manipulateEnumeration(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    return bdeat_typeCategoryManipulateEnumeration(object, manipulator);
+    return bdlat_typeCategoryManipulateEnumeration(object, manipulator);
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::manipulateNullableValue(
+int bdlat_TypeCategoryFunctions::manipulateNullableValue(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
-    return bdeat_typeCategoryManipulateNullableValue(object, manipulator);
+    return bdlat_typeCategoryManipulateNullableValue(object, manipulator);
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::manipulateSequence(TYPE         *object,
+int bdlat_TypeCategoryFunctions::manipulateSequence(TYPE         *object,
                                                     MANIPULATOR&  manipulator)
 {
-    return bdeat_typeCategoryManipulateSequence(object, manipulator);
+    return bdlat_typeCategoryManipulateSequence(object, manipulator);
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::manipulateSimple(TYPE         *object,
+int bdlat_TypeCategoryFunctions::manipulateSimple(TYPE         *object,
                                                   MANIPULATOR&  manipulator)
 {
-    return bdeat_typeCategoryManipulateSimple(object, manipulator);
+    return bdlat_typeCategoryManipulateSimple(object, manipulator);
 }
 
 // ACCESSORS
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::accessArray(const TYPE& object,
+int bdlat_TypeCategoryFunctions::accessArray(const TYPE& object,
                                              ACCESSOR&   accessor)
 {
-    return bdeat_typeCategoryAccessArray(object, accessor);
+    return bdlat_typeCategoryAccessArray(object, accessor);
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::accessChoice(const TYPE& object,
+int bdlat_TypeCategoryFunctions::accessChoice(const TYPE& object,
                                               ACCESSOR&   accessor)
 {
-    return bdeat_typeCategoryAccessChoice(object, accessor);
+    return bdlat_typeCategoryAccessChoice(object, accessor);
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::accessCustomizedType(const TYPE& object,
+int bdlat_TypeCategoryFunctions::accessCustomizedType(const TYPE& object,
                                                       ACCESSOR&   accessor)
 {
-    return bdeat_typeCategoryAccessCustomizedType(object, accessor);
+    return bdlat_typeCategoryAccessCustomizedType(object, accessor);
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::accessEnumeration(const TYPE& object,
+int bdlat_TypeCategoryFunctions::accessEnumeration(const TYPE& object,
                                                    ACCESSOR&   accessor)
 {
-    return bdeat_typeCategoryAccessEnumeration(object, accessor);
+    return bdlat_typeCategoryAccessEnumeration(object, accessor);
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::accessNullableValue(const TYPE& object,
+int bdlat_TypeCategoryFunctions::accessNullableValue(const TYPE& object,
                                                      ACCESSOR&   accessor)
 {
-    return bdeat_typeCategoryAccessNullableValue(object, accessor);
+    return bdlat_typeCategoryAccessNullableValue(object, accessor);
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::accessSequence(const TYPE& object,
+int bdlat_TypeCategoryFunctions::accessSequence(const TYPE& object,
                                                 ACCESSOR&   accessor)
 {
-    return bdeat_typeCategoryAccessSequence(object, accessor);
+    return bdlat_typeCategoryAccessSequence(object, accessor);
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::accessSimple(const TYPE& object,
+int bdlat_TypeCategoryFunctions::accessSimple(const TYPE& object,
                                               ACCESSOR&   accessor)
 {
-    return bdeat_typeCategoryAccessSimple(object, accessor);
+    return bdlat_typeCategoryAccessSimple(object, accessor);
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-bdeat_TypeCategory::Value bdeat_TypeCategoryFunctions::select(
+bdlat_TypeCategory::Value bdlat_TypeCategoryFunctions::select(
                                                             const TYPE& object)
 {
-    return bdeat_typeCategorySelect(object);
+    return bdlat_typeCategorySelect(object);
 }
 
        // --------------------------------------------------------------
-       // namespace bdeat_TypeCategoryFunctions (OVERLOADABLE FUNCTIONS)
+       // namespace bdlat_TypeCategoryFunctions (OVERLOADABLE FUNCTIONS)
        // --------------------------------------------------------------
 
 // MANIPULATORS
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateArray(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateArray(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
-             bdeat_TypeCategory::Array, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
+             bdlat_TypeCategory::Array, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateChoice(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateChoice(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-             bdeat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+             bdlat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateCustomizedType(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateCustomizedType(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-             bdeat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
+             bdlat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateEnumeration(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateEnumeration(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-             bdeat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
+             bdlat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateNullableValue(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateNullableValue(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-             bdeat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+             bdlat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateSequence(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateSequence(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-             bdeat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+             bdlat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
-template <typename TYPE, typename MANIPULATOR>
+template <class TYPE, class MANIPULATOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryManipulateSimple(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryManipulateSimple(
                                                      TYPE         *object,
                                                      MANIPULATOR&  manipulator)
 {
     typedef typename
-    bslmf::If<(int)bdeat_TypeCategory::Select<TYPE>::BDEAT_SELECTION ==
-                                (int)bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY,
-             bdeat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
+    bslmf::If<(int)bdlat_TypeCategory::Select<TYPE>::BDLAT_SELECTION ==
+                                (int)bdlat_TypeCategory::BDLAT_SIMPLE_CATEGORY,
+             bdlat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
     return manipulator(object, Tag());
 }
 
 // ACCESSORS
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessArray(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessArray(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf::If<bdeat_ArrayFunctions::IsArray<TYPE>::VALUE,
-             bdeat_TypeCategory::Array, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_ArrayFunctions::IsArray<TYPE>::VALUE,
+             bdlat_TypeCategory::Array, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessChoice(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessChoice(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf::If<bdeat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
-             bdeat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_ChoiceFunctions::IsChoice<TYPE>::VALUE,
+             bdlat_TypeCategory::Choice, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessCustomizedType(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessCustomizedType(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf::If<bdeat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
-             bdeat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_CustomizedTypeFunctions::IsCustomizedType<TYPE>::VALUE,
+             bdlat_TypeCategory::CustomizedType, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessEnumeration(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessEnumeration(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf::If<bdeat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
-             bdeat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_EnumFunctions::IsEnumeration<TYPE>::VALUE,
+             bdlat_TypeCategory::Enumeration, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessNullableValue(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessNullableValue(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf::If<bdeat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
-             bdeat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_NullableValueFunctions::IsNullableValue<TYPE>::VALUE,
+             bdlat_TypeCategory::NullableValue, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessSequence(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessSequence(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf::If<bdeat_SequenceFunctions::IsSequence<TYPE>::VALUE,
-             bdeat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
+    bslmf::If<bdlat_SequenceFunctions::IsSequence<TYPE>::VALUE,
+             bdlat_TypeCategory::Sequence, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
-template <typename TYPE, typename ACCESSOR>
+template <class TYPE, class ACCESSOR>
 inline
-int bdeat_TypeCategoryFunctions::bdeat_typeCategoryAccessSimple(
+int bdlat_TypeCategoryFunctions::bdlat_typeCategoryAccessSimple(
                                                           const TYPE& object,
                                                           ACCESSOR&   accessor)
 {
     typedef typename
-    bslmf::If<(int)bdeat_TypeCategory::Select<TYPE>::BDEAT_SELECTION ==
-                                (int)bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY,
-             bdeat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
+    bslmf::If<(int)bdlat_TypeCategory::Select<TYPE>::BDLAT_SELECTION ==
+                                (int)bdlat_TypeCategory::BDLAT_SIMPLE_CATEGORY,
+             bdlat_TypeCategory::Simple, bslmf::Nil>::Type Tag;
     return accessor(object, Tag());
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
-bdeat_TypeCategory::Value
-bdeat_TypeCategoryFunctions::bdeat_typeCategorySelect(const TYPE& object)
+bdlat_TypeCategory::Value
+bdlat_TypeCategoryFunctions::bdlat_typeCategorySelect(const TYPE& object)
 {
     enum {
-        BDEAT_SELECTION = bdeat_TypeCategory::Select<TYPE>::BDEAT_SELECTION
+        BDLAT_SELECTION = bdlat_TypeCategory::Select<TYPE>::BDLAT_SELECTION
     };
 
     // An assertion below indicates that 'TYPE' is a dynamic type, but does not
@@ -1194,24 +1212,22 @@ bdeat_TypeCategoryFunctions::bdeat_typeCategorySelect(const TYPE& object)
     // 'select' function to implement the logic that determines the *runtime*
     // type category.
 
-    BSLMF_ASSERT(bdeat_TypeCategory::BDEAT_DYNAMIC_CATEGORY
-             != (bdeat_TypeCategory::Value)BDEAT_SELECTION);
+    BSLMF_ASSERT(bdlat_TypeCategory::BDLAT_DYNAMIC_CATEGORY
+             != (bdlat_TypeCategory::Value)BDLAT_SELECTION);
 
     (void)object;
-    return (bdeat_TypeCategory::Value)BDEAT_SELECTION;
+    return (bdlat_TypeCategory::Value)BDLAT_SELECTION;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
+#endif
 
-
-#endif  // INCLUDED_BDEAT_TYPECATEGORY
-
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
