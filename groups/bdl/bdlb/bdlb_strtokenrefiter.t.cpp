@@ -1301,7 +1301,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == I.hasSoft());
                     ASSERT(1 == I.isHard());
 
-                    mR.assign(0);
+                    mR.reset();
 
                     mI.reset(R);  ASSERT(!I);
                     ASSERT(1 == (I.previousDelimiter() == ""));
@@ -2101,7 +2101,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\t  0\t|     0\t\t|     0" << endl;
             {
-                Obj mI(Ref(0), 0, 0);  const Obj& I = mI;
+                Obj mI(Ref(), 0, 0);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2114,7 +2114,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t\t  0\t|     0\t\t|     \"\"" << endl;
             {
-                Obj mI(Ref(0), 0, "");  const Obj& I = mI;
+                Obj mI(Ref(), 0, "");  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2128,7 +2128,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t\t  0\t|     0\t\t| hardDelims"
                                   << endl;
             {
-                Obj mI(Ref(0), 0, hardDelims);  const Obj& I = mI;
+                Obj mI(Ref(), 0, hardDelims);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2141,7 +2141,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t\t  0\t|     \"\"\t|     0" << endl;
             {
-                Obj mI(Ref(0), "", 0);  const Obj& I = mI;
+                Obj mI(Ref(), "", 0);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2154,7 +2154,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t\t  0\t|     \"\"\t|     \"\"" << endl;
             {
-                Obj mI(Ref(0), "", "");  const Obj& I = mI;
+                Obj mI(Ref(), "", "");  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2168,7 +2168,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t\t  0\t|     \"\"\t| hardDelims"
                                   << endl;
             {
-                Obj mI(Ref(0), "", hardDelims);  const Obj& I = mI;
+                Obj mI(Ref(), "", hardDelims);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2181,7 +2181,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t\t  0\t| softDelims\t|     0" << endl;
             {
-                Obj mI(Ref(0), softDelims, 0);  const Obj& I = mI;
+                Obj mI(Ref(), softDelims, 0);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2195,7 +2195,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t\t  0\t| softDelims\t|     \"\""
                                   << endl;
             {
-                Obj mI(Ref(0), softDelims, "");  const Obj& I = mI;
+                Obj mI(Ref(), softDelims, "");  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2209,7 +2209,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t\t  0\t| softDelims\t| hardDelims"
                                   << endl;
             {
-                Obj mI(Ref(0), softDelims, hardDelims);  const Obj& I = mI;
+                Obj mI(Ref(), softDelims, hardDelims);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2786,7 +2786,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\t\t  0\t|     0\t\t|     0" << endl;
             {
-                Obj mI(Ref(0), 0);  const Obj& I = mI;
+                Obj mI(Ref(), 0);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2799,7 +2799,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t\t  0\t|     \"\"\t|     0" << endl;
             {
-                Obj mI(Ref(0), "");  const Obj& I = mI;
+                Obj mI(Ref(), "");  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
@@ -2812,7 +2812,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t\t  0\t| softDelims\t|     0" << endl;
             {
-                Obj mI(Ref(0), softDelims);  const Obj& I = mI;
+                Obj mI(Ref(), softDelims);  const Obj& I = mI;
                 ASSERT(!I);
                 ASSERT(1 == (I.previousDelimiter() == ""));
                 ASSERT(0 == I.hasPreviousSoft());
