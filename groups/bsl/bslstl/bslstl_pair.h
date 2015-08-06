@@ -303,30 +303,26 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_UTILITY
 #endif
 
-namespace bsl {
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
-// If the compiler supports rvalue references, then 'std::swap' has a
-// complicated SFINAE clause.  Fortunately, it is defined in <utility>, which
-// is included, so we can simply import it into the 'bsl' namespace.
-using std::swap;
-
-#else
-
-// If the compiler does not support rvalue references, then 'std::swap' has a
-// trivial signature and implementation.  We define it here because otherwise
-// we'd have to '#include <algorithm>', which causes difficult-to-fix cyclic
-// dependencies between the native library and bsl.
-template <class TYPE>
-void swap(TYPE& a, TYPE b)
-    // Swap the values of the specified 'a' and 'b' objects.
-{
-    TYPE tmp(a);
-    b = a;
-    a = tmp;
-}
+// If the compiler supports rvalue references, then we have C++11 'std::swap',
+// which has a complicated SFINAE clause.  Fortunately, it is defined in
+// <utility>, which is included.
+//
+// However, if the compiler does not support rvalue references, then we have
+// C++03 'std::swap', which has a trivial signature.  We forward-declare it
+// here because otherwise we'd have to '#include <algorithm>', which causes
+// difficult-to-fix cyclic dependencies between the native library and bsl.
+#ifdef std
+#   error This header should not be #included with 'std' being a macro
 #endif
+namespace std {
+template <class TYPE> void swap(TYPE& a, TYPE& b);
+}
+
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+namespace bsl {
 
                         // ===============
                         // struct Pair_Imp
@@ -953,7 +949,7 @@ void pair<T1, T2>::swap(pair& other)
     // Find either 'std::swap' or a specialized 'swap' for 'T1' and 'T2' via
     // ADL.
 
-    using bsl::swap;
+    using std::swap;
 
     swap(first, other.first);
     swap(second, other.second);
