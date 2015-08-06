@@ -35,9 +35,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we set up a test allocator as default allocator.  A
 // 'balst::StackTrace' object, by default, gets all its memory from an owned
-// 'bdlma::HeapBypassAllocator' object.  To demonstrate this default behavior we
-// start by setting the default allocator to a test allocator so we can verify
-// later that it was unused:
+// 'bdlma::HeapBypassAllocator' object.  To demonstrate this default behavior
+// we start by setting the default allocator to a test allocator so we can
+// verify later that it was unused:
 //..
 //  bslma::TestAllocator         da;
 //  bslma::DefaultAllocatorGuard guard(&da);

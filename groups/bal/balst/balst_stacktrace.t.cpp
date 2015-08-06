@@ -580,9 +580,9 @@ int main(int argc, char *argv[])
 //
 // First, we set up a test allocator as default allocator.  A
 // 'balst::StackTrace' object, by default, gets all its memory from an owned
-// 'bdlma::HeapBypassAllocator' object.  To demonstrate this default behavior we
-// start by setting the default allocator to a test allocator so we can verify
-// later that it was unused:
+// 'bdlma::HeapBypassAllocator' object.  To demonstrate this default behavior
+// we start by setting the default allocator to a test allocator so we can
+// verify later that it was unused:
 //..
     bslma::TestAllocator         da;
     bslma::DefaultAllocatorGuard guard(&da);
@@ -1130,8 +1130,8 @@ int main(int argc, char *argv[])
         //:   number of elements to replace.  'operator[]' is also tested using
         //:   the scalar 'replace' data, but using explicit assignment to
         //:   achieve the "expected" result.
-        //:   o Since 'balst::StackTrace' does not currently provide a 'replace'
-        //:     method, those tests are omitted.
+        //:   o Since 'balst::StackTrace' does not currently provide a
+        //:     'replace' method, those tests are omitted.
         //:   o In the "canonical state" (black-box) tests, we confirm that the
         //:     source is unmodified by the method call, and that its
         //:     subsequent destruction has no effect on the destination object.
@@ -3596,8 +3596,8 @@ int main(int argc, char *argv[])
         //: 2 Various internal state representations
         //:   for a given value must produce identical results.
         //: 3 The 'allocator()' method must return a pointer to a
-        //:   'bdlma::HeapBypassAllocator' object for objects constructed with 0
-        //:   as the specified allocator, or with no specified allocator.
+        //:   'bdlma::HeapBypassAllocator' object for objects constructed with
+        //:   0 as the specified allocator, or with no specified allocator.
         //
         // Plan:
         //: 1 Specify a set 'S' of representative object values ordered by

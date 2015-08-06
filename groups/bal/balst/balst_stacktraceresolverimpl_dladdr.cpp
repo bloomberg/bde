@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR
 
 #include <bsl_cstring.h>
 

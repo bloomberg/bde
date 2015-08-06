@@ -230,7 +230,7 @@ void protect_the_subsystem()
 // trace can be merged against the executable program to determine the location
 // of the error.
 //..
-    // [ [ ... balst_assertionlogger.cpp 55 Assertion.Failure 32 
+    // [ [ ... balst_assertionlogger.cpp 55 Assertion.Failure 32
     // Assertion failed: (*this)[this->d_length] == CHAR_TYPE(),
     // file .../bslstl_string.h, line 3407
     // For stack trace, run 'showfunc.tsk <your_program_binary>

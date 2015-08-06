@@ -114,10 +114,10 @@ using bsl::ostream;
 //:   o swap
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] balst::StackTraceFrame(bslma::Allocator *bA = 0);
-// [ 3] balst::StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
-// [ 7] balst::StackTraceFrame(const baesu::STF& o, *bA = 0);
-// [ 2] ~balst::StackTraceFrame();
+// [ 2] StackTraceFrame(bslma::Allocator *bA = 0);
+// [ 3] StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+// [ 7] StackTraceFrame(const baesu::STF& o, *bA = 0);
+// [ 2] ~StackTraceFrame();
 //
 // MANIPULATORS
 // [ 9] operator=(const balst::StackTraceFrame& rhs);
@@ -755,8 +755,8 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// In this example, we create two 'balst::StackTraceFrame' objects, modify their
-// properties, and compare them.
+// In this example, we create two 'balst::StackTraceFrame' objects, modify
+// their properties, and compare them.
 //
 // First, we (default) create the two objects, 'a' and 'b', and verify that:
 // they have the same value:
@@ -1820,7 +1820,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   balst::StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+        //   StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3183,7 +3183,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   balst::StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
+        //   StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3613,8 +3613,8 @@ int main(int argc, char *argv[])
         //:   (C-15)
         //
         // Testing:
-        //   balst::StackTraceFrame(bslma::Allocator *bA = 0);
-        //   ~balst::StackTraceFrame();
+        //   StackTraceFrame(bslma::Allocator *bA = 0);
+        //   ~StackTraceFrame();
         //   setAddress(const void *value);
         //   setLibraryFileName(const bslstl::StringRef& value);
         //   setLineNumber(int value);

@@ -149,7 +149,7 @@ typedef balst::StackTrace               ST;
 typedef balst::StackTraceFrame          Frame;
 typedef balst::StackTraceUtil           Util;
 
-#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 0 };
 
@@ -163,17 +163,17 @@ typedef balst::StackTraceUtil           Util;
 #   error unknown platform
 # endif
 
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
            PLAT_DARWIN = 1 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1,
            PLAT_DARWIN = 0 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1,
            FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0,
@@ -1569,7 +1569,7 @@ int main(int argc, char *argv[])
         //:   reclaimed.
         // --------------------------------------------------------------------
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         if (verbose) cout << "Memory Leak Test is Performed on Unix Only\n"
                              "==========================================\n";
 #else
@@ -2038,8 +2038,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Get several subroutines deep on the stack.
         //:   1 load a stack trace using
-        //:     'balst::StackAddressUtil::getStackAddresses' and then initialize
-        //:     a stack trace using 'loadStackTraceFromAddressArray'.
+        //:     'balst::StackAddressUtil::getStackAddresses' and then
+        //:     initialize a stack trace using
+        //:     'loadStackTraceFromAddressArray'.
         //:   2 verify the subroutine names on the stack trace.
         //:   3 load another stack trace using 'loadStackTraceFromStack'.
         //:   4 verify the subroutine names on the stack trace.

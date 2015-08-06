@@ -1162,8 +1162,8 @@ int main(int argc, char *argv[])
 //  ---------------------------------------------------------------------------
 //  Allocation trace 1, 1 block(s) in use.
 //  Stack trace at allocation time:
-//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x8
-//  05e741 in balst_stacktracetestallocator.t.dbg_exc_mt
+//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x
+//  805e741 in balst_stacktracetestallocator.t.dbg_exc_mt
 //  (1): BloombergLP::bslma::TestAllocator::allocate(int)+0x12c at 0x8077398 in
 //   balst_stacktracetestallocator.t.dbg_exc_mt
 //  (2): ShipsCrew::copy(bsl::basic_string<char, std::char_traits<char>, bsl::a
@@ -1656,7 +1656,7 @@ int main(int argc, char *argv[])
             }
 
             const bool FOUND = npos != ss.str().find(
-                               "BloombergLP::balst::StackTraceTestAllocator::");
+                              "BloombergLP::balst::StackTraceTestAllocator::");
             LOOP3_ASSERT(ss.str(), demangleExpected, FOUND,
                                                     FOUND == demangleExpected);
 

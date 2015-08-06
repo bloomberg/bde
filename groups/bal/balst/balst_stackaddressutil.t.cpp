@@ -658,9 +658,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tgetStackAddresses" << endl;
             {
                 void *buf[1];
-                ASSERT_PASS(balst::StackAddressUtil::getStackAddresses(buf, 0));
+                ASSERT_PASS(balst::StackAddressUtil::getStackAddresses(buf,0));
                 ASSERT_FAIL(
-                           balst::StackAddressUtil::getStackAddresses(buf, -1));
+                          balst::StackAddressUtil::getStackAddresses(buf, -1));
             }
         }
       }  break;

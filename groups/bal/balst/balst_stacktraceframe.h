@@ -72,8 +72,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this example, we create two 'balst::StackTraceFrame' objects, modify their
-// properties, and compare them.  First, we create the objects 'a' and 'b':
+// In this example, we create two 'balst::StackTraceFrame' objects, modify
+// their properties, and compare them.  First, we create the objects 'a' and
+// 'b':
 //..
 //  balst::StackTraceFrame a, b;
 //  assert(a == b);

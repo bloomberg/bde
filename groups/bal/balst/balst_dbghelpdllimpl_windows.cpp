@@ -129,7 +129,7 @@ struct Dbghelp_Util {
         // necessary, calls the large, out-of-line 'load' function.
 
     // ACCESSORS
-    bool isLoaded();
+    bool isLoaded() const;
         // Everything is fully loaded.
 };
 
@@ -207,7 +207,7 @@ int Dbghelp_Util::load()
 Dbghelp_Util::~Dbghelp_Util()
 {
     BSLS_ASSERT_OPT(
-               !BloombergLP::balst::DbghelpDllImpl_Windows::qLock().isLocked());
+              !BloombergLP::balst::DbghelpDllImpl_Windows::qLock().isLocked());
 
     if (isLoaded()) {
         (*d_symCleanup)(d_hProcess);
@@ -246,7 +246,7 @@ void Dbghelp_Util::wipeClean()
 }
 
 // ACCESSORS
-bool Dbghelp_Util::isLoaded()
+bool Dbghelp_Util::isLoaded() const
 {
     return  0 != d_moduleHandle
          && 0 != d_symSetOptions

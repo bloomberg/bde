@@ -212,7 +212,7 @@ bsl::ostream& StackTraceUtil::printFormatted(
     stream.flags(save);
 
     if (stackTraceFrame.isSourceFileNameKnown()) {
-        //  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+        //  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
         //      // source file info is only available for statics on Elf
         //
         //      stream << " static";

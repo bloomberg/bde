@@ -18,7 +18,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
             // Global inline in another file
 
             stackTrace[5].setAddress(addFixedOffset((UintPtr)
-                                                &bdlt::DateUtil::nextDayOfWeek));
+                                              &bdlt::DateUtil::nextDayOfWeek));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Functions for resolving symbols in a stack trace using 'dladdr'.
+//@PURPOSE: Provide functions for resolving a stack trace using 'dladdr'.
 //
 //@CLASSES:
 //   balst::StackTraceResolverImpl<Dladdr>: symbol resolution using 'dladdr'
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 
 
 namespace balst {template <typename RESOLVER_POLICY>

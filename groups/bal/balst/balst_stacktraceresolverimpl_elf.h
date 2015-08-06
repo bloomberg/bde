@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class,
 // 'baesu::StackTraceResolver<Elf>', that, given a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set, resolves
-// all other fields in those frames.  The Elf object file format is used on
-// Linux, Solaris, and HP-UX platforms.  The Elf format is described by
+// 'balst::StackTraceFrame's that have only their 'address' fields set,
+// resolves all other fields in those frames.  The Elf object file format is
+// used on Linux, Solaris, and HP-UX platforms.  The Elf format is described by
 // documents at:
 //: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
 //: o 'http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf'
@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
 
 
 namespace balst {template <typename RESOLVER_POLICY>

@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
 #include <balst_stacktrace.h>
 #include <balst_stacktraceresolver_filehelper.h>
@@ -1422,7 +1422,8 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
     }
     else {
         d_archiveMemberOffset = 0;
-        d_archiveMemberSize = bdlsu::FilesystemUtil::getFileSize(libraryFileName);
+        d_archiveMemberSize =
+                           bdlsu::FilesystemUtil::getFileSize(libraryFileName);
     }
 
     xcoffhdr header;                  // Xcoff header at the beginning of the

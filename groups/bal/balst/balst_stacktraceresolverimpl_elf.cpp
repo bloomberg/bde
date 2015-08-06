@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_ELF
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
 
 #include <balst_stacktraceresolver_filehelper.h>
 
@@ -1008,7 +1008,7 @@ int local::StackTraceResolver::processLoadedImage(
 
 // PRIVATE ACCESSORS
 void local::StackTraceResolver::setFrameSymbolName(
-                                            balst::StackTraceFrame *frame) const
+                                           balst::StackTraceFrame *frame) const
 {
 #if !defined(BSLS_PLATFORM_OS_SOLARIS)                                        \
  || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)

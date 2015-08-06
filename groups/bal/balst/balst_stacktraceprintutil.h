@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a single function to perform and print a stack trace.
 //
 //@CLASSES:
-//  balst::StackTracePrintUtil: namespace for functions that print a stack trace
+//  balst::StackTracePrintUtil: namespace for functions to print a stack trace
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //

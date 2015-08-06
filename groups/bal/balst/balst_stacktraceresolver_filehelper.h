@@ -120,8 +120,8 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #include <balst_objectfileformat.h>
 #endif
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-    defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+    defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
 #ifndef INCLUDED_bdlsu_filesystemutil
 #include <bdlsu_filesystemutil.h>
@@ -151,13 +151,14 @@ class StackTraceResolver_FileHelper {
     // this object.
 
     // PRIVATE TYPES
-    typedef bdlsu::FilesystemUtil           FilesystemUtil;  // shorthand for class
+    typedef bdlsu::FilesystemUtil          FilesystemUtil;
+                                                // shorthand for class
                                                 // 'bdlsu::FilesystemUtil'
     typedef FilesystemUtil::FileDescriptor FdType;    // shorthand for file
-                                                // descriptor
+                                                      // descriptor
     typedef FilesystemUtil::Offset         Offset;
-    typedef bsls::Types::UintPtr     UintPtr;
-    typedef bsls::Types::IntPtr      IntPtr;
+    typedef bsls::Types::UintPtr           UintPtr;
+    typedef bsls::Types::IntPtr            IntPtr;
 
     // DATA
     FdType d_fd;  // file descriptor

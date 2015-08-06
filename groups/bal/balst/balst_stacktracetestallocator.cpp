@@ -146,10 +146,10 @@ struct StackTraceTestAllocator::BlockHeader {
 // CREATORS
 inline
 balst::StackTraceTestAllocator::BlockHeader::BlockHeader(
-                        BlockHeader                   *next,
-                        BlockHeader                  **prevNext,
-                        balst::StackTraceTestAllocator *stackTraceTestAllocator,
-                        UintPtr                        magic)
+                       BlockHeader                   *next,
+                       BlockHeader                  **prevNext,
+                       balst::StackTraceTestAllocator *stackTraceTestAllocator,
+                       UintPtr                        magic)
 : d_next_p(next)
 , d_prevNext_p(prevNext)
 , d_allocator_p(stackTraceTestAllocator)
@@ -453,7 +453,7 @@ void StackTraceTestAllocator::setDemanglingPreferredFlag(bool value)
 }
 
 void StackTraceTestAllocator::setFailureHandler(
-                                         const bdlf::Function<void (*)()>& func)
+                                        const bdlf::Function<void (*)()>& func)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
 
@@ -479,8 +479,7 @@ void StackTraceTestAllocator::setOstream(bsl::ostream *ostream)
 }
 
 // ACCESSORS
-void StackTraceTestAllocator::reportBlocksInUse(
-                                                   bsl::ostream *ostream) const
+void StackTraceTestAllocator::reportBlocksInUse(bsl::ostream *ostream) const
 {
     typedef bsl::vector<const void *>    StackTraceVec;
     typedef bsl::map<StackTraceVec, int> StackTraceVecMap;

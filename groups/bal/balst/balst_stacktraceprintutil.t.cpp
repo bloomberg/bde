@@ -131,7 +131,7 @@ namespace {
 typedef balst::StackTracePrintUtil           PrintUtil;
 typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 
-#if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
@@ -144,13 +144,13 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 #   error unknown platform
 # endif
 
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
-#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
 #else

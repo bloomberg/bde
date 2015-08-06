@@ -14,7 +14,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
 #include <unistd.h>
 
@@ -84,8 +84,8 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff> Obj;
-typedef balst::StackTraceFrame                                       Frame;
-typedef bsls::Types::UintPtr                                        UintPtr;
+typedef balst::StackTraceFrame                                        Frame;
+typedef bsls::Types::UintPtr                                          UintPtr;
 
 //=============================================================================
 // GLOBAL HELPER VARIABLES FOR TESTING
@@ -284,9 +284,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < iterations;  ++ti) {
             for (int tj = 0; tj < 10; ++tj) {
                 frames.resize(1);
-                frames[0].setAddress(addFixedOffset((UintPtr)
-                         &balst::StackTraceResolverImpl<balst::ObjectFileFormat::
-                                                             Xcoff>::resolve));
+                frames[0].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
 
                 ASSERT(0 == Obj::resolve(&frames, true));
                 frames.resize(0);
@@ -384,9 +382,7 @@ int main(int argc, char *argv[])
             int testFuncLine = (* (int (*)()) testFuncPtr)();
             frames[2].setAddress(addFixedOffset(testFuncPtr));
 
-            frames[3].setAddress(addFixedOffset((UintPtr)
-                 &balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>::
-                                                                     resolve));
+            frames[3].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
 
             // make sure 'qsort' is loaded
 
@@ -507,13 +503,13 @@ int main(int argc, char *argv[])
                            frames[1].symbolName() == ".funcStaticOne(int)");
                 LOOP_ASSERT(frames[2].symbolName(),
                              frames[2].symbolName() == "BloombergLP::"
-                                   "balst::StackTraceResolverImpl<BloombergLP::"
+                                  "balst::StackTraceResolverImpl<BloombergLP::"
                                "balst::ObjectFileFormat::Xcoff>::.testFunc()");
                 {
                     const char *match =
-                                   "BloombergLP::"
-                                   "balst::StackTraceResolverImpl<BloombergLP::"
-                                   "balst::ObjectFileFormat::Xcoff>::.resolve(";
+                                  "BloombergLP::"
+                                  "balst::StackTraceResolverImpl<BloombergLP::"
+                                  "balst::ObjectFileFormat::Xcoff>::.resolve(";
                     int matchLen = bsl::strlen(match);
                     LOOP_ASSERT(frames[3].symbolName(),
                                      safeCmp(frames[3].symbolName().c_str(),

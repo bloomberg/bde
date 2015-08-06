@@ -14,8 +14,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-    defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+    defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
 namespace balst {
                     // -----------------------------------

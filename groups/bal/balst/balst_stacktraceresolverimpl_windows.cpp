@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <bdlb_string.h>
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
 #include <balst_dbghelpdllimpl_windows.h>
 
@@ -115,7 +115,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
                                              hbpAlloc.allocate(SIZEOF_SEGMENT);
 #endif
 
-    for(int i = 0; i < numFrames; ++i) {
+    for (int i = 0; i < numFrames; ++i) {
         StackTraceFrame *frame = &(*stackTrace)[i];
         DWORD64 address = (DWORD64) frame->address();
 
