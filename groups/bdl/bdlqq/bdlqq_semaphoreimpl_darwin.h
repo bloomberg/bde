@@ -29,8 +29,6 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifdef BSLS_PLATFORM_OS_DARWIN
-
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
@@ -47,6 +45,8 @@ BSLS_IDENT("$Id: $")
 #include <semaphore.h>
 #define INCLUDED_SEMAPHORE
 #endif
+
+#ifdef BSLS_PLATFORM_OS_DARWIN
 
 namespace BloombergLP {
 namespace bdlqq {

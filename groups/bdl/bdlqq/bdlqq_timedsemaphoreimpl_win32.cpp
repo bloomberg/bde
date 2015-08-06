@@ -24,11 +24,10 @@ bdlqq::TimedSemaphoreImpl<bdlqq::Platform::Win32TimedSemaphore>::timedWait(
                                              const bsls::TimeInterval& timeout)
 {
     DWORD milliTimeout = 0;
-    bsls::TimeInterval now = bdlt::CurrentTime::now(d_clockType);
+    bsls::TimeInterval now = bsls::SystemTime::now(d_clockType);
     if (timeout > now) {
         bsls::TimeInterval reltime = timeout - now;
-        SaturatedTimeConversionImpUtil::toMillisec(&milliTimeout,
-                                                         reltime);
+        SaturatedTimeConversionImpUtil::toMillisec(&milliTimeout, reltime);
     }
 
     return WaitForSingleObject(d_handle, milliTimeout);

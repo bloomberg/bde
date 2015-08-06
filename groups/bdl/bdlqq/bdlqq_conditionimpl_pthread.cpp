@@ -129,8 +129,8 @@ int bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
     if (d_clockType != bsls::SystemClockType::e_REALTIME) {
         // since cond_timedwait operates only with the realtime clock, adjust
         // the timeout value to make it consistent with the realtime clock
-        realTimeout += bsls::SystemTime::nowRealtimeClock()
-                                         - bdlt::CurrentTime::now(d_clockType);
+        realTimeout += bsls::SystemTime::nowRealtimeClock() -
+                       bsls::SystemTime::now(d_clockType);
     }
 
     timespec ts;

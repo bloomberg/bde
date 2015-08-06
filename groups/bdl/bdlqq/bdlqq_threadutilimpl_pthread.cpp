@@ -12,6 +12,7 @@ BSLS_IDENT_RCSID(bdlqq_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
@@ -451,8 +452,8 @@ int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
         // since we will be operating with the monotonic clock, adjust
         // the timeout value to make it consistent with the monotonic clock
 
-        sleepUntilTime += bsls::SystemTime::nowMonotonicClock()
-                                           - bdlt::CurrentTime::now(clockType);
+        sleepUntilTime += bsls::SystemTime::nowMonotonicClock() -
+                          bsls::SystemTime::now(clockType);
     }
 
     clock_serv_t clock;

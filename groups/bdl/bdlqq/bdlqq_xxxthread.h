@@ -216,7 +216,7 @@ BSLS_IDENT("$Id: $")
 // at the construction of the 'bdlqq::Condition' object.  By default, the clock
 // type used by a 'bdlqq::Condition' object is
 // 'bsls::SystemClockType::e_REALTIME'.  Clients should use the
-// 'bdlt::CurrentTime::now(clockType)' utility method to access the current
+// 'bsls::SystemTime::now(clockType)' utility method to access the current
 // time for a particular system clock.
 //
 // Other threads can indicate that the predicate is true by signaling or
