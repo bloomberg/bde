@@ -366,7 +366,7 @@ EventScheduler::scheduleRecurringEventRaw(
 int EventScheduler::cancelEvent(EventHandle *handle)
 {
     if (0 == (const Event *) *handle) {
-        return EventQueue::BCEC_INVALID;                              // RETURN
+        return EventQueue::e_INVALID;                              // RETURN
     }
 
     int ret = cancelEvent((const Event *) *handle);
@@ -377,7 +377,7 @@ int EventScheduler::cancelEvent(EventHandle *handle)
 int EventScheduler::cancelEvent(RecurringEventHandle *handle)
 {
     if (0 == (const RecurringEvent *) *handle) {
-        return RecurringEventQueue::BCEC_INVALID;                     // RETURN
+        return RecurringEventQueue::e_INVALID;                     // RETURN
     }
 
     int ret = cancelEvent((const RecurringEvent *) *handle);
@@ -399,7 +399,7 @@ int EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
     // Cannot 'return' if '0 == ret': since the event is recurring, it may
     // be the currently executing event even if it's still in the queue.
 
-    if (RecurringEventQueue::BCEC_INVALID == ret) {
+    if (RecurringEventQueue::e_INVALID == ret) {
         return ret;                                                   // RETURN
     }
 
@@ -432,7 +432,7 @@ int EventScheduler::cancelEventAndWait(const Event *handle)
                                        reinterpret_cast<const void *>(handle));
 
     int ret = d_eventQueue.remove(itemPtr);
-    if (EventQueue::BCEC_NOT_FOUND != ret) {
+    if (EventQueue::e_NOT_FOUND != ret) {
         return ret;                                                   // RETURN
     }
 
@@ -457,7 +457,7 @@ int EventScheduler::cancelEventAndWait(const Event *handle)
 int EventScheduler::cancelEventAndWait(EventHandle *handle)
 {
     if (0 == (const Event *) *handle) {
-        return EventQueue::BCEC_INVALID;                              // RETURN
+        return EventQueue::e_INVALID;                              // RETURN
     }
 
     int ret = cancelEventAndWait((const Event *) *handle);
@@ -468,7 +468,7 @@ int EventScheduler::cancelEventAndWait(EventHandle *handle)
 int EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
 {
     if (0 == (const RecurringEvent *) *handle) {
-        return RecurringEventQueue::BCEC_INVALID;                     // RETURN
+        return RecurringEventQueue::e_INVALID;                     // RETURN
     }
 
     int ret = cancelEventAndWait((const RecurringEvent *) *handle);

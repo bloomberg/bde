@@ -141,7 +141,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 typedef balm::DefaultMetricsManager DefaultManager;
-typedef baem_MetricRegistry        Registry;
+typedef balm::MetricRegistry        Registry;
 typedef balm::CollectorRepository   Repository;
 typedef balm::Collector             Collector;
 typedef balm::IntegerCollector      IntCollector;
@@ -205,7 +205,7 @@ bool withinInt(int value, int min, int max)
 
 void staticTimeEmptyFunction(const char     *category,
                              const char     *metric,
-                             SWGuard::Units  units = SWGuard::BAEM_SECONDS)
+                             SWGuard::Units  units = SWGuard::e_BALM_SECONDS)
     // Record, using the static 'BAEM_TIME_BLOCK' macro, an empty function to
     // a metric identified by the specified 'category' and 'name'.  Optionally
     // specify the 'units' to report elapsed time values.  If no 'units' value
@@ -216,7 +216,7 @@ void staticTimeEmptyFunction(const char     *category,
 }
 
 void dynamicTimeEmptyFunction(const char *category, const char *metric)
-    // Record, using the 'BAEM_DYNAMIC_TIME_BLOCK_SECONDS' macro, an empty
+    // Record, using the 'e_BALM_DYNAMIC_TIME_BLOCK_SECONDS' macro, an empty
     // function to a metric identified by the specified 'category' and 'name'.
 {
     BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(category, metric);
@@ -335,7 +335,7 @@ void StandardMacroConcurrencyTest::execute()
         BALM_METRICS_UPDATE6("A",
                              "A", 6.0, "B", 6.0, "C", 6.0, "D", 6.0,
                              "E", 6.0, "F", 6.0);
-        BALM_METRICS_TYPED_UPDATE("A", "A", 7.0, Type::BAEM_TOTAL);
+        BALM_METRICS_TYPED_UPDATE("A", "A", 7.0, Type::e_BALM_TOTAL);
 
         bool enabled = 0 == i % 2;
 
@@ -355,7 +355,7 @@ void StandardMacroConcurrencyTest::execute()
         BALM_METRICS_UPDATE6("B",
                              "A", 6.0, "B", 6.0, "C", 6.0, "D", 6.0,
                              "E", 6.0, "F", 6.0);
-        BALM_METRICS_TYPED_UPDATE("B", "A", 7.0, Type::BAEM_TOTAL);
+        BALM_METRICS_TYPED_UPDATE("B", "A", 7.0, Type::e_BALM_TOTAL);
     }
     d_barrier.wait();
 
@@ -1812,7 +1812,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(baemMetricsIfCategoryEnabledTestA());
 
@@ -1831,7 +1831,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(baemMetricsIfCategoryEnabledTestA());
             ASSERT(baemMetricsIfCategoryEnabledTest("A"));
@@ -2728,7 +2728,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3264,7 +3264,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3353,7 +3353,7 @@ int main(int argc, char *argv[])
 
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3443,7 +3443,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager *manager  =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
 
             ASSERT(breathingTestIfEnabledA());
             registry.setCategoryEnabled(registry.getCategory("A"), false);
@@ -3461,7 +3461,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 
@@ -3530,7 +3530,7 @@ int main(int argc, char *argv[])
             balm::DefaultMetricsManagerScopedGuard guard(Z);
             balm::MetricsManager  *manager =
                                         balm::DefaultMetricsManager::instance();
-            baem_MetricRegistry& registry = manager->metricRegistry();
+            balm::MetricRegistry& registry = manager->metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager->collectorRepository();
 

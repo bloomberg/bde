@@ -6,21 +6,16 @@
 #include <ball_fixedsizerecordbuffer.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_loggermanagerdefaults.h>
+#include <ball_userfieldtype.h>
+#include <ball_userfieldvalues.h>
+#include <ball_userfielddescriptors.h>
 #include <ball_severity.h>
 #include <ball_testobserver.h>                  // for testing only
 
 #include <bdlqq_barrier.h>                      // for testing only
-#include <bdlqq_xxxthread.h>                       // for testing only
+#include <bdlqq_threadutil.h>                       // for testing only
 
 #include <bslma_testallocator.h>                // for testing only
-
-#include <bsls_atomic.h>                   // for testing only
-
-#include <bdlmxxx_schemaaggregateutil.h>           // for testing only
-
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
 
 #include <bdlf_bind.h>                          // for testing only
 #include <bdlf_placeholder.h>                   // for testing only
@@ -242,12 +237,13 @@ typedef ball::Record                     Rec;
 typedef ball::RecordAttributes           Attr;
 typedef ball::RecordBuffer               RecBuf;
 
-typedef bdlmxxx::List                       List;
-typedef bdlmxxx::Schema                     Sch;
+typedef ball::UserFieldType              FieldType;
+typedef ball::UserFieldValues            FieldValues;
+typedef ball::UserFieldDescriptors       Descriptors;
 
-typedef ball::ThresholdAggregate             Thresholds;
+typedef ball::ThresholdAggregate            Thresholds;
 typedef Logger::PublishAllTriggerCallback   Pac;
-typedef Logger::UserPopulatorCallback       Pop;
+typedef Logger::UserFieldsPopulatorCallback Pop;
 
 typedef Obj::CategoryNameFilterCallback     Cnf;
 typedef Obj::DefaultThresholdLevelsCallback Dtc;
@@ -415,10 +411,10 @@ const char *LC[] = {
 };
 
 const char *UC[] = {
-    "BAEL_LOGGERMANAGERCONFIGURATION",
-    "BAEL_MULTIPLEXOBSERVER",
-    "BAEL_RECORDSTRINGFORMATTER",
-    "BAEL_THRESHOLDAGGREGATE"
+    "BALL_LOGGERMANAGERCONFIGURATION",
+    "BALL_MULTIPLEXOBSERVER",
+    "BALL_RECORDSTRINGFORMATTER",
+    "BALL_THRESHOLDAGGREGATE"
 };
 
 struct ThreadData {
@@ -768,12 +764,15 @@ void inheritThresholdLevels(int        *recordLevel,
 static int globalFactorialArgument;  // TBD kludge
 
 static
-void myPopulator(bdlmxxx::List *list, const bdlmxxx::Schema& schema)
+void myPopulator(ball::UserFieldValues             *list, 
+                 const ball::UserFieldDescriptors&  descriptors)
 {
-    const bdlmxxx::RecordDef *rec = schema.lookupRecord("FACTORIAL");
-    ASSERT(rec);
-    bdlmxxx::SchemaAggregateUtil::initListShallow(list, *rec);
-    list->theModifiableInt(0) = globalFactorialArgument;
+    ASSERT(1                  == descriptors.length());
+    ASSERT(0                  == descriptors.indexOf("n!"));
+    ASSERT(FieldType::e_INT64 == descriptors.type(0));
+    ASSERT("n!"               == descriptors.name(0));
+
+    list->appendInt64(globalFactorialArgument);
 }
 
 // ============================================================================
@@ -854,13 +853,11 @@ void simpleThresholdLevels(int        *recordLevel,
 }
 
 static
-void simplePopulator(bdlmxxx::List *list, const bdlmxxx::Schema& schema)
+void simplePopulator(ball::UserFieldValues             *list, 
+                     const ball::UserFieldDescriptors&  schema)
 {
-    const bdlmxxx::RecordDef *rec = schema.lookupRecord("initSingleton");
-    ASSERT(rec);
-    bdlmxxx::SchemaAggregateUtil::initListShallow(list, *rec);
-    list->theModifiableInt(0)    = 1066;
-    list->theModifiableString(1) = "XXX";
+    list->appendInt64(1066);
+    list->appendString("XXX");
 }
 
 //=============================================================================
@@ -1665,8 +1662,8 @@ int main(int argc, char *argv[])
             ASSERT(LINE         == A.lineNumber());
             ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-            const List& L = R.userFields();
-            ASSERT(0 == L.length());
+            const FieldValues& V = R.userFieldValues();
+            ASSERT(0 == V.length());
         }
         ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
 
@@ -1909,8 +1906,8 @@ int main(int argc, char *argv[])
             ASSERT(LINE         == A.lineNumber());
             ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-            const List& L = R.userFields();
-            ASSERT(0 == L.length());
+            const FieldValues& V = R.userFieldValues();
+            ASSERT(0 == V.length());
         }
         ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
 
@@ -2315,16 +2312,15 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                 thresholdsCallback(&inheritThresholdLevels);
 
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *p = schema.createRecord("FACTORIAL");
-        p->appendField(bdlmxxx::ElemType::BDEM_INT, "n!");
+        ball::UserFieldDescriptors descriptors;
+        descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
 
-        ball::Logger::UserPopulatorCallback populator(&myPopulator);
+        ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
         ball::LoggerManagerConfiguration mLMC;
         mLMC.setCategoryNameFilterCallback(nameFilter);
         mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
-        mLMC.setUserFields(schema, populator);
+        mLMC.setUserFieldDescriptors(descriptors, populator);
 
         ball::LoggerManagerScopedGuard guard(&testObserver, mLMC);
         Obj& mLM = Obj::singleton();
@@ -2822,11 +2818,10 @@ int main(int argc, char *argv[])
 
             Cnf nameFilter(&toLower);
 
-            bdlmxxx::Schema schema;
-            bdlmxxx::RecordDef *p = schema.createRecord("FACTORIAL");
-            p->appendField(bdlmxxx::ElemType::BDEM_INT, "n!");
+            ball::UserFieldDescriptors descriptors;
+            descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
 
-            ball::Logger::UserPopulatorCallback populator(&myPopulator);
+            ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
             ball::LoggerManagerConfiguration mLMC;
             mLMC.setTriggerMarkers(
@@ -2836,7 +2831,7 @@ int main(int argc, char *argv[])
             mLMC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
 
             mLMC.setCategoryNameFilterCallback(nameFilter);
-            mLMC.setUserFields(schema, populator);
+            mLMC.setUserFieldDescriptors(descriptors, populator);
 
             Obj* mLM_p;
             bslma::ManagedPtr<Obj> mLM_mp;
@@ -3454,16 +3449,15 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                 thresholdsCallback(&inheritThresholdLevels);
 
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *p = schema.createRecord("FACTORIAL");
-        p->appendField(bdlmxxx::ElemType::BDEM_INT, "n!");
+        ball::UserFieldDescriptors descriptors;
+        descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
 
-        ball::Logger::UserPopulatorCallback populator(&myPopulator);
+        ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
         ball::LoggerManagerConfiguration mLMC;
         mLMC.setCategoryNameFilterCallback(nameFilter);
         mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
-        mLMC.setUserFields(schema, populator);
+        mLMC.setUserFieldDescriptors(descriptors, populator);
 
         ball::LoggerManagerScopedGuard lmg(&testObserver, mLMC);
         Obj& mLM = Obj::singleton();  const Obj& LM = mLM;
@@ -3775,13 +3769,12 @@ int main(int argc, char *argv[])
                 thresholdsCallback(&simpleThresholdLevels, OA);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            bdlmxxx::Schema schema(OA);
-            bdlmxxx::RecordDef *p = schema.createRecord("initSingleton");
-            p->appendField(bdlmxxx::ElemType::BDEM_INT, "int");
-            p->appendField(bdlmxxx::ElemType::BDEM_STRING, "string");
+            ball::UserFieldDescriptors descriptors(OA);
+            descriptors.appendDescriptor("int", FieldType::e_INT64);
+            descriptors.appendDescriptor("string", FieldType::e_STRING);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            ball::Logger::UserPopulatorCallback populator(&simplePopulator, OA);
+            ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator, OA);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::LoggerManagerDefaults mLMD;
@@ -3790,7 +3783,7 @@ int main(int argc, char *argv[])
 
             ball::LoggerManagerConfiguration mLMC(OA);
             mLMC.setDefaultValues(mLMD);
-            mLMC.setUserFields(schema, populator);
+            mLMC.setUserFieldDescriptors(descriptors, populator);
             mLMC.setCategoryNameFilterCallback(nameFilter);
             mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
@@ -3859,10 +3852,10 @@ int main(int argc, char *argv[])
             ASSERT(LINE == A.lineNumber());
             ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-            const List& L = R.userFields();
-            ASSERT(   2 == L.length());
-            ASSERT(1066 == L.theInt(0));
-            ASSERT(   0 == bsl::strcmp("XXX", L.theString(1).c_str()));
+            const FieldValues& V = R.userFieldValues();
+            ASSERT(   2 == V.length());
+            ASSERT(1066 == V[0].theInt64());
+            ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
 
             ASSERT(1 == Obj::isInitialized());
             Obj::shutDownSingleton();
@@ -3908,17 +3901,16 @@ int main(int argc, char *argv[])
 
         Obj::FactoryDefaultThresholds fdt(19, 17, 13, 11);
 
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *p = schema.createRecord("initSingleton");
-        p->appendField(bdlmxxx::ElemType::BDEM_INT, "int");
-        p->appendField(bdlmxxx::ElemType::BDEM_STRING, "string");
+        ball::UserFieldDescriptors descriptors;
+        descriptors.appendDescriptor("int", FieldType::e_INT64);
+        descriptors.appendDescriptor("string", FieldType::e_STRING);
 
-        ball::Logger::UserPopulatorCallback populator(&simplePopulator);
+        ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
         Obj::initSingleton(&testObserver,
                            thresholdsCallback,
                            fdt,
-                           schema,
+                           descriptors,
                            populator);
         Obj& mLM = Obj::singleton();
 
@@ -3971,10 +3963,10 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(   2 == L.length());
-        ASSERT(1066 == L.theInt(0));
-        ASSERT(   0 == bsl::strcmp("XXX", L.theString(1).c_str()));
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(   2 == V.length());
+        ASSERT(1066 == V[0].theInt64());
+        ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4015,16 +4007,15 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
             thresholdsCallback(&simpleThresholdLevels);
 
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *p = schema.createRecord("initSingleton");
-        p->appendField(bdlmxxx::ElemType::BDEM_INT, "int");
-        p->appendField(bdlmxxx::ElemType::BDEM_STRING, "string");
+        ball::UserFieldDescriptors descriptors;
+        descriptors.appendDescriptor("int", FieldType::e_INT64);
+        descriptors.appendDescriptor("string", FieldType::e_STRING);
 
-        ball::Logger::UserPopulatorCallback populator(&simplePopulator);
+        ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
         Obj::initSingleton(&testObserver,
                            thresholdsCallback,
-                           schema,
+                           descriptors,
                            populator);
         Obj& mLM = Obj::singleton();
 
@@ -4078,10 +4069,10 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(   2 == L.length());
-        ASSERT(1066 == L.theInt(0));
-        ASSERT(   0 == bsl::strcmp("XXX", L.theString(1).c_str()));
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(   2 == V.length());
+        ASSERT(1066 == V[0].theInt64());
+        ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4121,14 +4112,13 @@ int main(int argc, char *argv[])
 
         Obj::FactoryDefaultThresholds fdt(19, 17, 13, 11);
 
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *p = schema.createRecord("initSingleton");
-        p->appendField(bdlmxxx::ElemType::BDEM_INT, "int");
-        p->appendField(bdlmxxx::ElemType::BDEM_STRING, "string");
+        ball::UserFieldDescriptors descriptors;
+        descriptors.appendDescriptor("int", FieldType::e_INT64);
+        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        
+        ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
-        ball::Logger::UserPopulatorCallback populator(&simplePopulator);
-
-        Obj::initSingleton(&testObserver, fdt, schema, populator);
+        Obj::initSingleton(&testObserver, fdt, descriptors, populator);
         Obj& mLM = Obj::singleton();
 
         ASSERT(&testObserver == mLM.observer());
@@ -4180,10 +4170,10 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(   2 == L.length());
-        ASSERT(1066 == L.theInt(0));
-        ASSERT(   0 == bsl::strcmp("XXX", L.theString(1).c_str()));
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(   2 == V.length());
+        ASSERT(1066 == V[0].theInt64());
+        ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4220,14 +4210,13 @@ int main(int argc, char *argv[])
 
         ball::TestObserver testObserver(cout);
 
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *p = schema.createRecord("initSingleton");
-        p->appendField(bdlmxxx::ElemType::BDEM_INT, "int");
-        p->appendField(bdlmxxx::ElemType::BDEM_STRING, "string");
+        ball::UserFieldDescriptors descriptors;
+        descriptors.appendDescriptor("int", FieldType::e_INT64);
+        descriptors.appendDescriptor("string", FieldType::e_STRING);
 
-        ball::Logger::UserPopulatorCallback populator(&simplePopulator);
+        ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
-        Obj::initSingleton(&testObserver, schema, populator);
+        Obj::initSingleton(&testObserver, descriptors, populator);
         Obj& mLM = Obj::singleton();
 
         ASSERT(&testObserver == mLM.observer());
@@ -4280,10 +4269,10 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(   2 == L.length());
-        ASSERT(1066 == L.theInt(0));
-        ASSERT(   0 == bsl::strcmp("XXX", L.theString(1).c_str()));
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(   2 == V.length());
+        ASSERT(1066 == V[0].theInt64());
+        ASSERT(   0 == bsl::strcmp("XXX", V[1].theString().c_str()));
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4460,8 +4449,8 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(0 == L.length());
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4636,8 +4625,8 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(0 == L.length());
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4778,8 +4767,8 @@ int main(int argc, char *argv[])
         ASSERT(LINE == A.lineNumber());
         ASSERT(0    == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(0 == L.length());
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4919,8 +4908,8 @@ int main(int argc, char *argv[])
         ASSERT(LINE         == A.lineNumber());
         ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
 
-        const List& L = R.userFields();
-        ASSERT(0 == L.length());
+        const FieldValues& V = R.userFieldValues();
+        ASSERT(0 == V.length());
 
         ASSERT(1 == Obj::isInitialized());
         Obj::shutDownSingleton();
@@ -4951,16 +4940,15 @@ int main(int argc, char *argv[])
         Obj::DefaultThresholdLevelsCallback
                 thresholdsCallback(&inheritThresholdLevels);
 
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *p = schema.createRecord("FACTORIAL");
-        p->appendField(bdlmxxx::ElemType::BDEM_INT, "n!");
+        ball::UserFieldDescriptors descriptors;
+        descriptors.appendDescriptor("n!", FieldType::e_INT64);
 
-        ball::Logger::UserPopulatorCallback populator(&myPopulator);
+        ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
         ball::LoggerManagerConfiguration mLMC;
         mLMC.setCategoryNameFilterCallback(nameFilter);
         mLMC.setDefaultThresholdLevelsCallback(thresholdsCallback);
-        mLMC.setUserFields(schema, populator);
+        mLMC.setUserFieldDescriptors(descriptors, populator);
 
         ball::LoggerManagerScopedGuard lmg(&testObserver, mLMC);
         ball::LoggerManager& mLM = Obj::singleton();

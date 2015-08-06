@@ -215,7 +215,7 @@ struct ChannelStatus {
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BAETZO_" prefix elided.  For
+        // corresponding enumerator name with the "BALTZO_" prefix elided.  For
         // example:
         //..
         //  bsl::cout << ChannelStatus::toAscii(

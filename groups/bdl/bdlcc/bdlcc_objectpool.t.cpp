@@ -1,17 +1,22 @@
-// bdlcc_objectpool.t.cpp                                              -*-C++-*-
+// bdlcc_objectpool.t.cpp                                             -*-C++-*-
 
 #include <bdlcc_objectpool.h>
+
+#include <bdls_testutil.h>
 
 #include <bdlcc_fixedqueue.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
+#include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
 #include <bsls_atomic.h>
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_usesbslmaallocator.h>
 #include <bslma_testallocator.h>
 #include <bsls_alignmentfromtype.h>
 #include <bsls_platform.h>
@@ -30,7 +35,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// Testing bdlcc::ObjectPool is divided into 2 parts (apart from breathing test).
+// Testing bdlcc::ObjectPool is divided into 2 parts (apart from breathing
+// test).
 //
 // (1) Testing functionality in presence of single thread.  Specifically
 //     we make sure that:
@@ -88,59 +94,45 @@ using namespace bsl;  // automatically added by script
 // [ 5] Verify concurrent access to underlying free object list.
 // [ 6] Verify concurrent access to underlying free object list.
 // [10] USAGE EXAMPLE
+
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
+
 namespace {
 
 int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
 {
-   static bdlqq::Mutex *mutex = 0;
-   if (0 == mutex) {
-      mutex = new bdlqq::Mutex;
-   }
-
     if (c) {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(mutex);
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << #M << ": " <<  \
-       M << "\n"; aSsErT(1, #X, __LINE__); } }
-
 //=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
@@ -187,7 +179,7 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-bcemt_Attribute attributes;
+bdlqq::ThreadAttributes attributes;
 void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
@@ -198,7 +190,10 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i],
+                                  attributes,
+                                  func,
+                                  static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);
@@ -224,7 +219,6 @@ struct ConstructorTestHelp3
       , d_startCount(startCount)
    {}
 
-
    // ACCESSORS
    static void resetWithCount(ConstructorTestHelp3 *self, int count)
    { self->d_resetCount = count; }
@@ -247,11 +241,6 @@ struct ConstructorTestHelp3Creator
 void constructor4(int count, void* arena)
 {
    new(arena) ConstructorTestHelp3(count);
-}
-
-void constructor5(int count, void* arena, bslma::Allocator * basicAllocator)
-{
-   new(arena) ConstructorTestHelp3(count, basicAllocator);
 }
 
 struct ConstructorTestHelp1a
@@ -309,13 +298,10 @@ void createConstructorTestHelp1a(void* arena, bslma::Allocator * alloc)
     new(arena) ConstructorTestHelp1a(alloc);
 }
 
-int creatorCount1a = 0;
-
 void createConstructorTestHelp1b(void* arena, bslma::Allocator *)
 {
     new(arena) ConstructorTestHelp1b;
 }
-
 
 struct ConstructorTestHelp1aCreator2
 {
@@ -366,7 +352,6 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
                                     bslalg::TypeTraitUsesBslmaAllocator);
    };
 
-
    struct OtherType {
        int d_data;
 
@@ -374,19 +359,19 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
    };
 
    class Case13Type {
-      Address                      d_address;
+      Address                       d_address;
       bdlf::Function<void(*)(int*)> d_callback;
-      bsl::shared_ptr<int>         d_sp1;
-      int                          d_offset;
-      bsl::shared_ptr<int>         d_sp2;
-      int                          d_bytesLeft;
+      bsl::shared_ptr<int>          d_sp1;
+      int                           d_offset;
+      bsl::shared_ptr<int>          d_sp2;
+      int                           d_bytesLeft;
       bsls::AtomicInt               d_state;
-      int                          d_index;
+      int                           d_index;
       bsls::AtomicInt               d_count;
 
    public:
       Case13Type()
-         : d_offset(0), d_state(2), d_count(0), d_index(0) {}
+         : d_offset(0), d_state(2), d_index(0), d_count(0) {}
 
       ~Case13Type() {
          ASSERT(2 == d_state.testAndSwap(2, -2));
@@ -404,20 +389,18 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
          ASSERT(-2 == d_state.testAndSwap(-2, 2));
       }
 
-
       void increment() {
          // Verify that no other thread is using this object right now
-         // (otherwise the object pool allowed the same object to be
-         // available to two threads).  This also serves to delay the object's
-         // return to the pool.
+         // (otherwise the object pool allowed the same object to be available
+         // to two threads).  This also serves to delay the object's return to
+         // the pool.
 
          int val = d_count;
 
 #ifdef BSLS_PLATFORM_OS_LINUX
-         // when running test drivers on linux, this yield() tends to consume
-         // a lot more time than we want.  So just microSleep(1) instead,
-         // which is a much smaller delay (but quite a bit more than 1
-         // microsecond).
+         // when running test drivers on linux, this yield() tends to consume a
+         // lot more time than we want.  So just microSleep(1) instead, which
+         // is a much smaller delay (but quite a bit more than 1 microsecond).
          bdlqq::ThreadUtil::microSleep(1);
 #else
          bdlqq::ThreadUtil::yield();
@@ -481,11 +464,11 @@ void case13Processor(bdlcc::ObjectPool<Case13Type> *mX,
 
 }
 
-
 //                         CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_12
+namespace OBJECTPOOL_TEST_CASE_12
+
 {
 
 const char *DEFAULT_STRING_INIT =
@@ -510,11 +493,12 @@ static void createString(void               *address,
     new(address) bsl::string(initial, allocator);
 }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_12
+} // namespace OBJECTPOOL_TEST_CASE_12
 //                         CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_11
+namespace OBJECTPOOL_TEST_CASE_11
+
 {
 struct Exception {};
 
@@ -589,13 +573,14 @@ public:
 int B::constructorCount = 0;
 int B::destructorCount = 0;
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_11
+} // namespace OBJECTPOOL_TEST_CASE_11
 
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_10
+namespace OBJECTPOOL_TEST_CASE_10
+
 {
 class A
 {
@@ -617,18 +602,19 @@ class A
 int A:: constructorCount = 0;
 int A:: destructorCount = 0;
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_10
+} // namespace OBJECTPOOL_TEST_CASE_10
 //=============================================================================
 //                         CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_9
+namespace OBJECTPOOL_TEST_CASE_9
+
 {
 
 enum {
-    NUM_THREADS    = 2,
-    NUM_OBJECTS    = NUM_THREADS,
-    NUM_ITERATIONS = 100
+    k_NUM_THREADS    = 2,
+    k_NUM_OBJECTS    = k_NUM_THREADS,
+    k_NUM_ITERATIONS = 100
 };
 
 class Counter
@@ -652,21 +638,22 @@ public:
 
 bdlcc::ObjectPool<Counter> *pool;
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 
     void *workerThread9(void *arg)
     {
+        (void *)arg;
         barrier.wait();
-        for(int i = 0; i < NUM_ITERATIONS; ++i){
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i){
             Counter *c = pool->getObject();
             c->increment();
             pool->releaseObject(c);
@@ -674,18 +661,19 @@ extern "C"
         return NULL;
     }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_9
+} // namespace OBJECTPOOL_TEST_CASE_9
 //=============================================================================
 //                         CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_8
+namespace OBJECTPOOL_TEST_CASE_8
+
 {
 
 enum {
-    NUM_THREADS    = 3,
-    NUM_OBJECTS    = NUM_THREADS,
-    NUM_ITERATIONS = 100
+    k_NUM_THREADS    = 3,
+    k_NUM_OBJECTS    = k_NUM_THREADS,
+    k_NUM_ITERATIONS = 100
 };
 
 class my_Class
@@ -694,44 +682,49 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
     void *workerThread8(void *arg)
     {
+        (void *)arg;
         my_Class *p = pool->getObject();
         barrier.wait();
-        for(int i = 0; i < NUM_ITERATIONS; ++i) {
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
             pool->increaseCapacity(1);
             pool->releaseObject(p);
             pool->getObject();
             p = pool->getObject();
 
             int nAvailable = pool->numAvailableObjects();
-            LOOP2_ASSERTT(i, nAvailable, nAvailable <= 2 * (NUM_THREADS - 1));
+            LOOP2_ASSERTT(i,
+                          nAvailable,
+                          nAvailable <= 2 * (k_NUM_THREADS - 1));
             LOOP2_ASSERTT(i, nAvailable, nAvailable >= 0);
         }
         return NULL;
     }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_8
+} // namespace OBJECTPOOL_TEST_CASE_8
+
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_7
+namespace OBJECTPOOL_TEST_CASE_7
+
 {
 
 enum {
-    NUM_THREADS    = 3,
-    NUM_ITERATIONS = 100
+    k_NUM_THREADS    = 3,
+    k_NUM_ITERATIONS = 100
 };
 
 class my_Class
@@ -740,21 +733,22 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
     void *workerThread7(void *arg)
     {
+        (void *)arg;
         int previous = 0, current;
         barrier.wait();
-        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
             pool->increaseCapacity(1);
             current = pool->numObjects();
             LOOP3_ASSERTT(i, current, previous, current > previous);
@@ -763,17 +757,18 @@ extern "C"
         return NULL;
     }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_7
+} // namespace OBJECTPOOL_TEST_CASE_7
 //=============================================================================
 //                         CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_6
+namespace OBJECTPOOL_TEST_CASE_6
+
 {
 
 enum {
-    NUM_THREADS = 8,     // must be multiple of four
-    NUM_OBJECTS = 50
+    k_NUM_THREADS = 8,     // must be multiple of four
+    k_NUM_OBJECTS = 50
 };
 
 class my_Class
@@ -782,9 +777,9 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrierAll(NUM_THREADS); // barrier for all threads
+bdlqq::Barrier barrierAll(k_NUM_THREADS); // barrier for all threads
 
-bdlqq::Barrier barrier0(NUM_THREADS/4); // barrier for threads having
+bdlqq::Barrier barrier0(k_NUM_THREADS/4); // barrier for threads having
                                        // thread-number % 4 == 0
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
@@ -792,22 +787,23 @@ bdlqq::Barrier barrier0(NUM_THREADS/4); // barrier for threads having
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
     void *workerThread6(void *arg)
     {
-        my_Class *arr[NUM_OBJECTS];
-        int remainder = (bsls::Types::IntPtr)arg % 4;
+        my_Class *arr[k_NUM_OBJECTS];
+        int remainder = static_cast<int>(
+                              reinterpret_cast<bsls::Types::UintPtr>(arg) % 4);
 
         // 0-order threads
         if (remainder == 0) {
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 arr[i] = pool->getObject();
             }
 
             barrierAll.wait();
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 pool->releaseObject(arr[i]);
             }
         }
@@ -815,7 +811,7 @@ extern "C"
         // 1-order threads
         else if (remainder == 1) {
             barrierAll.wait();
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 arr[i] = pool->getObject();
             }
         }
@@ -823,7 +819,7 @@ extern "C"
         // 2-order threads
         else if (remainder == 2) {
             barrierAll.wait();
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 pool->increaseCapacity(1);
             }
         }
@@ -831,7 +827,7 @@ extern "C"
         // 3-order threads
         else {
             barrierAll.wait();
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 pool->reserveCapacity(0);
             }
         }
@@ -840,8 +836,8 @@ extern "C"
     }
 
 void verifyPool(bdlcc::ObjectPool<my_Class> *pool)
-    // Verify that 'numAvailableObjects' reports the actual number
-    // of available objects.
+    // Verify that 'numAvailableObjects' reports the actual number of available
+    // objects.
 {
     int numCreated = pool->numObjects();
     int numAvailable = pool->numAvailableObjects();
@@ -855,7 +851,6 @@ void verifyPool(bdlcc::ObjectPool<my_Class> *pool)
     LOOP2_ASSERTT(numCreated, numCreated1, numCreated == numCreated1);
     LOOP_ASSERTT(numAvailable1, 0 == numAvailable1);
 
-
     for (int i = 0; i < numAvailable; ++i) {
         pool->releaseObject(arr[i]);
     }
@@ -867,18 +862,19 @@ void verifyPool(bdlcc::ObjectPool<my_Class> *pool)
     delete []arr;
 }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_6
+} // namespace OBJECTPOOL_TEST_CASE_6
 //=============================================================================
 //                         CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_5
+namespace OBJECTPOOL_TEST_CASE_5
+
 {
 
 enum {
-    NUM_THREADS    = 3,
-    NUM_OBJECTS    = NUM_THREADS,
-    NUM_ITERATIONS = 100
+    k_NUM_THREADS    = 3,
+    k_NUM_OBJECTS    = k_NUM_THREADS,
+    k_NUM_ITERATIONS = 100
 };
 
 class my_Class
@@ -887,38 +883,40 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 
     void *workerThread5(void *arg)
     {
+        (void *)arg;
         barrier.wait();
-        for(int i = 0; i < NUM_ITERATIONS; ++i){
+        for (int i = 0; i < k_NUM_ITERATIONS; ++i){
             my_Class *p = pool->getObject();
             pool->releaseObject(p);
         }
         return NULL;
     }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_5
+} // namespace OBJECTPOOL_TEST_CASE_5
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_4
+namespace OBJECTPOOL_TEST_CASE_4
+
 {
 
 enum {
-    NUM_THREADS = 4,      // must be even
-    NUM_OBJECTS = 1000
+    k_NUM_THREADS = 4,      // must be even
+    k_NUM_OBJECTS = 1000
 };
 
 class my_Class
@@ -927,27 +925,30 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrierAll(NUM_THREADS);   // barrier for all threads
-bdlqq::Barrier barrier0(NUM_THREADS / 2); // barrier for even numbered threads
+bdlqq::Barrier barrierAll(k_NUM_THREADS);    // barrier for all threads
+
+bdlqq::Barrier barrier0(k_NUM_THREADS / 2);  // barrier for even numbered
+                                             // threads
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 
     void *workerThread4(void *arg)
     {
-        my_Class *arr[NUM_OBJECTS];
-        int remainder = (bsls::Types::IntPtr)arg % 2;
+        my_Class *arr[k_NUM_OBJECTS];
+        int remainder = static_cast<int>(
+                              reinterpret_cast<bsls::Types::UintPtr>(arg) % 2);
 
         // even numbered threads
         if (remainder == 0) {
             barrier0.wait();
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 arr[i] = pool->getObject();
             }
 
@@ -957,12 +958,12 @@ extern "C"
                 int nA; // number of available objects
                 nC = pool->numObjects();
                 nA = pool->numAvailableObjects();
-                LOOP_ASSERTT(nC, nC == NUM_THREADS * NUM_OBJECTS);
-                LOOP_ASSERTT(nA, nA == NUM_THREADS * NUM_OBJECTS / 2);
+                LOOP_ASSERTT(nC, nC == k_NUM_THREADS * k_NUM_OBJECTS);
+                LOOP_ASSERTT(nA, nA == k_NUM_THREADS * k_NUM_OBJECTS / 2);
             }
 
             barrierAll.wait();
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 pool->releaseObject(arr[i]);
             }
         }
@@ -970,24 +971,25 @@ extern "C"
         // odd numbered threads
         else {
             barrierAll.wait();
-            for(int i = 0; i < NUM_OBJECTS; ++i){
+            for (int i = 0; i < k_NUM_OBJECTS; ++i){
                 arr[i] = pool->getObject();
             }
         }
         return NULL;
     }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_4
+} // namespace OBJECTPOOL_TEST_CASE_4
 //=============================================================================
 //                         CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_3
+namespace OBJECTPOOL_TEST_CASE_3
+
 {
 
 enum {
-    NUM_THREADS = 3,
-    NUM_OBJECTS = 100
+    k_NUM_THREADS = 3,
+    k_NUM_OBJECTS = 100
 };
 
 class my_Class
@@ -996,23 +998,23 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 
     void *workerThread3(void *arg)
     {
-      my_Class *arr[NUM_OBJECTS];
+      my_Class *arr[k_NUM_OBJECTS];
 
       barrier.wait();
-      for(int i = 0; i < NUM_OBJECTS; ++i){
+      for (int i = 0; i < k_NUM_OBJECTS; ++i){
           arr[i] = pool->getObject();
       }
 
@@ -1023,36 +1025,37 @@ extern "C"
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
 
-        LOOP_ASSERTT(nC, nC == NUM_THREADS * NUM_OBJECTS);
+        LOOP_ASSERTT(nC, nC == k_NUM_THREADS * k_NUM_OBJECTS);
         LOOP_ASSERTT(nA, nA == 0);
       }
 
       barrier.wait();
-      for(int i = 0; i < NUM_OBJECTS; ++i){
+      for (int i = 0; i < k_NUM_OBJECTS; ++i){
           pool->releaseObject(arr[i]);
       }
       return NULL;
     }
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_3
+} // namespace OBJECTPOOL_TEST_CASE_3
 //=============================================================================
 //                         CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_2
+namespace OBJECTPOOL_TEST_CASE_2
+
 {
 
 class my_CheckingClass
 {
     int d_pattern;
   public:
-    enum { PATTERN = 0x33333333 };
+    enum { k_PATTERN = 0x33333333 };
     static int objCount;
 
     // CREATORS
     my_CheckingClass()
     {
-        d_pattern = PATTERN;
+        d_pattern = k_PATTERN;
         objCount++;
     }
 
@@ -1086,134 +1089,148 @@ union BlockNode {
 };
 
 enum {
-    ROUNDED_OBJECT_SIZE  =
+    k_ROUNDED_OBJECT_SIZE  =
         ((sizeof(my_CheckingClass) / sizeof(ObjectNode)       ) +
         ((sizeof(my_CheckingClass) % sizeof(ObjectNode)) > 0) ) *
         sizeof(ObjectNode),
 
-    OBJECT_FRAME_SIZE    = sizeof(ObjectNode) + ROUNDED_OBJECT_SIZE
+    k_OBJECT_FRAME_SIZE    = sizeof(ObjectNode) + k_ROUNDED_OBJECT_SIZE
 };
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_2
+} // namespace OBJECTPOOL_TEST_CASE_2
 //=============================================================================
 //                         CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_CASE_1
+namespace OBJECTPOOL_TEST_CASE_1
+
 {
 
 class my_Class
 {
 };
 
-} // namespace BCEC_OBJECTPOOL_TEST_CASE_1
+} // namespace OBJECTPOOL_TEST_CASE_1
 //=============================================================================
 //                         USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace BCEC_OBJECTPOOL_TEST_USAGE_EXAMPLE
+namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
+
 {
 
-enum {
-    CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
-                                    //  a connection (in microseconds)
-
-    CONNECTION_CLOSE_TIME = 8,      // (simulated) time to close
-                                    //  a connection (in microseconds)
-
-    QUERY_EXECUTION_TIME  = 4       // (simulated) time to execute
-                                    //  a query (in microseconds)
-};
-
-class Query
-    // Dummy query class.
-{
-};
-
-class QueryFactory
-    // Dummy query factory class.
-{
-  public:
-    // MANIPULATORS
-    Query *createQuery()
-        // Return a dummy query.
+    class Query
+        // Dummy query class.
     {
-        return (Query *)NULL;
-    }
+    };
 
-    void destroyQuery(Query *query)
-        // Simulate query destruction.
+    class QueryFactory
+        // Dummy query factory class.
     {
-    }
-} *queryFactory;
+      public:
+        // MANIPULATORS
+        Query *createQuery()
+            // Return a dummy query.
+        {
+            return (Query *)NULL;
+        }
 
-class my_DatabaseConnection
-    // This class simulates a database connection.
-{
-  public:
-    my_DatabaseConnection()
-    {
-        bdlqq::ThreadUtil::microSleep(CONNECTION_OPEN_TIME);
-    }
+        void destroyQuery(Query *query)
+            // Simulate query destruction.
+        {
+            (void *)query;
+        }
+    } *queryFactory;
 
-    ~my_DatabaseConnection()
-    {
-        bdlqq::ThreadUtil::microSleep(CONNECTION_CLOSE_TIME);
-    }
-
-    void executeQuery(Query *query)
-    {
-        bdlqq::ThreadUtil::microSleep(QUERY_EXECUTION_TIME);
-    }
-};
-
-bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
 bsls::AtomicInt64 totalResponseTime1; // total response time when
                                      // we do not use object pool
 
 bsls::AtomicInt64 totalResponseTime2; // total response time when
                                      // we use object pool
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
-extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
-#endif
+///Usage
+///-----
+//
+///Example 1
+/// - - - -
+// In this example, we simulate a database server accepting queries from
+// clients and executing each query in a separate thread.  Client requests are
+// simulated by function 'getClientQuery' which returns a query to be executed.
+// The class 'Query' encapsulates a database query and 'queryFactory' is an
+// object of a query factory class 'QueryFactory'.
+//..
+    enum {
+        k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open
+                                        // a connection (in microseconds)
 
-void serverThread(bsls::AtomicInt* queries, int max,
-                  void(*queryHandler)(Query*))
-{
-    while (++(*queries) <= max) {
-        Query* query = queryFactory->createQuery();
-        queryHandler(query);
+        k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close
+                                        // a connection (in microseconds)
+
+        k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute
+                                        // a query (in microseconds)
+    };
+
+    class my_DatabaseConnection
+        // This class simulates a database connection.
+    {
+      public:
+        my_DatabaseConnection()
+        {
+            bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
+        }
+
+        ~my_DatabaseConnection()
+        {
+            bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
+        }
+
+        void executeQuery(Query *query)
+        {
+            bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+            (void *)query;
+        }
+    };
+//..
+// The server runs several threads which, on each iteration, obtain a new
+// client request from the query factory, and process it, until the desired
+// total number of requests is achieved.
+//..
+    extern "C" void serverThread(bsls::AtomicInt *queries,
+                                 int              max,
+                                 void(*queryHandler)(Query*))
+    {
+        while (++(*queries) <= max) {
+            Query *query = queryFactory->createQuery();
+            queryHandler(query);
+        }
     }
-}
+//..
+// We first give an implementation that does not uses the object pool.  Later
+// we will give an implementation using an object pool to manage the database
+// connections.  We also keep track of total response time for each case.  When
+// object pool is *not* used, each thread, in order to execute a query, creates
+// a *new* database connection, calls its 'executeQuery' method to execute the
+// query and finally closes the connection.
+//..
+    void queryHandler1(Query *query)
+        // Handle the specified 'query' without using an objectpool.
+    {
+        bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
+        my_DatabaseConnection connection;
+        connection.executeQuery(query);
+        bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
 
-void queryHandler1(Query *query)
-    // Handle the specified 'query' without using an objectpool.
-{
-    bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
-    my_DatabaseConnection connection;
-    connection.executeQuery(query);
-    bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+        totalResponseTime1 += t2 - t1;
 
-    totalResponseTime1 += t2 - t1;
+        queryFactory->destroyQuery(query);
 
-    queryFactory->destroyQuery(query);
-}
+        // 'connection' is implicitly destroyed on function return.
+    }
+//..
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
-    || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
-extern "C"
-    // This is a thread function and, thus, it must have extern "C" linkage.
-    // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
-#endif
-void queryHandler2(Query *query)
+bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
+
+extern "C" void queryHandler2(Query *query)
         // Handle the specified 'query' using an objectpool.
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
@@ -1227,7 +1244,7 @@ void queryHandler2(Query *query)
     queryFactory->destroyQuery(query);
 }
 
-} // namespace BCEC_OBJECTPOOL_TEST_USAGE_EXAMPLE
+} // namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1273,8 +1290,8 @@ int main(int argc, char *argv[])
            //////////////////////////////////////////////////////
            // Constructor overloads
            //
-           // Concern: The various overloads of the constructor cause
-           // the correct creator and resetter functions to be called.
+           // Concern: The various overloads of the constructor cause the
+           // correct creator and resetter functions to be called.
            //
            //////////////////////////////////////////////////////
 
@@ -1458,42 +1475,124 @@ int main(int argc, char *argv[])
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_USAGE_EXAMPLE;
-
+        using namespace OBJECTPOOL_TEST_USAGE_EXAMPLE;
 
         QueryFactory *queryFactory = new QueryFactory;
-        enum {
-            NUM_THREADS = 8,
-            NUM_QUERIES = 10000
-        };
 
-        bsls::AtomicInt numQueries(0);
-        bdlqq::ThreadGroup tg;
+// The main thread starts and joins these threads:
+//..
+    enum {
+        k_NUM_THREADS = 8,
+        k_NUM_QUERIES = 10000
+    };
 
-        tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
-                                          (int)NUM_QUERIES, &queryHandler1),
-                      NUM_THREADS);
-        tg.joinAll();
+    bsls::AtomicInt numQueries(0);
+    bdlqq::ThreadGroup tg;
 
-        if (verbose) {
-            P(totalResponseTime1);
-        }
+    tg.addThreads(bdlf::BindUtil::bind(&serverThread,
+                                       &numQueries,
+                                       static_cast<int>(k_NUM_QUERIES),
+                                       &queryHandler1),
+                  k_NUM_THREADS);
+    tg.joinAll();
+//..
+// In above strategy, clients always incur the delay associated with opening
+// and closing a database connection.  Now we show an implementation that will
+// use object pool to *pool* the database connections.
+//
+///Object pool creation and functor argument
+/// - - - - - - - - - - - - - - - - - - - -
+// In order to create an object pool, we may specify, at construction time, a
+// functor encapsulating object creation.  The pool invokes this this functor
+// to create an object in a memory location supplied by the allocator specified
+// at construction and owned by the pool.  By default, the creator invokes the
+// default constructor of the underlying type, passing the pool's allocator if
+// the type uses the bslma::Allocator protocol to supply memory (as specified
+// by the "Uses Bslma Allocator" trait, see 'bslalg_typetraits').  If this
+// behavior is not sufficient, we can supply our own functor for type creation.
+//
+///Creating an object pool that constructs default objects
+/// - - - - - - - - - - - - - - - - - - -
+// When the default constructor of our type is sufficient, whether or not that
+// type uses 'bslma::Allocator', we can simply use the default behavior of
+// 'bdlcc::ObjectPool':
+//..
+    bdlcc::ObjectPool<my_DatabaseConnection> pool(-1);
+//..
+///Creating an object pool that constructs non-default objects
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// In this example, if we decide that connection IDs must be supplied to
+// objects allocated from the pool, we must define a function which invokes
+// placement new appropriately.  When using a custom creator functor, it is the
+// responsibility of client code to pass the pool's allocator (supplied as the
+// second argument to the functor) to the new object if it uses
+// bslma::Allocator.
+//..
+//    void createConnection(void *arena, bslma::Allocator *alloc, int id)
+//    {
+//       new (arena) my_DatabaseConnection(id, alloc);
+//    }
+//..
+// then...
+//..
+//    int myId = 100;
+//    bdlcc::ObjectPool<my_DatabaseConnection> pool(
+//                             bdlf::BindUtil::bind(&createConnection,
+//                                                 bdlf::PlaceHolders::_1,
+//                                                 bdlf::PlaceHolders::_2,
+//                                                 myId));
+//..
+// Whichever creator we choose, the modified server looks like
+//..
+//  connectionPool = &pool;
+//
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      my_Query *query = getClientQuery();
+//      bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//  }
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      bdlqq::ThreadUtil::join(threads[i]);
+//  }
+//..
+///Modified 'queryHandler'
+///- - - - - - - - - - - -
+// Now each thread, instead of creating a new connection, gets a connection
+// from the object pool.  After using the connection, the client returns it
+// back to the pool for further reuse.  The modified 'queryHandler' is
+// following.
+//..
+//    bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
+//
+//    void queryHandler2(Query *query)
+//        // Process the specified 'query'.
+//    {
+//        bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
+//        my_DatabaseConnection *connection = connectionPool->getObject();
+//        connection->executeQuery(query);
+//        bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+//
+//        totalResponseTime2 += t2 - t1;
+//
+//        connectionPool->releaseObject(connection);
+//        queryFactory->destroyQuery(query);
+//    }
+//..
+// The total response time for each strategy is:
+//..
+// totalResponseTime1 = 199970775520
+// totalResponseTime2 = 100354490480
+//..
 
-        // server using object pool
-        bslma::TestAllocator ta(veryVeryVerbose);
-        bdlcc::ObjectPool<my_DatabaseConnection> pool(-1, &ta);
         connectionPool = &pool;
 
         numQueries = 0;
 
-        tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
-                                          (int)NUM_QUERIES, &queryHandler2),
-                      NUM_THREADS);
+        tg.addThreads(bdlf::BindUtil::bind(&serverThread,
+                                           &numQueries,
+                                           static_cast<int>(k_NUM_QUERIES),
+                                           &queryHandler2),
+                      k_NUM_THREADS);
         tg.joinAll();
-
-        if (verbose) {
-            P(totalResponseTime2);
-        }
 
         delete queryFactory;
 
@@ -1503,8 +1602,8 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: releaseObject thread-safety
         //
         // Concern: That several threads acquiring new objects from the pool
-        // and then immediately releasing them in a tight loop do not cause
-        // any violation of the component's internal invariants.
+        // and then immediately releasing them in a tight loop do not cause any
+        // violation of the component's internal invariants.
         // -------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING CONCERN: releaseObject thread safety"
@@ -1524,7 +1623,9 @@ int main(int argc, char *argv[])
               {5, 500, 500}
            };
 
-           for (int i = 0; i < sizeof(parameters)/sizeof(Parameters); ++i) {
+           for (int i = 0;
+                i < static_cast<int>(sizeof(parameters) / sizeof(Parameters));
+                ++i) {
               const Parameters& p = parameters[i];
 
               if (verbose) {
@@ -1542,7 +1643,8 @@ int main(int argc, char *argv[])
 
               bsls::AtomicInt done(0);
 
-              bdlcc::FixedQueue<Case13Type*> queue(p.d_maxCount);
+              bdlcc::FixedQueue<Case13Type *>
+                                queue(static_cast<bsl::size_t>(p.d_maxCount));
               bdlqq::ThreadGroup procTg;
               for (int j = 0; j < 2; ++j) {
                  procTg.addThread(bdlf::BindUtil::bind(&case13Processor,
@@ -1581,7 +1683,7 @@ int main(int argc, char *argv[])
                           << "TESTING CONCERN: Allocator Propagation" << endl
                           << "======================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_12;
+        using namespace OBJECTPOOL_TEST_CASE_12;
 
         bslma::TestAllocator defaultAlloc(veryVeryVerbose);
         bslma::DefaultAllocatorGuard taGuard(&defaultAlloc);
@@ -1597,6 +1699,7 @@ int main(int argc, char *argv[])
             bdlcc::ObjectPool<bsl::string> pool(objectCreator, -1, &ta);
 
             bsl::string *myString = pool.getObject();
+            (void *)myString;
             ASSERT(0 == defaultAlloc.numBytesInUse())
         }
 
@@ -1607,6 +1710,7 @@ int main(int argc, char *argv[])
                                      bdlf::PlaceHolders::_1), -1, &ta);
 
             bsl::string *myString = pool.getObject();
+            (void *)myString;
             ASSERT(0 < defaultAlloc.numBytesInUse())
         }
       } break;
@@ -1628,7 +1732,7 @@ int main(int argc, char *argv[])
                           << "TESTING CONCERN: Exception safety" << endl
                           << "=================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_11;
+        using namespace OBJECTPOOL_TEST_CASE_11;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::DefaultAllocatorGuard taGuard(&ta);
@@ -1649,6 +1753,7 @@ int main(int argc, char *argv[])
             createBThrow = 1;  // first construction will throw
             try {
                 B *b2Ptr = mX.getObject();  // throws
+                (void *)b2Ptr;
             }
             catch(const Exception& e) {
                 if (verbose)
@@ -1790,7 +1895,7 @@ int main(int argc, char *argv[])
         //   Create a pool of objects of 'Counter' (a class that encapsulates
         //   an integer and has 'increment' method (to increment this
         //   integer) and 'count' method (to report it)).  Create
-        //   'NUM_THREADS' threads and let each thread (in a loop) invoke
+        //   'k_NUM_THREADS' threads and let each thread (in a loop) invoke
         //   'getObject' (getting a 'Counter' object 'c'), 'c.increment()'
         //   and finally 'releaseObject(c)'.  Join all the threads and then
         //   verify that the sum of all the counters is equal to the number of
@@ -1803,20 +1908,21 @@ int main(int argc, char *argv[])
                           << "TESTING 'RELEASE_OBJECT'" << endl
                           << "========================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_9;
+        using namespace OBJECTPOOL_TEST_CASE_9;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<Counter> p(-1, &ta);
         pool = &p;
 
-        pool->reserveCapacity(NUM_OBJECTS);
-        executeInParallel(NUM_THREADS, workerThread9);
+        pool->reserveCapacity(k_NUM_OBJECTS);
+        executeInParallel(k_NUM_THREADS, workerThread9);
 
         int totalCount = 0;
-        for (int i = 0; i < NUM_OBJECTS; ++i) {
+        for (int i = 0; i < k_NUM_OBJECTS; ++i) {
             totalCount += pool->getObject()->count();
         }
-        LOOP_ASSERT(totalCount, totalCount == NUM_ITERATIONS * NUM_THREADS);
+        LOOP_ASSERT(totalCount,
+                    totalCount == k_NUM_ITERATIONS * k_NUM_THREADS);
 
       } break;
 
@@ -1831,7 +1937,7 @@ int main(int argc, char *argv[])
         //   'releaseObject'.
         //
         // Plan:
-        //   Create a pool, create 'NUM_THREADS' threads and let each thread
+        //   Create a pool, create 'k_NUM_THREADS' threads and let each thread
         //   run a loop.  In each iteration of the loop, call
         //   'increaseCapacity(1)' and 'releaseObject' (thus incrementing
         //   'd_numAvailableObjects' by 2), then call 'getObject' twice (thus
@@ -1841,28 +1947,28 @@ int main(int argc, char *argv[])
         // Testing:
         //   int numAvailableObjects() const;
         // --------------------------------------------------------------------
-        // TBD: This test case is failing on IBM machine for higher
-        // values of 'NUM_ITERATIONS'
+        // TBD: This test case is failing on IBM machine for higher values of
+        // 'k_NUM_ITERATIONS'
         if (verbose)
             cout << endl
                  << "CONCURRENCY TEST FOR 'd_numAvailableObjects'" << endl
                  << "================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_8;
+        using namespace OBJECTPOOL_TEST_CASE_8;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
-        pool->reserveCapacity(NUM_OBJECTS);
+        pool->reserveCapacity(k_NUM_OBJECTS);
         int nC; // number of created objects
         int nA; // number of available objects
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, NUM_OBJECTS == nC);
-        LOOP_ASSERT(nA, NUM_OBJECTS == nA);
+        LOOP_ASSERT(nC, k_NUM_OBJECTS == nC);
+        LOOP_ASSERT(nA, k_NUM_OBJECTS == nA);
 
-        executeInParallel(NUM_THREADS, workerThread8);
+        executeInParallel(k_NUM_THREADS, workerThread8);
 
       } break;
 
@@ -1876,7 +1982,7 @@ int main(int argc, char *argv[])
         //   threads call 'increaseCapacity' and 'numObjects'.
         //
         // Plan:
-        //   Create a pool, create 'NUM_THREADS' threads and let each thread
+        //   Create a pool, create 'k_NUM_THREADS' threads and let each thread
         //   call 'increaseCapacity', followed by 'numObjects' in a
         //   loop.  Verify that for each thread, the values returned by
         //   'numObjects' are in increasing order.
@@ -1890,13 +1996,13 @@ int main(int argc, char *argv[])
                  << "CONCURRENCY TEST FOR 'd_numObjects'" << endl
                  << "==========================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_7;
+        using namespace OBJECTPOOL_TEST_CASE_7;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
-        executeInParallel(NUM_THREADS, workerThread7);
+        executeInParallel(k_NUM_THREADS, workerThread7);
 
       } break;
 
@@ -1912,7 +2018,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a pool and reserve enough objects (so that calls to
-        //   'getObject' can be quickly satisfied).  Create 'NUM_THREADS'
+        //   'getObject' can be quickly satisfied).  Create 'k_NUM_THREADS'
         //   (a multiple of 4) threads.  Define a *0-order* thread to be
         //   any i'th threads such that i%4 == 0.  Similarly define *1-order*
         //   thread (i%4 == 1), *2-order* thread (i%4 == 2) and *3-order*
@@ -1934,27 +2040,27 @@ int main(int argc, char *argv[])
                           << "CONCURRENCY TEST-4 FOR FREE OBJECT LIST" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_6;
+        using namespace OBJECTPOOL_TEST_CASE_6;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
-        pool->reserveCapacity(NUM_THREADS * NUM_OBJECTS);
+        pool->reserveCapacity(k_NUM_THREADS * k_NUM_OBJECTS);
         int nC; // number of created objects
         int nA; // number of available objects
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, nC == NUM_THREADS * NUM_OBJECTS);
-        LOOP_ASSERT(nA, nA == NUM_THREADS * NUM_OBJECTS);
+        LOOP_ASSERT(nC, nC == k_NUM_THREADS * k_NUM_OBJECTS);
+        LOOP_ASSERT(nA, nA == k_NUM_THREADS * k_NUM_OBJECTS);
 
-        attributes.setStackSize(sizeof(my_Class *) * NUM_OBJECTS + 1000000);
-        executeInParallel(NUM_THREADS, workerThread6);
+        attributes.setStackSize(sizeof(my_Class *) * k_NUM_OBJECTS + 1000000);
+        executeInParallel(k_NUM_THREADS, workerThread6);
 
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, nC ==  NUM_THREADS * NUM_OBJECTS * 5 / 4);
-        LOOP_ASSERT(nA, nA == NUM_THREADS * NUM_OBJECTS);
+        LOOP_ASSERT(nC, nC ==  k_NUM_THREADS * k_NUM_OBJECTS * 5 / 4);
+        LOOP_ASSERT(nA, nA == k_NUM_THREADS * k_NUM_OBJECTS);
         verifyPool(pool);
 
       } break;
@@ -1970,7 +2076,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a pool and reserve enough objects so that calls to
-        //   'getObject' can be quickly satisfied.  Create 'NUM_THREADS'
+        //   'getObject' can be quickly satisfied.  Create 'k_NUM_THREADS'
         //   threads and let each thread call 'getObject' followed by
         //   'releaseObject' in a loop.  Finally verify the state.
         //
@@ -1982,25 +2088,25 @@ int main(int argc, char *argv[])
                           << "CONCURRENCY TEST-3 FOR FREE OBJECT LIST" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_5;
+        using namespace OBJECTPOOL_TEST_CASE_5;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
-        pool->reserveCapacity(NUM_OBJECTS);
+        pool->reserveCapacity(k_NUM_OBJECTS);
         int nC; // number of created objects
         int nA; // number of available objects
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, nC == NUM_OBJECTS);
-        LOOP_ASSERT(nA, nA == NUM_OBJECTS);
+        LOOP_ASSERT(nC, nC == k_NUM_OBJECTS);
+        LOOP_ASSERT(nA, nA == k_NUM_OBJECTS);
 
-        executeInParallel(NUM_THREADS, workerThread5);
+        executeInParallel(k_NUM_THREADS, workerThread5);
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, nC == NUM_OBJECTS);
-        LOOP_ASSERT(nA, nA == NUM_OBJECTS);
+        LOOP_ASSERT(nC, nC == k_NUM_OBJECTS);
+        LOOP_ASSERT(nA, nA == k_NUM_OBJECTS);
 
       } break;
 
@@ -2015,7 +2121,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a pool and reserve enough objects so that calls to
-        //   'getObject' can be quickly satisfied.  Create 'NUM_THREADS'
+        //   'getObject' can be quickly satisfied.  Create 'k_NUM_THREADS'
         //   threads.  Let even numbered threads call 'getObject' in a
         //   loop (thus collecting the objects that can later be released),
         //   meanwhile odd numbered threads wait.  After that when all the
@@ -2031,26 +2137,26 @@ int main(int argc, char *argv[])
                           << "CONCURRENCY TEST-2 FOR FREE OBJECT LIST" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_4;
+        using namespace OBJECTPOOL_TEST_CASE_4;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
-        pool->reserveCapacity(NUM_THREADS * NUM_OBJECTS);
+        pool->reserveCapacity(k_NUM_THREADS * k_NUM_OBJECTS);
         int nC; // number of created objects
         int nA; // number of available objects
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, nC == NUM_THREADS * NUM_OBJECTS);
-        LOOP_ASSERT(nA, nA == NUM_THREADS * NUM_OBJECTS);
+        LOOP_ASSERT(nC, nC == k_NUM_THREADS * k_NUM_OBJECTS);
+        LOOP_ASSERT(nA, nA == k_NUM_THREADS * k_NUM_OBJECTS);
 
-        attributes.setStackSize(sizeof(my_Class *) * NUM_OBJECTS + 1000000);
-        executeInParallel(NUM_THREADS, workerThread4);
+        attributes.setStackSize(sizeof(my_Class *) * k_NUM_OBJECTS + 1000000);
+        executeInParallel(k_NUM_THREADS, workerThread4);
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, nC == NUM_THREADS * NUM_OBJECTS);
-        LOOP_ASSERT(nA, nA == NUM_THREADS * NUM_OBJECTS / 2);
+        LOOP_ASSERT(nC, nC == k_NUM_THREADS * k_NUM_OBJECTS);
+        LOOP_ASSERT(nA, nA == k_NUM_THREADS * k_NUM_OBJECTS / 2);
 
       } break;
 
@@ -2068,7 +2174,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a pool and reserve enough objects so that calls to
-        //   'getObject' can be quickly satisfied.  Create 'NUM_THREADS'
+        //   'getObject' can be quickly satisfied.  Create 'k_NUM_THREADS'
         //   threads, each of which will call 'getObject' in a loop
         //   (thus ensuring the first part of the concerns is tested
         //   effectively).  Verify the state after the loop.  Now let each
@@ -2084,24 +2190,24 @@ int main(int argc, char *argv[])
                           << "CONCURRENCY TEST-1 FOR FREE OBJECT LIST" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_3;
+        using namespace OBJECTPOOL_TEST_CASE_3;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
-        pool->reserveCapacity(NUM_THREADS * NUM_OBJECTS);
+        pool->reserveCapacity(k_NUM_THREADS * k_NUM_OBJECTS);
         int nC; // number of created objects
         int nA; // number of available objects
         nC = pool->numObjects();
         nA = pool->numAvailableObjects();
-        LOOP_ASSERT(nC, nC == NUM_THREADS * NUM_OBJECTS);
-        LOOP_ASSERT(nA, nA == NUM_THREADS * NUM_OBJECTS);
+        LOOP_ASSERT(nC, nC == k_NUM_THREADS * k_NUM_OBJECTS);
+        LOOP_ASSERT(nA, nA == k_NUM_THREADS * k_NUM_OBJECTS);
 
-        attributes.setStackSize(sizeof(my_Class *) * NUM_OBJECTS + 1000000);
-        executeInParallel(NUM_THREADS, workerThread3);
-        LOOP_ASSERT(nC, nC == NUM_THREADS * NUM_OBJECTS);
-        LOOP_ASSERT(nA, nA == NUM_THREADS * NUM_OBJECTS);
+        attributes.setStackSize(sizeof(my_Class *) * k_NUM_OBJECTS + 1000000);
+        executeInParallel(k_NUM_THREADS, workerThread3);
+        LOOP_ASSERT(nC, nC == k_NUM_THREADS * k_NUM_OBJECTS);
+        LOOP_ASSERT(nA, nA == k_NUM_THREADS * k_NUM_OBJECTS);
 
       } break;
 
@@ -2160,13 +2266,13 @@ int main(int argc, char *argv[])
                           << "SINGLE THREAD FUNCTIONALITY TEST" << endl
                           << "================================" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_2;
+        using namespace OBJECTPOOL_TEST_CASE_2;
 
-        enum { MAX_SIZE = 100 };
-        int DATA[][MAX_SIZE] = {
+        enum { k_MAX_SIZE = 100 };
+        int DATA[][k_MAX_SIZE] = {
 
-            // replenishment    // expected replenishments over
-            // policy           // successive pool depletion
+            // replenishment // expected replenishments over policy //
+            // successive pool depletion
             {  -1,               1, 2, 4, 8, 16, 32, 32, 32  },
             {   1,               1, 1, 1                     },
             {   2,               2, 2, 2                     },
@@ -2177,9 +2283,8 @@ int main(int argc, char *argv[])
             { -32,               32, 32, 32                  },
             { -33,               33, 33, 33                  },
 
-
-            // this corresponds to default replenishment policy
-            // Note that this MUST be the last row and MUST not be modified
+            // this corresponds to default replenishment policy Note that this
+            // MUST be the last row and MUST not be modified
             {   0,               1, 2, 4, 8, 16, 32, 32, 32  }
         };
 
@@ -2189,12 +2294,13 @@ int main(int argc, char *argv[])
         int size = sizeof(DATA)/sizeof(DATA[0]);
         for (int i = 0; i < size; ++i) {
 
-            if (i == (size-1)) { // last row represents default
-                                 // replenishment policy
+            if (i == (size-1)) { // last row represents default replenishment
+                                 // policy
                 pool = new bdlcc::ObjectPool<my_CheckingClass>(-1, &ta);
             }
             else {
-                pool = new bdlcc::ObjectPool<my_CheckingClass>(DATA[i][0], &ta);
+                pool = new bdlcc::ObjectPool<my_CheckingClass>(DATA[i][0],
+                                                               &ta);
             }
 
             int numLastCreated = 0;
@@ -2223,14 +2329,14 @@ int main(int argc, char *argv[])
                 LOOP4_ASSERT(i, j, lastAdr1, lastAdr2, lastAdr1 >= lastAdr2);
 
                 // verify that enough memory is allocated
-                int size1 = sizeof(BlockNode) + DATA[i][j]*OBJECT_FRAME_SIZE;
-                int size2 = ta.lastAllocatedNumBytes();
+                int size1 = static_cast<int>(sizeof(BlockNode))
+                          + DATA[i][j] * k_OBJECT_FRAME_SIZE;
+                bsls::Types::Int64 size2 = ta.lastAllocatedNumBytes();
                 LOOP4_ASSERT(i, j, size1, size2, size1 <= size2);
-
 
                 numLastCreated = pool->numObjects();
                 my_CheckingClass *lastP =
-                    (my_CheckingClass*) ((char *)p - OBJECT_FRAME_SIZE);
+                    (my_CheckingClass*) ((char *)p - k_OBJECT_FRAME_SIZE);
                 for (int k = 1; k <= DATA[i][j]; ++k) {
                     my_CheckingClass *currP = pool->getObject();
 
@@ -2241,15 +2347,15 @@ int main(int argc, char *argv[])
                         (bsls::Types::IntPtr)currP % al == 0);
 
                     // verify that successive objects are separated by
-                    // 'OBJECT_FRAME_SIZE' bytes.
+                    // 'k_OBJECT_FRAME_SIZE' bytes.
                     my_CheckingClass *temp =
-                     (my_CheckingClass *)((char *)lastP + OBJECT_FRAME_SIZE);
+                     (my_CheckingClass *)((char *)lastP + k_OBJECT_FRAME_SIZE);
                     LOOP5_ASSERT(i, j, k, (char*)lastP, (char*)currP,
                                                                   temp==currP);
 
                     // Verify that the objects were properly constructed
                     int pat1 = currP->pattern();
-                    int pat2 = my_CheckingClass::PATTERN;
+                    int pat2 = my_CheckingClass::k_PATTERN;
                     LOOP5_ASSERT(i, j, k, pat1, pat2, pat1 == pat2);
 
                     lastP = currP;
@@ -2264,7 +2370,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(oC, oC == 0);
 
             // verify that all the memory is deallocated
-            int nUse = ta.numBytesInUse();  // number of bytes in use
+            bsls::Types::Int64 nUse = ta.numBytesInUse();
             LOOP_ASSERT(nUse, nUse == 0);
         }
       } break;
@@ -2305,7 +2411,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        using namespace BCEC_OBJECTPOOL_TEST_CASE_1;
+        using namespace OBJECTPOOL_TEST_CASE_1;
         int nC; // number of created objects
         int nA; // number of available objects
 
@@ -2460,11 +2566,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

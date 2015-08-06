@@ -146,14 +146,14 @@ class LoggerManagerDefaults {
     //
     // More generally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment, equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  (A precise
-    // operational definition of when two instances have the same value can be
-    // found in the description of 'operator==' for the class.)  This class is
-    // *exception* *neutral* with no guarantee of rollback: if an exception is
-    // thrown during the invocation of a method on a pre-existing instance, the
-    // object is left in a valid state, but its value is undefined.  In no
-    // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
-    // an object as both source and destination) is supported in all cases.
+    // comparison, 'ostream' printing.  (A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of 'operator==' for the class.)  This class is *exception* *neutral*
+    // with no guarantee of rollback: if an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
 
   private:
     int d_recordBufferSize; // size of default logger's record buffer
@@ -215,11 +215,6 @@ class LoggerManagerDefaults {
         // Return the implementation-defined default trigger-all threshold
         // value for this class.
 
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
 
     // CREATORS
     LoggerManagerDefaults();
@@ -270,17 +265,6 @@ class LoggerManagerDefaults {
         // range [0 .. 255].  Return 0 on success, and a non-zero value (with
         // no effect on the state of this object) otherwise.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     // ACCESSORS
     int defaultRecordBufferSize() const;
@@ -318,15 +302,6 @@ class LoggerManagerDefaults {
         // one line.  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
-
 };
 
 // FREE OPERATORS
@@ -352,88 +327,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-// MANIPULATORS
-template <class STREAM>
-STREAM& LoggerManagerDefaults::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) { // switch on the version
-          case 1: {
-            int recordBufferSize;
-            stream.getInt32(recordBufferSize);
-            if (!stream || 0 >= recordBufferSize) {
-                stream.invalidate();
-                return stream;
-            }
 
-            int loggerBufferSize;
-            stream.getInt32(loggerBufferSize);
-            if (!stream || 0 >= loggerBufferSize) {
-                stream.invalidate();
-                return stream;
-            }
-
-            int recordLevel;
-            stream.getInt32(recordLevel);
-            if (!stream || 0 > recordLevel || 255 < recordLevel) {
-                stream.invalidate();
-                return stream;
-            }
-
-            int passLevel;
-            stream.getInt32(passLevel);
-            if (!stream || 0 > passLevel || 255 < passLevel) {
-                stream.invalidate();
-                return stream;
-            }
-
-            int triggerLevel;
-            stream.getInt32(triggerLevel);
-            if (!stream || 0 > triggerLevel || 255 < triggerLevel) {
-                stream.invalidate();
-                return stream;
-            }
-
-            int triggerAllLevel;
-            stream.getInt32(triggerAllLevel);
-            if (!stream || 0 > triggerAllLevel || 255 < triggerAllLevel) {
-                stream.invalidate();
-                return stream;
-            }
-
-            d_recordBufferSize       = recordBufferSize;
-            d_loggerBufferSize       = loggerBufferSize;
-            d_defaultRecordLevel     = recordLevel;
-            d_defaultPassLevel       = passLevel;
-            d_defaultTriggerLevel    = triggerLevel;
-            d_defaultTriggerAllLevel = triggerAllLevel;
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
-
-// ACCESSORS
-template <class STREAM>
-STREAM& LoggerManagerDefaults::bdexStreamOut(STREAM& stream,
-                                                  int     version) const
-{
-    switch (version) {
-      case 1: {
-        stream.putInt32(d_recordBufferSize);
-        stream.putInt32(d_loggerBufferSize);
-
-        stream.putInt32(d_defaultRecordLevel);
-        stream.putInt32(d_defaultPassLevel);
-        stream.putInt32(d_defaultTriggerLevel);
-        stream.putInt32(d_defaultTriggerAllLevel);
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 }  // close namespace BloombergLP

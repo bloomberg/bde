@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 // collectors and 2 integer collectors:
 //..
 //  bslma::Allocator *allocator = bslma::Default::allocator(0);
-//  baem_MetricRegistry  metricRegistry(allocator);
+//  balm::MetricRegistry  metricRegistry(allocator);
 //  balm::CollectorRepository repository(&metricRegistry, allocator);
 //
 //  balm::Collector *collector1 = repository.getDefaultCollector("Test", "C1");
@@ -124,14 +124,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -193,7 +185,7 @@ class CollectorRepository {
         // for a single metric.
 
     // DATA
-    baem_MetricRegistry   *d_registry_p;   // registry of ids (held, not owned)
+    MetricRegistry   *d_registry_p;   // registry of ids (held, not owned)
     Collectors             d_collectors;   // collectors (owned)
     CategorizedCollectors  d_categories;   // map of category => collectors
     mutable bdlqq::RWMutex  d_rwMutex;      // data lock
@@ -216,11 +208,11 @@ class CollectorRepository {
 
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(CollectorRepository,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository,
+                                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    CollectorRepository(baem_MetricRegistry *registry,
+    CollectorRepository(MetricRegistry *registry,
                              bslma::Allocator    *basicAllocator = 0);
         // Create an empty collector repository that will use the specified
         // 'registry' to identify the metrics for which it manages collectors.
@@ -347,12 +339,12 @@ class CollectorRepository {
         // undefined unless 'metricId' is a valid id returned by the
         // 'MetricRepository' supplied at construction.
 
-    baem_MetricRegistry& registry();
+    MetricRegistry& registry();
         // Return a reference to the modifiable registry of metrics used by
         // this collector repository.
 
     // ACCESSORS
-    const baem_MetricRegistry& registry() const;
+    const MetricRegistry& registry() const;
         // Return a reference to the non-modifiable registry of metrics used by
         // this collector repository.
 };
@@ -368,7 +360,7 @@ class CollectorRepository {
 // CREATORS
 inline
 CollectorRepository::CollectorRepository(
-                                          baem_MetricRegistry *registry,
+                                          MetricRegistry *registry,
                                           bslma::Allocator    *basicAllocator)
 
 : d_registry_p(registry)
@@ -419,14 +411,14 @@ CollectorRepository::addIntegerCollector(const char *category,
 }
 
 inline
-baem_MetricRegistry& CollectorRepository::registry()
+MetricRegistry& CollectorRepository::registry()
 {
     return *d_registry_p;
 }
 
 // ACCESSORS
 inline
-const baem_MetricRegistry& CollectorRepository::registry() const
+const MetricRegistry& CollectorRepository::registry() const
 {
     return *d_registry_p;
 }

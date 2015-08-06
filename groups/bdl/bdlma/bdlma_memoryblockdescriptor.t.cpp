@@ -2,6 +2,8 @@
 
 #include <bdlma_memoryblockdescriptor.h>
 
+#include <bdls_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>  // for testing only
 #include <bslma_testallocator.h>          // for testing only
 
@@ -11,13 +13,13 @@
 #include <bsl_sstream.h>
 
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>   // atoi()
-#include <bsl_cstring.h>   // memcpy()
+#include <bsl_cstdlib.h>   // 'atoi'
+#include <bsl_cstring.h>   // 'memcpy'
 
-#include <bsl_c_stdio.h>   // snprintf() (<cstdio> doesn't declare 'snprintf')
+#include <bsl_c_stdio.h>   // 'snprintf' (<cstdio> doesn't declare 'snprintf')
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>             // pipe(), close() and dup().
+#include <unistd.h>             // 'pipe', 'close' and 'dup'.
 #endif
 
 using namespace BloombergLP;
@@ -39,8 +41,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] bdlma::MemoryBlockDescriptor(void *, bsl::size_t);
 // [ 5] bdlma::MemoryBlockDescriptor(const bdlma::MemoryBlockDescriptor&);
 // [ 2] ~bdlma::MemoryBlockDescriptor();
-// [ 6] bdlma::MemoryBlockDescriptor& operator=(
-//                                  const bdlma::MemoryBlockDescriptor&);
+// [ 6] bdlma::MemoryBlockDescriptor& operator=(rhs);
 // [ 7] bool isNull() const;
 // [ 2] void *address() const;
 // [ 2] size_type size() const;
@@ -53,41 +54,46 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
+
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 //=============================================================================
-//                    STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                               GLOBAL TYPEDEF
@@ -115,10 +121,9 @@ bsl::printf("\n");
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -146,22 +151,24 @@ int main(int argc, char *argv[])
                           << endl << "============="
                           << endl;
 
-// In this example we demonstrate creating and testing the state of a
+///Usage
+///-----
+// This example demonstrates how to create and test the state of a
 // 'bdlma::MemoryBlockDescriptor'.
 //..
      char buffer[100];
-//
+
      bdlma::MemoryBlockDescriptor a(buffer, sizeof buffer);
                                  ASSERT(!a.isNull());
                                  ASSERT(buffer         == a.address());
                                  ASSERT(sizeof buffer  == a.size());
-//
+
      bdlma::MemoryBlockDescriptor b;
                                  ASSERT( b.isNull());
                                  ASSERT(0              == b.address());
                                  ASSERT(0              == b.size());
                                  ASSERT(a              != b);
-//
+
      b = a;
                                  ASSERT(!b.isNull());
                                  ASSERT(buffer         == b.address());
@@ -169,7 +176,6 @@ int main(int argc, char *argv[])
                                  ASSERT(a              == b);
 
 //..
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -216,20 +222,20 @@ int main(int argc, char *argv[])
             memset(buf, XX, BUF_SZ);
 
             snprintf(mExp, BUF_SZ, "[%p, %d]",
-                     VALUES[i].d_address, VALUES[i].d_size);
+                     VALUES[i].d_address, static_cast<int>(VALUES[i].d_size));
 
             // Because bdema is a low-level utility, MemoryBlockDescriptor does
             // not have a function to print to ostream, and thus cannot print
             // to a strstream.  The print() member function always prints to
-            // 'stdout'.  The code below forks a process and captures stdout
-            // to a memory buffer
+            // 'stdout'.  The code below forks a process and captures stdout to
+            // a memory buffer
             const char *EXP = mExp;
             int pipes[2];
             int sz;
             pipe(pipes);
             if (fork()) {
                 // Parent process.  Read pipe[0] into memory
-                sz = read(pipes[0], buf, BUF_SZ);
+                sz = static_cast<int>(read(pipes[0], buf, BUF_SZ));
                 if (sz >= 0) { buf[sz] = '\0'; }
             }
             else {
@@ -248,7 +254,7 @@ int main(int argc, char *argv[])
                 cout << "\nEXPECTED FORMAT:"       << endl << EXP  << endl
                      << "\nACTUAL FORMAT (print):" << endl << buf << endl;
            }
-            const int EXP_SZ = strlen(EXP);
+            const int EXP_SZ = static_cast<int>(strlen(EXP));
             ASSERT(EXP_SZ < BUF_SZ);           // Check buffer is large enough.
             ASSERT(sz < BUF_SZ);               // Check buffer is large enough.
             ASSERT(0 < sz);                    // Check something was printed
@@ -317,8 +323,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   bdlma::MemoryBlockDescriptor& operator=(
-        //                             const bdlma::MemoryBlockDescriptor& rhs);
+        //   bdlma::MemoryBlockDescriptor& operator=(rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Assignment Operator" << endl;
@@ -595,15 +600,14 @@ int main(int argc, char *argv[])
         //   denote unique, but otherwise arbitrary, object values, while 'U'
         //   denotes the valid, but "unknown", default object value.
         //
-        // 1. Create an object x1 (init. to VA).    { x1:VA }
-        // 2. Create an object x2 (copy from x1).   { x1:VA x2:VA }
-        // 3. Set x1 to VB.                         { x1:VB x2:VA }
-        // 4. Create an object x3 (default ctor).   { x1:VB x2:VA x3:U }
-        // 5. Create an object x4 (copy from x3).   { x1:VB x2:VA x3:U  x4:U }
-        // 6. Set x3 to VC.                         { x1:VB x2:VA x3:VC x4:U }
-        // 7. Assign x2 = x1.                       { x1:VB x2:VB x3:VC x4:U }
-        // 8. Assign x2 = x3.                       { x1:VB x2:VC x3:VC x4:U }
-        // 9. Assign x1 = x1 (aliasing).            { x1:VB x2:VB x3:VC x4:U }
+        // 1.  Create an object x1 (init. to VA).  { x1:VA } 2.  Create an
+        // object x2 (copy from x1).  { x1:VA x2:VA } 3.  Set x1 to VB.  {
+        // x1:VB x2:VA } 4.  Create an object x3 (default ctor).  { x1:VB x2:VA
+        // x3:U } 5.  Create an object x4 (copy from x3).  { x1:VB x2:VA x3:U
+        // x4:U } 6.  Set x3 to VC.  { x1:VB x2:VA x3:VC x4:U } 7.  Assign x2 =
+        // x1.  { x1:VB x2:VB x3:VC x4:U } 8.  Assign x2 = x3.  { x1:VB x2:VC
+        // x3:VC x4:U } 9.  Assign x1 = x1 (aliasing).  { x1:VB x2:VB x3:VC
+        // x4:U }
         //
         // Testing:
         //   This Test Case exercises basic value-semantic functionality.
@@ -798,11 +802,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

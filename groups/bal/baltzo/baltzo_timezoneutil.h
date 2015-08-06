@@ -79,12 +79,12 @@ BSLS_IDENT("$Id: $")
 // argument policy allows clients to specify how they would like the operation
 // to interpret the input value (as such a value may be ambiguous or invalid
 // within the indicated time zone -- see above).  Clients are, however,
-// encouraged to use the default policy, 'BAETZO_UNSPECIFIED', unless there is
+// encouraged to use the default policy, 'BALTZO_UNSPECIFIED', unless there is
 // some specific reason they require a different option.
 //
 // Three enumerated 'baltzo::DstPolicy' values are supported:
 //
-//: 1 'BAETZO_UNSPECIFIED' (default)
+//: 1 'BALTZO_UNSPECIFIED' (default)
 //:   o The client does not explicitly indicate whether the associated input
 //:     time represents a daylight-saving time value, and the operation will
 //:     determine how to interpret the time solely based on the input itself.
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 //:     choice is arbitrary (but is consistent with common implementations of
 //:     the C standard library).
 //:
-//: 2 'BAETZO_STANDARD'
+//: 2 'BALTZO_STANDARD'
 //:   o Indicates that the operation should treat the associated input time
 //:     value as a standard time, using the UTC value computed by applying the
 //:     standard-time UTC offset.  Note that the standard-time UTC offset is
@@ -106,7 +106,7 @@ BSLS_IDENT("$Id: $")
 //:     time, which would result in a UTC time that does not correspond to a
 //:     standard time within the time zone.
 //:
-//: 3 'BAETZO_DST'
+//: 3 'BALTZO_DST'
 //:   o Indicates that the operation should treat the associated input time
 //:     value as a daylight-saving time, using the UTC value computed by
 //:     applying the daylight-saving time UTC offset.  Note that the
@@ -130,9 +130,9 @@ BSLS_IDENT("$Id: $")
 //..
 //     Result format: UTC 'bdlt::Time' & corresponding local 'bdlt::TimeTz'.
 // ,--------------------------------------------------------------------------.
-// | Input in New York  |              'baltzo::DstPolicy::Enum'               |
+// | Input in New York  |              'baltzo::DstPolicy::Enum'              |
 // |     Local Time     |-----------------------------------------------------|
-// |   (bdlt::Datetime)  |  *_UNSPECIFIED  |   *_STANDARD    |   *_DST         |
+// |   (bdlt::Datetime)  |  *_UNSPECIFIED  |   *_STANDARD    |   *_DST        |
 // |==========================================================================|
 // | Jan  1, 2010 01:30 |  06:30:00 UTC   |  06:30:00 UTC   |  05:30:00 UTC   |
 // |   (standard time)  | (01:30:00-5:00) | (01:30:00-5:00) | (00:30:00-5:00) |
@@ -156,7 +156,7 @@ BSLS_IDENT("$Id: $")
 //:   is simply the corresponding UTC time "Jan 1, 2010 06:30 UTC".
 //:
 //: 2 "Jan 1, 2010 01:30" is unambiguously a standard time value, so the
-//:   supplied policy, 'BAETZO_DST', contradicts the actual occurrence of
+//:   supplied policy, 'BALTZO_DST', contradicts the actual occurrence of
 //:   daylight-saving time in New York.  The input time is adjusted by the UTC
 //:   offset for daylight-saving time in New York (-4:00) resulting in a UTC
 //:   time 05:30.  Note that the result, "Jan 1, 2010 05:30 UTC", corresponds
@@ -181,7 +181,7 @@ BSLS_IDENT("$Id: $")
 //:   01:30-5:00" (a standard time).
 //:
 //: 6 "Apr 1, 2010 01:30" is unambiguously a daylight-saving time value, so the
-//:   supplied policy 'BAETZO_STANDARD' contradicts the actual occurrence of
+//:   supplied policy 'BALTZO_STANDARD' contradicts the actual occurrence of
 //:   daylight-saving time in New York.  The input time is adjusted by the UTC
 //:   offset for standard time in New York (-5:00) resulting in a UTC time
 //:   06:30.  Note that "Apr 1, 2010 06:30 UTC" corresponds to the New York
@@ -258,8 +258,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::Datetime newYorkTime(2010, 7, 31, 15, 0, 0);
 //..
-// Now, let's apply the conversion operation to obtain a 'baltzo::LocalDatetime'
-// object representing the corresponding local time in Italy:
+// Now, let's apply the conversion operation to obtain a
+// 'baltzo::LocalDatetime' object representing the corresponding local time in
+// Italy:
 //..
 //  baltzo::LocalDatetime romeTime;
 //  int status = baltzo::TimeZoneUtil::convertLocalToLocalTime(
@@ -302,12 +303,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::Datetime uniqueTime(2010, 7, 31, 15, 0, 0);
 //..
-// Then, we call 'initLocalTime', which returns a 'baltzo::LocalDatetime' object.
-// 'initLocalTime' also optionally returns 'baltzo::LocalTimeValidity::Enum',
-// indicating whether the provided input was a valid and unique clock time.
-// Note that invalid or ambiguous times are resolved using the optionally
-// provided 'baltzo::DstPolicy::Enum' (see the section {Daylight-Saving Time
-// (DST) Policies and Disambiguation}):
+// Then, we call 'initLocalTime', which returns a 'baltzo::LocalDatetime'
+// object.  'initLocalTime' also optionally returns
+// 'baltzo::LocalTimeValidity::Enum', indicating whether the provided input was
+// a valid and unique clock time.  Note that invalid or ambiguous times are
+// resolved using the optionally provided 'baltzo::DstPolicy::Enum' (see the
+// section {Daylight-Saving Time (DST) Policies and Disambiguation}):
 //..
 //  baltzo::LocalDatetime             localTime;
 //  baltzo::LocalTimeValidity::Enum validity;
@@ -333,7 +334,7 @@ BSLS_IDENT("$Id: $")
 // In addition, the time provided represents a unique and valid clock time in
 // New York (because it does not fall near a daylight-saving time transition):
 //..
-//  assert(baltzo::LocalTimeValidity::BAETZO_VALID_UNIQUE == validity);
+//  assert(baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE == validity);
 //..
 // By contrast, if we call 'initLocalTime' for a time value that falls during a
 // during a daylight-saving time transition, the returned
@@ -367,9 +368,9 @@ BSLS_IDENT("$Id: $")
 //  assert( -4 * 60 == localTime.datetimeTz().offset());
 //..
 // Finally, we verify that the validity status returned for 'invalidTime' is
-// 'BAETZO_INVALID':
+// 'BALTZO_INVALID':
 //..
-//  assert(baltzo::LocalTimeValidity::BAETZO_INVALID == validity);
+//  assert(baltzo::LocalTimeValidity::BALTZO_INVALID == validity);
 //..
 //
 ///Example 4: Obtaining Information About a Time Value
@@ -381,11 +382,12 @@ BSLS_IDENT("$Id: $")
 // offset from UTC, whether it is daylight-saving time) as well as the interval
 // over which those attributes apply (see {'baltzo_localtimeperiod'}).
 //
-// First, we create a 'baltzo::LocalDatetime' object for the New York local time
-// "Jul 31, 2010 15:00:00-04:00".  Note that this 'baltzo::LocalDatetime' may also
-// be created as in example 3.
+// First, we create a 'baltzo::LocalDatetime' object for the New York local
+// time "Jul 31, 2010 15:00:00-04:00".  Note that this 'baltzo::LocalDatetime'
+// may also be created as in example 3.
 //..
-//  bdlt::DatetimeTz localTimeTz(bdlt::Datetime(2010, 7, 31, 15, 0, 0), -4 * 60);
+//  bdlt::DatetimeTz localTimeTz(bdlt::Datetime(2010, 7, 31, 15, 0, 0),
+//                               -4 * 60);
 //  baltzo::LocalDatetime localTime(localTimeTz, "America/New_York");
 //..
 // Then, we call 'loadLocalTimePeriod', which returns a
@@ -442,8 +444,20 @@ BSLS_IDENT("$Id: $")
 #include <baltzo_localdatetime.h>
 #endif
 
+#ifndef INCLUDED_BDLT_DATETTIME
+#include <bdlt_datetime.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETTIMETZ
+#include <bdlt_datetimetz.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -451,34 +465,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace baltzo {
 
+class LocalTimePeriod;
 
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
-
-namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
-
-namespace bdlt { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close package namespace
-
-
-namespace baltzo {class LocalTimePeriod;
 class ZoneinfoCache;
 
-                        // ==========================
+                        // ===================
                         // struct TimeZoneUtil
-                        // ==========================
+                        // ===================
 
 struct TimeZoneUtil {
     // This 'struct' provides a namespace for utility functions that convert
@@ -493,59 +488,55 @@ struct TimeZoneUtil {
 
 
     // CLASS METHODS
-    static int convertUtcToLocalTime(baltzo::LocalDatetime   *result,
-                                     const char           *targetTimeZoneId,
+    static int convertUtcToLocalTime(LocalDatetime         *result,
+                                     const char            *targetTimeZoneId,
                                      const bdlt::Datetime&  utcTime);
     static int convertUtcToLocalTime(bdlt::DatetimeTz      *result,
-                                     const char           *targetTimeZoneId,
+                                     const char            *targetTimeZoneId,
                                      const bdlt::Datetime&  utcTime);
         // Load, into the specified 'result', the local date-time value (in the
         // time zone indicated by the specified 'targetTimeZoneId')
         // corresponding to the specified 'utcTime'.  The offset from UTC of
         // the time zone is rounded down to minute precision.  Return 0 on
         // success, and a non-zero value with no effect otherwise.  A return
-        // value of 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // value of 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'targetTimeZoneId' was not recognized.
 
+    static int convertLocalToLocalTime(LocalDatetime        *result,
+                                       const char           *targetTimeZoneId,
+                                       const LocalDatetime&  srcTime);
     static int convertLocalToLocalTime(
-                                   baltzo::LocalDatetime        *result,
-                                   const char                *targetTimeZoneId,
-                                   const baltzo::LocalDatetime&  srcTime);
+                                     LocalDatetime           *result,
+                                     const char              *targetTimeZoneId,
+                                     const bdlt::DatetimeTz&  srcTime);
+    static int convertLocalToLocalTime(bdlt::DatetimeTz     *result,
+                                       const char           *targetTimeZoneId,
+                                       const LocalDatetime&  srcTime);
     static int convertLocalToLocalTime(
-                                   baltzo::LocalDatetime        *result,
-                                   const char                *targetTimeZoneId,
-                                   const bdlt::DatetimeTz&     srcTime);
-    static int convertLocalToLocalTime(
-                                   bdlt::DatetimeTz           *result,
-                                   const char                *targetTimeZoneId,
-                                   const baltzo::LocalDatetime&  srcTime);
-    static int convertLocalToLocalTime(
-                                   bdlt::DatetimeTz           *result,
-                                   const char                *targetTimeZoneId,
-                                   const bdlt::DatetimeTz&     srcTime);
+                                     bdlt::DatetimeTz        *result,
+                                     const char              *targetTimeZoneId,
+                                     const bdlt::DatetimeTz&  srcTime);
         // Load, into the specified 'result', the local date-time value (in the
         // time zone indicated by the specified 'targetTimeZoneId')
         // corresponding to the local time indicated by the specified
         // 'srcTime'.  The offset from UTC of both time zones is rounded down
         // to minute precision.  Return 0 on success, and a non-zero value with
         // no effect otherwise.  A return value of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'targetTimeZoneId' was not recognized.
 
-    static int convertLocalToLocalTime(
-                             baltzo::LocalDatetime     *result,
-                             const char             *targetTimeZoneId,
-                             const bdlt::Datetime&    srcTime,
-                             const char             *srcTimeZoneId,
-                             DstPolicy::Enum  dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
-    static int convertLocalToLocalTime(
-                             bdlt::DatetimeTz        *result,
-                             const char             *targetTimeZoneId,
-                             const bdlt::Datetime&    srcTime,
-                             const char             *srcTimeZoneId,
-                             DstPolicy::Enum  dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
+    static int convertLocalToLocalTime(LocalDatetime         *result,
+                                       const char            *targetTimeZoneId,
+                                       const bdlt::Datetime&  srcTime,
+                                       const char            *srcTimeZoneId,
+                                       DstPolicy::Enum        dstPolicy =
+                                                DstPolicy::BALTZO_UNSPECIFIED);
+    static int convertLocalToLocalTime(bdlt::DatetimeTz      *result,
+                                       const char            *targetTimeZoneId,
+                                       const bdlt::Datetime&  srcTime,
+                                       const char            *srcTimeZoneId,
+                                       DstPolicy::Enum        dstPolicy =
+                                                DstPolicy::BALTZO_UNSPECIFIED);
         // Load, into the specified 'result', the local date-time value (in the
         // time zone indicated by the specified 'targetTimeZoneId')
         // corresponding to the local time indicated by the specified 'srcTime'
@@ -559,31 +550,31 @@ struct TimeZoneUtil {
         // interpretations of 'srcTime'.  The offset from UTC of both time
         // zones is rounded down to minute precision.  Return 0 on success, and
         // a non-zero value with no effect otherwise.  A return value of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that either
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that either
         // 'targetTimeZoneId' or 'srcTimeZoneId' was not recognized.
 
+    static int initLocalTime(bdlt::DatetimeTz      *result,
+                             const bdlt::Datetime&  localTime,
+                             const char            *timeZoneId,
+                             DstPolicy::Enum        dstPolicy =
+                                                DstPolicy::BALTZO_UNSPECIFIED);
+    static int initLocalTime(LocalDatetime         *result,
+                             const bdlt::Datetime&  localTime,
+                             const char            *timeZoneId,
+                             DstPolicy::Enum        dstPolicy =
+                                                DstPolicy::BALTZO_UNSPECIFIED);
     static int initLocalTime(bdlt::DatetimeTz        *result,
-                             const bdlt::Datetime&    localTime,
-                             const char             *timeZoneId,
-                             DstPolicy::Enum  dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
-    static int initLocalTime(baltzo::LocalDatetime     *result,
-                             const bdlt::Datetime&    localTime,
-                             const char             *timeZoneId,
-                             DstPolicy::Enum  dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
-    static int initLocalTime(bdlt::DatetimeTz                *result,
                              LocalTimeValidity::Enum *resultValidity,
-                             const bdlt::Datetime&            localTime,
-                             const char                     *timeZoneId,
+                             const bdlt::Datetime&    localTime,
+                             const char              *timeZoneId,
                              DstPolicy::Enum          dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
-    static int initLocalTime(baltzo::LocalDatetime             *result,
+                                                DstPolicy::BALTZO_UNSPECIFIED);
+    static int initLocalTime(LocalDatetime           *result,
                              LocalTimeValidity::Enum *resultValidity,
-                             const bdlt::Datetime&            localTime,
-                             const char                     *timeZoneId,
+                             const bdlt::Datetime&    localTime,
+                             const char              *timeZoneId,
                              DstPolicy::Enum          dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
+                                                DstPolicy::BALTZO_UNSPECIFIED);
         // Load, into the specified 'result', the local date-time value --
         // including the local date, time, and resolved UTC offset -- indicated
         // by the specified 'localTime' in the time zone indicated by the
@@ -598,19 +589,19 @@ struct TimeZoneUtil {
         // the two possible interpretations of 'localTime'.  The offset from
         // UTC of the time zone is rounded down to minute precision.  Return 0
         // on success, and a non-zero value with no effect otherwise.  A return
-        // value of 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // value of 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.
 
-    static int convertLocalToUtc(bdlt::Datetime          *result,
-                                 const bdlt::Datetime&    localTime,
-                                 const char             *timeZoneId,
-                                 DstPolicy::Enum  dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
-    static int convertLocalToUtc(baltzo::LocalDatetime     *result,
-                                 const bdlt::Datetime&    localTime,
-                                 const char             *timeZoneId,
-                                 DstPolicy::Enum  dstPolicy =
-                                         DstPolicy::BAETZO_UNSPECIFIED);
+    static int convertLocalToUtc(bdlt::Datetime        *result,
+                                 const bdlt::Datetime&  localTime,
+                                 const char            *timeZoneId,
+                                 DstPolicy::Enum        dstPolicy =
+                                                DstPolicy::BALTZO_UNSPECIFIED);
+    static int convertLocalToUtc(LocalDatetime         *result,
+                                 const bdlt::Datetime&  localTime,
+                                 const char            *timeZoneId,
+                                 DstPolicy::Enum        dstPolicy =
+                                                DstPolicy::BALTZO_UNSPECIFIED);
         // Load, into the specified 'result', the UTC time value that
         // corresponds to the specified 'localTime' in the time zone indicated
         // by the specified 'timeZoneId'.  Optionally specify a 'dstPolicy'
@@ -622,63 +613,60 @@ struct TimeZoneUtil {
         // the later of the two possible interpretations of 'localTime'.  The
         // offset from UTC of the time zone is rounded down to minute
         // precision.  Return 0 on success, and a non-zero value with no effect
-        // otherwise.  A return value of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' was not recognized.
+        // otherwise.  A return value of 'ErrorCode::BALTZO_UNSUPPORTED_ID'
+        // indicates that 'timeZoneId' was not recognized.
 
-    static int loadLocalTimePeriod(LocalTimePeriod    *result,
-                                   const baltzo::LocalDatetime&  localTime);
+    static int loadLocalTimePeriod(LocalTimePeriod      *result,
+                                   const LocalDatetime&  localTime);
         // Load, into the specified 'result', attributes characterizing the
         // specified 'localTime' (i.e., the offset from UTC, whether
         // daylight-saving time is in effect and the description of the time
         // zone), as well as the time interval over which those attributes
         // apply.  Return 0 on success, and a non-zero value with no effect
-        // otherwise.  A return value of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
-        // 'localTime.timeZoneId()' was not recognized.
+        // otherwise.  A return value of 'ErrorCode::BALTZO_UNSUPPORTED_ID'
+        // indicates that 'localTime.timeZoneId()' was not recognized.
 
-    static int loadLocalTimePeriod(LocalTimePeriod *result,
+    static int loadLocalTimePeriod(LocalTimePeriod         *result,
                                    const bdlt::DatetimeTz&  localTime,
-                                   const char             *timeZoneId);
+                                   const char              *timeZoneId);
         // Load, into the specified 'result', attributes characterizing the
         // specified 'localTime' in the time zone indicated by the specified
         // 'timeZoneId' (i.e., the offset from UTC, whether daylight-saving
         // time is in effect and the description of the time zone), as well as
         // the time interval over which those attributes apply.  Return 0 on
         // success, and a non-zero value with no effect otherwise.  A return
-        // value of 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // value of 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.
 
-    static int loadLocalTimePeriodForUtc(LocalTimePeriod *result,
-                                         const char             *timeZoneId,
-                                         const bdlt::Datetime&    utcTime);
+    static int loadLocalTimePeriodForUtc(LocalTimePeriod       *result,
+                                         const char            *timeZoneId,
+                                         const bdlt::Datetime&  utcTime);
         // Load, into the specified 'result', attributes characterizing local
         // time at the specified 'utcTime' in the time zone indicated by the
         // specified 'timeZoneId' (i.e., the offset from UTC, whether
         // daylight-saving time is in effect and the description of the time
         // zone), as well as the time interval over which those attributes
         // apply.  Return 0 on success, and a non-zero value with no effect
-        // otherwise.  A return value of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
-        // 'timeZoneId' was not recognized.
+        // otherwise.  A return value of 'ErrorCode::BALTZO_UNSUPPORTED_ID'
+        // indicates that 'timeZoneId' was not recognized.
 
 
-    static int addInterval(baltzo::LocalDatetime        *result,
-                           const baltzo::LocalDatetime&  originalTime,
-                           const bsls::TimeInterval&   interval);
+    static int addInterval(LocalDatetime             *result,
+                           const LocalDatetime&       originalTime,
+                           const bsls::TimeInterval&  interval);
         // Load, into the specified 'result', the local time value that is the
         // specified 'interval' in the future of the specified 'originalTime'
         // (in the time zone 'originalTime.timeZoneId()').  Return 0 on
         // success, and a non-zero value with no effect otherwise.  A return
-        // value of 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // value of 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.  The resulting local-time is
         // equivalent to adding 'interval' to
         // 'originalTime.datetimeTz().utcDatetime()' and converting the result
         // into the local time of 'originalTime.timeZoneId()'.
 
-    static int validateLocalTime(bool                   *result,
+    static int validateLocalTime(bool                    *result,
                                  const bdlt::DatetimeTz&  localTime,
-                                 const char             *timeZoneId);
+                                 const char              *timeZoneId);
         // Load, into the specified 'result', 'true' if the offset from UTC of
         // the specified 'localTime' (i.e., 'localTime.offset()') is consistent
         // with the actual local time offset, as indicated by time zone data,
@@ -686,13 +674,12 @@ struct TimeZoneUtil {
         // by the specified 'timeZoneId', and 'false' otherwise.  Return 0 on
         // success, and a non-zero value with 'false' loaded into 'result'
         // otherwise.  A return value of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.  Note that this operation verifies
         // that the properties of the provided local time are consistent with
         // the time zone data.
 
-    static int validateLocalTime(bool                      *result,
-                                 const baltzo::LocalDatetime&  localTime);
+    static int validateLocalTime(bool *result, const LocalDatetime& localTime);
         // Load, into the specified 'result', 'true' if the time zone
         // identifier of the specified 'localTime' (i.e.,
         // 'localTime.timeZoneId()') is a valid identifier, and the offset from
@@ -702,42 +689,44 @@ struct TimeZoneUtil {
         // the time zone indicated by 'localTime.timeZoneId()', and 'false'
         // otherwise.  Return 0 on success, and a non-zero value with 'false'
         // loaded into 'result' otherwise.  A return value of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.  Note that this operation verifies
         // that the properties of the provided local time are consistent with
         // the time zone data.
 };
 
+}  // close package namespace
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // struct TimeZoneUtil
-                        // --------------------------
+                            // -------------------
+                            // struct TimeZoneUtil
+                            // -------------------
 
 // CLASS METHODS
 inline
-int TimeZoneUtil::convertUtcToLocalTime(
+int baltzo::TimeZoneUtil::convertUtcToLocalTime(
                                        bdlt::DatetimeTz      *result,
-                                       const char           *targetTimeZoneId,
+                                       const char            *targetTimeZoneId,
                                        const bdlt::Datetime&  utcTime)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(targetTimeZoneId);
 
     return TimeZoneUtilImp::convertUtcToLocalTime(
-                                  result,
-                                  targetTimeZoneId,
-                                  utcTime,
-                                  DefaultZoneinfoCache::defaultCache());
+                                         result,
+                                         targetTimeZoneId,
+                                         utcTime,
+                                         DefaultZoneinfoCache::defaultCache());
 }
 
 inline
-int TimeZoneUtil::convertLocalToLocalTime(
-                                  baltzo::LocalDatetime        *result,
-                                  const char                *targetTimeZoneId,
-                                  const baltzo::LocalDatetime&  srcTime)
+int baltzo::TimeZoneUtil::convertLocalToLocalTime(
+                                        LocalDatetime        *result,
+                                        const char           *targetTimeZoneId,
+                                        const LocalDatetime&  srcTime)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(targetTimeZoneId);
@@ -748,10 +737,10 @@ int TimeZoneUtil::convertLocalToLocalTime(
 }
 
 inline
-int TimeZoneUtil::convertLocalToLocalTime(
-                                  baltzo::LocalDatetime     *result,
-                                  const char             *targetTimeZoneId,
-                                  const bdlt::DatetimeTz&  srcTime)
+int baltzo::TimeZoneUtil::convertLocalToLocalTime(
+                                     LocalDatetime           *result,
+                                     const char              *targetTimeZoneId,
+                                     const bdlt::DatetimeTz&  srcTime)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(targetTimeZoneId);
@@ -762,7 +751,7 @@ int TimeZoneUtil::convertLocalToLocalTime(
 }
 
 inline
-int TimeZoneUtil::convertLocalToLocalTime(
+int baltzo::TimeZoneUtil::convertLocalToLocalTime(
                                    bdlt::DatetimeTz           *result,
                                    const char                *targetTimeZoneId,
                                    const baltzo::LocalDatetime&  srcTime)
@@ -776,10 +765,10 @@ int TimeZoneUtil::convertLocalToLocalTime(
 }
 
 inline
-int TimeZoneUtil::convertLocalToLocalTime(
-                                      bdlt::DatetimeTz        *result,
-                                      const char             *targetTimeZoneId,
-                                      const bdlt::DatetimeTz&  srcTime)
+int baltzo::TimeZoneUtil::convertLocalToLocalTime(
+                                     bdlt::DatetimeTz        *result,
+                                     const char              *targetTimeZoneId,
+                                     const bdlt::DatetimeTz&  srcTime)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(targetTimeZoneId);
@@ -790,31 +779,31 @@ int TimeZoneUtil::convertLocalToLocalTime(
 }
 
 inline
-int TimeZoneUtil::initLocalTime(
-                                bdlt::DatetimeTz                *result,
-                                LocalTimeValidity::Enum *resultValidity,
-                                const bdlt::Datetime&            localTime,
-                                const char                     *timeZoneId,
-                                DstPolicy::Enum          dstPolicy)
+int baltzo::TimeZoneUtil::initLocalTime(
+                                       bdlt::DatetimeTz        *result,
+                                       LocalTimeValidity::Enum *resultValidity,
+                                       const bdlt::Datetime&    localTime,
+                                       const char              *timeZoneId,
+                                       DstPolicy::Enum          dstPolicy)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(resultValidity);
     BSLS_ASSERT_SAFE(timeZoneId);
 
     return TimeZoneUtilImp::initLocalTime(
-                                  result,
-                                  resultValidity,
-                                  localTime,
-                                  timeZoneId,
-                                  dstPolicy,
-                                  DefaultZoneinfoCache::defaultCache());
+                                         result,
+                                         resultValidity,
+                                         localTime,
+                                         timeZoneId,
+                                         dstPolicy,
+                                         DefaultZoneinfoCache::defaultCache());
 }
 
 inline
-int TimeZoneUtil::initLocalTime(bdlt::DatetimeTz         *result,
-                                       const bdlt::Datetime&     localTime,
-                                       const char              *timeZoneId,
-                                       DstPolicy::Enum   dstPolicy)
+int baltzo::TimeZoneUtil::initLocalTime(bdlt::DatetimeTz     *result,
+                                       const bdlt::Datetime&  localTime,
+                                       const char            *timeZoneId,
+                                       DstPolicy::Enum        dstPolicy)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(timeZoneId);
@@ -828,9 +817,8 @@ int TimeZoneUtil::initLocalTime(bdlt::DatetimeTz         *result,
 }
 
 inline
-int TimeZoneUtil::loadLocalTimePeriod(
-                                          LocalTimePeriod    *result,
-                                          const baltzo::LocalDatetime&  localTime)
+int baltzo::TimeZoneUtil::loadLocalTimePeriod(LocalTimePeriod      *result,
+                                              const LocalDatetime&  localTime)
 {
     BSLS_ASSERT_SAFE(result);
 
@@ -840,10 +828,10 @@ int TimeZoneUtil::loadLocalTimePeriod(
 }
 
 inline
-int TimeZoneUtil::loadLocalTimePeriod(
-                                           LocalTimePeriod *result,
+int baltzo::TimeZoneUtil::loadLocalTimePeriod(
+                                           LocalTimePeriod         *result,
                                            const bdlt::DatetimeTz&  localTime,
-                                           const char             *timeZoneId)
+                                           const char              *timeZoneId)
 {
     BSLS_ASSERT_SAFE(result);
     BSLS_ASSERT_SAFE(timeZoneId);
@@ -854,9 +842,8 @@ int TimeZoneUtil::loadLocalTimePeriod(
 }
 
 inline
-int TimeZoneUtil::validateLocalTime(
-                                          bool                      *result,
-                                          const baltzo::LocalDatetime&  localTime)
+int baltzo::TimeZoneUtil::validateLocalTime(bool                 *result,
+                                            const LocalDatetime&  localTime)
 {
     BSLS_ASSERT_SAFE(result);
 
@@ -864,17 +851,23 @@ int TimeZoneUtil::validateLocalTime(
                              localTime.datetimeTz(),
                              localTime.timeZoneId().c_str());
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

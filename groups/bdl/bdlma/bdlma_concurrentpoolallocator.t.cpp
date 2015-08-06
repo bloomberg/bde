@@ -2,6 +2,8 @@
 
 #include <bdlma_concurrentpoolallocator.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlqq_condition.h>
 #include <bdlqq_threadutil.h>
 
@@ -10,8 +12,9 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_types.h>
 
-#include <bsl_cstring.h>  // strcmp()
-#include <bsl_cstdlib.h>  // atoi()
+#include <bsl_cstring.h>  // 'strcmp'
+#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstdio.h>   // 'sprintf'
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 
@@ -25,7 +28,7 @@ using namespace bsl;  // automatically added by script
 //                             --------
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 4] bdlma::ConcurrentPoolAllocator(size_type size, bslma::Allocator *allocator = 0);
+// [ 4] bdlma::ConcurrentPoolAllocator(size_type size, bslma::Allocator * = 0);
 // [ 4] bdlma::ConcurrentPoolAllocator(bslma::Allocator *allocator = 0);
 // [ 4] ~bdlma::ConcurrentPoolAllocator();
 //
@@ -39,56 +42,47 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 2] CONCERN: 0-size allocation/deallocating 0 pointer
 // [ 3] CONCERN: thread-safety of the first allocation
-// [ 5] Usage example 1
-// [ 6] Usage example 2
+// [ 5] USAGE
 
 //=============================================================================
-//                       STANDARD BDE ASSERT TEST MACROS
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100)  ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";\
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";\
-               aSsErT(1, #X, __LINE__); }}
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\t" \
-                    << #M << ": " << M << "\n";                           \
-               aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
 //=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number.
-#define T_ cout << '\t' << flush;             // Print tab w/o newline.
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 // The following macros facilitate thread-safe streaming to standard output.
 
@@ -121,8 +115,8 @@ typedef bdlma::ConcurrentPoolAllocator Obj;
 // directly.
 
 union Header {
-    // Leading header on each allocated memory block.  If the memory block
-    // was allocated from the pool, the 'd_magicNumber' will be set to
+    // Leading header on each allocated memory block.  If the memory block was
+    // allocated from the pool, the 'd_magicNumber' will be set to
     // 'MAGIC_NUMBER'.  Otherwise, memory was allocated by the external
     // allocator supplied during construction, and 'd_magicNumber' will be
     // zero.
@@ -171,174 +165,462 @@ extern "C" void *my3_down(void *arg)
 
     return 0;
 }
+
 //=============================================================================
-//              HELPERS FOR TESTING USAGE EXAMPLE 2 (case 6)
+//                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
-struct my2_WorkItem {
-    char *d_item;  // represents work to perform
-};
+///Usage
+///-----
+// The 'bdlma::ConcurrentPoolAllocator' is intended to be used in either of the
+// following two cases.
+//
+// The first case is where frequent allocation and deallocation of memory
+// occurs through the 'bslma::Allocator' protocol and all of the allocated
+// blocks have the same size.  In this case, the size of blocks to pool is
+// determined the first time 'allocate' is called and need not be specified at
+// construction.
+//
+// The second case is where frequent allocation and deallocation of memory
+// occurs through the 'bslma::Allocator' protocol, most of the allocations have
+// similar sizes, and a likely maximum for the largest allocation is known at
+// the time of construction.
+//
+///Example 1 - Uniform Sized Allocations
+///- - - - - - - - - - - - - - - - - - -
+// The following example illustrates the use of
+// 'bdlma::ConcurrentPoolAllocator' when all allocations are of uniform size.
+// A 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// queue" where each "item" enqueued by a producer thread is of identical size.
+// Concurrently, a consumer dequeues each work item when it becomes available,
+// verifies the content (a sequence number in ASCII), and deallocates the work
+// item.  The concurrent allocations and deallocations are valid because
+// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+//
+// First, an abstract of the example will be given with focus and commentary on
+// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// pertaining to queue management, thread creation, thread synchronization,
+// etc., can be seen in the full listing at the end of this example.
+//
+// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// queue by the statements:
+//..
+//  bdlma::ConcurrentPoolAllocator poolAlloc;
+//  my1_WorkQueue queue(&poolAlloc);
+//..
+// Note that since the default constructor is used to create 'poolAlloc', the
+// pooled size has not yet been fixed.
+//
+// The work queue is defined by the following data structures.
+//..
+//  struct my1_WorkItem {
+//      // DATA
+//      char *d_item;  // represents work to perform
+//  };
+//
+//  struct my1_WorkQueue {
+//      // DATA
+//      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslma::Allocator        *d_alloc_p;  // pooled allocator
+//
+//      // CREATORS
+//      explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
+//      : d_alloc_p(bslma::Default::allocator(basicAllocator))
+//      {
+//      }
+//  };
+//..
+// The producer and consumer threads are given the address of the work queue as
+// their sole argument.  Here, the producer allocates a work item, initializes
+// it with a sequence number in ASCII, enqueues it, and signals its presence to
+// the consumer thread.  This action is done 50 times, and then a 51st, empty
+// work item is added to inform the consumer of the end of the queue.  The
+// first allocation of a work item (100 bytes) fixes the pooled size.  Each
+// subsequent allocation is that same size (100 bytes).  The producer's actions
+// are shown below:
+//..
+//  extern "C"
+//  void *my1_producer(void *arg)
+//  {
+//      my1_WorkQueue *queue = (my1_WorkQueue *)arg;
+//
+//      for (int i = 0; i < 50; ++i) {
+//          char b[100];
+//          bsl::sprintf(b, "%d", i);
+//          int len = static_cast<int>(bsl::strlen(b));
+//
+//          my1_WorkItem request;
+//
+//          // Fixed allocation size sufficient for content.
+//
+//          request.d_item = (char *)queue->d_alloc_p->allocate(100);
+//
+//          bsl::memcpy(request.d_item, b, len+1);
+//
+//          // Enqueue item and signal any waiting threads.
+//          // ...
+//      }
+//
+//      // Add empty item.
+//      // ...
+//
+//      return queue;
+//  }
+//..
+// When the consumer thread finds that the queue is not empty it dequeues the
+// item, verifies its content (a sequence number in ASCII), returns the work
+// item to the pool, and checks for the next item.  If the queue is empty, the
+// consumer blocks until signaled by the producer.  An empty work item
+// indicates that the producer will send no more items, so the consumer exits.
+// The consumer's actions are shown below:
+//..
+//  extern "C"
+//  void *my1_consumer(void *arg)
+//  {
+//      my1_WorkQueue *queue = (my1_WorkQueue *)arg;
+//
+//      for (int i = 0; ; ++i) {
+//
+//          // Block until work item on queue.
+//          // ...
+//
+//          // Dequeue item.
+//          // ...
+//
+//          // Break when end-of-work item received.
+//          // ...
+//
+//          char b[100];
+//          bsl::sprintf(b, "%d", i);
+//          ASSERT(bsl::strcmp(b, item.d_item) == 0);   // check content
+//
+//          queue->d_alloc_p->deallocate(item.d_item);  // deallocate
+//      }
+//
+//      return 0;
+//  }
+//..
+// A complete listing of the example's structures and functions follows:
+//..
+    struct my1_WorkItem {
+        // DATA
+        char *d_item;  // represents work to perform
+    };
 
-struct my2_WorkQueue {
-    list<my2_WorkItem>        d_queue;   // queue of work requests
-    bdlqq::Mutex               d_mx;      // protects the shared queue
-    bdlqq::Condition           d_cv;      // signals existence of new work
-    bslma::Allocator         *d_alloc_p; // pooled allocator
+    struct my1_WorkQueue {
+        // DATA
+        bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
+        bdlqq::Mutex             d_mx;       // protects the shared queue
+        bdlqq::Condition         d_cv;       // signals existence of new work
+        bslma::Allocator        *d_alloc_p;  // pooled allocator
 
-    my2_WorkQueue(bslma::Allocator *a) : d_queue(a), d_alloc_p(a) {}
-};
-
-extern "C" void *my2_producer(void *arg)
-{
-    my2_WorkQueue *queue = (my2_WorkQueue *)arg;
-
-    for (int i = 0; i < 50; ++i) {
-
-        char b[100];
-        sprintf(b, "%d", i);
-        int len = strlen(b);
-
-        my2_WorkItem request;
-        request.d_item = (char *)queue->d_alloc_p->allocate(len+1);
-        memcpy(request.d_item, b, len+1);
-
-        if (veryVerbose) {
-            MTCOUT << "Enqueueing " << request.d_item << MTENDL;
+        // CREATORS
+        explicit my1_WorkQueue(bslma::Allocator *basicAllocator = 0)
+        : d_alloc_p(bslma::Default::allocator(basicAllocator))
+        {
         }
+    };
 
-        queue->d_mx.lock();
-        queue->d_queue.push_back(request);
-        queue->d_mx.unlock();
-        queue->d_cv.signal();
-    }
+    extern "C" void *my1_producer(void *arg)
+    {
+        my1_WorkQueue *queue = (my1_WorkQueue *)arg;
 
-    my2_WorkItem request;
-    request.d_item = 0;
+        for (int i = 0; i < 50; ++i) {
 
-    queue->d_mx.lock();
-    queue->d_queue.push_back(request);
-    queue->d_mx.unlock();
-    queue->d_cv.signal();
+            char b[100];
+            bsl::sprintf(b, "%d", i);
+            int len = static_cast<int>(bsl::strlen(b));
 
-    return queue;
-}
+            my1_WorkItem request;
+            request.d_item = (char *)queue->d_alloc_p->allocate(100);
+            bsl::memcpy(request.d_item, b, len+1);
 
-extern "C" void *my2_consumer(void *arg)
-{
-    my2_WorkQueue *queue = (my2_WorkQueue *)arg;
+            if (veryVerbose) {
+                // Assume thread-safe implementations of 'cout' and 'endl'
+                // exist (named 'MTCOUT' and 'MTENDL', respectively).
 
-    for (int i = 0; ; ++i) {
+                MTCOUT << "Enqueuing " << request.d_item << MTENDL;
+            }
 
-        queue->d_mx.lock();
-        while (0 == queue->d_queue.size()) {
-            queue->d_cv.wait(&queue->d_mx);
+            queue->d_mx.lock();
+            queue->d_queue.push_back(request);
+            queue->d_mx.unlock();
+            queue->d_cv.signal();
         }
-
-        my2_WorkItem item = queue->d_queue.front();
-        queue->d_queue.pop_front();
-        queue->d_mx.unlock();
-
-        if (0 == item.d_item) {
-            break;
-        }
-
-        // Process the work requests.
-        if (veryVerbose) {
-            MTCOUT << "Processing " << item.d_item << MTENDL;
-        }
-
-        char b[100];
-        sprintf(b, "%d", i);
-        ASSERT(strcmp(b, item.d_item) == 0);
-
-        queue->d_alloc_p->deallocate(item.d_item);
-    }
-
-    return 0;
-}
-//=============================================================================
-//              HELPERS FOR TESTING USAGE EXAMPLE 1 (case 5)
-//-----------------------------------------------------------------------------
-struct my1_WorkItem {
-    char *d_item;  // represents work to perform
-};
-
-struct my1_WorkQueue {
-    list<my1_WorkItem>        d_queue;   // queue of work requests
-    bdlqq::Mutex               d_mx;      // protects the shared queue
-    bdlqq::Condition           d_cv;      // signals existence of new work
-    bslma::Allocator         *d_alloc_p; // pooled allocator
-
-    my1_WorkQueue(bslma::Allocator *a) : d_alloc_p(a) {}
-};
-
-extern "C" void *my1_producer(void *arg)
-{
-    my1_WorkQueue *queue = (my1_WorkQueue *)arg;
-
-    for (int i = 0; i < 50; ++i) {
-
-        char b[100];
-        sprintf(b, "%d", i);
-        int len = strlen(b);
 
         my1_WorkItem request;
-        request.d_item = (char *)queue->d_alloc_p->allocate(100);
-        memcpy(request.d_item, b, len+1);
-
-        if (veryVerbose) {
-            MTCOUT << "Enqueueing " << request.d_item << MTENDL;
-        }
+        request.d_item = 0;
 
         queue->d_mx.lock();
         queue->d_queue.push_back(request);
         queue->d_mx.unlock();
         queue->d_cv.signal();
+
+        return queue;
     }
 
-    my1_WorkItem request;
-    request.d_item = 0;
+    extern "C" void *my1_consumer(void *arg)
+    {
+        my1_WorkQueue *queue = (my1_WorkQueue *)arg;
 
-    queue->d_mx.lock();
-    queue->d_queue.push_back(request);
-    queue->d_mx.unlock();
-    queue->d_cv.signal();
+        for (int i = 0; ; ++i) {
 
-    return queue;
-}
+            queue->d_mx.lock();
+            while (0 == queue->d_queue.size()) {
+                queue->d_cv.wait(&queue->d_mx);
+            }
 
-extern "C" void *my1_consumer(void *arg)
-{
-    my1_WorkQueue *queue = (my1_WorkQueue *)arg;
+            my1_WorkItem item = queue->d_queue.front();
+            queue->d_queue.pop_front();
+            queue->d_mx.unlock();
 
-    for (int i = 0; ; ++i) {
+            if (0 == item.d_item) {
+                break;
+            }
+
+            // Process the work requests.
+            if (veryVerbose) {
+                // Assume thread-safe implementations of 'cout' and 'endl'
+                // exist (named 'MTCOUT' and 'MTENDL', respectively).
+
+                MTCOUT << "Processing " << item.d_item << MTENDL;
+            }
+
+            char b[100];
+            bsl::sprintf(b, "%d", i);
+            ASSERT(bsl::strcmp(b, item.d_item) == 0);
+
+            queue->d_alloc_p->deallocate(item.d_item);
+        }
+
+        return 0;
+    }
+//..
+
+//
+///Example 2 - Variable Allocation Size
+/// - - - - - - - - - - - - - - - - - -
+// The following example illustrates the use of
+// 'bdlma::ConcurrentPoolAllocator' when allocations are of varying size.  A
+// 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// queue" where each "item" enqueued by a producer thread varies in size, but
+// all items are smaller than a known maximum.  Concurrently, a consumer thread
+// dequeues each work item when it is available, verifies its content (a
+// sequence number in ASCII), and deallocates the work item.  The concurrent
+// allocations and deallocations are valid because
+// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+//
+// First, an abstract of the example will be given with focus and commentary on
+// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// pertaining to queue management, thread creation, thread synchronization,
+// etc., can be seen in the full listing at the end of this example.
+//
+// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// queue by the statements:
+//..
+//  bdlma::ConcurrentPoolAllocator poolAlloc(100);
+//  my1_WorkQueue queue(&poolAlloc);
+//..
+// Note that the pooled size (100) is specified in the construction of
+// 'poolAlloc'.  Any requests in excess of that size will be satisfied by
+// implicit calls to the default allocator, not from the underlying pool.
+//
+// The work queue is defined by the following data structures.
+//..
+//  struct my2_WorkItem {
+//      // DATA
+//      char *d_item;  // represents work to perform
+//  };
+//
+//  struct my2_WorkQueue {
+//      // DATA
+//      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslma::Allocator        *d_alloc_p;  // pooled allocator
+//
+//      // CREATORS
+//      explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
+//      : d_queue(basic_Allocator)
+//      , d_alloc_p(bslma::Default::allocator(basic_Allocator))
+//      {
+//      }
+//  };
+//..
+// In this example (unlike Example 1), the given allocator is used not only for
+// the work items, but is also passed to the constructor of 'd_queue' so that
+// it also serves memory for the operations of 'bsl::list<my2_WorkItem>'.
+//
+// The producer and consumer threads are given the address of the work queue as
+// their sole argument.  Here, the producer allocates a work item, initializes
+// it with a sequence number in ASCII, enqueues it, and signals its presence to
+// the consumer thread.  The action is done 50 times, and then a 51st, empty
+// work item is added to inform the consumer of the end of the queue.  In this
+// example, each work item is sized to match the length of its contents, the
+// sequence number in ASCII.  The producer's actions are shown below:
+//..
+//  extern "C" void *my2_producer(void *arg)
+//  {
+//      my2_WorkQueue *queue = (my2_WorkQueue *)arg;
+//
+//      for (int i = 0; i < 50; ++i) {
+//
+//          char b[100];
+//          bsl::sprintf(b, "%d", i);
+//          int len = static_cast<int>(bsl::strlen(b));
+//
+//          my2_WorkItem request;
+//
+//          // Allocate item to exactly match space needed for content.
+//
+//          request.d_item = (char *)queue->d_alloc_p->allocate(len+1);
+//
+//          bsl::memcpy(request.d_item, b, len+1);
+//
+//          // Enqueue item and signal any waiting threads.
+//          // ...
+//      }
+//
+//      // Add empty item.
+//      // ...
+//
+//      return queue;
+//  }
+//..
+// The actions of this consumer thread are essentially the same as those of the
+// consumer thread in Example 1.
+//
+// When the consumer thread finds that the queue is not empty, it dequeues the
+// item, verifies its content (a sequence number in ASCII), returns the work
+// item to the pool, and checks for the next item.  If the queue is empty, the
+// consumer blocks until signaled by the producer.  An empty work item
+// indicates that the producer will send no more items, so the consumer exits.
+// The consumer's actions are shown below.
+//..
+//  extern "C" void *my2_consumer(void *arg)
+//  {
+//      my2_WorkQueue *queue = (my2_WorkQueue *)arg;
+//
+//      while (int i = 0; ; ++i) {
+//
+//          // Block until work item on queue.
+//          // ...
+//
+//          // Deque item.
+//          // ...
+//
+//          // Break when end-of-work item received.
+//          // ...
+//
+//          char b[100];
+//          bsl::sprintf(b, "%d", i);
+//          ASSERT(bsl::strcmp(b, item.d_item) == 0);   // verify content
+//
+//          queue->d_alloc_p->deallocate(item.d_item);  // deallocate
+//      }
+//
+//      return 0;
+//  }
+//..
+// A complete listing of the example's structures and functions follows:
+//..
+    struct my2_WorkItem {
+        // DATA
+        char *d_item;  // represents work to perform
+    };
+
+    struct my2_WorkQueue {
+        // DATA
+        bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
+        bdlqq::Mutex             d_mx;       // protects the shared queue
+        bdlqq::Condition         d_cv;       // signals existence of new work
+        bslma::Allocator        *d_alloc_p;  // pooled allocator
+
+        // CREATORS
+        explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
+        : d_queue(basicAllocator)
+        , d_alloc_p(basicAllocator)
+        {
+        }
+    };
+
+    extern "C" void *my2_producer(void *arg)
+    {
+        my2_WorkQueue *queue = (my2_WorkQueue *)arg;
+
+        for (int i = 0; i < 50; ++i) {
+
+            char b[100];
+            bsl::sprintf(b, "%d", i);
+            int len = static_cast<int>(bsl::strlen(b));
+
+            my2_WorkItem request;
+            request.d_item = (char *)queue->d_alloc_p->allocate(len+1);
+            bsl::memcpy(request.d_item, b, len+1);
+
+            if (veryVerbose) {
+                // Assume thread-safe implementations of 'cout' and 'endl'
+                // exist (named 'MTCOUT' and 'MTENDL', respectively).
+
+                MTCOUT << "Enqueuing " << request.d_item << MTENDL;
+            }
+
+            queue->d_mx.lock();
+            queue->d_queue.push_back(request);
+            queue->d_mx.unlock();
+            queue->d_cv.signal();
+        }
+
+        my2_WorkItem request;
+        request.d_item = 0;
 
         queue->d_mx.lock();
-        while (0 == queue->d_queue.size()) {
-            queue->d_cv.wait(&queue->d_mx);
-        }
-
-        my1_WorkItem item = queue->d_queue.front();
-        queue->d_queue.pop_front();
+        queue->d_queue.push_back(request);
         queue->d_mx.unlock();
+        queue->d_cv.signal();
 
-        if (0 == item.d_item) {
-            break;
-        }
-
-        // Process the work requests.
-        if (veryVerbose) {
-            MTCOUT << "Processing " << item.d_item << MTENDL;
-        }
-
-        char b[100];
-        sprintf(b, "%d", i);
-        ASSERT(strcmp(b, item.d_item) == 0);
-
-        queue->d_alloc_p->deallocate(item.d_item);
+        return queue;
     }
 
-    return 0;
-}
+    extern "C" void *my2_consumer(void *arg)
+    {
+        my2_WorkQueue *queue = (my2_WorkQueue *)arg;
+
+        for (int i = 0; ; ++i) {
+
+            queue->d_mx.lock();
+            while (0 == queue->d_queue.size()) {
+                queue->d_cv.wait(&queue->d_mx);
+            }
+
+            my2_WorkItem item = queue->d_queue.front();
+            queue->d_queue.pop_front();
+            queue->d_mx.unlock();
+
+            if (0 == item.d_item) {
+                break;
+            }
+
+            // Process the work requests.
+            if (veryVerbose) {
+                // Assume thread-safe implementations of 'cout' and 'endl'
+                // exist (named 'MTCOUT' and 'MTENDL', respectively).
+
+                MTCOUT << "Processing " << item.d_item << MTENDL;
+            }
+
+            char b[100];
+            bsl::sprintf(b, "%d", i);
+            ASSERT(bsl::strcmp(b, item.d_item) == 0);
+
+            queue->d_alloc_p->deallocate(item.d_item);
+        }
+
+        return 0;
+    }
+//..
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -352,51 +634,9 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
-        //
-        // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
-        //
-        // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nUsage example 2" << endl;
-
-        bdlma::ConcurrentPoolAllocator poolAlloc(100);
-        my2_WorkQueue queue(&poolAlloc);
-
-        bdlqq::ThreadAttributes attributes;
-
-        bdlqq::ThreadUtil::Handle producerHandle;
-        int status = bdlqq::ThreadUtil::create(&producerHandle,
-                                               attributes,
-                                              &my2_producer,
-                                              &queue);
-        ASSERT(0 == status);
-
-        bdlqq::ThreadUtil::Handle consumerHandle;
-        status = bdlqq::ThreadUtil::create(&consumerHandle,
-                                           attributes,
-                                          &my2_consumer,
-                                          &queue);
-        ASSERT(0 == status);
-        status = bdlqq::ThreadUtil::join(consumerHandle);
-        ASSERT(0 == status);
-        status = bdlqq::ThreadUtil::join(producerHandle);
-        ASSERT(0 == status);
-
-      } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
+        // TESTING USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -410,8 +650,11 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nUsage example 1" << endl;
+        if (verbose) cout << "\nUsage example" << endl;
 
+// In the application 'main':
+//..
+    {
         bdlma::ConcurrentPoolAllocator poolAlloc;
         my1_WorkQueue queue(&poolAlloc);
 
@@ -420,20 +663,50 @@ int main(int argc, char *argv[])
         bdlqq::ThreadUtil::Handle producerHandle;
         int status = bdlqq::ThreadUtil::create(&producerHandle,
                                                attributes,
-                                              &my1_producer,
-                                              &queue);
+                                               &my1_producer,
+                                               &queue);
         ASSERT(0 == status);
 
         bdlqq::ThreadUtil::Handle consumerHandle;
         status = bdlqq::ThreadUtil::create(&consumerHandle,
                                            attributes,
-                                          &my1_consumer,
+                                           &my1_consumer,
+                                           &queue);
+        ASSERT(0 == status);
+        status = bdlqq::ThreadUtil::join(consumerHandle);
+        ASSERT(0 == status);
+        status = bdlqq::ThreadUtil::join(producerHandle);
+        ASSERT(0 == status);
+    }
+//..
+
+// In the application's 'main':
+//..
+    {
+        bdlma::ConcurrentPoolAllocator poolAlloc(100);
+        my2_WorkQueue queue(&poolAlloc);
+
+        bdlqq::ThreadAttributes attributes;
+
+        bdlqq::ThreadUtil::Handle producerHandle;
+        int status = bdlqq::ThreadUtil::create(&producerHandle,
+                                              attributes,
+                                              &my2_producer,
+                                              &queue);
+        ASSERT(0 == status);
+
+        bdlqq::ThreadUtil::Handle consumerHandle;
+        status = bdlqq::ThreadUtil::create(&consumerHandle,
+                                          attributes,
+                                          &my2_consumer,
                                           &queue);
         ASSERT(0 == status);
         status = bdlqq::ThreadUtil::join(consumerHandle);
         ASSERT(0 == status);
         status = bdlqq::ThreadUtil::join(producerHandle);
         ASSERT(0 == status);
+    }
+//..
 
       } break;
       case 4: {
@@ -475,7 +748,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -498,7 +771,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -521,7 +794,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(100 == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -544,7 +817,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -567,7 +840,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(SB == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -589,7 +862,7 @@ int main(int argc, char *argv[])
 
             void *p2 = x.allocate(SB);
             ASSERT(100 == X.blockSize());
-            int bu1 = ta.numBytesInUse();
+            bsls::Types::Int64 bu1 = ta.numBytesInUse();
             x.deallocate(p2);
             ASSERT(bu1 == ta.numBytesInUse());
             void *p1 = x.allocate(SA);
@@ -603,7 +876,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "bdlma::ConcurrentPoolAllocator(growthStrategy, allocator)" << endl;
+            cout << "bdlma::ConcurrentPoolAllocator(growthStrategy, allocator)"
+                 << endl;
         {
             bsls::BlockGrowth::Strategy STRATEGY[] = {
                                             bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -626,9 +900,10 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator ta;
                 bslma::TestAllocator tb;
 
-                bdlma::ConcurrentPool pool(calculateMaxAlignedSize(SB + sizeof(Header)),
-                                STRAT,
-                                &ta);
+                bdlma::ConcurrentPool pool(
+                                  calculateMaxAlignedSize(SB + sizeof(Header)),
+                                  STRAT,
+                                  &ta);
                 Obj x(STRAT, &tb);
                 const Obj& X = x;
 
@@ -641,8 +916,8 @@ int main(int argc, char *argv[])
                 pool.deallocate(a);
                 x.deallocate(b);
 
-                // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                // correctly.
+                // Make sure growth strategy is passed into
+                // 'bdlma::ConcurrentPool' correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -658,7 +933,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "bdlma::ConcurrentPoolAllocator(0,growthStrategy,allocator)" << endl;
+            cout << "bdlma::ConcurrentPoolAllocator(0,growthStrategy,"
+                 << "allocator)"
+                 << endl;
         {
             bsls::BlockGrowth::Strategy STRATEGY[] = {
                                             bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -680,9 +957,10 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator ta;
                 bslma::TestAllocator tb;
 
-                bdlma::ConcurrentPool pool(calculateMaxAlignedSize(SB + sizeof(Header)),
-                                STRAT,
-                                &ta);
+                bdlma::ConcurrentPool pool(
+                                  calculateMaxAlignedSize(SB + sizeof(Header)),
+                                  STRAT,
+                                  &ta);
                 Obj x(0, STRAT, &tb);
                 const Obj& X = x;
 
@@ -695,8 +973,8 @@ int main(int argc, char *argv[])
                 pool.deallocate(a);
                 x.deallocate(b);
 
-                // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                // correctly.
+                // Make sure growth strategy is passed into
+                // 'bdlma::ConcurrentPool' correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -712,7 +990,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout<< "bdlma::ConcurrentPoolAllocator(100,growthStrategy,allocator)" << endl;
+            cout << "bdlma::ConcurrentPoolAllocator(100,growthStrategy,"
+                 << "allocator)"
+                 << endl;
         {
             bsls::BlockGrowth::Strategy STRATEGY[] = {
                                             bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -734,9 +1014,10 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator ta;
                 bslma::TestAllocator tb;
 
-                bdlma::ConcurrentPool pool(calculateMaxAlignedSize(100 + sizeof(Header)),
-                                STRAT,
-                                &ta);
+                bdlma::ConcurrentPool pool(
+                                 calculateMaxAlignedSize(100 + sizeof(Header)),
+                                 STRAT,
+                                 &ta);
                 Obj x(100, STRAT, &tb);
                 const Obj& X = x;
 
@@ -749,8 +1030,8 @@ int main(int argc, char *argv[])
                 pool.deallocate(a);
                 x.deallocate(b);
 
-                // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                // correctly.
+                // Make sure growth strategy is passed into
+                // 'bdlma::ConcurrentPool' correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -815,8 +1096,8 @@ int main(int argc, char *argv[])
                     pool.deallocate(a);
                     x.deallocate(b);
 
-                    // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                    // correctly.
+                    // Make sure growth strategy is passed into
+                    // 'bdlma::ConcurrentPool' correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -883,8 +1164,8 @@ int main(int argc, char *argv[])
                     pool.deallocate(a);
                     x.deallocate(b);
 
-                    // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                    // correctly.
+                    // Make sure growth strategy is passed into
+                    // 'bdlma::ConcurrentPool' correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -951,8 +1232,8 @@ int main(int argc, char *argv[])
                     pool.deallocate(a);
                     x.deallocate(b);
 
-                    // Make sure growth strategy is passed into 'bdlma::ConcurrentPool'
-                    // correctly.
+                    // Make sure growth strategy is passed into
+                    // 'bdlma::ConcurrentPool' correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -1040,7 +1321,7 @@ int main(int argc, char *argv[])
 
         void *p2 = x.allocate(33);
         ASSERT(33 == X.blockSize());
-        int bu1 = ta.numBytesInUse();
+        bsls::Types::Int64 bu1 = ta.numBytesInUse();
         x.deallocate(p2);
         ASSERT(bu1 == ta.numBytesInUse());
 

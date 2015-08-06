@@ -561,8 +561,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_queue.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION

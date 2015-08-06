@@ -31,7 +31,6 @@ BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
 namespace {
 
 // Define the offset (in bytes) from the address returned to the user in which
@@ -190,9 +189,9 @@ int systemUnprotect(void *address, int pageSize)
 
 namespace bdlma {
 
-                        // -----------------------
-                        // class GuardingAllocator
-                        // -----------------------
+                         // -----------------------
+                         // class GuardingAllocator
+                         // -----------------------
 
 // CREATORS
 GuardingAllocator::~GuardingAllocator()
@@ -214,8 +213,8 @@ void *GuardingAllocator::allocate(size_type size)
     // 'e_AFTER_USER_BLOCK' is in use.
 
     const int adjustedSize = e_AFTER_USER_BLOCK == d_guardPageLocation
-                             ? paddedSize + OFFSET * 2
-                             : paddedSize;
+                           ? static_cast<int>(paddedSize + OFFSET * 2)
+                           : static_cast<int>(paddedSize);
 
     // Calculate the number of pages to allocate, *not* counting the guard
     // page.
@@ -261,7 +260,7 @@ void *GuardingAllocator::allocate(size_type size)
 
     // Save 'totalSize' - we'll need it for 'systemFree' in 'deallocate'.
 
-    *(int *)(guardPage) = totalSize;
+    *(int *)(guardPage) = static_cast<int>(totalSize);
 
     // Protect the guard page from read/write access.
 
@@ -321,7 +320,7 @@ void GuardingAllocator::deallocate(void *address)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

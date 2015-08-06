@@ -121,7 +121,7 @@ typedef baltzo::LocalTimeDescriptor               Desc;
 typedef baltzo::LocalTimeValidity                 Validity;
 
 //=============================================================================
-//                  TEST FUNCTIONS
+//                              TEST FUNCTIONS
 //-----------------------------------------------------------------------------
 
 bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
@@ -225,7 +225,7 @@ struct LogVerbosityGuard {
         d_verbose = verbose;
         if (!d_verbose) {
             d_defaultPassthrough =
-                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
+                  ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
                                               ball::Severity::BAEL_OFF,
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
     ball::DefaultObserver            observer(&bsl::cout);
     ball::LoggerManagerConfiguration configuration;
     ball::LoggerManager&             manager =
-                   ball::LoggerManager::initSingleton(&observer, configuration);
+                  ball::LoggerManager::initSingleton(&observer, configuration);
 
     bslma::TestAllocator defaultAllocator;  // To be used to make sure the
                                             // allocator is always passed down
@@ -289,13 +289,14 @@ int main(int argc, char *argv[])
 
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-    const bdlt::EpochUtil::TimeT64 MIN_DATETIME = toTimeT(bdlt::Datetime(1, 1, 1));
+    const bdlt::EpochUtil::TimeT64 MIN_DATETIME =
+                                              toTimeT(bdlt::Datetime(1, 1, 1));
     const bdlt::EpochUtil::TimeT64 MAX_DATETIME =
-                         toTimeT(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999));
+                        toTimeT(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999));
 
-    const Validity::Enum U = baltzo::LocalTimeValidity::BAETZO_VALID_UNIQUE;
-    const Validity::Enum A = baltzo::LocalTimeValidity::BAETZO_VALID_AMBIGUOUS;
-    const Validity::Enum I = baltzo::LocalTimeValidity::BAETZO_INVALID;
+    const Validity::Enum U = baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE;
+    const Validity::Enum A = baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS;
+    const Validity::Enum I = baltzo::LocalTimeValidity::BALTZO_INVALID;
 
     switch (test) { case 0:
       case 6: {
@@ -348,7 +349,7 @@ int main(int argc, char *argv[])
 // 'isWellFormed'):
 //..
     newYork.addTransition(bdlt::EpochUtil::convertToTimeT64(
-                                                       bdlt::Datetime(1, 1, 1)),
+                                                      bdlt::Datetime(1, 1, 1)),
                           est);
 //..
 // Next we create a series of transitions between these local-time descriptors
@@ -425,7 +426,7 @@ int main(int argc, char *argv[])
     baltzo::Zoneinfo::TransitionConstIterator nextTransitionIter = ++iterator;
 //
     const bdlt::EpochUtil::TimeT64 utcTimeT =
-                                        bdlt::EpochUtil::convertToTimeT64(utcTime);
+                                    bdlt::EpochUtil::convertToTimeT64(utcTime);
     ASSERT(utcTimeT >= transitionIter->utcTime());
     ASSERT(utcTimeT <  nextTransitionIter->utcTime());
 //
@@ -450,22 +451,23 @@ int main(int argc, char *argv[])
 // initialized in the prologue above):
 //..
     baltzo::LocalTimeValidity::Enum           validity;
-    baltzo::Zoneinfo::TransitionConstIterator firstTransition, secondTransition;
+    baltzo::Zoneinfo::TransitionConstIterator firstTransition;
+    baltzo::Zoneinfo::TransitionConstIterator secondTransition;
     baltzo::ZoneinfoUtil::loadRelevantTransitions(&firstTransition,
-                                                 &secondTransition,
-                                                 &validity,
-                                                 nyLocalTime,
-                                                 newYork);
+                                                  &secondTransition,
+                                                  &validity,
+                                                  nyLocalTime,
+                                                  newYork);
 //..
 // "Jan 1, 2011 12:00" in New York, is not near a daylight-saving time
 // transition, so it uniquely describes a valid time (in New York) which falls
 // during Eastern Standard Time, and whose local time offset from UTC is
 // -5:00.  Because "Jan 1, 2011 12:00" is both a valid and unique local time,
 // the returned validity will be
-// 'baltzo::LocalTimeValidity::BAETZO_VALID_UNIQUE' and the two returned
+// 'baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE' and the two returned
 // transition iterators will be equal:
 //..
-    ASSERT(baltzo::LocalTimeValidity::BAETZO_VALID_UNIQUE == validity);
+    ASSERT(baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE == validity);
     ASSERT(firstTransition == secondTransition);
 //
     ASSERT(false    == firstTransition->descriptor().dstInEffectFlag());
@@ -493,12 +495,12 @@ int main(int argc, char *argv[])
 // Finally we observe that the local time was ambiguous and that the returned
 // transitions are distinct:
 //..
-    ASSERT(baltzo::LocalTimeValidity::BAETZO_VALID_AMBIGUOUS == validity);
+    ASSERT(baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS == validity);
     ASSERT(firstTransition != secondTransition);
 //..
 // Because 'ambiguousLocalTime' may refer to either the standard or the
 // daylight-saving time value "Nov 7, 2010 01:30", the returned validity will
-// be 'BAETZO_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will
+// be 'BALTZO_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will
 // differ.  'first' will refer to a description of the local time before the
 // transition (daylight-saving time) and 'second' will refer to a description
 // of local time after the transition (standard-time):
@@ -1705,8 +1707,8 @@ int main(int argc, char *argv[])
                 const bool  EXP_RESULT = DATA[i].d_wellFormed;
 
                 const bdlt::EpochUtil::TimeT64 T0 = MIN_DATETIME;
-                const bdlt::EpochUtil::TimeT64 T1 = toTimeT(
-                                                    bdlt::Datetime(1000, 1, 1));
+                const bdlt::EpochUtil::TimeT64 T1 =
+                                           toTimeT(bdlt::Datetime(1000, 1, 1));
                 const bdlt::EpochUtil::TimeT64 T2 = T1 + (INTERVAL_M * 60);
 
                 const int UTC_OFFSET_T0_S =
@@ -2116,11 +2118,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

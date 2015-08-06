@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 #include <ball_testobserver.h>                // for testing only
 
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
 
 #include <bsls_assert.h>
 

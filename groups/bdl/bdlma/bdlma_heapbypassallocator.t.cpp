@@ -1,6 +1,8 @@
 // bdlma_heapbypassallocator.t.cpp                                    -*-C++-*-
 #include <bdlma_heapbypassallocator.h>
 
+#include <bdls_testutil.h>
+
 #include <bsl_iostream.h>
 
 #include <bsl_cstdlib.h>    // atoi
@@ -16,12 +18,14 @@ using bsl::endl;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -30,33 +34,28 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      GLOBAL HELPER #DEFINES FOR TESTING
@@ -94,50 +93,55 @@ int main(int argc, char *argv[])
         if (verbose) cout << "bdlma::HeapBypassAllocator usage example\n"
                              "=======================================\n";
 
-        // Here we allocate some memory using a heap bypass allocator, then
-        // write to that memory, then read from it and verify the values
-        // written are preserved.
-
+///Usage
+///-----
+// Here we allocate some memory using a heap bypass allocator, then write to
+// that memory, then read from it and verify the values written are preserved.
+//..
+    {
         enum {
-            LENGTH = 10 * 1000,
-            NUM_SEGMENTS = 60
+            k_LENGTH       = 10 * 1000,
+            k_NUM_SEGMENTS = 60
         };
 
         bdlma::HeapBypassAllocator hbpa;
-
-        // First we allocate some segments
-
-        char *segments[NUM_SEGMENTS];
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
-            segments[i] = static_cast<char *>(hbpa.allocate(LENGTH));
+//..
+// First, we allocate some segments:
+//..
+        char *segments[k_NUM_SEGMENTS];
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+            segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
             BSLS_ASSERT(segments[i]);
         }
-
-        // Next we write to the segments.
-
+//..
+// Next, we write to the segments:
+//..
         char c = 'a';
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
             char *segment = segments[i];
-            for (int j = 0; j < LENGTH; ++j) {
+            for (int j = 0; j < k_LENGTH; ++j) {
                 c = (c + 1) & 0x7f;
                 segment[j] = c;
             }
         }
-
-        // Finally, we read from the segments and verify the written data is
-        // still there.
-
+//..
+// Finally, we read from the segments and verify the written data is still
+// there:
+//..
         c = 'a';
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
             char *segment = segments[i];
-            for (int j = 0; j < LENGTH; ++j) {
+            for (int j = 0; j < k_LENGTH; ++j) {
                 c = (c + 1) & 0x7f;
                 BSLS_ASSERT(segment[j] == c);
             }
         }
-
-        // Memory is released upon destruction of object 'hbpa' when it goes
-        // out of scope.
+//..
+// Memory is released upon destruction of object 'hbpa' when it goes out of
+// scope.
+//..
+    }
+//..
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -155,28 +159,28 @@ int main(int argc, char *argv[])
                              "========================================\n";
 
         enum {
-            LENGTH = 10 * 1000,
-            NUM_SEGMENTS = 20
+            k_LENGTH = 10 * 1000,
+            k_NUM_SEGMENTS = 20
         };
 
         bdlma::HeapBypassAllocator hbpa;
 
-        char *segments[NUM_SEGMENTS];
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
-            segments[i] = static_cast<char *>(hbpa.allocate(LENGTH));
+        char *segments[k_NUM_SEGMENTS];
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+            segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
             char *pcB = segments[i];
 
-            const char C = 'a' + i;
-            for (char *pcE = pcB + LENGTH, *pc = pcB; pc < pcE; ++pc) {
+            const char C = static_cast<char>('a' + i);
+            for (char *pcE = pcB + k_LENGTH, *pc = pcB; pc < pcE; ++pc) {
                 *pc = C;
             }
         }
 
-        for (int i = 0; i < NUM_SEGMENTS; ++i) {
+        for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
             const char *pcB = segments[i];
 
-            const char C = 'a' + i;
-            for (const char *pcE = pcB + LENGTH, *pc = pcB; pc < pcE; ++pc) {
+            const char C = static_cast<char>('a' + i);
+            for (const char *pcE = pcB + k_LENGTH, *pc = pcB; pc < pcE; ++pc) {
                 ASSERT(C == *pc);
             }
         }

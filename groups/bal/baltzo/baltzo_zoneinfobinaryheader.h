@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an attribute class for Zoneinfo binary-file header data
 //
 //@CLASSES:
-//   baltzo::ZoneinfoBinaryHeader: attribute class for Zoneinfo file header data
+//   baltzo::ZoneinfoBinaryHeader: attribute class for Zoneinfo header data
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell),
 //         Steven Breitstein (sbreitstein)
@@ -60,8 +60,8 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Creating a 'baltzo::ZoneinfoBinaryHeader' from User Input
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We define the 'getNextZoneinfoBinaryHeader' helper function, reads data from
-// a stream, validates the data, and constructs a 'baltzo::ZoneinfoBinaryHeader'
-// object.
+// a stream, validates the data, and constructs a
+// 'baltzo::ZoneinfoBinaryHeader' object.
 //..
 //  int getNextZoneinfoBinaryHeader(baltzo::ZoneinfoBinaryHeader *object,
 //                                  bsl::istream&                stream)
@@ -173,11 +173,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baltzo {
-                        // =================================
+                        // ==========================
                         // class ZoneinfoBinaryHeader
-                        // =================================
+                        // ==========================
 
 class ZoneinfoBinaryHeader {
     // This simply constrained (value-semantic) attribute class represents the
@@ -266,12 +265,12 @@ class ZoneinfoBinaryHeader {
         //..
 
     ZoneinfoBinaryHeader(char version,
-                                int  numIsGmt,
-                                int  numIsStd,
-                                int  numLeaps,
-                                int  numTransitions,
-                                int  numLocalTimeTypes,
-                                int  abbrevDataSize);
+                         int  numIsGmt,
+                         int  numIsStd,
+                         int  numLeaps,
+                         int  numTransitions,
+                         int  numLocalTimeTypes,
+                         int  abbrevDataSize);
         // Create a 'ZoneinfoBinaryHeader' having the specified
         // 'version', 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
         // 'numLocalTimeTypes', and 'abbrevDataSize' values.  The behavior is
@@ -284,8 +283,7 @@ class ZoneinfoBinaryHeader {
         // Destroy this object.
 
     // MANIPULATORS
-    ZoneinfoBinaryHeader& operator=(
-                                       const ZoneinfoBinaryHeader& rhs);
+    ZoneinfoBinaryHeader& operator=(const ZoneinfoBinaryHeader& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -382,9 +380,8 @@ bool operator!=(const ZoneinfoBinaryHeader& lhs,
     // 'version', 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
     // 'numLocalTimeTypes', or 'abbrevDataSize' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&                      stream,
+bsl::ostream& operator<<(bsl::ostream&               stream,
                          const ZoneinfoBinaryHeader& object);
-}  // close package namespace
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -394,64 +391,65 @@ bsl::ostream& operator<<(bsl::ostream&                      stream,
 
 // FREE FUNCTIONS
 void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
-
-namespace baltzo {    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
+
+}  // close package namespace
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------------
+                        // --------------------------
                         // class ZoneinfoBinaryHeader
-                        // ---------------------------------
+                        // --------------------------
 
 // CLASS METHODS
 inline
-bool ZoneinfoBinaryHeader::isValidVersion(char value)
+bool baltzo::ZoneinfoBinaryHeader::isValidVersion(char value)
 {
     return '\0' == value || '2' == value;
 }
 
 inline
-bool ZoneinfoBinaryHeader::isValidNumIsGmt(int value)
+bool baltzo::ZoneinfoBinaryHeader::isValidNumIsGmt(int value)
 {
     return value >= 0;
 }
 
 inline
-bool ZoneinfoBinaryHeader::isValidNumIsStd(int value)
+bool baltzo::ZoneinfoBinaryHeader::isValidNumIsStd(int value)
 {
     return value >= 0;
 }
 
 inline
-bool ZoneinfoBinaryHeader::isValidNumLeaps(int value)
+bool baltzo::ZoneinfoBinaryHeader::isValidNumLeaps(int value)
 {
     return value == 0;
 }
 
 inline
-bool ZoneinfoBinaryHeader::isValidNumTransitions(int value)
+bool baltzo::ZoneinfoBinaryHeader::isValidNumTransitions(int value)
 {
     return value >= 0;
 }
 
 inline
-bool ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(int value)
+bool baltzo::ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(int value)
 {
     return value >= 1;
 }
 
 inline
-bool ZoneinfoBinaryHeader::isValidAbbrevDataSize(int value)
+bool baltzo::ZoneinfoBinaryHeader::isValidAbbrevDataSize(int value)
 {
     return value >= 1;
 }
 
 // CREATORS
 inline
-ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
+baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
 : d_version(0)
 , d_numIsGmt(0)
 , d_numIsStd(0)
@@ -463,14 +461,13 @@ ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
 }
 
 inline
-ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(
-                                                        char version,
-                                                        int  numIsGmt,
-                                                        int  numIsStd,
-                                                        int  numLeaps,
-                                                        int  numTransitions,
-                                                        int  numLocalTimeTypes,
-                                                        int  abbrevDataSize)
+baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(char version,
+                                                   int  numIsGmt,
+                                                   int  numIsStd,
+                                                   int  numLeaps,
+                                                   int  numTransitions,
+                                                   int  numLocalTimeTypes,
+                                                   int  abbrevDataSize)
 : d_version(version)
 , d_numIsGmt(numIsGmt)
 , d_numIsStd(numIsStd)
@@ -489,7 +486,7 @@ ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(
 }
 
 inline
-ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
+baltzo::ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
 {
     BSLS_ASSERT_SAFE(isValidVersion(d_version));
     BSLS_ASSERT_SAFE(isValidNumIsGmt(d_numIsGmt));
@@ -502,8 +499,8 @@ ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
 
 // MANIPULATORS
 inline
-ZoneinfoBinaryHeader& ZoneinfoBinaryHeader::operator=(
-                                        const ZoneinfoBinaryHeader& rhs)
+baltzo::ZoneinfoBinaryHeader& baltzo::ZoneinfoBinaryHeader::operator=(
+                                               const ZoneinfoBinaryHeader& rhs)
 {
     d_version           = rhs.d_version;
     d_numIsGmt          = rhs.d_numIsGmt;
@@ -515,7 +512,7 @@ ZoneinfoBinaryHeader& ZoneinfoBinaryHeader::operator=(
     return *this;
 }
 inline
-void ZoneinfoBinaryHeader::setVersion(char value)
+void baltzo::ZoneinfoBinaryHeader::setVersion(char value)
 {
     BSLS_ASSERT_SAFE(isValidVersion(value));
 
@@ -523,7 +520,7 @@ void ZoneinfoBinaryHeader::setVersion(char value)
 }
 
 inline
-void ZoneinfoBinaryHeader::setNumIsGmt(int value)
+void baltzo::ZoneinfoBinaryHeader::setNumIsGmt(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumIsGmt(value));
 
@@ -531,7 +528,7 @@ void ZoneinfoBinaryHeader::setNumIsGmt(int value)
 }
 
 inline
-void ZoneinfoBinaryHeader::setNumIsStd(int value)
+void baltzo::ZoneinfoBinaryHeader::setNumIsStd(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumIsStd(value));
 
@@ -539,7 +536,7 @@ void ZoneinfoBinaryHeader::setNumIsStd(int value)
 }
 
 inline
-void ZoneinfoBinaryHeader::setNumLeaps(int value)
+void baltzo::ZoneinfoBinaryHeader::setNumLeaps(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumLeaps(value));
 
@@ -547,7 +544,7 @@ void ZoneinfoBinaryHeader::setNumLeaps(int value)
 }
 
 inline
-void ZoneinfoBinaryHeader::setNumTransitions(int value)
+void baltzo::ZoneinfoBinaryHeader::setNumTransitions(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumTransitions(value));
 
@@ -555,7 +552,7 @@ void ZoneinfoBinaryHeader::setNumTransitions(int value)
 }
 
 inline
-void ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
+void baltzo::ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumLocalTimeTypes(value));
 
@@ -563,7 +560,7 @@ void ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
 }
 
 inline
-void ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
+void baltzo::ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
 {
     BSLS_ASSERT_SAFE(isValidAbbrevDataSize(value));
 
@@ -571,7 +568,7 @@ void ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
 }
 
 inline
-void ZoneinfoBinaryHeader::swap(ZoneinfoBinaryHeader& other)
+void baltzo::ZoneinfoBinaryHeader::swap(ZoneinfoBinaryHeader& other)
 {
     bsl::swap(d_version,           other.d_version);
     bsl::swap(d_numIsGmt,          other.d_numIsGmt);
@@ -584,52 +581,51 @@ void ZoneinfoBinaryHeader::swap(ZoneinfoBinaryHeader& other)
 
 // ACCESSORS
 inline
-char ZoneinfoBinaryHeader::version() const
+char baltzo::ZoneinfoBinaryHeader::version() const
 {
     return d_version;
 }
 
 inline
-int ZoneinfoBinaryHeader::numIsGmt() const
+int baltzo::ZoneinfoBinaryHeader::numIsGmt() const
 {
     return d_numIsGmt;
 }
 
 inline
-int ZoneinfoBinaryHeader::numIsStd() const
+int baltzo::ZoneinfoBinaryHeader::numIsStd() const
 {
     return d_numIsStd;
 }
 
 inline
-int ZoneinfoBinaryHeader::numLeaps() const
+int baltzo::ZoneinfoBinaryHeader::numLeaps() const
 {
     return d_numLeaps;
 }
 
 inline
-int ZoneinfoBinaryHeader::numTransitions() const
+int baltzo::ZoneinfoBinaryHeader::numTransitions() const
 {
     return d_numTransitions;
 }
 
 inline
-int ZoneinfoBinaryHeader::numLocalTimeTypes() const
+int baltzo::ZoneinfoBinaryHeader::numLocalTimeTypes() const
 {
     return d_numLocalTimeTypes;
 }
 
 inline
-int ZoneinfoBinaryHeader::abbrevDataSize() const
+int baltzo::ZoneinfoBinaryHeader::abbrevDataSize() const
 {
     return d_abbrevDataSize;
 }
-}  // close package namespace
 
 // FREE OPERATORS
 inline
 bool baltzo::operator==(const ZoneinfoBinaryHeader& lhs,
-                const ZoneinfoBinaryHeader& rhs)
+                        const ZoneinfoBinaryHeader& rhs)
 {
     return lhs.version()           == rhs.version()
         && lhs.numIsGmt()          == rhs.numIsGmt()
@@ -642,14 +638,14 @@ bool baltzo::operator==(const ZoneinfoBinaryHeader& lhs,
 
 inline
 bool baltzo::operator!=(const ZoneinfoBinaryHeader& lhs,
-                const ZoneinfoBinaryHeader& rhs)
+                        const ZoneinfoBinaryHeader& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& baltzo::operator<<(bsl::ostream&                      stream,
-                         const ZoneinfoBinaryHeader& object)
+bsl::ostream& baltzo::operator<<(bsl::ostream&               stream,
+                                 const ZoneinfoBinaryHeader& object)
     // Write a single line description of the specified 'description' to the
     // specified 'stream' and a reference to the modifiable 'stream'.
 {
@@ -658,20 +654,27 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&                      stream,
 
 // FREE FUNCTIONS
 inline
-void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b)
+void baltzo::swap(ZoneinfoBinaryHeader& a, ZoneinfoBinaryHeader& b)
 {
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

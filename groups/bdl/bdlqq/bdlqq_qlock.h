@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //       bdlqq::QLock: Small, statically-initializable intra-process mutex
 //  bdlqq::QLockGuard: Automatic locking-unlocking of bdlqq::QLock
 //
-//@SEE_ALSO: bdlqq_xxxthread, bcemt_atomictypes, bdlqq_lockguard, bdlqq_once
+//@SEE_ALSO: bdlqq_mutex, bcemt_atomictypes, bdlqq_lockguard, bdlqq_once
 //
 //@AUTHOR: Vlad Kliatchko (vkliatchko@bloomberg.net) (design)
 //         Alex Libman (alibman1@bloomberg.net) (integration with BCE)

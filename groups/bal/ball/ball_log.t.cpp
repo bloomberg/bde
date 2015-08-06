@@ -14,10 +14,9 @@
 
 #include <bdlmca_blob.h>
 #include <bslma_testallocator.h>
+#include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
 #include <bsls_atomic.h>
-
-#include <bdlmxxx_list.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -356,7 +355,7 @@ static int isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
 }
 
 static int numIncCallback = 0;
-void incCallback(BloombergLP::bdlmxxx::List *list) {
+void incCallback(BloombergLP::ball::UserFieldValues *list) {
     ASSERT(list);
     ++numIncCallback;
     return;
@@ -373,11 +372,11 @@ class Point {
     const bsl::string& name() const { return d_name; };
 };
 
-void populateUsingPoint(BloombergLP::bdlmxxx::List *list, const Point& point)
+void populateUsingPoint(BloombergLP::ball::UserFieldValues *list, const Point& point)
 {
     list->appendString(point.name());
-    list->appendInt(point.x());
-    list->appendInt(point.y());
+    list->appendInt64(point.x());
+    list->appendInt64(point.y());
 }
 
 //=============================================================================
@@ -1081,7 +1080,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("callback test");
             const Point point;
-            bdlf::Function <void (*)(BloombergLP::bdlmxxx::List *)> cb;
+            bdlf::Function <void (*)(BloombergLP::ball::UserFieldValues *)> cb;
             cb = bdlf::BindUtil::bind(&populateUsingPoint,
                                      bdlf::PlaceHolders::_1,
                                      point);
@@ -2272,7 +2271,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == ball::LoggerManager::isInitialized());
                 BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::bdlmxxx::List *)> callback =
+                        <void (*)(BloombergLP::ball::UserFieldValues *)> callback =
                                                                   &incCallback;
                 numIncCallback = 0;
 
@@ -2319,7 +2318,7 @@ int main(int argc, char *argv[])
                       << "Testing callback macro safety w/o LoggerManager\n"
                       << "===============================================\n";
 
-        BloombergLP::bdlf::Function<void (*)(BloombergLP::bdlmxxx::List *)> callback
+        BloombergLP::bdlf::Function<void (*)(BloombergLP::ball::UserFieldValues *)> callback
                                                                 = &incCallback;
 
         numIncCallback = 0;
@@ -2406,7 +2405,7 @@ int main(int argc, char *argv[])
                                << bsl::endl;
 
         BloombergLP::bdlf::Function
-                        <void (*)(BloombergLP::bdlmxxx::List *)> callback =
+                        <void (*)(BloombergLP::ball::UserFieldValues *)> callback =
                                                                   &incCallback;
         numIncCallback = 0;
 
@@ -5966,7 +5965,7 @@ int main(int argc, char *argv[])
         ball::DefaultObserver observer(bsl::cout);
         ball::LoggerManager::initSingleton( &observer, 0 );
 
-        bcemt_Attribute attributes;
+        bdlqq::ThreadAttributes attributes;
         bdlqq::ThreadUtil::Handle handles[10];
         for (int i = 0; i < 10; ++i) {
             bdlqq::ThreadUtil::create(&handles[i], attributes, ThreadFunctor());

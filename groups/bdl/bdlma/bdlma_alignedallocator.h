@@ -1,4 +1,4 @@
-// bdlma_alignedallocator.h                                          -*-C++-*-
+// bdlma_alignedallocator.h                                           -*-C++-*-
 #ifndef INCLUDED_BDLMA_ALIGNEDALLOCATOR
 #define INCLUDED_BDLMA_ALIGNEDALLOCATOR
 
@@ -16,10 +16,11 @@ BSLS_IDENT("$Id$")
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component extends the base-level protocol (pure abstract
-// interface) class, 'bslma::Allocator', providing the ability to allocate
-// raw memory with a specified alignment.  The following inheritance diagram
-// shows the classes involved and their methods:
+//@DESCRIPTION: This component provides an implementation,
+// 'bdlma::AlignedAllocator', of the base-level protocol (pure abstract
+// interface) class, 'bslma::Allocator', providing the ability to allocate raw
+// memory with a specified alignment.  The following inheritance diagram shows
+// the classes involved and their methods:
 //..
 //   ,----------------------.
 //  ( bdlma::AlignedAllocator )
@@ -43,14 +44,14 @@ BSLS_IDENT("$Id$")
 //
 ///Example 1: Implementing 'bdlma::AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bdlma::AlignedAllocator' protocol provided in this component
-// defines a bilateral contract between suppliers and consumers of raw
-// aligned memory.  In order for the 'bdlma::AlignedAllocator' interface to be
-// useful, we must supply a concrete allocator that implements it.
+// The 'bdlma::AlignedAllocator' protocol provided in this component defines a
+// bilateral contract between suppliers and consumers of raw aligned memory.
+// In order for the 'bdlma::AlignedAllocator' interface to be useful, we must
+// supply a concrete allocator that implements it.
 //
 // In this example, we demonstrate how to adapt 'posix_memalign' on Linux and
-// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this
-// protocol base class:
+// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this protocol
+// base class:
 //
 // First, we specify the interface of the concrete implementation of
 // 'MyAlignedAllocator:
@@ -60,8 +61,8 @@ BSLS_IDENT("$Id$")
 //
 //  class MyAlignedAllocator: public bdlma::AlignedAllocator {
 //      // This class is a sample concrete implementation of the
-//      // 'bdlma::AlignedAllocator' protocol that provides direct access to the
-//      // system-supplied 'posix_memalign' and 'free' on Linux and AIX
+//      // 'bdlma::AlignedAllocator' protocol that provides direct access to
+//      // the system-supplied 'posix_memalign' and 'free' on Linux and AIX
 //      // platforms, 'memalign' and 'free' on SunOS, or '_aligned_malloc' and
 //      // '_aligned_free' on Windows.
 //
@@ -73,8 +74,8 @@ BSLS_IDENT("$Id$")
 //    public:
 //      // CREATORS
 //      MyAlignedAllocator();
-//          // Create a 'MyAlignedAllocator' object.  Note that all
-//          // objects of this class share the same underlying resource.
+//          // Create a 'MyAlignedAllocator' object.  Note that all objects of
+//          // this class share the same underlying resource.
 //
 //      virtual ~MyAlignedAllocator();
 //          // Destroy this object.  Note that destroying this object has no
@@ -90,22 +91,22 @@ BSLS_IDENT("$Id$")
 //          // else it will abort the program in a non-exception build.  The
 //          // behavior is undefined unless '0 <= size'.   Note that the
 //          // alignment of the address returned conforms to the platform
-//          // requirement for any object of the specified 'size'.  Also note
-//          // that global 'operator new' is *not* called when 'size' is 0 (in
-//          // order to avoid having to acquire a lock, and potential
-//          // contention in multi-threaded programs).
+//          // requirement for any object of the 'size'.  Also note that global
+//          // 'operator new' is *not* called when 'size' is 0 (in order to
+//          // avoid having to acquire a lock, and potential contention in
+//          // multi-threaded programs).
 //
 //      virtual void *allocateAligned(bsl::size_t size, size_type alignment);
 //          // Return the address of a newly allocated block of memory of at
 //          // least the specified positive 'size' (in bytes), sufficiently
-//          // aligned such that the returned 'address' satisfies
-//          // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null
-//          // pointer is returned with no other effect.  If the requested
-//          // number of appropriately aligned bytes cannot be returned, then a
-//          // 'bsl::bad_alloc' exception is thrown, or in a non-exception
-//          // build the program is terminated.  The behavior is undefined
-//          // unless 'alignment' is both a multiple of 'sizeof(void *)' and an
-//          // integral non-negative power of two.
+//          // aligned such that the returned 'address' satisfies, for the
+//          // specified 'alignment', '0 == (address & (alignment - 1))'.  If
+//          // 'size' is 0, a null pointer is returned with no other effect.
+//          // If the requested number of appropriately aligned bytes cannot be
+//          // returned, then a 'bsl::bad_alloc' exception is thrown, or in a
+//          // non-exception build the program is terminated.  The behavior is
+//          // undefined unless 'alignment' is both a multiple of
+//          // 'sizeof(void *)' and an integral non-negative power of two.
 //
 //      virtual void deallocate(void *address);
 //          // Return the memory block at the specified 'address' back to this
@@ -134,8 +135,6 @@ BSLS_IDENT("$Id$")
 //  // MANIPULATORS
 //  void *MyAlignedAllocator::allocate(size_type size)
 //  {
-//      BSLS_ASSERT_SAFE(0 <= size);
-//
 //      if (0 == size) {
 //          return 0;                                                 // RETURN
 //      }
@@ -147,7 +146,6 @@ BSLS_IDENT("$Id$")
 //  void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
 //                                            size_type   alignment)
 //  {
-//      BSLS_ASSERT_SAFE(0 <= alignment);
 //      BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 //      BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
 //
@@ -161,17 +159,17 @@ BSLS_IDENT("$Id$")
 //      errno = 0;
 //      ret = _aligned_malloc(size, alignment);
 //      if (0 != errno) {
-//          bslma::Allocator::throwBadAlloc();
+//          bsls::BslExceptionUtil::throwBadAlloc();
 //      }
 //  #elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
 //      ret = memalign(alignment, size);
 //      if (0 == ret) {
-//          bslma::Allocator::throwBadAlloc();
+//          bsls::BslExceptionUtil::throwBadAlloc();
 //      }
 //  #else
 //      int rc = ::posix_memalign(&ret, alignment, size);
 //      if (0 != rc) {
-//          bslma::Allocator::throwBadAlloc();
+//          bsls::BslExceptionUtil::throwBadAlloc();
 //      }
 //  #endif
 //
@@ -204,8 +202,8 @@ BSLS_IDENT("$Id$")
 // In this example we illustrate how to use the 'bdlma::AlignedAllocator'
 // protocol to allocate memory that is aligned to the beginning of a memory
 // page.  Third party libraries, for example device drivers that perform DMA
-// access of device drivers, or some extreme optimizations to reduce the
-// number of page faults, might require page aligned allocations.
+// access of device drivers, or some extreme optimizations to reduce the number
+// of page faults, might require page aligned allocations.
 //
 // First, we create an aligned allocator 'myAlignedAllocator' using the class
 // 'MyAlignedAllocator' defined in the previous example, and obtain a
@@ -242,11 +240,11 @@ BSLS_IDENT("$Id$")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                        // ============================
-                        // class AlignedAllocator
-                        // ============================
+
+                          // ======================
+                          // class AlignedAllocator
+                          // ======================
 
 class AlignedAllocator : public bslma::Allocator {
     // This protocol provides a pure abstract interface and contract for
@@ -256,30 +254,36 @@ class AlignedAllocator : public bslma::Allocator {
 
   public:
     // MANIPULATORS
-    virtual void *allocateAligned(bsl::size_t size, size_type alignment)
-                                        BSLS_ANNOTATION_WARN_UNUSED_RESULT = 0;
-        // Return the address of a newly allocated block of memory of at
-        // least the specified positive 'size' (in bytes), sufficiently
-        // aligned such that the returned 'address' satisfies
-        // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null pointer
-        // is returned with no other effect.  If the requested number of
-        // appropriately aligned bytes cannot be returned, then a
+    virtual void *allocateAligned(bsl::size_t size, size_type alignment) = 0;
+        // Return the address of a newly allocated block of memory of at least
+        // the specified positive 'size' (in bytes), sufficiently aligned such
+        // that the returned 'address' satisfies, for the specified
+        // 'alignment', '0 == (address & (alignment - 1))'.  If 'size' is 0, a
+        // null pointer is returned with no other effect.  If the requested
+        // number of appropriately aligned bytes cannot be returned, then a
         // 'bsl::bad_alloc' exception is thrown, or in a non-exception build
         // the program is terminated.  The behavior is undefined unless
         // 'alignment' is both a multiple of 'sizeof(void *)' and an integral
         // non-negative power of two.
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

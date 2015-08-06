@@ -8,10 +8,11 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
+#include <ball_userfieldvalues.h>
 
 #include <bdlqq_lockguard.h>
 
-#include <bdlmxxx_list.h>
+
 
 #include <bsl_ostream.h>
 
@@ -56,7 +57,7 @@ void DefaultObserver::publish(const Record&  record,
 
     *d_stream << ' ';
 
-    const bdlmxxx::List& userFields = record.userFields();
+    const ball::UserFieldValues& userFields = record.userFieldValues();
     const int numUserFields = userFields.length();
     for (int i = 0; i < numUserFields; ++i) {
         *d_stream << userFields[i] << ' ';

@@ -22,11 +22,11 @@ BSLS_IDENT_RCSID(bdlma_heapbypassallocator_cpp,"$Id$ $CSID$")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                // ==============================================
-                // struct HeapBypassAllocator::BufferHeader
-                // ==============================================
+
+                 // ========================================
+                 // struct HeapBypassAllocator::BufferHeader
+                 // ========================================
 
 struct HeapBypassAllocator::BufferHeader {
     // This struct defines a link in a linked list of buffers allocated by
@@ -43,14 +43,15 @@ struct HeapBypassAllocator::BufferHeader {
 };
 }  // close package namespace
 
-                          // -------------------------
-                          // bdlma::HeapBypassAllocator
-                          // -------------------------
+                        // --------------------------
+                        // bdlma::HeapBypassAllocator
+                        // --------------------------
 
 // PRIVATE CLASS METHODS
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
 namespace bdlma {char *HeapBypassAllocator::map(size_type size)
+
 {
     // Note that passing 'MAP_ANONYMOUS' and a null file descriptor tells
     // 'mmap' to use a special system file to map to.
@@ -78,6 +79,7 @@ void HeapBypassAllocator::unmap(void *address, size_type size) {
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
 namespace bdlma {char *HeapBypassAllocator::map(size_type size)
+
 {
     char *address =
            (char *)VirtualAlloc(0,  // 'VirtualAlloc' chooses what address to
@@ -98,6 +100,7 @@ void HeapBypassAllocator::unmap(void *address, size_type size)
 #endif
 
 namespace bdlma {
+
 // PRIVATE MANIPULATORS
 int HeapBypassAllocator::replenish(size_type size)
 {
@@ -180,7 +183,7 @@ HeapBypassAllocator::~HeapBypassAllocator()
 void *HeapBypassAllocator::allocate(size_type size)
 {
     d_cursor_p = d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                      d_cursor_p, d_alignment);
+                                    d_cursor_p, static_cast<int>(d_alignment));
     if (d_endOfBuffer_p < d_cursor_p + size) {
         size_type blockSize = size + d_alignment + sizeof(BufferHeader);
         int sts = replenish(blockSize);    // 'replenish' will round up to
@@ -189,9 +192,9 @@ void *HeapBypassAllocator::allocate(size_type size)
             return 0;                                                 // RETURN
         }
 
-        d_cursor_p =
-                    d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                      d_cursor_p, d_alignment);
+        d_cursor_p = d_cursor_p
+                   + bsls::AlignmentUtil::calculateAlignmentOffset(
+                                    d_cursor_p, static_cast<int>(d_alignment));
     }
 
     BSLS_ASSERT(d_endOfBuffer_p >= d_cursor_p + size);
@@ -207,13 +210,20 @@ void HeapBypassAllocator::deallocate(void *)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

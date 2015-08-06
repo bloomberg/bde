@@ -18,17 +18,15 @@ BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-static const char LOG_CATEGORY[] = "BAETZO.ZONEINFOCACHE";
+static const char LOG_CATEGORY[] = "BALTZO.ZONEINFOCACHE";
 
-namespace baltzo {
-                        // --------------------------
-                        // class ZoneinfoCache
-                        // --------------------------
+                            // -------------------
+                            // class ZoneinfoCache
+                            // -------------------
 
 // CREATORS
-ZoneinfoCache::~ZoneinfoCache()
+baltzo::ZoneinfoCache::~ZoneinfoCache()
 {
-
     for (ZoneinfoMap::iterator it  = d_cache.begin();
                                it != d_cache.end();
                                ++it) {
@@ -38,7 +36,7 @@ ZoneinfoCache::~ZoneinfoCache()
 }
 
 // MANIPULATORS
-const Zoneinfo *ZoneinfoCache::getZoneinfo(
+const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
                                                         int        *rc,
                                                         const char *timeZoneId)
 {
@@ -50,7 +48,7 @@ const Zoneinfo *ZoneinfoCache::getZoneinfo(
         FAILURE = -1
     };
 
-    BSLMF_ASSERT(static_cast<int>(ErrorCode::BAETZO_UNSUPPORTED_ID) !=
+    BSLMF_ASSERT(static_cast<int>(ErrorCode::BALTZO_UNSUPPORTED_ID) !=
                  static_cast<int>(FAILURE));
 
     const Zoneinfo *result = lookupZoneinfo(timeZoneId);
@@ -89,7 +87,7 @@ const Zoneinfo *ZoneinfoCache::getZoneinfo(
 
         *rc = d_loader_p->loadTimeZone(newTimeZonePtr, timeZoneId);
         if (0 != *rc) {
-            if (ErrorCode::BAETZO_UNSUPPORTED_ID != *rc) {
+            if (ErrorCode::BALTZO_UNSUPPORTED_ID != *rc) {
                 BALL_LOG_ERROR << "Unexpected error code loading time zone "
                                << timeZoneId << ": " << *rc
                                << BALL_LOG_END;
@@ -129,7 +127,7 @@ const Zoneinfo *ZoneinfoCache::getZoneinfo(
 }
 
 // ACCESSORS
-const Zoneinfo *ZoneinfoCache::lookupZoneinfo(
+const baltzo::Zoneinfo *baltzo::ZoneinfoCache::lookupZoneinfo(
                                                   const char *timeZoneId) const
 {
     BSLS_ASSERT(0 != timeZoneId);
@@ -142,15 +140,21 @@ const Zoneinfo *ZoneinfoCache::lookupZoneinfo(
     }
     return 0;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

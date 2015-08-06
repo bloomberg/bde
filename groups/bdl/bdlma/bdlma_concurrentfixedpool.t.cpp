@@ -1,21 +1,28 @@
 // bdlma_concurrentfixedpool.t.cpp                                    -*-C++-*-
 
 #include <bdlma_concurrentfixedpool.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_xxxthread.h>
+
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
+
 #include <bsls_alignment.h>
 #include <bsls_platform.h>
-#include <bdlqq_threadgroup.h>
+
 #include <bdlf_bind.h>
-#include <bdlqq_qlock.h>
 #include <bdlb_random.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bdlqq_barrier.h>
+#include <bdlqq_threadgroup.h>
+#include <bdlqq_qlock.h>
+
+#include <bsls_types.h>
+
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
-#include <bsl_cstring.h>     // memcpy()
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_deque.h>
 
 using namespace BloombergLP;
@@ -25,54 +32,41 @@ using namespace bsl;  // automatically added by script
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static bdlqq::QLock coutMutex;
+int testStatus = 0;
 
-static void rEpOrT(const char *s, int i) {
-    cout << "Error " << __FILE__ << "(" << i << "): " << s
-         << "    (failed)" << endl;
-    if (testStatus >= 0 && testStatus <= 100) ++testStatus;
-}
-
-static void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
-        bdlqq::QLockGuard guard(&coutMutex);
-        rEpOrT(s, i);
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);        \
-                cout << #I << ": " << I << "\n";           \
-                rEpOrT(#X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                          \
-                cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";  \
-                rEpOrT(#X, __LINE__); }}
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                           \
-               cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
-                    << #K << ": " << K << "\n";                              \
-               rEpOrT(#X, __LINE__); }}
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                   GLOBAL TYPEDEFS, CONSTANTS, AND VARIABLES
@@ -117,68 +111,91 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-class my_JobQueue {
- public:
- // PUBLIC TYPES
+///Usage
+///-----
+// 'bdlma::ConcurrentFixedPool' is intended to implement *out-of-place*
+// container classes that hold up to a fixed number of elements, all of uniform
+// size.  Suppose we wish to implement a simple thread pool.  We want the
+// equivalent of a 'bsl::deque<bdlf::Function<void(*)(void)> >'.  However, to
+// minimize the time spent performing operations on this deque - which must be
+// carried out under a lock - we instead store just pointers in the deque, and
+// manage memory efficiently using 'bdlma::ConcurrentFixedPool'.
+// 'bdlma::ConcurrentFixedPool' is fully thread-safe and does not require any
+// additional synchronization.
+//
+// The example below is just for the container portion of our simple thread
+// pool.  The implementation of the worker thread, and the requisite
+// synchronization, are omitted for clarity.
+//..
+    class my_JobQueue {
 
-   typedef bdlf::Function<void(*)(void)> Job;
+      public:
+        // PUBLIC TYPES
+        typedef bdlf::Function<void(*)(void)> Job;
 
- private:
+      private:
+        // DATA
+        bdlqq::Mutex                d_lock;
+        bsl::deque<Job *>           d_queue;
+        bdlma::ConcurrentFixedPool  d_pool;
+        bslma::Allocator           *d_allocator_p;
 
-   bdlqq::Mutex       d_lock;
-   bsl::deque<Job*>  d_queue;
-   bdlma::ConcurrentFixedPool   d_pool;
-   bslma::Allocator *d_allocator_p;
+      public:
+        // CREATORS
+        my_JobQueue(int maxJobs, bslma::Allocator *basicAllocator = 0);
+        ~my_JobQueue();
 
- public:
-   my_JobQueue(int maxJobs,
-               bslma::Allocator *basicAllocator=0);
-  ~my_JobQueue();
+        // MANIPULATORS
+        void enqueueJob(const Job& job);
 
-   void enqueueJob(const Job& job);
+        int tryExecuteJob();
+    };
 
-   int tryExecuteJob();
-};
+    my_JobQueue::my_JobQueue(int maxJobs, bslma::Allocator *basicAllocator)
+    : d_queue(basicAllocator)
+    , d_pool(sizeof(Job), maxJobs, basicAllocator)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+    }
 
-my_JobQueue::my_JobQueue(int maxJobs,
-                         bslma::Allocator * basicAllocator)
-: d_queue(basicAllocator)
-, d_pool(sizeof(Job), maxJobs, basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
+    my_JobQueue::~my_JobQueue()
+    {
+        Job *jobPtr;
+        while (!d_queue.empty()) {
+            jobPtr = d_queue.front();
+            jobPtr->~Job();
+            d_queue.pop_front();
+        }
+    }
 
-my_JobQueue::~my_JobQueue()
-{
-   Job* job;
-   while (!d_queue.empty()) {
-      job = d_queue.front();
-      job->~Job();
-      d_queue.pop_front();
-   }
-}
+    void my_JobQueue::enqueueJob(const Job& job)
+    {
+        Job *jobPtr = new (d_pool) Job(job, d_allocator_p);
+        d_lock.lock();
+        d_queue.push_back(jobPtr);
+        d_lock.unlock();
+    }
 
-void my_JobQueue::enqueueJob(const Job& job)
-{
-   Job *jobPtr = new (d_pool) Job(job, d_allocator_p);
-   d_lock.lock();
-   d_queue.push_back(jobPtr);
-   d_lock.unlock();
-}
-
-int my_JobQueue::tryExecuteJob() {
-  d_lock.lock();
-  if (d_queue.empty()) {
-     d_lock.unlock();
-     return -1;
-  }
-  Job* job = d_queue.front();
-  d_queue.pop_front();
-  d_lock.unlock();
-  (*job)();
-  d_pool.deleteObject(job);
-  return 0;
-}
+    int my_JobQueue::tryExecuteJob()
+    {
+        d_lock.lock();
+        if (d_queue.empty()) {
+            d_lock.unlock();
+            return -1;
+        }
+        Job *jobPtr = d_queue.front();
+        d_queue.pop_front();
+        d_lock.unlock();
+        (*jobPtr)();
+        d_pool.deleteObject(jobPtr);
+        return 0;
+    }
+//..
+// Note that in the destructor, there is no need to deallocate the individual
+// job objects - the destructor of 'bdlma::ConcurrentFixedPool' will release
+// any remaining allocated memory.  However, it *is* necessary to invoke the
+// destructors of all these objects, as the destructor of
+// 'bdlma::ConcurrentFixedPool' will not do so.
 
 void sum5(double* result, double op1, double op2,
           double op3, double op4, double op5)
@@ -244,23 +261,24 @@ public:
 //-----------------------------------------------------------------------------
 
 enum {
-    OBJECT_SIZE = 56,
-    NUM_INTS = OBJECT_SIZE / sizeof(int),
-    NUM_OBJECTS = 10000,
-    NUM_THREADS = 4
+    k_OBJECT_SIZE = 56,
+    k_NUM_INTS = k_OBJECT_SIZE / sizeof(int),
+    k_NUM_OBJECTS = 10000,
+    k_NUM_THREADS = 4
 };
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 extern "C"
 void *workerThread(void *arg) {
     Obj *mX = (Obj *) arg;
-    ASSERT(OBJECT_SIZE == mX->objectSize());
+    ASSERT(k_OBJECT_SIZE == mX->objectSize());
 
     barrier.wait();
-    for (int i = 0; i < NUM_OBJECTS; ++i) {
+    for (int i = 0; i < k_NUM_OBJECTS; ++i) {
         int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
-            printf("Thread %d: Allocated %p\n", bdlqq::ThreadUtil::self(),
+            printf("Thread %d: Allocated %p\n",
+                   static_cast<int>(bdlqq::ThreadUtil::self()),
                    buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
@@ -276,6 +294,7 @@ void *workerThread(void *arg) {
 //=============================================================================
 //                     BENCHMARKS
 //-----------------------------------------------------------------------------
+
 namespace bench {
 
 struct Item {
@@ -301,7 +320,7 @@ void hardwork(Item *item, int load)
 
 void bench(Control *control)
 {
-    int threadId = bdlqq::ThreadUtil::selfIdAsInt();
+    int threadId = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt());
 
     bdlma::ConcurrentFixedPool *pool = control->d_fixedpool;
     int numObjects = control->d_numObjects;
@@ -312,19 +331,19 @@ void bench(Control *control)
     control->d_barrier->wait();
 
     for (int i=0; i<control->d_iterations; i++) {
-        for(int j=0; j<numObjects; j++) {
-            for(int t=0; t<=j; t++) {
+        for (int j=0; j<numObjects; j++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = (Item *)pool->allocate();
                 ASSERT(item);
                 item->d_threadId = threadId;
                 objects[t] = item;
             }
-            for(int t=0; t<=j; t++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = objects[t];
                 ASSERT(item->d_threadId == threadId);
                 hardwork(item, load);
             }
-            for(int t=0; t<=j; t++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = objects[t];
                 ASSERT(item->d_threadId == threadId);
                 pool->deallocate(item);
@@ -361,6 +380,7 @@ void runtest(int numIterations, int numObjects, int numThreads,
 //=============================================================================
 //                    fill and release concurrently
 //-----------------------------------------------------------------------------
+
 namespace fill_and_release {
 
 struct Item {
@@ -381,11 +401,10 @@ void bench(Control *control)
     const int iterations = control->d_iterations;
     bsls::AtomicInt& allocationCount(control->d_allocationCount);
 
-
     for (int i = 0; i<iterations; i++) {
 
         int count = allocationCount++;
-        while(count < poolSize) {
+        while (count < poolSize) {
             void *p = pool->allocate();
             ASSERT(p);
             pool->deallocate(p);
@@ -397,11 +416,10 @@ void bench(Control *control)
         // sync up with other threads
         control->d_barrier->wait();
 
-        // To assert that allocate() returns 0, we need to make
-        // sure that all threads have reached this point (so it has
-        // to be done after the barrier.  But we need to make sure
-        // that no thread is about to call release() so we have put
-        // another barrier after the assert.
+        // To assert that allocate() returns 0, we need to make sure that all
+        // threads have reached this point (so it has to be done after the
+        // barrier.  But we need to make sure that no thread is about to call
+        // release() so we have put another barrier after the assert.
 
         ASSERT(pool->allocate() == 0);
 
@@ -563,19 +581,18 @@ int main(int argc, char *argv[]) {
                           << "Fill and release test" << endl
                           << "=====================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50,
-            NUM_OBJECTS = 10
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50,
+            k_NUM_OBJECTS = 10
         };
 
-        int numIterations = NUM_ITERATIONS;
-        int numObjects = NUM_OBJECTS;
+        int numIterations = k_NUM_ITERATIONS;
+        int numObjects = k_NUM_OBJECTS;
 
-        for(int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
+        for (int numThreads=1; numThreads<=k_NUM_THREADS; numThreads++) {
 
             fill_and_release::runtest(numIterations, numObjects, numThreads);
         }
-
 
       } break;
       case 8: {
@@ -586,24 +603,22 @@ int main(int argc, char *argv[]) {
                           << "Benchmark" << endl
                           << "========================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50,
-            NUM_OBJECTS = 10,
-            LOAD = 16,
-            BACKOFF = 0
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50,
+            k_NUM_OBJECTS = 10,
+            k_LOAD = 16,
+            k_BACKOFF = 0
         };
 
-        int numIterations = NUM_ITERATIONS;
-        int numObjects = NUM_OBJECTS;
-        int load = LOAD;
-        int backoff = BACKOFF;
+        int numIterations = k_NUM_ITERATIONS;
+        int numObjects = k_NUM_OBJECTS;
+        int load = k_LOAD;
+        int backoff = k_BACKOFF;
 
-        for(int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
-
+        for (int numThreads=1; numThreads<=k_NUM_THREADS; numThreads++) {
             bench::runtest(numIterations, numObjects, numThreads,
                            load, backoff);
         }
-
 
       } break;
       case 7: {
@@ -613,14 +628,14 @@ int main(int argc, char *argv[]) {
         // Testing:
         //     Thread-safety of allocate/deallocate methods.
         // --------------------------------------------------------------------
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
-        Obj mX(OBJECT_SIZE, NUM_THREADS);
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
+        Obj mX(k_OBJECT_SIZE, k_NUM_THREADS);
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlqq::ThreadUtil::create(&threads[i], workerThread, &mX);
             LOOP_ASSERT(i, 0 == rc);
         }
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlqq::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
@@ -661,32 +676,32 @@ int main(int argc, char *argv[]) {
 
             my_Class1 *pC1 = (my_Class1 *) mX.allocate();
             new(pC1) my_Class1;
-            if (verbose) { T_();  T_();  P(my_ClassCode); }
+            if (verbose) { T_;  T_;  P(my_ClassCode); }
             ASSERT(1 == my_ClassCode);
             //ASSERT(A.numAllocations() == 1);
 
             mX.deleteObject(pC1);
-            if (verbose) { T_();  T_();  P(my_ClassCode); }
+            if (verbose) { T_;  T_;  P(my_ClassCode); }
             ASSERT(2 == my_ClassCode);
             //ASSERT(A.numAllocations() == 1);
             mX.allocate();
             //ASSERT(A.numAllocations() == 1);
-                  // By observing that the number of allocations
-                  // stays at one we confirm that the memory obtained
-                  // from the pool has been returned by 'deleteObject'.
-                  // Had it not been returned, the call to allocate would
-                  // have required another allocation from the allocator.
+                  // By observing that the number of allocations stays at one
+                  // we confirm that the memory obtained from the pool has been
+                  // returned by 'deleteObject'.  Had it not been returned, the
+                  // call to allocate would have required another allocation
+                  // from the allocator.
 
             if (verbose) cout << "\twith a my_Class2 object" << endl;
 
             my_Class2 *pC2 = (my_Class2 *) mX.allocate();
             new(pC2) my_Class2;
-            if (verbose) { T_();  T_();  P(my_ClassCode); }
+            if (verbose) { T_;  T_;  P(my_ClassCode); }
             ASSERT(3 == my_ClassCode);
             //ASSERT(A.numAllocations() == 1);
 
             mX.deleteObject(pC2);
-            if (verbose) { T_();  T_();  P(my_ClassCode); }
+            if (verbose) { T_;  T_;  P(my_ClassCode); }
             ASSERT(4 == my_ClassCode);
             //ASSERT(A.numAllocations() == 1);
             mX.allocate();
@@ -802,10 +817,9 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
 
-            int baselineAllocations = 0;
+            bsls::Types::Int64 baselineAllocations = 0;
             int ret = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
-
 
             const int N1 = 5;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
@@ -935,14 +949,14 @@ int main(int argc, char *argv[]) {
                     mY.allocate();
                 }
 
-                if (veryVerbose) { TAB; P_(TAX.numBytesInUse()); }
+                if (veryVerbose) { T_; P_(TAX.numBytesInUse()); }
                 mX.release();
-                if (veryVerbose) { TAB; P(TAX.numBytesInUse()); }
+                if (veryVerbose) { T_; P(TAX.numBytesInUse()); }
 
-                if (veryVerbose) { TAB; P_(TAY.numBytesInUse()); }
+                if (veryVerbose) { T_; P_(TAY.numBytesInUse()); }
                 // Let 'mY' go out of scope.
             }
-            if (veryVerbose) { TAB; P(TAY.numBytesInUse()); }
+            if (veryVerbose) { T_; P(TAY.numBytesInUse()); }
 
             LOOP2_ASSERT(LINE, di, 0 == TAX.numBytesInUse());
             LOOP2_ASSERT(LINE, di, 0 == TAY.numBytesInUse());
@@ -966,9 +980,8 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
 
-            int baselineAllocations = 0;
+            bsls::Types::Int64  baselineAllocations = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
-
 
             const int N1 = 5;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
@@ -998,9 +1011,8 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
 
-            int baselineAllocations = 0;
+            bsls::Types::Int64 baselineAllocations = 0;
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
-
 
             const int N1 = NUM_OBJECTS;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
@@ -1030,7 +1042,7 @@ int main(int argc, char *argv[]) {
             const int OBJECT_SIZE = 100;
             const int NUM_OBJECTS = 15;
 
-            int baselineAllocations = 0;
+            bsls::Types::Int64 baselineAllocations = 0;
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
 
             mX.release();
@@ -1062,7 +1074,6 @@ int main(int argc, char *argv[]) {
 
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
 
-
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
             const Obj& X = mX;
 
@@ -1078,7 +1089,6 @@ int main(int argc, char *argv[]) {
             const int NUM_OBJECTS = 15;
 
             bsl::vector<void *> v(NUM_OBJECTS, (void *)0);
-
 
             Obj mX(OBJECT_SIZE, NUM_OBJECTS, &a);
             const Obj& X = mX;
@@ -1099,14 +1109,14 @@ int main(int argc, char *argv[]) {
                           << "Fill and release test" << endl
                           << "=====================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50,
-            NUM_OBJECTS = 10
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50,
+            k_NUM_OBJECTS = 10
         };
 
-        int numThreads = argc > 2 ? atoi(argv[2]) : NUM_THREADS;
-        int numIterations = argc > 3 ? atoi(argv[3]) : NUM_ITERATIONS;
-        int numObjects = argc > 4 ? atoi(argv[4]) : NUM_OBJECTS;
+        int numThreads = argc > 2 ? atoi(argv[2]) : k_NUM_THREADS;
+        int numIterations = argc > 3 ? atoi(argv[3]) : k_NUM_ITERATIONS;
+        int numObjects = argc > 4 ? atoi(argv[4]) : k_NUM_OBJECTS;
 
         if (verbose) cout << endl
                           << "NUM THREADS: " << numThreads << endl
@@ -1124,18 +1134,18 @@ int main(int argc, char *argv[]) {
                           << "Benchmark" << endl
                           << "=========" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50,
-            NUM_OBJECTS = 10,
-            LOAD = 16,
-            BACKOFF = 0
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50,
+            k_NUM_OBJECTS = 10,
+            k_LOAD = 16,
+            k_BACKOFF = 0
         };
 
-        int numThreads = argc > 2 ? atoi(argv[2]) : NUM_THREADS;
-        int numIterations = argc > 3 ? atoi(argv[3]) : NUM_ITERATIONS;
-        int numObjects = argc > 4 ? atoi(argv[4]) : NUM_OBJECTS;
-        int load = argc > 5 ? atoi(argv[5]) : LOAD;
-        int backoff = argc > 6 ? atoi(argv[6]) : BACKOFF;
+        int numThreads = argc > 2 ? atoi(argv[2]) : k_NUM_THREADS;
+        int numIterations = argc > 3 ? atoi(argv[3]) : k_NUM_ITERATIONS;
+        int numObjects = argc > 4 ? atoi(argv[4]) : k_NUM_OBJECTS;
+        int load = argc > 5 ? atoi(argv[5]) : k_LOAD;
+        int backoff = argc > 6 ? atoi(argv[6]) : k_BACKOFF;
 
         if (verbose) cout << endl
                           << "NUM THREADS: " << numThreads << endl

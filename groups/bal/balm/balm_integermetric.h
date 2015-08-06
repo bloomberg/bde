@@ -25,8 +25,8 @@ BSLS_IDENT("$Id: $")
 // occurrences and the aggregated minimum, maximum, and total of the measured
 // metric-event values.
 //
-// The 'balm::IntegerMetric' class, defined in this component, has in-core value
-// semantics.  Each 'balm::IntegerMetric' object holds a pointer to a
+// The 'balm::IntegerMetric' class, defined in this component, has in-core
+// value semantics.  Each 'balm::IntegerMetric' object holds a pointer to a
 // 'balm::IntegerCollector' that collects values for a particular integer
 // metric.  The 'balm::IntegerCollector' is either supplied at construction, or
 // else obtained from a 'balm::MetricsManager' object's
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 ///Choosing Between 'balm::IntegerMetric' and Macros
 ///------------------------------------------------
 // The 'balm::IntegerMetric' class and the macros defined in 'balm_metrics'
-// provide the same basic functionality.  Clients may find 'balm::IntegerMetric'
+// provide the same basic functionality. Clients may find 'balm::IntegerMetric'
 // objects better suited to collecting integer metrics associated with a
 // particular instance of a stateful object, while macros are better suited to
 // collecting metrics associated with a particular code path (rather than an
@@ -66,8 +66,8 @@ BSLS_IDENT("$Id: $")
 // This example demonstrates how to create the default 'balm::MetricsManager'
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages the
-// lifetime of the default metrics manager instance.  At construction, we
+// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// the lifetime of the default metrics manager instance.  At construction, we
 // provide the scoped guard an output stream ('stdout') to which it will
 // publish metrics.  Note that the default metrics manager is intended to be
 // created and destroyed by the *owner* of 'main'.  An instance of the manager
@@ -85,8 +85,8 @@ BSLS_IDENT("$Id: $")
 // Once the default manager object has been created, it can be accessed using
 // the 'instance' operation.
 //..
-//      balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
-//      assert(0 != manager);
+//     balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
+//     assert(0 != manager);
 //..
 // Note that the default metrics manager will be destroyed when 'managerGuard'
 // goes out of scope.  Clients that choose to call
@@ -199,7 +199,7 @@ class IntegerMetric {
     IntegerMetric& operator=(const IntegerMetric& );
 
     // PRIVATE CONSTANTS
-    static const bool NOT_ACTIVE;
+    static const bool k_NOT_ACTIVE;
         // A static boolean constant for 'false'.  The data member
         // 'd_isEnabled_p' is assigned the *address* of this constant if the
         // 'Metric' object is not supplied a valid integer collector at
@@ -429,7 +429,7 @@ IntegerMetric::IntegerMetric(const char          *category,
     // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
     d_isEnabled_p = (d_collector_p)
                   ? &d_collector_p->metricId().category()->enabled()
-                  : &NOT_ACTIVE;
+                  : &k_NOT_ACTIVE;
 }
 
 inline
@@ -440,7 +440,7 @@ IntegerMetric::IntegerMetric(const MetricId&  metricId,
     // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
     d_isEnabled_p = (d_collector_p)
                   ? &d_collector_p->metricId().category()->enabled()
-                  : &NOT_ACTIVE;
+                  : &k_NOT_ACTIVE;
 }
 
 inline

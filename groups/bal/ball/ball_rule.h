@@ -109,14 +109,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_thresholdaggregate.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -143,14 +135,14 @@ class Rule {
     //
     // Additionally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment and equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  A precise
-    // operational definition of when two instances have the same value can be
-    // found in the description of 'operator==' for the class.  This class is
-    // *exception* *neutral* with no guarantee of rollback: If an exception is
-    // thrown during the invocation of a method on a pre-existing instance, the
-    // object is left in a valid state, but its value is undefined.  In no
-    // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
-    // an object as both source and destination) is supported in all cases.
+    // comparison, and 'ostream' printing.  A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of 'operator==' for the class.  This class is *exception* *neutral* with
+    // no guarantee of rollback: If an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
 
     // DATA
     bsl::string             d_pattern;       // the pattern for the name of
@@ -179,12 +171,6 @@ class Rule {
         // Return a hash value calculated from the specified 'rule' using the
         // specified 'size' as the number of slots.  The value returned is
         // guaranteed to be in the range [0 .. size - 1].
-
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported
-        // by this class.  (See the 'bde' package-group-level documentation
-        // for more information on 'bdex' streaming of value-semantic types
-        // and containers.)
 
     // CREATORS
     explicit Rule(bslma::Allocator *basicAllocator = 0);
@@ -252,17 +238,6 @@ class Rule {
     void setPattern(const bslstl::StringRef& value);
         // Set the pattern of this object to the specified 'value'.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid and this object is unaltered.  Note that no version is read
-        // from 'stream'.
-
     // ACCESSORS
     bool evaluate(const AttributeContainerList& containerList) const;
         // Return 'true' if for every predicate maintained by this object, an
@@ -320,12 +295,6 @@ class Rule {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.
 };
 
 // FREE OPERATORS
@@ -352,13 +321,6 @@ bsl::ostream& operator<<(bsl::ostream& output, const Rule& rule);
                        // ---------------
                        // class Rule
                        // ---------------
-
-// CLASS METHODS
-inline
-int Rule::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
-}
 
 // CREATORS
 inline
@@ -444,37 +406,6 @@ void Rule::setPattern(const bslstl::StringRef& pattern)
     d_pattern.assign(pattern.data(), pattern.length());
 }
 
-template <class STREAM>
-STREAM&  Rule::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            d_hashValue = -1;
-            bdex_InStreamFunctions::streamIn(stream, d_pattern, 0);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-
-            bdex_InStreamFunctions::streamIn(stream, d_thresholds, 1);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-
-            bdex_InStreamFunctions::streamIn(stream, d_predicateSet, 1);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-
-}
-
 // ACCESSORS
 inline
 bool Rule::evaluate(
@@ -542,18 +473,6 @@ bool Rule::isMatch(const char *inputString) const
     return PatternUtil::isMatch(inputString, d_pattern.c_str());
 }
 
-template <class STREAM>
-STREAM& Rule::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_pattern, 0);
-        bdex_OutStreamFunctions::streamOut(stream, d_thresholds, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_predicateSet, 1);
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS

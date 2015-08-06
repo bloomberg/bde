@@ -1,10 +1,14 @@
-// bdlcc_objectcatalog.t.cpp                                           -*-C++-*-
+// bdlcc_objectcatalog.t.cpp                                          -*-C++-*-
 #include <bdlcc_objectcatalog.h>
+
+#include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_condition.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_threadutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
@@ -33,7 +37,8 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // Testing is divided into the following parts (apart from the breathing test):
 // An alternate implementation (named my_bcec_ObjectCatalog) for
-// 'bdlcc::ObjectCatalog' is provided just for testing purpose.  It is tested in
+// 'bdlcc::ObjectCatalog' is provided just for testing purpose.  It is tested
+// in
 // [ 2].  It is used in the later test cases to verify the
 // 'bdlcc::ObjectCatalog'.
 //
@@ -89,9 +94,11 @@ using namespace bsl;  // automatically added by script
 // [12] TESTING STALE HANDLE REJECTION
 // [13] CONCURRENCY TEST
 // [14] USAGE EXAMPLE
+
 //=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 namespace {
 
 int testStatus = 0;
@@ -107,37 +114,27 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << #M << ": " <<  \
-       M << "\n"; aSsErT(1, #X, __LINE__); } }
-
 //=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
+
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
@@ -146,7 +143,8 @@ static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { LockGuard guard(&printMutex); P(X); }
 #define PT_(X) { LockGuard guard(&printMutex); P_(X); }
 
-static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert macros
+static bdlqq::Mutex &assertMutex = printMutex; // mutex to protect assert
+                                               // macros
 
 #define ASSERTT(X) {                                                          \
        LockGuard guard(&assertMutex);                                        \
@@ -199,12 +197,12 @@ typedef bdlcc::ObjectCatalog<int> Obj;
 
 // From the header file
 enum {
-    INDEX_MASK      = 0x007fffff
-  , BUSY_INDICATOR  = 0x00800000
-  , GENERATION_INC  = 0x01000000
-  , GENERATION_MASK = 0xff000000
-  , GENERATION_SHIFT = 24 // static_log2(GENERATION_INC)
-  , RECYCLE_COUNT    = 256
+    k_INDEX_MASK      = 0x007fffff
+  , k_BUSY_INDICATOR  = 0x00800000
+  , k_GENERATION_INC  = 0x01000000
+  , k_GENERATION_MASK = 0xff000000
+  , k_GENERATION_SHIFT = 24 // static_log2(k_GENERATION_INC)
+  , k_RECYCLE_COUNT    = 256
 };
 
 template<class TYPE>
@@ -212,22 +210,22 @@ class my_bcec_ObjectCatalog
     // This class provides an alternative implementation for
     // 'bdlcc::ObjectCatalog'.
 {
-    enum { MAX = 100 };
+    enum { k_MAX = 100 };
     struct {
         union {
             int                                 d_valid;
             bsls::AlignmentUtil::MaxAlignedType d_filler;
         };
         char d_obj_p[sizeof(TYPE)];
-    } d_arr[MAX];
+    } d_arr[k_MAX];
 
     int d_length;
     int d_topIndex;
   public:
     // CONSTRUCTORS
-    my_bcec_ObjectCatalog() :d_length(0), d_topIndex(-1)
+    my_bcec_ObjectCatalog() : d_length(0), d_topIndex(-1)
     {
-        for (int i=0;i<MAX;i++) {
+        for (int i=0;i<k_MAX;i++) {
             d_arr[i].d_valid = 0;
         }
     }
@@ -240,7 +238,7 @@ class my_bcec_ObjectCatalog
     // MANIPULATORS
     int add(TYPE const& object)
     {
-        BSLS_ASSERT(d_topIndex != MAX-1);
+        BSLS_ASSERT(d_topIndex != k_MAX-1);
         new (d_arr[++d_topIndex].d_obj_p) TYPE(object);
         d_arr[d_topIndex].d_valid = 1;
         d_length++;
@@ -253,7 +251,7 @@ class my_bcec_ObjectCatalog
             return -1;
         }
 
-        if(valueBuffer != 0) {
+        if (valueBuffer != 0) {
             *valueBuffer = *((TYPE *)d_arr[h].d_obj_p);
         }
 
@@ -266,7 +264,7 @@ class my_bcec_ObjectCatalog
 
     void removeAll()
     {
-        for(int i=0; i<=d_topIndex; i++) {
+        for (int i=0; i<=d_topIndex; i++) {
             d_arr[i].d_valid = 0;
             ((TYPE *)d_arr[i].d_obj_p)->~TYPE();
         }
@@ -292,7 +290,7 @@ class my_bcec_ObjectCatalog
         if (h<0 || h>d_topIndex || d_arr[h].d_valid==0) {
             return -1; //non zero
         }
-        if(p != 0) {
+        if (p != 0) {
             *p = *((TYPE const *)d_arr[h].d_obj_p);
         }
 
@@ -302,7 +300,7 @@ class my_bcec_ObjectCatalog
     int isMember(TYPE val) const
     {
         TYPE v;
-        for(int i=0; i<=d_topIndex; i++) {
+        for (int i=0; i<=d_topIndex; i++) {
             if (find(i, &v) == 0 && v == val) return 1;
         }
         return 0;
@@ -330,17 +328,17 @@ class my_bcec_ObjectCatalog
 
 typedef my_bcec_ObjectCatalog<int> my_Obj;
 
-// Each entry of this array specifies a state of 'bdlcc::ObjectCatalog'
-// object (say 'catalog').  When the 'catalog' is in the state specified
-// by 'spec' then the following are true:
+// Each entry of this array specifies a state of 'bdlcc::ObjectCatalog' object
+// (say 'catalog').  When the 'catalog' is in the state specified by 'spec'
+// then the following are true:
 //
 // 'catalog.d_nodes.size() == strlen(spec)'
 //
-// 'catalog.d_nodes[i]->d_handle & BUSY_INDICATOR != 0'
+// 'catalog.d_nodes[i]->d_handle & k_BUSY_INDICATOR != 0'
 //               FOR   0 <= i < 'catalog.d_nodes.size()'
 //               AND   'spec[i]' = '1'
 //
-// 'catalog.d_nodes[i]->d_handle & BUSY_INDICATOR == 0'
+// 'catalog.d_nodes[i]->d_handle & k_BUSY_INDICATOR == 0'
 //               FOR   0 <= i < 'catalog.d_nodes.size()'
 //               AND   'spec[i]' = '0'
 //
@@ -381,7 +379,7 @@ const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
 void printSpec(const char *spec)
 {
-    int len = strlen(spec);
+    int len = static_cast<int>(strlen(spec));
     cout << "[" ;
     for (int i=0; i<len; ++i) {
         cout << ((spec[i] == '0') ? "free" : "busy")
@@ -425,21 +423,21 @@ void gg(Obj         *o1,
         vector<int> &handles2,
         const char  *spec,
         const int    gens = 0)
-    // Bring the object '*o1' into the state specified by the specified
-    // 'spec' by using primary manipulators 'add' and 'remove' only.
-    // Same sequence of method invocation is applied to '*o2'.  Handles
-    // returned by 'o1->add' are put into 'handles1' and handles returned
-    // by 'o2->add' are put into 'handles2'.
+    // Bring the object '*o1' into the state specified by the specified 'spec'
+    // by using primary manipulators 'add' and 'remove' only.  Same sequence of
+    // method invocation is applied to '*o2'.  Handles returned by 'o1->add'
+    // are put into 'handles1' and handles returned by 'o2->add' are put into
+    // 'handles2'.
 {
     // First invoke 'add' 'strlen(spec)' times, this will cause first
     // 'strlen(spec)' entries of 'o1->d_nodes' to be busy.  Then invoke
     // 'remove' for all the entries corresponding to char '0' of the 'spec',
     // this will cause those entries to be freed.  Optionally, add and remove
-    // the entry 'gens' times to bring the generation numbers to 'gens' for
-    // the entries still present, and to 'gens + 1' for freed entries.
+    // the entry 'gens' times to bring the generation numbers to 'gens' for the
+    // entries still present, and to 'gens + 1' for freed entries.
 
     int v1, v2;
-    int len = strlen(spec);
+    int len = static_cast<int>(strlen(spec));
     for (int i=0 ;i < len; ++i) {
         if (veryVerbose) {
             cout << "\thandles1[" << i << "] = o1->add(" << i << "); // "
@@ -452,14 +450,14 @@ void gg(Obj         *o1,
             ASSERT(r  == 0);
             ASSERT(v1 == i);
             int h = o1->add(i);
-            ASSERT((h & INDEX_MASK) == (handles1[i] & INDEX_MASK));
+            ASSERT((h & k_INDEX_MASK) == (handles1[i] & k_INDEX_MASK));
             handles1[i] = h;
         }
 
-        ASSERT((handles1[i] & INDEX_MASK) == (unsigned)i);
-        ASSERT((handles1[i] & BUSY_INDICATOR) == BUSY_INDICATOR);
-        ASSERT((((unsigned)handles1[i]) >> GENERATION_SHIFT) ==
-                                                       (gens % RECYCLE_COUNT));
+        ASSERT((handles1[i] & k_INDEX_MASK) == (unsigned)i);
+        ASSERT((handles1[i] & k_BUSY_INDICATOR) == k_BUSY_INDICATOR);
+        ASSERT((((unsigned)handles1[i]) >> k_GENERATION_SHIFT) ==
+                                                     (gens % k_RECYCLE_COUNT));
 
         handles2[i] = o2->add(i);
         ASSERT(handles2[i] == i);
@@ -483,223 +481,235 @@ void gg(Obj         *o1,
 //=============================================================================
 //                          USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_USAGE_EXAMPLE
+
+namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
+
 {
-// For testing only
+
 typedef bsl::queue<int> *RemoteAddress;
 static bsl::queue<int>   server;
-static RemoteAddress     serverAddress = &server;
-static bdlqq::Mutex       serverMutex;
-static bdlqq::Condition   serverNotEmptyCondition;
+static bdlqq::Mutex      serverMutex;
+static bdlqq::Condition  serverNotEmptyCondition;
 
 const int NUM_QUERIES_TO_PROCESS   = 128; // for testing purposes
 const int CALLBACK_PROCESSING_TIME = 10;  // in microseconds
 
-// Consider a client sending queries to a server asynchronously.  When the
-// response to a query arrives, the client needs to invoke the callback
-// associated with that query.  For good performance, the callback should
-// be invoked as quickly as possible.  One way to achieve this is as follows.
-// The client creates a catalog for the functors associated with queries.
-// It sends to the server the handle (obtained by passing the callback
-// functor associated with the query to the 'add' method of catalog), along
-// with the query.  The server does not interpret this handle in any way
-// and sends it back to the client along with the computed query result.
-// The client, upon receiving the response, gets the functor (associated
-// with the query) back by passing the handle (contained in the response
-// message) to the 'find' method of catalog.
-//..
-struct Query
-    // Class simulating the query.
-{
-};
-
-class QueryResult
-    // Class simulating the result of a query.
-{
-};
-
-class RequestMsg
-    // Class encapsulating the request message.  It encapsulates the
-    // actual query and the handle associated with the callback for
-    // the query.
-{
-    int d_handle;
-  public:
-    RequestMsg(Query query, int handle)
-    : d_handle(handle)
-    {
-        (void) query; // to silence warnings
-    }
-    int handle() const
-        // Return the handle contained in this response message.
-        // For testing only.
-    {
-        return d_handle;
-    }
-};
-
-class ResponseMsg
-    // Class encapsulating the response message.  It encapsulates the
-    // query result and the handle associated with the callback for
-    // the query.
-{
-    int d_handle; // for testing only
-  public:
-    void setHandle(int handle)
-        // Set the handle contained in this response message.
-        // For testing only.
-    {
-        d_handle = handle;
-    }
-    QueryResult queryResult() const
-        // Return the query result contained in this response message.
-    {
-        return QueryResult(); // unused for testing
-    }
-    int handle() const
-        // Return the handle contained in this response message.
-    {
-        return d_handle;
-    }
-};
-
-void sendMessage(RequestMsg msg, RemoteAddress peer)
-    // Send the specified 'msg' to the specified 'peer'.
-{
-    serverMutex.lock();
-    peer->push(msg.handle());
-    serverNotEmptyCondition.signal();
-    serverMutex.unlock();
-}
-
-void recvMessage(ResponseMsg *msg, RemoteAddress peer)
-    // Get the response from the specified 'peer' into '*msg'.
-{
-    serverMutex.lock();
-    while (peer->empty()) {
-        serverNotEmptyCondition.wait(&serverMutex);
-    }
-    msg->setHandle(peer->front());
-    peer->pop();
-    serverMutex.unlock();
-}
+class QueryResult;
 
 void queryCallBack(const QueryResult& result)
-    // For testing only, we simulate a callback that takes
-    // a given time to process a query.
+    // For testing only, we simulate a callback that takes a given time to
+    // process a query.
 {
     (void) result; // unused for testing, to silence warnings
     bdlqq::ThreadUtil::microSleep(CALLBACK_PROCESSING_TIME);
 }
 
-void getQueryAndCallback(Query                                * /*query*/,
-                         bdlf::Function<void (*)(QueryResult)> *callBack)
-    // Set the '*query' and '*callBack' to the next query and its
-    // associated callback (the functor to be called when the response
-    // to this query comes in).
-{
-    *callBack = &queryCallBack;
-}
+///Usage
+///-----
+//
+/// Example 1: Catalog Usage
+/// - - - - - - - - - - - -
+// Consider a client sending queries to a server asynchronously.  When the
+// response to a query arrives, the client needs to invoke the callback
+// associated with that query.  For good performance, the callback should be
+// invoked as quickly as possible.  One way to achieve this is as follows.  The
+// client creates a catalog for the functors associated with queries.  It sends
+// to the server the handle (obtained by passing the callback functor
+// associated with the query to the 'add' method of catalog), along with the
+// query.  The server does not interpret this handle in any way and sends it
+// back to the client along with the computed query result.  The client, upon
+// receiving the response, gets the functor (associated with the query) back by
+// passing the handle (contained in the response message) to the 'find' method
+// of catalog.
+//
+// Assume the following declarations (we leave the implementations as
+// undefined, as the definitions are largely irrelevant to this example):
+//..
+    struct Query {
+        // Class simulating the query.
+    };
 
+    class QueryResult {
+        // Class simulating the result of a query.
+    };
+
+    class RequestMsg
+        // Class encapsulating the request message.  It encapsulates the
+        // actual query and the handle associated with the callback for
+        // the query.
+    {
+        Query d_query;
+        int   d_handle;
+
+      public:
+        RequestMsg(Query query, int handle)
+            // Create a request message with the specified 'query' and
+            // 'handle'.
+        : d_query(query)
+        , d_handle(handle)
+        {
+        }
+
+        int handle() const
+            // Return the handle contained in this response message.
+        {
+            return d_handle;
+        }
+    };
+
+    class ResponseMsg
+        // Class encapsulating the response message.  It encapsulates the
+        // query result and the handle associated with the callback for
+        // the query.
+    {
+        int d_handle;
+
+      public:
+        void setHandle(int handle)
+            // Set the handle contained in this response message.
+        {
+            d_handle = handle;
+        }
+
+        QueryResult queryResult() const
+            // Return the query result contained in this response message.
+        {
+            return QueryResult();
+        }
+
+        int handle() const
+            // Return the handle contained in this response message.
+        {
+            return d_handle;
+        }
+    };
+
+    void sendMessage(RequestMsg msg, RemoteAddress peer)
+        // Send the specified 'msg' to the specified 'peer'.
+    {
+        serverMutex.lock();
+        peer->push(msg.handle());
+        serverNotEmptyCondition.signal();
+        serverMutex.unlock();
+    }
+
+    void recvMessage(ResponseMsg *msg, RemoteAddress peer)
+        // Get the response from the specified 'peer' into '*msg'.
+    {
+        serverMutex.lock();
+        while (peer->empty()) {
+            serverNotEmptyCondition.wait(&serverMutex);
+        }
+        msg->setHandle(peer->front());
+        peer->pop();
+        serverMutex.unlock();
+    }
+
+    void getQueryAndCallback(Query                                 *query,
+                             bdlf::Function<void (*)(QueryResult)> *callBack)
+        // Set the '*query' and '*callBack' to the next query and its
+        // associated callback (the functor to be called when the response
+        // to this query comes in).
+    {
+        (void *)query;
+        *callBack = &queryCallBack;
+    }
 //..
 // Furthermore, let also the following variables be declared:
 //..
-//    RemoteAddress serverAddress; // address of remote server
+    RemoteAddress serverAddress;  // address of remote server
 
-bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
-    // Catalog of query callbacks, used by the client internally to keep track
-    // of callback functions across multiple queries.  The invariant is that
-    // each element corresponds to a pending query (i.e., the callback function
-    // has not yet been or is in the process of being invoked).
-
-void testClientProcessQueryCpp() {
-    int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
-    while (queriesToBeProcessed--)
+    bdlcc::ObjectCatalog<bdlf::Function<void (*)(QueryResult)> > catalog;
+        // Catalog of query callbacks, used by the client internally to
+        // keep track of callback functions across multiple queries.  The
+        // invariant is that each element corresponds to a pending query
+        // (i.e., the callback function has not yet been or is in the
+        // process of being invoked).
+//..
+// Now we define functions that will be used in the thread entry functions:
+//..
+    void testClientProcessQueryCpp()
     {
-        Query query;
-        bdlf::Function<void (*)(QueryResult)> callBack;
+        int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
+        while (queriesToBeProcessed--) {
+            Query query;
+            bdlf::Function<void (*)(QueryResult)> callBack;
 
-        // The following call blocks until a query becomes available.
-        getQueryAndCallback(&query, &callBack);
+            // The following call blocks until a query becomes available.
+            getQueryAndCallback(&query, &callBack);
 
-        // Register 'callBack' in the object catalog.
-        int handle = catalog.add(callBack);
-        ASSERT(handle);
+            // Register 'callBack' in the object catalog.
+            int handle = catalog.add(callBack);
+            ASSERT(handle);
 
-        // Send query to server in the form of a 'RequestMsg'.
-        RequestMsg msg(query, handle);
-        sendMessage(msg, serverAddress);
+            // Send query to server in the form of a 'RequestMsg'.
+            RequestMsg msg(query, handle);
+            sendMessage(msg, serverAddress);
+        }
     }
-}
 
-//..
-// In some thread, the client executes the following code.
-//..
-extern "C" void *testClientProcessQuery(void*)
-{
-    testClientProcessQueryCpp();
-    return 0;
-}
-//..
-// In some other thread, the client executes the following code.
-//..
-void testClientProcessResponseCpp() {
-    int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
-    while(queriesToBeProcessed--)
+    void testClientProcessResponseCpp()
     {
-        // The following call blocks until some response is available
-        // in the form of a 'ResponseMsg'.
-        ResponseMsg msg;
-        recvMessage(&msg, serverAddress);
-        int handle = msg.handle();
-        QueryResult result = msg.queryResult();
+        int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
+        while (queriesToBeProcessed--) {
+            // The following call blocks until some response is available
+            // in the form of a 'ResponseMsg'.
 
-        // Process query 'result' by applying registered 'callBack'
-        // to it.  The 'callBack' function is retrieved from the
-        // 'catalog' using the given 'handle'.
-        bdlf::Function<void (*)(QueryResult)> callBack;
-        ASSERT(0 == catalog.find(handle, &callBack));
-        callBack(result);
+            ResponseMsg msg;
+            recvMessage(&msg, serverAddress);
+            int handle = msg.handle();
+            QueryResult result = msg.queryResult();
 
-        // Finally, remove the no-longer-needed 'callBack' from the
-        // 'catalog'.  Assert so that 'catalog' may not grow unbounded
-        // if remove fails.
-        ASSERT(0 == catalog.remove(handle));
+            // Process query 'result' by applying registered 'callBack'
+            // to it.  The 'callBack' function is retrieved from the
+            // 'catalog' using the given 'handle'.
+
+            bdlf::Function<void (*)(QueryResult)> callBack;
+            ASSERT(0 == catalog.find(handle, &callBack));
+            callBack(result);
+
+            // Finally, remove the no-longer-needed 'callBack' from the
+            // 'catalog'.  Assert so that 'catalog' may not grow unbounded
+            // if remove fails.
+
+            ASSERT(0 == catalog.remove(handle));
+        }
     }
-}
+//..
+//
+///Example 2: Iterator Usage
+///- - - - - - - - - - - - -
+// The following code fragment shows how to use bdlcc::ObjectCatalogIter to
+// iterate through all the objects of 'catalog' (a catalog of objects of type
+// 'MyType').
+//..
+    void use(bdlf::Function<void (*)(QueryResult)> object)
+    {
+        (void)object;
+    }
+//..
 
-extern "C" void *testClientProcessResponse(void*)
-{
-    testClientProcessResponseCpp();
-    return 0;
-}
+} // namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 
-// Iterator usage
-
-typedef bdlf::Function<void (*)(QueryResult)> MyType;
-void use(MyType object)
-{
-    (void) object;
-}
-
-} // namespace BCEC_OBJECTCATALOG_TEST_USAGE_EXAMPLE
 //=============================================================================
 //                          CASE 13 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_13
+
+namespace OBJECTCATALOG_TEST_CASE_13
+
 {
 
 typedef bdlcc::ObjectCatalogIter<int> Iter;
 
 enum {
-    NUM_THREADS    = 10,
-    NUM_ITERATIONS = 1000
+    k_NUM_THREADS    = 10,
+    k_NUM_ITERATIONS = 1000
 };
 
 bslma::TestAllocator ta(veryVeryVerbose);
 bdlcc::ObjectCatalog<int> catalog(&ta);
 
-bdlqq::Barrier barrier(NUM_THREADS + 3);
+bdlqq::Barrier barrier(k_NUM_THREADS + 3);
 
 int getObjectFromPair(Iter &it)
 {
@@ -707,14 +717,14 @@ int getObjectFromPair(Iter &it)
 }
 
 void validateIter (int arr[], int len)
-    // Verify the iteration.  This function is invoked from
-    // 'testIteration' after it has iterated the 'catalog'.
+    // Verify the iteration.  This function is invoked from 'testIteration'
+    // after it has iterated the 'catalog'.
 {
-    ASSERT(len <= NUM_THREADS);
+    ASSERT(len <= k_NUM_THREADS);
     for (int i=0; i<len; i++) {
         // value must be valid
        int present = 0;
-       for (int id=0; id<NUM_THREADS; id++) {
+       for (int id=0; id<k_NUM_THREADS; id++) {
            if (id == arr[i] || -id-1 == arr[i]) {
                present=1; break;
            }
@@ -735,9 +745,9 @@ void *testAddFindReplaceRemove(void *arg)
     // Invoke 'add', 'find', 'replace' and 'remove' in a loop.
 {
     barrier.wait();
-    int id = (bsls::Types::IntPtr)arg;
+    int id = static_cast<int>(reinterpret_cast<bsls::Types::IntPtr>(arg));
     int v;
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int h = catalog.add(id);
         LOOP_ASSERTT(i, catalog.find(h) == 0);
         LOOP_ASSERTT(i, catalog.find(h, &v) == 0);
@@ -757,11 +767,12 @@ void *testAddFindReplaceRemove(void *arg)
 void *testLength(void *arg)
     // Invoke 'length' in a loop.
 {
+    (void *)arg;
     barrier.wait();
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int len = catalog.length();
         LOOP2_ASSERTT(i, len, len >= 0);
-        LOOP2_ASSERTT(i, len, len <= NUM_THREADS);
+        LOOP2_ASSERTT(i, len, len <= k_NUM_THREADS);
     }
     return NULL;
 }
@@ -769,11 +780,12 @@ void *testLength(void *arg)
 void *testIteration(void *arg)
     // Iterate the 'catalog' in a loop.
 {
+    (void *)arg;
     barrier.wait();
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
 
-        enum { MAX = 100 };
-        int arr[MAX]; int size=0;
+        enum { k_MAX = 100 };
+        int arr[k_MAX]; int size=0;
         for (Iter it(catalog); it; ++it) {
             arr[size++] = getObjectFromPair(it);
         }
@@ -785,8 +797,9 @@ void *testIteration(void *arg)
 void *verifyStateThread(void *arg)
     // Verify the 'catalog' in a loop.
 {
+    (void *)arg;
     barrier.wait();
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         catalog.verifyState();
     }
     return NULL;
@@ -794,24 +807,28 @@ void *verifyStateThread(void *arg)
 
 } // extern "C"
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_13
+} // namespace OBJECTCATALOG_TEST_CASE_13
 //=============================================================================
 //                          CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_12
+
+namespace OBJECTCATALOG_TEST_CASE_12
+
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_12
+} // namespace OBJECTCATALOG_TEST_CASE_12
 //=============================================================================
 //                          CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_11
+
+namespace OBJECTCATALOG_TEST_CASE_11
+
 {
 
 class AllocPattern {
     // This class encapsulates an integer pattern.  It also has a static
-    // variable 'objCount', that holds the number of objects created for
-    // this class.  It uses memory allocation to store the pattern.
+    // variable 'objCount', that holds the number of objects created for this
+    // class.  It uses memory allocation to store the pattern.
 
     bslma::Allocator *d_alloc_p;
     int              *d_pattern_p;
@@ -873,17 +890,19 @@ class AllocPattern {
 
 int AllocPattern::objCount = 0;
 
-}// namespace BCEC_OBJECTCATALOG_TEST_CASE_11
+}// namespace OBJECTCATALOG_TEST_CASE_11
 //=============================================================================
 //                          CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_10
+
+namespace OBJECTCATALOG_TEST_CASE_10
+
 {
 
 class Pattern {
     // This class encapsulates an integer pattern.  It also has a static
-    // variable 'objCount', that holds the number of objects created for
-    // this class.
+    // variable 'objCount', that holds the number of objects created for this
+    // class.
 
     int d_pattern;
 
@@ -924,11 +943,13 @@ class Pattern {
 
 int Pattern::objCount = 0;
 
-}// namespace BCEC_OBJECTCATALOG_TEST_CASE_10
+}// namespace OBJECTCATALOG_TEST_CASE_10
 //=============================================================================
 //                          CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_9
+
+namespace OBJECTCATALOG_TEST_CASE_9
+
 {
 
 typedef bdlcc::ObjectCatalogIter<int> Iter;
@@ -991,59 +1012,75 @@ void verifyAccessors(Obj         *o1,
     }
 }
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_9
+} // namespace OBJECTCATALOG_TEST_CASE_9
 //=============================================================================
 //                          CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_8
+
+namespace OBJECTCATALOG_TEST_CASE_8
+
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_8
+} // namespace OBJECTCATALOG_TEST_CASE_8
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_7
+
+namespace OBJECTCATALOG_TEST_CASE_7
+
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_7
+} // namespace OBJECTCATALOG_TEST_CASE_7
 //=============================================================================
 //                          CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_6
+
+namespace OBJECTCATALOG_TEST_CASE_6
+
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_6
+} // namespace OBJECTCATALOG_TEST_CASE_6
 //=============================================================================
 //                          CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_5
+
+namespace OBJECTCATALOG_TEST_CASE_5
+
 {
 
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_5
+} // namespace OBJECTCATALOG_TEST_CASE_5
 //=============================================================================
 //                          CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_4
+
+namespace OBJECTCATALOG_TEST_CASE_4
+
 {
-}// namespace BCEC_OBJECTCATALOG_TEST_CASE_4
+}// namespace OBJECTCATALOG_TEST_CASE_4
 //=============================================================================
 //                          CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_3
+
+namespace OBJECTCATALOG_TEST_CASE_3
+
 {
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_3
+} // namespace OBJECTCATALOG_TEST_CASE_3
 //=============================================================================
 //                          CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_2
+
+namespace OBJECTCATALOG_TEST_CASE_2
+
 {
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_2
+} // namespace OBJECTCATALOG_TEST_CASE_2
 //=============================================================================
 //                          CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEC_OBJECTCATALOG_TEST_CASE_1
+
+namespace OBJECTCATALOG_TEST_CASE_1
+
 {
-} // namespace BCEC_OBJECTCATALOG_TEST_CASE_1
+} // namespace OBJECTCATALOG_TEST_CASE_1
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1075,37 +1112,55 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
                                << "\n-------------" << bsl::endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_USAGE_EXAMPLE;
+        using namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE;
+
+        serverAddress = &server;
 
         {
             if (verbose) bsl::cout << "\n\tCatalog usage"
                                    << "\n\t-------------" << bsl::endl;
 
-            bdlqq::ThreadUtil::Handle clientThreadResponse;
-            bdlqq::ThreadUtil::create(&clientThreadResponse,
-                                     testClientProcessResponse, NULL);
-
-            bdlqq::ThreadUtil::Handle clientThreadQuery;
-            bdlqq::ThreadUtil::create(&clientThreadQuery,
-                                     testClientProcessQuery, NULL);
-
-            bdlqq::ThreadUtil::join(clientThreadQuery);
-            bdlqq::ThreadUtil::join(clientThreadResponse);
+// In some thread, the client executes the following code.
+//..
+//  extern "C" void *testClientProcessQuery(void *)
+//  {
+//      testClientProcessQueryCpp();
+//      return 0;
+//  }
+//..
+// In some other thread, the client executes the following code.
+//..
+//  extern "C" void *testClientProcessResponse(void *)
+//  {
+//      testClientProcessResponseCpp();
+//      return 0;
+//  }
+//..
         }
 
         {
             if (verbose) bsl::cout << "\n\tIterator usage"
                                    << "\n\t--------------" << bsl::endl;
 
-            for (bdlcc::ObjectCatalogIter<MyType> it(catalog); it; ++it) {
-                bsl::pair<int, MyType> p = it(); // p.first contains the handle
-                                                 // and p.second contains the
-                                                 // object
-                use(p.second);                   // the function 'use' uses the
-                                                 // object in some way
-            }
-        }
+// Now iterate through the 'catalog':
+//..
+//  for (bdlcc::ObjectCatalogIter<MyType> it(catalog); it; ++it) {
+//      bsl::pair<int, MyType> p = it(); // p.first contains the handle and
+//                                       // p.second contains the object
+//      use(p.second);                   // the function 'use' uses the
+//                                       // object in some way
+//  }
+//  // 'it' is now destroyed out of the scope, releasing the lock.
+//..
+// Note that the associated catalog is (read)locked when the iterator is
+// constructed and is unlocked only when the iterator is destroyed.  This means
+// that until the iterator is destroyed, all the threads trying to modify the
+// catalog will remain blocked (even though multiple threads can concurrently
+// read the object catalog).  So clients must make sure to destroy their
+// iterators after they are done using them.  One easy way is to use the
+// 'for (bdlcc::ObjectCatalogIter<MyType> it(catalog); ...' as above.
 
+        }
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -1118,12 +1173,12 @@ int main(int argc, char *argv[])
         //   iteration).
         //
         // Plan:
-        //   Create a catalog.  Create 'NUM_THREADS' threads and let each
+        //   Create a catalog.  Create 'k_NUM_THREADS' threads and let each
         //   thread invoke 'add', 'find', 'replace' and 'remove' in a loop.
         //   Create a thread and let it invoke 'length' in a loop.  Create a
         //   thread and let it iterate the catalog in a loop.
         //   Create a thread and let it invoke 'verifyState' in a loop.
-        //   Let all above (NUM_THREADS + 3) threads run concurrently.
+        //   Let all above (k_NUM_THREADS + 3) threads run concurrently.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -1131,23 +1186,27 @@ int main(int argc, char *argv[])
                           << "CONCURRENCY TEST" << endl
                           << "================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_13;
+        using namespace OBJECTCATALOG_TEST_CASE_13;
 
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS + 3];
+        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS + 3];
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             bdlqq::ThreadUtil::create(&threads[i],
-                                     testAddFindReplaceRemove,
-                                     (void*)(bsls::Types::IntPtr)i);
+                                      testAddFindReplaceRemove,
+                                      (void*)(bsls::Types::IntPtr)i);
         }
 
-        bdlqq::ThreadUtil::create(&threads[NUM_THREADS + 0], testLength, NULL);
-        bdlqq::ThreadUtil::create(&threads[NUM_THREADS + 1],
-                                 testIteration, NULL);
-        bdlqq::ThreadUtil::create(&threads[NUM_THREADS + 2],
-                                 verifyStateThread, NULL);
+        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS + 0],
+                                  testLength,
+                                  NULL);
+        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS + 1],
+                                  testIteration,
+                                  NULL);
+        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS + 2],
+                                  verifyStateThread,
+                                  NULL);
 
-        for (int i = 0; i < NUM_THREADS + 3; ++i) {
+        for (int i = 0; i < k_NUM_THREADS + 3; ++i) {
             bdlqq::ThreadUtil::join(threads[i]);
         }
 
@@ -1171,10 +1230,10 @@ int main(int argc, char *argv[])
                           << "TESTING STALE HANDLE REJECTION" << endl
                           << "==============================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_12;
+        using namespace OBJECTCATALOG_TEST_CASE_12;
         typedef bdlcc::ObjectCatalog<double> Obj;
         enum {
-            NUM_ITERATIONS = 5
+            k_NUM_ITERATIONS = 5
         };
 
         const double VA = 1.0;
@@ -1188,11 +1247,11 @@ int main(int argc, char *argv[])
         HA = x.add(VA);
         x.remove(HA);
 
-        for (int j=0; j < NUM_ITERATIONS; ++j) {
-            for (int i = 1; i < RECYCLE_COUNT; ++i) {
+        for (bsl::size_t j=0; j < k_NUM_ITERATIONS; ++j) {
+            for (bsl::size_t i = 1; i < k_RECYCLE_COUNT; ++i) {
                 ASSERT(0 != x.find(HA)); // stale handle should be rejected
                                          // until the corresponding 'd_nodes'
-                                         // entry is reused 'RECYCLE_COUNT'
+                                         // entry is reused 'k_RECYCLE_COUNT'
                                          // times.
 
                 HB = x.add(VB);
@@ -1242,14 +1301,14 @@ int main(int argc, char *argv[])
                           << "TESTING OBJECT CONSTRUCTION/DESTRUCTION" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_11;
+        using namespace OBJECTCATALOG_TEST_CASE_11;
 
         typedef bdlcc::ObjectCatalog<AllocPattern> Obj;
 
         enum {
-            PATTERN1 = 0x33333333,
-            PATTERN2 = 0xaaaaaaaa,
-            PATTERN3 = 0xbbbbbbbb
+            k_PATTERN1 = 0x33333333,
+            k_PATTERN2 = 0xaaaaaaaa,
+            k_PATTERN3 = 0xbbbbbbbb
         };
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -1258,20 +1317,20 @@ int main(int argc, char *argv[])
             AllocPattern a(&ta), b(&ta), vbuf(&ta);
             int HA;
 
-            a.setPattern(PATTERN1);
+            a.setPattern(k_PATTERN1);
             HA = x.add(a);
 
             x.find(HA, &vbuf);
-            ASSERT(vbuf.pattern() == PATTERN1);
+            ASSERT(vbuf.pattern() == k_PATTERN1);
 
-            b.setPattern(PATTERN2);
+            b.setPattern(k_PATTERN2);
             x.replace(HA, b);
             x.find(HA, &vbuf);
-            ASSERT((unsigned)vbuf.pattern() == PATTERN2);
+            ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
-            vbuf.setPattern(PATTERN3);
+            vbuf.setPattern(k_PATTERN3);
             x.remove(HA, &vbuf);
-            ASSERT((unsigned)vbuf.pattern() == PATTERN2);
+            ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
             x.removeAll();
         } // let a, b and vbuf be destroyed
@@ -1291,14 +1350,14 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a catalog of 'Pattern' (a class that encapsulates an
         //   integer pattern) objects.  Create a pattern object 'a', set its
-        //   pattern to 'PATTERN1', add it to the catalog, invoke 'find' to
-        //   get it back and verify that its pattern is 'PATTERN1'.
+        //   pattern to 'k_PATTERN1', add it to the catalog, invoke 'find' to
+        //   get it back and verify that its pattern is 'k_PATTERN1'.
         //
         //   Create another pattern object 'b', set its pattern to be
-        //   'PATTERN2', invoke 'replace' to replace 'a' with 'b', invoke
-        //   'find' to get 'b' back and verify that its pattern is 'PATTERN2'.
-        //   Invoke 'remove' to remove 'b' and verify that pattern of the
-        //   removed object is 'PATTERN2'.
+        //   'k_PATTERN2', invoke 'replace' to replace 'a' with 'b', invoke
+        //   'find' to get 'b' back and verify that its pattern is
+        //   'k_PATTERN2'.  Invoke 'remove' to remove 'b' and verify that
+        //   pattern of the removed object is 'k_PATTERN2'.
         //
         //   Finally invoke 'removeAll' and verify that the number of created
         //   objects (of class 'Pattern') is correct.
@@ -1309,14 +1368,14 @@ int main(int argc, char *argv[])
                           << "TESTING OBJECT CONSTRUCTION/DESTRUCTION" << endl
                           << "=======================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_10;
+        using namespace OBJECTCATALOG_TEST_CASE_10;
 
         typedef bdlcc::ObjectCatalog<Pattern> Obj;
 
         enum {
-            PATTERN1 = 0x33333333,
-            PATTERN2 = 0xaaaaaaaa,
-            PATTERN3 = 0xbbbbbbbb
+            k_PATTERN1 = 0x33333333,
+            k_PATTERN2 = 0xaaaaaaaa,
+            k_PATTERN3 = 0xbbbbbbbb
         };
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -1325,19 +1384,19 @@ int main(int argc, char *argv[])
             Pattern a, b, vbuf;
             int HA;
 
-            a.setPattern(PATTERN1);
+            a.setPattern(k_PATTERN1);
             HA = x1.add(a);
             x1.find(HA, &vbuf);
-            ASSERT(vbuf.pattern() == PATTERN1);
+            ASSERT(vbuf.pattern() == k_PATTERN1);
 
-            b.setPattern(PATTERN2);
+            b.setPattern(k_PATTERN2);
             x1.replace(HA, b);
             x1.find(HA, &vbuf);
-            ASSERT((unsigned)vbuf.pattern() == PATTERN2);
+            ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
-            vbuf.setPattern(PATTERN3);
+            vbuf.setPattern(k_PATTERN3);
             x1.remove(HA, &vbuf);
-            ASSERT((unsigned)vbuf.pattern() == PATTERN2);
+            ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
             x1.removeAll();
         } // let a, b and vbuf be destroyed
@@ -1362,7 +1421,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int find(int handle, TYPE *valueBuffer=0) const;
         //   int length() const;
-        //   bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog<TYPE>& catalog);
+        //   bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog<TYPE>&);
         //   ~bdlcc::ObjectCatalogIter();
         //   void bdlcc::ObjectCatalogIter::operator++();
         //   operator bdlcc::ObjectCatalogIter::operator const void *() const;
@@ -1372,7 +1431,7 @@ int main(int argc, char *argv[])
                           << "TESTING ACCESSORS" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_9;
+        using namespace OBJECTCATALOG_TEST_CASE_9;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1381,10 +1440,10 @@ int main(int argc, char *argv[])
                 printSpec(SPECS[i]);
                 cout << "\""<< endl;
             }
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             bslma::TestAllocator ta(veryVeryVerbose);
 
-            for (int g=0; g < 2*RECYCLE_COUNT; g = 2*g+1) {
+            for (bsl::size_t g = 0; g < 2 * k_RECYCLE_COUNT; g = 2 * g + 1) {
                 if (veryVerbose)
                     cout  << "\tUsing handles with " << g << " generations\n";
 
@@ -1395,17 +1454,22 @@ int main(int argc, char *argv[])
                 my_Obj o2;
                 vector<int> handles1(len, -1);
                 vector<int> handles2(len, -1);
-                gg(&o1, handles1, &o2, handles2, SPECS[i], g);
+                gg(&o1,
+                   handles1,
+                   &o2,
+                   handles2,
+                   SPECS[i],
+                   static_cast<int>(g));
 
-                if(veryVeryVerbose)
+                if (veryVeryVerbose)
                     cout << "\t\tbrought the catalog into the desired state\n";
 
-                if(veryVeryVerbose) { cout << "\t\tverifying o1\n"; }
+                if (veryVeryVerbose) { cout << "\t\tverifying o1\n"; }
                 o1.verifyState();
-                if(veryVeryVerbose) { cout << "\t\tverifying o2\n"; }
+                if (veryVeryVerbose) { cout << "\t\tverifying o2\n"; }
                 o2.verifyState();
 
-                if(veryVeryVerbose) { cout << "\t\tverifying accessors \n"; }
+                if (veryVeryVerbose) { cout << "\t\tverifying accessors \n"; }
                 verifyAccessors(&o1, handles1, &o2, handles2, len);
             }
         }
@@ -1421,7 +1485,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog<TYPE>& catalog);
+        //   bdlcc::ObjectCatalogIter(const bdlcc::ObjectCatalog<TYPE>&);
         //   ~bdlcc::ObjectCatalogIter();
         //   void operator++();
         //   operator const void *() const;
@@ -1431,7 +1495,7 @@ int main(int argc, char *argv[])
                           << "TESTING ITERATION" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_8;
+        using namespace OBJECTCATALOG_TEST_CASE_8;
         typedef bdlcc::ObjectCatalog<double> Obj;
         typedef bdlcc::ObjectCatalogIter<double> Iter;
         int HA, HB, HC, HD, HE;
@@ -1447,7 +1511,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1462,7 +1526,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1478,7 +1542,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1494,7 +1558,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1511,7 +1575,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1528,7 +1592,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1546,7 +1610,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1569,7 +1633,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1590,7 +1654,7 @@ int main(int argc, char *argv[])
             pair<int, double> p = it();
             x1.find(p.first, &vbuffer);
             ASSERT(vbuffer == p.second);
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         }
 
@@ -1614,7 +1678,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REMOVEALL'" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_7;
+        using namespace OBJECTCATALOG_TEST_CASE_7;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1623,7 +1687,7 @@ int main(int argc, char *argv[])
                 cout << "\"" << endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             if (veryVerbose) {
                 cout  << "\tbringing the catalog in the desired state\n";
             }
@@ -1635,24 +1699,24 @@ int main(int argc, char *argv[])
             vector<int> handles2(len, -1);
             gg(&o1, handles1, &o2, handles2, SPECS[i]);
 
-            if(veryVerbose) {
+            if (veryVerbose) {
                 cout << "\tbrought the catalog into the desired state\n";
             }
 
-            if(veryVerbose) { cout << "\t\tnow doing removeAll();\n"; }
+            if (veryVerbose) { cout << "\t\tnow doing removeAll();\n"; }
 
             o1.removeAll ();
             o2.removeAll ();
 
-            if(veryVerbose) { cout << "\tverifying o1\n"; }
+            if (veryVerbose) { cout << "\tverifying o1\n"; }
             o1.verifyState();
-            if(veryVerbose) { cout << "\tverifying o2\n"; }
+            if (veryVerbose) { cout << "\tverifying o2\n"; }
             o2.verifyState();
-            if(veryVerbose) { cout << "\tmatching o1 and o2\n\n"; }
+            if (veryVerbose) { cout << "\tmatching o1 and o2\n\n"; }
             verify(&o1, handles1, &o2, handles2, len);
 
         }
-      }break;
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING 'REMOVE(handle, &valueBuf)':
@@ -1674,7 +1738,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REMOVE(handle, &valueBuf)'\n"
                           << "===================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_6;
+        using namespace OBJECTCATALOG_TEST_CASE_6;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1683,7 +1747,7 @@ int main(int argc, char *argv[])
                 cout << "\""<< endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             for (int j=0; j<len; ++j) {
                 if (veryVerbose) {
                     cout  << "\tbringing the catalog in the desired state\n";
@@ -1699,17 +1763,17 @@ int main(int argc, char *argv[])
                     handles2[k] = -1;
                 }
                 gg(&o1, handles1, &o2, handles2, SPECS[i]);
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tbrought the catalog into the desired state\n";
                 }
 
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tdoing remove(handles1[" << j  <<"], &v1);\n";
                 }
                 int v1, v2;
                 int r1 = o1.remove (handles1[j], &v1);
                 int r2 = o2.remove (handles2[j], &v2);
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tverifying the above remove operation\n";
                 }
                 if (r2 != 0) {
@@ -1723,11 +1787,11 @@ int main(int argc, char *argv[])
                     ASSERT(r1 != 0);
                     ASSERT(r2 != 0);
                 }
-                if(veryVerbose) { cout << "\tverifying o1\n"; }
+                if (veryVerbose) { cout << "\tverifying o1\n"; }
                 o1.verifyState();
-                if(veryVerbose) { cout << "\tverifying o2\n"; }
+                if (veryVerbose) { cout << "\tverifying o2\n"; }
                 o2.verifyState();
-                if(veryVerbose) { cout << "\tmatching o1 and o2\n\n"; }
+                if (veryVerbose) { cout << "\tmatching o1 and o2\n\n"; }
                 verify(&o1, handles1, &o2, handles2, len);
             }
         }
@@ -1753,7 +1817,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REMOVE(handle)'" << endl
                           << "========================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_5;
+        using namespace OBJECTCATALOG_TEST_CASE_5;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1762,7 +1826,7 @@ int main(int argc, char *argv[])
                 cout << "\""<< endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             for (int j=0; j<len; ++j) {
                 if (veryVerbose) {
                     cout  << "\tbringing the catalog in the desired state\n";
@@ -1778,16 +1842,16 @@ int main(int argc, char *argv[])
                     handles2[k] = -1;
                 }
                 gg(&o1, handles1, &o2, handles2, SPECS[i]);
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tbrought the catalog into the desired state\n";
                 }
 
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tnow doing remove(handles1[" << j  <<"]);\n";
                 }
                 int r1 = o1.remove (handles1[j]);
                 int r2 = o2.remove (handles2[j]);
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tverifying the above remove operation\n";
                 }
                 if (r2 != 0) {
@@ -1801,11 +1865,11 @@ int main(int argc, char *argv[])
                     ASSERT(r1 != 0);
                     ASSERT(r2 != 0);
                 }
-                if(veryVerbose) { cout << "\tverifying o1\n"; }
+                if (veryVerbose) { cout << "\tverifying o1\n"; }
                 o1.verifyState();
-                if(veryVerbose) { cout << "\tverifying o2\n"; }
+                if (veryVerbose) { cout << "\tverifying o2\n"; }
                 o2.verifyState();
-                if(veryVerbose) { cout << "\tmatching o1 and o2\n"; }
+                if (veryVerbose) { cout << "\tmatching o1 and o2\n"; }
                 verify(&o1, handles1, &o2, handles2, len);
             }
         }
@@ -1832,7 +1896,7 @@ int main(int argc, char *argv[])
                           << "TESTING 'REPLACE'" << endl
                           << "=================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_4;
+        using namespace OBJECTCATALOG_TEST_CASE_4;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             if (veryVerbose) {
@@ -1841,7 +1905,7 @@ int main(int argc, char *argv[])
                 cout << "\""<< endl;
             }
 
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             for (int j=0; j<len; ++j) {
                 if (veryVerbose) {
                   cout  << "\tbringing the catalog in the desired state\n";
@@ -1857,17 +1921,17 @@ int main(int argc, char *argv[])
                     handles2[k] = -1;
                 }
                 gg(&o1, handles1, &o2, handles2, SPECS[i]);
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tbrought the catalog into the desired state\n";
                 }
                 const int V = 444;
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "doing replace(handles1[" << j  <<"], "
                          << V << ");\n";
                 }
                 int r1 = o1.replace (handles1[j], V);
                 int r2 = o2.replace (handles2[j], V);
-                if(veryVerbose) {
+                if (veryVerbose) {
                     cout << "\tverifying the above replace operation\n";
                 }
                 if (r2 != 0) {
@@ -1883,11 +1947,11 @@ int main(int argc, char *argv[])
                     ASSERT(v1 == V);
                     ASSERT(v2 == V);
                 }
-                if(veryVerbose) { cout << "\tverifying o1\n"; }
+                if (veryVerbose) { cout << "\tverifying o1\n"; }
                 o1.verifyState();
-                if(veryVerbose) { cout << "\tverifying o2\n"; }
+                if (veryVerbose) { cout << "\tverifying o2\n"; }
                 o2.verifyState();
-                if(veryVerbose) { cout << "\tmatching o1 and o2\n\n"; }
+                if (veryVerbose) { cout << "\tmatching o1 and o2\n\n"; }
                 verify(&o1, handles1, &o2, handles2, len);
             }
         }
@@ -1924,18 +1988,18 @@ int main(int argc, char *argv[])
                           << "TESTING PRIMARY MANIPULATORS" << endl
                           << "============================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_3;
+        using namespace OBJECTCATALOG_TEST_CASE_3;
 
         for (int i=0; i<NUM_SPECS; ++i) {
             bslma::TestAllocator ta(veryVeryVerbose);
             Obj o1(&ta);
 
             my_Obj o2;
-            int len = strlen(SPECS[i]);
+            int len = static_cast<int>(strlen(SPECS[i]));
             vector<int> handles1(len, -1);
             vector<int> handles2(len, -1);
 
-            if(veryVerbose) {
+            if (veryVerbose) {
                 cout << "\nbringing into state with spec = \""
                      << SPECS[i] << "\"\n";
                 cout << "above spec corresponds to following state:\n" ;
@@ -1943,14 +2007,14 @@ int main(int argc, char *argv[])
             }
 
             gg(&o1, handles1, &o2, handles2, SPECS[i]);
-            if(veryVerbose) { cout << "brought into state\n"; }
+            if (veryVerbose) { cout << "brought into state\n"; }
 
-            if(veryVerbose) { cout << "verifying o1\n"; }
+            if (veryVerbose) { cout << "verifying o1\n"; }
             o1.verifyState();
-            if(veryVerbose) { cout << "verifying o2\n"; }
+            if (veryVerbose) { cout << "verifying o2\n"; }
             o2.verifyState();
 
-            if(veryVerbose) {cout << "matching o1 and o2\n"; }
+            if (veryVerbose) {cout << "matching o1 and o2\n"; }
             verify(&o1, handles1, &o2, handles2, len);
         }
       }break;
@@ -1987,7 +2051,7 @@ int main(int argc, char *argv[])
                           << "TESTING ALTERNATE IMPLEMENTATION" << endl
                           << "================================" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_2;
+        using namespace OBJECTCATALOG_TEST_CASE_2;
 
         typedef my_bcec_ObjectCatalog<double> Obj;
         const double VA = 1.0;
@@ -2096,7 +2160,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        using namespace BCEC_OBJECTCATALOG_TEST_CASE_1;
+        using namespace OBJECTCATALOG_TEST_CASE_1;
 
         typedef bdlcc::ObjectCatalog<double> Obj;
         const double VA = 1.0;
@@ -2203,7 +2267,7 @@ int main(int argc, char *argv[])
             ASSERT(x1.find(p.first, &vbuffer) == 0);
             ASSERT(vbuffer == p.second);
             sum += (int)p.second;
-            if (veryVerbose) { T_(); T_(); P(p.second); }
+            if (veryVerbose) { T_; T_; P(p.second); }
         }
         LOOP2_ASSERT(sum, expectedSum, sum == expectedSum);
         }
@@ -2221,11 +2285,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

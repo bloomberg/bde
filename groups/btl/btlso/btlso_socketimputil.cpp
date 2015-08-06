@@ -4,7 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlso_socketimputil_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_threadutil.h>  //ARB: Suspicious
+
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>

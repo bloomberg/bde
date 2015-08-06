@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // my_recordbuffer.h
 //
 //    #include <bdlqq_lockguard.h>
-//    #include <bdlqq_xxxthread.h>
+//    #include <bdlqq_recursivemutex.h>
 //
 //    #include <vector>
 //

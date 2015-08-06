@@ -18,10 +18,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a class, 'baltzo::ZoneinfoCache', that
 // serves as a cache of 'baltzo::Zoneinfo' objects.  A time-zone cache is
-// supplied, on construction, with a 'baltzo::Loader' object to obtain time-zone
-// information objects from some data source.  Invocation of the 'getZoneinfo'
-// method for a specified time zone returns the address of either previously
-// cached data, or if that data is not cache-resident, a new loaded
+// supplied, on construction, with a 'baltzo::Loader' object to obtain
+// time-zone information objects from some data source.  Invocation of the
+// 'getZoneinfo' method for a specified time zone returns the address of either
+// previously cached data, or if that data is not cache-resident, a new loaded
 // 'baltzo::Zoneinfo' object, which is cached for use in subsequent calls to
 // 'getZoneinfo' and 'lookupZoneinfo'.  Addresses returned by either of these
 // methods are valid for the lifetime of the cache.
@@ -68,11 +68,10 @@ BSLS_IDENT("$Id: $")
 // Then we set the initial transition for 'newYorkZoneinfo' to Eastern Standard
 // Time, and the initial transition for 'londonZoneinfo' to Greenwich Mean
 // Time.  Note that such an initial transition is required for a
-// 'baltzo::Zoneinfo' object to be considered Well-Formed (see
-// 'isWellFormed'):
+// 'baltzo::Zoneinfo' object to be considered Well-Formed (see 'isWellFormed'):
 //..
 //  bsls::Types::Int64 firstTime = bdlt::EpochUtil::convertToTimeT64(
-//                                                     bdlt::Datetime(1, 1, 1));
+//                                                    bdlt::Datetime(1, 1, 1));
 //  newYorkZoneinfo.addTransition(firstTime, est);
 //  londonZoneinfo.addTransition(firstTime, gmt);
 //..
@@ -119,7 +118,7 @@ BSLS_IDENT("$Id: $")
 // loaded using the loader supplied at construction:
 //..
 //  const baltzo::Zoneinfo *newYork = cache.getZoneinfo(&rc,
-//                                                     "America/New_York");
+//                                                      "America/New_York");
 //
 //  assert(0 == rc);
 //  assert(0 != newYork);
@@ -146,7 +145,7 @@ BSLS_IDENT("$Id: $")
 // identifier is not supported:
 //..
 //  assert(0 == cache.getZoneinfo(&rc, "badId"));
-//  assert(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+//  assert(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -194,9 +193,9 @@ namespace BloombergLP {
 namespace bslma { class Allocator; }
 
 namespace baltzo {
-                        // ==========================
-                        // class ZoneinfoCache
-                        // ==========================
+                            // ===================
+                            // class ZoneinfoCache
+                            // ===================
 
 class ZoneinfoCache {
     // This class provides an efficient mechanism for retrieving information
@@ -213,19 +212,18 @@ class ZoneinfoCache {
     // For terminology see 'bsldoc_glossary'.
 
     // PRIVATE TYPES
-    typedef bsl::map<const char *, Zoneinfo *, bdlb::CStringLess>
-                                                                   ZoneinfoMap;
+    typedef bsl::map<const char *, Zoneinfo *, bdlb::CStringLess> ZoneinfoMap;
 
     // DATA
-    ZoneinfoMap            d_cache;        // cached time-zone info, indexed by
-                                           // time-zone id
+    ZoneinfoMap              d_cache;        // cached time-zone info, indexed
+                                             // by time-zone id
 
-    Loader         *d_loader_p;     // loader used to obtain time-zone
-                                           // information (held, not owned)
+    Loader                  *d_loader_p;     // loader used to obtain time-zone
+                                             // information (held, not owned)
 
     mutable bdlqq::RWMutex  d_lock;         // cache access synchronization
 
-    bslma::Allocator      *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator        *d_allocator_p;  // allocator (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -238,8 +236,8 @@ class ZoneinfoCache {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit ZoneinfoCache(Loader    *loader,
-                                  bslma::Allocator *basicAllocator = 0);
+    explicit ZoneinfoCache(Loader           *loader,
+                           bslma::Allocator *basicAllocator = 0);
         // Create an empty cache of time-zone information that will use the
         // specified 'loader' to populate the cache, as-needed, with time zone
         // information.  Optionally specify a 'basicAllocator' used to supply
@@ -254,8 +252,7 @@ class ZoneinfoCache {
 
     // MANIPULATORS
     const Zoneinfo *getZoneinfo(const char *timeZoneId);
-    const Zoneinfo *getZoneinfo(int                *rc,
-                                       const char *timeZoneId);
+    const Zoneinfo *getZoneinfo(int *rc, const char *timeZoneId);
         // Return the address of the non-modifiable 'Zoneinfo' object
         // describing the time zone identified by the specified 'timeZoneId',
         // or 0 if the operation does not succeed.  If the information for
@@ -264,14 +261,13 @@ class ZoneinfoCache {
         // Optionally specify the address of an integer, 'rc', in which to load
         // the return code for this operation.  If 'rc' is specified, load 0
         // into 'rc' if the operation succeeds,
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' if the time-zone
-        // identifier is not supported, and a negative value if the operation
-        // does not succeed for any other reason.  If the returned address is
-        // non-zero, the Zoneinfo object returned is guaranteed to be
-        // well-formed (i.e., 'ZoneinfoUtil::isWellFormed' will return
-        // 'true' if called with the returned value), and remain valid for
-        // the lifetime of this object.  The behavior is undefined if 'rc' is
-        // 0.
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' if the time-zone identifier is
+        // not supported, and a negative value if the operation does not
+        // succeed for any other reason.  If the returned address is non-zero,
+        // the Zoneinfo object returned is guaranteed to be well-formed (i.e.,
+        // 'ZoneinfoUtil::isWellFormed' will return 'true' if called with the
+        // returned value), and remain valid for the lifetime of this object.
+        // The behavior is undefined if 'rc' is 0.
 
     // ACCESSORS
     const Zoneinfo *lookupZoneinfo(const char *timeZoneId) const;
@@ -280,23 +276,24 @@ class ZoneinfoCache {
         // information for 'timeZoneId' has not previously been cached (by a
         // call to 'getZoneinfo').  If the returned address is non-zero, the
         // Zoneinfo object returned is guaranteed to be well-formed (i.e.,
-        // 'ZoneinfoUtil::isWellFormed will return 'true' if called
-        // with the returned value), and remain valid for the lifetime of this
-        // object.
+        // 'ZoneinfoUtil::isWellFormed will return 'true' if called with the
+        // returned value), and remain valid for the lifetime of this object.
 };
+
+}  // close package namespace
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
+                        // -------------------
                         // class ZoneinfoCache
-                        // --------------------------
+                        // -------------------
 
 // CREATORS
 inline
-ZoneinfoCache::ZoneinfoCache(Loader    *loader,
-                                           bslma::Allocator *basicAllocator)
+baltzo::ZoneinfoCache::ZoneinfoCache(Loader           *loader,
+                                     bslma::Allocator *basicAllocator)
 : d_cache(basicAllocator)
 , d_loader_p(loader)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -306,7 +303,7 @@ ZoneinfoCache::ZoneinfoCache(Loader    *loader,
 
 // MANIPULATORS
 inline
-const Zoneinfo *ZoneinfoCache::getZoneinfo(
+const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
                                                         const char *timeZoneId)
 {
     BSLS_ASSERT_SAFE(0 != timeZoneId);
@@ -314,17 +311,23 @@ const Zoneinfo *ZoneinfoCache::getZoneinfo(
     int rc;
     return getZoneinfo(&rc, timeZoneId);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

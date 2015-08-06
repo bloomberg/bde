@@ -11,7 +11,7 @@ namespace BloombergLP {
                           // ------------------------
 
 // PRIVATE CONSTANTS
-const bool balm::IntegerMetric::NOT_ACTIVE = false;
+const bool balm::IntegerMetric::k_NOT_ACTIVE = false;
 
 namespace balm {
                       // ---------------------------------

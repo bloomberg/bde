@@ -276,10 +276,9 @@ extern "C" void *threadFunction3(void *arg)
 // track the amount of dynamic memory used by a container.  The container used
 // for illustration is 'DoubleStack', a stack of out-of-place 'double' values.
 //
-// First, we show the (elided) interface of the 'DoubleStack' class:
+// First, we show the interface of the 'DoubleStack' class:
 //..
     // doublestack.h
-    // ...
 
     class DoubleStack {
         // This class implements a stack of out-of-place 'double' values.
@@ -296,8 +295,6 @@ extern "C" void *threadFunction3(void *arg)
 
         bslma::Allocator  *d_allocator_p;  // memory allocator (held, not
                                            // owned)
-
-      // ...
 
         // NOT IMPLEMENTED
         DoubleStack(const DoubleStack&);
@@ -341,12 +338,12 @@ extern "C" void *threadFunction3(void *arg)
     // ...
 
     // TYPES
-    enum { INITIAL_CAPACITY = 1, GROWTH_FACTOR = 2 };
+    enum { k_INITIAL_CAPACITY = 1, k_GROWTH_FACTOR = 2 };
 
     // CREATORS
     DoubleStack::DoubleStack(bslma::Allocator *basicAllocator)
     : d_stack_p(0)
-    , d_capacity(INITIAL_CAPACITY)
+    , d_capacity(k_INITIAL_CAPACITY)
     , d_length(0)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
@@ -409,7 +406,7 @@ extern "C" void *threadFunction3(void *arg)
     // PRIVATE MANIPULATORS
     void DoubleStack::increaseCapacity()
     {
-        const int newCapacity = d_capacity * GROWTH_FACTOR;
+        const int newCapacity = d_capacity * k_GROWTH_FACTOR;
                                                         // reallocate can throw
         reallocate(&d_stack_p, newCapacity, d_length, d_allocator_p);
         d_capacity = newCapacity;                       // commit
@@ -887,8 +884,8 @@ if (veryVerbose)
             LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
                          0 == noa.numBlocksTotal());
 
-            // Verify we can allocate from the object and write to the
-            // returned memory block.
+            // Verify we can allocate from the object and write to the returned
+            // memory block.
 
             void *p = mX.allocate(1);
             LOOP2_ASSERT(CONFIG, p, p);
@@ -1357,8 +1354,8 @@ if (veryVerbose)
             LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
                          0 == noa.numBlocksTotal());
 
-            // Verify we can allocate from the object and write to the
-            // returned memory block.
+            // Verify we can allocate from the object and write to the returned
+            // memory block.
 
             void *p = mX.allocate(1);
             LOOP2_ASSERT(CONFIG, p, p);
@@ -1532,7 +1529,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

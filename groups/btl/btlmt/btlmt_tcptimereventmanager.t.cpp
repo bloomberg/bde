@@ -12,6 +12,7 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bdlmt_threadpool.h>
 #include <bdlqq_barrier.h>
+#include <bdlqq_threadattributes.h>
 #include <bsls_atomic.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -573,7 +574,7 @@ static void executeInParallel(bcemt_ThreadFunction  func,
                                              bdlqq::ThreadUtil::Handle());
 
     for (int i = 0; i < numThreads; ++i) {
-        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i], bcemt_Attribute(),
+        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i], bdlqq::ThreadAttributes(),
                                              func, arg));
     }
     for (int i = 0; i < numThreads; ++i) {
@@ -1465,7 +1466,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
@@ -1501,7 +1502,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
@@ -1558,7 +1559,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
@@ -1600,7 +1601,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
@@ -1655,7 +1656,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &registerThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
@@ -1691,7 +1692,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &registerThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
@@ -1875,7 +1876,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &testTimersThread,
                                                   &mX);
                 LOOP_ASSERT(i, 0 == rc);
@@ -1916,7 +1917,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bcemt_Attribute(),
+                                                  bdlqq::ThreadAttributes(),
                                                   &testTimersThread,
                                                   &mX);
                 LOOP_ASSERT(i, 0 == rc);
@@ -2120,7 +2121,7 @@ int main(int argc, char *argv[])
             MAX_IDLE_TIME = 100
         };
 
-        bdlmt::ThreadPool threadPool(bcemt_Attribute(),
+        bdlmt::ThreadPool threadPool(bdlqq::ThreadAttributes(),
                                    MIN_THREADS,
                                    MAX_THREADS,
                                    MAX_IDLE_TIME);

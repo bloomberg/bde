@@ -5,10 +5,6 @@
 #include <ball_loggermanager.h>
 #include <ball_testobserver.h>                  // for testing only
 
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 

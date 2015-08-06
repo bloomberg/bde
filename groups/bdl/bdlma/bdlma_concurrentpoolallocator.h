@@ -10,19 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide thread-safe memory-pooling allocator of fixed-size blocks.
 //
 //@CLASSES:
-//   bdlma::ConcurrentPoolAllocator: thread-safe allocator of pooled, fixed-size blocks
+//   bdlma::ConcurrentPoolAllocator: thread-safe allocator of pooled blocks
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component defines a class, 'bdlma::ConcurrentPoolAllocator',
-// that implements the 'bslma::Allocator' protocol and provides a thread-safe
-// allocator of pooled memory blocks of uniform size (the "pooled size").  The
-// pooled size is either (1) configured at construction, or (2) equal to the
-// size of the first block allocated through the allocator.  All of the
-// allocation requests of sizes up to the pooled size are satisfied with blocks
-// from the underlying pool.  All requests of sizes larger than the pooled size
-// will be satisfied through the external allocator (the allocator supplied at
-// construction, or the default allocator if no allocator was provided).
+//@DESCRIPTION: This component defines a class,
+// 'bdlma::ConcurrentPoolAllocator', that implements the 'bslma::Allocator'
+// protocol and provides a thread-safe allocator of pooled memory blocks of
+// uniform size (the "pooled size").  The pooled size is either (1) configured
+// at construction, or (2) equal to the size of the first block allocated
+// through the allocator.  All of the allocation requests of sizes up to the
+// pooled size are satisfied with blocks from the underlying pool.  All
+// requests of sizes larger than the pooled size will be satisfied through the
+// external allocator (the allocator supplied at construction, or the default
+// allocator if no allocator was provided).
 //
 ///Protocol Hierarchy
 ///------------------
@@ -41,13 +42,13 @@ BSLS_IDENT("$Id: $")
 //                     allocate
 //                     deallocate
 //..
-// 'bdlma::ConcurrentPoolAllocator' provides a concrete, thread-safe implementation of the
-// 'bslma::Allocator' protocol.
+// 'bdlma::ConcurrentPoolAllocator' provides a concrete, thread-safe
+// implementation of the 'bslma::Allocator' protocol.
 //
 ///Usage
 ///-----
-// The 'bdlma::ConcurrentPoolAllocator' is intended to be used in either of the following
-// two cases.
+// The 'bdlma::ConcurrentPoolAllocator' is intended to be used in either of the
+// following two cases.
 //
 // The first case is where frequent allocation and deallocation of memory
 // occurs through the 'bslma::Allocator' protocol and all of the allocated
@@ -62,21 +63,22 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1 - Uniform Sized Allocations
 ///- - - - - - - - - - - - - - - - - - -
-// The following example illustrates the use of 'bdlma::ConcurrentPoolAllocator' when all
-// allocations are of uniform size.  A 'bdlma::ConcurrentPoolAllocator' is used in the
-// implementation of a "work queue" where each "item" enqueued by a
-// producer thread is of identical size.  Concurrently, a consumer dequeues
-// each work item when it becomes available, verifies the content (a sequence
-// number in ASCII), and deallocates the work item.  The concurrent allocations
-// and deallocations are valid because 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+// The following example illustrates the use of
+// 'bdlma::ConcurrentPoolAllocator' when all allocations are of uniform size.
+// A 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// queue" where each "item" enqueued by a producer thread is of identical size.
+// Concurrently, a consumer dequeues each work item when it becomes available,
+// verifies the content (a sequence number in ASCII), and deallocates the work
+// item.  The concurrent allocations and deallocations are valid because
+// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
 //
 // First, an abstract of the example will be given with focus and commentary on
-// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details pertaining to queue
-// management, thread creation, thread synchronization, etc., can be seen in
-// the full listing at the end of this example.
+// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// pertaining to queue management, thread creation, thread synchronization,
+// etc., can be seen in the full listing at the end of this example.
 //
-// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work queue by the
-// statements:
+// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// queue by the statements:
 //..
 //  bdlma::ConcurrentPoolAllocator poolAlloc;
 //  my1_WorkQueue queue(&poolAlloc);
@@ -94,8 +96,8 @@ BSLS_IDENT("$Id: $")
 //  struct my1_WorkQueue {
 //      // DATA
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -122,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //      for (int i = 0; i < 50; ++i) {
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my1_WorkItem request;
 //
@@ -185,8 +187,8 @@ BSLS_IDENT("$Id: $")
 //  struct my1_WorkQueue {
 //      // DATA
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -204,7 +206,7 @@ BSLS_IDENT("$Id: $")
 //
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my1_WorkItem request;
 //          request.d_item = (char *)queue->d_alloc_p->allocate(100);
@@ -270,26 +272,27 @@ BSLS_IDENT("$Id: $")
 //
 //      return 0;
 //  }
-//
-//  int main()
+//..
+// In the application 'main':
+//..
 //  {
 //      bdlma::ConcurrentPoolAllocator poolAlloc;
 //      my1_WorkQueue queue(&poolAlloc);
 //
-//      bcemt_Attribute attributes;
+//      bdlqq::ThreadAttributes attributes;
 //
 //      bdlqq::ThreadUtil::Handle producerHandle;
 //      int status = bdlqq::ThreadUtil::create(&producerHandle,
-//                                            attributes,
-//                                            &my1_producer,
-//                                            &queue);
+//                                             attributes,
+//                                             &my1_producer,
+//                                             &queue);
 //      assert(0 == status);
 //
 //      bdlqq::ThreadUtil::Handle consumerHandle;
 //      status = bdlqq::ThreadUtil::create(&consumerHandle,
-//                                        attributes,
-//                                        &my1_consumer,
-//                                        &queue);
+//                                         attributes,
+//                                         &my1_consumer,
+//                                         &queue);
 //      assert(0 == status);
 //      status = bdlqq::ThreadUtil::join(consumerHandle);
 //      assert(0 == status);
@@ -300,22 +303,23 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2 - Variable Allocation Size
 /// - - - - - - - - - - - - - - - - - -
-// The following example illustrates the use of 'bdlma::ConcurrentPoolAllocator' when
-// allocations are of varying size.  A 'bdlma::ConcurrentPoolAllocator' is used in the
-// implementation of a "work queue" where each "item" enqueued by a producer
-// thread varies in size, but all items are smaller than a known maximum.
-// Concurrently, a consumer thread dequeues each work item when it is
-// available, verifies its content (a sequence number in ASCII), and
-// deallocates the work item.  The concurrent allocations and deallocations are
-// valid because 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+// The following example illustrates the use of
+// 'bdlma::ConcurrentPoolAllocator' when allocations are of varying size.  A
+// 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// queue" where each "item" enqueued by a producer thread varies in size, but
+// all items are smaller than a known maximum.  Concurrently, a consumer thread
+// dequeues each work item when it is available, verifies its content (a
+// sequence number in ASCII), and deallocates the work item.  The concurrent
+// allocations and deallocations are valid because
+// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
 //
 // First, an abstract of the example will be given with focus and commentary on
-// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details pertaining to queue
-// management, thread creation, thread synchronization, etc., can be seen in
-// the full listing at the end of this example.
+// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// pertaining to queue management, thread creation, thread synchronization,
+// etc., can be seen in the full listing at the end of this example.
 //
-// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work queue by the
-// statements:
+// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// queue by the statements:
 //..
 //  bdlma::ConcurrentPoolAllocator poolAlloc(100);
 //  my1_WorkQueue queue(&poolAlloc);
@@ -334,8 +338,8 @@ BSLS_IDENT("$Id: $")
 //  struct my2_WorkQueue {
 //      // DATA
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -366,7 +370,7 @@ BSLS_IDENT("$Id: $")
 //
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my2_WorkItem request;
 //
@@ -390,9 +394,9 @@ BSLS_IDENT("$Id: $")
 // consumer thread in Example 1.
 //
 // When the consumer thread finds that the queue is not empty, it dequeues the
-// item, verifies its content (a sequence number in ASCII), returns the
-// work item to the pool, and checks for the next item.  If the queue is empty,
-// the consumer blocks until signaled by the producer.  An empty work item
+// item, verifies its content (a sequence number in ASCII), returns the work
+// item to the pool, and checks for the next item.  If the queue is empty, the
+// consumer blocks until signaled by the producer.  An empty work item
 // indicates that the producer will send no more items, so the consumer exits.
 // The consumer's actions are shown below.
 //..
@@ -431,14 +435,14 @@ BSLS_IDENT("$Id: $")
 //  struct my2_WorkQueue {
 //      // DATA
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex              d_mx;       // protects the shared queue
-//      bdlqq::Condition          d_cv;       // signals existence of new work
+//      bdlqq::Mutex             d_mx;       // protects the shared queue
+//      bdlqq::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
 //      explicit my2_WorkQueue(bslma::Allocator *basicAllocator = 0)
-//      : d_queue(basic_Allocator)
-//      , d_alloc_p(basic_Allocator)
+//      : d_queue(basicAllocator)
+//      , d_alloc_p(basicAllocator)
 //      {
 //      }
 //  };
@@ -451,7 +455,7 @@ BSLS_IDENT("$Id: $")
 //
 //          char b[100];
 //          bsl::sprintf(b, "%d", i);
-//          int len = bsl::strlen(b);
+//          int len = static_cast<int>(bsl::strlen(b));
 //
 //          my2_WorkItem request;
 //          request.d_item = (char *)queue->d_alloc_p->allocate(len+1);
@@ -517,13 +521,14 @@ BSLS_IDENT("$Id: $")
 //
 //      return 0;
 //  }
-//
-//  int main()
+//..
+// In the application's 'main':
+//..
 //  {
 //      bdlma::ConcurrentPoolAllocator poolAlloc(100);
 //      my2_WorkQueue queue(&poolAlloc);
 //
-//      bcemt_Attribute attributes;
+//      bdlqq::ThreadAttributes attributes;
 //
 //      bdlqq::ThreadUtil::Handle producerHandle;
 //      int status = bdlqq::ThreadUtil::create(&producerHandle,
@@ -574,11 +579,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                         // =========================
-                         // class ConcurrentPoolAllocator
-                         // =========================
+
+                      // =============================
+                      // class ConcurrentPoolAllocator
+                      // =============================
 
 class ConcurrentPoolAllocator : public bslma::Allocator {
     // This class implements the 'bslma::Allocator' protocol to provide an
@@ -594,23 +599,22 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
 
     // PRIVATE TYPES
     enum {
-        BCEMA_MAGIC_NUMBER  = 0x111902,  // magic number that is inserted in
-                                         // header of items that are allocated
-                                         // from the underlying pool
+        k_MAGIC_NUMBER  = 0x111902,  // magic number that is inserted in header
+                                     // of items that are allocated from the
+                                     // underlying pool
 
-        BCEMA_UNINITIALIZED =  0,        // pool not yet initialized
+        k_UNINITIALIZED =  0,        // pool not yet initialized
 
-        BCEMA_INITIALIZED   =  1,        // pool is initialized
+        k_INITIALIZED   =  1,        // pool is initialized
 
-        BCEMA_INITIALIZING  = -1         // pool initialization in progress
+        k_INITIALIZING  = -1         // pool initialization in progress
     };
 
     union Header {
         // Leading header on each allocated memory block.  If the memory block
         // is allocated from the pool, 'd_magicNumber' is set to
-        // 'BCEMA_MAGIC_NUMBER'.  Otherwise, memory is allocated from the
-        // external allocator supplied at construction, and 'd_magicNumber' is
-        // set to 0.
+        // 'k_MAGIC_NUMBER'.  Otherwise, memory is allocated from the external
+        // allocator supplied at construction, and 'd_magicNumber' is set to 0.
 
         int                                 d_magicNumber; // allocation source
                                                            // and sanity check
@@ -648,10 +652,10 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
     ConcurrentPoolAllocator(bslma::Allocator            *basicAllocator = 0);
     explicit
     ConcurrentPoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bslma::Allocator            *basicAllocator = 0);
     ConcurrentPoolAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
-                        int                          maxBlocksPerChunk,
-                        bslma::Allocator            *basicAllocator = 0);
+                            int                          maxBlocksPerChunk,
+                            bslma::Allocator            *basicAllocator = 0);
         // Create a pool allocator that returns blocks of contiguous memory of
         // uniform size for each 'allocate' method invocation, where the size
         // is determined by the first invocation of 'allocate'.  Optionally
@@ -673,14 +677,14 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
 
     explicit
     ConcurrentPoolAllocator(size_type                    blockSize,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bslma::Allocator            *basicAllocator = 0);
     ConcurrentPoolAllocator(size_type                    blockSize,
-                        bsls::BlockGrowth::Strategy  growthStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bsls::BlockGrowth::Strategy  growthStrategy,
+                            bslma::Allocator            *basicAllocator = 0);
     ConcurrentPoolAllocator(size_type                    blockSize,
-                        bsls::BlockGrowth::Strategy  growthStrategy,
-                        int                          maxBlocksPerChunk,
-                        bslma::Allocator            *basicAllocator = 0);
+                            bsls::BlockGrowth::Strategy  growthStrategy,
+                            int                          maxBlocksPerChunk,
+                            bslma::Allocator            *basicAllocator = 0);
         // Create a pool allocator that returns blocks of contiguous memory of
         // the specified 'blockSize' (in bytes) for each 'allocate' method
         // invocation.  Optionally specify a 'growthStrategy' used to control
@@ -728,12 +732,12 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                         // -------------------------
-                         // class ConcurrentPoolAllocator
-                         // -------------------------
+                      // -----------------------------
+                      // class ConcurrentPoolAllocator
+                      // -----------------------------
 
 // ACCESSORS
 inline

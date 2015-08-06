@@ -199,7 +199,7 @@ class Metric {
     Metric& operator=(Metric& );
 
     // PRIVATE CONSTANTS
-    static const bool NOT_ACTIVE;
+    static const bool k_NOT_ACTIVE;
         // A static boolean constant for 'false'.  The data member
         // 'd_isEnabled_p' is assigned the *address* of this constant if the
         // 'Metric' object is not supplied a valid collector at
@@ -421,7 +421,7 @@ Metric::Metric(const char          *category,
     // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
     d_isEnabled_p = d_collector_p
                   ? &d_collector_p->metricId().category()->enabled()
-                  : &NOT_ACTIVE;
+                  : &k_NOT_ACTIVE;
 }
 
 inline
@@ -432,7 +432,7 @@ Metric::Metric(const MetricId&  metricId,
     // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
     d_isEnabled_p = d_collector_p
                   ? &d_collector_p->metricId().category()->enabled()
-                  : &NOT_ACTIVE;
+                  : &k_NOT_ACTIVE;
 }
 
 inline

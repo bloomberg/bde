@@ -17,17 +17,18 @@ BSLS_IDENT_RCSID(bdlma_concurrentpool_cpp,"$Id$ $CSID$")
 #include <bsl_cstdlib.h>
 
 namespace BloombergLP {
-
 namespace {
-                        // -----
-                        // TYPES
-                        // -----
+
+                                  // -----
+                                  // TYPES
+                                  // -----
 
 struct LLink {
     // This 'struct' implements a link data structure that stores the address
     // of the next link, used to implement the internal linked list of free
-    // memory blocks.  Note that this type is copied from 'bdlma_concurrentpool.h' to
-    // provide access to this type from static methods.
+    // memory blocks.  Note that this type is copied from
+    // 'bdlma_concurrentpool.h' to provide access to this type from static
+    // methods.
 
     union {
         bsls::AtomicOperations::AtomicTypes::Int d_refCount;
@@ -36,15 +37,15 @@ struct LLink {
     LLink *d_next_p;
 };
 
-                        // ---------
-                        // CONSTANTS
-                        // ---------
+                                // ---------
+                                // CONSTANTS
+                                // ---------
 
 enum {
-    INITIAL_CHUNK_SIZE = 1,  // default 'numObjects' value
-    GROWTH_FACTOR      = 2,  // multiplicative factor to grow pool capacity
-    MAX_CHUNK_SIZE     = 32  // minimum 'd_numObjects' value beyond which
-                             // 'd_numObjects' becomes positive
+    k_INITIAL_CHUNK_SIZE =  1, // default 'numObjects' value
+
+    k_MAX_CHUNK_SIZE     = 32  // minimum 'd_numObjects' value beyond which
+                               // 'd_numObjects' becomes positive
 };
 
 }  // close unnamed namespace
@@ -76,9 +77,9 @@ static inline
 int computeInternalBlockSize(int blockSize)
     // Return the number of bytes that must be allocated to provide an aligned
     // block of memory of the specified 'blockSize' that can also be used to
-    // represent a 'object' LLink (on the 'bdlma::ConcurrentPool' objects free list).
-    // Note that this value is the maximum of either the size of a 'LLink'
-    // object or 'blockSize' rounded up to the alignment required for a
+    // represent a 'object' LLink (on the 'bdlma::ConcurrentPool' objects free
+    // list).  Note that this value is the maximum of either the size of a
+    // 'LLink' object or 'blockSize' rounded up to the alignment required for a
     // 'LLink' object (i.e., the maximum platform alignment).
 {
     const int HEADER_LENGTH  = offsetof(LLink, d_next_p);
@@ -94,9 +95,9 @@ void replenishImp(bsls::AtomicPointer<LLink>       *nextList,
                   int                               blockSize,
                   int                               numBlocks)
     // Append to the specified 'nextList', 'numBlocks' free memory blocks each
-    // having the specified 'blockSize', using memory provided by the
-    // specified 'blockList'.  The behavior is undefined unless '1 <=
-    // blockSize' and '1 <= numBlocks'.
+    // having the specified 'blockSize', using memory provided by the specified
+    // 'blockList'.  The behavior is undefined unless '1 <= blockSize' and
+    // '1 <= numBlocks'.
 {
     using namespace BloombergLP;
 
@@ -122,9 +123,10 @@ void replenishImp(bsls::AtomicPointer<LLink>       *nextList,
 }
 
 namespace bdlma {
-                        // ----------------
-                        // class ConcurrentPool
-                        // ----------------
+
+                           // --------------------
+                           // class ConcurrentPool
+                           // --------------------
 
 // PRIVATE MANIPULATORS
 void ConcurrentPool::replenish()
@@ -149,8 +151,8 @@ void ConcurrentPool::replenish()
 // CREATORS
 ConcurrentPool::ConcurrentPool(int blockSize, bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+, d_chunkSize(k_INITIAL_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_freeList(0)
 , d_blockList(basicAllocator)
@@ -165,8 +167,8 @@ ConcurrentPool::ConcurrentPool(int                          blockSize,
                        bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
-              ? MAX_CHUNK_SIZE : INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
+              ? k_MAX_CHUNK_SIZE : k_INITIAL_CHUNK_SIZE)
+, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
 , d_growthStrategy(growthStrategy)
 , d_freeList(0)
 , d_blockList(basicAllocator)
@@ -182,7 +184,7 @@ ConcurrentPool::ConcurrentPool(int                          blockSize,
                        bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
-              ? maxBlocksPerChunk : INITIAL_CHUNK_SIZE)
+              ? maxBlocksPerChunk : k_INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
 , d_growthStrategy(growthStrategy)
 , d_freeList(0)
@@ -247,9 +249,8 @@ void *ConcurrentPool::allocate()
         //
         // Note that 'h' is made volatile so that the compiler does not replace
         // the 'h->d_inUse' load with 'p->d_inUse' (and thus removing the data
-        // dependency).
-        // TBD to be completely thorough 'h->d_next_p' needs a load dependent
-        // barrier (no-op on all current architectures though).
+        // dependency).  TBD to be completely thorough 'h->d_next_p' needs a
+        // load dependent barrier (no-op on all current architectures though).
 
         const Link * volatile h = d_freeList.loadRelaxed();
 
@@ -273,8 +274,8 @@ void *ConcurrentPool::allocate()
                             &p->d_refCount,
                             refCount,
                             refCount^1)) {
-                    // The node is now free but not on the free list.
-                    // Try to take it.
+                    // The node is now free but not on the free list.  Try to
+                    // take it.
 
                     return static_cast<void *>(const_cast<Link **>(
                                                       &p->d_next_p)); // RETURN
@@ -300,7 +301,9 @@ void ConcurrentPool::deallocate(void *address)
     int refCount = bsls::AtomicOperations::getIntRelaxed(&p->d_refCount);
     for (;;) {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
-            refCount = bsls::AtomicOperations::testAndSwapInt(&p->d_refCount, 2, 0);
+            refCount = bsls::AtomicOperations::testAndSwapInt(&p->d_refCount,
+                                                              2,
+                                                              0);
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
                 break;
             }
@@ -352,7 +355,7 @@ void ConcurrentPool::reserveCapacity(int numBlocks)
         do {
             old = d_freeList;
             last->d_next_p = old;
-        } while(old != d_freeList.testAndSwap(old, list));
+        } while (old != d_freeList.testAndSwap(old, list));
     }
 
     if (numBlocks > 0) {

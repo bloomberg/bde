@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(btlso_resolveutil_cpp,"$Id$ $CSID$")
 #include <btlso_ipv4address.h>
 
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 

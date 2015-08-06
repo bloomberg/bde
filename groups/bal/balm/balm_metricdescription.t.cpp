@@ -161,17 +161,17 @@ void ConcurrencyTest::execute()
     const Format *FORMATS[] = { &A, &B, &C, &D, &E, &F };
     const int NUM_FORMATS   = sizeof FORMATS / sizeof *FORMATS;
 
-    Type::Value TYPES[] = { Type::BAEM_TOTAL,
-                            Type::BAEM_COUNT,
-                            Type::BAEM_MIN,
-                            Type::BAEM_MAX,
-                            Type::BAEM_AVG,
-                            Type::BAEM_RATE,
-                            Type::BAEM_UNSPECIFIED
+    Type::Value TYPES[] = { Type::e_BALM_TOTAL,
+                            Type::e_BALM_COUNT,
+                            Type::e_BALM_MIN,
+                            Type::e_BALM_MAX,
+                            Type::e_BALM_AVG,
+                            Type::e_BALM_RATE,
+                            Type::e_BALM_UNSPECIFIED
     };
     const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
 
-    F.setFormatSpec(Type::BAEM_MIN, balm::MetricFormatSpec(2, "%f"));
+    F.setFormatSpec(Type::e_BALM_MIN, balm::MetricFormatSpec(2, "%f"));
 
     ASSERT(!MX->format());
 
@@ -181,7 +181,7 @@ void ConcurrencyTest::execute()
         for (int j = 0; j < NUM_TYPES; ++j) {
             mX->setPreferredPublicationType(TYPES[j]);
             int x = (int)MX->preferredPublicationType();
-            ASSERT(0 <= x && x < Type::BAEM_LENGTH);
+            ASSERT(0 <= x && x < Type::e_BALM_LENGTH);
         }
 
         for (int i = 0; i < NUM_FORMATS; ++i) {
@@ -448,13 +448,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'setPreferredPublicationType'."
                           << endl;
 
-        Type::Value TYPES[] = { Type::BAEM_TOTAL,
-                                Type::BAEM_COUNT,
-                                Type::BAEM_MIN,
-                                Type::BAEM_MAX,
-                                Type::BAEM_AVG,
-                                Type::BAEM_RATE,
-                                Type::BAEM_UNSPECIFIED
+        Type::Value TYPES[] = { Type::e_BALM_TOTAL,
+                                Type::e_BALM_COUNT,
+                                Type::e_BALM_MIN,
+                                Type::e_BALM_MAX,
+                                Type::e_BALM_AVG,
+                                Type::e_BALM_RATE,
+                                Type::e_BALM_UNSPECIFIED
         };
         const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
 
@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
         {
             Format fmt(Z);
             Obj mX(CAT_A, "metricA", Z); const Obj& MX = mX;
-            mX.setPreferredPublicationType(Type::BAEM_MIN);
+            mX.setPreferredPublicationType(Type::e_BALM_MIN);
             mX.setFormat(bsl::shared_ptr<const Format>(
                              &fmt, bslstl::SharedPtrNilDeleter(), Z));
 
@@ -697,9 +697,9 @@ int main(int argc, char *argv[])
         ASSERT(ID_A  == MA.name());
         ASSERT(ID_B  == MB.name());
         ASSERT(ID_C  == MC.name());
-        ASSERT(Type::BAEM_UNSPECIFIED == MA.preferredPublicationType());
-        ASSERT(Type::BAEM_UNSPECIFIED == MB.preferredPublicationType());
-        ASSERT(Type::BAEM_UNSPECIFIED == MC.preferredPublicationType());
+        ASSERT(Type::e_BALM_UNSPECIFIED == MA.preferredPublicationType());
+        ASSERT(Type::e_BALM_UNSPECIFIED == MB.preferredPublicationType());
+        ASSERT(Type::e_BALM_UNSPECIFIED == MC.preferredPublicationType());
         ASSERT(!MA.format());
         ASSERT(!MB.format());
         ASSERT(!MC.format());
@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
         ASSERT(CAT_A == MX.category());
         ASSERT(ID_A  == MX.name());
         ASSERT(!MX.format());
-        ASSERT(Type::BAEM_UNSPECIFIED == MX.preferredPublicationType());
+        ASSERT(Type::e_BALM_UNSPECIFIED == MX.preferredPublicationType());
 
         mX.setName(ID_B);
         ASSERT(CAT_A == MX.category());
@@ -728,8 +728,8 @@ int main(int argc, char *argv[])
         ASSERT(MX.format());
         ASSERT(&dummyFormat == MX.format().get());
 
-        mX.setPreferredPublicationType(Type::BAEM_AVG);
-        ASSERT(Type::BAEM_AVG == MX.preferredPublicationType());
+        mX.setPreferredPublicationType(Type::e_BALM_AVG);
+        ASSERT(Type::e_BALM_AVG == MX.preferredPublicationType());
 
         // Test 'setUserData' and 'userData'.
         for (int i = 0; i < 3; ++i) {

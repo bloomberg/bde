@@ -129,7 +129,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 typedef balm::DefaultMetricsManager DefaultManager;
-typedef baem_MetricRegistry        Registry;
+typedef balm::MetricRegistry        Registry;
 typedef balm::CollectorRepository   Repository;
 typedef balm::IntegerCollector      Collector;
 typedef balm::MetricId              Id;
@@ -163,7 +163,7 @@ class MetricConcurrencyTest {
     // DATA
     bdlmt::FixedThreadPool   d_pool;
     balm::IntegerMetric    *d_metric;
-    baem_MetricRegistry   *d_registry;
+    balm::MetricRegistry   *d_registry;
     bdlqq::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
@@ -176,7 +176,7 @@ class MetricConcurrencyTest {
     // CREATORS
     MetricConcurrencyTest(int                  numThreads,
                           balm::IntegerMetric  *metric,
-                          baem_MetricRegistry *registry,
+                          balm::MetricRegistry *registry,
                           bslma::Allocator    *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_metric(metric)
@@ -500,7 +500,7 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             cout << "\tverify with no default metrics manager\n";
         {
-            baem_MetricRegistry registry(Z);
+            balm::MetricRegistry registry(Z);
             for (int i = 0; i < NUM_IDS; ++i) {
                 balm::MetricId id = registry.getId(IDS[i], IDS[i]);
                 ASSERT(0 == Obj::lookupCollector(IDS[i], IDS[i], 0));
@@ -1134,7 +1134,7 @@ int main(int argc, char *argv[])
 
         {
             balm::MetricsManager       manager(Z);
-            baem_MetricRegistry&      registry = manager.metricRegistry();
+            balm::MetricRegistry&      registry = manager.metricRegistry();
             balm::CollectorRepository& repository =
                                                 manager.collectorRepository();
 

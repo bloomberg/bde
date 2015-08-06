@@ -5,14 +5,13 @@
 BSLS_IDENT_RCSID(bdlma_concurrentallocatoradapter_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
 
 namespace BloombergLP {
-
 namespace bdlma {
-            // -----------------------------------------
-            // class ConcurrentAllocatorAdapter
-            // -----------------------------------------
+
+                     // --------------------------------
+                     // class ConcurrentAllocatorAdapter
+                     // --------------------------------
 
 // CREATORS
 ConcurrentAllocatorAdapter::~ConcurrentAllocatorAdapter()
@@ -20,10 +19,10 @@ ConcurrentAllocatorAdapter::~ConcurrentAllocatorAdapter()
 }
 
 // MANIPULATORS
-void *ConcurrentAllocatorAdapter::allocate(size_type size)
+void *ConcurrentAllocatorAdapter::allocate(size_type numBytes)
 {
     bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
-    return d_allocator_p->allocate(size);
+    return d_allocator_p->allocate(numBytes);
 }
 
 void ConcurrentAllocatorAdapter::deallocate(void *address)

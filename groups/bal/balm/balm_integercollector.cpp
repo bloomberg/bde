@@ -15,8 +15,12 @@ namespace BloombergLP {
                           // ---------------------------
 
 // PUBLIC CONSTANTS
+const int balm::IntegerCollector::k_DEFAULT_MIN = INT_MAX;
+const int balm::IntegerCollector::k_DEFAULT_MAX = INT_MIN;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const int balm::IntegerCollector::DEFAULT_MIN = INT_MAX;
 const int balm::IntegerCollector::DEFAULT_MAX = INT_MIN;
+#endif
 
 namespace balm {
 // MANIPULATORS
@@ -35,18 +39,18 @@ void IntegerCollector::loadAndReset(MetricRecord *record)
 
         d_count = 0;
         d_total = 0;
-        d_min   = DEFAULT_MIN;
-        d_max   = DEFAULT_MAX;
+        d_min   = k_DEFAULT_MIN;
+        d_max   = k_DEFAULT_MAX;
     }
     // Perform the conversion to double values outside of the lock.
     record->metricId() = d_metricId;
     record->count()    = count;
     record->total()    = static_cast<double>(total);
-    record->min()      = (DEFAULT_MIN == min)
-                       ? MetricRecord::DEFAULT_MIN
+    record->min()      = (k_DEFAULT_MIN == min)
+                       ? MetricRecord::k_DEFAULT_MIN
                        : min;
-    record->max()      = (DEFAULT_MAX == max)
-                       ? MetricRecord::DEFAULT_MAX
+    record->max()      = (k_DEFAULT_MAX == max)
+                       ? MetricRecord::k_DEFAULT_MAX
                        : max;
 }
 
@@ -70,11 +74,11 @@ void IntegerCollector::load(MetricRecord *record) const
     record->metricId() = d_metricId;
     record->count()    = count;
     record->total()    = static_cast<double>(total);
-    record->min()      = (DEFAULT_MIN == min)
-                       ? MetricRecord::DEFAULT_MIN
+    record->min()      = (k_DEFAULT_MIN == min)
+                       ? MetricRecord::k_DEFAULT_MIN
                        : min;
-    record->max()      = (DEFAULT_MAX == max)
-                       ? MetricRecord::DEFAULT_MAX
+    record->max()      = (k_DEFAULT_MAX == max)
+                       ? MetricRecord::k_DEFAULT_MAX
                        : max;
 }
 }  // close package namespace

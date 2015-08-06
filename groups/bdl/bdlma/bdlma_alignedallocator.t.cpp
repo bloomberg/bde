@@ -1,6 +1,8 @@
 // bdlma_alignedallocator.t.cpp                                       -*-C++-*-
 #include <bdlma_alignedallocator.h>
 
+#include <bdls_testutil.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
 #include <bsls_protocoltest.h>
@@ -19,11 +21,10 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// We are testing a pure protocol class.  We need to verify that (1) a
-// concrete derived class compiles and links, and (2) that a usage example
-// obtains the behavior specified by the protocol from the concrete subclass.
-// We also need to ensure that this class derives from the 'bslma::Allocator'
-// class.
+// We are testing a pure protocol class.  We need to verify that (1) a concrete
+// derived class compiles and links, and (2) that a usage example obtains the
+// behavior specified by the protocol from the concrete subclass.  We also need
+// to ensure that this class derives from the 'bslma::Allocator' class.
 //-----------------------------------------------------------------------------
 // [ 1] virtual void allocate(size_type size);
 // [ 1] virtual void *allocateAligned(bsl::size_t, size_type);
@@ -32,45 +33,54 @@ using namespace bsl;
 // [ 2] USAGE EXAMPLE
 // [ 1] CONCERN: The protocol derives from 'bslma::Allocator'.
 //=============================================================================
-
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
-
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
-#define L_ __LINE__                           // current Line number
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
+
 namespace {
 
 struct AlignedAllocatorTestImp :
-                                bsls::ProtocolTestImp<bdlma::AlignedAllocator> {
+                               bsls::ProtocolTestImp<bdlma::AlignedAllocator> {
     typedef bslma::Allocator::size_type size_type;
 
     void *allocate(size_type)                     { return markDone(); }
@@ -85,18 +95,18 @@ struct AlignedAllocatorTestImp :
 //-----------------------------------------------------------------------------
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'bdlma::AlignedAllocator'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bdlma::AlignedAllocator' protocol provided in this component
-// defines a bilateral contract between suppliers and consumers of raw
-// aligned memory.  In order for the 'bdlma::AlignedAllocator' interface to be
-// useful, we must supply a concrete allocator that implements it.
+// The 'bdlma::AlignedAllocator' protocol provided in this component defines a
+// bilateral contract between suppliers and consumers of raw aligned memory.
+// In order for the 'bdlma::AlignedAllocator' interface to be useful, we must
+// supply a concrete allocator that implements it.
 //
 // In this example, we demonstrate how to adapt 'posix_memalign' on Linux and
-// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this
-// protocol base class:
+// AIX, 'memalign' on SunOS and '_aligned_malloc' on Windows, to this protocol
+// base class:
 //
 // First, we specify the interface of the concrete implementation of
 // 'MyAlignedAllocator:
@@ -106,8 +116,8 @@ struct AlignedAllocatorTestImp :
 
     class MyAlignedAllocator: public bdlma::AlignedAllocator {
         // This class is a sample concrete implementation of the
-        // 'bdlma::AlignedAllocator' protocol that provides direct access to the
-        // system-supplied 'posix_memalign' and 'free' on Linux and AIX
+        // 'bdlma::AlignedAllocator' protocol that provides direct access to
+        // the system-supplied 'posix_memalign' and 'free' on Linux and AIX
         // platforms, 'memalign' and 'free' on SunOS, or '_aligned_malloc' and
         // '_aligned_free' on Windows.
 
@@ -119,8 +129,8 @@ struct AlignedAllocatorTestImp :
       public:
         // CREATORS
         MyAlignedAllocator();
-            // Create a 'MyAlignedAllocator' object.  Note that all
-            // objects of this class share the same underlying resource.
+            // Create a 'MyAlignedAllocator' object.  Note that all objects of
+            // this class share the same underlying resource.
 
         virtual ~MyAlignedAllocator();
             // Destroy this object.  Note that destroying this object has no
@@ -136,22 +146,22 @@ struct AlignedAllocatorTestImp :
             // else it will abort the program in a non-exception build.  The
             // behavior is undefined unless '0 <= size'.   Note that the
             // alignment of the address returned conforms to the platform
-            // requirement for any object of the specified 'size'.  Also note
-            // that global 'operator new' is *not* called when 'size' is 0 (in
-            // order to avoid having to acquire a lock, and potential
-            // contention in multi-threaded programs).
+            // requirement for any object of the 'size'.  Also note that global
+            // 'operator new' is *not* called when 'size' is 0 (in order to
+            // avoid having to acquire a lock, and potential contention in
+            // multi-threaded programs).
 
         virtual void *allocateAligned(bsl::size_t size, size_type alignment);
             // Return the address of a newly allocated block of memory of at
             // least the specified positive 'size' (in bytes), sufficiently
-            // aligned such that the returned 'address' satisfies
-            // '0 == (address & (alignment - 1))'.  If 'size' is 0, a null
-            // pointer is returned with no other effect.  If the requested
-            // number of appropriately aligned bytes cannot be returned, then a
-            // 'bsl::bad_alloc' exception is thrown, or in a non-exception
-            // build the program is terminated.  The behavior is undefined
-            // unless 'alignment' is both a multiple of 'sizeof(void *)' and an
-            // integral non-negative power of two.
+            // aligned such that the returned 'address' satisfies, for the
+            // specified 'alignment', '0 == (address & (alignment - 1))'.  If
+            // 'size' is 0, a null pointer is returned with no other effect.
+            // If the requested number of appropriately aligned bytes cannot be
+            // returned, then a 'bsl::bad_alloc' exception is thrown, or in a
+            // non-exception build the program is terminated.  The behavior is
+            // undefined unless 'alignment' is both a multiple of
+            // 'sizeof(void *)' and an integral non-negative power of two.
 
         virtual void deallocate(void *address);
             // Return the memory block at the specified 'address' back to this
@@ -159,7 +169,7 @@ struct AlignedAllocatorTestImp :
             // behavior is undefined unless 'address' was allocated using this
             // allocator object and has not already been deallocated.
     };
-//  // ...
+    // ...
 //..
 // Then, we implement the creators, trivially, as this class contains no
 // instance data members.
@@ -180,8 +190,6 @@ struct AlignedAllocatorTestImp :
     // MANIPULATORS
     void *MyAlignedAllocator::allocate(size_type size)
     {
-        BSLS_ASSERT_SAFE(0 <= size);
-
         if (0 == size) {
             return 0;                                                 // RETURN
         }
@@ -193,7 +201,6 @@ struct AlignedAllocatorTestImp :
     void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
                                               size_type   alignment)
     {
-        BSLS_ASSERT_SAFE(0 <= alignment);
         BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
         BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
 
@@ -244,18 +251,16 @@ struct AlignedAllocatorTestImp :
     }
 //..
 // Note that the memory is not released when the allocator goes out of scope.
-//..
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -283,8 +288,8 @@ int main(int argc, char *argv[])
 // In this example we illustrate how to use the 'bdlma::AlignedAllocator'
 // protocol to allocate memory that is aligned to the beginning of a memory
 // page.  Third party libraries, for example device drivers that perform DMA
-// access of device drivers, or some extreme optimizations to reduce the
-// number of page faults, might require page aligned allocations.
+// access of device drivers, or some extreme optimizations to reduce the number
+// of page faults, might require page aligned allocations.
 //
 // First, we create an aligned allocator 'myAlignedAllocator' using the class
 // 'MyAlignedAllocator' defined in the previous example, and obtain a
@@ -374,7 +379,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nTest 'bdlma::AlignedAllocator' derives from 'bslma::Allocator'"
                                                                        << endl;
-        bslma::Allocator *dummy = (bdlma::AlignedAllocator *) 0;
+        bslma::Allocator *dummy = (bdlma::AlignedAllocator *)0;
+        ASSERT(0 == dummy);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -389,11 +395,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

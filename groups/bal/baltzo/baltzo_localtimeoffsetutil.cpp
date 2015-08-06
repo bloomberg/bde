@@ -15,16 +15,15 @@
 #include <bsl_cstring.h>  // memcpy
 
 namespace BloombergLP {
-
-namespace baltzo {
-                        // ---------------------------------
+                        // --------------------------
                         // struct LocalTimeOffsetUtil
-                        // ---------------------------------
+                        // --------------------------
 
 // PRIVATE CLASS METHODS
 inline
-int LocalTimeOffsetUtil::configureImp(const char           *timezone,
-                                             const bdlt::Datetime&  utcDatetime)
+int baltzo::LocalTimeOffsetUtil::configureImp(
+                                            const char            *timezone,
+                                            const bdlt::Datetime&  utcDatetime)
 {
     BSLS_ASSERT(timezone);
 
@@ -41,37 +40,34 @@ int LocalTimeOffsetUtil::configureImp(const char           *timezone,
 }
 
 inline
-LocalTimePeriod *LocalTimeOffsetUtil::privateLocalTimePeriod()
+baltzo::LocalTimePeriod *baltzo::LocalTimeOffsetUtil::privateLocalTimePeriod()
 {
-    static LocalTimePeriod localTimePeriod(
-                                            bslma::Default::globalAllocator());
+    static LocalTimePeriod localTimePeriod(bslma::Default::globalAllocator());
     return &localTimePeriod;
 }
 
 inline
-bdlqq::RWMutex *LocalTimeOffsetUtil::privateLock()
+bdlqq::RWMutex *baltzo::LocalTimeOffsetUtil::privateLock()
 {
     static bdlqq::RWMutex lock;
     return &lock;
 }
 
-bsl::string *LocalTimeOffsetUtil::privateTimezone()
+bsl::string *baltzo::LocalTimeOffsetUtil::privateTimezone()
 {
     static bsl::string timezone(bslma::Default::globalAllocator());
     return &timezone;
 }
-}  // close package namespace
 
 // CLASS DATA
 bsls::AtomicInt baltzo::LocalTimeOffsetUtil::s_updateCount(0);
 
-namespace baltzo {
 // CLASS METHODS
 
                         // *** local time offset methods ***
 
-bsls::TimeInterval LocalTimeOffsetUtil::localTimeOffset(
-                                            const bdlt::Datetime&  utcDatetime)
+bsls::TimeInterval baltzo::LocalTimeOffsetUtil::localTimeOffset(
+                                             const bdlt::Datetime& utcDatetime)
 {
     bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(privateLock());
 
@@ -85,7 +81,8 @@ bsls::TimeInterval LocalTimeOffsetUtil::localTimeOffset(
         readLockGuard.release()->unlock();
 
         {
-            bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(privateLock());
+            bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(
+                                                                privateLock());
 
             if (utcDatetime <  localTimePeriod->utcStartTime()
              || utcDatetime >= localTimePeriod->utcEndTime()) {
@@ -95,7 +92,7 @@ bsls::TimeInterval LocalTimeOffsetUtil::localTimeOffset(
                 BSLS_ASSERT(0 == status);
             }
 
-            offsetInSeconds = 
+            offsetInSeconds =
                             localTimePeriod->descriptor().utcOffsetInSeconds();
         }
     } else {
@@ -106,7 +103,7 @@ bsls::TimeInterval LocalTimeOffsetUtil::localTimeOffset(
 
                         // *** configure methods ***
 
-int  LocalTimeOffsetUtil::configure()
+int baltzo::LocalTimeOffsetUtil::configure()
 {
     const char *timezone = bsl::getenv("TZ");
     if (!timezone) {
@@ -117,7 +114,7 @@ int  LocalTimeOffsetUtil::configure()
     return configureImp(timezone, bdlt::CurrentTime::utc());
 }
 
-int LocalTimeOffsetUtil::configure(const char *timezone)
+int baltzo::LocalTimeOffsetUtil::configure(const char *timezone)
 {
     BSLS_ASSERT_SAFE(timezone);
 
@@ -125,8 +122,8 @@ int LocalTimeOffsetUtil::configure(const char *timezone)
     return configureImp(timezone, bdlt::CurrentTime::utc());
 }
 
-int LocalTimeOffsetUtil::configure(const char           *timezone,
-                                          const bdlt::Datetime&  utcDatetime)
+int baltzo::LocalTimeOffsetUtil::configure(const char            *timezone,
+                                           const bdlt::Datetime&  utcDatetime)
 {
     BSLS_ASSERT_SAFE(timezone);
 
@@ -136,8 +133,8 @@ int LocalTimeOffsetUtil::configure(const char           *timezone,
 
                         // *** accessor methods ***
 
-void LocalTimeOffsetUtil::loadLocalTimePeriod(
-                                       LocalTimePeriod *localTimePeriod)
+void baltzo::LocalTimeOffsetUtil::loadLocalTimePeriod(
+                                              LocalTimePeriod *localTimePeriod)
 {
     BSLS_ASSERT(localTimePeriod);
 
@@ -146,22 +143,28 @@ void LocalTimeOffsetUtil::loadLocalTimePeriod(
 }
 
 
-void LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
+void baltzo::LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
 {
     BSLS_ASSERT(timezone);
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(privateLock());
     *timezone = *privateTimezone();
 }
-}  // close package namespace
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

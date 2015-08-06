@@ -1,18 +1,19 @@
 // bdlma_concurrentmultipool.t.cpp                                    -*-C++-*-
 
 #include <bdlma_concurrentmultipool.h>
-
-#include <bdlqq_xxxthread.h>
-
-#include <bslma_testallocator.h>                // for testing only
-#include <bdlqq_barrier.h>                      // for testing only
 #include <bdlma_concurrentpool.h>
 
+#include <bdls_testutil.h>
+
+#include <bslma_testallocator.h>                // for testing only
+
 #include <bdlma_bufferedsequentialallocator.h>
-#include <bdlb_xxxbitutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
+#include <bdlqq_barrier.h>                      // for testing only
+#include <bdlqq_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_stopwatch.h>
@@ -20,8 +21,8 @@
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
-#include <bsl_cstdlib.h>                         // atoi()
-#include <bsl_cstring.h>                         // memcpy(), memset()
+#include <bsl_cstdlib.h>                         // 'atoi'
+#include <bsl_cstring.h>                         // 'memcpy', 'memset'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -31,17 +32,17 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'bdlma::ConcurrentMultipool' class consists of one constructor, a destructor,
-// and four manipulators.  The manipulators are used to allocate, deallocate,
-// and reserve memory.  Since this component is a memory manager, the
-// 'bslma_testallocator' component is used extensively to verify expected
-// behaviors.  Note that the copying of objects is explicitly disallowed
-// since the copy constructor and assignment operator are declared 'private'
-// and left unimplemented.  So we are primarily concerned that the internal
-// memory management system functions as expected and that the manipulators
-// operator correctly.  Note that memory allocation must be tested for
-// exception neutrality (also via the 'bslma_testallocator' component).
-// Several small helper functions are also used to facilitate testing.
+// The 'bdlma::ConcurrentMultipool' class consists of one constructor, a
+// destructor, and four manipulators.  The manipulators are used to allocate,
+// deallocate, and reserve memory.  Since this component is a memory manager,
+// the 'bslma_testallocator' component is used extensively to verify expected
+// behaviors.  Note that the copying of objects is explicitly disallowed since
+// the copy constructor and assignment operator are declared 'private' and left
+// unimplemented.  So we are primarily concerned that the internal memory
+// management system functions as expected and that the manipulators operator
+// correctly.  Note that memory allocation must be tested for exception
+// neutrality (also via the 'bslma_testallocator' component).  Several small
+// helper functions are also used to facilitate testing.
 //-----------------------------------------------------------------------------
 // [ 2] bdlma::ConcurrentMultipool(int numPools, bslma::Allocator *ba = 0);
 // [ 8] bdlmca::MultipoolAllocator(numPools, minSize);
@@ -62,47 +63,46 @@ using namespace bsl;  // automatically added by script
 // [ 7] CONCURRENCY TEST
 // [10] OLD USAGE EXAMPLE
 // [11] USAGE EXAMPLE
+
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_  cout << '\t';
-#define TAB cout << '\t';
-
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                       GLOBAL TYPES, CONSTANTS, AND VARIABLES
@@ -155,8 +155,8 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 //-----------------------------------------------------------------------------
 
 static int calcPool(int numPools, int objSize)
-    // Calculate the index of the pool that should allocate objects that are
-    // of the specified 'objSize' (in bytes) from a multipool managing the
+    // Calculate the index of the pool that should allocate objects that are of
+    // the specified 'objSize' (in bytes) from a multipool managing the
     // specified 'numPools' number of memory pools.
 {
     ASSERT(0 < numPools);
@@ -189,10 +189,12 @@ static int recPool(char *address)
 }
 
 static int delta(char *address1, char *address2)
-    // Return the number of bytes between the specified 'address1' and
-    // the specified 'address2'.
+    // Return the number of bytes between the specified 'address1' and the
+    // specified 'address2'.
 {
-    return address1 < address2 ? address2 - address1 : address1 - address2;
+    return address1 < address2
+         ? static_cast<int>(address2 - address1)
+         : static_cast<int>(address1 - address2);
 }
 
 static void scribble(char *address, int size)
@@ -219,7 +221,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 }
 
 enum {
-    NUM_THREADS = 10
+    k_NUM_THREADS = 10
 };
 
 struct WorkerArgs {
@@ -229,12 +231,12 @@ struct WorkerArgs {
 
 };
 
-bdlqq::Barrier g_barrier(NUM_THREADS);
+bdlqq::Barrier g_barrier(k_NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, protect, unprotect, and deallocate
-    // operations on the 'bcema::TestProtectableMemoryBlockDispenser' and verify
-    // their results.  This is operation is intended to be a thread entry
-    // point.  Cast the specified 'args' to a 'WorkerArgs', and perform a
+    // operations on the 'bcema::TestProtectableMemoryBlockDispenser' and
+    // verify their results.  This is operation is intended to be a thread
+    // entry point.  Cast the specified 'args' to a 'WorkerArgs', and perform a
     // series of '(WorkerArgs *)args->d_numSizes' allocations using the
     // corresponding allocations sizes specified by
     // '(WorkerARgs *)args->d_sizes'.  Protect, unprotect, and finally delete
@@ -265,7 +267,8 @@ extern "C" void *workerThread(void *arg) {
     }
 
     // perform a second set of allocations
-    unsigned char threadId = bdlqq::ThreadUtil::selfIdAsInt();
+    unsigned char threadId =
+                  static_cast<unsigned char>(bdlqq::ThreadUtil::selfIdAsInt());
     for (int i = 0; i < numAllocs; ++i) {
         blocks[i] = (char *)allocator->allocate(allocSizes[i]);
         memset(blocks[i], threadId, allocSizes[i]);
@@ -293,9 +296,9 @@ extern "C" void *workerThread(void *arg) {
 ///-----
 ///Example 1: Using a 'bdlma::ConcurrentMultipool' Directly
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlma::ConcurrentMultipool' can be used by containers that hold different types of
-// elements, each of uniform size, for efficient memory allocation of new
-// elements.  Suppose we have a factory class, 'my_MessageFactory', that
+// A 'bdlma::ConcurrentMultipool' can be used by containers that hold different
+// types of elements, each of uniform size, for efficient memory allocation of
+// new elements.  Suppose we have a factory class, 'my_MessageFactory', that
 // creates messages based on user requests.  Each message is created with the
 // most efficient memory storage possible - using predefined 8-byte, 16-byte
 // and 32-byte buffers.  If the message size exceeds the three predefined
@@ -305,125 +308,125 @@ extern "C" void *workerThread(void *arg) {
 // First, we define our message types as follows:
 //..
     class my_MessageFactory;
-//
+
     class my_Message {
         // This class represents a general message interface that provides
         // a 'getMessage' method for clients to retrieve the underlying
         // message.
-//
+
       public:
         // ACCESSORS
         virtual const char *getMessage() = 0;
             // Return the null-terminated message string.
     };
-//
+
     class my_SmallMessage : public my_Message {
         // This class represents an 8-byte message (including null terminator).
-//
+
         // DATA
         char d_buffer[8];
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_SmallMessage(const my_SmallMessage&);
         my_SmallMessage& operator=(const my_SmallMessage&);
-//
+
         // PRIVATE CREATORS
         my_SmallMessage(const char *msg, int length)
         {
             ASSERT(length <= 7);
-//
+
             bsl::memcpy(d_buffer, msg, length);
             d_buffer[length] = '\0';
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
             return d_buffer;
         }
     };
-//
+
     class my_MediumMessage : public my_Message {
         // This class represents a 16-byte message (including null
         // terminator).
-//
+
         // DATA
         char d_buffer[16];
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_MediumMessage(const my_MediumMessage&);
         my_MediumMessage& operator=(const my_MediumMessage&);
-//
+
         // PRIVATE CREATORS
         my_MediumMessage(const char *msg, int length)
         {
             ASSERT(length <= 15);
-//
+
             bsl::memcpy(d_buffer, msg, length);
             d_buffer[length] = '\0';
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
             return d_buffer;
         }
     };
-//
+
     class my_LargeMessage : public my_Message {
         // This class represents a 32-byte message (including null
         // terminator).
-//
+
         // DATA
         char d_buffer[32];
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_LargeMessage(const my_LargeMessage&);
         my_LargeMessage& operator=(const my_LargeMessage&);
-//
+
         // PRIVATE CREATORS
         my_LargeMessage(const char *msg, int length)
         {
             ASSERT(length <= 31);
-//
+
             bsl::memcpy(d_buffer, msg, length);
             d_buffer[length] = '\0';
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
             return d_buffer;
         }
     };
-//
+
     class my_GenericMessage : public my_Message {
         // This class represents a generic message.
-//
+
         // DATA
         char *d_buffer;
-//
+
         // FRIEND
         friend class my_MessageFactory;
-//
+
         // NOT IMPLEMENTED
         my_GenericMessage(const my_GenericMessage&);
         my_GenericMessage& operator=(const my_GenericMessage&);
-//
+
         // PRIVATE CREATORS
         my_GenericMessage(char *msg) : d_buffer(msg)
         {
         }
-//
+
         // PRIVATE ACCESSORS
         virtual const char *getMessage()
         {
@@ -437,28 +440,29 @@ extern "C" void *workerThread(void *arg) {
         // This class implements an efficient message factory that builds and
         // returns messages.  The life-time of the messages created by this
         // factory is the same as this factory.
-//
+
         // DATA
-        bdlma::ConcurrentMultipool d_multipool;  // multipool used to supply memory
-//
+        bdlma::ConcurrentMultipool d_multipool;  // multipool used to supply
+                                                 // memory
+
       public:
         // CREATORS
         my_MessageFactory(bslma::Allocator *basicAllocator = 0);
             // Create a message factory.  Optionally specify a 'basicAllocator'
             // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
-//
+
         ~my_MessageFactory();
             // Destroy this factory and reclaim all messages created by it.
-//
+
         // MANIPULATORS
         my_Message *createMessage(const char *data);
             // Create a message storing the specified 'data'.  The behavior is
             // undefined unless 'data' is null-terminated.
-//
+
         void disposeAllMessages();
             // Dispose of all created messages.
-//
+
         void disposeMessage(my_Message *message);
             // Dispose of the specified 'message'.  The behavior is undefined
             // unless 'message' was created by this factory.
@@ -493,8 +497,8 @@ extern "C" void *workerThread(void *arg) {
 // requests needed is greatly reduced.
 //
 // For the number of pools managed by the multipool, we chose to use the
-// implementation-defined default value instead of calculating and specifying
-// a value.  Note that if users want to specify the number of pools, the value
+// implementation-defined default value instead of calculating and specifying a
+// value.  Note that if users want to specify the number of pools, the value
 // can be calculated as the smallest 'N' such that the following relationship
 // holds:
 //..
@@ -515,36 +519,36 @@ extern "C" void *workerThread(void *arg) {
     {
     }
 //..
-// A 'bdlma::ConcurrentMultipool' is ideal for allocating the different sized messages
-// since repeated deallocations might be necessary (which renders a
+// A 'bdlma::ConcurrentMultipool' is ideal for allocating the different sized
+// messages since repeated deallocations might be necessary (which renders a
 // 'bcema::SequentialPool' unsuitable) and the sizes of these types are all
 // different:
 //..
     // MANIPULATORS
     my_Message *my_MessageFactory::createMessage(const char *data)
     {
-        enum { SMALL = 8, MEDIUM = 16, LARGE = 32 };
-//
-        const int length = bsl::strlen(data);
-//
-        if (length < SMALL) {
+        enum { k_SMALL = 8, k_MEDIUM = 16, k_LARGE = 32 };
+
+        const int length = static_cast<int>(bsl::strlen(data));
+
+        if (length < k_SMALL) {
             return new(d_multipool.allocate(sizeof(my_SmallMessage)))
-                                                 my_SmallMessage(data, length);
+                                      my_SmallMessage(data, length);  // RETURN
         }
-//
-        if (length < MEDIUM) {
+
+        if (length < k_MEDIUM) {
             return new(d_multipool.allocate(sizeof(my_MediumMessage)))
-                                                my_MediumMessage(data, length);
+                                     my_MediumMessage(data, length);  // RETURN
         }
-//
-        if (length < LARGE) {
+
+        if (length < k_LARGE) {
             return new(d_multipool.allocate(sizeof(my_LargeMessage)))
-                                                 my_LargeMessage(data, length);
+                                      my_LargeMessage(data, length);  // RETURN
         }
-//
+
         char *buffer = (char *)d_multipool.allocate(length + 1);
         bsl::memcpy(buffer, data, length + 1);
-//
+
         return new(d_multipool.allocate(sizeof(my_GenericMessage)))
                                                      my_GenericMessage(buffer);
     }
@@ -554,9 +558,10 @@ extern "C" void *workerThread(void *arg) {
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
-// 'my_MultipoolAllocator', that allocates memory from multiple 'bdlma::ConcurrentPool'
-// objects in a similar fashion to 'bdlma::ConcurrentMultipool'.  This class can be used
-// directly to implement such an allocator.
+// 'my_MultipoolAllocator', that allocates memory from multiple
+// 'bdlma::ConcurrentPool' objects in a similar fashion to
+// 'bdlma::ConcurrentMultipool'.  This class can be used directly to implement
+// such an allocator.
 //
 // Note that the documentation for this class is simplified for this usage
 // example.  Please see 'bdlmca_multipoolallocator' for full documentation of a
@@ -567,37 +572,37 @@ extern "C" void *workerThread(void *arg) {
         // allocator that manages a set of memory pools, each dispensing memory
         // blocks of a unique size, with each successive pool's block size
         // being twice that of the previous one.
-//
+
         // DATA
-        bdlma::ConcurrentMultipool d_multiPool;  // memory manager for allocated memory
-                                      // blocks
-//
+        bdlma::ConcurrentMultipool d_multiPool;  // memory manager for
+                                                 // allocated memory blocks
+
       public:
         // CREATORS
         my_MultipoolAllocator(bslma::Allocator *basicAllocator = 0);
             // Create a multipool allocator.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
-//
+
         // ...
-//
+
         virtual ~my_MultipoolAllocator();
             // Destroy this multipool allocator.  All memory allocated from
             // this memory pool is released.
-//
+
         // MANIPULATORS
         virtual void *allocate(int size);
             // Return the address of a contiguous block of maximally-aligned
             // memory of (at least) the specified 'size' (in bytes).  The
             // behavior is undefined unless '1 <= size'.
-//
+
         virtual void deallocate(void *address);
             // Relinquish the memory block at the specified 'address' back to
             // this multipool allocator for reuse.  The behavior is undefined
             // unless 'address' is non-zero, was allocated by this multipool
             // allocator, and has not already been deallocated.
     };
-//
+
     // CREATORS
     inline
     my_MultipoolAllocator::my_MultipoolAllocator(
@@ -605,18 +610,18 @@ extern "C" void *workerThread(void *arg) {
     : d_multiPool(basicAllocator)
     {
     }
-//
+
     my_MultipoolAllocator::~my_MultipoolAllocator()
     {
     }
-//
+
     // MANIPULATORS
     inline
     void *my_MultipoolAllocator::allocate(int size)
     {
         return d_multiPool.allocate(size);
     }
-//
+
     inline
     void my_MultipoolAllocator::deallocate(void *address)
     {
@@ -664,6 +669,7 @@ int main(int argc, char *argv[])
             my_MessageFactory factory(&ta);
 
             my_Message *msg = factory.createMessage("Hello");
+            ASSERT(0 != msg);
         }
 
         if (verbose) cout << endl << "Testing Old Usage Example"
@@ -878,30 +884,30 @@ int main(int argc, char *argv[])
         //   determined by the 'calcPool' method.
         //
         //   To test the default arguments (the different constructors), the
-        //   we repeat the test above, but initialize the 'bdlma::Pool' with the
-        //   expected default argument.
+        //   we repeat the test above, but initialize the 'bdlma::Pool' with
+        //   the expected default argument.
         //
         // Testing:
         //   bdema::ConcurrentMultipool(bslma::Allocator *ba = 0);
-        //   bdema::ConcurrentMultipool(int numPools, bslma::Allocator *ba = 0);
+        //   bdema::ConcurrentMultipool(int numPools, ba = 0);
         //   bdema::ConcurrentMultipool(Strategy gs, bslma::Allocator *ba = 0);
-        //   bdema::ConcurrentMultipool(int n, Strategy gs, bslma::Allocator *ba = 0);
-        //   bdema::ConcurrentMultipool(int n, const Strategy *gsa, Allocator *ba = 0);
-        //   bdema::ConcurrentMultipool(int n, int mbpc, bslma::Allocator *ba= 0);
-        //   bdema::ConcurrentMultipool(int n, const int *mbpc, bslma::Allocator *ba = 0);
-        //   bdema::ConcurrentMultipool(int n, Strategy gs, int mbpc, Allocator *ba = 0);
-        //   bdema::ConcurrentMultipool(int n, const S *gsa, int mbpc, Alloc *ba = 0);
-        //   bdema::ConcurrentMultipool(int n, Strat gs, const int *ma, Alloc *ba = 0);
-        //   bdema::ConcurrentMultipool(int n, const S *gsa, const int *ma, A *ba = 0);
+        //   bdema::ConcurrentMultipool(int n, Strategy gs, ba = 0);
+        //   bdema::ConcurrentMultipool(int n, const Strategy *gsa, ba = 0);
+        //   bdema::ConcurrentMultipool(int n, int mbpc, ba= 0);
+        //   bdema::ConcurrentMultipool(int n, const int *mbpc, ba = 0);
+        //   bdema::ConcurrentMultipool(int n, gs, int mbpc, ba = 0);
+        //   bdema::ConcurrentMultipool(int n, gsa, int mbpc, ba = 0);
+        //   bdema::ConcurrentMultipool(int n, gs, const int *ma, ba = 0);
+        //   bdema::ConcurrentMultipool(int n, gsa, const int *ma, ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing 'constructor' and 'destructor'"
                           << endl << "======================================"
                           << endl;
 
-        enum { INITIAL_CHUNK_SIZE = 1,
-               DEFAULT_MAX_CHUNK_SIZE = 32,
-               DEFAULT_NUM_POOLS = 10 };
+        enum { k_INITIAL_CHUNK_SIZE = 1,
+               k_DEFAULT_MAX_CHUNK_SIZE = 32,
+               k_DEFAULT_NUM_POOLS = 10 };
 
         // For pool allocation.
         char buffer[1024];
@@ -961,11 +967,12 @@ int main(int argc, char *argv[])
                 Obj mp(NUM_POOLS, SDATA[si], MDATA[mi], &mpta);
 
                 // Allocate until we depleted the pool
-                int poolAllocations      = pta.numAllocations();
-                int multipoolAllocations = mpta.numAllocations();
+                bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+                bsls::Types::Int64 multipoolAllocations =
+                                                         mpta.numAllocations();
 
-                // multipool should have an extra allocation for the array
-                // of pools.
+                // multipool should have an extra allocation for the array of
+                // pools.
                 LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                              poolAllocations + 1 == multipoolAllocations);
 
@@ -985,7 +992,7 @@ int main(int argc, char *argv[])
 
                     // Testing geometric growth
                     if (GEO == SDATA[si][calcPoolNum]) {
-                        int ri = INITIAL_CHUNK_SIZE;
+                        int ri = k_INITIAL_CHUNK_SIZE;
                         while (ri < MDATA[mi][calcPoolNum]) {
                             poolAllocations      = pta.numAllocations();
                             multipoolAllocations = mpta.numAllocations();
@@ -1039,7 +1046,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(bslma::Allocator *ba = 0)" << endl;
+            cout << "bdlma::ConcurrentMultipool(bslma::Allocator *ba = 0)"
+                 << endl;
         }
 
         {
@@ -1049,12 +1057,12 @@ int main(int argc, char *argv[])
                                       veryVeryVerbose);
 
             // Initialize the pools
-            bdlma::ConcurrentPool *pool[DEFAULT_NUM_POOLS];
+            bdlma::ConcurrentPool *pool[k_DEFAULT_NUM_POOLS];
             int INIT = 8;
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              GEO,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1063,17 +1071,17 @@ int main(int argc, char *argv[])
             Obj mp(&mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS,
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
                                                  OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
@@ -1084,11 +1092,11 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing geometric growth
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
@@ -1109,14 +1117,14 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1133,13 +1141,14 @@ int main(int argc, char *argv[])
             }
 
             // Release all pooled memory.
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j]->release();
             }
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int numPools, bslma::Allocator *ba = 0)"
+            cout << "bdlma::ConcurrentMultipool(int numPools,"
+                 << " bslma::Allocator *ba = 0)"
                  << endl;
         }
         {
@@ -1154,7 +1163,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              GEO,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1163,11 +1172,11 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1187,8 +1196,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
@@ -1209,14 +1218,14 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1239,7 +1248,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(Strategy gs, bslma::Allocator *ba = 0)"
+            cout << "bdlma::ConcurrentMultipool(Strategy gs,"
+                 << " bslma::Allocator *ba = 0)"
                  << endl;
         }
         {
@@ -1249,12 +1259,12 @@ int main(int argc, char *argv[])
                                       veryVeryVerbose);
 
             // Initialize the pools
-            bdlma::ConcurrentPool *pool[DEFAULT_NUM_POOLS];
+            bdlma::ConcurrentPool *pool[k_DEFAULT_NUM_POOLS];
             int INIT = 8;
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              CON,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1263,17 +1273,17 @@ int main(int argc, char *argv[])
             Obj mp(CON, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS,
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
                                                  OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
@@ -1284,7 +1294,7 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing constant growth
                 const int NUM_REPLENISH = 3;
@@ -1292,7 +1302,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1309,14 +1319,15 @@ int main(int argc, char *argv[])
             }
 
             // Release all pooled memory.
-            for (int j = 0; j < DEFAULT_NUM_POOLS; ++j) {
+            for (int j = 0; j < k_DEFAULT_NUM_POOLS; ++j) {
                 pool[j]->release();
             }
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int n, Strategy gs, bslma::Allocator"
-                    "*ba = 0)" << endl;
+            cout << "bdlma::ConcurrentMultipool(int n, Strategy gs,"
+                 << " bslma::Allocator *ba = 0)"
+                 << endl;
         }
         {
             bslma::TestAllocator pta("pool test allocator",
@@ -1330,7 +1341,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              CON,
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1339,11 +1350,11 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, CON, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1368,7 +1379,7 @@ int main(int argc, char *argv[])
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1391,8 +1402,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int n, const Strategy *gsa, Allocator "
-                    "*ba = 0)" << endl;
+            cout << "bdlma::ConcurrentMultipool(int n, const Strategy *gsa,"
+                 << " Allocator *ba = 0)"
+                 << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
             bslma::TestAllocator pta("pool test allocator",
@@ -1406,7 +1418,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_POOLS; ++j) {
                 pool[j] = new(bsa)bdlma::ConcurrentPool(INIT,
                                              SDATA[si][j],
-                                             DEFAULT_MAX_CHUNK_SIZE,
+                                             k_DEFAULT_MAX_CHUNK_SIZE,
                                              &pta);
                 INIT <<= 1;
             }
@@ -1415,11 +1427,11 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, SDATA[si], &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1439,8 +1451,8 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
-                    while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                    int ri = k_INITIAL_CHUNK_SIZE;
+                    while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                         poolAllocations      = pta.numAllocations();
                         multipoolAllocations = mpta.numAllocations();
 
@@ -1462,14 +1474,14 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
                     multipoolAllocations = mpta.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mp.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1492,18 +1504,21 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int n, int mbpc, bslma::Allocator *ba= 0)"
+            cout << "bdlma::ConcurrentMultipool(int n, int mbpc,"
+                 << " bslma::Allocator *ba= 0)"
                  << endl;
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int n, const int *mbpc, bslma::Allocator"
-                    "*ba = 0)" << endl;
+            cout << "bdlma::ConcurrentMultipool(int n, const int *mbpc,"
+                 << " bslma::Allocator *ba = 0)"
+                 << endl;
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int n, Strategy gs, int mbpc, Allocator "
-                    "*ba = 0)" << endl;
+            cout << "bdlma::ConcurrentMultipool(int n, Strategy gs,"
+                 << " int mbpc, Allocator *ba = 0)"
+                 << endl;
         }
         {
             bslma::TestAllocator pta("pool test allocator",
@@ -1526,11 +1541,11 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, CON, TEST_MAX_CHUNK_SIZE, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1578,8 +1593,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int n, const S *gsa, int mbpc, Alloc "
-                    "*ba = 0)"
+            cout << "bdlma::ConcurrentMultipool(int n, const S *gsa,"
+                 << " int mbpc, Alloc *ba = 0)"
                  << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
@@ -1603,11 +1618,11 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, SDATA[si], TEST_MAX_CHUNK_SIZE, &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1627,7 +1642,7 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
+                    int ri = k_INITIAL_CHUNK_SIZE;
                     while (ri < TEST_MAX_CHUNK_SIZE) {
                         poolAllocations      = pta.numAllocations();
                         multipoolAllocations = mpta.numAllocations();
@@ -1650,8 +1665,8 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1680,8 +1695,10 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "bdlma::ConcurrentMultipool(int n, Strat gs, const int *ma, Alloc "
-                    " *ba = 0)" << endl;
+            cout << "bdlma::ConcurrentMultipool(int n, Strat gs,"
+                 << " const int *ma, Alloc "
+                 << " *ba = 0)"
+                 << endl;
         }
         for (int mi = 0; mi < NUM_MDATA; ++mi) {
 
@@ -1705,11 +1722,11 @@ int main(int argc, char *argv[])
             Obj mp(NUM_POOLS, CON, MDATA[mi], &mpta);
 
             // Allocate until we depleted the pool
-            int poolAllocations      = pta.numAllocations();
-            int multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 poolAllocations      = pta.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
 
-            // multipool should have an extra allocation for the array
-            // of pools.
+            // multipool should have an extra allocation for the array of
+            // pools.
             LOOP2_ASSERT(poolAllocations, multipoolAllocations,
                          poolAllocations + 1 == multipoolAllocations);
 
@@ -1727,8 +1744,8 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     poolAllocations      = pta.numAllocations();
@@ -1767,10 +1784,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
 
         bslma::TestAllocator ta;
-        Obj                 mX(4, &ta);
+        Obj                  mX(4, &ta);
 
         const int SIZES [] = { 1 , 2 , 4,  8, 16, 32, 64, 128, 256, 512,
                                1 , 2 , 4,  8, 16, 32, 64, 128, 256, 512};
@@ -1782,12 +1799,12 @@ int main(int argc, char *argv[])
         args.d_sizes     = (const int *)&SIZES;
         args.d_numSizes  = NUM_SIZES;
 
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlqq::ThreadUtil::create(&threads[i], workerThread, &args);
             LOOP_ASSERT(i, 0 == rc);
         }
-        for (int i = 0; i < NUM_THREADS; ++i) {
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc =
                 bdlqq::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
@@ -1852,8 +1869,10 @@ int main(int argc, char *argv[])
                         stretchRemoveAll(&mX, EXTEND[ei], OBJ_SIZE);
                         mX.reserveCapacity(OBJ_SIZE, 0);
                         mX.reserveCapacity(OBJ_SIZE, NE);
-                        const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                        const int NUM_BYTES  = testAllocator.numBytesInUse();
+                        const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                        const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                         for (int i = 0; i < NE; ++i) {
                             mX.allocate(OBJ_SIZE);
                         }
@@ -1900,10 +1919,12 @@ int main(int argc, char *argv[])
         const int NITERS        = MAX_ALIGN * 256;
 
         for (int i = 1; i <= MAX_POOLS; ++i) {
-            if (veryVerbose) { TAB; cout << "# pools: "; P(i); }
+            if (veryVerbose) { T_; cout << "# pools: "; P(i); }
             Obj mX(i, Z);
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
             int its              = NITERS;
             while (its-- > 0) {  // exercise each pool (including "overflow")
                 char *p;
@@ -1959,14 +1980,14 @@ int main(int argc, char *argv[])
         const int OVERFLOW_SIZE = MAX_ALIGN * 5;
         const int NITERS        = MAX_ALIGN * 256;
 
-        int numBlocks;
-        int numBytes;
+        bsls::Types::Int64 numBlocks;
+        bsls::Types::Int64 numBytes;
 
         for (int i = 1; i <= MAX_POOLS; ++i) {
-            if (veryVerbose) { TAB; cout << "# pools: "; P(i); }
+            if (veryVerbose) { T_; cout << "# pools: "; P(i); }
             Obj mX(i + 1, Z);
             for (int j = 0; j < i; ++j) {
-                if (veryVerbose) { TAB; TAB; cout << "pool: "; P(j); }
+                if (veryVerbose) { T_; T_; cout << "pool: "; P(j); }
                 const int OBJ_SIZE = POOL_QUANTA[j];
                 int its            = NITERS;
                 int firstTime      = 1;
@@ -1989,7 +2010,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) { TAB; TAB; cout << "overflow\n"; }
+            if (veryVerbose) { T_; T_; cout << "overflow\n"; }
             int its       = NITERS;
             int firstTime = 1;
             while (its-- > 0) {  // exercise "overflow" pool
@@ -2173,7 +2194,6 @@ int main(int argc, char *argv[])
                         LOOP3_ASSERT(i, j, k, OBJ_SIZE + (int)sizeof(Header) <=
                                                                   delta(p, q));
 
-
                         mX.deallocate(p);
                         mX.deallocate(q);
 
@@ -2216,7 +2236,7 @@ int main(int argc, char *argv[])
         //   via the destructor and Purify.
         //
         // Testing:
-        //   bdlma::ConcurrentMultipool(int numPools, bslma::Allocator *ba = 0);
+        //   bdlma::ConcurrentMultipool(int numPools, ba = 0);
         //   ~bdlma::ConcurrentMultipool();
         // --------------------------------------------------------------------
 
@@ -2270,8 +2290,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                     {
                         Obj mX(NUM_POOLS, Z);
@@ -2312,8 +2334,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(NUM_POOLS, Z);
@@ -2356,8 +2380,8 @@ int main(int argc, char *argv[])
             Obj *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(1, &a);
             char *p = (char *) doNotDelete->allocate(2048);  // "overflow" pool
             ASSERT(p);
-            // No destructor is called; will produce memory leak in purify
-            // if internal allocators are not hooked up properly.
+            // No destructor is called; will produce memory leak in purify if
+            // internal allocators are not hooked up properly.
         }
       } break;
       case 1: {
@@ -2365,8 +2389,8 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   We are concerned that the basic functionality of 'bdlma::ConcurrentMultipool'
-        //   works properly.
+        //   We are concerned that the basic functionality of
+        //   'bdlma::ConcurrentMultipool' works properly.
         //
         // Plan:
         //   Create a multipool that manages two pools using the lone

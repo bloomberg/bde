@@ -42,38 +42,38 @@ BSLS_IDENT("$Id: $")
 //..
 //  {
 //      enum {
-//          LENGTH = 10 * 1000,
-//          NUM_SEGMENTS = 60
+//          k_LENGTH       = 10 * 1000,
+//          k_NUM_SEGMENTS = 60
 //      };
 //
 //      bdlma::HeapBypassAllocator hbpa;
 //..
-// First we allocate some segments
+// First, we allocate some segments:
 //..
-//      char *segments[NUM_SEGMENTS];
-//      for (int i = 0; i < NUM_SEGMENTS; ++i) {
-//          segments[i] = static_cast<char *>(hbpa.allocate(LENGTH));
+//      char *segments[k_NUM_SEGMENTS];
+//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
+//          segments[i] = static_cast<char *>(hbpa.allocate(k_LENGTH));
 //          BSLS_ASSERT(segments[i]);
 //      }
 //..
-// Next we write to the segments.
+// Next, we write to the segments:
 //..
 //      char c = 'a';
-//      for (int i = 0; i < NUM_SEGMENTS; ++i) {
+//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
 //          char *segment = segments[i];
-//          for (int j = 0; j < LENGTH; ++j) {
+//          for (int j = 0; j < k_LENGTH; ++j) {
 //              c = (c + 1) & 0x7f;
 //              segment[j] = c;
 //          }
 //      }
 //..
 // Finally, we read from the segments and verify the written data is still
-// there.
+// there:
 //..
 //      c = 'a';
-//      for (int i = 0; i < NUM_SEGMENTS; ++i) {
+//      for (int i = 0; i < k_NUM_SEGMENTS; ++i) {
 //          char *segment = segments[i];
-//          for (int j = 0; j < LENGTH; ++j) {
+//          for (int j = 0; j < k_LENGTH; ++j) {
 //              c = (c + 1) & 0x7f;
 //              BSLS_ASSERT(segment[j] == c);
 //          }
@@ -94,11 +94,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                      // ===============================
-                      // class HeapBypassAllocator
-                      // ===============================
+
+                        // =========================
+                        // class HeapBypassAllocator
+                        // =========================
 
 class HeapBypassAllocator : public bslma::Allocator {
     // This class allows the caller to allocate memory directly from virtual
@@ -173,17 +173,24 @@ class HeapBypassAllocator : public bslma::Allocator {
     virtual void deallocate(void *);
         // This method has no effect for this heap bypass allocator.
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlqq::ThreadGroup: A container that manages a group of threads.
 //
-//@SEE_ALSO: bdlqq_xxxthread
+//@SEE_ALSO: bdlqq_mutex, bdlqq_threadutil, bdlqq_threadattributes
 //
 //@DESCRIPTION: This component provides a simple mechanism for managing a group
 // of threads.  The group is represented by an instance of the

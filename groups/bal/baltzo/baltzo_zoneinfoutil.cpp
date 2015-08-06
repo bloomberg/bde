@@ -18,14 +18,13 @@ BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-static const char LOG_CATEGORY[] = "BAETZO.ZONEINFOUTIL";
+static const char LOG_CATEGORY[] = "BALTZO.ZONEINFOUTIL";
 
-namespace baltzo {
-void ZoneinfoUtil::convertUtcToLocalTime(
-                    bdlt::DatetimeTz                          *resultTime,
-                    Zoneinfo::TransitionConstIterator *resultTransition,
-                    const bdlt::Datetime&                      utcTime,
-                    const Zoneinfo&                    timeZone)
+void baltzo::ZoneinfoUtil::convertUtcToLocalTime(
+                           bdlt::DatetimeTz                  *resultTime,
+                           Zoneinfo::TransitionConstIterator *resultTransition,
+                           const bdlt::Datetime&              utcTime,
+                           const Zoneinfo&                    timeZone)
 {
     BSLS_ASSERT(resultTime);
     BSLS_ASSERT(resultTransition);
@@ -46,12 +45,12 @@ void ZoneinfoUtil::convertUtcToLocalTime(
     resultTime->setDatetimeTz(temp, offsetInMinutes);
 }
 
-void ZoneinfoUtil::loadRelevantTransitions(
-             Zoneinfo::TransitionConstIterator  *firstResultTransition,
-             Zoneinfo::TransitionConstIterator  *secondResultTransition,
-             LocalTimeValidity::Enum            *resultValidity,
-             const bdlt::Datetime&                       localTime,
-             const Zoneinfo&                     timeZone)
+void baltzo::ZoneinfoUtil::loadRelevantTransitions(
+                     Zoneinfo::TransitionConstIterator *firstResultTransition,
+                     Zoneinfo::TransitionConstIterator *secondResultTransition,
+                     LocalTimeValidity::Enum           *resultValidity,
+                     const bdlt::Datetime&              localTime,
+                     const Zoneinfo&                    timeZone)
 {
     BSLS_ASSERT(firstResultTransition);
     BSLS_ASSERT(secondResultTransition);
@@ -102,7 +101,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
     // and this method assigns to both '*firstResultTransition' and
     // '*secondResultTransition' an iterator referring to the transition for
     // that local-time descriptor, and assigns 'resultValidity'
-    // 'BAETZO_VALID_UNIQUE'.
+    // 'BALTZO_VALID_UNIQUE'.
     //
     // If 'localTime' falls in either the range [T1, T1') or [T2 and T2'), then
     // either of the two adjacent local-time descriptors might apply to the
@@ -110,8 +109,8 @@ void ZoneinfoUtil::loadRelevantTransitions(
     // iterator referring to the earlier transition, and
     // '*secondResultTransition' is assigned an iterator referring to the
     // latter transition.  'resultValidity' is assigned
-    // 'BAETZO_VALID_AMBIGUOUS', if clocks were set back (i.e., the UTC offset
-    // decreased at the transition), and assigned 'BAETZO_INVALID' if clocks
+    // 'BALTZO_VALID_AMBIGUOUS', if clocks were set back (i.e., the UTC offset
+    // decreased at the transition), and assigned 'BALTZO_INVALID' if clocks
     // were set forward (i.e., the UTC offset increased at the transition).
     // Note that we do not need to test whether clocks remained the same at a
     // transition, because in that instance, the corresponding highlighted
@@ -121,7 +120,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
     typedef LocalTimeValidity                 Validity;
     typedef Zoneinfo::TransitionConstIterator TransitionConstIter;
 
-    bdlt::EpochUtil::TimeT64 localTimeT = 
+    bdlt::EpochUtil::TimeT64 localTimeT =
                                   Zoneinfo::convertToTimeT64(localTime);
     const bdlt::Datetime& utcTimeApproximation = localTime;
 
@@ -156,7 +155,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
         bdlt::EpochUtil::TimeT64 T1Prime = currentTimeT +
                                        bsl::max(prevOffset, currentOffset);
         if (localTimeT < T1) {
-            *resultValidity         = Validity::BAETZO_VALID_UNIQUE;
+            *resultValidity         = Validity::BALTZO_VALID_UNIQUE;
             *firstResultTransition  = prevTransition;
             *secondResultTransition = prevTransition;
             return;                                                   // RETURN
@@ -172,8 +171,8 @@ void ZoneinfoUtil::loadRelevantTransitions(
             BSLS_ASSERT_SAFE(prevOffset != currentOffset);
 
             *resultValidity         = prevOffset < currentOffset
-                                    ? Validity::BAETZO_INVALID
-                                    : Validity::BAETZO_VALID_AMBIGUOUS;
+                                    ? Validity::BALTZO_INVALID
+                                    : Validity::BALTZO_VALID_AMBIGUOUS;
             *firstResultTransition  = prevTransition;
             *secondResultTransition = currentTransition;
             return;                                                   // RETURN
@@ -196,7 +195,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
                                     bsl::max(currentOffset, nextOffset);
 
         if (localTimeT >= T2Prime) {
-            *resultValidity         = Validity::BAETZO_VALID_UNIQUE;
+            *resultValidity         = Validity::BALTZO_VALID_UNIQUE;
             *firstResultTransition  = nextTransition;
             *secondResultTransition = nextTransition;
             return;                                                   // RETURN
@@ -211,8 +210,8 @@ void ZoneinfoUtil::loadRelevantTransitions(
 
             BSLS_ASSERT_SAFE(currentOffset != nextOffset);
             *resultValidity         = currentOffset < nextOffset
-                                    ? Validity::BAETZO_INVALID
-                                    : Validity::BAETZO_VALID_AMBIGUOUS;
+                                    ? Validity::BALTZO_INVALID
+                                    : Validity::BALTZO_VALID_AMBIGUOUS;
             *firstResultTransition  = currentTransition;
             *secondResultTransition = nextTransition;
             return;                                                   // RETURN
@@ -222,12 +221,12 @@ void ZoneinfoUtil::loadRelevantTransitions(
     // Since all other cases have been tested, 'localTime' must fall between
     // T1' and T2 (in the figure above).
 
-    *resultValidity         = Validity::BAETZO_VALID_UNIQUE;
+    *resultValidity         = Validity::BALTZO_VALID_UNIQUE;
     *firstResultTransition  = currentTransition;
     *secondResultTransition = currentTransition;
 }
 
-bool ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
+bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
 {
     // This method tests the logical inverse of each constraint indicated in
     // the component documentation, and returns 'false' if any constraint is
@@ -318,15 +317,21 @@ bool ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
     }
     return true;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

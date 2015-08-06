@@ -4,15 +4,10 @@
 
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
-#include <bslma_testallocator.h>
 
-#include <bdlxxxx_testinstream.h>
-#include <bdlxxxx_testinstreamexception.h>
-#include <bdlxxxx_testoutstream.h>
+#include <bdlb_bitutil.h>
 
 #include <bslma_defaultallocatorguard.h>
-#include <bdlb_xxxbitutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
@@ -511,11 +506,11 @@ extern "C" void *ruleThreadTest(void *args)
         for (int j = 0; j < NUM_NAMES; ++j) {
             bool exp = i == j;
             const Entry *entry = mX.lookupCategory(NAMES[j]);
-            ASSERT(exp == bdlb::BitUtil::isSetOne(entry->relevantRuleMask(),
+            ASSERT(exp == bdlb::BitUtil::isBitSet(entry->relevantRuleMask(),
                                                  ruleId1));
-            ASSERT(exp == bdlb::BitUtil::isSetOne(entry->relevantRuleMask(),
+            ASSERT(exp == bdlb::BitUtil::isBitSet(entry->relevantRuleMask(),
                                                  ruleId3));
-            ASSERT(!bdlb::BitUtil::isSetOne(entry->relevantRuleMask(),ruleId4));
+            ASSERT(!bdlb::BitUtil::isBitSet(entry->relevantRuleMask(),ruleId4));
         }
 
         mX.removeRule(rule2);
@@ -533,7 +528,7 @@ extern "C" void *ruleThreadTest(void *args)
         mX.rulesetMutex().unlock();
 
         const Entry *entry = mX.lookupCategory(US);
-        ASSERT(bdlb::BitUtil::isSetOne(entry->relevantRuleMask(), ruleId4));
+        ASSERT(bdlb::BitUtil::isBitSet(entry->relevantRuleMask(), ruleId4));
         {
             bdlqq::LockGuard<bdlqq::Mutex> guard(&mX.rulesetMutex());
             int seqNumber = MX.ruleSequenceNumber();
@@ -1273,12 +1268,13 @@ int main(int argc, char *argv[])
         }
 
         // Iterate over each possible set of rules.
-        ball::RuleSet::MaskType endMask = bdlb::BitUtil::setOne(0, 0, NUM_NAMES);
+        ball::RuleSet::MaskType endMask = ~((~0) << NUM_NAMES);
+
         for (ball::RuleSet::MaskType mask = 0; mask <= endMask; ++mask) {
             int seqNumber = MX.ruleSequenceNumber();
             ball::RuleSet rules(&ta);
             for (int i= 0; i < NUM_NAMES; ++i) {
-                if (bdlb::BitUtil::isSetOne(mask, i)) {
+                if (bdlb::BitUtil::isBitSet(mask, i)) {
                     ball::Rule rule(NAMES[i], LEVELS[i][0], LEVELS[i][1],
                                              LEVELS[i][2], LEVELS[i][3]);
                     rules.addRule(rule);
@@ -1287,7 +1283,8 @@ int main(int argc, char *argv[])
 
             // Add the subset of rules indicated by the bitmask 'mask'.
             ASSERT(rules.numRules()            == mX.addRules(rules));
-            ASSERT(bdlb::BitUtil::numSetOne(mask) ==  MX.ruleSet().numRules());
+            ASSERT(bdlb::BitUtil::numBitsSet(mask) ==  
+                   MX.ruleSet().numRules());
             if (mask != 0) {
                 ASSERT(seqNumber < MX.ruleSequenceNumber());
                 seqNumber = MX.ruleSequenceNumber();
@@ -1298,7 +1295,7 @@ int main(int argc, char *argv[])
 
             // Verify the relevant rule masks for each category.
             for (int i = 0; i < NUM_NAMES; ++i) {
-                if (bdlb::BitUtil::isSetOne(mask, i)) {
+                if (bdlb::BitUtil::isBitSet(mask, i)) {
                     ball::Rule rule(NAMES[i], LEVELS[i][0], LEVELS[i][1],
                                              LEVELS[i][2], LEVELS[i][3]);
                     int ruleId = MX.ruleSet().ruleId(rule);
@@ -1306,7 +1303,7 @@ int main(int argc, char *argv[])
                     for (int j = 0; j < NUM_NAMES; ++j) {
                         bool  isSet = i == j;
                         const Entry *cat = MX.lookupCategory(NAMES[j]);
-                        ASSERT(isSet == bdlb::BitUtil::isSetOne(
+                        ASSERT(isSet == bdlb::BitUtil::isBitSet(
                                                    cat->relevantRuleMask(),
                                                    ruleId));
                     }
@@ -1323,17 +1320,17 @@ int main(int argc, char *argv[])
             // Add all the rules.  Note that the number of rules actually
             // added should be only those rules not belonging to the subset of
             // rules indicated by the bitmask 'mask'.
-            ASSERT(bdlb::BitUtil::numSetOne(endMask & ~mask) ==
+            ASSERT(bdlb::BitUtil::numBitsSet(endMask & ~mask) ==
                    mX.addRules(allRules));
-            ASSERT(bdlb::BitUtil::numSetOne(endMask) ==mX.ruleSet().numRules());
+            ASSERT(bdlb::BitUtil::numBitsSet(endMask) ==mX.ruleSet().numRules());
             ASSERT(0 == mX.addRules(allRules));
 
             seqNumber = MX.ruleSequenceNumber();
 
             // Remove those rules indicated by the bitmask 'mask'.  Note that
             // the category manager should have a rule for every category.
-            ASSERT(bdlb::BitUtil::numSetOne(mask) == mX.removeRules(rules));
-            ASSERT(bdlb::BitUtil::numSetZero(~endMask | mask) ==
+            ASSERT(bdlb::BitUtil::numBitsSet(mask) == mX.removeRules(rules));
+            ASSERT(bdlb::BitUtil::numBitsSet(~(~endMask | mask)) ==
                                             MX.ruleSet().numRules());
 
             if (mask != 0) {
@@ -1344,7 +1341,7 @@ int main(int argc, char *argv[])
             // Verify the relevant rule bit mask for each category after we
             // have removed the rules.
             for (int i = 0; i < NUM_NAMES; ++i) {
-                if (bdlb::BitUtil::isSetZero(mask, i)) {
+                if (!bdlb::BitUtil::isBitSet(mask, i)) {
                     ball::Rule rule(NAMES[i], LEVELS[i][0], LEVELS[i][1],
                                              LEVELS[i][2], LEVELS[i][3]);
                     int ruleId = MX.ruleSet().ruleId(rule);
@@ -1352,7 +1349,7 @@ int main(int argc, char *argv[])
                     for (int j = 0; j < NUM_NAMES; ++j) {
                         bool  isSet = i == j;
                         const Entry *cat = MX.lookupCategory(NAMES[j]);
-                        ASSERT(isSet == bdlb::BitUtil::isSetOne(
+                        ASSERT(isSet == bdlb::BitUtil::isBitSet(
                                                    cat->relevantRuleMask(),
                                                    ruleId));
                     }
@@ -1361,7 +1358,7 @@ int main(int argc, char *argv[])
 
             // Remove all the rules.  Note that this removes the remaining
             // rules, i.e., those rules *not* indicated by the bitmask 'mask'.
-            ASSERT(bdlb::BitUtil::numSetOne(endMask & ~mask) ==
+            ASSERT(bdlb::BitUtil::numBitsSet(endMask & ~mask) ==
                    mX.removeRules(allRules));
             ASSERT(0 == MX.ruleSet().numRules());
         }
@@ -1420,7 +1417,7 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_NAMES; ++j) {
                 bool  isSet = i == j;
                 const Entry *cat = MX.lookupCategory(NAMES[j]);
-                ASSERT(isSet == bdlb::BitUtil::isSetOne(cat->relevantRuleMask(),
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
                                                        ruleId1));
             }
 
@@ -1439,9 +1436,9 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_NAMES; ++j) {
                 bool isSet = i == j;
                 const Entry *cat = MX.lookupCategory(NAMES[j]);
-                ASSERT(isSet == bdlb::BitUtil::isSetOne(cat->relevantRuleMask(),
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
                                                        ruleId1));
-                ASSERT(isSet == bdlb::BitUtil::isSetOne(cat->relevantRuleMask(),
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
                                                        ruleId2));
 
             }
@@ -1453,9 +1450,9 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_NAMES; ++j) {
                 bool isSet = i == j;
                 const Entry *cat = MX.lookupCategory(NAMES[j]);
-                ASSERT(isSet == bdlb::BitUtil::isSetOne(cat->relevantRuleMask(),
+                ASSERT(isSet == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
                                                        ruleId1));
-                ASSERT(false == bdlb::BitUtil::isSetOne(cat->relevantRuleMask(),
+                ASSERT(false == bdlb::BitUtil::isBitSet(cat->relevantRuleMask(),
                                                        ruleId2));
             }
         }

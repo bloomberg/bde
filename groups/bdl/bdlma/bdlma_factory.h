@@ -37,17 +37,16 @@ BSLS_IDENT("$Id: $")
 // Suppose that we would like to transfer an object between threads using
 // 'bsl::shared_ptr'.  For the sake of discussion, the type of this object is
 // 'my_Obj' and we will suppose that it is created using a concrete
-// implementation of 'bdlma::Factory', say, 'my_DefaultFactory', the
-// implementation of which is assumed:
+// implementation of 'bdlma::Factory', say, 'my_Factory', the implementation of
+// which is assumed:
 //..
-//  void f(bdlma::Factory<my_Obj> *factory, bslma::Allocator *basicAllocator)
-//  {
-//      my_Obj *object = factory->createObject();
+//  my_Factory  factory;
+//  my_Obj     *object = factory.createObject();
 //..
 // Next we create a shared pointer passing to it 'object' and the 'factory'
 // that was used to create 'object':
 //..
-//      bsl::shared_ptr<my_Obj> handle(object, factory, basicAllocator);
+//  bsl::shared_ptr<my_Obj> handle(object, &factory);
 //..
 // Now the 'handle' can be passed to another thread or enqueued efficiently.
 // Once the reference count of 'handle' goes to 0, 'object' is automatically
@@ -58,9 +57,6 @@ BSLS_IDENT("$Id: $")
 // this protocol can be passed.  Also note, on the downside, that the lifetime
 // of 'factory' must be longer than the lifetime of all associated object
 // instances.
-//..
-//  }
-//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -71,11 +67,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlma {
-                        // ===================
-                        // class Factory
-                        // ===================
+
+                              // =============
+                              // class Factory
+                              // =============
 
 template <class TYPE>
 class Factory : public Deleter<TYPE> {
@@ -103,7 +99,7 @@ class Factory : public Deleter<TYPE> {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS

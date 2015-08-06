@@ -39,7 +39,7 @@ using namespace std;
 // [ 2] ~baltzo::DataFileLoader();
 //
 // MANIPULATORS
-// [ 6] int loadTimeZone(baltzo::Zoneinfo *result, const char *timeZoneId);
+// [ 6] int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
 // [ 2] void configureRootPath(const char *path);
 // [ 3] int configureRootPathIfPlausible(const char *path);
 //
@@ -485,7 +485,8 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     if (!bdlsu::FilesystemUtil::exists(TEST_DIRECTORY)) {
-        ASSERT(0 == bdlsu::FilesystemUtil::createDirectories(TEST_DIRECTORY, true));
+        ASSERT(0 ==
+               bdlsu::FilesystemUtil::createDirectories(TEST_DIRECTORY, true));
     }
 
     if (!bdlsu::FilesystemUtil::exists(TEST_GMT_FILE)) {
@@ -547,7 +548,7 @@ int main(int argc, char *argv[])
 // compiler -- a publicly available tool provided as part of the standard
 // Zoneinfo distribution (see 'http://www.twinsun.com/tz/tz-link.htm') -- and
 // deployed in a standard directory location (see
-// 'baetzo_defaulttimezonecache').
+// 'baltzo_defaultzoneinfocache').
 //
 // First we define static binary data for "Asia/Bangkok" (chosen because
 // it is relatively small):
@@ -582,7 +583,8 @@ int main(int argc, char *argv[])
     const char *TIME_ZONE_DIRECTORY = "test/Asia";
     const char *TIME_ZONE_FILE      = "test/Asia/Bangkok";
 #endif
-    int rc = bdlsu::FilesystemUtil::createDirectories(TIME_ZONE_DIRECTORY, true);
+    int rc =
+           bdlsu::FilesystemUtil::createDirectories(TIME_ZONE_DIRECTORY, true);
     ASSERT(0 == rc);
 //..
 // Finally we create a file for Bangkok and write the binary time zone data to
@@ -648,7 +650,8 @@ int main(int argc, char *argv[])
         timeZone.print(bsl::cout, 1, 3);
     }
 
-    bdlsu::FilesystemUtil::remove("test", true); // TIME_ZONE_DIRECTORY/.. i.e. "test"
+    bdlsu::FilesystemUtil::remove("test", true);
+                                          // TIME_ZONE_DIRECTORY/.. i.e. "test"
 
       } break;
       case 6: {
@@ -659,26 +662,26 @@ int main(int argc, char *argv[])
         //: 1 'loadTimeZone' correctly loads time-zone information when a valid
         //:   time zone identifier is specified.
         //:
-        //: 2 'loadTimeZone' returns 'BAETZO_UNSUPPORTED_ID' if the specified
+        //: 2 'loadTimeZone' returns 'BALTZO_UNSUPPORTED_ID' if the specified
         //:   time zone identifier is invalid.
         //:
         //: 3 'loadTimeZone' returns a non-zero value different from
-        //:   'BAETZO_UNSUPPORTED_ID' on error reading the specified time-zone
+        //:   'BALTZO_UNSUPPORTED_ID' on error reading the specified time-zone
         //:   file.
         //
         // Plan:
         //: 1 Test that 'loadTimeZone' returns time-zone information when give
         //:   a valid time zone identifier.
         //:
-        //: 2 Test that 'loadTimeZone' returns 'BAETZO_UNSUPPORTED_ID' when
+        //: 2 Test that 'loadTimeZone' returns 'BALTZO_UNSUPPORTED_ID' when
         //:   'rootPath' is a plausible directory, but the time zone identifier
         //:   is invalid.
         //:
         //: 3 Test that 'loadTimeZone' returns a non-zero return code other
-        //:   than 'BAETZO_UNSUPPORTED_ID' if 'rootPath' is not plausible.
+        //:   than 'BALTZO_UNSUPPORTED_ID' if 'rootPath' is not plausible.
         //
         // Testing:
-        //   int loadTimeZone(baltzo::Zoneinfo *result, const char *timeZoneId);
+        //   int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -698,7 +701,7 @@ int main(int argc, char *argv[])
 
             int rc = mX.loadTimeZone(&timeZone, "A");
             ASSERT(0 != rc);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID != rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID != rc);
         }
 
         if (verbose) cout << "\nTest with plausible directory" << endl;
@@ -710,18 +713,23 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\n\tTest invalid identifier" << endl;
 
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID ==
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID ==
                                               mX.loadTimeZone(&timeZone, "/"));
 
             if (verbose) cout << "\n\tTest non-existant identifier" << endl;
 
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID ==
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID ==
                         mX.loadTimeZone(&timeZone, "Non/Existant/Identifier"));
 
             ASSERT(0 == mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID));
 
             ASSERT(AMERICA_NEW_YORK_ID == timeZone.identifier());
         }
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID ==
+               baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID);
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
       } break;
       case 5: {
@@ -1322,11 +1330,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

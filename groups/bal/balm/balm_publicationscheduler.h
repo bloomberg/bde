@@ -19,13 +19,13 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION:  This component defines a 'balm::PublicationScheduler' class
 // that provides a scheduling mechanism for the publication of metrics.
 // At construction, a 'balm::PublicationScheduler' is provided the addresses of
-// a 'balm::MetricsManager' and a 'bdlmt::TimerEventScheduler'.  The publication
-// scheduler provides a 'scheduleCategory' method that schedules an
+// a 'balm::MetricsManager' and a 'bdlmt::TimerEventScheduler'.  The
+// publication scheduler provides a 'scheduleCategory' method that schedules an
 // individual metric category to be published repeatedly at a given interval,
 // and a 'setDefaultSchedule' method that schedules the publication of any
 // category not given an individual schedule.  The 'balm::PublicationScheduler'
-// creates timer events using the 'bdlmt::TimerEventScheduler'.  At the end of a
-// scheduled time interval, the publication scheduler invokes the metrics
+// creates timer events using the 'bdlmt::TimerEventScheduler'.  At the end of
+// a scheduled time interval, the publication scheduler invokes the metrics
 // manager's 'publish' operation with the set of categories to publish.  Note
 // that the publication scheduler will combine categories that occur at the
 // same frequency into a single invocation of the metrics manager's 'publish'
@@ -144,10 +144,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -212,7 +208,8 @@ class PublicationScheduler {
         // A private implementation type holding the data for a scheduled
         // publication frequency (e.g., the set of categories published at that
         // frequency).  Each "clock" created in the underlying
-        // 'bdlmt::TimerEventScheduler' is associated with a 'ClockData' object.
+        // 'bdlmt::TimerEventScheduler' is associated with a 'ClockData'
+        // object.
 
     typedef bsl::map<const Category *, bsls::TimeInterval>   Categories;
         // A map from a category to the publication interval for that
@@ -277,8 +274,8 @@ class PublicationScheduler {
 
   public:
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(PublicationScheduler,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(PublicationScheduler,
+                                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
     PublicationScheduler(MetricsManager      *metricsManager,
@@ -321,7 +318,7 @@ class PublicationScheduler {
         // with the same 'interval' as it is currently scheduled, this
         // operation has no effect.  The behavior is undefined unless
         // 'bsls::TimeInterval(0, 0) < interval' and 'category' is a valid
-        // address supplied by the 'baem_MetricRegistry' owned by the
+        // address supplied by the 'balm::MetricRegistry' owned by the
         // 'MetricsManager' object supplied at construction.
 
     void setDefaultSchedule(const bsls::TimeInterval& interval);
@@ -361,7 +358,7 @@ class PublicationScheduler {
         // not scheduled for publication.  Any scheduled publication of
         // 'category' is either canceled or completed before this method
         // returns.  The behavior is undefined unless 'category' is a valid
-        // address supplied by the 'baem_MetricRegistry' owned by
+        // address supplied by the 'balm::MetricRegistry' owned by
         // 'metricsManager'.  Note that if a default publication schedule has
         // been set (using 'setDefaultSchedule'), then 'category' will continue
         // to be published as part of that scheduled default publication; to
@@ -408,7 +405,7 @@ class PublicationScheduler {
          // 'false' and will not modify 'result' if 'category' is published as
          // part of the default scheduled publication.  The behavior is
          // undefined unless 'category' is a valid address supplied by the
-         // 'baem_MetricRegistry' owned by the 'MetricsManager' object
+         // 'balm::MetricRegistry' owned by the 'MetricsManager' object
          // supplied at construction.
 
     bool getDefaultSchedule(bsls::TimeInterval *result) const;
@@ -467,8 +464,8 @@ MetricsManager *PublicationScheduler::manager()
 
 inline
 void PublicationScheduler::scheduleCategory(
-                                            const char               *category,
-                                            const bsls::TimeInterval&  interval)
+                                           const char               *category,
+                                           const bsls::TimeInterval&  interval)
 {
     scheduleCategory(d_manager_p->metricRegistry().getCategory(category),
                      interval);

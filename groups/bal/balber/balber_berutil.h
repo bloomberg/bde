@@ -126,10 +126,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXBITUTIL
-#include <bdlb_xxxbitutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif

@@ -102,6 +102,7 @@ BSLS_IDENT("$Id: $")
 //      established by the 'BALL_LOG_SET_CATEGORY' (or
 //      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 //..
+#warning TBD:FIX blmxxx references
 // Seven other macros based on C++ streams, similar to 'BALL_LOG_TRACE', etc.,
 // allow the caller to specify a "callback" function which is passed the
 // 'bdlmxxx::List *' used to represent the user fields of a log record.  The
@@ -647,14 +648,14 @@ BSLS_IDENT("$Id: $")
                // C++ stream-based macros using a callback
                // ========================================
 
-#define BALL_LOGCB_STREAM(BAEL_SEVERITY, CB) {                             \
-    using namespace BloombergLP;                                           \
-    if (BALL_LOG_THRESHOLD >= (BAEL_SEVERITY)) {                           \
+#define BALL_LOGCB_STREAM(BAEL_SEVERITY, CB) {                              \
+    using namespace BloombergLP;                                            \
+    if (BALL_LOG_THRESHOLD >= (BAEL_SEVERITY)) {                            \
         if (ball::Log::isCategoryEnabled(&BAEL_LOG_CATEGORYHOLDER,          \
-                                        BAEL_SEVERITY)) {                  \
+                                        BAEL_SEVERITY)) {                   \
             ball::Log_Stream bael_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__, \
-                                              __LINE__, BAEL_SEVERITY);    \
-            CB(&bael_lOcAl_StReAm.record()->userFields());                 \
+                                              __LINE__, BAEL_SEVERITY);     \
+            CB(&bael_lOcAl_StReAm.record()->userFieldValues());             \
             BAEL_STREAM
 
 #define BALL_LOGCB_TRACE(CB) BALL_LOGCB_STREAM(ball::Severity::BAEL_TRACE, CB)

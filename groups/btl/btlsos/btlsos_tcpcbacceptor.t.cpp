@@ -12,6 +12,9 @@
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
+#include <bdlqq_threadattributes.h>
+#include <bdlqq_threadutil.h>
+
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
 #include <bslma_testallocator.h>
@@ -911,7 +914,7 @@ int main(int argc, char *argv[])
                                               DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
-                    bcemt_Attribute attributes;
+                    bdlqq::ThreadAttributes attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
                     int totalConnections = VALUES[i].d_numConnections +
@@ -1135,7 +1138,7 @@ int main(int argc, char *argv[])
                                               DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
-                    bcemt_Attribute attributes;
+                    bdlqq::ThreadAttributes attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
 
@@ -1341,7 +1344,7 @@ int main(int argc, char *argv[])
                                               DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
-                    bcemt_Attribute attributes;
+                    bdlqq::ThreadAttributes attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
                     // We will try establish another connection after the
@@ -1558,7 +1561,7 @@ int main(int argc, char *argv[])
                                               DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
-                    bcemt_Attribute attributes;
+                    bdlqq::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -1674,7 +1677,7 @@ int main(int argc, char *argv[])
                                               DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
-                    bcemt_Attribute attributes;
+                    bdlqq::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -1794,7 +1797,7 @@ int main(int argc, char *argv[])
                                               DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
-                    bcemt_Attribute attributes;
+                    bdlqq::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());

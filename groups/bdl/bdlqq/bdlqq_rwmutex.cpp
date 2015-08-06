@@ -6,7 +6,6 @@ BSLS_IDENT_RCSID(bdlqq_rwmutex_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_barrier.h>          // for testing only
 #include <bdlqq_semaphore.h>        // for testing only
-#include <bdlqq_xxxthread.h>           // for testing only
 #include <bdlqq_threadgroup.h>      // for testing only
 
 // ----------------------------------------------------------------------------

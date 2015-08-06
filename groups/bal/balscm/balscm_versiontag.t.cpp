@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
                                  "\n==================\n");
 
     #if BAL_VERSION > BSL_MAKE_VERSION(1, 2)
-        // Call 'newFunction' for BAE version 1.2 and later:
+        // Call 'newFunction' for BAL version 1.2 and later:
         int result = newFunction();
     #else
         // Call 'oldFunction' for BAE older than version 1.2:

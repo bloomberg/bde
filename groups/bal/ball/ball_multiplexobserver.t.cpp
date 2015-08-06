@@ -143,8 +143,6 @@ typedef ball::Record            Rec;
 typedef ball::RecordAttributes  Attr;
 typedef ball::TestObserver      TestObs;
 
-typedef bdlmxxx::List              List;
-
 const int SEQUENCE_LENGTH = 99;
 
 //=============================================================================

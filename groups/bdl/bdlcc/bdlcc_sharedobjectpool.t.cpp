@@ -1,12 +1,15 @@
-// bdlcc_sharedobjectpool.t.cpp                                        -*-C++-*-
+// bdlcc_sharedobjectpool.t.cpp                                       -*-C++-*-
 
 #include <bdlcc_sharedobjectpool.h>
+
+#include <bdls_testutil.h>
 
 #include <bdlcc_objectpool.h>
 #include <bdlmca_blob.h>
 #include <bdlma_concurrentpoolallocator.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
+#include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
 #include <bdlqq_xxxatomictypes.h>  // for SpinLock
 #include <bdlf_bind.h>
@@ -22,12 +25,17 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-static int testStatus = 0;
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
 {
@@ -38,9 +46,31 @@ void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 namespace {
+
    //Unnamed namespace scopes private classes and methods for testing
 
 bdlqq::SpinLock coutLock;
@@ -137,7 +167,7 @@ class SlowerBlobPool {
     bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
     bslma::Allocator             *d_allocator_p;  // allocator (held)
 
-    enum {BUFFER_SIZE=65536};
+    enum { k_BUFFER_SIZE=65536 };
 
     static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
                            bslma::Allocator *allocator) {
@@ -147,7 +177,7 @@ class SlowerBlobPool {
   public:
 
     SlowerBlobPool(bslma::Allocator *basicAllocator = 0)
-      : d_blobFactory(BUFFER_SIZE, bslma::Default::allocator(basicAllocator))
+      : d_blobFactory(k_BUFFER_SIZE, bslma::Default::allocator(basicAllocator))
       , d_blobPool(bdlf::BindUtil::bind(
                                     &SlowerBlobPool::createBlob,
                                     bdlf::PlaceHolders::_1,
@@ -167,80 +197,103 @@ class SlowerBlobPool {
    }
 };
 
-class SlowBlobPool {
-    bdlma::ConcurrentPoolAllocator           d_spAllocator;  // allocate shared pointer
-    bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-    bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
+///Usage
+///-----
+// This component is intended to improve the efficiency of code which provides
+// shared pointers to pooled objects.  As an example, consider a class which
+// maintains a pool of 'bdlmca::Blob' objects and provides shared pointers to
+// them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
+//..
+    class SlowBlobPool {
+        bdlma::ConcurrentPoolAllocator  d_spAllocator;  // alloc. shared ptr.
+        bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+        bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
 
-    enum {BUFFER_SIZE=65536};
+        enum { k_BUFFER_SIZE = 65536 };
 
-    static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
-                           bslma::Allocator *allocator) {
-        new (address) bdlmca::Blob(factory, allocator);
-    }
+        static void createBlob(void                      *address,
+                               bdlmca::BlobBufferFactory *factory,
+                               bslma::Allocator          *allocator) {
+            new (address) bdlmca::Blob(factory, allocator);
+        }
 
+        static void resetAndReturnBlob(bdlmca::Blob                    *blob,
+                                       bdlcc::ObjectPool<bdlmca::Blob> *pool) {
+            blob->removeAll();
+            pool->releaseObject(blob);
+        }
 
-    static void resetAndReturnBlob(bdlmca::Blob *blob,
-                                   bdlcc::ObjectPool<bdlmca::Blob> *pool) {
-        blob->removeAll();
-        pool->releaseObject(blob);
-    }
+      public:
 
-  public:
+        SlowBlobPool(bslma::Allocator *basicAllocator = 0)
+        : d_spAllocator(basicAllocator)
+        , d_blobFactory(k_BUFFER_SIZE, basicAllocator)
+        , d_blobPool(bdlf::BindUtil::bind(&SlowBlobPool::createBlob,
+                                          bdlf::PlaceHolders::_1,
+                                          &d_blobFactory,
+                                          basicAllocator),
+                     -1,
+                     basicAllocator)
+        {
+        }
 
-    SlowBlobPool(bslma::Allocator *basicAllocator = 0)
-      : d_spAllocator(basicAllocator)
-      , d_blobFactory(BUFFER_SIZE, basicAllocator)
-      , d_blobPool(bdlf::BindUtil::bind(
-                                    &SlowBlobPool::createBlob,
-                                    bdlf::PlaceHolders::_1,
-                                    &d_blobFactory,
-                                    basicAllocator), -1,
-                   basicAllocator)
-   {}
+        void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+        {
+            blob_sp->reset(
+                        d_blobPool.getObject(),
+                        bdlf::BindUtil::bind(&SlowBlobPool::resetAndReturnBlob,
+                                             bdlf::PlaceHolders::_1,
+                                             &d_blobPool),
+                        &d_spAllocator);
+        }
+    };
+//..
+// Note that 'SlowBlobPool' must allocate the shared pointer itself from its
+// 'd_spAllocator' in addition to allocating the blob from its pool.  Moreover,
+// note that since the same function will handle resetting the object and
+// returning it to the pool, we must define a special function for that purpose
+// and bind its arguments.
+//
+// We can solve both of these issues by using 'bdlcc::SharedObjectPool'
+// instead:
+//..
+    class FastBlobPool {
+        typedef bdlcc::SharedObjectPool<
+                 bdlmca::Blob,
+                 bdlcc::ObjectPoolFunctors::DefaultCreator,
+                 bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
 
-   void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp) {
-       blob_sp->reset(d_blobPool.getObject(),
-                      bdlf::BindUtil::bind(
-                              &SlowBlobPool::resetAndReturnBlob,
-                              bdlf::PlaceHolders::_1,
-                              &d_blobPool),
-                      &d_spAllocator);
-   }
-};
+        bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+        BlobPool                        d_blobPool;     // supply blobs
 
-class FastBlobPool {
-    typedef bdlcc::SharedObjectPool<
-                     bdlmca::Blob,
-                     bdlcc::ObjectPoolFunctors::DefaultCreator,
-                     bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
+        enum { k_BUFFER_SIZE = 65536 };
 
-    bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-    BlobPool                      d_blobPool;     // supply blobs
+        static void createBlob(void                      *address,
+                               bdlmca::BlobBufferFactory *factory,
+                               bslma::Allocator          *allocator)
+        {
+            new (address) bdlmca::Blob(factory, allocator);
+        }
 
-    enum {BUFFER_SIZE=65536};
+      public:
 
-    static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
-                    bslma::Allocator *allocator) {
-        new (address) bdlmca::Blob(factory, allocator);
-    }
+        FastBlobPool(bslma::Allocator *basicAllocator = 0)
+        : d_blobFactory(k_BUFFER_SIZE, basicAllocator)
+        , d_blobPool(bdlf::BindUtil::bind(&FastBlobPool::createBlob,
+                                          bdlf::PlaceHolders::_1,
+                                          &d_blobFactory,
+                                          bdlf::PlaceHolders::_2),
+                     -1,
+                     basicAllocator)
+        {
+        }
 
-  public:
-
-   FastBlobPool(bslma::Allocator *basicAllocator = 0)
-      : d_blobFactory(BUFFER_SIZE, basicAllocator)
-      , d_blobPool(bdlf::BindUtil::bind(
-                                    &FastBlobPool::createBlob,
-                                    bdlf::PlaceHolders::_1,
-                                    &d_blobFactory,
-                                    bdlf::PlaceHolders::_2),
-                   -1, basicAllocator)
-   {}
-
-   void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp) {
-       *blob_sp = d_blobPool.getObject();
-   }
-};
+        void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+        {
+            *blob_sp = d_blobPool.getObject();
+        }
+    };
+//..
 
 struct SpLink
 {
@@ -251,7 +304,6 @@ struct SpLink
         ASSERT(false == d_next);
     }
 };
-
 
 template <class POOL>
 class LinkTestRun
@@ -350,8 +402,7 @@ void LinkTestRun<POOL>::run()
    d_run = true;
 }
 
-
-} // close unnamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                                   TEST PLAN
@@ -364,42 +415,11 @@ void LinkTestRun<POOL>::run()
 // MANIPULATORS
 //
 // ACCESSORS
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << #M << ": " <<  \
-       M << "\n"; aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
 //=============================================================================
 //                    THREAD-SAFE OUTPUT AND ASSERT MACROS
 //-----------------------------------------------------------------------------
+
 static bdlqq::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
@@ -444,7 +464,6 @@ struct ConstructorTestHelp3
       , d_resetCount(0)
       , d_startCount(startCount)
    {}
-
 
    // ACCESSORS
    static void resetWithCount(ConstructorTestHelp3 *self, int count)
@@ -558,7 +577,7 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
 //=============================================================================
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-bcemt_Attribute attributes;
+bdlqq::ThreadAttributes attributes;
 void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
    // Create the specified 'numThreads', each executing the specified 'func'.
    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
@@ -569,7 +588,10 @@ void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], attributes, func, (void*)i);
+        bdlqq::ThreadUtil::create(&threads[i],
+                                  attributes,
+                                  func,
+                                  static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
         bdlqq::ThreadUtil::join(threads[i]);
@@ -605,7 +627,8 @@ class StringReseter
 };
 
 class SlowLinkPool {
-   bdlma::ConcurrentPoolAllocator     d_spAllocator;  // allocate shared pointer
+   bdlma::ConcurrentPoolAllocator     d_spAllocator;  // allocate shared
+                                                      // pointer
    bdlcc::ObjectPool<SpLink> d_linkPool;
 
    static void createLink(void* address) {
@@ -666,8 +689,8 @@ int main(int argc, char *argv[])
            //////////////////////////////////////////////////////
            // Constructor overloads
            //
-           // Concern: The various overloads of the constructor cause
-           // the correct creator and resetter functions to be called.
+           // Concern: The various overloads of the constructor cause the
+           // correct creator and resetter functions to be called.
            //
            //////////////////////////////////////////////////////
          using namespace bdlf::PlaceHolders;
@@ -829,23 +852,25 @@ int main(int argc, char *argv[])
            //////////////////////////////////////////////////////
            // Thread safety test
            //
-           // Run the performance test under high contention using a
-           // test allocator.
+           // Run the performance test under high contention using a test
+           // allocator.
            //////////////////////////////////////////////////////
          if (verbose) {
             cout << "Thread safety test" << endl;
          }
 
          enum {
-            NUM_THREADS=20,
-            NUM_BLOBS_PER_ITER=10000,
-            SECONDS_TO_RUN=6
+            k_NUM_THREADS=20,
+            k_NUM_BLOBS_PER_ITER=10000,
+            k_SECONDS_TO_RUN=6
          };
 
          bslma::TestAllocator alloc;
          {
-            TestRun<FastBlobPool> test(NUM_THREADS, NUM_BLOBS_PER_ITER,
-                                       SECONDS_TO_RUN, &alloc);
+            TestRun<FastBlobPool> test(k_NUM_THREADS,
+                                       k_NUM_BLOBS_PER_ITER,
+                                       k_SECONDS_TO_RUN,
+                                       &alloc);
             test.run();
 
             //sanity check, *not* performance check:
@@ -859,30 +884,35 @@ int main(int argc, char *argv[])
          //////////////////////////////////////////////////////
          // Usage Example Test
          //
-         // Concerns: that the component's usage example compiles and
-         // runs properly.
+         // Concerns: that the component's usage example compiles and runs
+         // properly.
          //////////////////////////////////////////////////////
          if (verbose) {
             cout << "Usage example test" << endl;
          }
 
-         bslma::TestAllocator slowAllocator, fastAllocator;
-         {
-           SlowBlobPool slowPool(&slowAllocator);
-           FastBlobPool fastPool(&fastAllocator);
+// Now the shared pointer and the object are allocated as one unit from the
+// same allocator.  In addition, the resetter method is a fully-inlined class
+// that is only responsible for resetting the object, improving efficiency and
+// simplifying the design.  We can verify that use of 'bdlcc::SharedObjectPool'
+// reduces the number of allocation requests:
+//..
+    bslma::TestAllocator slowAllocator, fastAllocator;
+    {
+        SlowBlobPool slowPool(&slowAllocator);
+        FastBlobPool fastPool(&fastAllocator);
 
-           bsl::shared_ptr<bdlmca::Blob> blob_sp;
+        bsl::shared_ptr<bdlmca::Blob> blob_sp;
 
-           fastPool.getBlob(&blob_sp);
-           slowPool.getBlob(&blob_sp);
-         }
+        fastPool.getBlob(&blob_sp);
+        slowPool.getBlob(&blob_sp);  // throw away the first blob
+    }
 
-         LOOP_ASSERT(slowAllocator.numAllocations(),
-                     2 == slowAllocator.numAllocations());
-         LOOP_ASSERT(fastAllocator.numAllocations(),
-                     1 == fastAllocator.numAllocations());
-         ASSERT(0 == slowAllocator.numBytesInUse());
-         ASSERT(0 == fastAllocator.numBytesInUse());
+    ASSERT(2 == slowAllocator.numAllocations());
+    ASSERT(1 == fastAllocator.numAllocations());
+    ASSERT(0 == slowAllocator.numBytesInUse());
+    ASSERT(0 == fastAllocator.numBytesInUse());
+//..
       } break;
 
       case 5: { // resetter test 2
@@ -890,8 +920,9 @@ int main(int argc, char *argv[])
            cout << "Resetter test 2" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool1(StringCreator(),StringReseter(),1);
         bsl::shared_ptr<bsl::string> sharedStr;
@@ -914,8 +945,9 @@ int main(int argc, char *argv[])
         if (verbose) {
            cout << "Resetter test 1" << endl;
         }
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool1(StringCreator(),StringReseter(false),1);
         bsl::shared_ptr<bsl::string> sharedStr;
@@ -939,8 +971,9 @@ int main(int argc, char *argv[])
            cout << "numObjects test" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool(StringCreator(),StringReseter(),20);
         ASSERT(pool.numObjects()==0);
@@ -955,9 +988,9 @@ int main(int argc, char *argv[])
            cout << "Allocator test" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
-
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         bslma::TestAllocator ta1(veryVeryVerbose);
         bslma::TestAllocator ta2(veryVeryVerbose);
@@ -979,8 +1012,9 @@ int main(int argc, char *argv[])
            cout << "Breathing test" << endl;
         }
 
-        typedef
-        bdlcc::SharedObjectPool<bsl::string, StringCreator, StringReseter> Pool;
+        typedef bdlcc::SharedObjectPool<bsl::string,
+                                        StringCreator,
+                                        StringReseter> Pool;
 
         Pool pool((StringCreator()),(StringReseter()));
         ASSERT(pool.numObjects()==0);
@@ -994,14 +1028,13 @@ int main(int argc, char *argv[])
          ///////////////////////////////////////////////////
          // Cache-stressing performance test
          //
-         // Similar to the basic performance test, except that
-         // the pooled objects are links in a long list.  Following
-         // the list from beginning to end seeks to highlight any
-         // caching inefficiencies.
+         // Similar to the basic performance test, except that the pooled
+         // objects are links in a long list.  Following the list from
+         // beginning to end seeks to highlight any caching inefficiencies.
          ////////////////////////////////////////////////////
          cout << "Cache-stressing Performance Test" << endl;
 
-         enum { SECONDS_TO_RUN = 5 };
+         enum { k_SECONDS_TO_RUN = 5 };
 
          struct Parameters {
             int d_numThreads;
@@ -1030,7 +1063,7 @@ int main(int argc, char *argv[])
 
             LinkTestRun<FastLinkPool> fastTest(p.d_numThreads,
                                                p.d_numLinksPerIteration,
-                                               SECONDS_TO_RUN);
+                                               k_SECONDS_TO_RUN);
 
             fastTest.run();
             double fastResult = fastTest.getRatePerThread() /
@@ -1041,7 +1074,7 @@ int main(int argc, char *argv[])
 
             LinkTestRun<SlowLinkPool> slowTest(p.d_numThreads,
                                                p.d_numLinksPerIteration,
-                                               SECONDS_TO_RUN);
+                                               k_SECONDS_TO_RUN);
 
             slowTest.run();
             double slowResult = slowTest.getRatePerThread() /
@@ -1071,7 +1104,7 @@ int main(int argc, char *argv[])
             runBaseTest = false;
          }
 
-         enum { SECONDS_TO_RUN = 5 };
+         enum { k_SECONDS_TO_RUN = 5 };
 
          struct Parameters {
             int d_numThreads;
@@ -1100,7 +1133,7 @@ int main(int argc, char *argv[])
 
             TestRun<FastBlobPool> fastTest(p.d_numThreads,
                                            p.d_numBlobsPerIteration,
-                                           SECONDS_TO_RUN);
+                                           k_SECONDS_TO_RUN);
 
             fastTest.run();
             double fastResult = fastTest.getRatePerThread() /
@@ -1112,7 +1145,7 @@ int main(int argc, char *argv[])
             if (runBaseTest) {
                TestRun<SlowBlobPool> slowTest(p.d_numThreads,
                                               p.d_numBlobsPerIteration,
-                                              SECONDS_TO_RUN);
+                                              k_SECONDS_TO_RUN);
 
                slowTest.run();
                double slowResult = slowTest.getRatePerThread() /
@@ -1124,7 +1157,7 @@ int main(int argc, char *argv[])
 
                TestRun<SlowerBlobPool> slowerTest(p.d_numThreads,
                                                   p.d_numBlobsPerIteration,
-                                                  SECONDS_TO_RUN);
+                                                  k_SECONDS_TO_RUN);
 
                slowerTest.run();
                double slowerResult = slowerTest.getRatePerThread() /
@@ -1164,11 +1197,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

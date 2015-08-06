@@ -2,17 +2,23 @@
 
 #include <bdlma_concurrentpool.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_qlock.h>
-#include <bdlqq_xxxthread.h>
-#include <bdlqq_threadgroup.h>
-
 #include <bdlf_bind.h>
+
 #include <bdlma_infrequentdeleteblocklist.h>
+
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
+#include <bdlqq_barrier.h>
+#include <bdlqq_qlock.h>
+#include <bdlqq_threadgroup.h>
+#include <bdlqq_threadutil.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cmath.h>       // 'log'
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -29,9 +35,9 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The goals of this 'bdlma::ConcurrentPool' test suite are to verify that 1) the
-// 'allocate' method distributes memory of the correct object size; 2) the pool
-// replenishes correctly according to the 'numObjects' parameter; 3) the
+// The goals of this 'bdlma::ConcurrentPool' test suite are to verify that 1)
+// the 'allocate' method distributes memory of the correct object size; 2) the
+// pool replenishes correctly according to the 'numObjects' parameter; 3) the
 // 'deallocate' method returns the memory to the pool; and 4) the 'release'
 // method and the destructor releases all memory allocated through the pool.
 //
@@ -54,8 +60,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 5] bdlma::ConcurrentPool(objectSize, basicAllocator);
 // [ 2] bdlma::ConcurrentPool(int, strategy, int, allocator) : BLOCK SIZE
-// [ 3] bdlma::ConcurrentPool(int, strategy, int, allocator) : CONSTANT GROWTH STRATEGY
-// [ 4] bdlma::ConcurrentPool(int, strategy, int, allocator) : GEOMETRIC GROWTH STRATEGY
+// [ 3] bdlma::ConcurrentPool(int, strategy, int, allocator) : CONSTANT GROWTH
+// [ 4] bdlma::ConcurrentPool(int, strategy, int, allocator) : GEOMETRIC GROWTH
 // [11] bdlma::ConcurrentPool(int, strategy, allocator);
 // [12] bdlma::ConcurrentPool(int, int, bslma::allocator *);
 // [ 7] ~bdlma::ConcurrentPool();
@@ -76,64 +82,45 @@ using namespace bsl;  // automatically added by script
 // [-1] MEMORY EXHAUSTION TEST
 // [-2] BENCHMARK
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static bdlqq::QLock coutMutex;
+int testStatus = 0;
 
-static void rEpOrT(const char *s, int i) {
-    cout << "Error " << __FILE__ << "(" << i << "): " << s
-         << "    (failed)" << endl;
-    if (testStatus >= 0 && testStatus <= 100) ++testStatus;
-}
-
-static void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
-        bdlqq::QLockGuard guard(&coutMutex);
-        rEpOrT(s, i);
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);        \
-                cout << #I << ": " << I << "\n";           \
-                rEpOrT(#X, __LINE__); }}
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                          \
-                cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";  \
-                rEpOrT(#X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                           \
-               cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
-                    << #K << ": " << K << "\n";                              \
-               rEpOrT(#X, __LINE__); }}
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { bdlqq::QLockGuard guard(&coutMutex);                           \
-               cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"    \
-                    << #K << ": " << K << "\t" << #L << ": " << L << "\n";   \
-               rEpOrT(#X, __LINE__); }}
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS, CONSTANTS, AND VARIABLES
@@ -149,16 +136,16 @@ static int veryVeryVerbose;
 // purposes.
 
 struct InfrequentDeleteBlock {
-    InfrequentDeleteBlock          *d_next_p;
+    InfrequentDeleteBlock               *d_next_p;
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
-// This type is copied from 'bdlma_concurrentpool.cpp' to determine the internal limits
-// of 'bdlma::ConcurrentPool'.
+// This type is copied from 'bdlma_concurrentpool.cpp' to determine the
+// internal limits of 'bdlma::ConcurrentPool'.
 enum {
-    INITIAL_CHUNK_SIZE   =  1,
-    GROW_FACTOR          =  2,
-    MAX_BLOCKS_PER_CHUNK =  32
+    k_INITIAL_CHUNK_SIZE  =   1,
+    k_GROW_FACTOR         =   2,
+    k_MAXBLOCKS_PER_CHUNK =  32
 };
 
 int numLeftChildren   = 0;
@@ -212,7 +199,7 @@ static int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(InfrequentDeleteBlock) - 1;
+        numBytes += static_cast<int>(sizeof(InfrequentDeleteBlock)) - 1;
         numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
@@ -234,7 +221,7 @@ inline static int poolObjectSize(int size)
 {
     const int HEADER_SIZE = offsetof(LLink, d_next_p);
     return roundUp(size + HEADER_SIZE < (int)sizeof(LLink)
-                   ? sizeof(LLink) : size + HEADER_SIZE,
+                        ? static_cast<int>(sizeof(LLink)) : size + HEADER_SIZE,
                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
@@ -280,25 +267,25 @@ void stretchRemoveAll(Obj *object, int numElements)
 
 ///Usage
 ///-----
-// A 'bdlma::ConcurrentPool' can be used by node-based containers (such as lists, trees,
-// and hash tables that hold multiple elements of uniform size) for efficient
-// memory allocation of new elements.  The following container class,
-// 'my_PooledArray', stores templatized values "out-of-place" as nodes in a
-// 'vector' of pointers.  Since the size of each node is fixed and known *a
-// priori*, the class uses a 'bdlma::ConcurrentPool' to allocate memory for the nodes to
-// improve memory allocation efficiency:
+// A 'bdlma::ConcurrentPool' can be used by node-based containers (such as
+// lists, trees, and hash tables that hold multiple elements of uniform size)
+// for efficient memory allocation of new elements.  The following container
+// class, 'my_PooledArray', stores templatized values "out-of-place" as nodes
+// in a 'vector' of pointers.  Since the size of each node is fixed and known
+// *a priori*, the class uses a 'bdlma::ConcurrentPool' to allocate memory for
+// the nodes to improve memory allocation efficiency:
 //..
     // my_poolarray.h
-//
+
     template <class T>
     class my_PooledArray {
         // This class implements a container that stores 'double' values
         // out-of-place.
-//
+
         // DATA
-        bsl::vector<T *> d_array_p;  // array of pooled elements
-        bdlma::ConcurrentPool       d_pool;     // memory manager for array elements
-//
+        bsl::vector<T *>      d_array_p;  // array of pooled elements
+        bdlma::ConcurrentPool d_pool;     // memory manager for array elements
+
       public:
         // CREATORS
         explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
@@ -306,21 +293,21 @@ void stretchRemoveAll(Obj *object, int numElements)
             // "out-of-place".  Optionally specify a 'basicAllocator' used to
             // supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
-//
+
         ~my_PooledArray();
             // Destroy this array and all elements held by it.
-//
+
         // MANIPULATORS
         void append(const T &value);
             // Append the specified 'value' to this array.
-//
+
         void removeAll();
             // Remove all elements from this array.
-//
+
         // ACCESSORS
         int length() const;
             // Return the number of elements in this array.
-//
+
         const T& operator[](int index) const;
             // Return a reference to the non-modifiable value at the specified
             // 'index' in this array.  The behavior is undefined unless
@@ -339,22 +326,22 @@ void stretchRemoveAll(Obj *object, int numElements)
         d_array_p.clear();
         d_pool.release();
     }
-//
+
     // ACCESSORS
     template <class T>
     inline
     int my_PooledArray<T>::length() const
     {
-        return d_array_p.size();
+        return static_cast<int>(d_array_p.size());
     }
-//
+
     template <class T>
     inline
     const T& my_PooledArray<T>::operator[](int index) const
     {
         ASSERT(0 <= index);
         ASSERT(index < length());
-//
+
         return *d_array_p[index];
     }
 //..
@@ -362,8 +349,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 // the default value:
 //..
     // my_poolarray.cpp
-// #include <my_poolarray.h>
-//
+
     // CREATORS
     template <class T>
     my_PooledArray<T>::my_PooledArray(bslma::Allocator *basicAllocator)
@@ -398,11 +384,11 @@ void stretchRemoveAll(Obj *object, int numElements)
 // my_doublearray2.h
 
 class my_DoubleArray2 {
-    double           **d_array_p;     // dynamically allocated array
-    int                d_size;        // physical capacity of this array
-    int                d_length;      // logical length of this array
-    bdlma::ConcurrentPool         d_pool;        // memory manager for array elements
-    bslma::Allocator  *d_allocator_p; // holds (but does not own) allocator
+    double                **d_array_p;     // dynamically allocated array
+    int                     d_size;        // physical capacity of this array
+    int                     d_length;      // logical length of this array
+    bdlma::ConcurrentPool   d_pool;        // memory manager for array elements
+    bslma::Allocator       *d_allocator_p; // holds (does not own) allocator
 
   private:
     void increaseSize();
@@ -434,14 +420,14 @@ ostream& operator<<(ostream& stream, const my_DoubleArray2& array);
 // my_doublearray2.cpp
 
 enum {
-    MY_INITIAL_SIZE = 1, // initial physical capacity
-    MY_GROW_FACTOR = 2   // multiplicative factor by which to grow 'd_size'
+    k_MY_INITIAL_SIZE = 1, // initial physical capacity
+    k_MY_GROW_FACTOR = 2   // multiplicative factor by which to grow 'd_size'
 };
 
 inline
 static int nextSize(int size)
 {
-    return size * MY_GROW_FACTOR;
+    return size * k_MY_GROW_FACTOR;
 }
 
 inline
@@ -482,7 +468,7 @@ void my_DoubleArray2::increaseSize()
 
 // CREATORS
 my_DoubleArray2::my_DoubleArray2(bslma::Allocator *basicAllocator)
-: d_size(MY_INITIAL_SIZE)
+: d_size(k_MY_INITIAL_SIZE)
 , d_length(0)
 , d_pool(sizeof(double), basicAllocator)
 , d_allocator_p(basicAllocator)
@@ -581,23 +567,24 @@ public:
 //-----------------------------------------------------------------------------
 
 enum {
-    OBJECT_SIZE = 56,
-    NUM_INTS = OBJECT_SIZE / sizeof(int),
-    NUM_OBJECTS = 10000,
-    NUM_THREADS = 4
+    k_OBJECT_SIZE = 56,
+    k_NUM_INTS = k_OBJECT_SIZE / sizeof(int),
+    k_NUM_OBJECTS = 10000,
+    k_NUM_THREADS = 4
 };
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bdlqq::Barrier barrier(k_NUM_THREADS);
 extern "C"
 void *workerThread(void *arg) {
     Obj *mX = (Obj *) arg;
-    ASSERT(OBJECT_SIZE == mX->blockSize());
+    ASSERT(k_OBJECT_SIZE == mX->blockSize());
 
     barrier.wait();
-    for (int i = 0; i < NUM_OBJECTS; ++i) {
+    for (int i = 0; i < k_NUM_OBJECTS; ++i) {
         int *buffer = (int*)mX->allocate();
         if (veryVeryVerbose) {
-            printf("Thread %d: Allocated %p\n", bdlqq::ThreadUtil::self(),
+            printf("Thread %d: Allocated %p\n",
+                   static_cast<int>(bdlqq::ThreadUtil::self()),
                    buffer);
         }
         LOOP_ASSERT(i, (void*)buffer != (void*)0xAB);
@@ -613,6 +600,7 @@ void *workerThread(void *arg) {
 //=============================================================================
 //                              BENCHMARKS
 //-----------------------------------------------------------------------------
+
 namespace bench {
 
 struct Item {
@@ -620,15 +608,15 @@ struct Item {
 };
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
-    bdlma::ConcurrentPool            *d_pool;
+    bdlqq::Barrier        *d_barrier;
+    bdlma::ConcurrentPool *d_pool;
     int                    d_iterations;
     int                    d_numObjects;
 };
 
 void bench(Control *control)
 {
-    int threadId = bdlqq::ThreadUtil::selfIdAsInt();
+    int threadId = static_cast<int>(bdlqq::ThreadUtil::selfIdAsInt());
 
     bdlma::ConcurrentPool *pool = control->d_pool;
     int numObjects = control->d_numObjects;
@@ -638,14 +626,14 @@ void bench(Control *control)
     control->d_barrier->wait();
 
     for (int i=0; i<control->d_iterations; i++) {
-        for(int j=0; j<numObjects; j++) {
-            for(int t=0; t<=j; t++) {
+        for (int j=0; j<numObjects; j++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = static_cast<Item *>(pool->allocate());
                 ASSERT(item);
                 item->d_threadId = threadId;
                 objects[t] = item;
             }
-            for(int t=0; t<=j; t++) {
+            for (int t=0; t<=j; t++) {
                 Item *item = objects[t];
                 ASSERT(item->d_threadId == threadId);
                 pool->deallocate(item);
@@ -769,16 +757,15 @@ int main(int argc, char *argv[]) {
                           << "BENCHMARK" << endl
                           << "=========" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 500,
-            NUM_OBJECTS = 50
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 500,
+            k_NUM_OBJECTS = 50
         };
 
-        int numIterations = NUM_ITERATIONS;
-        int numObjects = NUM_OBJECTS;
+        int numIterations = k_NUM_ITERATIONS;
+        int numObjects = k_NUM_OBJECTS;
 
-        for(int numThreads=1; numThreads<=NUM_THREADS; numThreads++) {
-
+        for (int numThreads=1; numThreads<=k_NUM_THREADS; numThreads++) {
             bench::runtest(numIterations, numObjects, numThreads);
         }
 
@@ -798,16 +785,16 @@ int main(int argc, char *argv[]) {
                           << "CONCURRENCY TEST" << endl
                           << "================" << endl;
 
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
-        Obj mX(OBJECT_SIZE);
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            int rc =
-                bdlqq::ThreadUtil::create(&threads[i], workerThread, &mX);
+        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
+        Obj mX(k_OBJECT_SIZE);
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
+            int rc = bdlqq::ThreadUtil::create(&threads[i],
+                                               workerThread,
+                                               &mX);
             LOOP_ASSERT(i, 0 == rc);
         }
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            int rc =
-                bdlqq::ThreadUtil::join(threads[i]);
+        for (int i = 0; i < k_NUM_THREADS; ++i) {
+            int rc = bdlqq::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
         }
       } break;
@@ -818,8 +805,9 @@ int main(int argc, char *argv[]) {
         // TESTING ALTERNATIVE CONSTRUCTOR
         //
         // Concerns:
-        //   That the alternative 'bdlma::ConcurrentPool'  constructor uses the correct
-        //   default argument values for the unspecified parameters.
+        //   That the alternative 'bdlma::ConcurrentPool'  constructor uses
+        //   the correct default argument values for the unspecified
+        //   parameters.
         //
         // Plan:
         //   Create one pool using the alternative constructor, and one pool
@@ -833,8 +821,11 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "TESTING ALTERNATIVE CONSTRUCTOR" << endl
                                   << "===============================" << endl;
 
-        if (verbose) cout << endl << " bdlma::ConcurrentPool(int, Strategy, ...)" << endl
-                                  << "===============================" << endl;
+        if (verbose) cout << endl
+                          << " bdlma::ConcurrentPool(int, Strategy, ...)"
+                          << endl
+                          << "==============================="
+                          << endl;
 
         struct {
             int  d_line;
@@ -871,22 +862,26 @@ int main(int argc, char *argv[]) {
             {
 
                 Obj mX(OBJECT_SIZE,   strategy, &taX);
-                Obj mExp(OBJECT_SIZE, strategy, MAX_BLOCKS_PER_CHUNK, &taExp);
+                Obj mExp(OBJECT_SIZE, strategy, k_MAXBLOCKS_PER_CHUNK, &taExp);
 
                 for (int ai = 0; ai < NUM_REQUESTS; ++ai) {
                     mX.allocate();
                     mExp.allocate();
                 }
 
-                int numAllocations = TAX.numAllocations();
-                int numBytes       = TAX.lastAllocatedNumBytes();
-                if (veryVerbose) { TAB; P_(numAllocations); TAB; P(numBytes); }
-                LOOP2_ASSERT(numAllocations,
+                bsls::Types::Int64 numAllocations = TAX.numAllocations();
+                bsls::Types::Int64 numBytes       =
+                                                   TAX.lastAllocatedNumBytes();
+                if (veryVerbose) { T_; P_(numAllocations); T_; P(numBytes); }
+                LOOP3_ASSERT(LINE,
+                             numAllocations,
                              TAEXP.numAllocations(),
                              TAEXP.numAllocations() == numAllocations);
-                LOOP2_ASSERT(numBytes,
+                LOOP3_ASSERT(LINE,
+                             numBytes,
                              TAEXP.lastAllocatedNumBytes(),
-                             TAEXP.lastAllocatedNumBytes() == numBytes);
+                             TAEXP.lastAllocatedNumBytes() ==
+                                   static_cast<bsls::Types::Uint64>(numBytes));
 
             }
         }
@@ -1209,8 +1204,10 @@ int main(int argc, char *argv[]) {
 
                         mX.reserveCapacity(NUM_BLOCKS);
                         mY.reserveCapacity(NUM_BLOCKS);
-                        const int ALLOC_BLOCKS = A.numBlocksTotal();
-                        const int ALLOC_BYTES  = A.numBytesInUse();
+                        const bsls::Types::Int64 ALLOC_BLOCKS =
+                                                            A.numBlocksTotal();
+                        const bsls::Types::Int64 ALLOC_BYTES  =
+                                                             A.numBytesInUse();
 
                         for (int i = 0; i < NUM_BLOCKS; ++i) {
                             mX.allocate();
@@ -1259,12 +1256,12 @@ int main(int argc, char *argv[]) {
             { L_,       5,                        10, false },
             { L_,      12,                         1, false },
             { L_,      24,                         5, false },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK, false },
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK, false },
             { L_,       1,                         5,  true },
             { L_,       5,                        10,  true },
             { L_,      12,                         1,  true },
             { L_,      24,                         5,  true },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK,  true }
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK,  true }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1290,14 +1287,14 @@ int main(int argc, char *argv[]) {
                     mY.allocate();
                 }
 
-                if (veryVerbose) { TAB; P_(TAX.numBytesInUse()); }
+                if (veryVerbose) { T_; P_(TAX.numBytesInUse()); }
                 mX.release();
-                if (veryVerbose) { TAB; P(TAX.numBytesInUse()); }
+                if (veryVerbose) { T_; P(TAX.numBytesInUse()); }
 
-                if (veryVerbose) { TAB; P_(TAY.numBytesInUse()); }
+                if (veryVerbose) { T_; P_(TAY.numBytesInUse()); }
                 // Let 'mY' go out of scope.
             }
-            if (veryVerbose) { TAB; P(TAY.numBytesInUse()); }
+            if (veryVerbose) { T_; P(TAY.numBytesInUse()); }
 
             LOOP2_ASSERT(LINE, di, 0 == TAX.numBytesInUse());
             LOOP2_ASSERT(LINE, di, 0 == TAY.numBytesInUse());
@@ -1336,12 +1333,12 @@ int main(int argc, char *argv[]) {
             { L_,       5,                        10, false },
             { L_,      12,                         1, false },
             { L_,      24,                         5, false },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK, false },
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK, false },
             { L_,       1,                         5,  true },
             { L_,       5,                        10,  true },
             { L_,      12,                         1,  true },
             { L_,      24,                         5,  true },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK,  true }
+            { L_,      32,    k_MAXBLOCKS_PER_CHUNK,  true }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1365,13 +1362,13 @@ int main(int argc, char *argv[]) {
                 p[ai] = mX.allocate();
             }
 
-            int numAllocations = TA.numAllocations();
+            bsls::Types::Int64 numAllocations = TA.numAllocations();
 
             for (int dd = NUM_REQUESTS - 1; dd >= 0; --dd) {
                 mX.deallocate(p[dd]);
             }
 
-            if (veryVerbose) { TAB; P_(NUM_OBJECTS); P(numAllocations); }
+            if (veryVerbose) { T_; P_(NUM_OBJECTS); P(numAllocations); }
 
             // Ensure memory was deallocated in expected sequence
             for (int aj = 0; aj < NUM_REQUESTS; ++aj) {
@@ -1390,7 +1387,7 @@ int main(int argc, char *argv[]) {
         //   Initialize a pool with a chosen object size, default
         //   'maxBlocksPerChunk' and a test allocator.  Initialize a second
         //   pool as a reference with the same object size,
-        //   MAX_BLOCKS_PER_CHUNK for 'numObjects' and a second test
+        //   k_MAXBLOCKS_PER_CHUNK for 'numObjects' and a second test
         //   allocator.  Invoke 'allocate' repeatedly on both pools so that
         //   the pools deplete and replenish until the pools stop growing in
         //   size.  Verify that for each replenishment the allocator for the
@@ -1401,10 +1398,14 @@ int main(int argc, char *argv[]) {
         //   bdlma::ConcurrentPool(objectSize, basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose)
+        if (verbose) {
             cout << endl
-                 << "TESTING 'bdlma::ConcurrentPool(objectSize, basicAllocator)'" << endl
-                 << "================================================" << endl;
+                 << "TESTING 'bdlma::ConcurrentPool(objectSize, "
+                 << "basicAllocator)'"
+                 << endl
+                 << "================================================"
+                 << endl;
+        }
 
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ default "
                              "'numObjects'." << endl;
@@ -1417,7 +1418,7 @@ int main(int argc, char *argv[]) {
         bslma::TestAllocator taexp;  const bslma::TestAllocator& TAEXP = taexp;
         Obj mExp(OBJECT_SIZE,
                  bsls::BlockGrowth::BSLS_GEOMETRIC,
-                 MAX_BLOCKS_PER_CHUNK,
+                 k_MAXBLOCKS_PER_CHUNK,
                  &taexp);
         ASSERT(OBJECT_SIZE == mExp.blockSize());
 
@@ -1426,10 +1427,10 @@ int main(int argc, char *argv[]) {
         // 'logBase2(CURRENT_MAX_BLOCKS_PER_CHUNK)', plus an arbitrary fudge
         // factor.
         const int NUM_ITERATIONS = 4 +
-                              (int)(bsl::log((double)MAX_BLOCKS_PER_CHUNK) /
+                              (int)(bsl::log((double)k_MAXBLOCKS_PER_CHUNK) /
                                     bsl::log(2.0));
 
-        int blocksPerChunk = INITIAL_CHUNK_SIZE;
+        int blocksPerChunk = k_INITIAL_CHUNK_SIZE;
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
             // Allocate until current pool is depleted.
             for (int j = 0; j < blocksPerChunk; ++j) {
@@ -1437,9 +1438,9 @@ int main(int argc, char *argv[]) {
                 mExp.allocate();
             }
 
-            int numAllocations = TAX.numAllocations();
-            int numBytes       = TAX.lastAllocatedNumBytes();
-            if (veryVerbose) { TAB; P_(numAllocations); TAB; P(numBytes); }
+            bsls::Types::Int64 numAllocations = TAX.numAllocations();
+            bsls::Types::Int64 numBytes       = TAX.lastAllocatedNumBytes();
+            if (veryVerbose) { T_; P_(numAllocations); T_; P(numBytes); }
             LOOP3_ASSERT(blocksPerChunk,
                         numAllocations,
                         TAEXP.numAllocations(),
@@ -1447,11 +1448,12 @@ int main(int argc, char *argv[]) {
             LOOP3_ASSERT(blocksPerChunk,
                         numBytes,
                         TAEXP.lastAllocatedNumBytes(),
-                        TAEXP.lastAllocatedNumBytes() == numBytes);
+                        TAEXP.lastAllocatedNumBytes() ==
+                                   static_cast<bsls::Types::Uint64>(numBytes));
 
-            blocksPerChunk = blocksPerChunk * 2 <= MAX_BLOCKS_PER_CHUNK
+            blocksPerChunk = blocksPerChunk * 2 <= k_MAXBLOCKS_PER_CHUNK
                              ? blocksPerChunk *2
-                             : MAX_BLOCKS_PER_CHUNK;
+                             : k_MAXBLOCKS_PER_CHUNK;
         }
       } break;
       case 4: {
@@ -1475,12 +1477,12 @@ int main(int argc, char *argv[]) {
         const int DATA[] = {
             1,
             5,
-            MAX_BLOCKS_PER_CHUNK / GROW_FACTOR - 1,
-            MAX_BLOCKS_PER_CHUNK / GROW_FACTOR,
-            MAX_BLOCKS_PER_CHUNK / GROW_FACTOR + 1,
-            MAX_BLOCKS_PER_CHUNK - 1,
-            MAX_BLOCKS_PER_CHUNK,
-            MAX_BLOCKS_PER_CHUNK + 1
+            k_MAXBLOCKS_PER_CHUNK / k_GROW_FACTOR - 1,
+            k_MAXBLOCKS_PER_CHUNK / k_GROW_FACTOR,
+            k_MAXBLOCKS_PER_CHUNK / k_GROW_FACTOR + 1,
+            k_MAXBLOCKS_PER_CHUNK - 1,
+            k_MAXBLOCKS_PER_CHUNK,
+            k_MAXBLOCKS_PER_CHUNK + 1
         };
 
         const int NUM_DATA         = sizeof DATA / sizeof *DATA;
@@ -1504,8 +1506,8 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
 
-                int numAllocations = TA.numAllocations();
-                int blocksPerChunk = INITIAL_CHUNK_SIZE;
+                bsls::Types::Int64 numAllocations = TA.numAllocations();
+                int blocksPerChunk = k_INITIAL_CHUNK_SIZE;
 
                 // Number of iterations is number of chunk allocations before
                 // the max chunk size is reached, that is,
@@ -1521,7 +1523,7 @@ int main(int argc, char *argv[]) {
                     }
                     ++numAllocations;
                     ASSERT(numAllocations == TA.numAllocations());
-                    const int EXP_SIZE =
+                    const bsls::Types::Uint64 EXP_SIZE =
                                  blockSize(POOL_OBJECT_SIZE * blocksPerChunk);
                     LOOP3_ASSERT(blocksPerChunk,
                                  EXP_SIZE,
@@ -1563,7 +1565,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
                              "positive 'numObjects'." << endl;
 
-        const int DATA[] = { 1, 2, 10, MAX_BLOCKS_PER_CHUNK };
+        const int DATA[] = { 1, 2, 10, k_MAXBLOCKS_PER_CHUNK };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         const int OBJECT_SIZE = 4;
         const int POOL_OBJECT_SIZE = poolObjectSize(OBJECT_SIZE);
@@ -1582,15 +1584,16 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
 
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
-                    int numAllocations = TA.numAllocations();
+                    bsls::Types::Int64 numAllocations = TA.numAllocations();
 
                     // Allocate until current pool is deplete.
                     for (int oi = 0; oi < NUM_OBJECTS; ++oi) {
                         mX.allocate();
                     }
 
-                    const int EXP = blockSize(POOL_OBJECT_SIZE * NUM_OBJECTS);
-                    if (veryVerbose) { TAB; P_(numAllocations); TAB; P(EXP); }
+                    const bsls::Types::Uint64 EXP =
+                                     blockSize(POOL_OBJECT_SIZE * NUM_OBJECTS);
+                    if (veryVerbose) { T_; P_(numAllocations); T_; P(EXP); }
 
                     LOOP2_ASSERT(di, ri,
                                  TA.numAllocations() == numAllocations + 1);
@@ -1641,9 +1644,10 @@ int main(int argc, char *argv[]) {
                     char *p = static_cast<char *>(mX.allocate());
                     scribble(p, OBJECT_SIZE);
                     if (oi) {
-                        int size = p - lastP;
-                        const int EXP = poolObjectSize(OBJECT_SIZE);
-                        if (veryVerbose) { TAB; P_(size); TAB; P(EXP); }
+                        bsl::size_t size = p - lastP;
+                        const bsls::Types::Uint64 EXP =
+                                                   poolObjectSize(OBJECT_SIZE);
+                        if (veryVerbose) { T_; P_(size); T_; P(EXP); }
                         LOOP2_ASSERT(di, oi, EXP == size);
                     }
                     lastP = p;
@@ -1654,11 +1658,11 @@ int main(int argc, char *argv[]) {
       case 1: {
         // --------------------------------------------------------------------
         // FILE-STATIC FUNCTION TEST
-        //   To test 'blockSize', create a 'bdlma::BlockList' object initialized
-        //   with a test allocator.  Invoke both the 'blockSize' function and
-        //   the 'bdlma::BlockList::allocate' method with varying memory sizes,
-        //   and verify that the sizes returned by 'blockSize' are equal to the
-        //   sizes recorded by the allocator.
+        //   To test 'blockSize', create a 'bdlma::BlockList' object
+        //   initialized with a test allocator.  Invoke both the 'blockSize'
+        //   function and the 'bdlma::BlockList::allocate' method with varying
+        //   memory sizes, and verify that the sizes returned by 'blockSize'
+        //   are equal to the sizes recorded by the allocator.
         //
         //   To test 'poolObjectSize', invoke the function with varying sizes,
         //   and verify that the returned value is equal to the difference
@@ -1686,9 +1690,9 @@ int main(int argc, char *argv[]) {
                 int blkSize = blockSize(SIZE);
                 bl.allocate(SIZE);
 
-                const int EXP = a.lastAllocatedNumBytes();
+                const bsls::Types::Int64 EXP = a.lastAllocatedNumBytes();
 
-                if (veryVerbose) {TAB; P_(SIZE); P_(blkSize); P(EXP);}
+                if (veryVerbose) {T_; P_(SIZE); P_(blkSize); P(EXP);}
                 LOOP_ASSERT(i, EXP == blkSize);
             }
         }
@@ -1705,10 +1709,10 @@ int main(int argc, char *argv[]) {
                 char *p = static_cast<char *>(mX.allocate());
                 char *q = static_cast<char *>(mX.allocate());
 
-                int EXP = q - p;
+                bsl::size_t EXP = q - p;
 
-                int objectSize = poolObjectSize(SIZE);
-                if (veryVerbose) { TAB; P_(SIZE); P_(objectSize); P(EXP); }
+                bsls::Types::Uint64 objectSize = poolObjectSize(SIZE);
+                if (veryVerbose) { T_; P_(SIZE); P_(objectSize); P(EXP); }
                 LOOP3_ASSERT(di, EXP, objectSize, EXP == objectSize);
             }
         }
@@ -1755,14 +1759,14 @@ int main(int argc, char *argv[]) {
                           << "BENCHMARK" << endl
                           << "=========" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 50,
-            NUM_OBJECTS = 10
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 50,
+            k_NUM_OBJECTS = 10
         };
 
-        int numThreads = argc > 2 ? atoi(argv[2]) : NUM_THREADS;
-        int numIterations = argc > 3 ? atoi(argv[3]) : NUM_ITERATIONS;
-        int numObjects = argc > 4 ? atoi(argv[4]) : NUM_OBJECTS;
+        int numThreads = argc > 2 ? atoi(argv[2]) : k_NUM_THREADS;
+        int numIterations = argc > 3 ? atoi(argv[3]) : k_NUM_ITERATIONS;
+        int numObjects = argc > 4 ? atoi(argv[4]) : k_NUM_OBJECTS;
 
         if (verbose) cout << endl
                           << "NUM THREADS: " << numThreads << endl

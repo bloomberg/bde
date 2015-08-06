@@ -2,11 +2,12 @@
 
 #include <bdlma_concurrentfixedpool.h>
 
-#include <bdlqq_lockguard.h>
-
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitutil.h>
 
 #include <bslma_default.h>
+
+#include <bdlqq_lockguard.h>
+#include <bdlqq_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -14,24 +15,23 @@
 #include <bsl_algorithm.h>
 
 namespace BloombergLP {
-
 namespace {
 
 enum {
-    DEFAULT_BACKOFF_LEVEL = 4
+    k_DEFAULT_BACKOFF_LEVEL = 4
 };
 
 // STATIC HELPER FUNCTIONS
 void backoff(int *contentionCount, int backoffLevel)
 {
     if (0 == backoffLevel) {
-        return;
+        return;                                                       // RETURN
     }
 
-    enum { MAX_SPIN_LEVEL = 10 };
+    enum { k_MAX_SPIN_LEVEL = 10 };
 
     int count = ++(*contentionCount);
-    if (count > MAX_SPIN_LEVEL) {
+    if (count > k_MAX_SPIN_LEVEL) {
         *contentionCount = 0;
         bdlqq::ThreadUtil::yield();  // exhaust time slice
     }
@@ -46,9 +46,10 @@ void backoff(int *contentionCount, int backoffLevel)
 }  // close unnamed namespace
 
 namespace bdlma {
-                        // ---------------------
+
+                        // -------------------------
                         // class ConcurrentFixedPool
-                        // ---------------------
+                        // -------------------------
 
 // PRIVATE MANIPULATORS
 void *ConcurrentFixedPool::allocateNew()
@@ -61,7 +62,7 @@ void *ConcurrentFixedPool::allocateNew()
 
         numNodes = d_numNodes;
         if (numNodes == (int)d_nodes.size()) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         ++d_numNodes;
@@ -79,7 +80,8 @@ ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
                                  int               poolSize,
                                  bslma::Allocator *basicAllocator)
 : d_freeList(0)
-, d_sizeMask(bdlb::BitUtil::roundUpToBinaryPower(poolSize + 1) - 1)
+, d_sizeMask(bdlb::BitUtil::roundUpToBinaryPower(
+                                      static_cast<uint32_t>(poolSize + 1)) - 1)
 , d_nodes(poolSize, bslma::Default::allocator(basicAllocator))
 , d_dataOffset(bsl::max((int)sizeof(Node),
                   bsls::AlignmentUtil::calculateAlignmentFromSize(objectSize)))
@@ -88,7 +90,7 @@ ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
 , d_nodePool(d_nodeSize, bslma::Default::allocator(basicAllocator))
 , d_numNodes(0)
 , d_objectSize(objectSize)
-, d_backoffLevel(DEFAULT_BACKOFF_LEVEL)
+, d_backoffLevel(k_DEFAULT_BACKOFF_LEVEL)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < objectSize);
@@ -119,7 +121,7 @@ void *ConcurrentFixedPool::allocate()
     while (1) {
         head = d_freeList.loadRelaxed();
         if (!head) {
-            return allocateNew();
+            return allocateNew();                                     // RETURN
         }
 
         node = d_nodes[((unsigned)head & d_sizeMask) - 1];
@@ -141,8 +143,8 @@ void ConcurrentFixedPool::deallocate(void *address)
     int contentionCount = 0;
 
     Node *node = (Node *)(void *)((char *)address - d_dataOffset);
-    int index = node->d_next;  // 'd_next' contains the link index of this
-                               // link node advanced by one generation.
+    int index = node->d_next;  // 'd_next' contains the link index of this link
+                               // node advanced by one generation.
     while (1) {
         int old = d_freeList.loadRelaxed();
         node->d_next = old;
@@ -170,7 +172,8 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
 
     int contentionCount = 0;
 
-    const int poolSize = d_nodes.size();  // size of this pool
+    const int poolSize = static_cast<int>(d_nodes.size()); // size of this pool
+
     const int genCount = d_sizeMask + 1;  // generation count increment
 
     Node  reserved;              // head of the list of reserved nodes

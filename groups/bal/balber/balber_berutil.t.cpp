@@ -5948,7 +5948,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { P_(i) P(LL) }
 
-                LOOP3_ASSERT(LINE, LL, RES,
+                LOOP4_ASSERT(LINE, LL, RES, balber::BerUtil_Imp::numBytesToStream(LL),
                                 RES == balber::BerUtil_Imp::numBytesToStream(LL));
 
                 if (LL <= SHRT_MAX && LL >= SHRT_MIN) {
@@ -5956,11 +5956,11 @@ int main(int argc, char *argv[])
                     const int   I = (int)   LL;
                     const long  L = (long)  LL;
 
-                    LOOP3_ASSERT(LINE, S, RES,
+                    LOOP4_ASSERT(LINE, S, RES, balber::BerUtil_Imp::numBytesToStream(S),
                                  RES == balber::BerUtil_Imp::numBytesToStream(S));
-                    LOOP3_ASSERT(LINE, I, RES,
+                    LOOP4_ASSERT(LINE, I, RES, balber::BerUtil_Imp::numBytesToStream(I),
                                  RES == balber::BerUtil_Imp::numBytesToStream(I));
-                    LOOP3_ASSERT(LINE, L, RES,
+                    LOOP4_ASSERT(LINE, L, RES, balber::BerUtil_Imp::numBytesToStream(L),
                                  RES == balber::BerUtil_Imp::numBytesToStream(L));
                     continue;
                 }

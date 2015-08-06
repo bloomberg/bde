@@ -123,15 +123,15 @@ typedef baltzo::DstPolicy           Dst;
 typedef baltzo::LocalTimeDescriptor Descriptor;
 
 //=============================================================================
-//                      GLOBAL CONSTANTS
+//                              GLOBAL CONSTANTS
 //-----------------------------------------------------------------------------
-const Dst::Enum      UNSP = Dst::BAETZO_UNSPECIFIED;
-const Dst::Enum      DST  = Dst::BAETZO_DST;
-const Dst::Enum      STD  = Dst::BAETZO_STANDARD;
-const Validity::Enum UNI  = Validity::BAETZO_VALID_UNIQUE;
-const Validity::Enum AMB  = Validity::BAETZO_VALID_AMBIGUOUS;
-const Validity::Enum INV  = Validity::BAETZO_INVALID;
-const Err::Enum      EUID = Err::BAETZO_UNSUPPORTED_ID;
+const Dst::Enum      UNSP = Dst::BALTZO_UNSPECIFIED;
+const Dst::Enum      DST  = Dst::BALTZO_DST;
+const Dst::Enum      STD  = Dst::BALTZO_STANDARD;
+const Validity::Enum UNI  = Validity::BALTZO_VALID_UNIQUE;
+const Validity::Enum AMB  = Validity::BALTZO_VALID_AMBIGUOUS;
+const Validity::Enum INV  = Validity::BALTZO_INVALID;
+const Err::Enum      EUID = Err::BALTZO_UNSUPPORTED_ID;
 
 const char *NY  = "America/New_York";
 const char *RY  = "Asia/Riyadh";
@@ -952,7 +952,8 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // In this usage example we illustrate how to convert a UTC time to its
 // corresponding local time in a given time zone.  We start by creating a
-// 'baltzo::LocalDatetime' object to hold the result of the conversion operation:
+// 'baltzo::LocalDatetime' object to hold the result of the conversion
+// operation:
 //..
     baltzo::LocalDatetime newYorkTime;
 //..
@@ -1009,8 +1010,9 @@ int main(int argc, char *argv[])
 //..
     bdlt::Datetime newYorkTime(2010, 7, 31, 15, 0, 0);
 //..
-// Now, let's apply the conversion operation to obtain a 'baltzo::LocalDatetime'
-// object representing the corresponding local time in Italy.
+// Now, let's apply the conversion operation to obtain a
+// 'baltzo::LocalDatetime' object representing the corresponding local time in
+// Italy.
 //..
     baltzo::LocalDatetime romeTime(allocator);
     int status = baltzo::TimeZoneUtil::convertLocalToLocalTime(
@@ -1060,12 +1062,12 @@ int main(int argc, char *argv[])
 //..
     bdlt::Datetime uniqueTime(2010, 7, 31, 15, 0, 0);
 //..
-// Then, we call 'initLocalTime', which returns a 'baltzo::LocalDatetime' object.
-// 'initLocalTime' also optionally returns 'baltzo::LocalTimeValidity::Enum',
-// indicating whether the provided input was a valid and unique clock time.
-// Note that invalid or ambiguous times are resolved using the optionally
-// provided 'baltzo::DstPolicy::Enum' (see the section
-// 'Daylight-Saving Time (DST) Policies and Disambiguation'):
+// Then, we call 'initLocalTime', which returns a 'baltzo::LocalDatetime'
+// object.  'initLocalTime' also optionally returns
+// 'baltzo::LocalTimeValidity::Enum', indicating whether the provided input was
+// a valid and unique clock time.  Note that invalid or ambiguous times are
+// resolved using the optionally provided 'baltzo::DstPolicy::Enum' (see the
+// section 'Daylight-Saving Time (DST) Policies and Disambiguation'):
 //..
     baltzo::LocalDatetime             localTime;
     baltzo::LocalTimeValidity::Enum validity;
@@ -1074,7 +1076,7 @@ int main(int argc, char *argv[])
                                                     uniqueTime,
                                                     "America/New_York");
     if (0 != status) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 //..
 // Now, we verify the value of 'localTime' is "Jul 31, 2010 15:00:00" with an
@@ -1092,7 +1094,7 @@ int main(int argc, char *argv[])
 // New York (because it does not fall near a daylight-saving time
 // transition):
 //..
-    ASSERT(baltzo::LocalTimeValidity::BAETZO_VALID_UNIQUE == validity);
+    ASSERT(baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE == validity);
 //..
 // By contrast, if we call 'initLocalTime' for a time value that falls during a
 // during a daylight-saving time transition, the returned
@@ -1111,7 +1113,7 @@ int main(int argc, char *argv[])
                                                 invalidTime,
                                                "America/New_York");
     if (0 != status) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 //..
 // Now, we verify the value of 'localTime' represents a valid and unique time
@@ -1126,9 +1128,9 @@ int main(int argc, char *argv[])
     ASSERT( -4 * 60 == localTime.datetimeTz().offset());
 //..
 // Finally, we verify that the validity status returned for 'invalidTime' is
-// 'BAETZO_INVALID':
+// 'BALTZO_INVALID':
 //..
-    ASSERT(baltzo::LocalTimeValidity::BAETZO_INVALID == validity);
+    ASSERT(baltzo::LocalTimeValidity::BALTZO_INVALID == validity);
 //..
         }
 
@@ -1143,11 +1145,12 @@ int main(int argc, char *argv[])
 // the offset from UTC, whether it is daylight-saving time) as well as the
 // interval over which those attributes apply (see 'baltzo_localtimeperiod').
 //
-// First, we create a 'baltzo::LocalDatetime' object for the New York local time
-// "Jul 31, 2010 15:00:00-04:00".  Note that this 'baltzo::LocalDatetime' may also
-// be created as in example 3.
+// First, we create a 'baltzo::LocalDatetime' object for the New York local
+// time "Jul 31, 2010 15:00:00-04:00".  Note that this 'baltzo::LocalDatetime'
+// may also be created as in example 3.
 //..
-    bdlt::DatetimeTz localTimeTz(bdlt::Datetime(2010, 7, 31, 15, 0, 0), -4 * 60);
+    bdlt::DatetimeTz localTimeTz(
+                               bdlt::Datetime(2010, 7, 31, 15, 0, 0), -4 * 60);
     baltzo::LocalDatetime localTime(localTimeTz, "America/New_York");
 //..
 // Then, we call 'loadLocalTimePeriod', which returns a
@@ -1315,10 +1318,11 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                             "\t'validateLocalTime' class method" << endl;
             {
-                const bdlt::DatetimeTz    TIME_TZ(bdlt::Datetime(2011, 1, 1), 0);
-                const char               TZ_ID[] = "America/New_York";
+                const bdlt::DatetimeTz      TIME_TZ(
+                                                bdlt::Datetime(2011, 1, 1), 0);
+                const char                  TZ_ID[] = "America/New_York";
                 const baltzo::LocalDatetime LCL_TIME(TIME_TZ, TZ_ID);
-                bool                     result;
+                bool                        result;
 
                 ASSERT_PASS(Obj::validateLocalTime(&result, TIME_TZ, TZ_ID));
                 ASSERT_FAIL(Obj::validateLocalTime(0, TIME_TZ, TZ_ID));
@@ -1334,7 +1338,7 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'convertLocalToLocal'
         //
         // Concerns:
-        //: 1 'BAETZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   supplied.
         //:
         //: 2 Resulting 'baltzo::LocalDatetime' has the same time zone as the
@@ -1343,12 +1347,12 @@ int main(int argc, char *argv[])
         //: 3 'baltzo::TimeZoneUtilImp::convertLocalToLocalTime' is invoked to
         //:   return the correct result.
         //:
-        //: 4 'dstPolicy' is default to 'BAETZO_UNSPECIFIED' if not specified.
+        //: 4 'dstPolicy' is default to 'BALTZO_UNSPECIFIED' if not specified.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that 'BAETZO_UNSUPPORTED_ID' is returned when given a time
+        //: 1 Test that 'BALTZO_UNSUPPORTED_ID' is returned when given a time
         //:   zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
@@ -1632,9 +1636,9 @@ int main(int argc, char *argv[])
                                                               TGT_TZID,
                                                               LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                       (baltzo::LocalDatetime*) 0,
-                                                       TGT_TZID,
-                                                       LCL_TIME));
+                                                    (baltzo::LocalDatetime*) 0,
+                                                    TGT_TZID,
+                                                    LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
                                                               LCL_TIME));
@@ -1645,9 +1649,9 @@ int main(int argc, char *argv[])
                                                               TGT_TZID,
                                                               TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                       (baltzo::LocalDatetime*) 0,
-                                                       TGT_TZID,
-                                                       TIME_TZ));
+                                                    (baltzo::LocalDatetime*) 0,
+                                                    TGT_TZID,
+                                                    TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
                                                               TIME_TZ));
@@ -1658,9 +1662,9 @@ int main(int argc, char *argv[])
                                                               TGT_TZID,
                                                               LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                         (bdlt::DatetimeTz *) 0,
-                                                         TGT_TZID,
-                                                         LCL_TIME));
+                                                        (bdlt::DatetimeTz *) 0,
+                                                        TGT_TZID,
+                                                        LCL_TIME));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
                                                               LCL_TIME));
@@ -1671,9 +1675,9 @@ int main(int argc, char *argv[])
                                                               TGT_TZID,
                                                               TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(
-                                                         (bdlt::DatetimeTz *) 0,
-                                                         TGT_TZID,
-                                                         TIME_TZ));
+                                                        (bdlt::DatetimeTz *) 0,
+                                                        TGT_TZID,
+                                                        TIME_TZ));
                 ASSERT_SAFE_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                               0,
                                                               TIME_TZ));
@@ -1685,10 +1689,10 @@ int main(int argc, char *argv[])
                                                          TIME,
                                                          SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(
-                                                       (baltzo::LocalDatetime*) 0,
-                                                       TGT_TZID,
-                                                       TIME,
-                                                       SRC_TZID));
+                                                    (baltzo::LocalDatetime*) 0,
+                                                    TGT_TZID,
+                                                    TIME,
+                                                    SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultLcl,
                                                          0,
                                                          TIME,
@@ -1704,10 +1708,11 @@ int main(int argc, char *argv[])
                                                          TGT_TZID,
                                                          TIME,
                                                          SRC_TZID));
-                ASSERT_FAIL(Obj::convertLocalToLocalTime((bdlt::DatetimeTz *) 0,
-                                                         TGT_TZID,
-                                                         TIME,
-                                                         SRC_TZID));
+                ASSERT_FAIL(Obj::convertLocalToLocalTime(
+                                                        (bdlt::DatetimeTz *) 0,
+                                                        TGT_TZID,
+                                                        TIME,
+                                                        SRC_TZID));
                 ASSERT_FAIL(Obj::convertLocalToLocalTime(&resultTz,
                                                          0,
                                                          TIME,
@@ -1737,7 +1742,7 @@ int main(int argc, char *argv[])
         //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BAETZO_UNSUPPORTED_ID' when
+        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
         //:   supplied with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with interval that spans across: a) no
@@ -1866,18 +1871,19 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'convertUtcToLocalTime'
         //
         // Concerns:
-        //: 1 'BAETZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   supplied.
         //:
         //: 2 'baltzo::TimeZoneUtilImp::convertUtcToLocalTime' is invoked to
         //:   return the correct result.
         //:
-        //: 3 Resulting 'baltzo::LocalDatetime' holds the right string identifier.
+        //: 3 Resulting 'baltzo::LocalDatetime' holds the right string
+        //:   identifier.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BAETZO_UNSUPPORTED_ID' when
+        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
         //:   supplied with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
@@ -1999,9 +2005,9 @@ int main(int argc, char *argv[])
                                                             "America/New_York",
                                                             TIME));
                 ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(
-                                                      (baltzo::LocalDatetime *) 0,
-                                                      "America/New_York",
-                                                      TIME));
+                                                   (baltzo::LocalDatetime *) 0,
+                                                   "America/New_York",
+                                                   TIME));
                 ASSERT_FAIL(0 == Obj::convertUtcToLocalTime(&resultLcl,
                                                             0,
                                                             TIME));
@@ -2013,9 +2019,9 @@ int main(int argc, char *argv[])
                                                             "America/New_York",
                                                             TIME));
                 ASSERT_SAFE_FAIL(0 == Obj::convertUtcToLocalTime(
-                                                         (bdlt::DatetimeTz *) 0,
-                                                         "America/New_York",
-                                                         TIME));
+                                                        (bdlt::DatetimeTz *) 0,
+                                                        "America/New_York",
+                                                        TIME));
                 ASSERT_SAFE_FAIL(0 == Obj::convertUtcToLocalTime(&resultTz,
                                                                  0,
                                                                  TIME));
@@ -2028,18 +2034,18 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'convertLocalToUtc'
         //
         // Concerns:
-        //: 1 'BAETZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
-        //: 2 'baltzo::TimeZoneUtilImp::convertLocalToUtc' is invoked return the
-        //:   correct result.
+        //: 2 'baltzo::TimeZoneUtilImp::convertLocalToUtc' is invoked return
+        //:   the correct result.
         //:
-        //: 3 'dstPolicy' is default to 'BAETZO_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' is default to 'BALTZO_UNSPECIFIED' if not specified.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BAETZO_UNSUPPORTED_ID' when
+        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
         //:   supplied with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
@@ -2147,8 +2153,8 @@ int main(int argc, char *argv[])
                 const bdlt::Datetime EXP_UTC_TIME = EXP_TIME_TZ.utcDatetime();
 
                 const baltzo::LocalDatetime EXP_UTC_LCL_TIME(
-                                              bdlt::DatetimeTz(EXP_UTC_TIME, 0),
-                                              "Etc/UTC");
+                                             bdlt::DatetimeTz(EXP_UTC_TIME, 0),
+                                             "Etc/UTC");
 
                 LOOP2_ASSERT(LINE, resultUtc, EXP_UTC_TIME == resultUtc);
                 LOOP2_ASSERT(LINE, resultUtcLclTime,
@@ -2201,8 +2207,8 @@ int main(int argc, char *argv[])
                 const bdlt::Datetime EXP_UTC_TIME(EXP_TIME_TZ.utcDatetime());
 
                 const baltzo::LocalDatetime EXP_UTC_LCL_TIME(
-                                              bdlt::DatetimeTz(EXP_UTC_TIME, 0),
-                                              "Etc/UTC");
+                                             bdlt::DatetimeTz(EXP_UTC_TIME, 0),
+                                             "Etc/UTC");
 
                 LOOP2_ASSERT(LINE, resultUtc, EXP_UTC_TIME == resultUtc);
                 LOOP2_ASSERT(LINE, resultUtcLclTime,
@@ -2256,18 +2262,18 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'initLocalTime'
         //
         // Concerns:
-        //: 1 'BAETZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
         //: 2 'baltzo::TimeZoneUtilImp::initLocalTime' is invoked return the
         //:   correct result.
         //:
-        //: 3 'dstPolicy' is default to 'BAETZO_UNSPECIFIED' if not specified.
+        //: 3 'dstPolicy' is default to 'BALTZO_UNSPECIFIED' if not specified.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that the method returns 'BAETZO_UNSUPPORTED_ID' when
+        //: 1 Test that the method returns 'BALTZO_UNSUPPORTED_ID' when
         //:   supplied with a time zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
@@ -2355,7 +2361,8 @@ int main(int argc, char *argv[])
                                                   (Dst::Enum)DATA[ti].d_policy;
                     const Validity::Enum   VALIDITY =
                                           (Validity::Enum) DATA[ti].d_validity;
-                    const bdlt::Datetime    TIME = toDatetime(DATA[ti].d_input);
+                    const bdlt::Datetime    TIME =
+                                                  toDatetime(DATA[ti].d_input);
                     const bdlt::DatetimeTz  EXP_TIME_TZ =
                                        toDatetimeTz(DATA[ti].d_expectedResult);
 
@@ -2542,18 +2549,18 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'loadLocalTimePeriod'
         //
         // Concerns:
-        //: 1 'BAETZO_UNSUPPORTED_ID' is returned when an invalid identifier is
+        //: 1 'BALTZO_UNSUPPORTED_ID' is returned when an invalid identifier is
         //:   passed in.
         //:
         //: 2 'loadLocalTimePeriodForUtc' is invoked to return the correct
         //:   result.
         //:
-        //: 3 'dstPolicy' is default to 'BAETZO_UNSPECIFIED'.
+        //: 3 'dstPolicy' is default to 'BALTZO_UNSPECIFIED'.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that 'BAETZO_UNSUPPORTED_ID' is returned when given a time
+        //: 1 Test that 'BALTZO_UNSUPPORTED_ID' is returned when given a time
         //:   zone identifier that does not exist.  (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
@@ -2720,7 +2727,7 @@ int main(int argc, char *argv[])
         // CLASS METHOD 'loadLocalTimePeriodForUtc'
         //
         // Concerns:
-        //: 1 returns 'BAETZO_UNSUPPORTED_ID' if 'timeZoneId' is not
+        //: 1 returns 'BALTZO_UNSUPPORTED_ID' if 'timeZoneId' is not
         //:   recognized.
         //:
         //: 2 'baltzo::TimeZoneUtilImp::loadLocalTimePeriodForUtc' is correctly
@@ -2730,7 +2737,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Test that 'loadLocalTimePeriodForUtc' returns
-        //:   'BAETZO_UNSUPPORTED_ID' when given a time zone identifier that
+        //:   'BALTZO_UNSUPPORTED_ID' when given a time zone identifier that
         //:   does not exist. (C-1)
         //:
         //: 2 Use a table-based approach with widely varying input values and
@@ -3061,7 +3068,8 @@ int main(int argc, char *argv[])
                 ASSERT(0 == bdlt::Iso8601Util::parse(&expResultTime,
                                                  expResultStr.c_str(),
                                                  expResultStr.size()));
-                baltzo::LocalDatetime expLocalTime(expResultTime, timeZoneId, Z);
+                baltzo::LocalDatetime expLocalTime(
+                                                 expResultTime, timeZoneId, Z);
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(policy); P_(inputTime); P(expLocalTime);
@@ -3379,11 +3387,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

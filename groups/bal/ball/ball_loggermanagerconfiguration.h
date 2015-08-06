@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a constrained-attribute class for the logger manager.
 //
 //@CLASSES:
-// ball::LoggerManagerConfiguration: configuration parameters for logger manager
+// ball::LoggerManagerConfiguration: configuration spec for a logger manager
 //
-//@SEE_ALSO: ball_loggermanagerdefaults, bdlmxxx_schema
+//@SEE_ALSO: ball_loggermanagerdefaults,
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
@@ -31,6 +31,7 @@ BSLS_IDENT("$Id: $")
 // 'ball::LoggerManagerConfiguration' class to simply the definition of some of
 // the attributes:
 //..
+#warning TBD: fix documentation xxxList
 //  TYPE                                         'typedef' alias
 //  ------------------------------------------   ------------------------------
 //  bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>
@@ -49,7 +50,7 @@ BSLS_IDENT("$Id: $")
 //  ------------------------------------------   ------------------------------
 //  ball::LoggerManagerDefaults                   defaults
 //
-//  bdlmxxx::Schema                                  userSchema
+//  bdlmxxx::Schema                              userSchema
 //
 //  UserPopulatorCallback                        userPopulatorCallback
 //
@@ -114,13 +115,9 @@ BSLS_IDENT("$Id: $")
 // For convenience, the 'ball::LoggerManagerConfiguration' interface contains
 // manipulators and accessors to configure and inspect the value of its
 // contained 'ball::LoggerManagerDefaults' object; these methods are identical
-// to those of 'ball::LoggerManagerDefaults'.  Therefore, the user has the
-// option of configuring a defaults object independently (e.g., by 'bdex'
-// streaming from a configuration file), and using the 'setDefaultValues'
-// method to set the default values atomically, or else using the individual
-// configuration-object methods to set the contained default values directly.
-// See the 'ball_loggermanagerdefaults' component for details on the defaults
-// and their constraints.
+// to those of 'ball::LoggerManagerDefaults'.  See the
+// 'ball_loggermanagerdefaults' component for details on the defaults and
+// their constraints.
 //
 ///Thread-Safety
 ///-------------
@@ -190,7 +187,7 @@ BSLS_IDENT("$Id: $")
 // that the "set" methods called in this example cannot fail, so they return
 // 'void':
 //..
-//  config.setUserFields(schema, populator);
+//  config.setUserFieldDescriptors(schema, populator);
 //  config.setCategoryNameFilterCallback(nameFilter);
 //  config.setDefaultThresholdLevelsCallback(defaultThresholds);
 //  config.setLogOrder(ball::LoggerManagerConfiguration::BAEL_FIFO);
@@ -241,12 +238,12 @@ BSLS_IDENT("$Id: $")
 #include <ball_loggermanagerdefaults.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BALL_USERFIELDDESCRIPTORS
+#include <ball_userfielddescriptors.h>
 #endif
 
-#ifndef INCLUDED_BDLMXXX_SCHEMA
-#include <bdlmxxx_schema.h>
+#ifndef INCLUDED_BDLF_FUNCTION
+#include <bdlf_function.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -263,11 +260,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmxxx { class List; }
+namespace ball {     
 
-namespace ball {                    // =====================================
+class UserFieldValues;
+
+                    // ================================
                     // class LoggerManagerConfiguration
-                    // =====================================
+                    // ================================
 
 class LoggerManagerConfiguration {
     // This class provides constrained configuration parameters for a logger
@@ -288,12 +287,15 @@ class LoggerManagerConfiguration {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>
-                                                         UserPopulatorCallback;
-        // 'UserPopulatorCallback' is the type of a user-supplied callback
-        // functor used to populate the user-defined fields in each log record.
-        // Note that the user-defined fields of each record must be
-        // type-consistent with the schema of the user populator callback.
+    typedef bdlf::Function<void (*)(ball::UserFieldValues *, 
+                                    const ball::UserFieldDescriptors& )>
+                                                   UserFieldsPopulatorCallback;
+        // 'UserFieldsPopulatorCallback' is the type of a user-supplied
+        // callback functor used to populate the user-defined fields in each
+        // log record.  Note that the user-defined fields of each record must
+        // be type-consistent with the 'UserFieldDescriptors' of the user
+        // populator callback.
+
 
     typedef bdlf::Function<void (*)(bsl::string *, const char *)>
                                                     CategoryNameFilterCallback;
@@ -349,9 +351,13 @@ class LoggerManagerConfiguration {
                                                   // severity threshold levels
                                                   // for logger manager
 
-    bdlmxxx::Schema           d_userSchema;           // schema and ...
+    ball::UserFieldDescriptors  
+                          d_userFieldDescriptors; // describes the fields
+                                                  // returned by 
+                                                  // 'd_userPopulatorCallback'
 
-    UserPopulatorCallback d_userPopulator;        // ... user populator to add
+    UserFieldsPopulatorCallback 
+                          d_userPopulator;        // user callback to add
                                                   // optional user-defined
                                                   // fields to a log record
 
@@ -462,14 +468,16 @@ class LoggerManagerConfiguration {
         // 'triggerAllLevel' values if each level is in the range '[0 .. 255]'.
         // Return 0 on success, and a non-zero value otherwise with no effect
         // on this object.
-
-    void setUserFields(const bdlmxxx::Schema&            schema,
-                       const UserPopulatorCallback&  populator);
-        // Set the user-defined-fields attributes of this object to the
-        // specified 'schema' and 'populator'.  Note that this method cannot
+    
+    void setUserFieldDescriptors(
+                       const ball::UserFieldDescriptors   fieldDescriptions,
+                       const UserFieldsPopulatorCallback& populatorCallback);
+        // Set the user-defined-fields attributes of this object such that the
+        // specified 'populatorCallback' will be invoked and supplied the
+        // specified 'fieldDescriptions'.  Note that this method cannot
         // fail per se, but it is the user's responsibility to make sure that
-        // 'populator' can populate the fields of a 'bdlmxxx::List' consistent with
-        // 'schema'.
+        // 'populatorCallback' can populate a 'ball::UserFieldValues' object
+        // in a way consistent with the 'fieldDescriptions'.
 
     void setCategoryNameFilterCallback(
                                  const CategoryNameFilterCallback& nameFilter);
@@ -521,11 +529,12 @@ class LoggerManagerConfiguration {
         // Return the default Trigger-All threshold level attribute of the
         // 'LoggerManagerDefaults' attribute of this object.
 
-    const bdlmxxx::Schema& userSchema() const;
-        // Return a reference to the non-modifiable user schema attribute of
-        // this object.
 
-    const UserPopulatorCallback& userPopulatorCallback() const;
+    const ball::UserFieldDescriptors& userFieldDescriptors() const;
+        // Return a reference to the non-modifiable descriptors for user
+        // fields.
+
+    const UserFieldsPopulatorCallback& userFieldsPopulatorCallback() const;
         // Return a reference to the non-modifiable user populator functor
         // attribute of this object.
 

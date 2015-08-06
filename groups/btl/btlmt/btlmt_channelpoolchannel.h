@@ -47,8 +47,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLB_VARIANT
@@ -65,6 +65,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSL_CLIMITS

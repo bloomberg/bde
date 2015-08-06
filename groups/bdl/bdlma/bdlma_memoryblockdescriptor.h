@@ -60,18 +60,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-
-
 namespace BloombergLP {
-
 namespace bdlma {
-                   // =================================
-                   // class MemoryBlockDescriptor
-                   // =================================
+
+                       // ===========================
+                       // class MemoryBlockDescriptor
+                       // ===========================
 
 class MemoryBlockDescriptor {
-    // This is an in-core value-semantic class describing the size and
-    // address of a block of memory.  A null block descriptor is defined as a
+    // This is an in-core value-semantic class describing the size and address
+    // of a block of memory.  A null block descriptor is defined as a
     // descriptor having an address and size of 0.  The behavior is undefined
     // for a descriptor whose address is 0, but whose size if not also 0.
 
@@ -112,8 +110,9 @@ class MemoryBlockDescriptor {
 
     void setAddressAndSize(void *address, size_type size);
         // Set the address and size of the memory block described by this
-        // object to the specified 'address' and 'size.  The behavior is
-        // undefined if 'address' is 0 but 'size' is not also 0.
+        // object to the specified 'address' and
+        // 'size.  The behavior is undefined if 'address' is 0 but 'size' is
+        // not also 0.
 
     // ACCESSORS
     bool isNull() const;
@@ -134,14 +133,12 @@ class MemoryBlockDescriptor {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const MemoryBlockDescriptor& lhs,
                 const MemoryBlockDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' memory block descriptors
     // have the same value and 'false' otherwise.  Two descriptors have the
     // same value if and only if they have the same address and size.
 
-inline
 bool operator!=(const MemoryBlockDescriptor& lhs,
                 const MemoryBlockDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' memory block descriptors
@@ -149,17 +146,16 @@ bool operator!=(const MemoryBlockDescriptor& lhs,
     // differ in value if they differ in either their address or size.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                  // ---------------------------------
-                  // class MemoryBlockDescriptor
-                  // ---------------------------------
+                       // ---------------------------
+                       // class MemoryBlockDescriptor
+                       // ---------------------------
 
 // CREATORS
 inline
-MemoryBlockDescriptor::
-MemoryBlockDescriptor()
+MemoryBlockDescriptor::MemoryBlockDescriptor()
 : d_address_p(0)
 , d_size(0)
 {
@@ -167,7 +163,7 @@ MemoryBlockDescriptor()
 
 inline
 MemoryBlockDescriptor::MemoryBlockDescriptor(void      *address,
-                                                         size_type  size)
+                                             size_type  size)
 : d_address_p(address)
 , d_size(size)
 {
@@ -176,7 +172,7 @@ MemoryBlockDescriptor::MemoryBlockDescriptor(void      *address,
 
 inline
 MemoryBlockDescriptor::MemoryBlockDescriptor(
-                                 const MemoryBlockDescriptor& original)
+                                         const MemoryBlockDescriptor& original)
 : d_address_p(original.d_address_p)
 , d_size(original.d_size)
 {
@@ -185,7 +181,7 @@ MemoryBlockDescriptor::MemoryBlockDescriptor(
 // MANIPULATORS
 inline
 MemoryBlockDescriptor& MemoryBlockDescriptor::operator=(
-                                        const MemoryBlockDescriptor& rhs)
+                                              const MemoryBlockDescriptor& rhs)
 {
     d_address_p = rhs.d_address_p;
     d_size      = rhs.d_size;
@@ -195,14 +191,13 @@ MemoryBlockDescriptor& MemoryBlockDescriptor::operator=(
 
 inline
 void MemoryBlockDescriptor::setAddressAndSize(void      *address,
-                                                    size_type  size)
+                                              size_type  size)
 {
     BSLS_ASSERT_SAFE(address || 0 == size);
 
     d_address_p = address;
     d_size      = size;
 }
-
 
 // ACCESSORS
 inline
@@ -223,32 +218,40 @@ bool MemoryBlockDescriptor::isNull() const
 {
     return 0 == d_address_p;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 inline
 bool bdlma::operator==(const MemoryBlockDescriptor& lhs,
-                const MemoryBlockDescriptor& rhs)
+                       const MemoryBlockDescriptor& rhs)
 {
     return lhs.address() == rhs.address() && lhs.size() == rhs.size();
 }
 
 inline
 bool bdlma::operator!=(const MemoryBlockDescriptor& lhs,
-                const MemoryBlockDescriptor& rhs)
+                       const MemoryBlockDescriptor& rhs)
 {
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

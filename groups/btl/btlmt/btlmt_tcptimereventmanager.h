@@ -220,8 +220,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_XXXTHREAD
-#include <bdlqq_xxxthread.h>
+#ifndef INCLUDED_BDLQQ_MUTEX
+#include <bdlqq_mutex.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
+#include <bdlqq_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDLQQ_THREADUTIL
+#include <bdlqq_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLQQ_RWMUTEX
@@ -606,7 +614,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // through a callback, in the internal thread.
 
     int enable();
-    int enable(const bcemt_Attribute& attribute);
+    int enable(const bdlqq::ThreadAttributes& attribute);
         // Create the internal thread responsible for monitoring sockets and
         // dispatching timer and socket callbacks, optionally setting the
         // 'attribute' of the new thread to the specified 'attribute'.  Return
@@ -762,7 +770,7 @@ TcpTimerEventManager_ControlChannel::serverFd()
 inline
 int TcpTimerEventManager::enable()
 {
-    return enable(bcemt_Attribute());
+    return enable(bdlqq::ThreadAttributes());
 }
 
 // ACCESSORS

@@ -1,13 +1,18 @@
 // bdlma_defaultdeleter.t.cpp                                         -*-C++-*-
 #include <bdlma_defaultdeleter.h>
+
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bsl_memory.h>
 
 #include <bslma_default.h>
+#include <bslma_newdeleteallocator.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // memcpy()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -24,33 +29,51 @@ using namespace bsl;  // automatically added by script
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define PS(X) cout << #X " = \n" << (X) << endl; // Print identifier and value.
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 class my_Obj {
+    int d_flag;
     int *d_destructorFlag_p;
   public:
+    my_Obj() : d_destructorFlag_p(&d_flag) {}
+
     my_Obj(int *destructorFlag) : d_destructorFlag_p(destructorFlag) {
         *d_destructorFlag_p = 0;
     }
@@ -74,15 +97,35 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // TEST USAGE
         // --------------------------------------------------------------------
-
-        bslma::TestAllocator ta;
-
-        int destructorFlag;
-        my_Obj *object = new(ta) my_Obj(&destructorFlag);
-
-        bdlma::DefaultDeleter<my_Obj> deleter(&ta);
-
-        bsl::shared_ptr<my_Obj> handle(object, &deleter, &ta);
+///Usage
+///-----
+// Suppose that we would like to transfer ownership of an object between
+// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
+// this object is 'my_Obj' and we will suppose that it is created using a given
+// 'basicAllocator'.  Note that we assume that 'my_Obj' does not require an
+// allocator for any of its members:
+//..
+    bslma::NewDeleteAllocator basicAllocator;
+    my_Obj *object = new(basicAllocator) my_Obj;
+//..
+// Next, create a concrete deleter for 'object' using the same allocator as was
+// used to allocate its footprint:
+//..
+    bdlma::DefaultDeleter<my_Obj> deleter(&basicAllocator);
+//..
+// Finally, create a shared pointer passing to it 'object' and the address of
+// 'deleter':
+//..
+    bsl::shared_ptr<my_Obj> handle(object, &deleter, &basicAllocator);
+//..
+// Now the 'handle' can be passed to another thread or enqueued efficiently.
+// When the reference count of 'handle' goes to 0, 'object' is automatically
+// deleted via the 'deleteObject' method of 'deleter', which in turn will
+// invoke the destructor of 'object'.  Note that since the type of the deleter
+// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of
+// deleter that implements this protocol can be passed.  Also note, on the
+// downside, that the lifetime of 'deleter' must be longer than the lifetime of
+// all associated instances.
       } break;
       case 1: {
         // --------------------------------------------------------------------

@@ -222,8 +222,8 @@ namespace ball {
 Logger::Logger(
            Observer                                   *observer,
            RecordBuffer                               *recordBuffer,
-           const bdlmxxx::Schema                               *schema,
-           const Logger::UserPopulatorCallback&        populator,
+           const ball::UserFieldDescriptors                               *schema,
+           const Logger::UserFieldsPopulatorCallback&        populator,
            const PublishAllTriggerCallback&                 publishAllCallback,
            int                                              scratchBufferSize,
            LoggerManagerConfiguration::LogOrder        logOrder,
@@ -232,7 +232,7 @@ Logger::Logger(
 : d_recordPool(-1, basicAllocator)
 , d_observer_p(observer)
 , d_recordBuffer_p(recordBuffer)
-, d_userSchema_p(schema)
+, d_userFieldDescriptors_p(schema)
 , d_populator(populator)
 , d_publishAll(publishAllCallback)
 , d_scratchBufferSize(scratchBufferSize)
@@ -242,7 +242,7 @@ Logger::Logger(
 {
     BSLS_ASSERT(d_observer_p);
     BSLS_ASSERT(d_recordBuffer_p);
-    BSLS_ASSERT(d_userSchema_p);
+    BSLS_ASSERT(d_userFieldDescriptors_p);
     BSLS_ASSERT(d_allocator_p);
 
     // 'snprintf' message buffer
@@ -253,7 +253,7 @@ Logger::~Logger()
 {
     BSLS_ASSERT(d_observer_p);
     BSLS_ASSERT(d_recordBuffer_p);
-    BSLS_ASSERT(d_userSchema_p);
+    BSLS_ASSERT(d_userFieldDescriptors_p);
     BSLS_ASSERT(d_publishAll);
     BSLS_ASSERT(d_scratchBuffer_p);
     BSLS_ASSERT(d_allocator_p);
@@ -309,7 +309,7 @@ void Logger::logMessage(const Category&            category,
     record->fixedFields().setThreadID(bdlqq::ThreadUtil::selfIdAsUint64());
 
     if (d_populator) {
-        d_populator(&record->userFields(), *d_userSchema_p);
+        d_populator(&record->userFieldValues(), *d_userFieldDescriptors_p);
     }
 
     bsl::shared_ptr<Record> handle(record, &d_recordPool, d_allocator_p);
@@ -410,7 +410,7 @@ void Logger::logMessage(const Category&            category,
 Record *Logger::getRecord(const char *file, int line)
 {
     Record *record = d_recordPool.getObject();
-    record->userFields().removeAll();
+    record->userFieldValues().removeAll();
     record->fixedFields().clearMessage();
     record->fixedFields().setFileName(file);
     record->fixedFields().setLineNumber(line);
@@ -623,20 +623,20 @@ void LoggerManager::initSingleton(
 
 void LoggerManager::initSingleton(
                      Observer                             *observer,
-                     const bdlmxxx::Schema&                         userSchema,
-                     const Logger::UserPopulatorCallback&  populator,
+                     const ball::UserFieldDescriptors&                         userFieldDescriptors,
+                     const Logger::UserFieldsPopulatorCallback&  populator,
                      bslma::Allocator                          *basicAllocator)
 {
     LoggerManagerConfiguration configuration;
-    configuration.setUserFields(userSchema, populator);
+    configuration.setUserFieldDescriptors(userFieldDescriptors, populator);
     initSingletonImpl(observer, configuration, basicAllocator);
 }
 
 void LoggerManager::initSingleton(
                   Observer                             *observer,
                   const FactoryDefaultThresholds&            factoryThresholds,
-                  const bdlmxxx::Schema&                         userSchema,
-                  const Logger::UserPopulatorCallback&  populator,
+                  const ball::UserFieldDescriptors&                         userFieldDescriptors,
+                  const Logger::UserFieldsPopulatorCallback&  populator,
                   bslma::Allocator                          *basicAllocator)
 {
     LoggerManagerConfiguration configuration;
@@ -647,20 +647,20 @@ void LoggerManager::initSingleton(
                                           factoryThresholds.d_triggerLevel,
                                           factoryThresholds.d_triggerAllLevel);
     configuration.setDefaultValues(defaults);
-    configuration.setUserFields(userSchema, populator);
+    configuration.setUserFieldDescriptors(userFieldDescriptors, populator);
     initSingletonImpl(observer, configuration, basicAllocator);
 }
 
 void LoggerManager::initSingleton(
                    Observer                            *observer,
                    const DefaultThresholdLevelsCallback&     defaultThresholds,
-                   const bdlmxxx::Schema&                        userSchema,
-                   const Logger::UserPopulatorCallback& populator,
+                   const ball::UserFieldDescriptors&                        userFieldDescriptors,
+                   const Logger::UserFieldsPopulatorCallback& populator,
                    bslma::Allocator                         *basicAllocator)
 {
     LoggerManagerConfiguration configuration;
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    configuration.setUserFields(userSchema, populator);
+    configuration.setUserFieldDescriptors(userFieldDescriptors, populator);
     initSingletonImpl(observer, configuration, basicAllocator);
 }
 
@@ -668,8 +668,8 @@ void LoggerManager::initSingleton(
                    Observer                            *observer,
                    const DefaultThresholdLevelsCallback&     defaultThresholds,
                    const FactoryDefaultThresholds&           factoryThresholds,
-                   const bdlmxxx::Schema&                        userSchema,
-                   const Logger::UserPopulatorCallback& populator,
+                   const ball::UserFieldDescriptors&                        userFieldDescriptors,
+                   const Logger::UserFieldsPopulatorCallback& populator,
                    bslma::Allocator                         *basicAllocator)
 {
     LoggerManagerConfiguration configuration;
@@ -681,7 +681,7 @@ void LoggerManager::initSingleton(
                                           factoryThresholds.d_triggerAllLevel);
     configuration.setDefaultValues(defaults);
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    configuration.setUserFields(userSchema, populator);
+    configuration.setUserFieldDescriptors(userFieldDescriptors, populator);
     initSingletonImpl(observer, configuration, basicAllocator);
 }
 
@@ -775,9 +775,9 @@ LoggerManager::LoggerManager(
                            configuration.defaults().defaultPassLevel(),
                            configuration.defaults().defaultTriggerLevel(),
                            configuration.defaults().defaultTriggerAllLevel())
-, d_userSchema(configuration.userSchema(),
+, d_userFieldDescriptors(configuration.userFieldDescriptors(),
                bslma::Default::globalAllocator(basicAllocator))
-, d_populator(configuration.userPopulatorCallback())
+, d_populator(configuration.userFieldsPopulatorCallback())
 , d_logger_p(0)
 , d_categoryManager(bslma::Default::globalAllocator(basicAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
@@ -834,7 +834,7 @@ void LoggerManager::constructObject(
 
     d_logger_p = new(*d_allocator_p) Logger(d_observer_p,
                                                  d_recordBuffer_p,
-                                                 &d_userSchema,
+                                                 &d_userFieldDescriptors,
                                                  d_populator,
                                                  d_publishAllCallback,
                                                  d_scratchBufferSize,
@@ -866,9 +866,9 @@ LoggerManager::LoggerManager(
                            configuration.defaults().defaultPassLevel(),
                            configuration.defaults().defaultTriggerLevel(),
                            configuration.defaults().defaultTriggerAllLevel())
-, d_userSchema(configuration.userSchema(),
+, d_userFieldDescriptors(configuration.userFieldDescriptors(),
                bslma::Default::globalAllocator(basicAllocator))
-, d_populator(configuration.userPopulatorCallback())
+, d_populator(configuration.userFieldsPopulatorCallback())
 , d_logger_p(0)
 , d_categoryManager(bslma::Default::globalAllocator(basicAllocator))
 , d_maxNumCategoriesMinusOne((unsigned int)-1)
@@ -944,7 +944,7 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
                                                           buffer,
-                                                          &d_userSchema,
+                                                          &d_userFieldDescriptors,
                                                           d_populator,
                                                           d_publishAllCallback,
                                                           d_scratchBufferSize,
@@ -964,7 +964,7 @@ Logger *LoggerManager::allocateLogger(
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
                                                           buffer,
-                                                          &d_userSchema,
+                                                          &d_userFieldDescriptors,
                                                           d_populator,
                                                           d_publishAllCallback,
                                                           scratchBufferSize,
@@ -983,7 +983,7 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                           buffer,
-                                                          &d_userSchema,
+                                                          &d_userFieldDescriptors,
                                                           d_populator,
                                                           d_publishAllCallback,
                                                           d_scratchBufferSize,
@@ -1004,7 +1004,7 @@ Logger *LoggerManager::allocateLogger(
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                           buffer,
-                                                          &d_userSchema,
+                                                          &d_userFieldDescriptors,
                                                           d_populator,
                                                           d_publishAllCallback,
                                                           scratchBufferSize,
@@ -1353,8 +1353,8 @@ const Observer *LoggerManager::observer() const
     return d_observer_p;
 }
 
-const Logger::UserPopulatorCallback *
-LoggerManager::userPopulatorCallback() const
+const Logger::UserFieldsPopulatorCallback *
+LoggerManager::userFieldsPopulatorCallback() const
 {
     return d_populator ? &d_populator : 0;
 }
