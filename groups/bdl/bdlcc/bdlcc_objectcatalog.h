@@ -505,9 +505,9 @@ class ObjectCatalogIter {
     bool operator==(const ObjectCatalogIter&) const;
     bool operator!=(const ObjectCatalogIter&) const;
 
-    template<typename OTHER>
+    template<class OTHER>
     bool operator==(const ObjectCatalogIter<OTHER>&) const;
-    template<typename OTHER>
+    template<class OTHER>
     bool operator!=(const ObjectCatalogIter<OTHER>&) const;
 
   public:

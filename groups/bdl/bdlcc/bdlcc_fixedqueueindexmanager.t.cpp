@@ -338,7 +338,7 @@ void gg(Obj      *result,
         if (0 == d_indexManager.reservePushIndex(&generation, &index)) {
             d_values[index] = value;
             d_indexManager.commitPushIndex(generation, index);
-            return 0;
+            return 0;                                                 // RETURN
         }
         return -1;
     }
@@ -349,7 +349,7 @@ void gg(Obj      *result,
         if (0 == d_indexManager.reservePopIndex(&generation, &index)) {
             *result = d_values[index];
             d_indexManager.commitPopIndex(generation, index);
-            return 0;
+            return 0;                                                 // RETURN
         }
         return -1;
     }
@@ -642,7 +642,7 @@ TestThreadStateBarrier::State TestThreadStateBarrier::state()
 {
     State state = static_cast<State>(d_state.loadRelaxed());
     if (state == e_CONTINUE) {
-        return state;
+        return state;                                                 // RETURN
     }
     d_barrier.wait();
     return state;
@@ -700,7 +700,7 @@ void writerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::e_EXIT) {
-            return;
+            return;                                                   // RETURN
         }
         else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
@@ -734,7 +734,7 @@ void readerThread(Obj *x, TestThreadStateBarrier *testState, int delayPeriod)
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::e_EXIT) {
-            return;
+            return;                                                   // RETURN
         }
         else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
@@ -771,7 +771,7 @@ void exceptionThread(Obj                    *x,
     for (;;) {
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::e_EXIT) {
-            return;
+            return;                                                   // RETURN
         }
         else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
@@ -888,7 +888,7 @@ void writerThread(Obj                    *x,
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::e_EXIT) {
             *writeCount += count;
-            return;
+            return;                                                   // RETURN
         }
         else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();
@@ -926,7 +926,7 @@ void readerThread(Obj                    *x,
         TestThreadStateBarrier::State state = testState->state();
         if (state == TestThreadStateBarrier::e_EXIT) {
             *readCount += count;
-            return;
+            return;                                                   // RETURN
         }
         else if (state == TestThreadStateBarrier::e_WAIT) {
             testState->blockUntilStateChange();

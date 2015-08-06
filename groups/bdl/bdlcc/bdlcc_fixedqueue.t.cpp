@@ -473,7 +473,7 @@ extern "C" void *stressConsumer1(void* arg) {
     StressData *data = (StressData*)arg;
     while (true) {
         StressNode sn = data->queue->popFront();
-        if (sn.thread<0) return 0;
+        if (sn.thread<0) return 0;                                    // RETURN
         ++data->counts[sn.thread];
         data->checksums[sn.thread] += sn.value;
     }
@@ -484,7 +484,7 @@ extern "C" void *stressConsumer2(void* arg) {
     while (true) {
         StressNode sn;
         if (!data->queue->tryPopFront(&sn)) {
-            if (sn.thread<0) return 0;
+            if (sn.thread<0) return 0;                                // RETURN
             ++data->counts[sn.thread];
             data->checksums[sn.thread] += sn.value;
         }
@@ -500,7 +500,7 @@ extern "C" void *stressProducer1(void* arg) {
     StressData *data = (StressData*)arg;
     int maxCount = data->maxCount;
     for (int i=0; i<maxCount; ++i) {
-        if (*data->stopProd) return 0;
+        if (*data->stopProd) return 0;                                // RETURN
         StressNode sn;
         sn.thread = data->thread;
         sn.value = stressrand();
@@ -515,7 +515,7 @@ extern "C" void* stressProducer2(void* arg) {
     StressData *data = (StressData*)arg;
     int maxCount = data->maxCount;
     for (int i=0; i<maxCount; ++i) {
-        if (*data->stopProd) return 0;
+        if (*data->stopProd) return 0;                                // RETURN
         StressNode sn;
         sn.thread = data->thread;
         sn.value = stressrand();
@@ -538,7 +538,7 @@ extern "C" void *benchConsumer(void* arg) {
     BenchData *data = (BenchData*)arg;
     while (true) {
         data->queue->popFront();
-        if (data->stop) return 0;
+        if (data->stop) return 0;                                     // RETURN
         ++data->count;
     }
 }
@@ -548,7 +548,7 @@ extern "C" void *benchProducer(void* arg) {
     int reserved;
     while (true) {
         data->queue->pushBack((void*)&reserved);
-        if (data->stop) return 0;
+        if (data->stop) return 0;                                     // RETURN
         ++data->count;
     }
     return 0;

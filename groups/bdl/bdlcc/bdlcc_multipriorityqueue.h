@@ -789,7 +789,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
         }
 
         priority = bdlb::BitUtil::numTrailingUnsetBits(
-                                                    (uint32_t)d_notEmptyFlags);
+                                               (bsl::uint32_t)d_notEmptyFlags);
         BSLS_ASSERT(priority < k_MAX_NUM_PRIORITIES);
             // verifies there is at least one priority bit set.  Note that
             // 'numTrailingUnsetBits' cannot return a negative value.

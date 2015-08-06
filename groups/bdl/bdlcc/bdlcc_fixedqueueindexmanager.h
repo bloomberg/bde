@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //      if (0 == d_indexManager.reservePushIndex(&generation, &index)) {
 //          d_values[index] = value;
 //          d_indexManager.commitPushIndex(generation, index);
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //      return -1;
 //  }
@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //      if (0 == d_indexManager.reservePopIndex(&generation, &index)) {
 //          *result = d_values[index];
 //          d_indexManager.commitPopIndex(generation, index);
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //      return -1;
 //  }
