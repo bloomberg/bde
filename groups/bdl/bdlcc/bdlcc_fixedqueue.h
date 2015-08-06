@@ -101,9 +101,10 @@ BSLS_IDENT("$Id: $")
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
 //..
-//  void myDoWork(my_WorkData& )
+//  void myDoWork(my_WorkData& data)
 //  {
 //      // do some stuff...
+//      (void)data;
 //  }
 //..
 // Then, we define a 'myConsumer' function that will pop elements off the queue

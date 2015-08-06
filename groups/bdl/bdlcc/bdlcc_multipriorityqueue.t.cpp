@@ -94,6 +94,7 @@ int testStatus = 0;
 bdlqq::Mutex coutMutex;
 
 #define COUT  { coutMutex.lock(); bsl::cout
+#define CERR  { coutMutex.lock(); bsl::cerr
 #define ENDL  bsl::endl; coutMutex.unlock(); }
 #define FLUSH bsl::flush; coutMutex.unlock(); }
 
