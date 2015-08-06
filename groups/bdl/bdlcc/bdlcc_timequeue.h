@@ -814,8 +814,7 @@ class TimeQueue {
   public:
     // CREATORS
     explicit TimeQueue(bslma::Allocator *basicAllocator = 0);
-    explicit TimeQueue(int               numIndexBits,
-                            bslma::Allocator *basicAllocator = 0);
+    explicit TimeQueue(int numIndexBits, bslma::Allocator *basicAllocator = 0);
         // Create an empty time queue.  Optionally specify 'numIndexBits' to
         // configure the number of index bits used by this object.  If
         // 'numIndexBits' is not specified a default value of 17 is used.
@@ -826,10 +825,10 @@ class TimeQueue {
         // 'numIndexBits'.
 
     explicit TimeQueue(bool              poolTimerMemory,
-                            bslma::Allocator *basicAllocator = 0);
+                       bslma::Allocator *basicAllocator = 0);
     TimeQueue(int               numIndexBits,
-                   bool              poolTimerMemory,
-                   bslma::Allocator *basicAllocator = 0);
+              bool              poolTimerMemory,
+              bslma::Allocator *basicAllocator = 0);
         // [!DEPRECATED!] Use the other constructor overloads instead.  Note
         // that the 'poolTimerMemory' (optional) argument controlled whether
         // additional memory used by an internal 'bsl::map' was pooled.  When
@@ -841,14 +840,14 @@ class TimeQueue {
 
     // MANIPULATORS
     Handle add(const bsls::TimeInterval&  time,
-               const DATA&               data,
-               int                      *isNewTop  = 0,
-               int                      *newLength = 0);
+               const DATA&                data,
+               int                       *isNewTop = 0,
+               int                       *newLength = 0);
     Handle add(const bsls::TimeInterval&  time,
-               const DATA&               data,
-               const Key&                key,
-               int                      *isNewTop  = 0,
-               int                      *newLength = 0);
+               const DATA&                data,
+               const Key&                 key,
+               int                       *isNewTop = 0,
+               int                       *newLength = 0);
         // Add a new item to this queue having the specified 'time' value, and
         // associated 'data'.  Optionally use the specified 'key' to uniquely
         // identify the item in subsequent calls to 'remove' and 'update'.
@@ -860,8 +859,8 @@ class TimeQueue {
         // -1 if the maximum queue length has been reached.
 
     Handle add(const TimeQueueItem<DATA>&  item,
-               int                             *isNewTop  = 0,
-               int                             *newLength = 0);
+               int                        *isNewTop = 0,
+               int                        *newLength = 0);
         // Add a new item to this queue having the specified 'time' value, and
         // associated 'data'.  Optionally load into the specified 'isNewTop' a
         // non-zero value if the replaces is now the lowest item in this queue,
@@ -869,9 +868,9 @@ class TimeQueue {
         // new number of items in this queue.  Return a value that may be used
         // to identify the newly added item in future calls to time queue.
 
-    int popFront(TimeQueueItem<DATA> *buffer     = 0,
-                 int                      *newLength  = 0,
-                 bsls::TimeInterval        *newMinTime = 0);
+    int popFront(TimeQueueItem<DATA> *buffer = 0,
+                 int                 *newLength = 0,
+                 bsls::TimeInterval  *newMinTime = 0);
         // Atomically remove the top item from this queue, and optionally load
         // into the specified 'buffer' the time and associated data of the item
         // removed.  Optionally load into the specified 'newLength', the number
@@ -881,10 +880,10 @@ class TimeQueue {
         // Note that if 'DATA' follows the 'bdema' allocator model, the
         // allocator of the 'buffer' is used to supply memory.
 
-    void popLE(const bsls::TimeInterval&                time,
-               bsl::vector<TimeQueueItem<DATA> > *buffer     = 0,
-               int                                    *newLength  = 0,
-               bsls::TimeInterval                      *newMinTime = 0);
+    void popLE(const bsls::TimeInterval&          time,
+               bsl::vector<TimeQueueItem<DATA> > *buffer = 0,
+               int                               *newLength = 0,
+               bsls::TimeInterval                *newMinTime = 0);
         // Remove from this queue all the items that have a time value less
         // than or equal to the specified 'time', and optionally append into
         // the specified 'buffer' a list of the removed items, ordered by their
@@ -899,11 +898,11 @@ class TimeQueue {
         // 'buffer' vector is used to supply memory for the items appended to
         // the 'buffer'.
 
-    void popLE(const bsls::TimeInterval&                time,
-               int                                     maxTimers,
-               bsl::vector<TimeQueueItem<DATA> > *buffer     = 0,
-               int                                    *newLength  = 0,
-               bsls::TimeInterval                      *newMinTime = 0);
+    void popLE(const bsls::TimeInterval&          time,
+               int                                maxTimers,
+               bsl::vector<TimeQueueItem<DATA> > *buffer = 0,
+               int                               *newLength = 0,
+               bsls::TimeInterval                *newMinTime = 0);
         // Remove from this queue up to the specified 'maxTimers' number of
         // items that have a time value less than or equal to the specified
         // 'time', and optionally append into the specified 'buffer' a list of
@@ -921,15 +920,15 @@ class TimeQueue {
         // 'buffer' have a time value less than or equal to the elements
         // remaining in this queue.
 
-    int remove(Handle                    handle,
-               int                      *newMinLength = 0,
-               bsls::TimeInterval        *newMinTime   = 0,
-               TimeQueueItem<DATA> *item         = 0);
-    int remove(Handle                    handle,
-               const Key&                key,
-               int                      *newMinLength = 0,
-               bsls::TimeInterval        *newMinTime   = 0,
-               TimeQueueItem<DATA> *item         = 0);
+    int remove(Handle               handle,
+               int                 *newMinLength = 0,
+               bsls::TimeInterval  *newMinTime = 0,
+               TimeQueueItem<DATA> *item = 0);
+    int remove(Handle               handle,
+               const Key&           key,
+               int                 *newMinLength = 0,
+               bsls::TimeInterval  *newMinTime = 0,
+               TimeQueueItem<DATA> *item = 0);
         // Remove from this queue the item having the specified 'handle', and
         // optionally load into the specified 'item' the time and data values
         // of the recently removed item.  Optionally use the specified 'key' to
@@ -945,13 +944,13 @@ class TimeQueue {
         // 'buffer', and remove all the items in this queue.  Note that the
         // allocator of the 'buffer' vector is used to supply memory.
 
-    int update(Handle                    handle,
+    int update(Handle                     handle,
                const bsls::TimeInterval&  newTime,
-               int                      *isNewTop = 0);
-    int update(Handle                    handle,
-               const Key&                key,
+               int                       *isNewTop = 0);
+    int update(Handle                     handle,
+               const Key&                 key,
                const bsls::TimeInterval&  newTime,
-               int                      *isNewTop = 0);
+               int                       *isNewTop = 0);
         // Update the time value of the item having the specified 'handle' to
         // the specified 'newTime' and optionally load into the specified
         // 'isNewTop' a non-zero value if the modified item is now the lowest
@@ -1002,16 +1001,16 @@ class TimeQueueItem {
   public:
     // CREATORS
     explicit
-    TimeQueueItem(bslma::Allocator                *basicAllocator = 0);
-    TimeQueueItem(const bsls::TimeInterval&         time,
-                       const DATA&                      data,
-                       Handle                           handle,
-                       bslma::Allocator                *basicAllocator = 0);
-    TimeQueueItem(const bsls::TimeInterval&         time,
-                       const DATA&                      data,
-                       Handle                           handle,
-                       const Key&                       key,
-                       bslma::Allocator                *basicAllocator = 0);
+    TimeQueueItem(bslma::Allocator *basicAllocator = 0);
+    TimeQueueItem(const bsls::TimeInterval&  time,
+                  const DATA&                data,
+                  Handle                     handle,
+                  bslma::Allocator          *basicAllocator = 0);
+    TimeQueueItem(const bsls::TimeInterval&  time,
+                  const DATA&                data,
+                  Handle                     handle,
+                  const Key&                 key,
+                  bslma::Allocator          *basicAllocator = 0);
         // Create time queue item holding a copy of the 'data', optionally with
         // associated 'time', 'handle' and 'key' information.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -1019,7 +1018,7 @@ class TimeQueueItem {
         // allocator.
 
     TimeQueueItem(const TimeQueueItem<DATA>&  original,
-                       bslma::Allocator                *basicAllocator = 0);
+                  bslma::Allocator           *basicAllocator = 0);
         // Create a copy of the 'original' time queue item.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
         // zero, then use the currently installed default allocator.
@@ -1294,17 +1293,17 @@ typename TimeQueue<DATA>:: Handle TimeQueue<DATA>::add(
 template <typename DATA>
 inline
 typename TimeQueue<DATA>::Handle TimeQueue<DATA>::add(
-                                    const TimeQueueItem<DATA>&  item,
-                                    int                             *isNewTop,
-                                    int                             *newLength)
+                                         const TimeQueueItem<DATA>&  item,
+                                         int                        *isNewTop,
+                                         int                        *newLength)
 {
     return add(item.time(), item.data(), item.key(), isNewTop, newLength);
 }
 
 template <typename DATA>
 int TimeQueue<DATA>::popFront(TimeQueueItem<DATA> *buffer,
-                                   int                      *newLength,
-                                   bsls::TimeInterval        *newMinTime)
+                              int                 *newLength,
+                              bsls::TimeInterval  *newMinTime)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     MapIter it = d_map.begin();
@@ -1349,11 +1348,10 @@ int TimeQueue<DATA>::popFront(TimeQueueItem<DATA> *buffer,
 }
 
 template <typename DATA>
-void TimeQueue<DATA>::popLE(
-        const bsls::TimeInterval&                time,
-        bsl::vector<TimeQueueItem<DATA> > *buffer,
-        int                                    *newLength,
-        bsls::TimeInterval                      *newMinTime)
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
+                            bsl::vector<TimeQueueItem<DATA> > *buffer,
+                            int                               *newLength,
+                            bsls::TimeInterval                *newMinTime)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
 
@@ -1399,12 +1397,11 @@ void TimeQueue<DATA>::popLE(
 }
 
 template <typename DATA>
-void TimeQueue<DATA>::popLE(
-        const bsls::TimeInterval&                time,
-        int                                     maxTimers,
-        bsl::vector<TimeQueueItem<DATA> > *buffer,
-        int                                    *newLength,
-        bsls::TimeInterval                      *newMinTime)
+void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
+                            int                                maxTimers,
+                            bsl::vector<TimeQueueItem<DATA> > *buffer,
+                            int                               *newLength,
+                            bsls::TimeInterval                *newMinTime)
 {
     BSLS_ASSERT(0 <= maxTimers);
 
@@ -1531,8 +1528,7 @@ int TimeQueue<DATA>::remove(typename TimeQueue<DATA>::Handle  handle,
 }
 
 template <typename DATA>
-void TimeQueue<DATA>::removeAll(
-                                bsl::vector<TimeQueueItem<DATA> > *buffer)
+void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     MapIter it = d_map.begin();
@@ -1571,20 +1567,18 @@ void TimeQueue<DATA>::removeAll(
 
 template <typename DATA>
 inline
-int TimeQueue<DATA>::update(
-                               typename TimeQueue<DATA>::Handle  handle,
-                               const bsls::TimeInterval&               newTime,
-                               int                                   *isNewTop)
+int TimeQueue<DATA>::update(typename TimeQueue<DATA>::Handle  handle,
+                            const bsls::TimeInterval&         newTime,
+                            int                              *isNewTop)
 {
     return update(handle, Key(0), newTime, isNewTop);
 }
 
 template <typename DATA>
-int TimeQueue<DATA>::update(
-                               typename TimeQueue<DATA>::Handle  handle,
-                               const Key&                             key,
-                               const bsls::TimeInterval&               newTime,
-                               int                                   *isNewTop)
+int TimeQueue<DATA>::update(typename TimeQueue<DATA>::Handle  handle,
+                            const Key&                        key,
+                            const bsls::TimeInterval&         newTime,
+                            int                              *isNewTop)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     int index = ((int)handle & d_indexMask) - 1;
@@ -1643,7 +1637,7 @@ int TimeQueue<DATA>::length() const
 template <typename DATA>
 inline
 bool TimeQueue<DATA>::isRegisteredHandle(
-                            typename TimeQueue<DATA>::Handle handle) const
+                                 typename TimeQueue<DATA>::Handle handle) const
 {
     return isRegisteredHandle(handle, Key(0));
 }
@@ -1651,8 +1645,8 @@ bool TimeQueue<DATA>::isRegisteredHandle(
 template <typename DATA>
 inline
 bool TimeQueue<DATA>::isRegisteredHandle(
-                               typename TimeQueue<DATA>::Handle handle,
-                               const Key&                            key) const
+                                    typename TimeQueue<DATA>::Handle handle,
+                                    const Key&                       key) const
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     int index = (handle & d_indexMask) - 1;
@@ -1698,8 +1692,8 @@ TimeQueueItem<DATA>::TimeQueueItem(bslma::Allocator *basicAllocator)
 
 template <typename DATA>
 TimeQueueItem<DATA>::
-TimeQueueItem(TimeQueueItem<DATA> const&  original,
-                   bslma::Allocator                *basicAllocator)
+TimeQueueItem(TimeQueueItem<DATA>  const& original,
+              bslma::Allocator    *basicAllocator)
 : d_time(original.d_time)
 // require that 'd_data' be default-constructible, hopefully at no cost
 , d_handle(original.d_handle)
@@ -1714,9 +1708,9 @@ TimeQueueItem(TimeQueueItem<DATA> const&  original,
 template <typename DATA>
 TimeQueueItem<DATA>::
 TimeQueueItem(const bsls::TimeInterval&  time,
-                   const DATA&               data,
-                   Handle                    handle,
-                   bslma::Allocator         *basicAllocator)
+              const DATA&                data,
+              Handle                     handle,
+              bslma::Allocator          *basicAllocator)
 : d_time(time)
 // require that 'd_data' be default-constructible, hopefully at no cost
 , d_handle(handle)
@@ -1731,10 +1725,10 @@ TimeQueueItem(const bsls::TimeInterval&  time,
 template <typename DATA>
 TimeQueueItem<DATA>::
 TimeQueueItem(const bsls::TimeInterval&  time,
-                   const DATA&               data,
-                   Handle                    handle,
-                   const Key&                key,
-                   bslma::Allocator         *basicAllocator)
+              const DATA&                data,
+              Handle                     handle,
+              const Key&                 key,
+              bslma::Allocator          *basicAllocator)
 : d_time(time)
 // require that 'd_data' be default-constructible, hopefully at no cost
 , d_handle(handle)

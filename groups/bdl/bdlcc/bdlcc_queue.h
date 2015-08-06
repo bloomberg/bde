@@ -468,8 +468,7 @@ class Queue {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Queue,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Queue, bslalg::TypeTraitUsesBslmaAllocator);
 
     // TYPES
     struct InitialCapacity {
@@ -501,8 +500,7 @@ class Queue {
         // used.
 
     explicit
-    Queue(int               highWaterMark,
-               bslma::Allocator *basicAllocator = 0);
+    Queue(int highWaterMark, bslma::Allocator *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' having either the
         // specified 'highWaterMark' suggested maximum length if
         // 'highWaterMark' is positive, or no maximum length if 'highWaterMark'
@@ -513,7 +511,7 @@ class Queue {
 
     explicit
     Queue(const InitialCapacity&  numItems,
-               bslma::Allocator       *basicAllocator = 0);
+          bslma::Allocator       *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' with sufficient
         // initial capacity to accommodate up to the specified 'numItems'
         // values without subsequent reallocation.  Optionally specify a
@@ -521,8 +519,8 @@ class Queue {
         // the currently installed default allocator is used.
 
     Queue(const InitialCapacity&  numItems,
-               int                     highWaterMark,
-               bslma::Allocator       *basicAllocator = 0);
+          int                     highWaterMark,
+          bslma::Allocator       *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' with sufficient
         // initial capacity to accommodate up to the specified 'numItems'
         // values without subsequent reallocation and having either the
@@ -534,7 +532,7 @@ class Queue {
         // 'highWaterMark != 0'.
 
     Queue(const bdlc::Queue<TYPE>&  srcQueue,
-               bslma::Allocator        *basicAllocator = 0);        // IMPLICIT
+          bslma::Allocator         *basicAllocator = 0);        // IMPLICIT
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values from the specified 'srcQueue'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -542,8 +540,8 @@ class Queue {
         // used.
 
     Queue(const bdlc::Queue<TYPE>&  srcQueue,
-               int                      highWaterMark,
-               bslma::Allocator        *basicAllocator = 0);
+          int                       highWaterMark,
+          bslma::Allocator         *basicAllocator = 0);
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values from the specified 'srcQueue' and having
         // either the specified 'highWaterMark' suggested maximum length if
@@ -620,7 +618,7 @@ class Queue {
         // success, and a non-zero value if the call timed out before the
         // number of items in this queue fell below the high-water mark.
 
-    int timedPushFront(const TYPE& item,  const bsls::TimeInterval& timeout);
+    int timedPushFront(const TYPE& item, const bsls::TimeInterval& timeout);
         // Append the specified 'item' to the front of this queue.  If the high
         // water mark is non-negative and the number of items in this queue is
         // greater than or equal to the high-water mark, then block until the
@@ -746,8 +744,7 @@ Queue<TYPE>:: Queue(const InitialCapacity&  numItems,
 
 template <class TYPE>
 inline
-Queue<TYPE>::Queue(int               highWaterMark,
-                             bslma::Allocator *basicAllocator)
+Queue<TYPE>::Queue(int highWaterMark, bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 , d_highWaterMark(highWaterMark < 0 ? -1 : highWaterMark)
 {
@@ -1039,8 +1036,8 @@ void Queue<TYPE>::pushFront(const TYPE& item)
 }
 
 template <class TYPE>
-int Queue<TYPE>::timedPushBack(const TYPE&              item,
-                                    const bsls::TimeInterval& timeout)
+int Queue<TYPE>::timedPushBack(const TYPE&               item,
+                               const bsls::TimeInterval& timeout)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_highWaterMark >= 0) {
@@ -1057,7 +1054,7 @@ int Queue<TYPE>::timedPushBack(const TYPE&              item,
 
 template <class TYPE>
 int Queue<TYPE>::timedPushFront(const TYPE&              item,
-                                     const bsls::TimeInterval &timeout)
+                                const bsls::TimeInterval &timeout)
 {
     bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
     if (d_highWaterMark >= 0) {

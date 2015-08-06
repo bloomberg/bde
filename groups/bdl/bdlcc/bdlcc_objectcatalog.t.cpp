@@ -223,7 +223,7 @@ class my_bcec_ObjectCatalog
     int d_topIndex;
   public:
     // CONSTRUCTORS
-    my_bcec_ObjectCatalog() :d_length(0), d_topIndex(-1)
+    my_bcec_ObjectCatalog() : d_length(0), d_topIndex(-1)
     {
         for (int i=0;i<k_MAX;i++) {
             d_arr[i].d_valid = 0;

@@ -285,11 +285,11 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
   public:
     // CREATORS
     template <class CREATOR>
-    SharedObjectPool_Rep(CREATOR*                         objectCreator,
-                              const bslalg::ConstructorProxy<RESETTER>&
-                                                               objectResetter,
-                              PoolType                        *pool,
-                              bslma::Allocator                *basicAllocator);
+    SharedObjectPool_Rep(
+                    CREATOR*                                   objectCreator,
+                    const bslalg::ConstructorProxy<RESETTER>&  objectResetter,
+                    PoolType                                  *pool,
+                    bslma::Allocator                          *basicAllocator);
        // Construct a new rep object that, upon release, will invoke the
        // specified 'objectResetter' and return itself to the specified 'pool';
        // then invoke 'objectCreator' to construct an object of 'TYPE' embedded
@@ -375,26 +375,21 @@ class SharedObjectPool {
 
     // CREATORS
     explicit
-    SharedObjectPool(
-            int                                    growBy = -1,
-            bslma::Allocator                      *basicAllocator = 0);
+    SharedObjectPool(int growBy = -1, bslma::Allocator *basicAllocator = 0);
 
     explicit
-    SharedObjectPool(
-            const CREATOR&                         objectCreator,
-            int                                    growBy = -1,
-            bslma::Allocator                      *basicAllocator = 0);
+    SharedObjectPool(const CREATOR&    objectCreator,
+                     int               growBy = -1,
+                     bslma::Allocator *basicAllocator = 0);
 
     explicit
-    SharedObjectPool(
-            const CREATOR&                         objectCreator,
-            bslma::Allocator                      *basicAllocator = 0);
+    SharedObjectPool(const CREATOR&    objectCreator,
+                     bslma::Allocator *basicAllocator = 0);
 
-    SharedObjectPool(
-            const CREATOR&                         objectCreator,
-            const RESETTER&                        objectResetter,
-            int                                    growBy = -1,
-            bslma::Allocator                      *basicAllocator = 0);
+    SharedObjectPool(const CREATOR&    objectCreator,
+                     const RESETTER&   objectResetter,
+                     int               growBy = -1,
+                     bslma::Allocator *basicAllocator = 0);
 
         // Create an object pool that dispenses shared pointers to TYPE.  When
         // the pool is depleted, it increases its capacity according to the
@@ -465,10 +460,10 @@ template <class TYPE, class RESETTER>
 template <class CREATOR>
 inline
 SharedObjectPool_Rep<TYPE, RESETTER>::SharedObjectPool_Rep(
-    CREATOR*                                   objectCreator,
-    const bslalg::ConstructorProxy<RESETTER>&  objectResetter,
-    PoolType                                  *pool,
-    bslma::Allocator                          *basicAllocator)
+                     CREATOR*                                   objectCreator,
+                     const bslalg::ConstructorProxy<RESETTER>&  objectResetter,
+                     PoolType                                  *pool,
+                     bslma::Allocator                          *basicAllocator)
 : d_objectResetter(objectResetter,basicAllocator)
 , d_pool_p(pool)
 {
@@ -534,7 +529,8 @@ TYPE *SharedObjectPool_Rep<TYPE, RESETTER>::ptr()
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 void SharedObjectPool<TYPE, CREATOR, RESETTER>::constructRepObject(
-    void *mem, bslma::Allocator *alloc)
+                                                       void             *mem,
+                                                       bslma::Allocator *alloc)
 {
     RepType *r = new (mem) RepType(&d_objectCreator.object(),
                                    d_objectResetter,
@@ -559,10 +555,10 @@ namespace bdlcc {
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 SharedObjectPool<TYPE, CREATOR, RESETTER>::SharedObjectPool(
-                                       const CREATOR&          objectCreator,
-                                       const RESETTER&         objectResetter,
-                                       int                     growBy,
-                                       bslma::Allocator       *basicAllocator)
+                                              const CREATOR&    objectCreator,
+                                              const RESETTER&   objectResetter,
+                                              int               growBy,
+                                              bslma::Allocator *basicAllocator)
 : d_objectCreator(objectCreator,basicAllocator)
 , d_objectResetter(objectResetter,basicAllocator)
 , d_pool(bdlf::BindUtil::bind(&MyType::constructRepObject, this,
@@ -575,8 +571,8 @@ SharedObjectPool<TYPE, CREATOR, RESETTER>::SharedObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 SharedObjectPool<TYPE, CREATOR, RESETTER>::SharedObjectPool(
-                                       int                     growBy,
-                                       bslma::Allocator       *basicAllocator)
+                                              int               growBy,
+                                              bslma::Allocator *basicAllocator)
 : d_objectCreator(basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_pool(bdlf::BindUtil::bind(&MyType::constructRepObject, this,
@@ -589,9 +585,9 @@ SharedObjectPool<TYPE, CREATOR, RESETTER>::SharedObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 SharedObjectPool<TYPE, CREATOR, RESETTER>::SharedObjectPool(
-                                       const CREATOR&          objectCreator,
-                                       int                     growBy,
-                                       bslma::Allocator       *basicAllocator)
+                                              const CREATOR&    objectCreator,
+                                              int               growBy,
+                                              bslma::Allocator *basicAllocator)
 : d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_pool(bdlf::BindUtil::bind(&MyType::constructRepObject, this,
@@ -604,8 +600,8 @@ SharedObjectPool<TYPE, CREATOR, RESETTER>::SharedObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 SharedObjectPool<TYPE, CREATOR, RESETTER>::SharedObjectPool(
-                                       const CREATOR&          objectCreator,
-                                       bslma::Allocator       *basicAllocator)
+                                              const CREATOR&    objectCreator,
+                                              bslma::Allocator *basicAllocator)
 : d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_pool(bdlf::BindUtil::bind(&MyType::constructRepObject, this,

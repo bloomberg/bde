@@ -551,7 +551,7 @@ class ObjectCatalogIter {
 // CREATORS
 template <class TYPE>
 ObjectCatalog_AutoCleanup<TYPE>::ObjectCatalog_AutoCleanup(
-                                             ObjectCatalog<TYPE> *catalog)
+                                                  ObjectCatalog<TYPE> *catalog)
 : d_catalog_p(catalog)
 , d_node_p(0)
 , d_deallocateFlag(false)
@@ -604,8 +604,7 @@ void ObjectCatalog_AutoCleanup<TYPE>::release()
 // PRIVATE MANIPULATORS
 template <class TYPE>
 inline
-void ObjectCatalog<TYPE>::freeNode(
-                                 typename ObjectCatalog<TYPE>::Node *node)
+void ObjectCatalog<TYPE>::freeNode(typename ObjectCatalog<TYPE>::Node *node)
 {
     node->d_handle += k_GENERATION_INC;
     node->d_handle &= ~k_BUSY_INDICATOR;
@@ -825,8 +824,7 @@ void ObjectCatalog<TYPE>::verifyState() const
 // CREATORS
 template <class TYPE>
 inline
-ObjectCatalogIter<TYPE>::ObjectCatalogIter(
-                                       const ObjectCatalog<TYPE>& catalog)
+ObjectCatalogIter<TYPE>::ObjectCatalogIter(const ObjectCatalog<TYPE>& catalog)
 : d_catalog_p(&catalog)
 , d_index(-1)
 {

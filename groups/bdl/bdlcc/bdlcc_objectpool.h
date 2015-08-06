@@ -1094,10 +1094,10 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 
 template <class TYPE, class CREATOR, class RESETTER>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-        const CREATOR&    objectCreator,
-        const RESETTER&   objectResetter,
-        int               growBy,
-        bslma::Allocator *basicAllocator)
+                                              const CREATOR&    objectCreator,
+                                              const RESETTER&   objectResetter,
+                                              int               growBy,
+                                              bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(objectResetter, basicAllocator)
@@ -1485,10 +1485,10 @@ void bdlcc::ObjectPoolFunctors::RemoveAll<TYPE>::operator()(TYPE *object) const
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
-                                  BlockNode                        *block,
-                                  ObjectNode                       *head,
-                                  bdlma::InfrequentDeleteBlockList *allocator,
-                                  int                               numNodes)
+                                   BlockNode                        *block,
+                                   ObjectNode                       *head,
+                                   bdlma::InfrequentDeleteBlockList *allocator,
+                                   int                               numNodes)
 : d_block_p(block)
 , d_head_p(head)
 , d_allocator_p(allocator)
