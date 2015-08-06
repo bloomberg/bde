@@ -404,8 +404,8 @@ class FixedQueue_PopGuard {
 
     // CREATORS
     FixedQueue_PopGuard(FixedQueue<VALUE> *queue,
-                        unsigned           int generation,
-                        unsigned           int index);
+                        unsigned int       generation,
+                        unsigned int       index);
         // Create a guard that, upon its destruction, will update the state of
         // the specified 'queue' to remove (pop) the element at the specified
         // 'index' having the specified 'generation', and destroy that popped
@@ -454,8 +454,8 @@ class FixedQueue_PushProctor {
 
     // CREATORS
     FixedQueue_PushProctor(FixedQueue<VALUE> *queue,
-                           unsigned           int generation,
-                           unsigned           int index);
+                           unsigned int       generation,
+                           unsigned int       index);
         // Create a proctor that manages the specified 'queue' and, unless
         // 'release' is called, will remove and destroy all the elements from
         // 'queue' starting at the specified 'index' in the specified
@@ -758,10 +758,9 @@ int FixedQueue<TYPE>::size() const
 // CREATORS
 template <class VALUE>
 inline
-FixedQueue_PopGuard<VALUE>::FixedQueue_PopGuard(
-                                             FixedQueue<VALUE> *queue,
-                                             unsigned           int generation,
-                                             unsigned           int index)
+FixedQueue_PopGuard<VALUE>::FixedQueue_PopGuard(FixedQueue<VALUE> *queue,
+                                                unsigned int       generation,
+                                                unsigned int       index)
 : d_parent_p(queue)
 , d_generation(generation)
 , d_index(index)
@@ -797,9 +796,9 @@ FixedQueue_PopGuard<VALUE>::~FixedQueue_PopGuard()
 template <class VALUE>
 inline
 FixedQueue_PushProctor<VALUE>::FixedQueue_PushProctor(
-                                             FixedQueue<VALUE> *queue,
-                                             unsigned           int generation,
-                                             unsigned           int index)
+                                                 FixedQueue<VALUE> *queue,
+                                                 unsigned int       generation,
+                                                 unsigned int       index)
 : d_parent_p(queue)
 , d_generation(generation)
 , d_index(index)

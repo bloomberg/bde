@@ -17,13 +17,14 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ujjwal Bhoota (ubhoota), David Schumann (dschumann1)
 //
-//@DESCRIPTION: This component provides a generic thread-safe pool of objects
-// using the acquire-release idiom.  An object pool provides two main methods:
-// 'getObject', which returns an object from the pool, and 'releaseObject',
-// which returns an object to the pool for further reuse (thus avoiding the
-// overhead of object construction and destruction).  A major requirement of
-// using the object pool is that any call to 'getObject' can be satisfied by
-// any object in the pool.
+//@DESCRIPTION: This component provides a generic thread-safe pool of objects,
+// 'bdlcc::ObjectPool', using the acquire-release idiom and a 'struct' with
+// useful functors for a pool of objects, 'bdlcc::ObjectPoolFunctors'.  An
+// object pool provides two main methods: 'getObject', which returns an object
+// from the pool, and 'releaseObject', which returns an object to the pool for
+// further reuse (thus avoiding the overhead of object construction and
+// destruction).  A major requirement of using the object pool is that any call
+// to 'getObject' can be satisfied by any object in the pool.
 //
 ///Object construction and destruction
 ///-----------------------------------
@@ -70,8 +71,7 @@ BSLS_IDENT("$Id: $")
 // addition to the underlying object 'TYPE'.  Objects of these types may be
 // provided at construction.  The namespace 'bdlcc::ObjectPoolFunctors'
 // provides several commonly used implementations.  The creator will be invoked
-// as:
-// 'void(*)(void*, bslma::Allocator*)'.  The resetter will be invoked as:
+// as: 'void(*)(void*, bslma::Allocator*)'.  The resetter will be invoked as:
 // 'void(*)(TYPE*)'.  The creator functor is called to construct a new object
 // of the parameterized 'TYPE' when the pool must be expanded (and thus it
 // typically invokes placement 'new' and passes its allocator argument to the
@@ -373,6 +373,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #endif
 
+#ifndef INCLUDED_BSL_CLIMITS
+#include <bsl_climits.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlcc {
 
@@ -394,8 +398,8 @@ struct ObjectPoolFunctors {
     class Nil {
         // This fully-inlined class, suitable as the 'RESETTER' parameter type
         // for 'ObjectPool', is a functor taking a pointer to the parameterized
-        // 'TYPE' argument, and can be invoked as:
-        // 'void(*)(TYPE*)'.  It does nothing.
+        // 'TYPE' argument, and can be invoked as: 'void(*)(TYPE*)'.  It does
+        // nothing.
 
       public:
         // Use compiler-generated constructors.
@@ -524,16 +528,16 @@ class ObjectPool_CreatorProxy {
     explicit
     ObjectPool_CreatorProxy (bslma::Allocator *basicAllocator);
         // Create a new proxy and a new object of the parameterized 'TYPE'.  If
-        // 'TYPE' declares the "Uses Allocator" trait, 'basicAllocator' is
-        // supplied to its default constructor; otherwise 'basicAllocator' is
-        // ignored.
+        // 'TYPE' declares the "Uses Allocator" trait, the specified
+        // 'basicAllocator' is supplied to its default constructor; otherwise
+        // 'basicAllocator' is ignored.
 
     ObjectPool_CreatorProxy(const TYPE&       other,
                             bslma::Allocator *basicAllocator);
         // Create a new proxy and a new object constructed from the specified
-        // 'other' object.  If 'TYPE' declares the "Uses Allocator" trait,
-        // 'basicAllocator' is supplied to its copy constructor; otherwise
-        // 'basicAllocator' is ignored.
+        // 'other' object.  If 'TYPE' declares the "Uses Allocator" trait, the
+        // specified 'basicAllocator' is supplied to its copy constructor;
+        // otherwise 'basicAllocator' is ignored.
 
     ~ObjectPool_CreatorProxy();
         // Destroy this proxy and the underlying object.
@@ -674,11 +678,11 @@ class ObjectPool : public bdlma::Factory<TYPE> {
                     ObjectNode                       *head,
                     bdlma::InfrequentDeleteBlockList *allocator,
                     int                               numNodes = 0);
-            // Create a proctor for the list of the specified 'numNodes' number
-            // of nodes with the specified 'head', using the 'allocator' to
-            // deallocate the block starting at the specified 'block' at
-            // destruction after all the objects in the list have been
-            // destroyed, unless the 'release' method has been called.
+            // Create a proctor for the list of the optionally specified
+            // 'numNodes' number of nodes with the specified 'head', using the
+            // 'allocator' to deallocate the block starting at the specified
+            // 'block' at destruction after all the objects in the list have
+            // been destroyed, unless the 'release' method has been called.
 
         ~AutoCleanup();
             // Destroy this object, using the 'allocator' to deallocate the
@@ -881,7 +885,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     void increaseCapacity(int numObjects);
         // Create the specified 'numObjects' objects and add them to this
-        // object pool.  The behavior is undefined unless 0 <= numObjects.
+        // object pool.  The behavior is undefined unless '0 <= numObjects'.
 
     void releaseObject(TYPE *object);
         // Return the specified 'object' back to this object pool.  Invoke the
@@ -896,7 +900,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     void reserveCapacity(int numObjects);
         // Create enough objects to satisfy requests for at least the specified
         // 'numObjects' objects before the next replenishment.  The behavior is
-        // undefined unless 0 <= numObjects.  Note that this method is
+        // undefined unless '0 <= numObjects'.  Note that this method is
         // different from 'increaseCapacity' in that the number of created
         // objects may be less than 'numObjects'.
 
@@ -1227,10 +1231,10 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::increaseCapacity(int numObjects)
 }
 
 template <class TYPE, class CREATOR, class RESETTER>
-void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
+void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *object)
 {
-    ObjectNode *current = (ObjectNode *)(void *)objPtr - 1;
-    d_objectResetter.object()(objPtr);
+    ObjectNode *current = (ObjectNode *)(void *)object - 1;
+    d_objectResetter.object()(object);
 
     int refCount = bsls::AtomicOperations::getIntRelaxed(
                                                  &current->d_inUse.d_refCount);

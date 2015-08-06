@@ -441,6 +441,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
+#endif
+
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
 #endif
@@ -580,7 +584,7 @@ class MultipriorityQueue {
         // load the value of the popped item into the specified 'item'; if the
         // specified 'itemPriority' is non-null, load the priority of the
         // popped item into 'itemPriority'; and return 0.  Otherwise, leave
-        // 'item' and 'itemPriority' uneffected, and return a non-zero value
+        // 'item' and 'itemPriority' unmodified, and return a non-zero value
         // indicating that this multipriority queue was empty.  The behavior is
         // undefined unless 'item' is non-null.  Note that a non-zero value can
         // be returned only if 'blockFlag' is 'false'.
@@ -666,7 +670,7 @@ class MultipriorityQueue {
         // specified 'item'; if the optionally specified 'itemPriority' is
         // non-null, load the priority of the popped item into 'itemPriority';
         // and return 0.  Otherwise, leave 'item' and 'itemPriority'
-        // uneffected, and return a non-zero value indicating that this queue
+        // unmodified, and return a non-zero value indicating that this queue
         // was empty.  The behavior is undefined unless 'item' is non-null.
         // Note this is unaffected by the enabled / disabled state of the
         // queue.
@@ -858,7 +862,7 @@ MultipriorityQueue<TYPE>::~MultipriorityQueue()
         BSLS_ASSERT(!*it);
     }
 
-    // Tails do not get nulled out by 'removeAll', so are indeterminate.
+    // Tails do not get set to null by 'removeAll', so are indeterminate.
 
     BSLS_ASSERT(isEmpty());
     BSLS_ASSERT(0 == d_notEmptyFlags);

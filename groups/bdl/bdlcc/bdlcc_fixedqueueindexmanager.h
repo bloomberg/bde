@@ -428,8 +428,8 @@ class FixedQueueIndexManager {
 
     int reservePopIndexForClear(unsigned int *disposedGeneration,
                                 unsigned int *disposedIndex,
-                                unsigned int endGeneration,
-                                unsigned int endIndex);
+                                unsigned int  endGeneration,
+                                unsigned int  endIndex);
         // If the next available index from which an element can be popped is
         // before the specified 'endGeneration' and 'endIndex' then reserve
         // that index for popping and load the specified 'disposedGeneration'
