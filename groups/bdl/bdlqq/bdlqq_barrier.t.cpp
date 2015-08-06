@@ -1,4 +1,4 @@
-// bdlqq_barrier.t.cpp              -*-C++-*-
+// bdlqq_barrier.t.cpp                                                -*-C++-*-
 #include <bdlqq_barrier.h>
 
 #include <bsls_atomic.h>  // for testing only
@@ -12,8 +12,8 @@
 #include <bsls_timeutil.h>
 
 #include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_functional.h>
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
@@ -109,7 +109,7 @@ void aSsErT(int c, const char *s, int i, bool lock=true) {
 #define NL()  cout << endl;                   // Print newline
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 struct ThreadArgs {
@@ -218,7 +218,7 @@ void test(int numIterations, int numThreads)
     }
 }
 
-}
+}  // close namespace case9
 
 //-----------------------------------------------------------------------------
 //                           HELPER FUNCTIONS FOR TEST CASE 5
@@ -247,9 +247,9 @@ extern "C" void * testThread5a(void *arg)
 
 extern "C" void * testThread5b(void *arg)
     // This function is used to test the 'wait' and 'timedWait' methods
-    // together: it uses the 'd_waitCount' atomic integer of the
-    // 'ThreadArgs' structure to make sure that the call to the 'timedWait'
-    // method of the provided barrier occurs before the call to 'wait'.
+    // together: it uses the 'd_waitCount' atomic integer of the 'ThreadArgs'
+    // structure to make sure that the call to the 'timedWait' method of the
+    // provided barrier occurs before the call to 'wait'.
 {
     ThreadArgs *args = (ThreadArgs*)arg;
 
@@ -359,8 +359,8 @@ extern "C" void * testThread4(void *arg)
 extern "C" void * testThread3(void *arg)
     // This function is used to test the 'wait' method: it begins by
     // incrementing the 'd_waitCount' member of the provided 'ThreadArgs'
-    // structure, then calls the 'wait' method of the provided barrier.
-    // and finally decrements 'd_waitCount' and returns.
+    // structure, then calls the 'wait' method of the provided barrier. and
+    // finally decrements 'd_waitCount' and returns.
 {
     ThreadArgs *args = (ThreadArgs*)arg;
 
@@ -442,14 +442,14 @@ TradeThreadArgument *processTrade(TradeThreadArgument *args)
     retval = validateTrade(trade);
     if (retval) *args->d_errorFlag_p = true;
     args->d_barrier_p->wait();
-    if (*args->d_errorFlag_p) return args;
+    if (*args->d_errorFlag_p) return args;                            // RETURN
 
     retval = insertToDatabase(trade);
     if (retval) *args->d_errorFlag_p = true;
     args->d_barrier_p->wait();
     if (*args->d_errorFlag_p) {
         if (!retval) deleteFromDatabase(trade);
-        return args;
+        return args;                                                  // RETURN
     }
 
     retval = submitToExchange(trade);
@@ -458,7 +458,7 @@ TradeThreadArgument *processTrade(TradeThreadArgument *args)
     if (*args->d_errorFlag_p) {
         if (!retval) cancelAtExchange(trade);
         deleteFromDatabase(trade);
-        return args;
+        return args;                                                  // RETURN
     }
     return args;
 }
@@ -469,9 +469,9 @@ extern "C" void *tradeProcessingThread(void *argsIn)
 }
 
 bool processBasketTrade(BasketTrade &trade)
-    // Return 'true' if the basket trade was processed successfully,
-    // 'false' otherwise.  The trade is processed atomically, i.e.,
-    // all the trades succeed, or none of the trades are executed.
+    // Return 'true' if the specified basket 'trade' was processed
+    // successfully, 'false' otherwise.  The trade is processed atomically,
+    // i.e., all the trades succeed, or none of the trades are executed.
 {
     TradeThreadArgument arguments[MAX_BASKET_TRADES];
     bdlqq::ThreadAttributes attributes;
@@ -509,9 +509,9 @@ class Case8_Driver
 public:
 
    Case8_Driver(bsls::AtomicInt *state,
-                bdlqq::Barrier *barrier,
-                int numCycles) :
-      d_state(state), d_barrier(barrier), d_numCycles(numCycles) {}
+                bdlqq::Barrier  *barrier,
+                int numCycles)
+   : d_state(state), d_barrier(barrier), d_numCycles(numCycles) {}
 
    void operator()() {
       for (int i = 0; i < d_numCycles; ++i) {
@@ -533,21 +533,22 @@ class Case7_Waiter {
    int             d_numThreads;
 
 public:
-   Case7_Waiter(Barrier        *barrier=0,
+   Case7_Waiter(Barrier         *barrier=0,
                 bsls::AtomicInt *state=0,
-                int             numWaits=0,
-                int             numThreads=0) :
-      d_barrier(barrier),
-      d_state(state),
-      d_numWaits(numWaits),
-      d_numThreads(numThreads)
+                int              numWaits=0,
+                int              numThreads=0)
+   : d_barrier(barrier),
+     d_state(state),
+     d_numWaits(numWaits),
+     d_numThreads(numThreads)
    {}
 
    void begin() {
       ASSERT(0 != d_state);
       bdlqq::ThreadAttributes detached;
       bdlqq::ThreadUtil::Handle dummy;
-      detached.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+      detached.setDetachedState(
+                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 
       ASSERT(0 == bdlqq::ThreadUtil::create(&dummy, detached,
                            bdlf::BindUtil::bind(&Case7_Waiter::run,
@@ -566,16 +567,14 @@ public:
    }
 };
 
-void case7 (bdlqq::Barrier* barrier,
-            bool verbose, int numThreads, int numWaits) {
-
+void case7(bdlqq::Barrier *barrier, bool verbose, int numThreads, int numWaits)
+{
    bsls::AtomicInt state(0);
    vector<Case7_Waiter > waiters;
    waiters.insert(waiters.end(), numThreads-1,
                   Case7_Waiter(barrier, &state,
                                numWaits, numThreads));
-   for_each(waiters.begin(), waiters.end(),
-                mem_fun_ref(&Case7_Waiter::begin));
+   for_each(waiters.begin(), waiters.end(), mem_fun_ref(&Case7_Waiter::begin));
    for (int i = 0; i < numWaits; ++i) {
       ASSERT(state == i * numThreads);
       barrier->wait();
@@ -603,7 +602,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) {
+    switch (test) { case 0:
       case 9: {
         if (verbose) {
            cout << "Thread-safety of the destructor test" << endl;
@@ -630,10 +629,10 @@ int main(int argc, char *argv[])
         // ----------------------------------------------------------------
         // 2-thread reuse test
         //
-        // Concern: That if the second thread in a two-thread group
-        // enters a second wait cycle while the first thread is in the
-        // middle of its first wait(), the second thread still waits
-        // in the second wait cycle as expected.
+        // Concern: That if the second thread in a two-thread group enters a
+        // second wait cycle while the first thread is in the middle of its
+        // first wait(), the second thread still waits in the second wait cycle
+        // as expected.
         //
         // ----------------------------------------------------------------
         enum {
@@ -646,7 +645,7 @@ int main(int argc, char *argv[])
         bsls::AtomicInt state(0);
         bdlqq::ThreadUtil::Handle dummy;
         detached.setDetachedState(
-                                bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 
         if (veryVerbose) {
            cout << "Unencumbered test" << endl;
@@ -1265,11 +1264,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -32,15 +32,14 @@ void *bcemt_ThreadUtil_threadFunc(void *arg)
 
 }  // extern "C"
 
-namespace bdlqq {
-                            // -----------------------
+                            // -----------------
                             // struct ThreadUtil
-                            // -----------------------
+                            // -----------------
 
 // CLASS METHODS
-int ThreadUtil::convertToSchedulingPriority(
-         ThreadAttributes::SchedulingPolicy policy,
-         double                                   normalizedSchedulingPriority)
+int bdlqq::ThreadUtil::convertToSchedulingPriority(
+               ThreadAttributes::SchedulingPolicy policy,
+               double                             normalizedSchedulingPriority)
 {
     BSLS_ASSERT_OPT((int) policy >= ThreadAttributes::BCEMT_SCHED_MIN);
     BSLS_ASSERT_OPT((int) policy <= ThreadAttributes::BCEMT_SCHED_MAX);
@@ -53,7 +52,7 @@ int ThreadUtil::convertToSchedulingPriority(
 
     if (minPri == ThreadAttributes::BCEMT_UNSET_PRIORITY ||
         maxPri == ThreadAttributes::BCEMT_UNSET_PRIORITY) {
-        return ThreadAttributes::BCEMT_UNSET_PRIORITY;
+        return ThreadAttributes::BCEMT_UNSET_PRIORITY;                // RETURN
     }
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)
@@ -70,10 +69,10 @@ int ThreadUtil::convertToSchedulingPriority(
     return static_cast<int>(bsl::floor(ret));
 }
 
-int ThreadUtil::create(ThreadUtil::Handle           *handle,
-                             const ThreadAttributes&       attributes,
-                             const ThreadUtil::Invokable&  function,
-                             bslma::Allocator                   *allocator)
+int bdlqq::ThreadUtil::create(Handle                  *handle,
+                              const ThreadAttributes&  attributes,
+                              const Invokable&         function,
+                              bslma::Allocator        *allocator)
 {
     if (!allocator) {
         allocator = bslma::Default::globalAllocator();
@@ -92,9 +91,9 @@ int ThreadUtil::create(ThreadUtil::Handle           *handle,
     return rc;
 }
 
-int ThreadUtil::create(ThreadUtil::Handle           *handle,
-                             const ThreadUtil::Invokable&  function,
-                             bslma::Allocator                   *allocator)
+int bdlqq::ThreadUtil::create(Handle           *handle,
+                              const Invokable&  function,
+                              bslma::Allocator *allocator)
 {
     if (!allocator) {
         allocator = bslma::Default::globalAllocator();
@@ -111,15 +110,21 @@ int ThreadUtil::create(ThreadUtil::Handle           *handle,
     }
     return rc;
 }
-}  // close package namespace
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

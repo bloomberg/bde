@@ -1,4 +1,4 @@
-// bdlqq_semaphoreimpl_pthread.h                -*-C++-*-
+// bdlqq_semaphoreimpl_pthread.h                                      -*-C++-*-
 #ifndef INCLUDED_BDLQQ_SEMAPHOREIMPL_PTHREAD
 #define INCLUDED_BDLQQ_SEMAPHOREIMPL_PTHREAD
 
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides an implementation of 'bdlqq::Semaphore'
 // for POSIX threads ("pthreads") via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<bdlqq::Platform::PosixThreads>
+//  bdlqq::SemaphoreImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::Semaphore'.
@@ -52,17 +52,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename SEMAPHORE_POLICY>
+template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-             // ========================================================
-             // class SemaphoreImpl<bdlqq::Platform::PosixSemaphore>
-             // ========================================================
+            // =============================================
+            // class SemaphoreImpl<Platform::PosixSemaphore>
+            // =============================================
 
 template <>
-class SemaphoreImpl<bdlqq::Platform::PosixSemaphore> {
+class SemaphoreImpl<Platform::PosixSemaphore> {
     // This class provides a full specialization of 'SemaphoreImpl'
     // for pthreads.  The implementation provided here defines an efficient
     // proxy for the 'sem_t' pthread type, and related operations.
@@ -105,17 +105,19 @@ class SemaphoreImpl<bdlqq::Platform::PosixSemaphore> {
         // Return the current value of this semaphore.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-             // --------------------------------------------------------
-             // class SemaphoreImpl<bdlqq::Platform::PosixSemaphore>
-             // --------------------------------------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+            // ---------------------------------------------
+            // class SemaphoreImpl<Platform::PosixSemaphore>
+            // ---------------------------------------------
 
 // CREATORS
 inline
-SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::~SemaphoreImpl()
+bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::~SemaphoreImpl()
 {
     int result = ::sem_destroy(&d_sem);
 
@@ -125,7 +127,7 @@ SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::~SemaphoreImpl()
 
 // MANIPULATORS
 inline
-void SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::post()
+void bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::post()
 {
     int result = ::sem_post(&d_sem);
 
@@ -134,14 +136,14 @@ void SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::post()
 }
 
 inline
-int SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::tryWait()
+int bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::tryWait()
 {
     return ::sem_trywait(&d_sem);
 }
 
 // ACCESSORS
 inline
-int SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::getValue() const
+int bdlqq::SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::getValue() const
 {
     int value = 0;
     int result = ::sem_getvalue(const_cast<sem_t *>(&d_sem), &value);
@@ -151,19 +153,25 @@ int SemaphoreImpl<bdlqq::Platform::PosixSemaphore>::getValue() const
 
     return value;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // defined(BDLQQ_PLATFORM_POSIX_SEMAPHORE)
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

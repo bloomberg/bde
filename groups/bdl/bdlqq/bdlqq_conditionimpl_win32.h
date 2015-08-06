@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides an implementation of 'bdlqq::Condition'
 // for Windows (win32) via the template specialization:
 //..
-//  bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>
+//  bdlqq::ConditionImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::Condition'.
@@ -31,11 +31,11 @@ BSLS_IDENT("$Id: $")
 // based.  If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
 // 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -68,19 +68,19 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 class ConditionImpl;
 
 class Mutex;
 
-             // ======================================================
-             // class ConditionImpl<bdlqq::Platform::Win32Threads>
-             // ======================================================
+            // ==================================================
+            // class ConditionImpl<Platform::Win32Threads>
+            // ==================================================
 
 template <>
-class ConditionImpl<bdlqq::Platform::Win32Threads> {
+class ConditionImpl<Platform::Win32Threads> {
     // This class provides a full specialization of 'ConditionImpl'
     // for win32.  The implementation provided here defines an efficient
     // POSIX like condition variable.
@@ -148,17 +148,19 @@ class ConditionImpl<bdlqq::Platform::Win32Threads> {
         // occurs.
 };
 
+}  // close package namespace
+
 // ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ===========================================================================
 
-             // ------------------------------------------------------
-             // class ConditionImpl<bdlqq::Platform::Win32Threads>
-             // ------------------------------------------------------
+                // -------------------------------------------
+                // class ConditionImpl<Platform::Win32Threads>
+                // -------------------------------------------
 
 // CREATORS
 inline
-ConditionImpl<bdlqq::Platform::Win32Threads>::ConditionImpl(
+bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::ConditionImpl(
                                          bsls::SystemClockType::Enum clockType)
 : d_waitSluice(clockType, &bslma::MallocFreeAllocator::singleton())
 {
@@ -167,23 +169,22 @@ ConditionImpl<bdlqq::Platform::Win32Threads>::ConditionImpl(
 }
 
 inline
-ConditionImpl<bdlqq::Platform::Win32Threads>::~ConditionImpl()
+bdlqq::ConditionImpl<Pbdlqq::latform::Win32Threads>::~ConditionImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void ConditionImpl<bdlqq::Platform::Win32Threads>::broadcast()
+void bdlqq::ConditionImpl<Pbdlqq::latform::Win32Threads>::broadcast()
 {
     d_waitSluice.signalAll();
 }
 
 inline
-void ConditionImpl<bdlqq::Platform::Win32Threads>::signal()
+void bdlqq::ConditionImpl<Pbdlqq::latform::Win32Threads>::signal()
 {
     d_waitSluice.signalOne();
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 
@@ -192,10 +193,17 @@ void ConditionImpl<bdlqq::Platform::Win32Threads>::signal()
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

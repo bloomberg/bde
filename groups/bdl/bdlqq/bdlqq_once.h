@@ -37,15 +37,15 @@ BSLS_IDENT("$Id: $")
 // and unblocking any threads waiting on 'enter'.
 //
 // A safer way to use the 'enter' and 'leave' methods of 'bdlqq::Once' is to
-// manage the 'bdlqq::Once' object using a 'bdlqq::OnceGuard' object constructed
-// from the 'bdlqq::Once' object.  Calling 'enter' on the 'bdlqq::OnceGuard'
-// object will call 'enter' on its associated 'bdlqq::Once' object.
-// If the call to 'enter' returns 'true', then the destructor for the guard
-// will automatically call 'leave' on its associated 'bdlqq::Once' object.
-// The 'bdlqq::OnceGuard' class is intended to be allocated on the stack (i.e.,
-// as a local variable) so that it is automatically destroyed at the end of its
-// enclosing block.  Thus, the to call 'leave' of the 'bdlqq::Once' object is
-// enforced by the compiler.
+// manage the 'bdlqq::Once' object using a 'bdlqq::OnceGuard' object
+// constructed from the 'bdlqq::Once' object.  Calling 'enter' on the
+// 'bdlqq::OnceGuard' object will call 'enter' on its associated 'bdlqq::Once'
+// object.  If the call to 'enter' returns 'true', then the destructor for the
+// guard will automatically call 'leave' on its associated 'bdlqq::Once'
+// object.  The 'bdlqq::OnceGuard' class is intended to be allocated on the
+// stack (i.e., as a local variable) so that it is automatically destroyed at
+// the end of its enclosing block.  Thus, the to call 'leave' of the
+// 'bdlqq::Once' object is enforced by the compiler.
 //
 // An even easier way to use the facilities of this component is to use the
 // 'BDLQQ_ONCE_DO' macro.  This macro behaves like an 'if' statement --
@@ -82,8 +82,8 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // Objects of the 'bdlqq::Once' class are intended to be shared among threads
 // and may be accessed and modified simultaneously in multiple threads by using
-// the methods provided.  To allow static initialization, 'bdlqq::Once' is a POD
-// type with public member variables.  It is not safe to directly access or
+// the methods provided.  To allow static initialization, 'bdlqq::Once' is a
+// POD type with public member variables.  It is not safe to directly access or
 // manipulate its member variables (including object initialization)
 // simultaneously from multiple threads.  (Note that static initialization
 // takes place before multiple threading begins, and is thus safe.)
@@ -197,8 +197,8 @@ BSLS_IDENT("$Id: $")
 // 'singletonImp' function and thereby does away with the use of the
 // 'bdlf::BindUtil' method; however, it does require use of
 // 'bdlqq::Once::OnceLock', created on each thread's stack and passed to the
-// methods of 'bdlqq::Once'.  First, we declare a static 'bdlqq::Once' object as
-// before, and also declare a static pointer to 'bsl::string':
+// methods of 'bdlqq::Once'.  First, we declare a static 'bdlqq::Once' object
+// as before, and also declare a static pointer to 'bsl::string':
 //..
 //  const bsl::string& singleton2(const char *s)
 //  {
@@ -385,14 +385,15 @@ namespace BloombergLP {
 
 #define BDLQQ_ONCE_INITIALIZER { BDLQQ_QLOCK_INITIALIZER, { 0 } }
 
-namespace bdlqq {    // Use this macro to initialize an object of type 'Once'.  E.g.:
+namespace bdlqq {
+    // Use this macro to initialize an object of type 'Once'.  E.g.:
     //..
     //  Once once = BDLQQ_ONCE_INITIALIZER;
     //..
 
-                        // ================
-                        // class Once
-                        // ================
+                                // ==========
+                                // class Once
+                                // ==========
 
 class Once {
     // Gate-keeper class for code that should only execute once per process.
@@ -414,8 +415,10 @@ class Once {
     // initialized.  Do not access these variables directly.
 
     // DATA
-    QLock          d_mutex; // public, but do *not* access directly
-    bsls::AtomicOperations::AtomicTypes::Int d_state; // public, but do *not* access directly
+    QLock                                    d_mutex;
+                                        // public, but do *not* access directly
+    bsls::AtomicOperations::AtomicTypes::Int d_state;
+                                        // public, but do *not* access directly
 
   public:
     // PUBLIC TYPES
@@ -454,9 +457,9 @@ class Once {
         // object and has not been tampered-with since (especially by calling
         // 'leave').
 
-    template <typename FUNC>
+    template <class FUNC>
     void callOnce(FUNC& function);
-    template <typename FUNC>
+    template <class FUNC>
     void callOnce(const FUNC& function);
         // If no other thread has yet called 'enter' or 'callOnce', then call
         // the specified 'function' and set this object to the state where
@@ -468,9 +471,9 @@ class Once {
         // 'function' terminates with an exception.
 };
 
-                        // =====================
-                        // class OnceGuard
-                        // =====================
+                            // ===============
+                            // class OnceGuard
+                            // ===============
 
 class OnceGuard {
     // Guard class for using 'Once' safely.  Construct an object of this
@@ -485,7 +488,7 @@ class OnceGuard {
     // DATA
     Once::OnceLock  d_onceLock;
     Once           *d_once;
-    State                 d_state;
+    State           d_state;
 
     // NOT IMPLEMENTED
     OnceGuard(const OnceGuard&);
@@ -540,41 +543,41 @@ class OnceGuard {
         // code controlled by this object should only be executing if this
         // object is in the "in-progress" state.
 };
+
 }  // close package namespace
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
-                        // ----------------------------------
-                        // Token concatenation support macros
-                        // ----------------------------------
+                    // ----------------------------------
+                    // Token concatenation support macros
+                    // ----------------------------------
 
 // Second layer needed to ensure that arguments are expanded before
 // concatenation.
 #define BDLQQ_ONCE_CAT(X, Y) BDLQQ_ONCE_CAT_IMP(X, Y)
 #define BDLQQ_ONCE_CAT_IMP(X, Y) X##Y
 
-                        // -------------------------------------
-                        // Implementation of BDLQQ_ONCE_DO Macro
-                        // -------------------------------------
+                // -------------------------------------
+                // Implementation of BDLQQ_ONCE_DO Macro
+                // -------------------------------------
 
 // Use a for-loop to initialize the guard, test if we can enter the
 // once-region, then leave the once-region at the end.  Each invocation of this
 // macro within a source file supplies a different 'doOnceObj' name.
-#define BDLQQ_ONCE_DO_IMP(doOnceObj)                                         \
+#define BDLQQ_ONCE_DO_IMP(doOnceObj)                                          \
     static BloombergLP::bdlqq::Once doOnceObj = BDLQQ_ONCE_INITIALIZER;       \
     for (BloombergLP::bdlqq::OnceGuard bcemt_doOnceGuard(&doOnceObj);         \
          bcemt_doOnceGuard.enter(); bcemt_doOnceGuard.leave())
 
-namespace bdlqq {
-                        // ---------------------
-                        // class OnceGuard
-                        // ---------------------
+                            // ---------------
+                            // class OnceGuard
+                            // ---------------
 
 // CREATORS
 inline
-OnceGuard::OnceGuard(Once *once)
+bdlqq::OnceGuard::OnceGuard(Once *once)
 : d_once(once)
 , d_state(BCEMT_NOT_ENTERED)
 {
@@ -582,7 +585,7 @@ OnceGuard::OnceGuard(Once *once)
 
 // MANIPULATORS
 inline
-void OnceGuard::setOnce(Once *once)
+void bdlqq::OnceGuard::setOnce(Once *once)
 {
     BSLS_ASSERT_SAFE(BCEMT_IN_PROGRESS != d_state);
 
@@ -592,18 +595,18 @@ void OnceGuard::setOnce(Once *once)
 
 // ACCESSORS
 inline
-bool OnceGuard::isInProgress() const
+bool bdlqq::OnceGuard::isInProgress() const
 {
     return BCEMT_IN_PROGRESS == d_state;
 }
 
-                        // ----------------
-                        // class Once
-                        // ----------------
+                                // ----------
+                                // class Once
+                                // ----------
 
-template <typename FUNC>
+template <class FUNC>
 inline
-void Once::callOnce(FUNC& function)
+void bdlqq::Once::callOnce(FUNC& function)
 {
     OnceGuard guard(this);
     if (guard.enter()) {
@@ -621,9 +624,9 @@ void Once::callOnce(FUNC& function)
     }
 }
 
-template <typename FUNC>
+template <class FUNC>
 inline
-void Once::callOnce(const FUNC& function)
+void bdlqq::Once::callOnce(const FUNC& function)
 {
     OnceGuard guard(this);
     if (guard.enter()) {
@@ -640,9 +643,8 @@ void Once::callOnce(const FUNC& function)
 #endif
     }
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
 #define BDLQQ_ONCE__CAT(X, Y) BDLQQ_ONCE_CAT(X, Y)
@@ -650,11 +652,18 @@ void Once::callOnce(const FUNC& function)
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

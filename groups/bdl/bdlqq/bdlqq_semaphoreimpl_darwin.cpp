@@ -22,9 +22,9 @@ BSLS_IDENT_RCSID(bdlqq_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-         // ---------------------------------------------------------
-         // class bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>
-         // ---------------------------------------------------------
+         // ----------------------------------------------
+         // class SemaphoreImpl<Platform::DarwinSemaphore>
+         // ----------------------------------------------
 
 const char *
 bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::s_semaphorePrefix
@@ -42,11 +42,10 @@ bsl::string makeUniqueName(const char *prefix, bsls::Types::UintPtr suffix)
     return out.str();
 }
 
-}
+}  // close unnamed namespace
 
-namespace bdlqq {
 // CREATORS
-SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::SemaphoreImpl(
+bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::SemaphoreImpl(
                                                                      int count)
 {
     bsl::string semaphoreName(
@@ -77,7 +76,7 @@ SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::SemaphoreImpl(
 }
 
 // MANIPULATORS
-void SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post(int number)
+void bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post(int number)
 {
     for (int i = 0; i < number; i++) {
         post();
@@ -85,7 +84,7 @@ void SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post(int number)
 }
 
 void
-SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::wait()
+bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::wait()
 {
     sem_t * sem_p = d_sem_p;
     int result = 0;
@@ -96,7 +95,6 @@ SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::wait()
 
     BSLS_ASSERT(result == 0);
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 

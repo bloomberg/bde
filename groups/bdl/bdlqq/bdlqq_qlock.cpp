@@ -1,4 +1,4 @@
-// bdlqq_qlock.cpp                  -*-C++-*-
+// bdlqq_qlock.cpp                                                    -*-C++-*-
 #include <bdlqq_qlock.h>
 
 #include <bsls_ident.h>
@@ -93,8 +93,8 @@ struct SemaphoreKeyGuard {
 extern "C" void deleteThreadLocalSemaphore(void *semaphore)
     // Free the memory for the specified 'semaphore'.  The behavior is
     // undefined unless 'semaphore' is either the address of a valid
-    // 'bdlqq::Semaphore' pointer, or 0.  Note that this function is intended to
-    // serve as a "destructor" callback for 'bdlqq::ThreadUtil::createKey'.
+    // 'bdlqq::Semaphore' pointer, or 0.  Note that this function is intended
+    // to serve as a "destructor" callback for 'bdlqq::ThreadUtil::createKey'.
     // Note that 'deleteThreadLocalSemaphore' doesn't run on the main thread.
     // The main thread deletes the semaphore object in the 'SemaphoreKeyGuard'
     // destructor.
@@ -115,7 +115,8 @@ TlsKey *initializeSemaphoreTLSKey()
     int rc  = bdlqq::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
     BSLS_ASSERT_OPT(rc == 0);
 
-    void *oldKey = bsls::AtomicOperations::testAndSwapPtr(&s_semaphoreKey, 0, key);
+    void *oldKey =
+               bsls::AtomicOperations::testAndSwapPtr(&s_semaphoreKey, 0, key);
 
     if (0 == oldKey) {
         // Create the static key-guard to ensure the resources for
@@ -142,8 +143,8 @@ TlsKey *getSemaphoreTLSKey()
     // created.  This operation is thread-safe: calling it multiple times
     // simultaneously will return the the same address to an initialized key.
 {
-    TlsKey *key =
-        reinterpret_cast<TlsKey *>(bsls::AtomicOperations::getPtr(&s_semaphoreKey));
+    TlsKey *key = reinterpret_cast<TlsKey *>(
+                              bsls::AtomicOperations::getPtr(&s_semaphoreKey));
 
     if (!key) {
         key = initializeSemaphoreTLSKey();
@@ -187,15 +188,14 @@ SemaphorePtr getSemaphoreForCurrentThread()
 
 namespace BloombergLP {
 
-                           // ---------------------------
-                           // class bdlqq::QLock_EventFlag
-                           // ---------------------------
+                        // ---------------------
+                        // class QLock_EventFlag
+                        // ---------------------
 
 #define FLAG_SET_WITHOUT_SEMAPHORE (reinterpret_cast<SemaphorePtr>(-1L))
 
-namespace bdlqq {
 // MANIPULATORS
-void QLock_EventFlag::set()
+void bdlqq::QLock_EventFlag::set()
 {
     // If the flag is unset and not (yet) associated with a semaphore, simply
     // set the flag.
@@ -213,7 +213,7 @@ void QLock_EventFlag::set()
     }
 }
 
-void QLock_EventFlag::waitUntilSet(int spinRetryCount)
+void bdlqq::QLock_EventFlag::waitUntilSet(int spinRetryCount)
 {
     Semaphore *flagValue = 0;
 
@@ -247,19 +247,19 @@ void QLock_EventFlag::waitUntilSet(int spinRetryCount)
     BSLS_ASSERT(flagValue == FLAG_SET_WITHOUT_SEMAPHORE);
 }
 
-                           // ----------------------
-                           // class QLockGuard
-                           // ----------------------
+                            // ----------------
+                            // class QLockGuard
+                            // ----------------
 
 // MANIPULATORS
-void QLockGuard::unlockRaw()
+void bdlqq::QLockGuard::unlockRaw()
 {
     enum { SPIN = 1000 };
 
     BSLS_ASSERT(this != 0);
 
-    QLockGuard *tail = (QLockGuard *)
-        bsls::AtomicOperations::testAndSwapPtr(&d_qlock_p->d_guardQueueTail, this, 0);
+    QLockGuard *tail = (QLockGuard *)bsls::AtomicOperations::testAndSwapPtr(
+                                        &d_qlock_p->d_guardQueueTail, this, 0);
 
     if (this == tail) {
         // There is no successor; the lock is now free.
@@ -276,7 +276,7 @@ void QLockGuard::unlockRaw()
     d_next->d_readyFlag.set();
 }
 
-void QLockGuard::lock()
+void bdlqq::QLockGuard::lock()
 {
     enum { SPIN = 100 };
 
@@ -300,7 +300,7 @@ void QLockGuard::lock()
     d_locked = true;
 }
 
-int QLockGuard::tryLock()
+int bdlqq::QLockGuard::tryLock()
 {
     BSLS_ASSERT(d_qlock_p);
 
@@ -309,8 +309,8 @@ int QLockGuard::tryLock()
     }
 
     // Grab the qlock if it is free
-    QLockGuard *pred = (QLockGuard *)
-        bsls::AtomicOperations::testAndSwapPtr(&d_qlock_p->d_guardQueueTail, 0, this);
+    QLockGuard *pred = (QLockGuard *)bsls::AtomicOperations::testAndSwapPtr(
+                                        &d_qlock_p->d_guardQueueTail, 0, this);
 
     if (pred != 0) {
         // The lock was not free.  Do not wait.
@@ -323,15 +323,21 @@ int QLockGuard::tryLock()
 
     return 0;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

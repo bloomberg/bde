@@ -104,19 +104,20 @@ static int nativeDefaultThreadStackSizeImp()
 
 namespace BloombergLP {
 
-static bsls::AtomicOperations::AtomicTypes::Int defaultThreadStackSizeValue = { -1 };
+static bsls::AtomicOperations::AtomicTypes::Int
+defaultThreadStackSizeValue = { -1 };
 
-namespace bdlqq {
-int Configuration::defaultThreadStackSize()
+int bdlqq::Configuration::defaultThreadStackSize()
 {
-    if (bsls::AtomicOperations::getIntRelaxed(&defaultThreadStackSizeValue) < 0) {
-        return ThreadAttributes::BCEMT_UNSET_STACK_SIZE;        // RETURN
+    if (bsls::AtomicOperations::getIntRelaxed(&defaultThreadStackSizeValue) <
+                                                                           0) {
+        return ThreadAttributes::BCEMT_UNSET_STACK_SIZE;              // RETURN
     }
 
     return bsls::AtomicOperations::getIntRelaxed(&defaultThreadStackSizeValue);
 }
 
-int Configuration::nativeDefaultThreadStackSize()
+int bdlqq::Configuration::nativeDefaultThreadStackSize()
 {
     static bsls::AtomicOperations::AtomicTypes::Int ret = { -1 };
 
@@ -129,7 +130,7 @@ int Configuration::nativeDefaultThreadStackSize()
     return bsls::AtomicOperations::getIntRelaxed(&ret);
 }
 
-int Configuration::nativeDefaultThreadGuardSize()
+int bdlqq::Configuration::nativeDefaultThreadGuardSize()
 {
 #if defined(BDLQQ_PLATFORM_POSIX_THREADS)
     static bsls::AtomicOperations::AtomicTypes::Int ret = { -1 };
@@ -149,7 +150,8 @@ int Configuration::nativeDefaultThreadGuardSize()
         BSLS_ASSERT(guardSizeT > 0);
         BSLS_ASSERT(guardSizeT <= static_cast<bsl::size_t>(INT_MAX));
 
-        bsls::AtomicOperations::setIntRelaxed(&ret, static_cast<int>(guardSizeT));
+        bsls::AtomicOperations::setIntRelaxed(&ret,
+                                              static_cast<int>(guardSizeT));
     }
 
     return bsls::AtomicOperations::getIntRelaxed(&ret);
@@ -160,7 +162,7 @@ int Configuration::nativeDefaultThreadGuardSize()
 #endif
 }
 
-int Configuration::recommendedDefaultThreadStackSize()
+int bdlqq::Configuration::recommendedDefaultThreadStackSize()
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit, constant across platforms
 
@@ -176,7 +178,7 @@ int Configuration::recommendedDefaultThreadStackSize()
     return RECOMMENDED_DEFAULT_STACKSIZE;
 }
 
-void Configuration::setDefaultThreadStackSize(int numBytes)
+void bdlqq::Configuration::setDefaultThreadStackSize(int numBytes)
 {
 #if defined(BDLQQ_PLATFORM_POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
     BSLS_ASSERT_OPT(numBytes >= static_cast<int>(PTHREAD_STACK_MIN));
@@ -184,17 +186,24 @@ void Configuration::setDefaultThreadStackSize(int numBytes)
     BSLS_ASSERT_OPT(numBytes > 0);
 #endif
 
-    bsls::AtomicOperations::setIntRelaxed(&defaultThreadStackSizeValue, numBytes);
+    bsls::AtomicOperations::setIntRelaxed(&defaultThreadStackSizeValue,
+                                          numBytes);
 }
-}  // close package namespace
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

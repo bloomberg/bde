@@ -22,8 +22,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides generic proctors to automatically lock
 // and unlock an external synchronization object for writing.  The
-// synchronization object can be any type (e.g., 'bdlqq::ReaderWriterLock') that
-// provides the following methods:
+// synchronization object can be any type (e.g., 'bdlqq::ReaderWriterLock')
+// that provides the following methods:
 //..
 //  void lockWrite();
 //  void unlock();
@@ -165,11 +165,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                           // ==========================
-                           // class WriteLockGuard
-                           // ==========================
+                            // ====================
+                            // class WriteLockGuard
+                            // ====================
 
 template <class T>
 class WriteLockGuard {
@@ -218,9 +217,9 @@ class WriteLockGuard {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                           // ==========================
-                           // class LockWriteGuard
-                           // ==========================
+                            // ====================
+                            // class LockWriteGuard
+                            // ====================
 
 template <class T>
 class LockWriteGuard : public WriteLockGuard<T> {
@@ -241,9 +240,9 @@ class LockWriteGuard : public WriteLockGuard<T> {
 
 };
 
-                      // ================================
-                      // class WriteLockGuardUnlock
-                      // ================================
+                        // ==========================
+                        // class WriteLockGuardUnlock
+                        // ==========================
 
 template <class T>
 class WriteLockGuardUnlock {
@@ -256,8 +255,7 @@ class WriteLockGuardUnlock {
   private:
     // NOT IMPLEMENTED
     WriteLockGuardUnlock(const WriteLockGuardUnlock<T>&);
-    WriteLockGuardUnlock<T>& operator=(
-                               const WriteLockGuardUnlock<T>&);
+    WriteLockGuardUnlock<T>& operator=(const WriteLockGuardUnlock<T>&);
 
   public:
     // CREATORS
@@ -293,9 +291,9 @@ class WriteLockGuardUnlock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                      // =================================
-                      // class WriteLockGuardTryLock
-                      // =================================
+                        // ===========================
+                        // class WriteLockGuardTryLock
+                        // ===========================
 
 template <class T>
 class WriteLockGuardTryLock {
@@ -308,8 +306,7 @@ class WriteLockGuardTryLock {
   private:
     // NOT IMPLEMENTED
     WriteLockGuardTryLock(const WriteLockGuardTryLock<T>&);
-    WriteLockGuardTryLock<T>& operator=(
-                                const WriteLockGuardTryLock<T>&);
+    WriteLockGuardTryLock<T>& operator=(const WriteLockGuardTryLock<T>&);
 
   public:
     // CREATORS
@@ -341,18 +338,20 @@ class WriteLockGuardTryLock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                          // --------------------------
-                          // class WriteLockGuard
-                          // --------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // class WriteLockGuard
+                            // --------------------
 
 // CREATORS
 template <class T>
 inline
-WriteLockGuard<T>::WriteLockGuard(T *lock)
+bdlqq::WriteLockGuard<T>::WriteLockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -362,7 +361,7 @@ WriteLockGuard<T>::WriteLockGuard(T *lock)
 
 template <class T>
 inline
-WriteLockGuard<T>::WriteLockGuard(T *lock, int preLocked)
+bdlqq::WriteLockGuard<T>::WriteLockGuard(T *lock, int preLocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preLocked) {
@@ -372,7 +371,7 @@ WriteLockGuard<T>::WriteLockGuard(T *lock, int preLocked)
 
 template <class T>
 inline
-WriteLockGuard<T>::~WriteLockGuard()
+bdlqq::WriteLockGuard<T>::~WriteLockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -383,7 +382,7 @@ WriteLockGuard<T>::~WriteLockGuard()
 
 template <class T>
 inline
-T *WriteLockGuard<T>::release()
+T *bdlqq::WriteLockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -393,19 +392,19 @@ T *WriteLockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *WriteLockGuard<T>::ptr() const
+T *bdlqq::WriteLockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
 
-                      // --------------------------------
-                      // class WriteLockGuardUnlock
-                      // --------------------------------
+                        // --------------------------
+                        // class WriteLockGuardUnlock
+                        // --------------------------
 
 // CREATORS
 template <class T>
 inline
-WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
+bdlqq::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -415,8 +414,7 @@ WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T   *lock,
-                                                          int  preUnlocked)
+bdlqq::WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T *lock, int preUnlocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preUnlocked) {
@@ -426,7 +424,7 @@ WriteLockGuardUnlock<T>::WriteLockGuardUnlock(T   *lock,
 
 template <class T>
 inline
-WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
+bdlqq::WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lockWrite();
@@ -436,7 +434,7 @@ WriteLockGuardUnlock<T>::~WriteLockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *WriteLockGuardUnlock<T>::release()
+T *bdlqq::WriteLockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -446,19 +444,18 @@ T *WriteLockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *WriteLockGuardUnlock<T>::ptr() const
+T *bdlqq::WriteLockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
 
-                      // ---------------------------------
-                      // class WriteLockGuardTryLock
-                      // ---------------------------------
+                        // ---------------------------
+                        // class WriteLockGuardTryLock
+                        // ---------------------------
 
 // CREATORS
 template <class T>
-WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T   *lock,
-                                                            int  attempts)
+bdlqq::WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T *lock, int attempts)
 : d_lock_p(0)
 {
     if (lock) {
@@ -473,7 +470,7 @@ WriteLockGuardTryLock<T>::WriteLockGuardTryLock(T   *lock,
 
 template <class T>
 inline
-WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
+bdlqq::WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -483,7 +480,7 @@ WriteLockGuardTryLock<T>::~WriteLockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *WriteLockGuardTryLock<T>::release()
+T *bdlqq::WriteLockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -493,40 +490,46 @@ T *WriteLockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *WriteLockGuardTryLock<T>::ptr() const
+T *bdlqq::WriteLockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }
 
-                         // --------------------------
-                         // class LockWriteGuard
-                         // --------------------------
+                            // --------------------
+                            // class LockWriteGuard
+                            // --------------------
 
 // CREATORS
 template <class T>
 inline
-LockWriteGuard<T>::LockWriteGuard(T *lock)
+bdlqq::LockWriteGuard<T>::LockWriteGuard(T *lock)
 : WriteLockGuard<T>(lock)
 {
 }
 
 template <class T>
 inline
-LockWriteGuard<T>::LockWriteGuard(T *lock, int preLocked)
+bdlqq::LockWriteGuard<T>::LockWriteGuard(T *lock, int preLocked)
 : WriteLockGuard<T>(lock, preLocked)
 {
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -22,19 +22,19 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // bdlqq::LockGuard
-// ===============
+// ============================================================================
 // [2] bdlqq::LockGuard();
 // [2] ~bdlqq::LockGuard();
 // [2] release();
 //
 // bdlqq::LockGuardUnlock
-// =================
+// ============================================================================
 // [3] bdlqq::LockGuardUnlock();
 // [3] ~bdlqq::LockGuardUnlock();
 // [3] release();
 
 // bdlqq::LockGuardTryLock
-// =================
+// ============================================================================
 // [4] bdlqq::LockGuardTryLock();
 // [4] ~bdlqq::LockGuardTryLock();
 // [4] release();
@@ -109,6 +109,8 @@ struct my_Mutex {
     ~my_Mutex() {};
     int lockCount() const { return d_count; }
     int tryLock() { if ((++d_attempt)%2) lock(); else return 1; return 0; }
+                                                                      // RETURN
+                                                                      // RETURN
     void lock() { ++ d_count; }
     void unlock() { --d_count; }
 };
@@ -127,10 +129,12 @@ static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
     if (someCondition) {
         obj->someMethod();
         mutex->unlock();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherCondition) {
         obj->someOtherMethod();
         return;                              // MISTAKE! forgot to unlock mutex
+                                                                      // RETURN
+                                                                      // RETURN
     }
     obj->defaultMethod();
     mutex->unlock();
@@ -142,10 +146,12 @@ static void safeFunc(my_Object *obj, my_Mutex *mutex)
     bdlqq::LockGuard<my_Mutex> guard(mutex);
     if (someCondition) {
         obj->someMethod();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherCondition) {
         obj->someOtherMethod();
         return;                          // OK, mutex is automatically unlocked
+                                                                      // RETURN
+                                                                      // RETURN
     }
     obj->defaultMethod();
     return;
@@ -160,13 +166,13 @@ static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
     if (guard.ptr()) { // mutex is locked
         if (someCondition) {
             obj->someMethod();
-            return 2;
+            return 2;                                                 // RETURN
         } else if (someOtherCondition) {
             obj->someOtherMethod();
-            return 3;
+            return 3;                                                 // RETURN
         }
         obj->defaultMethod();
-        return 1;
+        return 1;                                                     // RETURN
     }
     return 0;
 }
@@ -430,8 +436,8 @@ int main(int argc, char *argv[])
         // TESTING CLASS 'bdlqq::LockGuardTryLock'
         //
         // Concern:
-        //   That the basic functionality of the 'bdlqq::LockGuardTryLock' class
-        //   template is correct.
+        //   That the basic functionality of the 'bdlqq::LockGuardTryLock'
+        //   class template is correct.
         //
         // Plan:
         //   We begin by creating a series of nested 'bdlqq::LockGuardTryLock'
@@ -768,11 +774,18 @@ int main(int argc, char *argv[])
     return( testStatus );
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

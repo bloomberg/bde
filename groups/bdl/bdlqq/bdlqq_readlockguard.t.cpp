@@ -13,37 +13,37 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bdlqq::ReadLockGuard' class.  It
-// verifies that the class properly locks the synchronization object for read
-// at construction time, and that it properly unlocks the object at destruction
-// time.  A helper class, 'my_RWLock', is created to facilitate the test
-// process.  'my_RWLock' implements the required lock and unlock interfaces and
-// provides a means to determine when the functions are called.
+// This program tests the functionality of the 'bdlqq::ReadLockGuard' class.
+// It verifies that the class properly locks the synchronization object for
+// read at construction time, and that it properly unlocks the object at
+// destruction time.  A helper class, 'my_RWLock', is created to facilitate the
+// test process.  'my_RWLock' implements the required lock and unlock
+// interfaces and provides a means to determine when the functions are called.
 //
 //-----------------------------------------------------------------------------
 // bdlqq::ReadLockGuard
-// ===================
+// ============================================================================
 // [2] bdlqq::ReadLockGuard();
 // [2] ~bdlqq::ReadLockGuard();
 // [2] bdlqq::ReadLockGuard::release();
 // [2] bdlqq::ReadLockGuard::ptr();
 //
 // bdlqq::ReadLockGuardUnlock
-// =====================
+// ============================================================================
 // [3] bdlqq::ReadLockGuardUnlock();
 // [3] ~bdlqq::ReadLockGuardUnlock();
 // [3] bdlqq::ReadLockGuardUnlock::release();
 // [3] bdlqq::ReadLockGuardUnlock::ptr();
 //
 // bdlqq::ReadLockGuardTryLock
-// ======================
+// ============================================================================
 // [4] bdlqq::ReadLockGuardTryLock();
 // [4] ~bdlqq::ReadLockGuardTryLock();
 // [4] bdlqq::ReadLockGuardTryLock::release();
 // [4] bdlqq::ReadLockGuardTryLock::ptr();
 //-----------------------------------------------------------------------------
 // [1] Ensure helper class 'my_RWLock' works as expected
-// [5] INTERACTION BETW. 'bdlqq::ReadLockGuard' AND 'bdlqq::ReadLockGuardUnlock'
+// [5] INTERACTION BET. 'bdlqq::ReadLockGuard' AND 'bdlqq::ReadLockGuardUnlock'
 // [6] DEPRECATED 'bdlqq::LockReadGuard'
 // [7] USAGE EXAMPLES
 //=============================================================================
@@ -116,7 +116,7 @@ struct my_RWLock {
         if ((++d_attempt)%2) {
             lockRead();
         } else {
-            return 1;
+            return 1;                                                 // RETURN
         }
         return 0;
     }
@@ -141,10 +141,11 @@ static void errorProneFunc(const my_Object *obj, my_RWLock *rwlock)
     if (someCondition) {
         obj->someMethod();
         rwlock->unlock();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherCondition) {
         obj->someOtherMethod();
         return;                             // MISTAKE! forgot to unlock rwlock
+                                                                      // RETURN
     }
     obj->defaultMethod();
     rwlock->unlock();
@@ -156,10 +157,11 @@ static void safeFunc(const my_Object *obj, my_RWLock *rwlock)
     bdlqq::ReadLockGuard<my_RWLock> guard(rwlock);
     if (someCondition) {
         obj->someMethod();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherCondition) {
         obj->someOtherMethod();
         return;                         // OK, rwlock is automatically unlocked
+                                                                      // RETURN
     }
     obj->defaultMethod();
     return;
@@ -174,13 +176,13 @@ static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
     if (guard.ptr()) { // rwlock is locked
         if (someCondition) {
             obj->someMethod();
-            return 2;
+            return 2;                                                 // RETURN
         } else if (someOtherCondition) {
             obj->someOtherMethod();
-            return 3;
+            return 3;                                                 // RETURN
         }
         obj->defaultMethod();
-        return 1;
+        return 1;                                                     // RETURN
     }
     return 0;
 }
@@ -191,10 +193,11 @@ static void safeUpgradeFunc(my_Object *obj, my_RWLock *rwlock)
     bdlqq::ReadLockGuard<my_RWLock> guard(rwlock);
     if (someUpgradeCondition) {
         obj->someUpgradeMethod();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherCondition) {
         constObj->someOtherMethod();
         return;                         // OK, rwlock is automatically unlocked
+                                                                      // RETURN
     }
     constObj->defaultMethod();
     return;
@@ -209,10 +212,10 @@ static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
     if (someUpgradeCondition) {
         rwlock->upgradeToWriteLock();
         obj->someUpgradeMethod();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherCondition) {
         constObj->someOtherMethod();
-        return;
+        return;                                                       // RETURN
     }
     constObj->defaultMethod();
     return;
@@ -465,8 +468,9 @@ int main(int argc, char *argv[])
         //   object and that when the 'bdlqq::ReadLockGuardTryLock' object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bdlqq::ReadLockGuardTryLock' can be created
-        //   with a null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a 'bdlqq::ReadLockGuardTryLock' can be
+        //   created with a null lock, and that 'release' may be called on the
+        //   guard.
         //
         // Testing:
         //   bdlqq::ReadLockGuardTryLock();
@@ -586,7 +590,8 @@ int main(int argc, char *argv[])
                 ASSERT(-1 == X.lockCount());
                 {
                     const int PRE_UNLOCKED = 0;
-                    bdlqq::ReadLockGuardUnlock<my_RWLock> l2(&mX, PRE_UNLOCKED);
+                    bdlqq::ReadLockGuardUnlock<my_RWLock> l2(
+                                                            &mX, PRE_UNLOCKED);
                     if(verbose)  P(X.lockCount());
                     ASSERT(-2 == X.lockCount());
                     {
@@ -652,8 +657,8 @@ int main(int argc, char *argv[])
         //   supplied object and that when the 'bdlqq::ReadLockGuard' object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bdlqq::ReadLockGuard' can be created with a
-        //   null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a 'bdlqq::ReadLockGuard' can be created with
+        //   a null lock, and that 'release' may be called on the guard.
         //
         // Testing:
         //   bdlqq::ReadLockGuard();
@@ -791,11 +796,18 @@ int main(int argc, char *argv[])
     return( testStatus );
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

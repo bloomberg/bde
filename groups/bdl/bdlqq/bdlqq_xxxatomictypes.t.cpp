@@ -1,4 +1,4 @@
-// bdlqq_xxxatomictypes.t.cpp           -*-C++-*-
+// bdlqq_xxxatomictypes.t.cpp                                         -*-C++-*-
 
 #include <bdlqq_xxxatomictypes.h>
 
@@ -35,7 +35,7 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // bdlqq::AtomicInt
-// --------------
+// ----------------------------------------------------------------------------
 // [ 2] bdlqq::AtomicInt();
 // [ 3] bdlqq::AtomicInt(const bdlqq::AtomicInt& rhs);
 // [ 3] bdlqq::AtomicInt(int value);
@@ -54,7 +54,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] operator int() const;
 //
 // bdlqq::AtomicInt64
-// ----------------
+// ----------------------------------------------------------------------------
 // [ 2] bdlqq::AtomicInt64();
 // [ 3] bdlqq::AtomicInt64(const bdlqq::AtomicInt64& original);
 // [ 3] bdlqq::AtomicInt64(bsls::Types::Int64 value);
@@ -73,21 +73,21 @@ using namespace bsl;  // automatically added by script
 // [ 2] operator bsls::Types::Int64() const;
 //
 // bdlqq::AtomicPointer
-// ------------------
+// ----------------------------------------------------------------------------
 // [ 2] bdlqq::AtomicPointer();
 // [ 3] bdlqq::AtomicPointer(const bdlqq::AtomicPointer<T>& original);
 // [ 3] bdlqq::AtomicPointer(const T* value);
 // [ 2] ~bdlqq::AtomicPointer();
 // [ 5] T* swap(const T* swapValue);
 // [ 5] T* testAndSwap(const T* compareValue, const T* swapValue);
-// [ 3] bdlqq::AtomicPointer<T>& operator= (const bdlqq::AtomicPointer<T>& rhs);
+// [ 3] bdlqq::AtomicPointer<T>&operator=(const bdlqq::AtomicPointer<T>& rhs);
 // [ 2] bdlqq::AtomicPointer<T>& operator= (const T *value);
 // [ 2] T& operator*() const;
 // [ 3] T* operator->() const;
 // [ 2] operator T*() const;
 //
 // bdlqq::SpinLock
-// -------------
+// ----------------------------------------------------------------------------
 // [ 7] bdlqq::SpinLock();
 // [ 7] ~bdlqq::SpinLock();
 // [ 7] void lock();
@@ -156,7 +156,7 @@ typedef bdlqq::SpinLock                       SL;
 typedef bsls::Types::Int64                  Int64;
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 struct APTestObj
@@ -217,7 +217,7 @@ private:
     Data&   d_data;
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct Guard
 {
     Guard(LOCK& lock)
@@ -238,7 +238,7 @@ bdlqq::AtomicInt s_data1(0);
 bdlqq::AtomicInt s_data2(0);
 bdlqq::AtomicInt s_data3(1);
 
-template <typename LOCK>
+template <class LOCK>
 void testAtomicLocking(LOCK& lock, int iterations)
     // Test 'lock' implemented using atomic operations by using it to protect
     // some shared data, which is both read and written to.
@@ -266,7 +266,7 @@ void testAtomicLocking(LOCK& lock, int iterations)
     }
 }
 
-template <typename LOCK>
+template <class LOCK>
 struct AtomicLockingThreadParam
 {
     AtomicLockingThreadParam(LOCK& lock, int iterations)
@@ -278,7 +278,7 @@ struct AtomicLockingThreadParam
     int     d_iterations;
 };
 
-template <typename LOCK>
+template <class LOCK>
 void *testAtomicLockingThreadFunc(void *arg)
 {
     AtomicLockingThreadParam<LOCK> *param
@@ -314,7 +314,7 @@ void joinThread(thread_t thr)
 }
 
 
-template <typename LOCK>
+template <class LOCK>
 void testCaseMemOrder()
 {
     int iterations = 10000000;
@@ -333,7 +333,7 @@ void testCaseMemOrder()
     joinThread(thr1);
 }
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                       USAGE EXAMPLES FROM HEADER
@@ -579,7 +579,7 @@ template <class TYPE>
 inline void my_PtrStack<TYPE>::freeNode(Node *node)
 {
     if (!node) {
-        return;
+        return;                                                       // RETURN
     }
 
     do {
@@ -1585,7 +1585,7 @@ int main(int argc, char *argv[])
         //   bdlqq::AtomicInt64& operator= (const bdlqq::AtomicInt64& rhs);
         //   bdlqq::AtomicPointer(const bdlqq::AtomicPointer<T>& original);
         //   bdlqq::AtomicPointer(const T* value);
-        //   bdlqq::AtomicPointer<T>& operator=(const bdlqq::AtomicPointer<T>&);
+        //   bdlqq::AtomicPointer<T>&operator=(const bdlqq::AtomicPointer<T>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primary Manipulators"
@@ -1661,9 +1661,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout <<
-                          "\nTesting 'bdlqq::AtomicPointer' Primary Manipulators"
-                          << endl;
+        if (verbose)
+            cout << "\nTesting 'bdlqq::AtomicPointer' Primary Manipulators\n";
         {
             static const struct {
                 int        d_lineNum;  // source line number
@@ -1733,8 +1732,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Primary Manipulators"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nTesting 'bdlqq::AtomicInt' Primary Manipulators"
-                          << endl;
+        if (verbose)
+            cout << "\nTesting 'bdlqq::AtomicInt' Primary Manipulators\n";
         {
             static const struct {
                 int d_lineNum;  // source line number
@@ -1798,9 +1797,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout <<
-                          "\nTesting 'bdlqq::AtomicPointer' Primary Manipulators"
-                          << endl;
+        if (verbose)
+            cout << "\nTesting 'bdlqq::AtomicPointer' Primary Manipulators\n";
         {
             static const struct {
                 int        d_lineNum;  // source line number
@@ -1966,11 +1964,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

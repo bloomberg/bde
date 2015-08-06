@@ -217,22 +217,20 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {class Semaphore;
-}  // close package namespace
+class Semaphore;
 
 #define BDLQQ_QLOCK_INITIALIZER  { {0} }
-
-namespace bdlqq {    // Use this macro as the value for initializing an object of type
+    // Use this macro as the value for initializing an object of type
     // 'QLock'  For example:
     //..
     //  QLock mylock = BDLQQ_QLOCK_INITIALIZER;
     //..
 
-                           // ==================
-                           // struct QLock
-                           // ==================
+                                // ============
+                                // struct QLock
+                                // ============
 
 struct QLock {
     // An efficient statically-initializable synchronization primitive that
@@ -277,9 +275,9 @@ struct QLock {
         // Return true if this lock is locked and false otherwise.
 };
 
-                         // ===========================
-                         // class QLock_EventFlag
-                         // ===========================
+                        // =====================
+                        // class QLock_EventFlag
+                        // =====================
 
 class QLock_EventFlag {
     // [!PRIVATE!] This class provides a thread-safe mechanism for one thread
@@ -297,7 +295,6 @@ class QLock_EventFlag {
 
   private:
     // PRIVATE TYPES
-    typedef bdlqq::Semaphore               Semaphore;
     typedef bsls::AtomicPointer<Semaphore> AtomicSemaphorePtr;
 
     // DATA
@@ -335,9 +332,9 @@ class QLock_EventFlag {
         // for this flag to be set.
 };
 
-                           // ======================
-                           // class QLockGuard
-                           // ======================
+                            // ================
+                            // class QLockGuard
+                            // ================
 
 class QLockGuard  {
     // This class provides the means to acquire and release the lock on a
@@ -352,13 +349,12 @@ class QLockGuard  {
     QLockGuard      *d_next;       // next object in queue.
 
     QLock_EventFlag  d_readyFlag;  // flag indicating when the lock is
-                                         // released by its predecessor in the
-                                         // queue
+                                   // released by its predecessor in the queue
 
     QLock_EventFlag  d_nextFlag;   // flag indicating 'd_next' is set by
-                                         // its successor.
+                                   // its successor.
 
-    bool                   d_locked;     // 'true' if this guard holds the lock
+    bool             d_locked;     // 'true' if this guard holds the lock
 
   private:
     // NOT IMPLEMENTED
@@ -412,58 +408,60 @@ class QLockGuard  {
         // not already released it.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                           // -----------------
-                           // class QLock
-                           // -----------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                                // -----------
+                                // class QLock
+                                // -----------
 
 // MANIPULATORS
 inline
-void QLock::initialize()
+void bdlqq::QLock::initialize()
 {
     bsls::AtomicOperations::setPtrRelaxed(&d_guardQueueTail, 0);
 }
 
 // ACCESSORS
 inline
-bool QLock::isLocked() const
+bool bdlqq::QLock::isLocked() const
 {
     return bsls::AtomicOperations::getPtr(&d_guardQueueTail) != 0;
 }
 
-                           // ---------------------------
-                           // class QLock_EventFlag
-                           // ---------------------------
+                        // ---------------------
+                        // class QLock_EventFlag
+                        // ---------------------
 
 // CREATORS
 inline
-QLock_EventFlag::QLock_EventFlag()
+bdlqq::QLock_EventFlag::QLock_EventFlag()
 : d_status(0)
 {
 }
 
 inline
-QLock_EventFlag::~QLock_EventFlag()
+bdlqq::QLock_EventFlag::~QLock_EventFlag()
 {
 }
 
 // MANIPULATORS
 inline
-void QLock_EventFlag::reset()
+void bdlqq::QLock_EventFlag::reset()
 {
     d_status = 0;
 }
 
-                           // ----------------------
-                           // class QLockGuard
-                           // ----------------------
+                            // ----------------
+                            // class QLockGuard
+                            // ----------------
 
 // CREATORS
 inline
-QLockGuard::QLockGuard()
+bdlqq::QLockGuard::QLockGuard()
 : d_qlock_p   (0)
 , d_next      (0)
 , d_readyFlag ()
@@ -473,7 +471,7 @@ QLockGuard::QLockGuard()
 }
 
 inline
-QLockGuard::QLockGuard(QLock *qlock, bool doLock)
+bdlqq::QLockGuard::QLockGuard(QLock *qlock, bool doLock)
 : d_qlock_p   (qlock)
 , d_next      (0)
 , d_readyFlag ()
@@ -486,7 +484,7 @@ QLockGuard::QLockGuard(QLock *qlock, bool doLock)
 }
 
 inline
-QLockGuard::~QLockGuard()
+bdlqq::QLockGuard::~QLockGuard()
 {
     if (d_locked) {
         unlockRaw();
@@ -495,7 +493,7 @@ QLockGuard::~QLockGuard()
 
 // MANIPULATORS
 inline
-void QLockGuard::setQLock(QLock *qlock)
+void bdlqq::QLockGuard::setQLock(QLock *qlock)
 {
     BSLS_ASSERT_SAFE(!d_locked);
 
@@ -503,7 +501,7 @@ void QLockGuard::setQLock(QLock *qlock)
 }
 
 inline
-void QLockGuard::lock(QLock *qlock)
+void bdlqq::QLockGuard::lock(QLock *qlock)
 {
     BSLS_ASSERT_SAFE(!d_locked);
     BSLS_ASSERT_SAFE(qlock);
@@ -513,7 +511,7 @@ void QLockGuard::lock(QLock *qlock)
 }
 
 inline
-void QLockGuard::unlock()
+void bdlqq::QLockGuard::unlock()
 {
     if (d_locked) {
         // Release the lock, and reset the state variables so it can be
@@ -527,17 +525,23 @@ void QLockGuard::unlock()
         d_nextFlag.reset();
     }
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

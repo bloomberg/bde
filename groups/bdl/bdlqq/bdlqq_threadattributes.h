@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 // reclaimed upon termination.
 //..
 //      attributes.setDetachedState(
-//                              bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//                             bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 //..
 // Now, we create a thread, using the attributes configured above:
 //..
@@ -253,11 +253,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                        // ============================
+                        // ======================
                         // class ThreadAttributes
-                        // ============================
+                        // ======================
 
 class ThreadAttributes {
     // This simply constrained (value-semantic) attribute class characterizes a
@@ -480,34 +479,33 @@ class ThreadAttributes {
 };
 
 // FREE OPERATORS
-bool operator==(const ThreadAttributes& lhs,
-                const ThreadAttributes& rhs);
+bool operator==(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'ThreadAttributes' objects have
     // the same value if the corresponding values of their 'detachedState',
     // 'guardSize', 'inheritSchedule', 'schedulingPolicy',
     // 'schedulingPriority', and 'stackSize' attributes are the same.
 
-bool operator!=(const ThreadAttributes& lhs,
-                const ThreadAttributes& rhs);
+bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baltzo::LocalTimeDescriptor'
     // objects do not have the same value if the corresponding values of their
     // 'detachedState', 'guardSize', 'inheritSchedule', 'schedulingPolicy',
     // 'schedulingPriority', and 'stackSize' attributes are not the same.
 
+}  // close package namespace
+
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                         // ----------------------------
-                         // class ThreadAttributes
-                         // ----------------------------
+                        // ----------------------
+                        // class ThreadAttributes
+                        // ----------------------
 
 // CREATORS
 inline
-ThreadAttributes::ThreadAttributes(
-                                        const ThreadAttributes& original)
+bdlqq::ThreadAttributes::ThreadAttributes(const ThreadAttributes& original)
 : d_detachedState(original.d_detachedState)
 , d_guardSize(original.d_guardSize)
 , d_inheritScheduleFlag(original.d_inheritScheduleFlag)
@@ -519,8 +517,8 @@ ThreadAttributes::ThreadAttributes(
 
 // MANIPULATORS
 inline
-ThreadAttributes& ThreadAttributes::operator=(
-                                             const ThreadAttributes& rhs)
+bdlqq::ThreadAttributes& bdlqq::ThreadAttributes::operator=(
+                                                   const ThreadAttributes& rhs)
 {
     d_detachedState       = rhs.d_detachedState;
     d_guardSize           = rhs.d_guardSize;
@@ -533,8 +531,8 @@ ThreadAttributes& ThreadAttributes::operator=(
 }
 
 inline
-void ThreadAttributes::setDetachedState(
-                                   ThreadAttributes::DetachedState value)
+void bdlqq::ThreadAttributes::setDetachedState(
+                                         ThreadAttributes::DetachedState value)
 {
     BSLS_ASSERT_SAFE(BCEMT_CREATE_DETACHED == value ||
                      BCEMT_CREATE_JOINABLE == value);
@@ -543,7 +541,7 @@ void ThreadAttributes::setDetachedState(
 }
 
 inline
-void ThreadAttributes::setGuardSize(int value)
+void bdlqq::ThreadAttributes::setGuardSize(int value)
 {
     BSLMF_ASSERT(-1 == BCEMT_UNSET_GUARD_SIZE);
 
@@ -553,14 +551,14 @@ void ThreadAttributes::setGuardSize(int value)
 }
 
 inline
-void ThreadAttributes::setInheritSchedule(bool value)
+void bdlqq::ThreadAttributes::setInheritSchedule(bool value)
 {
     d_inheritScheduleFlag = value;
 }
 
 inline
-void ThreadAttributes::setSchedulingPolicy(
-                                ThreadAttributes::SchedulingPolicy value)
+void bdlqq::ThreadAttributes::setSchedulingPolicy(
+                                      ThreadAttributes::SchedulingPolicy value)
 {
     BSLS_ASSERT_SAFE(BCEMT_SCHED_MIN <= (int) value);
     BSLS_ASSERT_SAFE(                   (int) value <= BCEMT_SCHED_MAX);
@@ -569,13 +567,13 @@ void ThreadAttributes::setSchedulingPolicy(
 }
 
 inline
-void ThreadAttributes::setSchedulingPriority(int value)
+void bdlqq::ThreadAttributes::setSchedulingPriority(int value)
 {
     d_schedulingPriority = value;
 }
 
 inline
-void ThreadAttributes::setStackSize(int value)
+void bdlqq::ThreadAttributes::setStackSize(int value)
 {
     BSLMF_ASSERT(-1 == BCEMT_UNSET_STACK_SIZE);
 
@@ -586,53 +584,59 @@ void ThreadAttributes::setStackSize(int value)
 
 // ACCESSORS
 inline
-ThreadAttributes::DetachedState
-ThreadAttributes::detachedState() const
+bdlqq::ThreadAttributes::DetachedState
+bdlqq::ThreadAttributes::detachedState() const
 {
     return d_detachedState;
 }
 
 inline
-int ThreadAttributes::guardSize() const
+int bdlqq::ThreadAttributes::guardSize() const
 {
     return d_guardSize;
 }
 
 inline
-bool ThreadAttributes::inheritSchedule() const
+bool bdlqq::ThreadAttributes::inheritSchedule() const
 {
     return d_inheritScheduleFlag;
 }
 
 inline
-ThreadAttributes::SchedulingPolicy
-ThreadAttributes::schedulingPolicy() const
+bdlqq::ThreadAttributes::SchedulingPolicy
+bdlqq::ThreadAttributes::schedulingPolicy() const
 {
     return d_schedulingPolicy;
 }
 
 inline
-int ThreadAttributes::schedulingPriority() const
+int bdlqq::ThreadAttributes::schedulingPriority() const
 {
     return d_schedulingPriority;
 }
 
 inline
-int ThreadAttributes::stackSize() const
+int bdlqq::ThreadAttributes::stackSize() const
 {
     return d_stackSize;
 }
-}  // close package namespace
 
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

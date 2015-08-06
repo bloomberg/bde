@@ -16,10 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::ThreadUtil'
-// for POSIX threads ("pthreads") via the template specialization:
+//@DESCRIPTION: This component provides an implementation of
+// 'bdlqq::ThreadUtil' for POSIX threads ("pthreads") via the template
+// specialization:
 //..
-//  bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>
+//  bdlqq::ThreadUtilImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::ThreadUtil'.
@@ -31,11 +32,11 @@ BSLS_IDENT("$Id: $")
 // based.  If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
 // 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -63,6 +64,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_systemclocktype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -77,21 +82,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close package namespace
-
-
-namespace bdlqq {template <typename THREAD_POLICY>
-struct ThreadUtilImpl;
-}  // close package namespace
 
 extern "C" {
     typedef void *(*bcemt_ThreadFunction)(void *);
@@ -110,12 +100,16 @@ extern "C" {
 }
 
 namespace bdlqq {
-            // =======================================================
-            // class ThreadUtilImpl<bdlqq::Platform::PosixThreads>
-            // =======================================================
+
+template <class THREAD_POLICY>
+struct ThreadUtilImpl;
+
+                // ============================================
+                // class ThreadUtilImpl<Platform::PosixThreads>
+                // ============================================
 
 template <>
-struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
+struct ThreadUtilImpl<Platform::PosixThreads> {
     // This class provides a full specialization of 'ThreadUtilImpl' for
     // pthreads.
 
@@ -131,10 +125,10 @@ struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
     // CLASS METHODS
                           // *** Thread Management ***
 
-    static int create(Handle                        *thread,
+    static int create(Handle                  *thread,
                       const ThreadAttributes&  attributes,
-                      bcemt_ThreadFunction           function,
-                      void                          *userData);
+                      bcemt_ThreadFunction     function,
+                      void                    *userData);
         // Create a new thread of program control having the specified
         // 'attributes' that invokes the specified 'function' with a single
         // argument specified by 'userData', and load into the specified
@@ -177,7 +171,7 @@ struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
         // exiting a thread is to return form the entry point function.
 
     static int getMaxSchedulingPriority(
-                              ThreadAttributes::SchedulingPolicy policy);
+                                    ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
         // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
@@ -187,7 +181,7 @@ struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMinSchedulingPriority(
-                              ThreadAttributes::SchedulingPolicy policy);
+                                    ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
         // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
@@ -203,8 +197,8 @@ struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
         // 'status' is not 0, load into the specified 'status', the value
         // returned by the specified 'thread'.
 
-    static int microSleep(int                microseconds,
-                          int                seconds = 0,
+    static int microSleep(int                 microseconds,
+                          int                 seconds = 0,
                           bsls::TimeInterval *unsleptTime = 0);
         // Suspend execution of the current thread for a period of at least the
         // specified 'seconds' and microseconds (relative time), and optionally
@@ -228,7 +222,7 @@ struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
         // depends on many factors including system scheduling, and system
         // timer resolution.
 
-    static int sleepUntil(const bsls::TimeInterval&    absoluteTime,
+    static int sleepUntil(const bsls::TimeInterval&   absoluteTime,
                           bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
@@ -242,10 +236,10 @@ struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
         // Note that the actual time suspended depends on many factors
         // including system scheduling and system timer resolution.
 
-    static int sleepUntil(
-                      const bsls::TimeInterval& absoluteTime,
-                      bool                     retryOnSignalInterrupt = false,
-                      bsls::SystemClockType::Enum clockType
+    static int sleepUntil(const bsls::TimeInterval&   absoluteTime,
+                          bool                        retryOnSignalInterrupt
+                                                                       = false,
+                          bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
         // 'absoluteTime'.  Optionally specify 'retryOnSignalInterrupt'
@@ -358,57 +352,59 @@ struct ThreadUtilImpl<bdlqq::Platform::PosixThreads> {
         // TBD elaborate on what 'value' represents
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-            // -------------------------------------------------------
-            // class ThreadUtilImpl<bdlqq::Platform::PosixThreads>
-            // -------------------------------------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                // --------------------------------------------
+                // class ThreadUtilImpl<Platform::PosixThreads>
+                // --------------------------------------------
 
 // CLASS METHODS
                           // *** Thread Management ***
 inline
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::create(
-           ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle *handle,
-           bcemt_ThreadFunction                                       function,
-           void                                                      *userData)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::create(
+                                                Handle               *handle,
+                                                bcemt_ThreadFunction  function,
+                                                void                 *userData)
 {
     ThreadAttributes attr;
     return create(handle, attr, function, userData);
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::detach(
-             ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle& handle)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::detach(
+                                                                Handle& handle)
 {
     return pthread_detach(handle);
 }
 
 inline
-void ThreadUtilImpl<bdlqq::Platform::PosixThreads>::exit(void *status)
+void bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::exit(void *status)
 {
     pthread_exit(status);
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::join(
-           ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle&   thread,
-           void                                                       **status)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::join(
+                                                              Handle&   thread,
+                                                              void    **status)
 {
     return pthread_join(thread, status);
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
-                                      const bsls::TimeInterval&    absoluteTime,
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
+                                      const bsls::TimeInterval&   absoluteTime,
                                       bsls::SystemClockType::Enum clockType)
 {
     return sleepUntil(absoluteTime, false, clockType);
 }
 
 inline
-void ThreadUtilImpl<bdlqq::Platform::PosixThreads>::yield()
+void bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::yield()
 {
     sched_yield();
 }
@@ -416,24 +412,24 @@ void ThreadUtilImpl<bdlqq::Platform::PosixThreads>::yield()
                        // *** Thread Identification ***
 
 inline
-bool ThreadUtilImpl<bdlqq::Platform::PosixThreads>::areEqual(
-            const ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle& a,
-            const ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle& b)
+bool bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::areEqual(
+                                                               const Handle& a,
+                                                               const Handle& b)
 {
     return pthread_equal(a, b);
 }
 
 inline
-bool ThreadUtilImpl<bdlqq::Platform::PosixThreads>::areEqualId(
-                const ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Id& a,
-                const ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Id& b)
+bool bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::areEqualId(
+                                                                   const Id& a,
+                                                                   const Id& b)
 {
     return pthread_equal(a, b);
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Id
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::handleToId(
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Id
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::handleToId(
                                                     const Handle& threadHandle)
 {
     return threadHandle;
@@ -441,7 +437,7 @@ ThreadUtilImpl<bdlqq::Platform::PosixThreads>::handleToId(
 
 inline
 bsls::Types::Uint64
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::idAsUint64(
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::idAsUint64(
                                                             const Id& threadId)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
@@ -454,7 +450,8 @@ ThreadUtilImpl<bdlqq::Platform::PosixThreads>::idAsUint64(
 
 inline
 int
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::idAsInt(const Id& threadId)
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::idAsInt(
+                                                            const Id& threadId)
 {
     // Our interface is not good if the id is a pointer.  The two casts will
     // avoid a compilation error though.  TBD
@@ -463,37 +460,37 @@ ThreadUtilImpl<bdlqq::Platform::PosixThreads>::idAsInt(const Id& threadId)
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::NativeHandle
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::nativeHandle(
-       const ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle& handle)
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::NativeHandle
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::nativeHandle(
+                                                          const Handle& handle)
 {
     return handle;
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::self()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::self()
 {
     return pthread_self();
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Id
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::selfId()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Id
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::selfId()
 {
     return pthread_self();
 }
 
 inline
 bsls::Types::Uint64
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::selfIdAsInt()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::selfIdAsInt()
 {
     return idAsInt(selfId());
 }
 
 inline
 bsls::Types::Uint64
-ThreadUtilImpl<bdlqq::Platform::PosixThreads>::selfIdAsUint64()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::selfIdAsUint64()
 {
     return idAsUint64(selfId());
 }
@@ -501,7 +498,7 @@ ThreadUtilImpl<bdlqq::Platform::PosixThreads>::selfIdAsUint64()
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::createKey(
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::createKey(
                                        Key                         *key,
                                        bcemt_KeyDestructorFunction  destructor)
 {
@@ -509,26 +506,25 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::createKey(
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::deleteKey(Key& key)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::deleteKey(Key& key)
 {
     return pthread_key_delete(key);
 }
 
 inline
-void *ThreadUtilImpl<bdlqq::Platform::PosixThreads>::getSpecific(
+void *bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::getSpecific(
                                                                 const Key& key)
 {
     return pthread_getspecific(key);
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::setSpecific(
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::setSpecific(
                                                              const Key&  key,
                                                              const void *value)
 {
     return pthread_setspecific(key, value);
 }
-}  // close package namespace
 
 }  // close enterprise namespace
 
@@ -537,10 +533,17 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::setSpecific(
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

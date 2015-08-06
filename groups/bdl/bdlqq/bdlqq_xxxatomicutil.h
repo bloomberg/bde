@@ -1,4 +1,4 @@
-// bdlqq_xxxatomicutil.h                                                  -*-C++-*-
+// bdlqq_xxxatomicutil.h                                              -*-C++-*-
 #ifndef INCLUDED_BDLQQ_XXXATOMICUTIL
 #define INCLUDED_BDLQQ_XXXATOMICUTIL
 
@@ -25,7 +25,8 @@ BSLS_IDENT("$Id: $")
 // without the need for high level synchronization mechanisms (e.g., "mutexes"
 // or "critical sections").
 //
-// The 'bdlqq_xxxatomicutil' component provides three types of atomic operations:
+// The 'bdlqq_xxxatomicutil' component provides three types of atomic
+// operations:
 //..
 //   >  Atomic Integer Operations
 //   >  Atomic Pointer Operations
@@ -67,10 +68,11 @@ BSLS_IDENT("$Id: $")
 // fragment of code, and could result in a large number of unnecessary context
 // switches, for instance, if the increment statement occurs within a loop.
 //
-// Instead, an atomic operation (in this case, 'bdlqq::AtomicUtil::incrementInt')
-// can be used to manipulate the value; use of this operation will ensure that,
-// when executed simultaneously by multiple threads, the threads will increment
-// the value serially, without interrupting one another.
+// Instead, an atomic operation (in this case,
+// 'bdlqq::AtomicUtil::incrementInt') can be used to manipulate the value; use
+// of this operation will ensure that, when executed simultaneously by multiple
+// threads, the threads will increment the value serially, without interrupting
+// one another.
 //
 // Special data types are provided to represent these values.  Atomic data
 // types are generally the same as their corresponding primitive data types,
@@ -156,7 +158,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following examples demonstrate various uses of atomic operations.
-// Compare these examples to the corresponding examples in 'bdlqq_xxxatomictypes'.
+// Compare these examples to the corresponding examples in
+// 'bdlqq_xxxatomictypes'.
 //
 ///Example 1: Usage Statistics on a Thread Pool
 ///- - - - - - - - - - - - - - - - - - - - - -
@@ -357,8 +360,8 @@ BSLS_IDENT("$Id: $")
 //..
 // The following constructor is called by 'my_CountedHandle' for a
 // newly-constructed 'INSTANCE' variable.  We initialize the atomic reference
-// counter to one reference using 'bdlqq::AtomicUtil::initInt'; this reflects the
-// fact that this constructor will be called by a new instance of
+// counter to one reference using 'bdlqq::AtomicUtil::initInt'; this reflects
+// the fact that this constructor will be called by a new instance of
 // 'my_CountedHandle'; that instance is our first and only handle when this
 // constructor is called.
 //..
@@ -640,11 +643,10 @@ BSLS_IDENT("$Id: $")
 
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                        // ======================
-                        // struct AtomicUtil
-                        // ======================
+                            // =================
+                            // struct AtomicUtil
+                            // =================
 
 struct AtomicUtil {
     // This 'struct' provides a namespace for a suite of atomic operations.
@@ -663,460 +665,438 @@ struct AtomicUtil {
     typedef bsls::AtomicOperations::AtomicTypes::Int        SpinLock;
 
     // CLASS METHODS
-    static void initInt(AtomicUtil::Int *atomicInt, int initalValue = 0);
+    static void initInt(Int *atomicInt, int initalValue = 0);
         // Initialize the specified 'atomicInt' and set its value to the
         // specified 'initialValue'.  Note that a 'AtomicUtil::Int' may
         // also be initialized through aggregate initialization.
         //
         // DEPRECATED: use '= { <value> };' instead.
 
-    static void initInt64(AtomicUtil::Int64 *atomicInt,
-                          bsls::Types::Int64      initialValue = 0LL );
+    static void initInt64(Int64              *atomicInt,
+                          bsls::Types::Int64  initialValue = 0LL );
         // Initialize the specified 'atomicInt' and set its value to the
         // specified 'initialValue'.  Note that a 'AtomicUtil::Int' may
         // also be initialized through aggregate initialization.
         //
         // DEPRECATED: use '= { <value> };' instead.
 
-    static void initPointer(AtomicUtil::Pointer *atomicPtr,
-                            const volatile void      *initalValue = 0);
+    static void initPointer(Pointer             *atomicPtr,
+                            const volatile void *initalValue = 0);
         // Initialize the specified 'atomicPtr' and set its value to the
         // specified 'initialValue'.  Note that a 'AtomicUtil::Int' may
         // also be initialized through aggregate initialization.
         //
         // DEPRECATED: use '= { <value> };' instead.
 
-    static void initSpinLock(AtomicUtil::SpinLock *spinlock);
+    static void initSpinLock(SpinLock *spinlock);
         // Initialize the specified 'spinlock' and set it to an unlocked state.
         // Note that this method must be called before any other operation on
         // 'spinlock'.
 
-    static void addInt(AtomicUtil::Int *atomicInt, int value);
+    static void addInt(Int *atomicInt, int value);
         // Atomically add to the specified 'atomicInt' the specified 'value'.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static void incrementInt(AtomicUtil::Int *atomicInt);
+    static void incrementInt(Int *atomicInt);
         // Atomically increment the value of the specified 'atomicInt' by 1.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static void decrementInt(AtomicUtil::Int *atomicInt);
+    static void decrementInt(Int *atomicInt);
         // Atomically decrement the value of the specified 'atomicInt' by 1.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static int swapInt(AtomicUtil::Int *atomicInt, int swapValue);
+    static int swapInt(Int *atomicInt, int swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value', and return its previous value.  The behavior is
         // undefined if 'atomicInt' is 0.
 
-    static int testAndSwapInt(AtomicUtil::Int *atomicInt,
-                              int                   compareValue,
-                              int                   swapValue);
+    static int testAndSwapInt(Int *atomicInt, int compareValue, int swapValue);
         // Conditionally set the value of the specified 'atomicInt' to the
         // specified 'swapValue' if and only if the value of 'atomicInt' equals
         // the value of the specified 'compareValue', and return the initial
         // value of 'atomicInt'.  The whole operation is performed atomically.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static void setInt(AtomicUtil::Int *atomicInt, int value);
+    static void setInt(Int *atomicInt, int value);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value'.  The behavior is undefined if 'atomicInt' is 0.
 
-    static void setIntRelaxed(AtomicUtil::Int *atomicInt, int value);
+    static void setIntRelaxed(Int *atomicInt, int value);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value', without additional ordering constraints.  The
         // behavior is undefined if 'atomicInt' is 0.
 
-    static int getInt(const AtomicUtil::Int& atomicInt);
+    static int getInt(const Int& atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt'.
 
-    static int getIntRelaxed(const AtomicUtil::Int& atomicInt);
+    static int getIntRelaxed(const Int& atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt', without
         // additional ordering constraints.
 
-    static int addIntNv(AtomicUtil::Int *atomicInt, int val);
+    static int addIntNv(Int *atomicInt, int val);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value.  The behavior is undefined if
         // 'atomicInt' is 0.
 
-    static int addIntNvRelaxed(AtomicUtil::Int *atomicInt, int val);
+    static int addIntNvRelaxed(Int *atomicInt, int val);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, without additional ordering
         // constraints.  The behavior is undefined if 'atomicInt' is 0.
 
-    static int incrementIntNv(AtomicUtil::Int *atomicInt);
+    static int incrementIntNv(Int *atomicInt);
         // Atomically increment the specified 'atomicInt' by 1 and return the
         // resulting value.  The behavior is undefined if 'atomicInt' is 0.
 
-    static int decrementIntNv(AtomicUtil::Int *atomicInt);
+    static int decrementIntNv(Int *atomicInt);
         // Atomically decrement the specified 'atomicInt' by 1 and return the
         // resulting value.  The behavior is undefined if 'atomicInt' is 0.
 
-    static void addInt64(AtomicUtil::Int64 *atomicInt,
-                         bsls::Types::Int64      value);
+    static void addInt64(Int64 *atomicInt, bsls::Types::Int64 value);
         // Atomically add to the specified 'atomicInt' the specified 'value'.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static void incrementInt64(AtomicUtil::Int64 *atomicInt);
+    static void incrementInt64(Int64 *atomicInt);
         // Atomically increment the value of the specified 'atomicInt' by 1.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static void decrementInt64(AtomicUtil::Int64 *atomicInt);
+    static void decrementInt64(Int64 *atomicInt);
         // Atomically decrement the value of the specified 'atomicInt' by 1.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls::Types::Int64 swapInt64(AtomicUtil::Int64 *atomicInt,
-                                        bsls::Types::Int64      swapValue);
+    static bsls::Types::Int64 swapInt64(Int64              *atomicInt,
+                                        bsls::Types::Int64  swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value' and return its previous value.  The behavior is
         // undefined if 'atomicInt' is 0.
 
     static bsls::Types::Int64 testAndSwapInt64(
-                                        AtomicUtil::Int64 *atomicInt,
-                                        bsls::Types::Int64      compareValue,
-                                        bsls::Types::Int64      swapValue);
+                                              Int64              *atomicInt,
+                                              bsls::Types::Int64  compareValue,
+                                              bsls::Types::Int64  swapValue);
         // Conditionally set the value of the specified 'atomicInt' to the
         // specified 'swapValue' if and only if the value of 'atomicInt' equals
         // the value of the specified 'compareValue', and return the initial
         // value of 'atomicInt'.  The whole operation is performed atomically.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls::Types::Int64 addInt64Nv(AtomicUtil::Int64 *atomicInt,
-                                         bsls::Types::Int64      value);
+    static bsls::Types::Int64 addInt64Nv(Int64              *atomicInt,
+                                         bsls::Types::Int64  value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value.  The behavior is undefined if
         // 'atomicInt' is 0.
 
-    static bsls::Types::Int64 addInt64NvRelaxed(
-                                            AtomicUtil::Int64 *atomicInt,
-                                            bsls::Types::Int64      value);
+    static bsls::Types::Int64 addInt64NvRelaxed(Int64              *atomicInt,
+                                                bsls::Types::Int64  value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, without additional ordering
         // constraints.  The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls::Types::Int64 incrementInt64Nv(
-                                            AtomicUtil::Int64 *atomicInt);
+    static bsls::Types::Int64 incrementInt64Nv(Int64 *atomicInt);
         // Atomically increment the specified 'atomicInt' by 1 and return the
         // resulting value.  The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls::Types::Int64 decrementInt64Nv(
-                                            AtomicUtil::Int64 *atomicInt);
+    static bsls::Types::Int64 decrementInt64Nv(Int64 *atomicInt);
         // Atomically decrement the specified 'atomicInt' by 1 and return the
         // resulting value.  The behavior is undefined if 'atomicInt' is 0.
 
-    static void setInt64(AtomicUtil::Int64 *atomicInt,
-                         bsls::Types::Int64      val);
+    static void setInt64(Int64 *atomicInt, bsls::Types::Int64 val);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value'.  The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls::Types::Int64 getInt64(
-                                      const AtomicUtil::Int64& atomicInt);
+    static bsls::Types::Int64 getInt64(const Int64 &atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt'.
 
-    static void setInt64Relaxed(AtomicUtil::Int64 *atomicInt,
-                                bsls::Types::Int64      val);
+    static void setInt64Relaxed(Int64 *atomicInt, bsls::Types::Int64 val);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value' without additional ordering constraints.  The
         // behavior is undefined if 'atomicInt' is 0.
 
-    static bsls::Types::Int64 getInt64Relaxed(
-                                      const AtomicUtil::Int64& atomicInt);
+    static bsls::Types::Int64 getInt64Relaxed(const Int64 &atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt' without
         // additional ordering constraints.
 
-    static void *getPtr(const AtomicUtil::Pointer& atomicPtr);
+    static void *getPtr(const Pointer& atomicPtr);
         // Atomically retrieve the value of the specified 'atomicPtr'.
 
-    static void *getPtrRelaxed(const AtomicUtil::Pointer& atomicPtr);
+    static void *getPtrRelaxed(const Pointer& atomicPtr);
         // Atomically retrieve the value of the specified 'atomicPtr', without
         // additional ordering constraints.
 
-    static void setPtr(AtomicUtil::Pointer *atomicPtr,
-                       const volatile void      *value);
+    static void setPtr(Pointer *atomicPtr, const volatile void *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value'.  The behavior is undefined if 'atomicPtr' is 0.
 
-    static void setPtrRelaxed(AtomicUtil::Pointer *atomicPtr,
-                              const volatile void      *value);
+    static void setPtrRelaxed(Pointer *atomicPtr, const volatile void *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', without additional ordering constraints.
 
-    static void *swapPtr(AtomicUtil::Pointer *atomicPtr,
-                         const volatile void      *swapValue);
+    static void *swapPtr(Pointer *atomicPtr, const volatile void *swapValue);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', and return its previous value.  The behavior is
         // undefined if 'atomicPtr' is 0.
 
-    static void *testAndSwapPtr(AtomicUtil::Pointer *atomicPtr,
-                                const volatile void      *compareValue,
-                                const volatile void      *swapValue);
+    static void *testAndSwapPtr(Pointer             *atomicPtr,
+                                const volatile void *compareValue,
+                                const volatile void *swapValue);
         // Conditionally set the value of the specified 'atomicPtr' to the
         // specified 'swapValue' if and only if the value of 'atomicPtr' equals
         // the value of the specified 'compareValue', and return the initial
         // value of 'atomicPtr'.  The whole operation is performed atomically.
         // The behavior is undefined if 'atomicPtr' is 0.
 
-    static void spinLock(AtomicUtil::SpinLock *spinlock);
+    static void spinLock(SpinLock *spinlock);
         // Lock the specified 'spinlock'.  If the specified 'spinlock' has
         // already been locked, test repeatedly until the 'spinlock' becomes
         // unlocked.  The behavior is undefined if 'spinlock' is 0.
 
-    static int spinTryLock(AtomicUtil::SpinLock *spinlock, int retries);
+    static int spinTryLock(SpinLock *spinlock, int retries);
         // Attempt to lock the specified 'spinlock' and, if the attempt is
         // unsucessful, retry up to the specified 'numRetries' times.  Return
         // 0 on success, and a non-zero value if the lock was not successfuly
         // aquired.  The behavior is undefined unless 'spinLock' is a valid
         // address to a 'SpinLock' and '0 <= retries'.
 
-    static void spinUnlock(AtomicUtil::SpinLock *spinlock);
+    static void spinUnlock(SpinLock *spinlock);
         // Unlock the specified 'spinlock', which was previously locked by a
         // successful call to 'spinLock' or 'spinTryLock'.  The behavior is
         // undefined if 'spinlock' is not locked, if 'spinLock' was locked by a
         // different thread, or if 'spinLock' is 0.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 inline
-void AtomicUtil::initInt(AtomicUtil::Int *atomicInt,
-                              int                   initialValue)
+void bdlqq::AtomicUtil::initInt(Int *atomicInt, int initialValue)
 {
     Impl::initInt(atomicInt, initialValue);
 }
 
 inline
-void AtomicUtil::initInt64(AtomicUtil::Int64 *atomicInt,
-                                bsls::Types::Int64      initialValue)
+void bdlqq::AtomicUtil::initInt64(Int64              *atomicInt,
+                                  bsls::Types::Int64  initialValue)
 {
     Impl::initInt64(atomicInt,initialValue);
 }
 
 inline
-void AtomicUtil::initPointer(AtomicUtil::Pointer *atomicPtr,
-                                  const volatile void      *initialValue)
+void bdlqq::AtomicUtil::initPointer(Pointer             *atomicPtr,
+                                    const volatile void *initialValue)
 {
     Impl::initPointer(atomicPtr, const_cast<void *>(initialValue));
 }
 
 inline
-void AtomicUtil::initSpinLock(AtomicUtil::SpinLock *spinlock)
+void bdlqq::AtomicUtil::initSpinLock(SpinLock *spinlock)
 {
     spinlock->d_value = 0;
 }
 
 inline
-void AtomicUtil::addInt(AtomicUtil::Int *atomicInt, int value)
+void bdlqq::AtomicUtil::addInt(Int *atomicInt, int value)
 {
     Impl::addInt(atomicInt, value);
 }
 
 inline
-void AtomicUtil::incrementInt(AtomicUtil::Int *atomicInt)
+void bdlqq::AtomicUtil::incrementInt(Int *atomicInt)
 {
     Impl::incrementInt(atomicInt);
 }
 
 inline
-void AtomicUtil::decrementInt(AtomicUtil::Int *atomicInt)
+void bdlqq::AtomicUtil::decrementInt(Int *atomicInt)
 {
     Impl::decrementInt(atomicInt);
 }
 
 inline
-int AtomicUtil::swapInt(AtomicUtil::Int *atomicInt, int value)
+int bdlqq::AtomicUtil::swapInt(Int *atomicInt, int value)
 {
     return Impl::swapInt(atomicInt, value);
 }
 
 inline
-int AtomicUtil::testAndSwapInt(AtomicUtil::Int *atomicInt,
-                                    int                   compareValue,
-                                    int                   swapValue)
+int bdlqq::AtomicUtil::testAndSwapInt(Int *atomicInt,
+                                      int  compareValue,
+                                      int  swapValue)
 {
     return Impl::testAndSwapInt(atomicInt, compareValue, swapValue);
 }
 
 inline
-void AtomicUtil::setInt(AtomicUtil::Int *atomicInt, int value)
+void bdlqq::AtomicUtil::setInt(Int *atomicInt, int value)
 {
     Impl::setInt(atomicInt, value);
 }
 
 inline
-void AtomicUtil::setIntRelaxed(AtomicUtil::Int *atomicInt, int value)
+void bdlqq::AtomicUtil::setIntRelaxed(Int *atomicInt, int value)
 {
     Impl::setIntRelaxed(atomicInt, value);
 }
 
 inline
-int AtomicUtil::getInt(const AtomicUtil::Int& atomicInt)
+int bdlqq::AtomicUtil::getInt(const Int& atomicInt)
 {
     return Impl::getInt(&atomicInt);
 }
 
 inline
-int AtomicUtil::getIntRelaxed(const AtomicUtil::Int& atomicInt)
+int bdlqq::AtomicUtil::getIntRelaxed(const Int& atomicInt)
 {
     return Impl::getIntRelaxed(&atomicInt);
 }
 
 inline
-int AtomicUtil::addIntNv(AtomicUtil::Int *atomicInt, int value)
+int bdlqq::AtomicUtil::addIntNv(Int *atomicInt, int value)
 {
     return Impl::addIntNv(atomicInt, value);
 }
 
 inline
-int AtomicUtil::addIntNvRelaxed(AtomicUtil::Int *atomicInt,
-                                     int value)
+int bdlqq::AtomicUtil::addIntNvRelaxed(Int *atomicInt, int value)
 {
     return Impl::addIntNvRelaxed(atomicInt, value);
 }
 
 inline
-int AtomicUtil::incrementIntNv(AtomicUtil::Int *atomicInt)
+int bdlqq::AtomicUtil::incrementIntNv(Int *atomicInt)
 {
     return Impl::incrementIntNv(atomicInt);
 }
 
 inline
-int AtomicUtil::decrementIntNv(AtomicUtil::Int *atomicInt)
+int bdlqq::AtomicUtil::decrementIntNv(Int *atomicInt)
 {
     return Impl::decrementIntNv(atomicInt);
 }
 
 inline
-void AtomicUtil::addInt64(AtomicUtil::Int64 *atomicInt,
-                               bsls::Types::Int64      value)
+void bdlqq::AtomicUtil::addInt64(Int64 *atomicInt, bsls::Types::Int64 value)
 {
     Impl::addInt64(atomicInt, value);
 }
 
 inline
-void AtomicUtil::incrementInt64(AtomicUtil::Int64 *atomicInt)
+void bdlqq::AtomicUtil::incrementInt64(Int64 *atomicInt)
 {
     Impl::incrementInt64(atomicInt);
 }
 
 inline
-void AtomicUtil::decrementInt64(AtomicUtil::Int64 *atomicInt)
+void bdlqq::AtomicUtil::decrementInt64(Int64 *atomicInt)
 {
     Impl::decrementInt64(atomicInt);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::swapInt64(
-                                             AtomicUtil::Int64 *atomicInt,
-                                             bsls::Types::Int64      value)
+bsls::Types::Int64 bdlqq::AtomicUtil::swapInt64(Int64              *atomicInt,
+                                                bsls::Types::Int64  value)
 {
     return Impl::swapInt64(atomicInt, value);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::testAndSwapInt64(
-                                          AtomicUtil::Int64 *atomicInt,
-                                          bsls::Types::Int64      compareValue,
-                                          bsls::Types::Int64      swapValue)
+bsls::Types::Int64 bdlqq::AtomicUtil::testAndSwapInt64(
+                                              Int64              *atomicInt,
+                                              bsls::Types::Int64  compareValue,
+                                              bsls::Types::Int64  swapValue)
 {
     return Impl::testAndSwapInt64(atomicInt, compareValue, swapValue);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::addInt64Nv(
-                                             AtomicUtil::Int64 *atomicInt,
-                                             bsls::Types::Int64      value)
+bsls::Types::Int64 bdlqq::AtomicUtil::addInt64Nv(Int64              *atomicInt,
+                                                 bsls::Types::Int64  value)
 {
     return Impl::addInt64Nv(atomicInt,value);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::addInt64NvRelaxed(
-                                             AtomicUtil::Int64 *atomicInt,
-                                             bsls::Types::Int64      value)
+bsls::Types::Int64 bdlqq::AtomicUtil::addInt64NvRelaxed(
+                                                 Int64              *atomicInt,
+                                                 bsls::Types::Int64  value)
 {
     return Impl::addInt64NvRelaxed(atomicInt,value);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::incrementInt64Nv(
-                                             AtomicUtil::Int64 *atomicInt)
+bsls::Types::Int64 bdlqq::AtomicUtil::incrementInt64Nv(Int64 *atomicInt)
 {
     return Impl::incrementInt64Nv(atomicInt);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::decrementInt64Nv(
-                                             AtomicUtil::Int64 *atomicInt)
+bsls::Types::Int64 bdlqq::AtomicUtil::decrementInt64Nv(Int64 *atomicInt)
 {
     return Impl::decrementInt64Nv(atomicInt);
 }
 
 inline
-void AtomicUtil::setInt64(AtomicUtil::Int64 *atomicInt,
-                               bsls::Types::Int64      value)
+void bdlqq::AtomicUtil::setInt64(Int64 *atomicInt, bsls::Types::Int64 value)
 {
     Impl::setInt64(atomicInt, value);
 }
 
 inline
-void AtomicUtil::setInt64Relaxed(AtomicUtil::Int64 *atomicInt,
-                                      bsls::Types::Int64      value)
+void bdlqq::AtomicUtil::setInt64Relaxed(Int64              *atomicInt,
+                                        bsls::Types::Int64  value)
 {
     Impl::setInt64Relaxed(atomicInt, value);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::getInt64(
-                                       const AtomicUtil::Int64& atomicInt)
+bsls::Types::Int64 bdlqq::AtomicUtil::getInt64(const Int64& atomicInt)
 {
     return Impl::getInt64(&atomicInt);
 }
 
 inline
-bsls::Types::Int64 AtomicUtil::getInt64Relaxed(
-                                       const AtomicUtil::Int64& atomicInt)
+bsls::Types::Int64 bdlqq::AtomicUtil::getInt64Relaxed(const Int64& atomicInt)
 {
     return Impl::getInt64Relaxed(&atomicInt);
 }
 
 inline
-void *AtomicUtil::getPtr(const AtomicUtil::Pointer& atomicPtr)
+void *bdlqq::AtomicUtil::getPtr(const Pointer& atomicPtr)
 {
     return const_cast<void *>(Impl::getPtr(&atomicPtr));
 }
 
 inline
-void *AtomicUtil::getPtrRelaxed(const AtomicUtil::Pointer& atomicPtr)
+void *bdlqq::AtomicUtil::getPtrRelaxed(const Pointer& atomicPtr)
 {
     return const_cast<void *>(Impl::getPtrRelaxed(&atomicPtr));
 }
 
 inline
-void AtomicUtil::setPtr(AtomicUtil::Pointer *atomicPtr,
-                             const volatile void      *value)
+void bdlqq::AtomicUtil::setPtr(Pointer *atomicPtr, const volatile void *value)
 {
     Impl::setPtr(atomicPtr, const_cast<void*>(value));
 }
 
 inline
-void AtomicUtil::setPtrRelaxed(AtomicUtil::Pointer *atomicPtr,
-                                    const volatile void      *value)
+void bdlqq::AtomicUtil::setPtrRelaxed(Pointer             *atomicPtr,
+                                      const volatile void *value)
 {
     Impl::setPtrRelaxed(atomicPtr, const_cast<void*>(value));
 }
 
 inline
-void *AtomicUtil::swapPtr(AtomicUtil::Pointer *atomicPtr,
-                               const volatile void      *swapValue)
+void *bdlqq::AtomicUtil::swapPtr(Pointer             *atomicPtr,
+                                 const volatile void *swapValue)
 {
     return Impl::swapPtr(atomicPtr, const_cast<void*>(swapValue));
 }
 
 inline
-void *AtomicUtil::testAndSwapPtr(AtomicUtil::Pointer *atomicPtr,
-                                      const volatile void      *compareValue,
-                                      const volatile void      *swapValue)
+void *bdlqq::AtomicUtil::testAndSwapPtr(Pointer             *atomicPtr,
+                                        const volatile void *compareValue,
+                                        const volatile void *swapValue)
 {
     return Impl::testAndSwapPtr(atomicPtr,
                                 const_cast<void*>(compareValue),
@@ -1124,25 +1104,24 @@ void *AtomicUtil::testAndSwapPtr(AtomicUtil::Pointer *atomicPtr,
 }
 
 inline
-void AtomicUtil::spinLock(AtomicUtil::SpinLock *spinlock)
+void bdlqq::AtomicUtil::spinLock(SpinLock *spinlock)
 {
     do {
         if (Impl::getIntAcquire(spinlock) == SPIN_UNLOCKED) {
             if (Impl::swapIntAcqRel(spinlock, SPIN_LOCKED) == SPIN_UNLOCKED) {
-                return;
+                return;                                               // RETURN
             }
         }
     } while(1);
 }
 
 inline
-int AtomicUtil::spinTryLock(AtomicUtil::SpinLock *spinlock,
-                                 int                        retries)
+int bdlqq::AtomicUtil::spinTryLock(SpinLock *spinlock, int retries)
 {
     do {
         if (Impl::getIntAcquire(spinlock) == SPIN_UNLOCKED) {
             if (Impl::swapIntAcqRel(spinlock, SPIN_LOCKED) == SPIN_UNLOCKED) {
-                return 0;
+                return 0;                                             // RETURN
             }
         }
     } while(retries--);
@@ -1151,21 +1130,27 @@ int AtomicUtil::spinTryLock(AtomicUtil::SpinLock *spinlock,
 }
 
 inline
-void AtomicUtil::spinUnlock(AtomicUtil::SpinLock *spinlock)
+void bdlqq::AtomicUtil::spinUnlock(SpinLock *spinlock)
 {
     Impl::setIntRelease(spinlock, SPIN_UNLOCKED);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
