@@ -41,12 +41,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_platform.h>
 #endif
 
+#ifdef BSLS_PLATFORM_OS_DARWIN
+
 #ifndef INCLUDED_SEMAPHORE
 #include <semaphore.h>
 #define INCLUDED_SEMAPHORE
 #endif
-
-#ifdef BSLS_PLATFORM_OS_DARWIN
 
 namespace BloombergLP {
 namespace bdlqq {

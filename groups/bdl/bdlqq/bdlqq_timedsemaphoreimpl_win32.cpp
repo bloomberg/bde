@@ -6,11 +6,13 @@ BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_win32_cpp,"$Id$ $CSID$")
 
 #ifdef BDLQQ_PLATFORM_WIN32_THREADS
 
-#include <bcemt_SaturatedTimeConversionimputil.h>
+#include <bdlqq_saturatedtimeconversionimputil.h>
 
 #include <bdlqq_lockguard.h>     // for testing only
 #include <bdlqq_mutex.h>         // for testing only
 #include <bdlqq_threadutil.h>    // for testing only
+
+#include <bsls_systemtime.h>
 
 namespace BloombergLP {
 
