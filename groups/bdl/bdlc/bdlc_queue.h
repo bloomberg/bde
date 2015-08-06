@@ -183,12 +183,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include <bslx_instreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BDLB_PRINT
@@ -397,17 +397,16 @@ class Queue {
                                   bdlb::TypeTraitHasPrintMethod);
 
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-
-    static int maxSupportedVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-        //
-        // DEPRECATED: Use 'maxSupportedBdexVersion' instead.
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     // CREATORS
     explicit
@@ -658,14 +657,15 @@ class Queue {
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     void swap(int index1, int index2);
         // Swap efficiently the values at the specified indices 'index1' and
@@ -732,12 +732,31 @@ class Queue {
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+
+    static int maxSupportedBdexVersion();
+        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
+        //
+        // Return the most current BDEX streaming version number supported by
+        // this class.
+
+    static int maxSupportedVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
+        //
+        // DEPRECATED: Use 'maxSupportedBdexVersion' instead.
+
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
 // FREE OPERATORS
@@ -763,9 +782,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Queue<T>& queue);
     // Write the specified 'queue' to the specified output 'stream' and return
     // a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // TBD pass through allocator
 // TBD isBitwise, etc.
@@ -1127,10 +1146,14 @@ void Queue<T>::increaseSize()
 // CLASS METHODS
 template <class T>
 inline
-int Queue<T>::maxSupportedBdexVersion()
+int Queue<T>::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;  // Required by BDE policy; versions start at 1.
 }
+
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+
+// DEPRECATED METHODS
 
 template <class T>
 inline
@@ -1138,6 +1161,15 @@ int Queue<T>::maxSupportedVersion()
 {
     return maxSupportedBdexVersion();
 }
+
+template <class T>
+inline
+int Queue<T>::maxSupportedBdexVersion()
+{
+    return 1;  // Required by BDE policy; versions start at 1.
+}
+
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 // CREATORS
 template <class T>
@@ -1957,27 +1989,32 @@ template <class STREAM>
 STREAM& Queue<T>::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
-        // TBD switch on version
+        switch (version) { // switch on the schema version
+          case 1: {
+            int newLength;
+            stream.getLength(newLength);
 
-        int newLength;
-        stream.getLength(newLength);
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        int newSize = calculateSufficientSize(newLength, d_size);
-        if (d_size < newSize) {
-            d_size = increaseSizeImp(&d_array_p,
-                                     &d_front,
-                                     &d_back,
-                                     newSize,
-                                     d_size,
-                                     d_allocator_p);
-        }
-        d_front = d_size - 1;
-        d_back = newLength;
-        for (int i = 0; i < newLength; ++i) {
-            bdex_InStreamFunctions::streamIn(stream, (*this)[i], version);
+            if (stream) {
+                int newSize = calculateSufficientSize(newLength, d_size);
+                if (d_size < newSize) {
+                    d_size = increaseSizeImp(&d_array_p,
+                                             &d_front,
+                                             &d_back,
+                                             newSize,
+                                             d_size,
+                                             d_allocator_p);
+                }
+                d_front = d_size - 1;
+                d_back = newLength;
+                for (int i = 0; i < newLength && stream; ++i) {
+                    bslx::InStreamFunctions::bdexStreamIn(
+                                                  stream, (*this)[i], version);
+                }
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
         }
     }
     return stream;
@@ -2065,12 +2102,20 @@ template <class T>
 template <class STREAM>
 STREAM& Queue<T>::bdexStreamOut(STREAM& stream, int version) const
 {
-    // TBD switch on version
-
-    const int len = length();
-    stream.putLength(len);
-    for (int i = 0; i < len; ++i) {
-        bdex_OutStreamFunctions::streamOut(stream, (*this)[i], version);
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            const int len = length();
+            stream.putLength(len);
+            for (int i = 0; i < len && stream; ++i) {
+                bslx::OutStreamFunctions::bdexStreamOut(
+                                                  stream, (*this)[i], version);
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
     }
     return stream;
 }
@@ -2109,15 +2154,15 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const Queue<T>& queue)
     return queue.streamOut(stream);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

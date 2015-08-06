@@ -1,4 +1,4 @@
-// bdlc_hashtable2.h                                                 -*-C++-*-
+// bdlc_hashtable2.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLC_HASHTABLE2
 #define INCLUDED_BDLC_HASHTABLE2
 
@@ -635,11 +635,11 @@ struct HashTable2DefaultHash2;
           // class HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>
           // ========================================================
 
-template <typename KEY,
-          typename VALUE  = bslmf::Nil,
-          typename TRAITS = HashTable2DefaultTraits,
-          typename HASH1  = HashTable2DefaultHash1,
-          typename HASH2  = HashTable2DefaultHash2>
+template <class KEY,
+          class VALUE  = bslmf::Nil,
+          class TRAITS = HashTable2DefaultTraits,
+          class HASH1  = HashTable2DefaultHash1,
+          class HASH2  = HashTable2DefaultHash2>
 class HashTable2 {
     // This class is a double-hashed table.  The 'VALUE' template parameter is
     // optional.  The 'capacityHint' specified at construction time will be
@@ -859,47 +859,47 @@ struct HashTable2DefaultTraits {
 
   public:
     // CLASS METHODS
-    template <typename BUCKET>
+    template <class BUCKET>
     static void load(BUCKET *dstBucket, const BUCKET& srcBucket);
         // Load the specified 'srcBucket' into the specified 'dstBucket'.
 
-    template <typename KEY>
+    template <class KEY>
     static bool areEqual(const KEY& key1, const KEY& key2);
     static bool areEqual(const ConstCharPtr& key1, const ConstCharPtr& key2);
         // Return true if the specified 'key1' and the specified 'key2' are
         // equal, and false otherwise.
 
-    template <typename BUCKET>
+    template <class BUCKET>
     static bool isNull(const BUCKET& bucket);
     static bool isNull(const bsl::string& bucket);
     static bool isNull(const ConstCharPtr& bucket);
-    template <typename KEY, typename VALUE>
+    template <class KEY, class VALUE>
     static bool isNull(const bsl::pair<KEY, VALUE>& bucket);
         // Return true if the specified 'bucket' has a null value, and false
         // otherwise.
 
-    template <typename BUCKET>
+    template <class BUCKET>
     static void setToNull(BUCKET *bucket);
     static void setToNull(bsl::string *bucket);
     static void setToNull(ConstCharPtr *bucket);
-    template <typename KEY, typename VALUE>
+    template <class KEY, class VALUE>
     static void setToNull(bsl::pair<KEY, VALUE> *bucket);
         // Load a null value into the specified 'bucket'.
 
-    template <typename BUCKET>
+    template <class BUCKET>
     static bool isRemoved(const BUCKET& bucket);
     static bool isRemoved(const bsl::string& bucket);
     static bool isRemoved(const ConstCharPtr& bucket);
-    template <typename KEY, typename VALUE>
+    template <class KEY, class VALUE>
     static bool isRemoved(const bsl::pair<KEY, VALUE>& bucket);
         // Return true if the specified 'bucket' has a removed value, and false
         // otherwise.
 
-    template <typename BUCKET>
+    template <class BUCKET>
     static void setToRemoved(BUCKET *bucket);
     static void setToRemoved(bsl::string *bucket);
     static void setToRemoved(ConstCharPtr *bucket);
-    template <typename KEY, typename VALUE>
+    template <class KEY, class VALUE>
     static void setToRemoved(bsl::pair<KEY, VALUE> *bucket);
         // Load a removed value into the specified 'bucket'.
 };
@@ -920,7 +920,7 @@ struct HashTable2DefaultHash1 {
     typedef const char* ConstCharPtr;  // Alias for 'const char*'.
 
     // CLASS METHODS
-    template <typename KEY>
+    template <class KEY>
     unsigned int operator()(const KEY& key) const;
     unsigned int operator()(const ConstCharPtr& key) const;
     unsigned int operator()(const bsl::string& key) const;
@@ -946,7 +946,7 @@ struct HashTable2DefaultHash2 {
     typedef const char* ConstCharPtr;  // Alias for 'const char*'.
 
     // CLASS METHODS
-    template <typename KEY>
+    template <class KEY>
     unsigned int operator()(const KEY& key) const;
     unsigned int operator()(const ConstCharPtr& key) const;
     unsigned int operator()(const bsl::string& key) const;
@@ -986,9 +986,9 @@ struct HashTable2_ImpUtil {
           // --------------------------------------------------------
 
 // PRIVATE CLASS METHODS
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 const KEY& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
                                                              const KEY& bucket)
@@ -996,9 +996,9 @@ const KEY& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
     return bucket;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 const KEY& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
                                            const bsl::pair<KEY, VALUE>& bucket)
@@ -1007,9 +1007,9 @@ const KEY& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
 }
 
 // PRIVATE MANIPULATORS
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::loadElementAt(
                                                Handle             *handle,
                                                bsls::Types::Int64  index,
@@ -1030,9 +1030,9 @@ void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::loadElementAt(
     }
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
                                                         Handle        *handle,
                                                         const Bucket&  element)
@@ -1040,7 +1040,7 @@ bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
     BSLS_ASSERT(handle);
 
     if (size() == capacity()) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     bool               isKeyFound;
@@ -1050,7 +1050,7 @@ bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
             keyFromBucket(element));
 
     if (isKeyFound) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (-1 != removedIndex) {
@@ -1066,9 +1066,9 @@ bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
 }
 
 // PRIVATE ACCESSORS
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
                                               bool               *isKeyFound,
                                               bsls::Types::Int64 *index,
@@ -1093,7 +1093,7 @@ void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
     if (TRAITS::isNull(d_buckets[(size_type)bucketIndex])) {
         *isKeyFound = false;
         *index      = bucketIndex;
-        return;
+        return;                                                       // RETURN
     }
     else if (TRAITS::isRemoved(d_buckets[(size_type)bucketIndex])) {
         *removedIndex = bucketIndex;
@@ -1102,7 +1102,7 @@ void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
                               key)) {
         *isKeyFound = true;
         *index      = bucketIndex;
-        return;
+        return;                                                       // RETURN
     }
 
     bsls::Types::Int64 increment = (d_hashFunctor2.object()(key)
@@ -1116,7 +1116,7 @@ void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
         if (TRAITS::isNull(d_buckets[(size_type)bucketIndex])) {
             *isKeyFound = false;
             *index      = bucketIndex;
-            return;
+            return;                                                   // RETURN
         }
         else if (TRAITS::isRemoved(d_buckets[(size_type)bucketIndex])) {
             if (*removedIndex == -1) {
@@ -1128,7 +1128,7 @@ void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
                              key)) {
             *isKeyFound = true;
             *index      = bucketIndex;
-            return;
+            return;                                                   // RETURN
         }
     }
 
@@ -1137,9 +1137,9 @@ void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
 }
 
 // CREATORS
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable2(
                                             bsls::Types::Int64  capacityHint,
                                             bslma::Allocator   *basicAllocator)
@@ -1162,9 +1162,9 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable2(
     }
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable2(
                                             bsls::Types::Int64  capacityHint,
                                             const HASH1&        hashFunctor1,
@@ -1189,18 +1189,18 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable2(
     }
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::~HashTable2()
 {
 }
 
 // MANIPULATORS
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
                                                             Handle     *handle,
@@ -1213,9 +1213,9 @@ bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
     return insertElement(handle, key);
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
                                                           Handle       *handle,
@@ -1229,9 +1229,9 @@ bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
     return insertElement(handle, bsl::make_pair(key, value));
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::remove(
                                                           const Handle& handle)
@@ -1245,9 +1245,9 @@ void HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::remove(
     --d_numElements;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 VALUE& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                                                           const Handle& handle)
@@ -1262,9 +1262,9 @@ VALUE& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
 }
 
 // ACCESSORS
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bsls::Types::Int64
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::capacity() const
@@ -1272,9 +1272,9 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::capacity() const
     return d_buckets.size();
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bsls::Types::Int64
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::capacityHint() const
@@ -1282,9 +1282,9 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::capacityHint() const
     return d_capacityHint;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::find(
                                                          Handle     *handle,
@@ -1300,9 +1300,9 @@ bool HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::find(
     return isKeyFound;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 const KEY& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::key(
                                                     const Handle& handle) const
@@ -1314,9 +1314,9 @@ const KEY& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::key(
     return keyFromBucket(d_buckets[(size_type)handle]);
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bsls::Types::Int64
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::maxChain() const
@@ -1324,9 +1324,9 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::maxChain() const
     return d_maxChain;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bsls::Types::Int64
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::numCollisions() const
@@ -1334,9 +1334,9 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::numCollisions() const
     return d_numCollisions;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bsls::Types::Int64
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::size() const
@@ -1344,9 +1344,9 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::size() const
     return d_numElements;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 bsls::Types::Int64
 HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::totalChain() const
@@ -1354,9 +1354,9 @@ HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::totalChain() const
     return d_totalChain;
 }
 
-template <typename KEY, typename VALUE, typename TRAITS,
-                                        typename HASH1,
-                                        typename HASH2>
+template <class KEY, class VALUE, class TRAITS,
+                                        class HASH1,
+                                        class HASH2>
 inline
 const VALUE& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                                                     const Handle& handle) const
@@ -1374,7 +1374,7 @@ const VALUE& HashTable2<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                 // private struct HashTable2DefaultTraits
                 // --------------------------------------------
 
-template <typename BUCKET>
+template <class BUCKET>
 inline
 void HashTable2DefaultTraits::load(BUCKET        *dstBucket,
                                          const BUCKET&  srcBucket)
@@ -1384,7 +1384,7 @@ void HashTable2DefaultTraits::load(BUCKET        *dstBucket,
     *dstBucket = srcBucket;
 }
 
-template <typename KEY>
+template <class KEY>
 inline
 bool HashTable2DefaultTraits::areEqual(const KEY& key1, const KEY& key2)
 {
@@ -1401,7 +1401,7 @@ bool HashTable2DefaultTraits::areEqual(const ConstCharPtr& key1,
     return 0 == bsl::strcmp(key1, key2);
 }
 
-template <typename BUCKET>
+template <class BUCKET>
 inline
 bool HashTable2DefaultTraits::isNull(const BUCKET& bucket)
 {
@@ -1433,14 +1433,14 @@ bool HashTable2DefaultTraits::isNull(const ConstCharPtr& bucket)
     return 0 == bucket;
 }
 
-template <typename KEY, typename VALUE>
+template <class KEY, class VALUE>
 inline
 bool HashTable2DefaultTraits::isNull(const bsl::pair<KEY, VALUE>& bucket)
 {
     return isNull(bucket.first) && isNull(bucket.second);
 }
 
-template <typename BUCKET>
+template <class BUCKET>
 inline
 void HashTable2DefaultTraits::setToNull(BUCKET *bucket)
 {
@@ -1476,7 +1476,7 @@ void HashTable2DefaultTraits::setToNull(ConstCharPtr *bucket)
     *bucket = 0;
 }
 
-template <typename KEY, typename VALUE>
+template <class KEY, class VALUE>
 inline
 void HashTable2DefaultTraits::setToNull(bsl::pair<KEY, VALUE> *bucket)
 {
@@ -1486,7 +1486,7 @@ void HashTable2DefaultTraits::setToNull(bsl::pair<KEY, VALUE> *bucket)
     setToNull(&bucket->second);
 }
 
-template <typename BUCKET>
+template <class BUCKET>
 inline
 bool HashTable2DefaultTraits::isRemoved(const BUCKET& bucket)
 {
@@ -1525,7 +1525,7 @@ bool HashTable2DefaultTraits::isRemoved(const ConstCharPtr& bucket)
     return removed == bucket;
 }
 
-template <typename KEY, typename VALUE>
+template <class KEY, class VALUE>
 inline
 bool HashTable2DefaultTraits::isRemoved(
                                            const bsl::pair<KEY, VALUE>& bucket)
@@ -1533,7 +1533,7 @@ bool HashTable2DefaultTraits::isRemoved(
     return isRemoved(bucket.first) && isRemoved(bucket.second);
 }
 
-template <typename BUCKET>
+template <class BUCKET>
 inline
 void HashTable2DefaultTraits::setToRemoved(BUCKET *bucket)
 {
@@ -1575,7 +1575,7 @@ void HashTable2DefaultTraits::setToRemoved(ConstCharPtr *bucket)
     *bucket = removed;
 }
 
-template <typename KEY, typename VALUE>
+template <class KEY, class VALUE>
 inline
 void HashTable2DefaultTraits::setToRemoved(bsl::pair<KEY, VALUE> *bucket)
 {
@@ -1589,7 +1589,7 @@ void HashTable2DefaultTraits::setToRemoved(bsl::pair<KEY, VALUE> *bucket)
                     // struct HashTable2DefaultHash1
                     // -----------------------------------
 
-template <typename KEY>
+template <class KEY>
 inline
 unsigned int HashTable2DefaultHash1::operator()(const KEY& key) const
 {
@@ -1623,7 +1623,7 @@ unsigned int HashTable2DefaultHash1::operator()(
                     // struct HashTable2DefaultHash2
                     // -----------------------------------
 
-template <typename KEY>
+template <class KEY>
 inline
 unsigned int HashTable2DefaultHash2::operator()(const KEY& key) const
 {
@@ -1654,15 +1654,15 @@ unsigned int HashTable2DefaultHash2::operator()(
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

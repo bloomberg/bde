@@ -1,4 +1,4 @@
-// bdlc_hashtable2.cpp                                               -*-C++-*-
+// bdlc_hashtable2.cpp                                                -*-C++-*-
 #include <bdlc_hashtable2.h>
 
 #include <bsls_ident.h>
@@ -1274,7 +1274,7 @@ unsigned int HashTable2_ImpUtil::hashSize(bsls::Types::Int64 hint)
             --p;
         }
 
-        return *p;
+        return *p;                                                    // RETURN
     }
     else {
         hint = -hint;
@@ -1285,18 +1285,18 @@ unsigned int HashTable2_ImpUtil::hashSize(bsls::Types::Int64 hint)
             --p;
         }
 
-        return *p;
+        return *p;                                                    // RETURN
     }
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

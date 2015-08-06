@@ -1,4 +1,4 @@
-// bdlc_idxclerk.cpp            -*-C++-*-
+// bdlc_idxclerk.cpp                                                  -*-C++-*-
 #include <bdlc_idxclerk.h>
 
 #include <bsls_ident.h>
@@ -56,7 +56,7 @@ bool IdxClerk::isInUse(int index) const
 
     for (unsigned int i = 0; i < d_unusedStack.size(); ++i) {
         if (index == d_unusedStack[i]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;
@@ -109,13 +109,13 @@ bsl::ostream& IdxClerk::print(bsl::ostream& stream,
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

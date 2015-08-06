@@ -1,11 +1,11 @@
-// bdlc_idxclerk.t.cpp          -*-C++-*-
+// bdlc_idxclerk.t.cpp                                                -*-C++-*-
 
 #include <bdlc_idxclerk.h>
 
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
+#include <bslx_outstreamfunctions.h>            // for testing only
+#include <bslx_testoutstream.h>                 // for testing only
+#include <bslx_testinstream.h>                  // for testing only
+#include <bslx_testinstreamexception.h>         // for testing only
 
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
@@ -92,7 +92,7 @@ using namespace bsl;  // automatically added by script
 // testing (fully) value-semantic types that require manipulation after default
 // construction to achieve every attainable state required for testing
 // purposes.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
 //                          //---------------
 //                          // bdlc::IdxClerk
@@ -151,7 +151,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] bool operator==(const bdlc::IdxClerkIter&, const bdlc::IdxClerkIter&);
 // [ 4] bool operator!=(const bdlc::IdxClerkIter&, const bdlc::IdxClerkIter&);
 //
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [15] USAGE EXAMPLE
 // [ 3] int ggg(Obj *object, const char *spec, int vF = 1);
@@ -291,7 +291,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
         if (vF) {
             cout << "Error: supplied object not in initial state."  << endl;
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     const int specLength = strlen(spec);
@@ -304,7 +304,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                  << "illegal character '" << spec[firstInvalid] << "'."
                  << endl;
         }
-        return pos;
+        return pos;                                                   // RETURN
     }
 
     // Parse any leading decommissioned indices.
@@ -325,7 +325,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                 cout << "Error at position " << pos << ": "
                  << "duplicate decommissioned index'" << d << "'." << endl;
             }
-            return pos;
+            return pos;                                               // RETURN
         }
         digitInUseFlag[d] = true;
 
@@ -342,7 +342,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
             cout << "Error at position " << pos << ": "
                  << "missing delimiter." << endl;
         }
-        return pos;
+        return pos;                                                   // RETURN
     }
 
     const int nextNewIndexPos = i + 1;
@@ -355,7 +355,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
             cout << "Error at position " << pos << ": "
                  << "encountered second delimiter." << endl;
         }
-        return pos;
+        return pos;                                                   // RETURN
     }
 
     // The remainder of the string consists of only decimal digits.
@@ -369,7 +369,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
             cout << "Error at position " << pos << ": "
                  << "missing decimal digit after delimiter." << endl;
         }
-        return pos;
+        return pos;                                                   // RETURN
     }
 
     if (nextNewIndexLength > 8) {
@@ -378,7 +378,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
             cout << "Error at position " << pos << ": "
                  << "next new index exceeds 8 digits." << endl;
         }
-        return pos;
+        return pos;                                                   // RETURN
     }
 
     const int nextNewIndex = atoi(spec + i + 1);
@@ -390,7 +390,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                  << nextNewIndex << " <= " << "maxDecommissionedIndex, "
                  << maxDecommIndex << "." << endl;
         }
-        return pos;
+        return pos;                                                   // RETURN
     }
 
     // The parsed 'spec' string is valid: Set the state of the object.
@@ -1002,9 +1002,10 @@ int main(int argc, char *argv[])
         //   (valid, empty, invalid, incomplete, and corrupted), appropriately
         //   selecting data sets as described below.  In all cases, we need to
         //   confirm exception neutrality using the specially instrumented
-        //   'bdlxxxx::TestInStream' and a pair of standard macros,
-        //   'BEGIN_BDEX_EXCEPTION_TEST' and 'END_BDEX_EXCEPTION_TEST', which
-        //   configure the 'bdlxxxx::TestInStream' object appropriately in a loop.
+        //   'bslx::TestInStream' and a pair of standard macros,
+        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
+        //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
+        //   'bslx::TestInStream' object appropriately in a loop.
         //
         // Plan:
         //   PRELIMINARY MEMBER FUNCTION TEST
@@ -1058,8 +1059,8 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Abbreviations used for streaming tests
 
-        typedef bdlxxxx::TestInStream  In;
-        typedef bdlxxxx::TestOutStream Out;
+        typedef bslx::TestInStream  In;
+        typedef bslx::TestOutStream Out;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Scalar and array object values for various stream tests
@@ -1081,13 +1082,12 @@ int main(int argc, char *argv[])
         {
             // Testing 'bdexStreamOut' and 'bdexStreamIn' directly.
             const Obj X(VC, &objectAllocator);
-            Out out;
+            Out out(1);
             X.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
             In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
             ASSERT(in);                         ASSERT(!in.isEmpty());
 
             Obj t(VA, &objectAllocator);        ASSERT(X != t);
@@ -1103,8 +1103,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P(i) }
 
                 const Obj X(VALUES[i], &objectAllocator);
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
+                Out out(1);
+                bslx::OutStreamFunctions::bdexStreamOut(out, X, VERSION);
 
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
@@ -1115,8 +1115,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     if (veryVerbose) { T_ T_ P(j) }
 
-                    In in(OD, LOD);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
+                    In in(OD, LOD);
                     LOOP2_ASSERT(i, j, in);
                     LOOP2_ASSERT(i, j, !in.isEmpty());
 
@@ -1124,11 +1123,11 @@ int main(int argc, char *argv[])
 
                     LOOP2_ASSERT(i, j, (X == t) == (i == j));
 
-                    BEGIN_BDEX_EXCEPTION_TEST {
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                       in.reset();
                       LOOP2_ASSERT(i, j, (X == t) == (i == j));
-                      bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                    } END_BDEX_EXCEPTION_TEST
+                      bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                     LOOP2_ASSERT(i, j, X == t);
                     LOOP2_ASSERT(i, j, in);
                     LOOP2_ASSERT(i, j, in.isEmpty());
@@ -1139,7 +1138,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tOn empty and invalid streams." << endl;
         {
             // Testing empty and invalid streams.
-            Out out;
+            Out out(1);
             const char *const OD  = out.data();
             const int         LOD = out.length();
             ASSERT(0 == LOD);
@@ -1147,8 +1146,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) { T_ P(i) }
 
-                In in(OD, LOD);  In& testInStream = in;
-                in.setSuppressVersionCheck(1);
+                In in(OD, LOD);
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
@@ -1159,13 +1157,13 @@ int main(int argc, char *argv[])
                 const Obj X(VALUES[i], &objectAllocator);
                 Obj t(X, &objectAllocator);
                 LOOP_ASSERT(i, X == t);
-                BEGIN_BDEX_EXCEPTION_TEST {
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                   in.reset();
-                  bdex_InStreamFunctions::streamIn(in, t, VERSION);
+                  bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
                   LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
-                  bdex_InStreamFunctions::streamIn(in, t, VERSION);
+                  bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
                   LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, X == t);
-                } END_BDEX_EXCEPTION_TEST
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
         }
 
@@ -1179,28 +1177,27 @@ int main(int argc, char *argv[])
             const Obj W2(VB, Z), X2(VC, Z), Y2(VD, Z);
             const Obj W3(VC, Z), X3(VD, Z), Y3(VE, Z);
 
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
+            Out out(1);
+            bslx::OutStreamFunctions::bdexStreamOut(out, X1, VERSION);
             const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, X2, VERSION);
             const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, X3, VERSION);
             const int LOD  = out.length();
             const char *const    OD   = out.data();
 
             for (int i = 0; i < LOD; ++i) {
                 if (veryVerbose) { T_ P(i) }
 
-                In in(OD, i);  In& testInStream = in;
-                in.setSuppressVersionCheck(1);
-                BEGIN_BDEX_EXCEPTION_TEST {
+                In in(OD, i);
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                   in.reset();
                   LOOP_ASSERT(i, in);
                   LOOP_ASSERT(i, !i == in.isEmpty());
                   Obj t1(W1, Z), t2(W2, Z), t3(W3, Z);
 
                   if (i < LOD1) {
-                      bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                       LOOP_ASSERT(i, !in);
                       // Necessary because state of 't1' can be modified.  Only
                       // when '0 == i' will the state of 't1' be untouched.
@@ -1217,15 +1214,15 @@ int main(int argc, char *argv[])
                           }
                           LOOP_ASSERT(i, t1.end() == itr);
                       }
-                      bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
-                      bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
                   }
                   else if (i < LOD2) {
-                      bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
-                      bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                       LOOP_ASSERT(i, !in);
                       if (LOD1 == i) {
                           LOOP_ASSERT(i, X1 == t2);
@@ -1239,15 +1236,15 @@ int main(int argc, char *argv[])
                           }
                           LOOP_ASSERT(i, t2.end() == itr);
                       }
-                      bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
                   }
                   else {
-                      bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X1 == t1);
-                      bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                       LOOP_ASSERT(i, in);     LOOP_ASSERT(i, X2 == t2);
-                      bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                      bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
                       LOOP_ASSERT(i, !in);
                       if (LOD2 == i) {
                           LOOP_ASSERT(i, W3 == t3);
@@ -1270,7 +1267,7 @@ int main(int argc, char *argv[])
 
                               LOOP_ASSERT(i, Y3 != t3);
                   t3 = Y3;    LOOP_ASSERT(i, Y3 == t3);
-                } END_BDEX_EXCEPTION_TEST
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
         }
 
@@ -1288,7 +1285,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\t\tGood stream (for control)." << endl;
         {
-            Out out;
+            Out out(1);
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
@@ -1298,8 +1295,7 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
 
             In in(OD, LOD); ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
             ASSERT(in);
             ASSERT(W != t); ASSERT(X != t); ASSERT(Y == t);
         }
@@ -1309,9 +1305,9 @@ int main(int argc, char *argv[])
             const int id = -1;  // too small
             bsl::vector<int> stack; stack.push_back(1);
 
-            Out out;
+            Out out(1);
             out.putInt32(id);
-            bdex_OutStreamFunctions::streamOut(out, stack, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
             const int         LOD = out.length();
 
@@ -1319,8 +1315,7 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t);
 
             In in(PD, LOD); ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t);
         }
@@ -1333,9 +1328,9 @@ int main(int argc, char *argv[])
             bsl::vector<int> stack; stack.push_back(2);
             stack.push_back(3); stack.push_back(0);
 
-            Out out;
+            Out out(1);
             out.putInt32(id);
-            bdex_OutStreamFunctions::streamOut(out, stack, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
             const int         LOD = out.length();
 
@@ -1343,8 +1338,7 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t);
 
             In in(PD, LOD); ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t);
         }
@@ -1356,9 +1350,9 @@ int main(int argc, char *argv[])
             bsl::vector<int> stack; stack.push_back(2);
             stack.push_back(-3); stack.push_back(0);
 
-            Out out;
+            Out out(1);
             out.putInt32(id);
-            bdex_OutStreamFunctions::streamOut(out, stack, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
             const int         LOD = out.length();
 
@@ -1366,8 +1360,7 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t);
 
             In in(PD, LOD); ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t);
         }
@@ -1379,9 +1372,9 @@ int main(int argc, char *argv[])
             bsl::vector<int> stack; stack.push_back(2);
             stack.push_back(2); stack.push_back(0);
 
-            Out out;
+            Out out(1);
             out.putInt32(id);
-            bdex_OutStreamFunctions::streamOut(out, stack, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, stack, VERSION);
             const char *const PD  = out.data();
             const int         LOD = out.length();
 
@@ -1389,8 +1382,7 @@ int main(int argc, char *argv[])
             ASSERT(W != t); ASSERT(X == t);
 
             In in(PD, LOD); ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t);
         }
@@ -1399,7 +1391,7 @@ int main(int argc, char *argv[])
         {
             const char version = 0;  // too small ('version' must be >= 1)
 
-            Out out;
+            Out out(1);
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
@@ -1410,15 +1402,14 @@ int main(int argc, char *argv[])
 
             In in(OD, LOD); ASSERT(in);
             in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, version);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, version);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
         }
         {
             const char version = 5;  // too large (current version is 1)
 
-            Out out;
+            Out out(1);
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
@@ -1429,8 +1420,7 @@ int main(int argc, char *argv[])
 
             In in(OD, LOD); ASSERT(in);
             in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, version);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, version);
             ASSERT(!in);
             ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
         }
@@ -3280,11 +3270,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

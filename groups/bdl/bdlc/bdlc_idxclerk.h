@@ -1,4 +1,4 @@
-// bdlc_idxclerk.h                                                   -*-C++-*-
+// bdlc_idxclerk.h                                                    -*-C++-*-
 #ifndef INCLUDED_BDLC_IDXCLERK
 #define INCLUDED_BDLC_IDXCLERK
 
@@ -119,12 +119,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include <bslx_instreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
@@ -268,11 +268,18 @@ class IdxClerk {
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(IdxClerk,
                                  bslalg::TypeTraitUsesBslmaAllocator);
+
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     // CREATORS
     explicit IdxClerk(bslma::Allocator *basicAllocator = 0);
@@ -302,16 +309,15 @@ class IdxClerk {
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is unchanged.  If an
-        // invalid object is read in, the stream is marked invalid and the
-        // value is unchanged.  If 'version' is not supported, 'stream' is
-        // marked invalid and this object is unaltered.  Note that no version
-        // is read from 'stream'.  See the 'bdex' package-level documentation
-        // for more information on 'bdex' streaming of value-semantic types and
-        // containers.
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     int getIndex();
         // Return the next available unused integer index.  Existing
@@ -335,12 +341,14 @@ class IdxClerk {
     // ACCESSORS
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     IdxClerkIter begin() const;
         // Return a 'IdxClerkIter' referring to the first index returned
@@ -381,6 +389,16 @@ class IdxClerk {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.
+
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+
+    static int maxSupportedBdexVersion();
+        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
+        //
+        // Return the most current BDEX streaming version number supported by
+        // this class.
+
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
 // FREE OPERATORS
@@ -513,12 +531,12 @@ inline
 int IdxClerk::getIndex()
 {
     if (d_unusedStack.empty()) {
-        return d_nextNewIndex++;
+        return d_nextNewIndex++;                                      // RETURN
     }
     else {
         int index = d_unusedStack.back();
         d_unusedStack.pop_back();
-        return index;
+        return index;                                                 // RETURN
     }
 }
 
@@ -551,11 +569,11 @@ STREAM& IdxClerk::bdexStreamIn(STREAM& stream, int version)
 
         if (!stream || nextNewIndex < 0) {
             stream.invalidate();
-            return stream;                                           // RETURN
+            return stream;                                            // RETURN
         }
 
         bsl::vector<int> unusedStack;
-        bdex_InStreamFunctions::streamIn(stream, unusedStack, version);
+        bslx::InStreamFunctions::bdexStreamIn(stream, unusedStack, version);
 
         // Stream can be invalidated after streaming in 'd_unusedStack'.
 
@@ -579,8 +597,18 @@ template <class STREAM>
 inline
 STREAM& IdxClerk::bdexStreamOut(STREAM& stream, int version) const
 {
-    stream.putInt32(d_nextNewIndex);
-    bdex_OutStreamFunctions::streamOut(stream, d_unusedStack, version);
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            stream.putInt32(d_nextNewIndex);
+            bslx::OutStreamFunctions::bdexStreamOut(
+                                               stream, d_unusedStack, version);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
     return stream;
 }
 
@@ -615,10 +643,22 @@ int IdxClerk::nextNewIndex() const
 }
 
 inline
-int IdxClerk::maxSupportedBdexVersion()
+int IdxClerk::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;
 }
+
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+
+// DEPRECATED METHODS
+inline
+int IdxClerk::maxSupportedBdexVersion()
+{
+    return maxSupportedBdexVersion(0);
+}
+
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -642,15 +682,15 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const IdxClerk& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
