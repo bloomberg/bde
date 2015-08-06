@@ -17,15 +17,15 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides an implementation of 'bdlqq::Semaphore'
 // via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>
+//  bdlqq::SemaphoreImpl<Platform::CountedSemaphore>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::Semaphore'.
 //
 // This implementation of 'bdlqq::Semaphore' is intended for platforms where a
-// separate count must be maintained.  'bdlqq::Semaphore' supports large values,
-// but the native semaphores provided on some platforms are restricted to a
-// relatively small range of values (e.g., '[ 0 .. 32000 ]' on AIX) and on
+// separate count must be maintained.  'bdlqq::Semaphore' supports large
+// values, but the native semaphores provided on some platforms are restricted
+// to a relatively small range of values (e.g., '[ 0 .. 32000 ]' on AIX) and on
 // some other platforms do not provide a count at all (Darwin).  To support
 // uniform usage across platforms, this component maintains the count of the
 // semaphore in a separate atomic integer.  'post' is only invoked on the
@@ -62,17 +62,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename SEMAPHORE_POLICY>
+template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-         // ==========================================================
-         // class SemaphoreImpl<bdlqq::Platform::CountedSemaphore>
-         // ==========================================================
+            // ===============================================
+            // class SemaphoreImpl<Platform::CountedSemaphore>
+            // ===============================================
 
 template <>
-class SemaphoreImpl<bdlqq::Platform::CountedSemaphore> {
+class SemaphoreImpl<Platform::CountedSemaphore> {
     // This class provides a full specialization of 'SemaphoreImpl' with
     // a separate count variable.  This implementation maintains the value of
     // the semaphore in a separate atomic integer count, so as to allow for
@@ -84,8 +84,8 @@ class SemaphoreImpl<bdlqq::Platform::CountedSemaphore> {
     bsls::AtomicInt d_resources; // if positive, number of available resources
                                  // if negative: number of waiting threads
 
-    SemaphoreImpl<bdlqq::Platform::CountedSemaphoreImplPolicy>
-                   d_sem;        // platform semaphore implementation
+    SemaphoreImpl<Platform::CountedSemaphoreImplPolicy>
+                    d_sem;       // platform semaphore implementation
 
     // NOT IMPLEMENTED
     SemaphoreImpl(const SemaphoreImpl&);
@@ -120,17 +120,19 @@ class SemaphoreImpl<bdlqq::Platform::CountedSemaphore> {
         // Return the current value of this semaphore.
 };
 
+}  // close package namespace
+
 // ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ===========================================================================
 
-         // ----------------------------------------------------------
-         // class SemaphoreImpl<bdlqq::Platform::CountedSemaphore>
-         // ----------------------------------------------------------
+            // -----------------------------------------------
+            // class SemaphoreImpl<Platform::CountedSemaphore>
+            // -----------------------------------------------
 
 // CREATORS
 inline
-SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::SemaphoreImpl(
+bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::SemaphoreImpl(
                                                                      int count)
 : d_resources(count)
 , d_sem(0)
@@ -138,13 +140,13 @@ SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::SemaphoreImpl(
 }
 
 inline
-SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::~SemaphoreImpl()
+bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::~SemaphoreImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post()
+void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post()
 {
     if (++d_resources <= 0) {
         d_sem.post();
@@ -152,8 +154,7 @@ void SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post()
 }
 
 inline
-void
-SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post(int number)
+void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post(int number)
 {
     for (int i = 0; i < number; ++i) {
         post();
@@ -161,7 +162,7 @@ SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::post(int number)
 }
 
 inline
-int SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::tryWait()
+int bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::tryWait()
 {
     for (int i = d_resources; i > 0; i = d_resources) {
         if (i == d_resources.testAndSwap(i, i - 1)) {
@@ -173,7 +174,7 @@ int SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::tryWait()
 }
 
 inline
-void SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::wait()
+void bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::wait()
 {
     if (--d_resources >= 0) {
         return;
@@ -184,12 +185,11 @@ void SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::wait()
 
 // ACCESSORS
 inline
-int SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::getValue() const
+int bdlqq::SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 
@@ -197,11 +197,18 @@ int SemaphoreImpl<bdlqq::Platform::CountedSemaphore>::getValue() const
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

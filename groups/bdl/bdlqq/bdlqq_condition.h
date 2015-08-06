@@ -30,19 +30,19 @@ BSLS_IDENT("$Id: $")
 //  int timedWait(bdlqq::Mutex *mutex, const bsls::TimeInterval& absoluteTime);
 //..
 // The caller must lock the mutex before invoking these functions.  The
-// 'bdlqq::Condition' atomically releases the lock and waits, thereby preventing
-// other threads from changing the predicate after the lock is released, but
-// before the thread begins to wait.  The 'bcemt' package guarantees that this
-// lock will be reacquired before returning from a call to the 'wait' and
-// 'timedWait' methods, unless an error occurs.
+// 'bdlqq::Condition' atomically releases the lock and waits, thereby
+// preventing other threads from changing the predicate after the lock is
+// released, but before the thread begins to wait.  The 'bcemt' package
+// guarantees that this lock will be reacquired before returning from a call to
+// the 'wait' and 'timedWait' methods, unless an error occurs.
 //
 // When invoking the 'timedWait' method, clients must specify a timeout after
 // which the call will return even if the condition is not signaled.  The
-// timeout is expressed as a 'bsls::TimeInterval' object that holds the absolute
-// time according to the clock type the 'bdlqq::Condition' object is constructed
-// with (the default clock is 'bsls::SystemClockType::e_REALTIME').  Clients
-// should use the 'bdlt::CurrentTime::now(clockType)' utility method to obtain
-// the current time.
+// timeout is expressed as a 'bsls::TimeInterval' object that holds the
+// absolute time according to the clock type the 'bdlqq::Condition' object is
+// constructed with (the default clock is 'bsls::SystemClockType::e_REALTIME').
+// Clients should use the 'bdlt::CurrentTime::now(clockType)' utility method to
+// obtain the current time.
 //
 // Other threads can indicate that the predicate is true by signaling or
 // broadcasting the same 'bdlqq::Condition' object.  A broadcast wakes up all
@@ -154,7 +154,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_platform.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -163,23 +163,23 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 class ConditionImpl;
 
 class Mutex;
 
-                           // =====================
-                           // class btemt::Condition
-                           // =====================
+                            // ===============
+                            // class Condition
+                            // ===============
 
 class Condition {
     // This 'class' implements a portable inter-thread signaling primitive.
 
     // DATA
-    ConditionImpl<bdlqq::Platform::ThreadPolicy>
-                                    d_imp;  // platform-specific implementation
+    ConditionImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
+                                                  // implementation
 
     // NOT IMPLEMENTED
     Condition(const Condition&);
@@ -216,7 +216,7 @@ class Condition {
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
         // until the specified 'timeout', then re-acquire a lock on the
         // 'mutex'.  The 'timeout' is an absolute time represented as an
-        // interval from some epoch, which is detemined by the clock indicated
+        // interval from some epoch, which is determined by the clock indicated
         // at construction (see {'Supported Clock-Types'} in the component
         // documentation).  Return 0 on success, -1 on timeout, and a non-zero
         // value different from -1 if an error occurs.  The behavior is
@@ -242,63 +242,70 @@ class Condition {
         // function, but is *not* guaranteed to remain locked if an error
         // occurs.
 };
+}  // close package namespace
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // ---------------------
-                           // class Condition
-                           // ---------------------
+                            // ---------------
+                            // class Condition
+                            // ---------------
 
 // CREATORS
 inline
-Condition::Condition(bsls::SystemClockType::Enum clockType)
+bdlqq::Condition::Condition(bsls::SystemClockType::Enum clockType)
 : d_imp(clockType)
 {
 }
 
 inline
-Condition::~Condition()
+bdlqq::Condition::~Condition()
 {
 }
 
 // MANIPULATORS
 inline
-void Condition::broadcast()
+void bdlqq::Condition::broadcast()
 {
     d_imp.broadcast();
 }
 
 inline
-void Condition::signal()
+void bdlqq::Condition::signal()
 {
     d_imp.signal();
 }
 
 inline
-int Condition::timedWait(Mutex              *mutex,
-                               const bsls::TimeInterval&  absoluteTime)
+int bdlqq::Condition::timedWait(Mutex                     *mutex,
+                                const bsls::TimeInterval&  absoluteTime)
 {
     return d_imp.timedWait(mutex, absoluteTime);
 }
 
 inline
-int Condition::wait(Mutex *mutex)
+int bdlqq::Condition::wait(Mutex *mutex)
 {
     return d_imp.wait(mutex);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

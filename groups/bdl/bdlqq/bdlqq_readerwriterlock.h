@@ -75,10 +75,10 @@ BSLS_IDENT("$Id: $")
 // infrequent.
 //..
 // struct UserInfo{
-//     long          d_UserId;
-//     char          d_UserName[MAX_USER_NAME];
-//     char          d_badge_location[MAX_BADGE_LOCATION];
-//     int           d_inOutStatus;
+//     long           d_UserId;
+//     char           d_UserName[MAX_USER_NAME];
+//     char           d_badge_location[MAX_BADGE_LOCATION];
+//     int            d_inOutStatus;
 //     bdlt::Datetime d_badgeTime;
 // };
 //
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //     typedef bsl::map<int, UserInfo> InfoMap;
 //
 //     bdlqq::ReaderWriterLock d_lock;
-//     InfoMap                d_infoMap;
+//     InfoMap                 d_infoMap;
 //   public:
 //     UserInfoCache();
 //     ~UserInfoCache();
@@ -247,11 +247,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                        // ============================
+                        // ======================
                         // class ReaderWriterLock
-                        // ============================
+                        // ======================
 
 class ReaderWriterLock {
     // This class provides a multi-reader/single-writer lock mechanism.
@@ -297,27 +296,27 @@ class ReaderWriterLock {
         // value used to increment the read broadcast count by 1
 
     // INSTANCE DATA
-    bsls::AtomicOperations::AtomicTypes::Int64 d_rwCount;     // atomic counter used to track
-                                          // active and waiting read/write lock
-                                          // requests
+    bsls::AtomicOperations::AtomicTypes::Int64 d_rwCount;
+                                     // atomic counter used to track active and
+                                     // waiting read/write lock requests
 
-    Mutex            d_mutex;       // used for access control
+    Mutex            d_mutex;        // used for access control
 
-    Condition        d_readCond;    // used to signal waiting readers
+    Condition        d_readCond;     // used to signal waiting readers
 
-    Condition        d_writeCond;   // used to signal waiting writers
+    Condition        d_writeCond;    // used to signal waiting writers
 
-    Condition        d_upgradeCond; // used to signal upgraders
+    Condition        d_upgradeCond;  // used to signal upgraders
 
-    ThreadUtil::Id   d_owner;       // id of thread that currently owns
-                                          // this lock if it is in the write
-                                          // lock state, or the id of the
-                                          // thread that holds the write
-                                          // reservation if one exists
+    ThreadUtil::Id   d_owner;        // id of thread that currently owns
+                                     // this lock if it is in the write lock
+                                     // state, or the id of the thread that
+                                     // holds the write reservation if one
+                                     // exists
 
-    volatile SignalState   d_signalState; //
+    volatile SignalState   d_signalState;
 
-    volatile char          d_owned;       //
+    volatile char          d_owned;
 
     // NOT IMPLEMENTED
     ReaderWriterLock(const ReaderWriterLock&);
@@ -409,17 +408,19 @@ class ReaderWriterLock {
         // currently owns this read/write lock.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                        // ----------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                        // ----------------------
                         // class ReaderWriterLock
-                        // ----------------------------
+                        // ----------------------
 
 // CREATORS
 inline
-ReaderWriterLock::ReaderWriterLock()
+bdlqq::ReaderWriterLock::ReaderWriterLock()
 : d_signalState(BCEMT_NOT_SIGNALED)
 , d_owned(0)
 {
@@ -427,46 +428,52 @@ ReaderWriterLock::ReaderWriterLock()
 }
 
 inline
-ReaderWriterLock::~ReaderWriterLock()
+bdlqq::ReaderWriterLock::~ReaderWriterLock()
 {
 }
 
 
 // MANIPULATORS
 inline
-int ReaderWriterLock::upgradeToReservedWriteLock()
+int bdlqq::ReaderWriterLock::upgradeToReservedWriteLock()
 {
     return upgradeToWriteLock();
 }
 
 inline
-void ReaderWriterLock::unlockRead()
+void bdlqq::ReaderWriterLock::unlockRead()
 {
     unlock();
 }
 
 inline
-void ReaderWriterLock::unlockReadUnreserveWrite()
+void bdlqq::ReaderWriterLock::unlockReadUnreserveWrite()
 {
     unlock();
 }
 
 inline
-void ReaderWriterLock::unlockWrite()
+void bdlqq::ReaderWriterLock::unlockWrite()
 {
     unlock();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a POSIX implementation of 'bdlqq::Mutex'.
 //
 //@CLASSES:
-//  bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>: POSIX specialization
+//  bdlqq::MutexImpl<Platform::PosixThreads>: POSIX specialization
 //
 //@SEE_ALSO: bdlqq_mutex
 //
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides an implementation of 'bdlqq::Mutex' for
 // POSIX threads ("pthreads") via the template specialization:
 //..
-//  bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>
+//  bdlqq::MutexImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::Mutex'.
@@ -56,17 +56,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 class MutexImpl;
 
-               // ==================================================
-               // class MutexImpl<bdlqq::Platform::PosixThreads>
-               // ==================================================
+                // =======================================
+                // class MutexImpl<Platform::PosixThreads>
+                // =======================================
 
 template <>
-class MutexImpl<bdlqq::Platform::PosixThreads> {
+class MutexImpl<Platform::PosixThreads> {
     // This class provides a full specialization of 'MutexImpl' for
     // pthreads.  It provides a efficient proxy for the 'pthread_mutex_t'
     // pthreads type, and related operations.  Note that the mutex implemented
@@ -118,17 +118,19 @@ class MutexImpl<bdlqq::Platform::PosixThreads> {
         // mutex.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-               // --------------------------------------------------
-               // class MutexImpl<bdlqq::Platform::PosixThreads>
-               // --------------------------------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                // ---------------------------------------
+                // class MutexImpl<Platform::PosixThreads>
+                // ---------------------------------------
 
 // CREATORS
 inline
-MutexImpl<bdlqq::Platform::PosixThreads>::MutexImpl()
+bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::MutexImpl()
 {
     const int status = pthread_mutex_init(&d_lock, 0);
     (void) status;
@@ -137,7 +139,7 @@ MutexImpl<bdlqq::Platform::PosixThreads>::MutexImpl()
 
 // MANIPULATORS
 inline
-void MutexImpl<bdlqq::Platform::PosixThreads>::lock()
+void bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::lock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -148,7 +150,7 @@ void MutexImpl<bdlqq::Platform::PosixThreads>::lock()
 }
 
 inline
-int MutexImpl<bdlqq::Platform::PosixThreads>::tryLock()
+int bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::tryLock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -157,7 +159,7 @@ int MutexImpl<bdlqq::Platform::PosixThreads>::tryLock()
 }
 
 inline
-void MutexImpl<bdlqq::Platform::PosixThreads>::unlock()
+void bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::unlock()
 {
     BSLS_ASSERT_SAFE(0xdeadbeef !=
                                  *reinterpret_cast<const unsigned *>(&d_lock));
@@ -168,24 +170,30 @@ void MutexImpl<bdlqq::Platform::PosixThreads>::unlock()
 }
 
 inline
-MutexImpl<bdlqq::Platform::PosixThreads>::NativeType&
-MutexImpl<bdlqq::Platform::PosixThreads>::nativeMutex()
+bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::NativeType&
+bdlqq::MutexImpl<bdlqq::Platform::PosixThreads>::nativeMutex()
 {
     return d_lock;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

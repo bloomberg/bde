@@ -22,28 +22,28 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // bdlqq::WriteLockGuard
-// ===================
+// ============================================================================
 // [2] bdlqq::WriteLockGuard();
 // [2] ~bdlqq::WriteLockGuard();
 // [2] bdlqq::WriteLockGuard::release();
 // [2] bdlqq::WriteLockGuard::ptr();
 //
 // bdlqq::WriteLockGuardUnlock
-// =====================
+// ============================================================================
 // [3] bdlqq::WriteLockGuardUnlock();
 // [3] ~bdlqq::WriteLockGuardUnlock();
 // [3] bdlqq::WriteLockGuardUnlock::release();
 // [3] bdlqq::WriteLockGuardUnlock::ptr();
 //
 // bdlqq::WriteLockGuardTryLock
-// =====================
+// ============================================================================
 // [4] bdlqq::WriteLockGuardTryLock();
 // [4] ~bdlqq::WriteLockGuardTryLock();
 // [4] bdlqq::WriteLockGuardTryLock::release();
 // [4] bdlqq::WriteLockGuardTryLock::ptr();
 //-----------------------------------------------------------------------------
 // [1] Ensure helper class 'my_RWLock' works as expected
-// [5] INTERACTION BETW 'bdlqq::WriteLockGuard' AND 'bdlqq::WriteLockGuardUnlock'
+// [5] INTERACTION BET 'bdlqq::WriteLockGuard' & 'bdlqq::WriteLockGuardUnlock'
 // [6] DEPRECATED 'bdlqq::LockWriteGuard'
 // [7] USAGE EXAMPLES
 //=============================================================================
@@ -115,7 +115,7 @@ struct my_RWLock {
         if ((++d_attempt)%2) {
             lockWrite();
         } else {
-            return 1;
+            return 1;                                                 // RETURN
         }
         return 0;
     }
@@ -137,10 +137,11 @@ static void errorProneFunc(my_Object *obj, my_RWLock *rwlock)
     if (someUpgradeCondition) {
         obj->someUpgradeMethod();
         rwlock->unlock();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherUpgradeCondition) {
         obj->someOtherUpgradeMethod();
         return;                             // MISTAKE! forgot to unlock rwlock
+                                                                      // RETURN
     }
     obj->defaultUpgradeMethod();
     rwlock->unlock();
@@ -152,10 +153,11 @@ static void safeFunc(my_Object *obj, my_RWLock *rwlock)
     bdlqq::WriteLockGuard<my_RWLock> guard(rwlock);
     if (someUpgradeCondition) {
         obj->someUpgradeMethod();
-        return;
+        return;                                                       // RETURN
     } else if (someOtherUpgradeCondition) {
         obj->someOtherUpgradeMethod();
         return;                         // OK, rwlock is automatically unlocked
+                                                                      // RETURN
     }
     obj->defaultUpgradeMethod();
     return;
@@ -170,13 +172,13 @@ static int safeButNonBlockingFunc(my_Object *obj, my_RWLock *rwlock)
     if (guard.ptr()) { // rwlock is locked
         if (someUpgradeCondition) {
             obj->someUpgradeMethod();
-            return 2;
+            return 2;                                                 // RETURN
         } else if (someOtherUpgradeCondition) {
             obj->someOtherUpgradeMethod();
-            return 3;
+            return 3;                                                 // RETURN
         }
         obj->defaultUpgradeMethod();
-        return 1;
+        return 1;                                                     // RETURN
     }
     return 0;
 }
@@ -333,8 +335,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   We verify that using two independent 'my_RWLock' objects with two
-        //   distinct 'bdlqq::WriteLockGuard' *and* 'bdlqq::WriteLockGuardUnlock'
-        //   objects in the same scope have no effect on each other.
+        //   distinct 'bdlqq::WriteLockGuard' *and*
+        //   'bdlqq::WriteLockGuardUnlock' objects in the same scope have no
+        //   effect on each other.
         //
         // Testing:
         //   Interaction between lock and unlock guards, as well as
@@ -491,8 +494,9 @@ int main(int argc, char *argv[])
         //   'bdlqq::WriteLockGuardUnlock' object is destroyed, it does not
         //   unlock the object.
         //
-        //   Finally we test that a 'bdlqq::WriteLockGuardUnlock' can be created
-        //   with a null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a 'bdlqq::WriteLockGuardUnlock' can be
+        //   created with a null lock, and that 'release' may be called on the
+        //   guard.
         //
         // Testing:
         //   bdlqq::WriteLockGuardUnlock();
@@ -583,8 +587,8 @@ int main(int argc, char *argv[])
         //   constructing a new 'bdlqq::WriteLockGuard' and calling 'release'.
         //   We verify that the returned pointer matches the value we supplied.
         //   We then verify that 'release' makes no attempt to unlock the
-        //   supplied object and that when the 'bdlqq::WriteLockGuard' object is
-        //   destroyed, it does not unlock the object.
+        //   supplied object and that when the 'bdlqq::WriteLockGuard' object
+        //   is destroyed, it does not unlock the object.
         //
         //   Finally we test that a 'bdlqq::WriteLockGuard' can be created with
         //   a null lock, and that 'release' may be called on the guard.
@@ -725,11 +729,18 @@ int main(int argc, char *argv[])
     return( testStatus );
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -17,10 +17,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
 //@DESCRIPTION: This component defines a portable and efficient thread
-// synchronization primitive.  In particular, 'bdlqq::Semaphore' is an efficient
-// synchronization primitive that enables sharing of a counted number of
-// resources or exclusive access.  The usage model of this facility is modeled
-// on POSIX semaphores and Windows semaphores.
+// synchronization primitive.  In particular, 'bdlqq::Semaphore' is an
+// efficient synchronization primitive that enables sharing of a counted number
+// of resources or exclusive access.  The usage model of this facility is
+// modeled on POSIX semaphores and Windows semaphores.
 //
 ///Usage
 ///-----
@@ -122,14 +122,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename SEMAPHORE_POLICY>
+template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-                         // =====================
-                         // class Semaphore
-                         // =====================
+                            // ===============
+                            // class Semaphore
+                            // ===============
 
 class Semaphore {
     // This class implements a portable semaphore type for thread
@@ -137,8 +137,8 @@ class Semaphore {
     // platform-specific implementation.
 
     // DATA
-    SemaphoreImpl<bdlqq::Platform::SemaphorePolicy>
-                                   d_impl;  // platform-specific implementation
+    SemaphoreImpl<Platform::SemaphorePolicy> d_impl;  // platform-specific
+                                                      // implementation
 
     // NOT IMPLEMENTED
     Semaphore(const Semaphore&);
@@ -178,73 +178,81 @@ class Semaphore {
         // Return the value of the current count of this semaphore.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                         // ---------------------
-                         // class Semaphore
-                         // ---------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // ---------------
+                            // class Semaphore
+                            // ---------------
 
 // CREATORS
 inline
-Semaphore::Semaphore()
+bdlqq::Semaphore::Semaphore()
 : d_impl(0)
 {
 }
 
 inline
-Semaphore::Semaphore(int count)
+bdlqq::Semaphore::Semaphore(int count)
 : d_impl(count)
 {
 }
 
 inline
-Semaphore::~Semaphore()
+bdlqq::Semaphore::~Semaphore()
 {
 }
 
 inline
-void Semaphore::post()
+void bdlqq::Semaphore::post()
 {
     d_impl.post();
 }
 
 inline
-void Semaphore::post(int value)
+void bdlqq::Semaphore::post(int value)
 {
     d_impl.post(value);
 }
 
 inline
-int Semaphore::tryWait()
+int bdlqq::Semaphore::tryWait()
 {
     return d_impl.tryWait();
 }
 
 inline
-void Semaphore::wait()
+void bdlqq::Semaphore::wait()
 {
     d_impl.wait();
 }
 
 // ACCESSORS
 inline
-int Semaphore::getValue() const
+int bdlqq::Semaphore::getValue() const
 {
     return d_impl.getValue();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

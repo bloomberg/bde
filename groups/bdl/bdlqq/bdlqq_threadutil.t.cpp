@@ -1,4 +1,4 @@
-// bdlqq_threadutil.t.cpp        -*-C++-*-
+// bdlqq_threadutil.t.cpp                                             -*-C++-*-
 #include <bdlqq_threadutil.h>
 
 #include <bdlqq_configuration.h>
@@ -224,7 +224,8 @@ void createSmallStackSizeThread()
 {
     enum { STACK_SIZE = 16384 };
     bdlqq::ThreadAttributes attributes;
-    attributes.setDetachedState(bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+    attributes.setDetachedState(
+                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
     attributes.setStackSize(STACK_SIZE);
 
     char initValue = 1;
@@ -503,7 +504,7 @@ void Functor::operator()()
     ++s_finished;
 }
 
-}  // close MULTIPRIORITY_EFFECTIVENESS_TEST_CASE namespace
+}  // close namespace MULTIPRIORITY_EFFECTIVENESS_TEST_CASE
 
 //-----------------------------------------------------------------------------
 //                       Thread Policy Creation Test Case
@@ -525,7 +526,7 @@ struct Touch {
     }
 };
 
-}  // close BCEMT_THREAD_POLICY_CREATION_TEST namespace
+}  // close namespace BCEMT_THREAD_POLICY_CREATION_TEST
 
 //-----------------------------------------------------------------------------
 //                       Multipriority Usage Test Case
@@ -564,7 +565,7 @@ struct LeastUrgentThreadFunctor {
     }
 };
 
-}  // close MULTIPRIORITY_USAGE_TEST_CASE namespace
+}  // close namespace MULTIPRIORITY_USAGE_TEST_CASE
 
 //-----------------------------------------------------------------------------
 //                          CONFIGURATION TEST CASE
@@ -616,7 +617,7 @@ void Func::operator()()
     s_success = true;
 }
 
-}  // close BCEMT_CONFIGURATION_TEST_NAMESPACE namespace
+}  // close namespace BCEMT_CONFIGURATION_TEST_NAMESPACE
 
 
 extern "C"
@@ -722,10 +723,10 @@ void testStackSize()
     }
 }
 
-}  // close STACKSIZE_TEST_CASE_NAMESPACE namespace
+}  // close namespace STACKSIZE_TEST_CASE_NAMESPACE
 
 //-----------------------------------------------------------------------------
-//                                    TEST CASE 6
+//                              TEST CASE 6
 //-----------------------------------------------------------------------------
 
 extern "C" {
@@ -778,7 +779,7 @@ void TlsKeyTestFunctor::operator()() const
     return;
 }
 
-}  // close BCEMT_THREADUTIL_TLSKEY_TEST6 namespace
+}  // close namespace BCEMT_THREADUTIL_TLSKEY_TEST6
 
 extern "C" {
 
@@ -801,7 +802,7 @@ void TlsDestructor6_2(void *)
 }  // extern "C"
 
 //-----------------------------------------------------------------------------
-//                                    TEST CASE 5
+//                              TEST CASE 5
 //-----------------------------------------------------------------------------
 
 extern "C" {
@@ -862,7 +863,7 @@ void CreateKeyTestFunctor::operator()() const
     return;
 }
 
-}  // close BCEMT_THREADUTIL_CREATEKEY_TEST5 namespace
+}  // close namespace BCEMT_THREADUTIL_CREATEKEY_TEST5
 
 extern "C" {
 
@@ -1638,7 +1639,7 @@ int main(int argc, char *argv[])
         bdlqq::ThreadAttributes attributes;
         attributes.setInheritSchedule(false);
         const bdlqq::ThreadAttributes::SchedulingPolicy policy =
-                                     bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
+                                    bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
         attributes.setSchedulingPolicy(policy);
 
         for (int i = 0; i < NUM_THREADS; ++i) {
@@ -1671,9 +1672,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         const int stackSize =
-                       5 * bdlqq::Configuration::nativeDefaultThreadStackSize();
+                      5 * bdlqq::Configuration::nativeDefaultThreadStackSize();
         const int stackToUse =
-                       4 * bdlqq::Configuration::nativeDefaultThreadStackSize();
+                      4 * bdlqq::Configuration::nativeDefaultThreadStackSize();
         bdlqq::Configuration::setDefaultThreadStackSize(stackSize);
 
         bdlqq::ThreadUtil::Handle handle;
@@ -1686,7 +1687,7 @@ int main(int argc, char *argv[])
             func.s_success    = false;
 
             ASSERT(func.d_stackToUse >
-                      3 * bdlqq::Configuration::nativeDefaultThreadStackSize());
+                     3 * bdlqq::Configuration::nativeDefaultThreadStackSize());
 
             int rc = bdlqq::ThreadUtil::create(&handle, func);
             ASSERT(0 == rc);
@@ -2009,7 +2010,8 @@ int main(int argc, char *argv[])
         ASSERT((void *) 2 == Obj::getSpecific(parentKey));
 
         bdlqq::ThreadUtil::Handle handle;
-        rc = bdlqq::ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(true));
+        rc =
+            bdlqq::ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(true));
         ASSERT(0 == rc);
         bdlqq::ThreadUtil::join(handle);
 
@@ -2100,7 +2102,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBasic thread utilities example" << endl;
 
         bdlqq::Configuration::setDefaultThreadStackSize(
-                     bdlqq::Configuration::recommendedDefaultThreadStackSize());
+                    bdlqq::Configuration::recommendedDefaultThreadStackSize());
 
         bdlqq::ThreadAttributes attr;
         attr.setStackSize(1024 * 1024);
@@ -2136,16 +2138,16 @@ int main(int argc, char *argv[])
         ASSERT(1 == bdlqq::ThreadUtil::isEqual(validH1, validH1copy));
         ASSERT(0 == bdlqq::ThreadUtil::isEqual(validH1, validH2));
         ASSERT(0 == bdlqq::ThreadUtil::isEqual(
-                                             bdlqq::ThreadUtil::invalidHandle(),
-                                             validH2));
+                                            bdlqq::ThreadUtil::invalidHandle(),
+                                            validH2));
         ASSERT(0 == bdlqq::ThreadUtil::isEqual(
-                                             bdlqq::ThreadUtil::invalidHandle(),
-                                             validH1copy));
+                                            bdlqq::ThreadUtil::invalidHandle(),
+                                            validH1copy));
         ASSERT(0 == bdlqq::ThreadUtil::isEqual(validH1,
-                                           bdlqq::ThreadUtil::invalidHandle()));
+                                          bdlqq::ThreadUtil::invalidHandle()));
         ASSERT(1 == bdlqq::ThreadUtil::isEqual(
-                                           bdlqq::ThreadUtil::invalidHandle(),
-                                           bdlqq::ThreadUtil::invalidHandle()));
+                                          bdlqq::ThreadUtil::invalidHandle(),
+                                          bdlqq::ThreadUtil::invalidHandle()));
 
         bdlqq::ThreadUtil::join(validH1);
         bdlqq::ThreadUtil::join(validH2);
@@ -2163,7 +2165,7 @@ int main(int argc, char *argv[])
 
        bdlqq::ThreadAttributes detached;
        detached.setDetachedState(
-                                bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+                               bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 
        ThreadChecker joinableChecker;
        ThreadChecker detachedChecker;
@@ -2466,11 +2468,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

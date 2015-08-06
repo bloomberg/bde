@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // for POSIX threads ("pthreads") according to the POSIX support on Darwin
 // platform via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>
+//  bdlqq::SemaphoreImpl<Platform::DarwinSemaphore>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::Semaphore'.
@@ -49,17 +49,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename SEMAPHORE_POLICY>
+template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-         // =========================================================
-         // class SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>
-         // =========================================================
+            // ==============================================
+            // class SemaphoreImpl<Platform::DarwinSemaphore>
+            // ==============================================
 
 template <>
-class SemaphoreImpl<bdlqq::Platform::DarwinSemaphore> {
+class SemaphoreImpl<Platform::DarwinSemaphore> {
     // This class provides a full specialization of 'SemaphoreImpl' for
     // pthreads on Darwin.  The implementation provided here defines an
     // efficient proxy for the 'sem_t' pthread type, and related operations.
@@ -101,17 +101,19 @@ class SemaphoreImpl<bdlqq::Platform::DarwinSemaphore> {
         // Return the current value of this semaphore.
 };
 
+}  // close package namespace
+
 // ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ===========================================================================
 
-         // ---------------------------------------------------------
-         // class SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>
-         // ---------------------------------------------------------
+            // ----------------------------------------------
+            // class SemaphoreImpl<Platform::DarwinSemaphore>
+            // ----------------------------------------------
 
 // CREATORS
 inline
-SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::~SemaphoreImpl()
+bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::~SemaphoreImpl()
 {
     int result = ::sem_close(d_sem_p);
 
@@ -121,7 +123,7 @@ SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::~SemaphoreImpl()
 
 // MANIPULATORS
 inline
-void SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post()
+void bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post()
 {
     int result = ::sem_post(d_sem_p);
 
@@ -130,7 +132,7 @@ void SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::post()
 }
 
 inline
-int SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::tryWait()
+int bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::tryWait()
 {
     return ::sem_trywait(d_sem_p);
 
@@ -138,14 +140,13 @@ int SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::tryWait()
 
 // ACCESSORS
 inline
-int SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::getValue() const
+int bdlqq::SemaphoreImpl<bdlqq::Platform::DarwinSemaphore>::getValue() const
 {
     // Not implemented on Darwin, but sem_getvalue still returns success.
     BSLS_ASSERT(false &&
             "sem_getvalue is optional in POSIX and not implemented on Darwin");
     return 0;
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 

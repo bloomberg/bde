@@ -1,4 +1,4 @@
-// bdlqq_readerwriterlock.cpp      -*-C++-*-
+// bdlqq_readerwriterlock.cpp                                         -*-C++-*-
 #include <bdlqq_readerwriterlock.h>
 
 #include <bsls_ident.h>
@@ -41,9 +41,8 @@ const long long bdlqq::ReaderWriterLock::READ_BCAST_INC;
 
 #endif
 
-namespace bdlqq {
 // MANIPULATORS
-void ReaderWriterLock::lockRead()
+void bdlqq::ReaderWriterLock::lockRead()
 {
     int wait;
     bsls::Types::Int64 rwcount;
@@ -75,7 +74,7 @@ void ReaderWriterLock::lockRead()
     }
 }
 
-void ReaderWriterLock::lockReadReserveWrite()
+void bdlqq::ReaderWriterLock::lockReadReserveWrite()
 {
     int wait;
     bsls::Types::Int64 rwcount;
@@ -130,7 +129,7 @@ void ReaderWriterLock::lockReadReserveWrite()
     d_owned = 1;
 }
 
-void ReaderWriterLock::lockWrite()
+void bdlqq::ReaderWriterLock::lockWrite()
 {
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
@@ -160,7 +159,7 @@ void ReaderWriterLock::lockWrite()
     d_owned = 1;
 }
 
-int ReaderWriterLock::tryLockRead()
+int bdlqq::ReaderWriterLock::tryLockRead()
 {
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount=bsls::AtomicOperations::getInt64(&d_rwCount);
@@ -168,7 +167,7 @@ int ReaderWriterLock::tryLockRead()
         rwcount = newrwcount;
 
         if (!(rwcount & READ_OK)) {
-            return 1;
+            return 1;                                                 // RETURN
         }
         newrwcount += READER_INC;
         newrwcount = bsls::AtomicOperations::testAndSwapInt64(&d_rwCount,
@@ -178,7 +177,7 @@ int ReaderWriterLock::tryLockRead()
     return 0;
 }
 
-int ReaderWriterLock::tryLockWrite()
+int bdlqq::ReaderWriterLock::tryLockWrite()
 {
     bsls::Types::Int64 rwcount;
     bsls::Types::Int64 newrwcount;
@@ -186,7 +185,7 @@ int ReaderWriterLock::tryLockWrite()
     do {
         rwcount = newrwcount;
         if (rwcount & (READER_MASK|WRITER_MASK)) {
-            return 1;
+            return 1;                                                 // RETURN
         }
         newrwcount = 1;
     } while ((newrwcount = bsls::AtomicOperations::testAndSwapInt64(&d_rwCount,
@@ -199,7 +198,7 @@ int ReaderWriterLock::tryLockWrite()
     return 0;
 }
 
-int ReaderWriterLock::upgradeToWriteLock()
+int bdlqq::ReaderWriterLock::upgradeToWriteLock()
 {
     int atomic;
     int wait;
@@ -212,7 +211,7 @@ int ReaderWriterLock::upgradeToWriteLock()
         rwcount = newrwcount;
         if (!(newrwcount & READER_MASK)) {
             // Invalid lock state for this operation
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if (newrwcount & RESERVATION_PENDING) {
@@ -290,7 +289,7 @@ int ReaderWriterLock::upgradeToWriteLock()
     return atomic ? 0 : 1;
 }
 
-int ReaderWriterLock::tryUpgradeToWriteLock()
+int bdlqq::ReaderWriterLock::tryUpgradeToWriteLock()
 {
     int wait;
     bsls::Types::Int64 rwcount;
@@ -302,7 +301,7 @@ int ReaderWriterLock::tryUpgradeToWriteLock()
         rwcount = newrwcount;
         if (!(newrwcount & READER_MASK)) {
             // Invalid lock state for this operation
-            return -1;
+            return -1;                                                // RETURN
         }
 
         if (newrwcount & RESERVATION_PENDING) {
@@ -314,19 +313,19 @@ int ReaderWriterLock::tryUpgradeToWriteLock()
                     newrwcount |= UPGRADE_PENDING;
                     wait = 1;
                 } else wait = 0;
-            } else return 1;
+            } else return 1;                                          // RETURN
         }
         else {
             newrwcount = ((rwcount - READER_INC) + 1) & ~READ_OK;
             if (newrwcount & READER_MASK) {
                 if (newrwcount & UPGRADE_PENDING) {
-                    return 1;
+                    return 1;                                         // RETURN
                 }
                 newrwcount |= UPGRADE_PENDING;
                 wait = 1;
             } else {
                 if (newrwcount & UPGRADE_PENDING) {
-                    return 1;
+                    return 1;                                         // RETURN
                 }
                 else wait = 0;
             }
@@ -352,7 +351,7 @@ int ReaderWriterLock::tryUpgradeToWriteLock()
     return 0;
 }
 
-void ReaderWriterLock::unlock()
+void bdlqq::ReaderWriterLock::unlock()
 {
     enum {SIG_NONE = 0, SIG_READ = 1, SIG_WRITE=2, SIG_UPGRADE=3 };
 
@@ -418,15 +417,21 @@ void ReaderWriterLock::unlock()
         d_mutex.unlock();
     }
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

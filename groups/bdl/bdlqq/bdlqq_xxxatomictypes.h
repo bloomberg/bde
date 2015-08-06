@@ -1,4 +1,4 @@
-// bdlqq_xxxatomictypes.h                                                 -*-C++-*-
+// bdlqq_xxxatomictypes.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLQQ_XXXATOMICTYPES
 #define INCLUDED_BDLQQ_XXXATOMICTYPES
 
@@ -27,8 +27,8 @@ BSLS_IDENT("$Id: $")
 // operations to manipulate and dereference a pointer.  The class
 // 'bdlqq::SpinLock' provides an object wrapper for a spin lock.
 //
-//@DEPRECATED: Use bsls_atomic components instead of bdlqq_xxxatomictypes, except
-// for 'bdlqq::SpinLock'.
+//@DEPRECATED: Use bsls_atomic components instead of bdlqq_xxxatomictypes,
+// except for 'bdlqq::SpinLock'.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -47,11 +47,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                               // ====================
-                               // class AtomicInt
-                               // ====================
+                            // ===============
+                            // class AtomicInt
+                            // ===============
 
 class AtomicInt : private bsls::AtomicInt {
     // This class is a wrapper for an integer, supporting common integer
@@ -139,9 +138,9 @@ class AtomicInt : private bsls::AtomicInt {
         // barrier.
 };
 
-                       // ======================
-                       // class AtomicInt64
-                       // ======================
+                            // =================
+                            // class AtomicInt64
+                            // =================
 
 class AtomicInt64 : private bsls::AtomicInt64 {
     // This class is a wrapper for a 64-bit integer, supporting common integer
@@ -231,9 +230,9 @@ class AtomicInt64 : private bsls::AtomicInt64 {
         // additional ordering constraints.
 };
 
-                     // ========================
-                     // class AtomicPointer
-                     // ========================
+                            // ===================
+                            // class AtomicPointer
+                            // ===================
 
 template <class TYPE>
 class AtomicPointer : private bsls::AtomicPointer<TYPE> {
@@ -305,9 +304,9 @@ class AtomicPointer : private bsls::AtomicPointer<TYPE> {
 
 };
 
-                     // =========================
-                     // class AtomicSpinLock
-                     // =========================
+                            // ====================
+                            // class AtomicSpinLock
+                            // ====================
 
 class SpinLock {
     // This class is a wrapper to an atomic spin lock, supporting the 'lock',
@@ -347,13 +346,13 @@ class SpinLock {
 };
 }  // close package namespace
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
-              // ---------------------------------------------
-              // inlined methods used by other inlined methods
-              // ---------------------------------------------
+            // ---------------------------------------------
+            // inlined methods used by other inlined methods
+            // ---------------------------------------------
 
 inline
 bdlqq::AtomicInt::operator int() const
@@ -374,250 +373,249 @@ bdlqq::AtomicPointer<TYPE>::operator TYPE*() const
     return bsls::AtomicPointer<TYPE>::operator TYPE*();
 }
 
-namespace bdlqq {
-                               // --------------------
-                               // class AtomicInt
-                               // --------------------
+                            // ---------------
+                            // class AtomicInt
+                            // ---------------
 
 // CREATORS
 inline
-AtomicInt::AtomicInt()
+bdlqq::AtomicInt::AtomicInt()
 {
 }
 
 inline
-AtomicInt::AtomicInt(int value)
+bdlqq::AtomicInt::AtomicInt(int value)
     : bsls::AtomicInt(value)
 {
 }
 
 inline
-AtomicInt::AtomicInt(const AtomicInt& original)
+bdlqq::AtomicInt::AtomicInt(const AtomicInt& original)
     : bsls::AtomicInt(original.loadRelaxed())
 {
 }
 
 // MANIPULATORS
 inline
-AtomicInt& AtomicInt::operator=(const AtomicInt& rhs)
+bdlqq::AtomicInt& bdlqq::AtomicInt::operator=(const AtomicInt& rhs)
 {
     bsls::AtomicInt::operator=(rhs.loadRelaxed());
     return *this;
 }
 
 inline
-AtomicInt& AtomicInt::operator=(int value)
+bdlqq::AtomicInt& bdlqq::AtomicInt::operator=(int value)
 {
     bsls::AtomicInt::operator=(value);
     return *this;
 }
 
 inline
-void AtomicInt::operator+=(int value)
+void bdlqq::AtomicInt::operator+=(int value)
 {
     bsls::AtomicInt::operator+=(value);
 }
 
 inline
-void AtomicInt::operator-=(int value)
+void bdlqq::AtomicInt::operator-=(int value)
 {
     bsls::AtomicInt::operator-=(value);
 }
 
 inline
-int AtomicInt::operator++()
+int bdlqq::AtomicInt::operator++()
 {
     return bsls::AtomicInt::operator++();
 }
 
 inline
-int AtomicInt::operator++(int)
+int bdlqq::AtomicInt::operator++(int)
 {
     return bsls::AtomicInt::operator++(int());
 }
 
 inline
-int AtomicInt::operator--()
+int bdlqq::AtomicInt::operator--()
 {
     return bsls::AtomicInt::operator--();
 }
 
 inline
-int AtomicInt::operator--(int)
+int bdlqq::AtomicInt::operator--(int)
 {
     return bsls::AtomicInt::operator--(int());
 }
 
 inline
-int AtomicInt::add(int value)
+int bdlqq::AtomicInt::add(int value)
 {
     return bsls::AtomicInt::add(value);
 }
 
 inline
-int AtomicInt::relaxedAdd(int value)
+int bdlqq::AtomicInt::relaxedAdd(int value)
 {
     return bsls::AtomicInt::addRelaxed(value);
 }
 
 inline
-void AtomicInt::relaxedStore(int value)
+void bdlqq::AtomicInt::relaxedStore(int value)
 {
     bsls::AtomicInt::storeRelaxed(value);
 }
 
 inline
-int AtomicInt::swap(int value)
+int bdlqq::AtomicInt::swap(int value)
 {
     return bsls::AtomicInt::swap(value);
 }
 
 inline
-int AtomicInt::testAndSwap(int compareValue, int swapValue)
+int bdlqq::AtomicInt::testAndSwap(int compareValue, int swapValue)
 {
     return bsls::AtomicInt::testAndSwap(compareValue, swapValue);
 }
 
 // ACCESSORS
 inline
-int AtomicInt::relaxedLoad() const
+int bdlqq::AtomicInt::relaxedLoad() const
 {
     return bsls::AtomicInt::loadRelaxed();
 }
 
-                       // ----------------------
-                       // class AtomicInt64
-                       // ----------------------
+                            // -----------------
+                            // class AtomicInt64
+                            // -----------------
 
 // CREATORS
 inline
-AtomicInt64::AtomicInt64()
+bdlqq::AtomicInt64::AtomicInt64()
 {
 }
 
 inline
-AtomicInt64::AtomicInt64(bsls::Types::Int64 value)
+bdlqq::AtomicInt64::AtomicInt64(bsls::Types::Int64 value)
     : bsls::AtomicInt64(value)
 {
 }
 
 inline
-AtomicInt64::AtomicInt64(const AtomicInt64& original)
+bdlqq::AtomicInt64::AtomicInt64(const AtomicInt64& original)
     : bsls::AtomicInt64(original.loadRelaxed())
 {
 }
 
 // MANIPULATORS
 inline
-AtomicInt64& AtomicInt64::operator=(const AtomicInt64& rhs)
+bdlqq::AtomicInt64& bdlqq::AtomicInt64::operator=(const AtomicInt64& rhs)
 {
     bsls::AtomicInt64::operator=(rhs.loadRelaxed());
     return *this;
 }
 
 inline
-AtomicInt64& AtomicInt64::operator=(bsls::Types::Int64 value)
+bdlqq::AtomicInt64& bdlqq::AtomicInt64::operator=(bsls::Types::Int64 value)
 {
     bsls::AtomicInt64::operator=(value);
     return *this;
 }
 
 inline
-void AtomicInt64::operator+=(bsls::Types::Int64 value)
+void bdlqq::AtomicInt64::operator+=(bsls::Types::Int64 value)
 {
     bsls::AtomicInt64::operator+=(value);
 }
 
 inline
-void AtomicInt64::operator-=(bsls::Types::Int64 value)
+void bdlqq::AtomicInt64::operator-=(bsls::Types::Int64 value)
 {
     bsls::AtomicInt64::operator-=(value);
 }
 
 inline
-bsls::Types::Int64 AtomicInt64::operator++()
+bsls::Types::Int64 bdlqq::AtomicInt64::operator++()
 {
     return bsls::AtomicInt64::operator++();
 }
 
 inline
-bsls::Types::Int64 AtomicInt64::operator++(int)
+bsls::Types::Int64 bdlqq::AtomicInt64::operator++(int)
 {
     return bsls::AtomicInt64::operator++(int());
 }
 
 inline
-bsls::Types::Int64 AtomicInt64::operator--()
+bsls::Types::Int64 bdlqq::AtomicInt64::operator--()
 {
     return bsls::AtomicInt64::operator--();
 }
 
 inline
-bsls::Types::Int64 AtomicInt64::operator--(int)
+bsls::Types::Int64 bdlqq::AtomicInt64::operator--(int)
 {
     return bsls::AtomicInt64::operator--(int());
 }
 
 inline
-bsls::Types::Int64 AtomicInt64::add(bsls::Types::Int64 value)
+bsls::Types::Int64 bdlqq::AtomicInt64::add(bsls::Types::Int64 value)
 {
     return bsls::AtomicInt64::add(value);
 }
 
 inline
-bsls::Types::Int64 AtomicInt64::relaxedAdd(bsls::Types::Int64 value)
+bsls::Types::Int64 bdlqq::AtomicInt64::relaxedAdd(bsls::Types::Int64 value)
 {
     return bsls::AtomicInt64::addRelaxed(value);
 }
 
 inline
-void AtomicInt64::relaxedStore(bsls::Types::Int64 value)
+void bdlqq::AtomicInt64::relaxedStore(bsls::Types::Int64 value)
 {
     bsls::AtomicInt64::storeRelaxed(value);
 }
 
 inline
-bsls::Types::Int64 AtomicInt64::swap(bsls::Types::Int64 value)
+bsls::Types::Int64 bdlqq::AtomicInt64::swap(bsls::Types::Int64 value)
 {
     return bsls::AtomicInt64::swap(value);
 }
 
 inline
 bsls::Types::Int64
- AtomicInt64::testAndSwap(bsls::Types::Int64 compareValue,
-                               bsls::Types::Int64 swapValue)
+bdlqq::AtomicInt64::testAndSwap(bsls::Types::Int64 compareValue,
+                                bsls::Types::Int64 swapValue)
 {
     return bsls::AtomicInt64::testAndSwap(compareValue, swapValue);
 }
 
 // ACCESSORS
 inline
-bsls::Types::Int64 AtomicInt64::relaxedLoad() const
+bsls::Types::Int64 bdlqq::AtomicInt64::relaxedLoad() const
 {
     return bsls::AtomicInt64::loadRelaxed();
 }
 
-                     // ------------------------
-                     // class AtomicPointer
-                     // ------------------------
+                            // -------------------
+                            // class AtomicPointer
+                            // -------------------
 
 // CREATORS
 template <class TYPE>
 inline
-AtomicPointer<TYPE>::AtomicPointer()
+bdlqq::AtomicPointer<TYPE>::AtomicPointer()
 {
 }
 
 template <class TYPE>
 inline
-AtomicPointer<TYPE>::AtomicPointer(TYPE *value)
+bdlqq::AtomicPointer<TYPE>::AtomicPointer(TYPE *value)
     : AtomicPointerImp(value)
 {
 }
 
 template <class TYPE>
 inline
-AtomicPointer<TYPE>::AtomicPointer(const AtomicPointer<TYPE>& original)
+bdlqq::AtomicPointer<TYPE>::AtomicPointer(const AtomicPointer<TYPE>& original)
     : AtomicPointerImp(original.loadRelaxed())
 {
 }
@@ -625,8 +623,8 @@ AtomicPointer<TYPE>::AtomicPointer(const AtomicPointer<TYPE>& original)
 // MANIPULATORS
 template <class TYPE>
 inline
-AtomicPointer<TYPE>&
-AtomicPointer<TYPE>::operator=(const AtomicPointer<TYPE>& rhs)
+bdlqq::AtomicPointer<TYPE>&
+bdlqq::AtomicPointer<TYPE>::operator=(const AtomicPointer<TYPE>& rhs)
 {
     bsls::AtomicPointer<TYPE>::operator=(rhs.loadRelaxed());
     return *this;
@@ -634,8 +632,8 @@ AtomicPointer<TYPE>::operator=(const AtomicPointer<TYPE>& rhs)
 
 template <class TYPE>
 inline
-AtomicPointer<TYPE>&
-AtomicPointer<TYPE>::operator=(TYPE *value)
+bdlqq::AtomicPointer<TYPE>&
+bdlqq::AtomicPointer<TYPE>::operator=(TYPE *value)
 {
     bsls::AtomicPointer<TYPE>::operator=(value);
     return *this;
@@ -643,22 +641,22 @@ AtomicPointer<TYPE>::operator=(TYPE *value)
 
 template <class TYPE>
 inline
-TYPE *AtomicPointer<TYPE>::swap(TYPE *swapValue)
+TYPE *bdlqq::AtomicPointer<TYPE>::swap(TYPE *swapValue)
 {
     return bsls::AtomicPointer<TYPE>::swap(swapValue);
 }
 
 template <class TYPE>
 inline
-TYPE *AtomicPointer<TYPE>::testAndSwap(const TYPE *compareValue,
-                                            TYPE       *swapValue)
+TYPE *bdlqq::AtomicPointer<TYPE>::testAndSwap(const TYPE *compareValue,
+                                              TYPE       *swapValue)
 {
     return bsls::AtomicPointer<TYPE>::testAndSwap(compareValue, swapValue);
 }
 
 template <class TYPE>
 inline
-void AtomicPointer<TYPE>::relaxedStore(TYPE *value)
+void bdlqq::AtomicPointer<TYPE>::relaxedStore(TYPE *value)
 {
     bsls::AtomicPointer<TYPE>::storeRelaxed(value);
 }
@@ -666,65 +664,71 @@ void AtomicPointer<TYPE>::relaxedStore(TYPE *value)
 // ACCESSORS
 template <class TYPE>
 inline
-TYPE& AtomicPointer<TYPE>::operator*() const
+TYPE& bdlqq::AtomicPointer<TYPE>::operator*() const
 {
     return bsls::AtomicPointer<TYPE>::operator*();
 }
 
 template <class TYPE>
 inline
-TYPE *AtomicPointer<TYPE>::operator->() const
+TYPE *bdlqq::AtomicPointer<TYPE>::operator->() const
 {
     return bsls::AtomicPointer<TYPE>::operator->();
 }
 
 template <class TYPE>
 inline
-TYPE *AtomicPointer<TYPE>::relaxedLoad() const
+TYPE *bdlqq::AtomicPointer<TYPE>::relaxedLoad() const
 {
     return bsls::AtomicPointer<TYPE>::loadRelaxed();
 }
 
-                     // -------------------------
-                     // class AtomicSpinLock
-                     // -------------------------
+                            // --------------
+                            // class SpinLock
+                            // --------------
 
 // CREATORS
 inline
-SpinLock::SpinLock()
+bdlqq::SpinLock::SpinLock()
 {
     AtomicUtil::initSpinLock(&d_spin);
 }
 
 // MANIPULATORS
 inline
-void SpinLock::lock()
+void bdlqq::SpinLock::lock()
 {
     AtomicUtil::spinLock(&d_spin);
 }
 
 inline
-int SpinLock::tryLock(int numRetries)
+int bdlqq::SpinLock::tryLock(int numRetries)
 {
     return AtomicUtil::spinTryLock(&d_spin, numRetries);
 }
 
 inline
-void SpinLock::unlock()
+void bdlqq::SpinLock::unlock()
 {
     AtomicUtil::spinUnlock(&d_spin);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002, 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

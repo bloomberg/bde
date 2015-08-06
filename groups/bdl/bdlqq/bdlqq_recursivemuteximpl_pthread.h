@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlqq::RecursiveMutex' for POSIX threads ("pthreads") via the template
 // specialization:
 //..
-//  bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>
+//  bdlqq::RecursiveMutexImpl<Platform::PosixThreads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::RecursiveMutex'.
@@ -55,17 +55,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 class RecursiveMutexImpl;
 
-          // ===========================================================
-          // class RecursiveMutexImpl<bdlqq::Platform::PosixThreads>
-          // ===========================================================
+            // ===============================================
+            // class RecursiveMutexImpl<Platform::PosixThreads>
+            // ===============================================
 
 template <>
-class RecursiveMutexImpl<bdlqq::Platform::PosixThreads> {
+class RecursiveMutexImpl<Platform::PosixThreads> {
     // This class provides a full specialization of 'RecursiveMutexImpl'
     // for pthreads.  If the pthreads implementation supports the "recursive"
     // attribute, then the native implementation is used, otherwise, a
@@ -75,7 +75,7 @@ class RecursiveMutexImpl<bdlqq::Platform::PosixThreads> {
     pthread_mutex_t d_lock;       // TBD doc
 
 #ifndef PTHREAD_MUTEX_RECURSIVE
-    bdlqq::SpinLock   d_spin;       // spin lock controlling access to this
+    bdlqq::SpinLock d_spin;       // spin lock controlling access to this
                                   // object
 
     pthread_t       d_owner;      // thread id of thread currently owning this
@@ -124,34 +124,41 @@ class RecursiveMutexImpl<bdlqq::Platform::PosixThreads> {
         // lock is actually released.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-          // -----------------------------------------------------------
-          // class RecursiveMutexImpl<bdlqq::Platform::PosixThreads>
-          // -----------------------------------------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+            // ------------------------------------------------
+            // class RecursiveMutexImpl<Platform::PosixThreads>
+            // ------------------------------------------------
 
 // CREATORS
 inline
-RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::
-                                                  ~RecursiveMutexImpl()
+bdlqq::RecursiveMutexImpl<bdlqq::Platform::PosixThreads>::~RecursiveMutexImpl()
 {
     pthread_mutex_destroy(&d_lock);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // BDLQQ_PLATFORM_POSIX_THREADS
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

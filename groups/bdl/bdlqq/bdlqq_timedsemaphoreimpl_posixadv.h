@@ -20,14 +20,14 @@ BSLS_IDENT("$Id: $")
 // 'bdlqq::TimedSemaphore' for conforming POSIX platforms via the template
 // specialization:
 //..
-//  bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>
+//  bdlqq::TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::TimedSemaphore'.
 //
-// This implementation of 'bdlqq::TimedSemaphore' is preferred over that defined
-// in 'bdlqq_timedsemaphoreimpl_pthread' on platforms that support advanced
-// realtime POSIX extensions (e.g., 'sem_timedwait').
+// This implementation of 'bdlqq::TimedSemaphore' is preferred over that
+// defined in 'bdlqq_timedsemaphoreimpl_pthread' on platforms that support
+// advanced realtime POSIX extensions (e.g., 'sem_timedwait').
 //
 ///Supported Clock-Types
 ///-------------------------
@@ -64,35 +64,27 @@ BSLS_IDENT("$Id: $")
 #include <bsls_systemclocktype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 #ifndef INCLUDED_SEMAPHORE
 #include <semaphore.h>
 #define INCLUDED_SEMAPHORE
 #endif
 
 namespace BloombergLP {
-
-
-namespace bdlqq {template <class TIMED_SEMAPHORE_POLICY>
-class TimedSemaphoreImpl;
-}  // close package namespace
-
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close package namespace
-
 namespace bdlqq {
-           // ======================================================
+
+template <class TIMED_SEMAPHORE_POLICY>
+class TimedSemaphoreImpl;
+
+           // ================================================
            // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
-           // ======================================================
+           // ================================================
 
 template <>
-class TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore> {
+class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
     // This class implements a timed semaphore in terms of POSIX operations.
     // Note that only certain platforms provide 'sem_timedwait'; on those that
     // do not, 'TimedSemaphoreImpl<PthreadTimedSemaphore>' is used.
@@ -120,7 +112,7 @@ class TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore> {
 
     explicit
     TimedSemaphoreImpl(int                         count,
-                             bsls::SystemClockType::Enum clockType
+                       bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
@@ -159,63 +151,72 @@ class TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore> {
         // it.
 };
 
+}  // close package namespace
+
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-           // ------------------------------------------------------
-           // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
-           // ------------------------------------------------------
+            // ------------------------------------------------
+            // class TimedSemaphoreImpl<PosixAdvTimedSemaphore>
+            // ------------------------------------------------
 
 // CREATORS
 inline
-TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
-                TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
+bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+    TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
     ::sem_init(&d_sem, 0, 0);
 }
 
 inline
-TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
-     TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
+bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+    TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
     ::sem_init(&d_sem, 0, count);
 }
 
 inline
-TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
-                                                    ~TimedSemaphoreImpl()
+bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+    ~TimedSemaphoreImpl()
 {
     ::sem_destroy(&d_sem);
 }
 
 // MANIPULATORS
 inline
-void TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::post()
+void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::post()
 {
     ::sem_post(&d_sem);
 }
 
 inline
-int TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::tryWait()
+int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PosixAdvTimedSemaphore>::
+    tryWait()
 {
     return ::sem_trywait(&d_sem);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

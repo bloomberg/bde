@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 // maximum representable 'unsigned int' value:
 //..
 //  bsls::TimeInterval aboveMaxInterval = maximumTimeInterval +
-//                                           bsls::TimeInterval(0, 1000 * 1000);
+//                                          bsls::TimeInterval(0, 1000 * 1000);
 //  bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
 //                                     &destinationInterval, aboveMaxInterval);
 //  assert(maxDestinationInterval == destinationInterval);
@@ -140,11 +140,11 @@ BSLS_IDENT("$Id: $")
 
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                 // ==========================================
-                 // class SaturatedTimeConversionImpUtil
-                 // ==========================================
+
+                    // ====================================
+                    // class SaturatedTimeConversionImpUtil
+                    // ====================================
 
 struct SaturatedTimeConversionImpUtil {
     // This 'struct' provides a namespace for utility functions that convert
@@ -174,9 +174,10 @@ struct SaturatedTimeConversionImpUtil {
 
     // CLASS METHODS
 #if BSLS_PLATFORM_OS_DARWIN
-    static void toTimeSpec(mach_timespec_t *dst, const bsls::TimeInterval& src);
+    static void toTimeSpec(mach_timespec_t           *dst,
+                           const bsls::TimeInterval&  src);
 #endif
-    static void toTimeSpec(TimeSpec        *dst, const bsls::TimeInterval& src);
+    static void toTimeSpec(TimeSpec *dst, const bsls::TimeInterval& src);
         // Assign to the specified 'dst' the value of the specified 'src', and
         // if 'src' is less than the lowest representable value of '*dst', set
         // '*dst' to the minimum value it can represent, and if 'src' is
@@ -190,11 +191,11 @@ struct SaturatedTimeConversionImpUtil {
         // the highest representable 'time_t' value, set 'dst' to the maximum
         // 'time_t' value.
 
-    static void toMillisec(unsigned int             *dst,
+    static void toMillisec(unsigned int              *dst,
                            const bsls::TimeInterval&  src);
-    static void toMillisec(unsigned long            *dst,
+    static void toMillisec(unsigned long             *dst,
                            const bsls::TimeInterval&  src);
-    static void toMillisec(bsls::Types::Uint64      *dst,
+    static void toMillisec(bsls::Types::Uint64       *dst,
                            const bsls::TimeInterval&  src);
         // Assign to the specified 'dst' the value of the specified 'src'
         // converted to milliseconds, and if that value is a negative time
@@ -202,22 +203,24 @@ struct SaturatedTimeConversionImpUtil {
         // the maximum representable value of 'dst' set 'dst' to its maximum
         // representable value.
 };
+
 }  // close package namespace
-
-//=============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-//=============================================================================
-
-
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
