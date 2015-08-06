@@ -455,9 +455,12 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<volatile EnumTestType[4][2]>::value);
         ASSERT(! bsl::is_enum<const volatile EnumTestType[4][2]>::value);
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if !defined(BSLS_PLATFORM_CMP_IBM)                                     \
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
         // The IBM xlC compiler does not handle arrays of unknown bounds as
-        // template type parameters.
+        // template type parameters.  MSVC has problems with references to
+        // arrays of unknown bound that fall out of the template metaprograms
+        // used to implement this trait.
         ASSERT(! bsl::is_enum<int[]>::value);
         ASSERT(! bsl::is_enum<const int[]>::value);
         ASSERT(! bsl::is_enum<volatile int[]>::value);

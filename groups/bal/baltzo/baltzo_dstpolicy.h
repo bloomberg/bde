@@ -20,20 +20,20 @@ BSLS_IDENT("$Id: $")
 // 'baltzo::DstPolicy::Enum', which enumerates the set of policies for
 // interpreting whether an associated local time is a daylight-saving time
 // value.  A 'baltzo::DstPolicy' is particularly important when interpreting a
-// local time that is not associated with a UTC offset (e.g., a 'bdlt::Datetime'
-// object), as such a representation may be ambiguous or invalid (see
-// 'baltzo_localtimevalidity').
+// local time that is not associated with a UTC offset (e.g., a
+// 'bdlt::Datetime' object), as such a representation may be ambiguous or
+// invalid (see 'baltzo_localtimevalidity').
 //
 ///Enumerators
 ///-----------
 //..
 //  Name                 Description
 //  ------------------   ---------------------------------------------------
-//  BAETZO_DST           Local time is interpreted as daylight-saving time.
+//  BALTZO_DST           Local time is interpreted as daylight-saving time.
 //
-//  BAETZO_STANDARD      Local time is interpreted as standard time.
+//  BALTZO_STANDARD      Local time is interpreted as standard time.
 //
-//  BAETZO_UNSPECIFIED   Local time is interpreted as either daylight-saving
+//  BALTZO_UNSPECIFIED   Local time is interpreted as either daylight-saving
 //                       time or standard time (as appropriate).
 //..
 //
@@ -47,9 +47,10 @@ BSLS_IDENT("$Id: $")
 // 'baltzo::DstPolicy'.
 //
 // First, we create a variable 'value' of type 'baltzo::DstPolicy::Enum' and
-// initialize it with the enumerator value 'baltzo::DstPolicy::BAETZO_STANDARD':
+// initialize it with the enumerator value
+// 'baltzo::DstPolicy::BALTZO_STANDARD':
 //..
-//  baltzo::DstPolicy::Enum value = baltzo::DstPolicy::BAETZO_STANDARD;
+//  baltzo::DstPolicy::Enum value = baltzo::DstPolicy::BALTZO_STANDARD;
 //..
 // Now, we store the address of its ASCII representation in a pointer variable,
 // 'asciiValue', of type 'const char *':
@@ -75,11 +76,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baltzo {
-                         // =======================
-                         // struct DstPolicy
-                         // =======================
+                            // ================
+                            // struct DstPolicy
+                            // ================
 
 struct DstPolicy {
     // This 'struct' provides a namespace for enumerating the set of policies
@@ -95,23 +95,29 @@ struct DstPolicy {
   public:
     // TYPES
     enum Enum {
-        BAETZO_DST,         // Local time is interpreted as daylight-saving
+        BALTZO_DST,         // Local time is interpreted as daylight-saving
                             // time.
 
-        BAETZO_STANDARD,    // Local time is interpreted as standard time.
+        BALTZO_STANDARD,    // Local time is interpreted as standard time.
 
-        BAETZO_UNSPECIFIED  // Local time is interpreted as either
+        BALTZO_UNSPECIFIED  // Local time is interpreted as either
                             // daylight-saving time or standard time (as
                             // appropriate).
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+      , BAETZO_DST         = BALTZO_DST
+      , BAETZO_STANDARD    = BALTZO_STANDARD
+      , BAETZO_UNSPECIFIED = BALTZO_UNSPECIFIED
+#endif  // BDE_OPENSOURCE_PUBLICATION
+
     };
 
   public:
     // CLASS METHODS
-    static bsl::ostream& print(
-                            bsl::ostream&          stream,
-                            DstPolicy::Enum value,
-                            int                    level          = 0,
-                            int                    spacesPerLevel = 4);
+    static bsl::ostream& print(bsl::ostream&   stream,
+                               DstPolicy::Enum value,
+                               int             level          = 0,
+                               int             spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose
@@ -129,11 +135,10 @@ struct DstPolicy {
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BAETZO_" prefix elided.  For
+        // corresponding enumerator name with the "BALTZO_" prefix elided.  For
         // example:
         //..
-        //  bsl::cout << DstPolicy::toAscii(
-        //                                  DstPolicy::BAETZO_STANDARD);
+        //  bsl::cout << DstPolicy::toAscii(DstPolicy::BALTZO_STANDARD);
         //..
         // will print the following on standard output:
         //..
@@ -147,7 +152,6 @@ struct DstPolicy {
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, DstPolicy::Enum value);
-}  // close package namespace
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
@@ -157,13 +161,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, DstPolicy::Enum value);
     //  baltzo::DstPolicy::print(stream, value, 0, -1);
     //..
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                        // -----------------------
-                        // struct baltzo::DstPolicy
-                        // -----------------------
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                            // ----------------
+                            // struct DstPolicy
+                            // ----------------
 
 // FREE OPERATORS
 inline
@@ -172,15 +178,22 @@ bsl::ostream& baltzo::operator<<(bsl::ostream& stream, DstPolicy::Enum value)
     return DstPolicy::print(stream, value, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

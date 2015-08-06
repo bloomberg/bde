@@ -8,8 +8,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 #include <string>   // breathing test, should be replaceable
 
@@ -43,25 +43,34 @@ using namespace BloombergLP;
 // [6] Usage Example
 //=============================================================================
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -70,13 +79,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -92,10 +100,6 @@ static void aSsErT(bool b, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
-static int verbose;
-static int veryVerbose;
-static int veryVeryVerbose;
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -113,7 +117,7 @@ class my_Pool {
 
   public:
     // CREATORS
-    my_Pool(int *counter) : d_counter_p(counter) {}
+    explicit my_Pool(int *counter) : d_counter_p(counter) {}
         // Create this object holding the specified (global) counter.
 
     // MANIPULATORS
@@ -130,7 +134,7 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int *counter) : d_counter_p(counter) {}
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
         // Create this object using the address of the specified 'counter' to
         // be held.
 
@@ -149,7 +153,7 @@ class myParent {
 class myChild : public myParent {
     my_Class c;
   public:
-    myChild(int *counter = 0) : c(counter) {}
+    explicit myChild(int *counter = 0) : c(counter) {}
     ~myChild() {}
 };
 
@@ -178,7 +182,7 @@ class myRightBase : virtual public myVirtualBase {
 class myMostDerived : public myLeftBase, public myRightBase {
     my_Class c;
   public:
-    myMostDerived(int *counter = 0) : c(counter) {}
+    explicit myMostDerived(int *counter = 0) : c(counter) {}
     ~myMostDerived() {}
 };
 
@@ -321,10 +325,14 @@ void my_List<TYPE>::append(const TYPE& object)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;           // suppress unused variable warning
+    (void)veryVeryVerbose;       // suppress unused variable warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -352,7 +360,7 @@ int main(int argc, char *argv[])
 #if !defined(BDE_BUILD_TARGET_EXC)
         if (verbose) printf("Test not run without exception support.\n");
 #else
-        bslma::TestAllocator z(veryVeryVerbose);
+        bslma::TestAllocator z(veryVeryVeryVerbose);
         const bslma::TestAllocator &Z = z;
         int counter = 0;
 
@@ -425,7 +433,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'reset' TEST"
                             "\n============\n");
 
-        bslma::TestAllocator z(veryVeryVerbose);
+        bslma::TestAllocator z(veryVeryVeryVerbose);
         const bslma::TestAllocator& Z = z;
 
         int counter1 = 0;
@@ -486,7 +494,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'release' TEST"
                             "\n==============\n");
 
-        bslma::TestAllocator z(veryVeryVerbose);
+        bslma::TestAllocator z(veryVeryVeryVerbose);
         const bslma::TestAllocator& Z = z;
 
         int counter = 0;
@@ -556,7 +564,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCTOR / DTOR TEST"
                             "\n================\n");
 
-        bslma::TestAllocator z(veryVeryVerbose);
+        bslma::TestAllocator z(veryVeryVeryVerbose);
         const bslma::TestAllocator& Z = z;
         int counter = 0;
 
@@ -777,7 +785,7 @@ int main(int argc, char *argv[])
 
         using std::string;
 
-        bslma::TestAllocator allocator(veryVeryVerbose);
+        bslma::TestAllocator allocator(veryVeryVeryVerbose);
         const bslma::TestAllocator& Z = allocator;
 
         if (verbose) printf("\tTesting with 'string' object\n");

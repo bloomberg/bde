@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a test implementation of the 'baltzo::Loader' protocol.
 //
 //@CLASSES:
-//  baltzo::TestLoader: concrete implementation of the 'baltzo::Loader' protocol
+//  baltzo::TestLoader: concrete implementation of 'baltzo::Loader' protocol
 //
 //@SEE_ALSO: baltzo_loader, baltzo_zoneinfo
 //
@@ -21,15 +21,15 @@ BSLS_IDENT("$Id: $")
 // following inheritance hierarchy diagram shows the classes involved and
 // their methods:
 //..
-//   ,-----------------.
+//   ,------------------.
 //  ( baltzo::TestLoader )
-//   `-----------------'
+//   `------------------'
 //            |      ctor
 //            |      setTimeZone
 //            V
-//    ,-------------.
+//    ,--------------.
 //   ( baltzo::Loader )
-//    `-------------'
+//    `--------------'
 //                 dtor
 //                 loadTimeZone
 //..
@@ -81,10 +81,10 @@ BSLS_IDENT("$Id: $")
 //      bdlt::Datetime estTransition(bdlt::Date(year, 11, estDay), estTime);
 //
 //      bsls::Types::Int64 edtTransitionT =
-//                     bdlt::EpochUtil::convertToTimeT64(edtTransition);
+//                            bdlt::EpochUtil::convertToTimeT64(edtTransition);
 //
 //      bsls::Types::Int64 estTransitionT =
-//                     bdlt::EpochUtil::convertToTimeT64(estTransition);
+//                            bdlt::EpochUtil::convertToTimeT64(estTransition);
 //..
 // Now, having created values representing the daylight saving time
 // transitions (in UTC), we insert the transitions into the 'baltzo::Zoneinfo'
@@ -155,11 +155,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baltzo {
-                        // =======================
-                        // class TestLoader
-                        // =======================
+                            // ================
+                            // class TestLoader
+                            // ================
 
 class TestLoader : public Loader {
     // This class provides a concrete test implementation of the
@@ -176,8 +175,8 @@ class TestLoader : public Loader {
         // information about that time zone.
 
     // DATA
-    TimeZoneMap      d_timeZones;    // set of time zones maintained by this
-                                     // test loader
+    TimeZoneMap d_timeZones;  // set of time zones maintained by this test
+                              // loader
 
   private:
     // NOT IMPLEMENTED
@@ -190,7 +189,7 @@ class TestLoader : public Loader {
         // Create a 'TestLoader' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  By default the
-        // test loader will return 'ErrorCode::BAETZO_UNSUPPORTED_ID'
+        // test loader will return 'ErrorCode::BALTZO_UNSUPPORTED_ID'
         // for all time-zone identifiers.
 
     virtual ~TestLoader();
@@ -217,7 +216,7 @@ class TestLoader : public Loader {
         // Load into the specified 'result' the time-zone information for the
         // time-zone identified by the specified 'timeZoneId'.  Return 0 on
         // success, and a non-zero value otherwise.  A return status of
-        // 'ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // 'ErrorCode::BALTZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.  If an error occurs during the
         // operation, 'result' will be left in a valid but unspecified state.
 
@@ -245,8 +244,7 @@ class TestLoader : public Loader {
 };
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&            stream,
-                         const TestLoader& loader);
+bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
     // Write the set of time zones maintained by the specified 'loader' to the
     // specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  If 'stream' is not valid on entry, this
@@ -257,39 +255,47 @@ bsl::ostream& operator<<(bsl::ostream&            stream,
     //  print(stream, 0, -1);
     //..
 
+}  // close package namespace
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -----------------------
-                        // class TestLoader
-                        // -----------------------
+                            // ----------------
+                            // class TestLoader
+                            // ----------------
 
 // CREATORS
 inline
-TestLoader::TestLoader(bslma::Allocator *basicAllocator)
+baltzo::TestLoader::TestLoader(bslma::Allocator *basicAllocator)
 : d_timeZones(basicAllocator)
 {
 }
-}  // close package namespace
 
 // FREE FUNCTIONS
 inline
-bsl::ostream& baltzo::operator<<(bsl::ostream&            stream,
-                         const TestLoader& loader)
+bsl::ostream& baltzo::operator<<(bsl::ostream&     stream,
+                                 const TestLoader& loader)
 {
     return loader.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

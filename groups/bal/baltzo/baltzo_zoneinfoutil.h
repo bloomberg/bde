@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utility operations on 'baltzo::Zoneinfo' objects.
 //
 //@CLASSES:
-//  baltzo::ZoneinfoUtil: a utility for operations on a 'baltzo::Zoneinfo' object
+//  baltzo::ZoneinfoUtil: utility for operations on a 'baltzo::Zoneinfo' object
 //
 //@SEE_ALSO: baltzo_zoneinfo, baltzo_localtimevalidity
 //
@@ -21,17 +21,17 @@ BSLS_IDENT("$Id: $")
 // semantic-type providing information about a time zone, mirroring the
 // information found in the Zoneinfo Database, a public-domain distribution of
 // time zone data (see 'baltzo_zoneinfo' for more information).  The primary
-// functions provided by 'baltzo::ZoneinfoUtil' are 'convertUtcToLocalTime'
-// and 'loadRelevantTransitions': 'convertUtcToLocalTime' converts a UTC time
-// into its corresponding local time in the time zone described by the supplied
+// functions provided by 'baltzo::ZoneinfoUtil' are 'convertUtcToLocalTime' and
+// 'loadRelevantTransitions': 'convertUtcToLocalTime' converts a UTC time into
+// its corresponding local time in the time zone described by the supplied
 // 'baltzo::Zoneinfo' object; 'loadRelevantTransitions' returns the transition,
 // from the supplied 'baltzo::Zoneinfo' object's list of transitions that
 // describes the attributes of local time in effect at supplied local time;
 // returning two possible transitions in instances where the supplied local
 // time is either invalid or ambiguous (see 'baltzo_localtimevalidity').  Note
 // that the time supplied as input to 'convertUtcToLocalTime' is a *UTC* time,
-// whereas the time supplied as input to 'loadRelevantTransitions' is a
-// *local* time.
+// whereas the time supplied as input to 'loadRelevantTransitions' is a *local*
+// time.
 //
 ///Determining Relevant Transitions with 'loadRelevantTransitions'
 ///---------------------------------------------------------------
@@ -74,8 +74,8 @@ BSLS_IDENT("$Id: $")
 // diagram.  A New York local time value in the range [T4, T5) is considered
 // ambiguous, as local times in that range occur twice.  For either invalid or
 // ambiguous times, 'loadRelevantTransitions' will return two distinct
-// iterators referring to the adjacent transitions holding the two
-// descriptions that might be applied to that local time.
+// iterators referring to the adjacent transitions holding the two descriptions
+// that might be applied to that local time.
 //
 // For example, consider the returned validity and transitions for the
 // following New York local times:
@@ -102,12 +102,12 @@ BSLS_IDENT("$Id: $")
 //:   'bdlt::Datetime' value, "Jan 01, 0001 00:00" -- i.e.,
 //:   'bdlt::Datetime(1, 1, 1)'.
 //:
-//: 3 There is no transition in the ordered sequence of transitions
-//:   described by the Zoneinfo where local clock time is adjusted (either
-//:   forwards or backwards) introducing a period of invalid or ambiguous
-//:   local times, where that range of invalid or ambiguous local times
-//:   overlaps with the range of invalid or ambiguous local times introduced by
-//:   subsequent transition.
+//: 3 There is no transition in the ordered sequence of transitions described
+//:   by the Zoneinfo where local clock time is adjusted (either forwards or
+//:   backwards) introducing a period of invalid or ambiguous local times,
+//:   where that range of invalid or ambiguous local times overlaps with the
+//:   range of invalid or ambiguous local times introduced by subsequent
+//:   transition.
 //
 // Note that 'baltzo::ZoneinfoUtil::isWellFormed' has linear complexity with
 // respect to the number of transitions that the Zoneinfo value defines.
@@ -119,13 +119,13 @@ BSLS_IDENT("$Id: $")
 // New York) illustrates a well-formed sequence of transitions.  Both
 // Transition 2 (to EDT) and Transition 3 (to EST) introduce a range of
 // ambiguous or invalid times (ambiguous when clocks are adjusted backwards,
-// invalid when clocks are adjusted forward), but those two ranges of
-// ambiguous and invalid local times do not overlap.
+// invalid when clocks are adjusted forward), but those two ranges of ambiguous
+// and invalid local times do not overlap.
 //
 // However, a Zoneinfo object is not well-formed if two transitions occur so
-// close together that the respective ranges of invalid or ambiguous times
-// that those transitions introduce, overlap with one and other, as illustrated
-// in Figure 2.
+// close together that the respective ranges of invalid or ambiguous times that
+// those transitions introduce, overlap with one and other, as illustrated in
+// Figure 2.
 //..
 //  Figure 2:  Overlapping Transitions
 //
@@ -161,8 +161,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Prologue: Initializing a 'baltzo::Zoneinfo' object.
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// We start by creating a Zoneinfo time zone description for New York, which
-// we will use in subsequent examples.  Note that, in practice, clients should
+// We start by creating a Zoneinfo time zone description for New York, which we
+// will use in subsequent examples.  Note that, in practice, clients should
 // obtain time zone information from a data source (see
 // 'baltzo_zoneinfocache').
 //
@@ -172,27 +172,25 @@ BSLS_IDENT("$Id: $")
 //  baltzo::Zoneinfo newYork;
 //  newYork.setIdentifier("America/New_York");
 //..
-// Next we create two local-time descriptors, one for standard time and one
-// for daylight-saving time:
+// Next we create two local-time descriptors, one for standard time and one for
+// daylight-saving time:
 //..
 //  baltzo::LocalTimeDescriptor est(-18000, false, "EST");
 //  baltzo::LocalTimeDescriptor edt(-14400, true,  "EDT");
 //..
-// Then we set the initial descriptor for 'newYork' to Eastern Standard
-// Time.  Note that such an initial transition is required for a
-// 'baltzo::Zoneinfo' object to be considered Well-Formed (see
-// 'isWellFormed'):
+// Then we set the initial descriptor for 'newYork' to Eastern Standard Time.
+// Note that such an initial transition is required for a 'baltzo::Zoneinfo'
+// object to be considered Well-Formed (see 'isWellFormed'):
 //..
 //  newYork.addTransition(bdlt::EpochUtil::convertToTimeT64(
-//                                                     bdlt::Datetime(1, 1, 1)),
+//                                                    bdlt::Datetime(1, 1, 1)),
 //                        est);
 //..
 // Next we create a series of transitions between these local-time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
-// daylight saving time on the second Sunday in March, at 2am local time
-// (07:00 UTC), and transitions back to standard time on the first Sunday in
-// November at 2am local time (06:00 UTC), resulting in an even number of
-// transitions:
+// daylight saving time on the second Sunday in March, at 2am local time (07:00
+// UTC), and transitions back to standard time on the first Sunday in November
+// at 2am local time (06:00 UTC), resulting in an even number of transitions:
 //..
 //  static const bdlt::Datetime TRANSITION_TIMES[] = {
 //      bdlt::Datetime(2007,  3, 11, 7),
@@ -212,15 +210,15 @@ BSLS_IDENT("$Id: $")
 //
 //  for (int i = 0; i < NUM_TRANSITION_TIMES; i += 2) {
 //      newYork.addTransition(bdlt::EpochUtil::convertToTimeT64(
-//                                                    TRANSITION_TIMES[i]),
+//                                                        TRANSITION_TIMES[i]),
 //                            edt);
 //      newYork.addTransition(bdlt::EpochUtil::convertToTimeT64(
-//                                                   TRANSITION_TIMES[i + 1]),
+//                                                    TRANSITION_TIMES[i + 1]),
 //                            est);
 //  }
 //..
-// Finally we verify that the time zone information we've created is
-// considered well-formed (as discussed above):
+// Finally we verify that the time zone information we've created is considered
+// well-formed (as discussed above):
 //..
 //  assert(true == baltzo::ZoneinfoUtil::isWellFormed(newYork));
 //..
@@ -230,8 +228,8 @@ BSLS_IDENT("$Id: $")
 // In this example we demonstrate how to convert a UTC time to the
 // corresponding local time using the 'convertUtcToLocalTime' class method.
 //
-// We start by creating a 'bdlt::Datetime' representing the UTC time
-// "Dec 12, 2010 15:00":
+// We start by creating a 'bdlt::Datetime' representing the UTC time "Dec 12,
+// 2010 15:00":
 //..
 //  bdlt::Datetime utcTime(2010, 12, 12, 15, 0, 0);
 //..
@@ -242,16 +240,16 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DatetimeTz                          localNYTime;
 //  baltzo::Zoneinfo::TransitionConstIterator iterator;
 //  baltzo::ZoneinfoUtil::convertUtcToLocalTime(&localNYTime,
-//                                             &iterator,
-//                                             utcTime,
-//                                             newYork);
+//                                              &iterator,
+//                                              utcTime,
+//                                              newYork);
 //..
 // Then we verify that 'localNYTime' is "Dec 12, 2010 10:00+5:00", the time in
 // New York corresponding to the UTC time "Dec 12, 2010 15:00".
 //..
-//  assert(utcTime                         == localNYTime.utcDatetime());
+//  assert(utcTime                          == localNYTime.utcDatetime());
 //  assert(bdlt::Datetime(2010, 12, 12, 10) == localNYTime.localDatetime());
-//  assert(-5 * 60                         == localNYTime.offset());
+//  assert(-5 * 60                          == localNYTime.offset());
 //..
 // Finally, we verify that the returned 'iterator' refers to the local-time
 // transition immediately before 'utcTime', and that that transition refers to
@@ -261,7 +259,7 @@ BSLS_IDENT("$Id: $")
 //  baltzo::Zoneinfo::TransitionConstIterator nextTransitionIter = ++iterator;
 //
 //  const bdlt::EpochUtil::TimeT64 utcTimeT =
-//                                      bdlt::EpochUtil::converToTimeT64(utcTime);
+//                                   bdlt::EpochUtil::converToTimeT64(utcTime);
 //  assert(utcTimeT >= transitionIter->transition());
 //  assert(utcTimeT <  nextTransitionIter->transition());
 //
@@ -286,34 +284,33 @@ BSLS_IDENT("$Id: $")
 // initialized in the prologue above):
 //..
 //  baltzo::LocalTimeValidity::Enum           validity;
-//  baltzo::Zoneinfo::TransitionConstIterator firstTransition, secondTransition;
+//  baltzo::Zoneinfo::TransitionConstIterator firstTransition;
+//  baltzo::Zoneinfo::TransitionConstIterator secondTransition;
 //  baltzo::ZoneinfoUtil::loadRelevantTransitions(&firstTransition,
-//                                               &secondTransition,
-//                                               &validity,
-//                                               nyLocalTime,
-//                                               newYork);
+//                                                &secondTransition,
+//                                                &validity,
+//                                                nyLocalTime,
+//                                                newYork);
 //..
 // "Jan 1, 2011 12:00" in New York, is not near a daylight-saving time
 // transition, so it uniquely describes a valid time (in New York) which falls
-// during Eastern Standard Time, and whose local time offset from UTC is
-// -5:00.  Because "Jan 1, 2011 12:00" is both a valid and unique local time,
-// the returned validity will be
-// 'baltzo::LocalTimeValidity::BAETZO_VALID_UNIQUE' and the two returned
-// transition iterators will be equal:
+// during Eastern Standard Time, and whose local time offset from UTC is -5:00.
+// Because "Jan 1, 2011 12:00" is both a valid and unique local time, the
+// returned validity will be 'baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE'
+// and the two returned transition iterators will be equal:
 //..
-//  assert(baltzo::LocalTimeValidity::BAETZO_VALID_UNIQUE == validity);
+//  assert(baltzo::LocalTimeValidity::BALTZO_VALID_UNIQUE == validity);
 //  assert(firstTransition == secondTransition);
 //
 //  assert(false    == firstTransition->descriptor().dstInEffectFlag());
 //  assert(-5*60*60 == firstTransition->descriptor().utcOffsetInSeconds());
 //  assert("EST"    == firstTransition->descriptor().description());
 //..
-// Next, we create a second 'bdlt::Datetime' object to represent
-// "Nov 7, 2010 1:30" in New York.  Note that the clock time
-// "Nov 7, 2010 1:30" occurred twice in New York, as clocks were set back by an
-// hour an instant before the local clock would have reached
-// "Nov 7, 2010 02:00 EDT", and it is therefore ambiguous which of those two
-// values that local time is meant to refer.
+// Next, we create a second 'bdlt::Datetime' object to represent "Nov 7, 2010
+// 1:30" in New York.  Note that the clock time "Nov 7, 2010 1:30" occurred
+// twice in New York, as clocks were set back by an hour an instant before the
+// local clock would have reached "Nov 7, 2010 02:00 EDT", and it is therefore
+// ambiguous which of those two values that local time is meant to refer.
 //..
 //  bdlt::Datetime ambiguousLocalTime(2010, 11, 7, 1, 30);
 //..
@@ -321,20 +318,20 @@ BSLS_IDENT("$Id: $")
 // 'ambiguousLocalTime':
 //..
 //  baltzo::ZoneinfoUtil::loadRelevantTransitions(&firstTransition,
-//                                               &secondTransition,
-//                                               &validity,
-//                                               ambiguousLocalTime,
-//                                               newYork);
+//                                                &secondTransition,
+//                                                &validity,
+//                                                ambiguousLocalTime,
+//                                                newYork);
 //..
 // Finally we observe that the local time was ambiguous and that the returned
 // transitions are distinct:
 //..
-//  assert(baltzo::LocalTimeValidity::BAETZO_VALID_AMBIGUOUS == validity);
+//  assert(baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS == validity);
 //  assert(firstTransition != secondTransition);
 //..
 // Because 'ambiguousLocalTime' may refer to either the standard or the
 // daylight-saving time value "Nov 7, 2010 01:30", the returned validity will
-// be 'BAETZO_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will
+// be 'BALTZO_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will
 // differ.  'first' will refer to a description of the local time before the
 // transition (daylight-saving time) and 'second' will refer to a description
 // of local time after the transition (standard-time):
@@ -365,31 +362,23 @@ BSLS_IDENT("$Id: $")
 #include <baltzo_zoneinfo.h>
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIME
+#include <bdlt_datetime.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include <bdlt_datetimetz.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
-
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bdlt { class Datetime; }                              // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::Datetime Datetime;            // bdet -> bdlt
-}  // close package namespace
-
-namespace bdlt { class DatetimeTz; }                            // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz;        // bdet -> bdlt
-}  // close package namespace
-
 namespace baltzo {
-                        // =========================
-                        // class ZoneinfoUtil
-                        // =========================
+                            // ==================
+                            // class ZoneinfoUtil
+                            // ==================
 
 struct ZoneinfoUtil {
     // This 'struct' provides a namespace for utility operations using a
@@ -397,10 +386,10 @@ struct ZoneinfoUtil {
 
     // CLASS METHODS
     static void convertUtcToLocalTime(
-                    bdlt::DatetimeTz                          *resultTime,
-                    Zoneinfo::TransitionConstIterator *resultTransition,
-                    const bdlt::Datetime&                      utcTime,
-                    const Zoneinfo&                    timeZone);
+                           bdlt::DatetimeTz                  *resultTime,
+                           Zoneinfo::TransitionConstIterator *resultTransition,
+                           const bdlt::Datetime&              utcTime,
+                           const Zoneinfo&                    timeZone);
         // Load, into the specified 'resultTime', the local date-time value, in
         // the specified 'timeZone', corresponding to the specified 'utcTime',
         // and load, into the specified 'resultTransition', an iterator
@@ -409,11 +398,11 @@ struct ZoneinfoUtil {
         // unless 'isWellFormed(timeZone)' returns 'true'.
 
     static void loadRelevantTransitions(
-             Zoneinfo::TransitionConstIterator  *firstResultTransition,
-             Zoneinfo::TransitionConstIterator  *secondResultTransition,
-             LocalTimeValidity::Enum            *resultValidity,
-             const bdlt::Datetime&                       localTime,
-             const Zoneinfo&                     timeZone);
+                     Zoneinfo::TransitionConstIterator *firstResultTransition,
+                     Zoneinfo::TransitionConstIterator *secondResultTransition,
+                     LocalTimeValidity::Enum           *resultValidity,
+                     const bdlt::Datetime&              localTime,
+                     const Zoneinfo&                    timeZone);
         // Load, into the specified 'firstResultTransition', an iterator
         // referring to the transition describing the characteristics of local
         // time in effect at the specified 'localTime' in the specified
@@ -424,7 +413,7 @@ struct ZoneinfoUtil {
         // that could also apply to 'localTime'; finally load, into the
         // specified 'resultValidity', the validity of 'localTime' as being
         // unique, ambiguous but valid, or invalid.  If 'resultValidity' is
-        // 'BAETZO_VALID_UNIQUE', then 'firstResultTransition' and
+        // 'BALTZO_VALID_UNIQUE', then 'firstResultTransition' and
         // 'secondResultTransition' will be loaded with the same transition,
         // otherwise the returned transitions will be distinct with
         // 'secondResultTransition' referring to the transition immediately
@@ -433,10 +422,10 @@ struct ZoneinfoUtil {
         // 'firstResultTransition != secondResultTransition'.
 
     static bool isWellFormed(const Zoneinfo& timeZone);
-        // Return 'true' if the specified 'timeZone' is a well-formed
-        // Zoneinfo object (which can be used by other methods on this
-        // utility), and 'false' otherwise.  For a Zoneinfo to be considered
-        // well-formed *all* of the following must be true:
+        // Return 'true' if the specified 'timeZone' is a well-formed Zoneinfo
+        // object (which can be used by other methods on this utility), and
+        // 'false' otherwise.  For a Zoneinfo to be considered well-formed
+        // *all* of the following must be true:
         //
         //: 1 'timeZone.numTransitions() > 0'
         //:
@@ -446,26 +435,33 @@ struct ZoneinfoUtil {
         //:
         //: 3 There is no transition in the ordered sequence of transitions
         //:   described by 'timeZone' where the local clock time is adjusted
-        //:   (either forwards or backwards) introducing a period of invalid
-        //:   or ambiguous local times, where that range of invalid or
-        //:   ambiguous local times overlaps with a range of invalid or
-        //:   or ambiguous local times introduced by the subsequent transition
-        //:   (see component documentation for an illustration).
+        //:   (either forwards or backwards) introducing a period of invalid or
+        //:   ambiguous local times, where that range of invalid or ambiguous
+        //:   local times overlaps with a range of invalid or or ambiguous
+        //:   local times introduced by the subsequent transition (see
+        //:   component documentation for an illustration).
         //
         // Note that this method has linear worst-case time complexity with
         // respect to 'timeZone.numTransitions()'.
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

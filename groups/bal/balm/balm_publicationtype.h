@@ -5,13 +5,13 @@
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
-BSLS_IDENT_RCSID(baem_publicationtype_h,"$Id$ $CSID$ $CCId$")
+BSLS_IDENT_RCSID(balm_publicationtype_h,"$Id$ $CSID$ $CCId$")
 BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide an enumeration of aggregate types used to publish metrics.
 //
 //@CLASSES:
-//   balm::PublicationType: a namespace for an enumeration of publication types.
+//   balm::PublicationType: a namespace to enumerate publication types.
 //
 //@SEE_ALSO: balm_publisher
 //
@@ -29,14 +29,6 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bdlat_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -47,6 +39,10 @@ BSLS_IDENT_PRAGMA_ONCE
 
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -64,39 +60,57 @@ struct PublicationType {
   public:
     // TYPES
     enum Value {
-        BAEM_UNSPECIFIED = 0
+        e_BALM_UNSPECIFIED = 0
             // There is no defined publication type for the metric.
-      , BAEM_TOTAL       = 1
+      , e_BALM_TOTAL       = 1
             // The total of the measured metric values over the published
             // interval.
-      , BAEM_COUNT       = 2
+      , e_BALM_COUNT       = 2
             // The count of updates over the published interval.
-      , BAEM_MIN         = 3
+      , e_BALM_MIN         = 3
             // The minimum measured metric value over the published interval.
-      , BAEM_MAX         = 4
+      , e_BALM_MAX         = 4
             // The maximum measured metric value over the published interval.
-      , BAEM_AVG         = 5
+      , e_BALM_AVG         = 5
             // The average measured metric value over published interval (i.e.,
             // total / count).
-      , BAEM_RATE        = 6
+      , e_BALM_RATE        = 6
             // The total measured metric value per second over the published
             // interval (i.e., total / sample interval).
-      , BAEM_RATE_COUNT  = 7
+      , e_BALM_RATE_COUNT  = 7
             // The count of measured events per second over the published
             // interval (i.e., count / sample interval).
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEM_UNSPECIFIED = e_BALM_UNSPECIFIED
+            // There is no defined publication type for the metric.
+      , BAEM_TOTAL       = e_BALM_TOTAL
+            // The total of the measured metric values over the published
+            // interval.
+      , BAEM_COUNT       = e_BALM_COUNT
+            // The count of updates over the published interval.
+      , BAEM_MIN         = e_BALM_MIN
+            // The minimum measured metric value over the published interval.
+      , BAEM_MAX         = e_BALM_MAX
+            // The maximum measured metric value over the published interval.
+      , BAEM_AVG         = e_BALM_AVG
+            // The average measured metric value over published interval (i.e.,
+            // total / count).
+      , BAEM_RATE        = e_BALM_RATE
+            // The total measured metric value per second over the published
+            // interval (i.e., total / sample interval).
+      , BAEM_RATE_COUNT  = e_BALM_RATE_COUNT
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        BAEM_LENGTH = 8
+        e_BALM_LENGTH = 8
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , BAEM_LENGTH = e_BALM_LENGTH
+#endif
     };
 
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const char *toString(Value value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
@@ -122,37 +136,10 @@ struct PublicationType {
         // no effect on 'result' otherwise (i.e., 'number' does not match any
         // enumerator).
 
-    template <class STREAM>
-    static STREAM& bdexStreamIn(STREAM&  stream,
-                                Value&   value,
-                                int      version);
-        // Assign to the specified 'value' the value read from the specified
-        // input 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
-
     static bsl::ostream& print(bsl::ostream& stream, Value value);
         // Write to the specified 'stream' the string representation of
         // the specified enumeration 'value'.  Return a reference to
         // the modifiable 'stream'.
-
-    template <class STREAM>
-    static STREAM& bdexStreamOut(STREAM&  stream,
-                                 Value    value,
-                                 int      version);
-        // Write the specified 'value' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.  Optionally specify
-        // an explicit 'version' format; by default, the maximum supported
-        // version is written to 'stream' and used as the format.  If 'version'
-        // is specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
 };
 
 // FREE OPERATORS
@@ -179,12 +166,6 @@ namespace balm {
 
 // CLASS METHODS
 inline
-int PublicationType::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1
-}
-
-inline
 int PublicationType::fromString(Value *result, const bsl::string& string)
 {
     return fromString(result,
@@ -199,42 +180,6 @@ bsl::ostream& PublicationType::print(bsl::ostream&               stream,
     return stream << toString(value);
 }
 
-template <class STREAM>
-STREAM& PublicationType::bdexStreamIn(
-                                      STREAM&                      stream,
-                                      PublicationType::Value& value,
-                                      int                          version)
-{
-    switch(version) {
-      case 1: {
-        int readValue;
-        stream.getInt32(readValue);
-        if (stream) {
-            if (fromInt(&value, readValue)) {
-               stream.invalidate();   // bad value in stream
-            }
-        }
-      } break;
-      default: {
-        stream.invalidate();          // unrecognized version number
-      } break;
-    }
-    return stream;
-}
-
-template <class STREAM>
-STREAM& PublicationType::bdexStreamOut(
-                                           STREAM&                     stream,
-                                           PublicationType::Value value,
-                                           int                         version)
-{
-    switch (version) {
-      case 1: {
-        stream.putInt32(value);  // Write the value as an int
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE FUNCTIONS

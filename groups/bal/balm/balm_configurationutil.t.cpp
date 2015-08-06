@@ -123,7 +123,7 @@ typedef balm::ConfigurationUtil              Obj;
 typedef balm::MetricFormatSpec               Spec;
 typedef balm::MetricsManager                 MMgr;
 typedef balm::PublicationType                Type;
-typedef baem_MetricRegistry                 Registry;
+typedef balm::MetricRegistry                 Registry;
 typedef balm::MetricDescription::UserDataKey Key;
 //=============================================================================
 //                              USAGE EXAMPLE
@@ -229,27 +229,27 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     const Type::Value ALL_TYPES[] = {
-        Type::BAEM_UNSPECIFIED,
-        Type::BAEM_TOTAL,
-        Type::BAEM_COUNT,
-        Type::BAEM_MIN,
-        Type::BAEM_MAX,
-        Type::BAEM_AVG,
-        Type::BAEM_RATE,
-        Type::BAEM_RATE_COUNT
+        Type::e_BALM_UNSPECIFIED,
+        Type::e_BALM_TOTAL,
+        Type::e_BALM_COUNT,
+        Type::e_BALM_MIN,
+        Type::e_BALM_MAX,
+        Type::e_BALM_AVG,
+        Type::e_BALM_RATE,
+        Type::e_BALM_RATE_COUNT
     };
     const int NUM_TYPES = sizeof ALL_TYPES / sizeof *ALL_TYPES;
 
     bslma::TestAllocator cAlloc;
     balm::MetricFormat formatA(&cAlloc);
     balm::MetricFormat formatB(&cAlloc);
-    formatB.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
+    formatB.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
     balm::MetricFormat formatC(&cAlloc);
-    formatC.setFormatSpec(Type::BAEM_TOTAL, Spec(1.0, "%f"));
-    formatC.setFormatSpec(Type::BAEM_AVG, Spec(1.0, "%d"));
+    formatC.setFormatSpec(Type::e_BALM_TOTAL, Spec(1.0, "%f"));
+    formatC.setFormatSpec(Type::e_BALM_AVG, Spec(1.0, "%d"));
     balm::MetricFormat formatD(&cAlloc);
-    formatD.setFormatSpec(Type::BAEM_MIN, Spec(2.0, "%f"));
-    formatD.setFormatSpec(Type::BAEM_MAX, Spec(2.0, "%d"));
+    formatD.setFormatSpec(Type::e_BALM_MIN, Spec(2.0, "%f"));
+    formatD.setFormatSpec(Type::e_BALM_MAX, Spec(2.0, "%d"));
 
     const balm::MetricFormat *FORMATS[] = {
         &formatA,
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
         balm::ConfigurationUtil::setPreferredPublicationType(
                                                "myCategory",
                                                "avgElapsedTimeMs",
-                                               balm::PublicationType::BAEM_AVG);
+                                               balm::PublicationType::e_BALM_AVG);
 //..
 // Next, because we will record the elapsed time in seconds, we configure a
 // format to scale the elapsed time by 1000.0.
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
        balm::ConfigurationUtil::setFormatSpec(
                                      "myCategory",
                                      "avgElapsedTimeMs",
-                                     balm::PublicationType::BAEM_AVG,
+                                     balm::PublicationType::e_BALM_AVG,
                                      balm::MetricFormatSpec(1000.0, "%.2f ms"));
 //..
 // We now collect some example an example value of .005:
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
             Key key4 = mgr.metricRegistry().createUserDataKey();
 
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A",   "A");
             registry.addId("AA",  "A");
             registry.addId("AAA", "A");
@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
             Key key3 = mgr.metricRegistry().createUserDataKey();
             Key key4 = mgr.metricRegistry().createUserDataKey();
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A",   "A");
             registry.addId("AA",  "A");
             registry.addId("AAA", "A");
@@ -669,7 +669,7 @@ int main(int argc, char *argv[])
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = mgr.metricRegistry().createUserDataKey();
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
             
             Obj::setUserData("A", "A", key0, (void *)1, &mgr);
@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = mgr.metricRegistry().createUserDataKey();
 
-            baem_MetricRegistry& registry = mgr.metricRegistry();
+            balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
             
             Obj::setUserData("A", "A", key0, (void *)1);
@@ -867,12 +867,12 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_IDS; ++i) {
                 ASSERT(0 != Obj::setFormatSpec(IDS[i],
                                                IDS[i],
-                                               Type::BAEM_MIN,
+                                               Type::e_BALM_MIN,
                                                SPEC1,
                                                0));
                 ASSERT(0 != Obj::setFormatSpec(IDS[i],
                                                IDS[i],
-                                               Type::BAEM_MIN,
+                                               Type::e_BALM_MIN,
                                                SPEC1));
             }
         }
@@ -1008,10 +1008,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == balm::DefaultMetricsManager::instance());
             for (int i = 0; i < NUM_IDS; ++i) {
                 ASSERT(0 != Obj::setPreferredPublicationType(
-                           IDS[i], IDS[i],Type::BAEM_MIN, 0));
+                           IDS[i], IDS[i],Type::e_BALM_MIN, 0));
 
                 ASSERT(0 != Obj::setPreferredPublicationType(
-                           IDS[i], IDS[i],Type::BAEM_MIN));
+                           IDS[i], IDS[i],Type::e_BALM_MIN));
             }
         }
 

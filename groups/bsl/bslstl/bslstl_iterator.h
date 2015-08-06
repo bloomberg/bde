@@ -299,11 +299,11 @@ class reverse_iterator :
     // This class provides a template iterator adaptor that iterates from the
     // end of the sequence defined by the (template parameter) type 'ITER' to
     // the beginning of that sequence.  The type 'ITER' shall meet all the
-    // requirements of a bidirectional iterator [24.2.6]. The elements sequence
-    // generated in this reversed iteration is referred as
-    // 'reverse iteration sequence' in the following class level documentation.
-    // The fundamental relation between a reverse iterator and its
-    // corresponding iterator 'i' of type 'ITER' is established by the identity
+    // requirements of a bidirectional iterator [24.2.6].  The element sequence
+    // generated in this reversed iteration is referred as "reverse iteration
+    // sequence" in the following class level documentation.  The fundamental
+    // relation between a reverse iterator and its corresponding iterator 'i'
+    // of type 'ITER' is established by the identity
     // '&*(reverse_iterator(i)) == &*(i - 1)'.  This template meets the
     // requirement of reverse iterator adaptor defined in C++11 standard
     // [24.5.1].

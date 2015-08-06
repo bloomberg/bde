@@ -1,0 +1,44 @@
+{
+    "uors": ["bsl", "bdl", "inteldfp", "decnumber"],
+    "rssuite_uors": ["bsl", "bdl"],
+    "bdemeta": "bsl-internal",
+    "linux-x86_64-32": {
+        "ufids": ["opt_exc_mt", "dbg_exc_mt", "opt_dbg_exc_mt",
+                  "opt_exc_mt_safe", "dbg_exc_mt_safe", "opt_exc_mt_pic"],
+        "debug_ufid": "dbg_exc_mt",
+        "release_ufid": "opt_exc_mt"
+    },
+    "linux-x86_64-64": {
+        "ufids": ["opt_exc_mt", "dbg_exc_mt", "opt_dbg_exc_mt",
+                  "opt_exc_mt_safe", "dbg_exc_mt_safe", "opt_exc_mt_pic",
+                  "dbg_exc_mt_pic"],
+        "debug_ufid": "dbg_exc_mt",
+        "release_ufid": "opt_exc_mt"
+    },
+    "aix-powerpc-32": {
+        "ufids": ["opt_exc_mt", "dbg_exc_mt", "opt_dbg_exc_mt",
+                  "opt_exc_mt_safe", "dbg_exc_mt_safe"],
+        "debug_ufid": "dbg_exc_mt",
+        "release_ufid": "opt_exc_mt"
+    },
+    "aix-powerpc-64": {
+        "ufids": ["opt_exc_mt", "dbg_exc_mt", "opt_dbg_exc_mt",
+                  "opt_exc_mt_safe", "dbg_exc_mt_safe", "opt_exc_mt_pic",
+                  "dbg_exc_mt_pic"],
+        "debug_ufid": "dbg_exc_mt",
+        "release_ufid": "opt_exc_mt"
+    },
+    "sunos-sparc-32": {
+        "ufids": ["opt_exc_mt", "dbg_exc_mt", "opt_dbg_exc_mt",
+                  "opt_exc_mt_safe", "dbg_exc_mt_safe"],
+        "debug_ufid": "dbg_exc_mt",
+        "release_ufid": "opt_exc_mt"
+    },
+    "sunos-sparc-64": {
+        "ufids": ["opt_exc_mt", "dbg_exc_mt", "opt_dbg_exc_mt",
+                  "opt_exc_mt_safe", "dbg_exc_mt_safe", "opt_exc_mt_pic",
+                  "dbg_exc_mt_pic"],
+        "debug_ufid": "dbg_exc_mt",
+        "release_ufid": "opt_exc_mt"
+    }
+}

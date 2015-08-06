@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 // tested for equality, then an 'unordered_map' containing that type cannot be
 // tested for equality.  It is even possible to instantiate 'unordered_map'
 // with types that do not have an accessible copy-constructor, in which case
-// the 'unordered_map' will not be copyable.  Note that the equality comparison
+// the 'unordered_map' will not be copyable.  Note that the equality-comparison
 // operator for each key-value pair is used to determine when two
 // 'unordered_map' objects have the same value, and not the instance of the
 // 'EQUAL' template parameter supplied at construction.
@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 // will conform to the standard behavior of a 'bslma'-allocator-enabled type.
 // Such an unordered map accepts an optional 'bslma::Allocator' argument at
 // construction.  If the address of a 'bslma::Allocator' object is explicitly
-// supplied at construction, it will be used to supply memory for the
+// supplied at construction, it is used to supply memory for the
 // 'unordered_map' throughout its lifetime; otherwise, the 'unordered_map' will
 // use the default allocator installed at the time of the 'unordered_map's
 // construction (see 'bslma_default').  In addition to directly allocating
@@ -332,10 +332,10 @@ BSLS_IDENT("$Id: $")
 // words appearing in those documents may be high.  The English language has in
 // excess of a million words (albeit many appear infrequently), and, if the
 // documents contain serial numbers, or Social Security numbers, or chemical
-// formulas, etc. then the O[log(n)] insertion time of ordered maps may well be
-// inadequate.  The unordered map, having an O[1] typical insertion cost, is a
-// viable alternative.  In many problem domains, sorting, if needed, can be
-// done after the data is gathered.
+// formulas, etc., then the 'O[log(n)]' insertion time of ordered maps may well
+// be inadequate.  The unordered map, having an 'O[1]' typical insertion cost,
+// is a viable alternative.  In many problem domains, sorting, if needed, can
+// be done after the data is gathered.
 //
 // This example illustrates the use of 'bsl::unordered_map' to gather one
 // simple statistic (counts of unique words) on a single document.  To avoid
@@ -428,7 +428,7 @@ BSLS_IDENT("$Id: $")
 // For each iteration of the inner loop, that method looks for a map entry
 // matching the given key value.  On the first occurrence of a word, the map
 // has no such entry, so one is created with a default value of the mapped
-// value (0, just what we want in this case) and inserted into the map where is
+// value (0, just what we want in this case) and inserted into the map where it
 // is found on any subsequent occurrences of the word.  The 'operator[]' method
 // returns a reference providing modifiable access to the mapped value.  Here,
 // we apply the '++' operator to that reference to maintain a tally for the
@@ -720,7 +720,7 @@ BSLS_IDENT("$Id: $")
 //      //! WordLocationHash(const WordLocationHash& original) = default;
 //          // Create a 'WordLocationHash' object.  Note that as
 //          // 'WordLocationHash' is an empty (stateless) type, this operation
-//          // will have no observable effect.
+//          // has no observable effect.
 //
 //      //! ~WordLocationHash() = default;
 //          // Destroy this object.
@@ -741,7 +741,7 @@ BSLS_IDENT("$Id: $")
 // In addition to a hash functor, the unordered map requires an equality
 // comparison functor.  In this example, the unordered map uses 'operator=='
 // method of 'std::pair' by default.  If the mapped type has no such method, a
-// equality comparison functor must be provided explicitly.
+// equality-comparison functor must be provided explicitly.
 //
 // Next, we define the type of the unordered map and associated convenience
 // aliases:
@@ -1062,7 +1062,7 @@ class unordered_map {
         // 'allocator_type' is 'bsl::allocator' (the default), then
         // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.  If
         // the 'allocator_type' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator will be used to
+        // supplied, the currently installed default allocator is used to
         // supply memory.  Note that more than 'initialNumBuckets' buckets may
         // be created in order to preserve the bucket allocation strategy of
         // the hash-table (but never fewer).
@@ -1083,7 +1083,7 @@ class unordered_map {
         // the allocator returned by 'bsl::allocator_traits<allocator_type>::
         // select_on_container_copy_construction(original.get_allocator())' to
         // supply memory.  If the 'allocator_type' is 'bsl::allocator' (the
-        // default), the currently installed default allocator will be used to
+        // default), the currently installed default allocator is used to
         // supply memory.
 
     unordered_map(const unordered_map&  original,
@@ -1124,15 +1124,15 @@ class unordered_map {
         // 'bsl::allocator' (the default), then 'allocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
         // 'bsl::allocator' and 'allocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.  The
-        // (template parameter) type 'INPUT_ITERATOR' shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // 'value_type'.  The behavior is undefined unless 'first' and 'last'
-        // refer to a sequence of valid values where 'first' is at a position
-        // at or before 'last'.  Note that more than 'initialNumBuckets'
-        // buckets may be created in order to preserve the bucket allocation
-        // strategy of the hash-table (but never fewer).
+        // installed default allocator is used to supply memory.  The (template
+        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to 'value_type'.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
+        // Note that more than 'initialNumBuckets' buckets may be created in
+        // order to preserve the bucket allocation strategy of the hash-table
+        // (but never fewer).
 
     ~unordered_map();
         // Destroy this object and each of its elements.
@@ -1143,25 +1143,25 @@ class unordered_map {
         // 'max_load_factor' of the specified 'rhs' object, propagate to this
         // object the allocator of 'rhs' if 'allocator_type' has trait
         // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the (template parameter) types 'KEY' and 'VALUE' both be
-        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // providing modifiable access to this object.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     mapped_type& operator[](const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key' in this unordered map; if this
         // unordered map does not already contain a 'value_type' object with
         // 'key', first insert a new 'value_type' object having 'key' and a
-        // default-constructed 'VALUE' object.  This method requires that the
-        // (template parameter) type 'KEY' is "copy-constructible" and the
-        // (template parameter) 'VALUE' is "default-constructible" (see
+        // default-constructed 'VALUE' object.  Note that this method requires
+        // that the (template parameter) type 'KEY' is "copy-constructible" and
+        // the (template parameter) 'VALUE' is "default-constructible" (see
         // {Requirements on 'KEY' and 'VALUE'}).
 
     mapped_type& at(const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key', if such an entry exists;
         // otherwise throw a 'std::out_of_range' exception.  Note that this
-        // method is not exception agnostic.
+        // method is not exception-neutral.
 
     iterator begin();
         // Return an iterator providing modifiable access to the first
@@ -1191,8 +1191,8 @@ class unordered_map {
 
     void clear();
         // Remove all entries from this unordered map.  Note that this
-        // unordered map will be empty after this call, but allocated memory
-        // may be retained for future use.
+        // unordered map will be empty after calling this method, but allocated
+        // memory may be retained for future use.
 
     iterator erase(const_iterator position);
         // Remove from this unordered map the 'value_type' object at the
@@ -1234,10 +1234,10 @@ class unordered_map {
         // (possibly newly inserted) 'value_type' object in this unordered map
         // whose key is the same as that of 'value', and whose 'second' member
         // is 'true' if a new value was inserted, and 'false' if the value was
-        // already present.  This method requires that the (template parameter)
-        // types 'KEY' and 'VALUE' both be "copy-constructible" (see
-        // {Requirements on 'KEY' and 'VALUE'}).  Note that this one template
-        // stands in for two 'insert' functions in the C++11 standard.
+        // already present.  Note that this method requires that the (template
+        // parameter) types 'KEY' and 'VALUE' both be "copy-constructible" (see
+        // {Requirements on 'KEY' and 'VALUE'}).  Also note that this one
+        // template stands in for two 'insert' functions in the C++11 standard.
 
     template <class SOURCE_TYPE>
     iterator insert(const_iterator hint, const SOURCE_TYPE& value);
@@ -1246,12 +1246,13 @@ class unordered_map {
         // does not already exist in this unordered map.  Return an iterator
         // referring to the (possibly newly inserted) 'value_type' object in
         // this unordered map whose key is the same as that of the converted
-        // 'value'.  This method requires that the (template parameter) types
-        // 'KEY' and 'VALUE' both be "copy-constructible" (see {Requirements on
-        // 'KEY' and 'VALUE'}).  The behavior is undefined unless the specified
-        // 'hint' is a valid iterator into this unordered map.  Note that
-        // 'hint' is not used by this method template, and this one template
-        // stands in for two 'insert' functions in the C++11 standard.
+        // 'value'.  The behavior is undefined unless the specified 'hint' is a
+        // valid iterator into this unordered map.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // Also note that 'hint' is not used by this method template, and this
+        // one template stands in for two 'insert' functions in the C++11
+        // standard.
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1262,9 +1263,11 @@ class unordered_map {
         // whose key is not already contained.  The (template parameter) type
         // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
         // defined in the C++11 standard [24.2.3] providing access to values of
-        // a type convertible to 'value_type'.  This method requires that the
-        // (template parameter) types 'KEY' and 'VALUE' both be
-        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // a type convertible to 'value_type'.  The behavior is undefined
+        // unless 'first' and 'last' refer to a sequence of valid values where
+        // 'first' is at a position at or before 'last'.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
@@ -1281,9 +1284,9 @@ class unordered_map {
         // 'newMaxLoadFactor'.  If 'newMaxLoadFactor < loadFactor()', this
         // operator require an immediate rehash; otherwise, it has a
         // constant-time cost.  The behavior is undefined unless '0 <
-        // newMaxLoadFactor'.  Note that, however, the C++11 standard does not
-        // allow this operation to rehash, as it requires a constant cost for
-        // all (positive) values of 'newMaxLoadFactor'.
+        // newMaxLoadFactor'.  Note that the C++11 standard does not allow this
+        // operation to rehash, as it requires a constant cost for all
+        // (positive) values of 'newMaxLoadFactor'.
 
     void rehash(size_type numBuckets);
         // Change the size of the array of buckets maintained by this unordered
@@ -1299,7 +1302,7 @@ class unordered_map {
         // the ratio between the specified 'numElements' and this quantity does
         // not exceed 'max_load_factor'.  Note that this guarantees that, after
         // the reserve, elements can be inserted to grow the container to
-        // 'size() == numElements' without rehashing. Also note that memory
+        // 'size() == numElements' without rehashing.  Also note that memory
         // allocations may still occur when growing the container to 'size() ==
         // numElements'.  Also note that this operation has no effect if
         // 'numElements <= size()'.
@@ -1311,7 +1314,7 @@ class unordered_map {
         // 'propagate_on_container_swap', exchange the allocator of this object
         // with that of the 'other' object, and do not modify either allocator
         // otherwise.  This method provides the no-throw exception-safety
-        // guarantee and guarantees O[1] complexity, as long as the (template
+        // guarantee and guarantees 'O[1]' complexity, as long as the (template
         // parameter) 'HASH' and (template parameter) 'EQUAL' do not throw when
         // swapped.  The behavior is undefined unless either this object was
         // created with the same allocator as 'other' or 'allocator_type' has
@@ -1322,7 +1325,7 @@ class unordered_map {
         // Return a reference providing non-modifiable access to the
         // mapped-value associated with the specified 'key', if such an entry
         // exists; otherwise throw a 'std::out_of_range' exception.  Note that
-        // this method is not exception agnostic.
+        // this method is not exception-neutral.
 
     const_iterator begin() const;
     const_iterator cbegin() const;
@@ -1450,9 +1453,10 @@ bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // value, and 'false' otherwise.  Two 'unordered_map' objects have the
     // same value if they have the same number of key-value pairs, and for each
     // key-value pair that is contained in 'lhs' there is a key-value pair
-    // contained in 'rhs' having the same value, and vice versa.  This method
-    // requires that the (template parameter) types 'KEY' and 'VALUE' both be
-    // "equality-comparable" (see {Requirements on 'KEY' and 'VALUE'}).
+    // contained in 'rhs' having the same value, and vice versa.  Note that
+    // this method requires that the (template parameter) types 'KEY' and
+    // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
+    // 'VALUE'}).
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
@@ -1461,9 +1465,10 @@ bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
     // same value, and 'false' otherwise.  Two 'unordered_map' objects do not
     // have the same value if they do not have the same number of key-value
     // pairs, or for some key-value pair that is contained in 'lhs' there is
-    // not a key-value pair in 'rhs' having the same value or vice-versa.  This
-    // method requires that the (template parameter) types 'KEY' and 'VALUE'
-    // both be "equality-comparable" (see {Requirements on 'KEY' and 'VALUE'}).
+    // not a key-value pair in 'rhs' having the same value or vice-versa.  Note
+    // that this method requires that the (template parameter) types 'KEY' and
+    // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
+    // 'VALUE'}).
 
 // FREE FUNCTIONS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1475,8 +1480,8 @@ void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
     // the trait 'propagate_on_container_swap', exchange the allocator of 'a'
     // with that of 'b', and do not modify either allocator otherwise.  This
     // function provides the no-throw exception-safety guarantee and guarantees
-    // O[1] complexity, as long as the (template parameter) type 'HASH' and the
-    // (template parameter) type 'EQUAL' do not throw when swapped.  The
+    // 'O[1]' complexity, as long as the (template parameter) type 'HASH' and
+    // the (template parameter) type 'EQUAL' do not throw when swapped.  The
     // behavior is undefined unless 'a' and 'b' were created with the same
     // allocator, or 'ALLOCATOR' has the 'propagate_on_container_swap' trait.
 

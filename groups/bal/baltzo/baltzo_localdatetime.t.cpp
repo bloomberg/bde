@@ -1,10 +1,10 @@
-// baltzo_localdatetime.t.cpp                                           -*-C++-*-
+// baltzo_localdatetime.t.cpp                                         -*-C++-*-
 
 #include <baltzo_localdatetime.h>
 
-#include <bdlxxxx_testinstream.h>           // for testing only
-#include <bdlxxxx_testinstreamexception.h>  // for testing only
-#include <bdlxxxx_testoutstream.h>          // for testing only
+#include <bslx_testinstream.h>           // for testing only
+#include <bslx_testinstreamexception.h>  // for testing only
+#include <bslx_testoutstream.h>          // for testing only
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -200,8 +200,8 @@ static void aSsErT(int c, const char *s, int i) {
 typedef baltzo::LocalDatetime   Obj;
 
 typedef bslma::TestAllocator TestAllocator;
-typedef bdlxxxx::TestInStream    In;
-typedef bdlxxxx::TestOutStream   Out;
+typedef bslx::TestInStream   In;
+typedef bslx::TestOutStream  Out;
 
 // ============================================================================
 //                     HELPER FUNCTIONS FOR TESTING
@@ -493,8 +493,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Use the addresses of the (templated) 'bdexStreamIn' and
-        //:   'bdexStreamOut', instantiated using the 'bdlxxxx::TestInStream' and
-        //:   'bdlxxxx::TestOutStream types, respectively, to initialize
+        //:   'bdexStreamOut', instantiated using the 'bslx::TestInStream' and
+        //:   'bslx::TestOutStream types, respectively, to initialize
         //:   member-function pointers each having the standard signature and
         //:   return type for the for these member-functions.  Use the
         //:   'maxSupportedBdexVersion' static function to initialize a
@@ -523,9 +523,9 @@ int main(int argc, char *argv[])
         //:   method call with the supplied 'stream'.  (C-4)
         //:
         //: 5 Throughout this test case, wrap 'bdexStreamIn' calls with the
-        //:   standard 'BEGIN_BDEX_EXCEPTION_TEST' and
-        //:   'END_BDEX_EXCEPTION_TEST' macros to confirm exception neutrality.
-        //:   (C-7)
+        //:   standard 'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
+        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END' macros to confirm
+        //:   exception neutrality.  (C-7)
         //:
         //: 6 For each 'x' in 'T', attempt to stream into (a temporary copy of)
         //:   'x' from an empty (but valid) and then invalid stream.  Verify
@@ -680,14 +680,13 @@ int main(int argc, char *argv[])
                             &testAllocator);
                 if (veryVerbose) { cout << "\t   Value being streamed: ";
                                    P(X); }
-                Out out;
+                Out out(1);
                 ASSERT(&out == &(X.bdexStreamOut(out, version)));
 
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
                 In in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
-                in.setSuppressVersionCheck(1);
 
                 Obj t(&testAllocator);  ASSERT(X != t);
 
@@ -720,7 +719,7 @@ int main(int argc, char *argv[])
                     Obj       mU(VALUES[ui], &oau); const Obj& U = mU;
                     const Obj  Z(VALUES[ui], &oau);
 
-                    Out                        out;
+                    Out                        out(1);
                     TestAllocatorMonitor oaum(oau), dam(da);
                     LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, version)));
                     LOOP_ASSERT(ui, oaum.isTotalSame());
@@ -730,12 +729,9 @@ int main(int argc, char *argv[])
                     const int         LOD = out.length();
 
                     In in(OD, LOD);
-                    in.setSuppressVersionCheck(1);
 
                     LOOP_ASSERT(U, in);
                     LOOP_ASSERT(U, !in.isEmpty());
-                    In &testInStream = in; // for 'BEGIN_BDEX_EXCEPTION_TEST'
-                                           // macro below
 
                     // Verify that each new value overwrites every old value
                     // and that the input stream is emptied, but remains valid.
@@ -749,7 +745,7 @@ int main(int argc, char *argv[])
 
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oav) {
-                        BEGIN_BDEX_EXCEPTION_TEST {
+                        BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
 
                             in.reset();
                             TestAllocatorMonitor dam(da);
@@ -758,7 +754,7 @@ int main(int argc, char *argv[])
                                                                  version)));
                             LOOP3_ASSERT(version, ui, vi, dam.isTotalSame());
 
-                        } END_BDEX_EXCEPTION_TEST
+                        } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                         LOOP3_ASSERT(version, ui, vi, U == Z);
@@ -775,7 +771,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         da("default", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
 
-            Out               out;
+            Out               out(1);
             const char *const OD  = out.data();
             const int         LOD = out.length();
             ASSERT(0 == LOD);
@@ -784,7 +780,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ T_ P(version) }
 
                 for (int i = 0; i < NUM_VALUES; ++i) {
-                    In in(OD, LOD);  In& testInStream = in;
+                    In in(OD, LOD);
                     LOOP_ASSERT(i, in);
                     LOOP_ASSERT(i, in.isEmpty());
 
@@ -796,7 +792,7 @@ int main(int argc, char *argv[])
                                              LOOP_ASSERT(i, X == t1);
                                              LOOP_ASSERT(i, X == t2);
 
-                    BEGIN_BDEX_EXCEPTION_TEST {
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                       in.reset();
                       LOOP_ASSERT(i, in);
 
@@ -814,7 +810,7 @@ int main(int argc, char *argv[])
                       LOOP_ASSERT(i, !in);
                       LOOP_ASSERT(i, X == t2);
 
-                    } END_BDEX_EXCEPTION_TEST
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                 }
             }
         }
@@ -834,7 +830,7 @@ int main(int argc, char *argv[])
 
                     Obj mU(VALUES[i], &oa); const Obj& U = mU;
 
-                    Out out;
+                    Out out(1);
                     out.invalidate();
                     LOOP_ASSERT(i, !out);
                     const void *data   = out.data();
@@ -878,7 +874,7 @@ int main(int argc, char *argv[])
             const Obj X3(largeDtz, "hhhhhhh");
             const Obj Y3(smallDtz, "iiiiiiii");
 
-            Out out;
+            Out out(1);
 
             X1.bdexStreamOut(out, VERSION); const int LOD1 = out.length();
             X2.bdexStreamOut(out, VERSION); const int LOD2 = out.length();
@@ -887,10 +883,9 @@ int main(int argc, char *argv[])
             const char *const OD = out.data();
 
             for (int i = 0; i < LOD; ++i) {
-                In in(OD, i);  In& testInStream = in;
-                in.setSuppressVersionCheck(1);
+                In in(OD, i);
 
-                BEGIN_BDEX_EXCEPTION_TEST {
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                   in.reset();
                   LOOP_ASSERT(i, in);
                   LOOP_ASSERT(i, !i == in.isEmpty());
@@ -978,7 +973,7 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(i, Y3 != t3);
                     t3 = Y3;    LOOP_ASSERT(i, Y3 == t3);
 
-                } END_BDEX_EXCEPTION_TEST
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
             }
         }
 
@@ -1007,7 +1002,7 @@ int main(int argc, char *argv[])
             const Obj X3(largeDtz, "hhhhhhh");
             const Obj Y3(smallDtz, "iiiiiiii");
 
-            Out out;
+            Out out(1);
 
             X1.bdexStreamOut(out, VERSION);
             ASSERT(&out == &(X1.bdexStreamOut(out, VERSION)));
@@ -1015,10 +1010,9 @@ int main(int argc, char *argv[])
             out.makeNextInvalid();
             ASSERT(&out == &(X3.bdexStreamOut(out, VERSION)));
 
-            In in(out.data(), out.length());  In& testInStream = in;
-            in.setSuppressVersionCheck(1);
+            In in(out.data(), out.length());
 
-            BEGIN_BDEX_EXCEPTION_TEST {
+            BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
 
               Obj t1(W1), t2(W2), t3(W3);
 
@@ -1041,7 +1035,7 @@ int main(int argc, char *argv[])
                             ASSERT(Y3 != t3);
                 t3 = Y3;    ASSERT(Y3 == t3);
 
-            } END_BDEX_EXCEPTION_TEST
+            } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
         }
 #endif
 
@@ -1059,7 +1053,7 @@ int main(int argc, char *argv[])
             {
                 const char version = 1;
 
-                Out out;
+                Out out(1);
                 out.putString(Y.timeZoneId());        // 1. Stream out "new"
                                                       //    value
                 Y.datetimeTz().bdexStreamOut(out, 1); // 2. Stream out "new"
@@ -1069,7 +1063,6 @@ int main(int argc, char *argv[])
 
                 Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
                 In in(OD, LOD);  ASSERT(in);
-                in.setSuppressVersionCheck(1);
                 TestAllocatorMonitor dam(da);
                 ASSERT(&in == &(t.bdexStreamIn(in, version)));
                 ASSERT(dam.isTotalSame());
@@ -1081,7 +1074,7 @@ int main(int argc, char *argv[])
             {
                 const char version = 0; // too small ('version' must be >= 1)
 
-                Out out;
+                Out out(1);
                 Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new"
                                                       //    value
                 out.putString(Y.timeZoneId());        // 2. Stream out "new"
@@ -1092,7 +1085,6 @@ int main(int argc, char *argv[])
 
                 Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
                 In in(OD, LOD);  ASSERT(in);
-                in.setSuppressVersionCheck(1);
                 in.setQuiet(!veryVerbose);
                 TestAllocatorMonitor dam(da);
                 ASSERT(&in == &(t.bdexStreamIn(in, version)));
@@ -1104,7 +1096,7 @@ int main(int argc, char *argv[])
             {
                 const char version = 2 ; // too large (current version is 1)
 
-                Out out;
+                Out out(1);
                 Y.datetimeTz().bdexStreamOut(out, 1); // 1. Stream out "new"
                                                       //    value
                 out.putString(Y.timeZoneId());        // 2. Stream out "new"
@@ -1116,7 +1108,6 @@ int main(int argc, char *argv[])
                 Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
 
                 In in(OD, LOD);  ASSERT(in);
-                in.setSuppressVersionCheck(1);
                 in.setQuiet(!veryVerbose);
                 TestAllocatorMonitor dam(da);
                 ASSERT(&in == &(t.bdexStreamIn(in, version)));
@@ -1131,7 +1122,7 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
 
-                Out out(&sa);
+                Out out(1, &sa);
                 ASSERT(out);
                 ASSERT(0 == out.length());
 
@@ -1147,7 +1138,7 @@ int main(int argc, char *argv[])
             {
                 const char version = 0; // too small ('version' must be >= 1)
 
-                Out out;
+                Out out(1);
                 ASSERT(out);
                 ASSERT(0 == out.length());
 
@@ -1162,7 +1153,7 @@ int main(int argc, char *argv[])
             {
                 const char version = 2 ; // too large, current max version is 1
 
-                Out out;
+                Out out(1);
                 ASSERT(out);
                 ASSERT(0 == out.length());
 
@@ -1184,9 +1175,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P(X) }
 
-                Out outO;  X.bdexStreamOut(outO, VERSION);
+                Out outO(1);  X.bdexStreamOut(outO, VERSION);
 
-                Out outA;  outA.putString(X.timeZoneId());
+                Out outA(1);  outA.putString(X.timeZoneId());
                            X.datetimeTz().bdexStreamOut(outA, VERSION);
 
                 LOOP_ASSERT(i, outA.length() == outO.length());
@@ -1196,7 +1187,6 @@ int main(int argc, char *argv[])
 
                 Obj mY;  const Obj& Y = mY;
                 In in(outA.data(), outA.length());
-                in.setSuppressVersionCheck(1);
                 ASSERT(&in == &(mY.bdexStreamIn(in, VERSION)));
 
                 LOOP_ASSERT(i, in.isEmpty());
@@ -2044,7 +2034,7 @@ int main(int argc, char *argv[])
         //:   (C-13)
         //
         // Testing:
-        //   baltzo::LocalTimeDescriptor(const baetzo::LTDescriptor& o, *bA = 0);
+        //   baltzo::LocalTimeDescriptor(const LTDescriptor& o, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2398,12 +2388,12 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef bdlt::DatetimeTz  T1;  // 'datetimeTz'
-        typedef const char      *T2;  // 'timeZoneId'
+        typedef const char       *T2;  // 'timeZoneId'
 
         // Attribute 1 Values: 'datetimeTz'
 
-        const T1 A1 = bdlt::DatetimeTz(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
-        const T1 B1 = bdlt::DatetimeTz(bdlt::Datetime(2011, 5, 3, 15), -5 * 60);
+        const T1 A1(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
+        const T1 B1(bdlt::Datetime(2011, 5, 3, 15), -5 * 60);
 
         // Attribute 2 Values: 'timeZoneId'
 
@@ -2875,20 +2865,20 @@ int main(int argc, char *argv[])
         // Attribute Types
 
         typedef bdlt::DatetimeTz T1;  // 'datetimeTz'
-        typedef bsl::string     T2;  // 'timeZoneId'
+        typedef bsl::string      T2;  // 'timeZoneId'
 
         // -----------------------------------------------------
         // 'D' values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const T1 D1 = bdlt::DatetimeTz();  // default value
-        const T2 D2 = "";                 // default value
+        const T1 D1;       // default value
+        const T2 D2 = "";  // default value
 
         // -------------------------------------------------------
         // 'A' values: Should cause memory allocation if possible.
         // -------------------------------------------------------
 
-        const T1 A1 = bdlt::DatetimeTz(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
+        const T1 A1(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
         const T2 A2 = "a_" SUFFICIENTLY_LONG_STRING;
 
         if (verbose) cout <<
@@ -3631,8 +3621,8 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'datetimeTz'
 
-        const T1 D1 = bdlt::DatetimeTz();  // default value
-        const T1 A1 = bdlt::DatetimeTz(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
+        const T1 D1;  // default value
+        const T1 A1(bdlt::Datetime(2011, 5, 3, 15), -4 * 60);
 
         // Attribute 2 Values: 'timeZoneId'
 
@@ -3837,11 +3827,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

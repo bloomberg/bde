@@ -101,24 +101,24 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
 
-// =========================================================================
+// ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef baltzo::DstPolicy::Enum Enum;
 typedef baltzo::DstPolicy       Obj;
 
-// =========================================================================
+// ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 const int NUM_ENUMERATORS = 3;
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
-// =========================================================================
+// ============================================================================
 //                               MAIN PROGRAM
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -167,9 +167,10 @@ int main(int argc, char *argv[])
 // 'baltzo::DstPolicy' usage.
 //
 // First, we create a variable 'value' of type 'baltzo::DstPolicy::Enum' and
-// initialize it with the enumerator value 'baltzo::DstPolicy::BAETZO_STANDARD':
+// initialize it with the enumerator value
+// 'baltzo::DstPolicy::BALTZO_STANDARD':
 //..
-    baltzo::DstPolicy::Enum value = baltzo::DstPolicy::BAETZO_STANDARD;
+    baltzo::DstPolicy::Enum value = baltzo::DstPolicy::BALTZO_STANDARD;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -244,24 +245,24 @@ if (veryVerbose)
 #define NL "\n"
             //line  level  spl    enumerator value        expected result
             //----  -----  ---  ----------------------    -----------------
-            { L_,     0,    4,  Obj::BAETZO_DST,          "DST" NL           },
-            { L_,     0,    4,  Obj::BAETZO_STANDARD,     "STANDARD" NL      },
-            { L_,     0,    4,  Obj::BAETZO_UNSPECIFIED,  "UNSPECIFIED" NL   },
+            { L_,     0,    4,  Obj::BALTZO_DST,          "DST" NL           },
+            { L_,     0,    4,  Obj::BALTZO_STANDARD,     "STANDARD" NL      },
+            { L_,     0,    4,  Obj::BALTZO_UNSPECIFIED,  "UNSPECIFIED" NL   },
 
             { L_,     0,    4,  (Enum)NUM_ENUMERATORS,    UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  (Enum)-1,                 UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  (Enum)-5,                 UNKNOWN_FORMAT NL  },
             { L_,     0,    4,  (Enum)99,                 UNKNOWN_FORMAT NL  },
 
-            { L_,     0,   -1,  Obj::BAETZO_DST,         "DST"               },
-            { L_,     0,    0,  Obj::BAETZO_DST,         "DST" NL            },
-            { L_,     0,    2,  Obj::BAETZO_DST,         "DST" NL            },
-            { L_,     1,    1,  Obj::BAETZO_DST,         " DST" NL           },
-            { L_,     1,    2,  Obj::BAETZO_DST,         "  DST" NL          },
-            { L_,    -1,    2,  Obj::BAETZO_DST,         "DST" NL            },
-            { L_,    -2,    1,  Obj::BAETZO_DST,         "DST" NL            },
-            { L_,     2,    1,  Obj::BAETZO_DST,         "  DST" NL          },
-            { L_,     1,    3,  Obj::BAETZO_DST,         "   DST" NL         },
+            { L_,     0,   -1,  Obj::BALTZO_DST,         "DST"               },
+            { L_,     0,    0,  Obj::BALTZO_DST,         "DST" NL            },
+            { L_,     0,    2,  Obj::BALTZO_DST,         "DST" NL            },
+            { L_,     1,    1,  Obj::BALTZO_DST,         " DST" NL           },
+            { L_,     1,    2,  Obj::BALTZO_DST,         "  DST" NL          },
+            { L_,    -1,    2,  Obj::BALTZO_DST,         "DST" NL            },
+            { L_,    -2,    1,  Obj::BALTZO_DST,         "DST" NL            },
+            { L_,     2,    1,  Obj::BALTZO_DST,         "  DST" NL          },
+            { L_,     1,    3,  Obj::BALTZO_DST,         "   DST" NL         },
 #undef NL
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -272,6 +273,12 @@ if (veryVerbose)
 
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        ASSERT(Obj::BAETZO_DST         == Obj::BALTZO_DST);
+        ASSERT(Obj::BAETZO_STANDARD    == Obj::BALTZO_STANDARD);
+        ASSERT(Obj::BAETZO_UNSPECIFIED == Obj::BALTZO_UNSPECIFIED);
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
         if (verbose) cout << "\nTesting 'print'." << endl;
 
@@ -389,9 +396,9 @@ if (veryVerbose)
         } DATA[] = {
             //line       enumerator value         expected result
             //----    -----------------------     ---------------
-            { L_,     Obj::BAETZO_DST,            "DST"              },
-            { L_,     Obj::BAETZO_STANDARD,       "STANDARD"         },
-            { L_,     Obj::BAETZO_UNSPECIFIED,    "UNSPECIFIED"      },
+            { L_,     Obj::BALTZO_DST,            "DST"              },
+            { L_,     Obj::BALTZO_STANDARD,       "STANDARD"         },
+            { L_,     Obj::BALTZO_UNSPECIFIED,    "UNSPECIFIED"      },
 
             { L_,     (Enum)NUM_ENUMERATORS,      UNKNOWN_FORMAT     },
             { L_,     (Enum)-1,                   UNKNOWN_FORMAT     },
@@ -499,9 +506,9 @@ if (veryVerbose)
         } DATA[] = {
             // line         enumerator value        expected result
             // ----    -----------------------      -----------------
-            {  L_,     Obj::BAETZO_DST,             "DST"             },
-            {  L_,     Obj::BAETZO_STANDARD,        "STANDARD"        },
-            {  L_,     Obj::BAETZO_UNSPECIFIED,     "UNSPECIFIED"     },
+            {  L_,     Obj::BALTZO_DST,             "DST"             },
+            {  L_,     Obj::BALTZO_STANDARD,        "STANDARD"        },
+            {  L_,     Obj::BALTZO_UNSPECIFIED,     "UNSPECIFIED"     },
 
             {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
             {  L_,     (Enum)-1,                    UNKNOWN_FORMAT    },
@@ -560,11 +567,18 @@ if (veryVerbose)
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

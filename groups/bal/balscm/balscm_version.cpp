@@ -26,21 +26,21 @@ namespace BloombergLP {
                                              "." STRINGIFY(REQUIRED_BCE_PATCH)
 
 #define BAL_VERSION_PATCH BDESCM_PATCHVERSION_PATCH
-#define BAESCM_VERSION_STRING "BLP_LIB_BDE_BAE_" STRINGIFY(BAL_VERSION_MAJOR) \
+#define BALSCM_VERSION_STRING "BLP_LIB_BDE_BAL_" STRINGIFY(BAL_VERSION_MAJOR) \
                                              "." STRINGIFY(BAL_VERSION_MINOR) \
                                              "." STRINGIFY(BAL_VERSION_PATCH)
 
-const char *balscm::Version::s_ident = "$Id: " BAESCM_VERSION_STRING " $";
-const char *balscm::Version::s_what  = "@(#)" BAESCM_VERSION_STRING;
+const char *balscm::Version::s_ident = "$Id: " BALSCM_VERSION_STRING " $";
+const char *balscm::Version::s_what  = "@(#)" BALSCM_VERSION_STRING;
 
-const char *balscm::Version::s_version           = BAESCM_VERSION_STRING;
+const char *balscm::Version::s_version           = BALSCM_VERSION_STRING;
 const char *balscm::Version::s_dependencies      =
                                BDESCM_VERSION_STRING " " BCESCM_VERSION_STRING;
 const char *balscm::Version::s_buildInfo         = "";
 const char *balscm::Version::s_timestamp         = "";
 const char *balscm::Version::s_sourceControlInfo = "";
 
-#undef BAESCM_VERSION_STRING
+#undef BALSCM_VERSION_STRING
 
 }  // close namespace BloombergLP
 

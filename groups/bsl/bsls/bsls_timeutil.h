@@ -199,16 +199,16 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    #ifndef INCLUDED_TIME
+    #ifndef INCLUDED_TIME_H
     #include <time.h>
-    #define INCLUDED_TIME
+    #define INCLUDED_TIME_H
     #endif
 #endif
 
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
-    #ifndef INCLUDED_SYS_TIME
+    #ifndef INCLUDED_SYS_TIME_H
     #include <sys/time.h>
-    #define INCLUDED_SYS_TIME
+    #define INCLUDED_SYS_TIME_H
     #endif
 #endif
 
@@ -256,7 +256,7 @@ struct TimeUtil {
 
     static void initialize();
         // Do a platform-dependent initialization for the utilities.  Note that
-        // the other methods in this component are guaranteed to be thread safe
+        // the other methods in this component are guaranteed to be thread-safe
         // only after calling this method.
 
                                   // Operations

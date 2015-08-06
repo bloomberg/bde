@@ -4,9 +4,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <cstdio>
+#include <bsls_assert.h>
+
+#include <errno.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <wchar.h>
 
 // IMPLEMENTATION NOTES:
+//
 // This string class implements a "short string optimization" which optimizes
 // the handling of short strings (strings shorter than a certain length) by
 // putting them into an internal short string buffer.  The short string buffer
@@ -40,16 +47,17 @@ std::size_t bsl::hashBasicString(const string& str)
 
 std::size_t bsl::hashBasicString(const wstring& str)
 {
-    return hashBasicString<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >(
-                                                                          str);
+    return
+      hashBasicString<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >(str);
 }
 
-int bsl::stoi(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    int original_errno = errno;
+int bsl::stoi(const string& str, std::size_t *pos, int base)
+{
+    char *ptr;
+    int   original_errno = errno;
 
     errno = 0;
-    long value = std::strtol(str.c_str(), &ptr, base);
+    long value = strtol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
@@ -66,12 +74,13 @@ int bsl::stoi(const string& str, std::size_t* pos, int base){
     return value;
 }
 
-int bsl::stoi(const wstring& str, std::size_t* pos, int base){
-    wchar_t* ptr;
-    int original_errno = errno;
+int bsl::stoi(const wstring& str, std::size_t *pos, int base)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
 
     errno = 0;
-    long value = std::wcstol(str.c_str(), &ptr, base);
+    long value = wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
@@ -88,12 +97,13 @@ int bsl::stoi(const wstring& str, std::size_t* pos, int base){
     return value;
 }
 
-long bsl::stol(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    int original_errno = errno;
+long bsl::stol(const string& str, std::size_t* pos, int base)
+{
+    char *ptr;
+    int   original_errno = errno;
 
     errno = 0;
-    long value = std::strtol(str.c_str(), &ptr, base);
+    long value = strtol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
@@ -110,12 +120,13 @@ long bsl::stol(const string& str, std::size_t* pos, int base){
     return value;
 }
 
-long bsl::stol(const wstring& str, std::size_t* pos, int base){
-    wchar_t* ptr;
-    int original_errno = errno;
+long bsl::stol(const wstring& str, std::size_t *pos, int base)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
 
     errno = 0;
-    long value = std::wcstol(str.c_str(), &ptr, base);
+    long value = wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
@@ -132,12 +143,13 @@ long bsl::stol(const wstring& str, std::size_t* pos, int base){
     return value;
 }
 
-unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    int original_errno = errno;
+unsigned long bsl::stoul(const string& str, std::size_t *pos, int base)
+{
+    char *ptr;
+    int   original_errno = errno;
 
     errno = 0;
-    unsigned long value = std::strtoul(str.c_str(), &ptr, base);
+    unsigned long value = strtoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
@@ -154,13 +166,15 @@ unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
     return value;
 }
 
-unsigned long bsl::stoul(const wstring& str,
-                                                   std::size_t* pos, int base){
-    wchar_t* ptr;
-    int original_errno = errno;
+unsigned long bsl::stoul(const wstring&  str,
+                         std::size_t    *pos,
+                         int             base)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
 
     errno = 0;
-    unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
+    unsigned long value = wcstoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
@@ -178,9 +192,10 @@ unsigned long bsl::stoul(const wstring& str,
 }
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-long long bsl::stoll(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    int original_errno = errno;
+long long bsl::stoll(const string& str, std::size_t *pos, int base)
+{
+    char *ptr;
+    int   original_errno = errno;
 
     errno = 0;
     long long value = strtoll(str.c_str(), &ptr, base);
@@ -200,9 +215,10 @@ long long bsl::stoll(const string& str, std::size_t* pos, int base){
     return value;
 }
 
-long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
-    wchar_t* ptr;
-    int original_errno = errno;
+long long bsl::stoll(const wstring& str, std::size_t *pos, int base)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
 
     errno = 0;
     long long value = wcstoll(str.c_str(), &ptr, base);
@@ -222,9 +238,10 @@ long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
     return value;
 }
 
-unsigned long long bsl::stoull(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    int original_errno = errno;
+unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base)
+{
+    char *ptr;
+    int   original_errno = errno;
 
     errno = 0;
     unsigned long long value = strtoull(str.c_str(), &ptr, base);
@@ -244,9 +261,10 @@ unsigned long long bsl::stoull(const string& str, std::size_t* pos, int base){
     return value;
 }
 
-unsigned long long bsl::stoull(const wstring& str, std::size_t* pos, int base){
-    wchar_t* ptr;
-    int original_errno = errno;
+unsigned long long bsl::stoull(const wstring& str, std::size_t *pos, int base)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
 
     errno = 0;
     unsigned long long value = wcstoull(str.c_str(), &ptr, base);
@@ -265,58 +283,72 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t* pos, int base){
     errno = original_errno;
     return value;
 }
+
+float bsl::stof(const string& str, std::size_t *pos)
+{
+    char *ptr;
+    int   original_errno = errno;
+
+    errno = 0;
+
+    float value = strtof(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+float bsl::stof(const wstring& str, std::size_t *pos)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
+
+    errno = 0;
+    float value = wcstof(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+#else
+float bsl::stof(const string& str, std::size_t *pos)
+{
+    return static_cast<float>(stod(str, pos));
+}
+
+float bsl::stof(const wstring& str, std::size_t *pos)
+{
+    return static_cast<float>(stod(str, pos));
+}
 #endif
 
-float bsl::stof(const string& str, std::size_t* pos){
-    char* ptr;
-    int original_errno = errno;
+double bsl::stod(const string& str, std::size_t *pos)
+{
+    char *ptr;
+    int   original_errno = errno;
 
     errno = 0;
-    float value = std::strtof(str.c_str(), &ptr);
-
-    if (errno == ERANGE){
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
-    }
-    else if (ptr == str.c_str()){
-        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
-    }
-
-    if (pos) {
-        *pos = ptr - str.c_str();
-    }
-
-    errno = original_errno;
-    return value;
-}
-
-float bsl::stof(const wstring& str, std::size_t* pos){
-    wchar_t* ptr;
-    int original_errno = errno;
-
-    errno = 0;
-    float value = std::wcstof(str.c_str(), &ptr);
-
-    if (errno == ERANGE){
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
-    }
-    else if (ptr == str.c_str()){
-        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
-    }
-
-    if (pos) {
-        *pos = ptr - str.c_str();
-    }
-
-    errno = original_errno;
-    return value;
-}
-
-double bsl::stod(const string& str, std::size_t* pos){
-    char* ptr;
-    int original_errno = errno;
-
-    errno = 0;
-    double value = std::strtod(str.c_str(), &ptr);
+    double value = strtod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
@@ -333,12 +365,13 @@ double bsl::stod(const string& str, std::size_t* pos){
     return value;
 }
 
-double bsl::stod(const wstring& str, std::size_t* pos){
-    wchar_t* ptr;
-    int original_errno = errno; 
+double bsl::stod(const wstring& str, std::size_t *pos)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
 
     errno = 0;
-    double value = std::wcstod(str.c_str(), &ptr);
+    double value = wcstod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
@@ -356,9 +389,10 @@ double bsl::stod(const wstring& str, std::size_t* pos){
 }
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-long double bsl::stold(const string& str, std::size_t* pos){
-    char* ptr;
-    int original_errno = errno;
+long double bsl::stold(const string& str, std::size_t *pos)
+{
+    char *ptr;
+    int   original_errno = errno;
 
     errno = 0;
     long double value = strtold(str.c_str(), &ptr);
@@ -378,9 +412,10 @@ long double bsl::stold(const string& str, std::size_t* pos){
     return value;
 }
 
-long double bsl::stold(const wstring& str, std::size_t* pos){
-    wchar_t* ptr;
-    int original_errno = errno;
+long double bsl::stold(const wstring& str, std::size_t *pos)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
 
     errno = 0;
     long double value = wcstold(str.c_str(), &ptr);
@@ -459,7 +494,7 @@ bsl::string bsl::to_string(unsigned long value) {
 
 bsl::string bsl::to_string(long long value) {
     char tempBuf[e_MAX_INT64_STRLEN10];
-    int len = sprintf(tempBuf, "%lld", value);
+    int  len = sprintf(tempBuf, "%lld", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
     return string (tempBuf, len);
@@ -467,7 +502,7 @@ bsl::string bsl::to_string(long long value) {
 
 bsl::string bsl::to_string(unsigned long long value) {
     char tempBuf[e_MAX_INT64_STRLEN10];
-    int len = sprintf(tempBuf, "%llu", value);
+    int  len = sprintf(tempBuf, "%llu", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
     return string (tempBuf, len);
@@ -475,7 +510,7 @@ bsl::string bsl::to_string(unsigned long long value) {
 
 bsl::string bsl::to_string(float value) {
     char tempBuf[e_MAX_FLOAT_STRLEN10];
-    int len = sprintf(tempBuf, "%f", value);
+    int  len = sprintf(tempBuf, "%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
     return string (tempBuf, len);
@@ -483,7 +518,7 @@ bsl::string bsl::to_string(float value) {
 
 bsl::string bsl::to_string(double value) {
     char tempBuf[e_MAX_DOUBLE_STRLEN10];
-    int len = sprintf(tempBuf, "%f", value);
+    int  len = sprintf(tempBuf, "%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
     return string (tempBuf, len);
@@ -491,7 +526,7 @@ bsl::string bsl::to_string(double value) {
 
 bsl::string bsl::to_string(long double value) {
     char tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-    int len = sprintf(tempBuf, "%Lf", value);
+    int  len = sprintf(tempBuf, "%Lf", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
     return string (tempBuf, len);
@@ -499,9 +534,9 @@ bsl::string bsl::to_string(long double value) {
 
 bsl::wstring bsl::to_wstring(int value) {
     wchar_t tempBuf[e_MAX_INT_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%d", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%d", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
     return wstring (tempBuf, len);
@@ -509,9 +544,9 @@ bsl::wstring bsl::to_wstring(int value) {
 
 bsl::wstring bsl::to_wstring(long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%ld", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%ld", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
     return wstring (tempBuf, len);
@@ -519,9 +554,9 @@ bsl::wstring bsl::to_wstring(long value) {
 
 bsl::wstring bsl::to_wstring(long long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%lld", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%lld", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
     return wstring (tempBuf, len);
@@ -529,9 +564,9 @@ bsl::wstring bsl::to_wstring(long long value) {
 
 bsl::wstring bsl::to_wstring(unsigned value) {
     wchar_t tempBuf[e_MAX_INT_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%u", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%u", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
     return wstring (tempBuf, len);
@@ -539,9 +574,9 @@ bsl::wstring bsl::to_wstring(unsigned value) {
 
 bsl::wstring bsl::to_wstring(unsigned long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%lu", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%lu", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
     return wstring (tempBuf, len);
@@ -549,9 +584,9 @@ bsl::wstring bsl::to_wstring(unsigned long value) {
 
 bsl::wstring bsl::to_wstring(unsigned long long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%llu", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%llu", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
     return wstring (tempBuf, len);
@@ -559,9 +594,9 @@ bsl::wstring bsl::to_wstring(unsigned long long value) {
 
 bsl::wstring bsl::to_wstring(float value) {
     wchar_t tempBuf[e_MAX_FLOAT_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%f", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
     return wstring (tempBuf, len);
@@ -569,9 +604,9 @@ bsl::wstring bsl::to_wstring(float value) {
 
 bsl::wstring bsl::to_wstring(double value) {
     wchar_t tempBuf[e_MAX_DOUBLE_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%f", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
     return wstring (tempBuf, len);
@@ -579,9 +614,9 @@ bsl::wstring bsl::to_wstring(double value) {
 
 bsl::wstring bsl::to_wstring(long double value) {
     wchar_t tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-    int len = swprintf(tempBuf,
-                       sizeof tempBuf / sizeof *tempBuf,
-                       L"%Lf", value);
+    int     len = swprintf(tempBuf,
+                           sizeof tempBuf / sizeof *tempBuf,
+                           L"%Lf", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
     return wstring (tempBuf, len);

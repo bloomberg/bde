@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 // values, then collects a 'balm::MetricRecord'.
 //
 // We start by creating 'balm::MetricId' object by hand; however, in practice
-// an id should be obtained from a 'baem_MetricRegistry' object (such as the
+// an id should be obtained from a 'balm::MetricRegistry' object (such as the
 // one owned by a 'balm::MetricsManager').
 //..
     balm::Category           myCategory("MyCategory");
@@ -383,8 +383,8 @@ int main(int argc, char *argv[])
             ASSERT(VALUES[i].d_id    == r2.metricId());
             ASSERT(0                 == r2.count());
             ASSERT(0.0               == r2.total());
-            ASSERT(Rec::DEFAULT_MIN  == r2.min());
-            ASSERT(Rec::DEFAULT_MAX  == r2.max());
+            ASSERT(Rec::k_DEFAULT_MIN  == r2.min());
+            ASSERT(Rec::k_DEFAULT_MAX  == r2.max());
         }
 
       } break;
@@ -449,8 +449,8 @@ int main(int argc, char *argv[])
             ASSERT(VALUES[i].d_id    == r3.metricId());
             ASSERT(0                 == r3.count());
             ASSERT(0.0               == r3.total());
-            ASSERT(Rec::DEFAULT_MIN  == r3.min());
-            ASSERT(Rec::DEFAULT_MAX  == r3.max());
+            ASSERT(Rec::k_DEFAULT_MIN  == r3.min());
+            ASSERT(Rec::k_DEFAULT_MAX  == r3.max());
         }
 
       } break;
@@ -634,8 +634,8 @@ int main(int argc, char *argv[])
             ASSERT(METRIC           == r1.metricId().description());
             ASSERT(0                == r1.count());
             ASSERT(0                == r1.total());
-            ASSERT(Rec::DEFAULT_MIN == r1.min());
-            ASSERT(Rec::DEFAULT_MAX == r1.max());
+            ASSERT(Rec::k_DEFAULT_MIN == r1.min());
+            ASSERT(Rec::k_DEFAULT_MAX == r1.max());
 
             bsls::Types::Int64 total = 0;
             int                min   = UPDATES[i];
@@ -686,15 +686,15 @@ int main(int argc, char *argv[])
         ASSERT(METRIC_A == r1.metricId());
         ASSERT(0  == r1.count());
         ASSERT(0  == r1.total());
-        ASSERT(Rec::DEFAULT_MIN == r1.min());
-        ASSERT(Rec::DEFAULT_MAX == r1.max());
+        ASSERT(Rec::k_DEFAULT_MIN == r1.min());
+        ASSERT(Rec::k_DEFAULT_MAX == r1.max());
 
         MY.load(&r2);
         ASSERT(METRIC_B == r2.metricId());
         ASSERT(0  == r2.count());
         ASSERT(0  == r2.total());
-        ASSERT(Rec::DEFAULT_MIN == r2.min());
-        ASSERT(Rec::DEFAULT_MAX == r2.max());
+        ASSERT(Rec::k_DEFAULT_MIN == r2.min());
+        ASSERT(Rec::k_DEFAULT_MAX == r2.max());
 
         mX.update(1);
         MX.load(&r1);
@@ -725,8 +725,8 @@ int main(int argc, char *argv[])
         ASSERT(METRIC_A == r1.metricId());
         ASSERT(0  == r1.count());
         ASSERT(0  == r1.total());
-        ASSERT(Rec::DEFAULT_MIN == r1.min());
-        ASSERT(Rec::DEFAULT_MAX == r1.max());
+        ASSERT(Rec::k_DEFAULT_MIN == r1.min());
+        ASSERT(Rec::k_DEFAULT_MAX == r1.max());
 
         mX.update(3);
         mX.loadAndReset(&r1);
@@ -740,8 +740,8 @@ int main(int argc, char *argv[])
         ASSERT(METRIC_A == r1.metricId());
         ASSERT(0  == r1.count());
         ASSERT(0  == r1.total());
-        ASSERT(Rec::DEFAULT_MIN == r1.min());
-        ASSERT(Rec::DEFAULT_MAX == r1.max());
+        ASSERT(Rec::k_DEFAULT_MIN == r1.min());
+        ASSERT(Rec::k_DEFAULT_MAX == r1.max());
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
             << endl
-            << "baen_DefaultMetricsManagerScopedGuard(bsl::cout, ...)" << endl
+            << "balm::DefaultMetricsManagerScopedGuard(bsl::cout, ...)" << endl
             << "=====================================================" << endl;
 
           bslma::Default::setGlobalAllocator(&globalAllocator);
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "baen_DefaultMetricsManagerScopedGuard" << endl
+                          << "balm::DefaultMetricsManagerScopedGuard" << endl
                           << "=====================================" << endl;
 
           bslma::Default::setGlobalAllocator(&globalAllocator);

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide facilities to manage a default Zoneinfo cache object.
 //
 //@CLASSES:
-//             baltzo::DefaultZoneinfoCache: default Zoneinfo cache utilities
+//  baltzo::DefaultZoneinfoCache: default Zoneinfo cache utilities
 //  baltzo::DefaultZoneinfoCacheScopedGuard: guard for default Zoneinfo cache
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
@@ -18,20 +18,20 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: baltzo_zoneinfocache, baltzo_timezoneutil
 //
 //@DESCRIPTION: This component provides a namespace,
-// 'baltzo::DefaultZoneinfoCache', for utility functions that install and access
-// a default Zoneinfo cache object.  In addition, this component provides a
-// mechanism, 'baltzo::DefaultZoneinfoCacheScopedGuard', that facilities the
-// temporary installation of the default Zoneinfo cache object (for the
-// lifetime of the guard object).
+// 'baltzo::DefaultZoneinfoCache', for utility functions that install and
+// access a default Zoneinfo cache object.  In addition, this component
+// provides a mechanism, 'baltzo::DefaultZoneinfoCacheScopedGuard', that
+// facilities the temporary installation of the default Zoneinfo cache object
+// (for the lifetime of the guard object).
 //
 // Operations that convert a time value either from, or to, a local time
 // representation, commonly require access to time-zone information provided
 // from a 'baltzo::ZoneinfoCache' object.  Because a single set of time-zone
 // data is generally applicable to an entire task, this component provides the
-// installation and use of a process-wide default 'baltzo::ZoneinfoCache' object
-// (i.e., a Zoneinfo cache).  See 'baltzo_timezoneutil' for examples of how
-// operations may take advantage of this default cache.  Note that the behavior
-// is undefined unless this facility is used before 'main' exits.
+// installation and use of a process-wide default 'baltzo::ZoneinfoCache'
+// object (i.e., a Zoneinfo cache).  See 'baltzo_timezoneutil' for examples of
+// how operations may take advantage of this default cache.  Note that the
+// behavior is undefined unless this facility is used before 'main' exits.
 //
 ///The Automatically-Installed Default-Cache Instance
 ///--------------------------------------------------
@@ -64,9 +64,9 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // The 'baltzo::DefaultZoneinfoCache::defaultCache' method is *thread-safe*
 // unless it is called concurrently with either the 'setDefaultCache' method or
-// the 'putenv' POSIX function.  Note that the 'baltzo::ZoneinfoCache' singleton
-// is, itself, fully thread-safe (see 'baltzo_zoneinfocache'); it is only the
-// installation of the default cache that is not thread-safe.
+// the 'putenv' POSIX function.  Note that the 'baltzo::ZoneinfoCache'
+// singleton is, itself, fully thread-safe (see 'baltzo_zoneinfocache'); it is
+// only the installation of the default cache that is not thread-safe.
 //
 // 'baltzo::DefaultZoneinfoCache::setDefaultCache' is *not* *thread-safe*.  The
 // expected usage is that clients that choose to *explicitly* configure the
@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 // provided default cache) will set the default cache during the initialization
 // of their application (while the application has a single thread).
 //
-// The 'baetzo::DefaultTimeZoneCacheScopedGuard' class is not, even *minimally*
+// The 'baltzo::DefaultTimeZoneCacheScopedGuard' class is not, even *minimally*
 // *thread-safe* meaning that its constructor cannot be invoked concurrently
 // from multiple threads.
 //
@@ -99,7 +99,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  int getLocalTimeDescriptor(baltzo::LocalTimeDescriptor *result,
 //                             const bdlt::Datetime&        utcTime,
-//                             const char                 *timeZoneId,
+//                             const char                  *timeZoneId,
 //                             baltzo::ZoneinfoCache       *zoneinfoCache = 0)
 //      // Load, into the specified 'result', the local time descriptor
 //      // indicated by the specified 'utcTime' and the specified 'timeZoneId'.
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 // installed Zoneinfo cache otherwise.
 //..
 //      baltzo::ZoneinfoCache *cache =
-//                    baltzo::DefaultZoneinfoCache::defaultCache(zoneinfoCache);
+//                   baltzo::DefaultZoneinfoCache::defaultCache(zoneinfoCache);
 //      BSLS_ASSERT(0 != cache);
 //..
 // Then, now that we have a of Zoneinfo cache object, we access the time-zone
@@ -152,7 +152,7 @@ BSLS_IDENT("$Id: $")
 //  baltzo::LocalTimeDescriptor result;
 //  int rc = getLocalTimeDescriptor(&result,
 //                                  bdlt::Datetime(bdlt::Date(2011, 03, 21),
-//                                                bdlt::Time(20, 57)),
+//                                                 bdlt::Time(20, 57)),
 //                                  "America/New_York");
 //  assert(0 == rc);
 //  assert("EDT"  == result.description());
@@ -217,11 +217,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace baltzo {
-                        // =================================
+                        // ==========================
                         // class DefaultZoneinfoCache
-                        // =================================
+                        // ==========================
 
 struct DefaultZoneinfoCache {
     // This struct provides a namespace for functions that manage and access
@@ -280,9 +279,9 @@ struct DefaultZoneinfoCache {
         // zone cache.
 };
 
-                 // ============================================
-                 // class DefaultZoneinfoCacheScopedGuard
-                 // ============================================
+                // =====================================
+                // class DefaultZoneinfoCacheScopedGuard
+                // =====================================
 
 class DefaultZoneinfoCacheScopedGuard {
     // Upon construction, an object of this class saves the current default
@@ -292,20 +291,17 @@ class DefaultZoneinfoCacheScopedGuard {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    ZoneinfoCache *d_previousCache_p;  // original default Zoneinfo
-                                              // cache (to be restored on
-                                              // destruction)
+    ZoneinfoCache *d_previousCache_p;  // original default Zoneinfo cache (to
+                                       // be restored on destruction)
   private:
     // NOT IMPLEMENTED
-    DefaultZoneinfoCacheScopedGuard(
-                                const DefaultZoneinfoCacheScopedGuard&);
+    DefaultZoneinfoCacheScopedGuard(const DefaultZoneinfoCacheScopedGuard&);
     DefaultZoneinfoCacheScopedGuard& operator=(
-                                const DefaultZoneinfoCacheScopedGuard&);
+                                       const DefaultZoneinfoCacheScopedGuard&);
 
   public:
     // CREATORS
-    explicit DefaultZoneinfoCacheScopedGuard(
-                                                  ZoneinfoCache *cache);
+    explicit DefaultZoneinfoCacheScopedGuard(ZoneinfoCache *cache);
         // Create a scoped guard that installs the specified 'cache' as the
         // default Zoneinfo cache.  Note that the pre-existing default time
         // Zoneinfo cache is automatically restored on destruction of this
@@ -316,51 +312,58 @@ class DefaultZoneinfoCacheScopedGuard {
         // scoped guard was created, and destroy this guard.
 };
 
+}  // close package namespace
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // class ZoneinfoCache
-                        // --------------------------
+                            // -------------------
+                            // class ZoneinfoCache
+                            // -------------------
 
 // CLASS METHODS
 inline
-ZoneinfoCache *DefaultZoneinfoCache::defaultCache(
-                                                   ZoneinfoCache *cache)
+baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(
+                                                          ZoneinfoCache *cache)
 {
     return cache ? cache : instance();
 }
 
-                        // --------------------------------------------
-                        // class DefaultZoneinfoCacheScopedGuard
-                        // --------------------------------------------
+                // -------------------------------------
+                // class DefaultZoneinfoCacheScopedGuard
+                // -------------------------------------
 
 // CREATORS
 inline
-DefaultZoneinfoCacheScopedGuard::DefaultZoneinfoCacheScopedGuard(
-                                                   ZoneinfoCache *cache)
+baltzo::DefaultZoneinfoCacheScopedGuard::DefaultZoneinfoCacheScopedGuard(
+                                                          ZoneinfoCache *cache)
 : d_previousCache_p(DefaultZoneinfoCache::setDefaultCache(cache))
 {
 }
 
 inline
-DefaultZoneinfoCacheScopedGuard::
-~DefaultZoneinfoCacheScopedGuard()
+baltzo::DefaultZoneinfoCacheScopedGuard::~DefaultZoneinfoCacheScopedGuard()
 {
     DefaultZoneinfoCache::setDefaultCache(d_previousCache_p);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

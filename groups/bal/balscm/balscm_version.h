@@ -38,12 +38,12 @@ BSLS_IDENT("$Id: $")
 //
 //        assert(0 != balscm::Version::version());
 //
-//        bsl::cout << "BAE version: " << balscm::Version::version()
+//        bsl::cout << "BAL version: " << balscm::Version::version()
 //                  << bsl::endl;
 //..
 // Output similar to the following will be printed to 'stdout':
 //..
-//        BAE version: BLP_LIB_BAE_BAE_0.01.0
+//        BAL version: BLP_LIB_BAL_BAL_0.01.0
 //..
 // The "0.01.0" portion of the string distinguishes different versions of the
 // 'bae' package group.
@@ -55,15 +55,15 @@ BSLS_IDENT("$Id: $")
 //..
 //        $ ident a.out
 //        a.out:
-//             $Id: BLP_LIB_BAE_BAE_0.01.0 $
+//             $Id: BLP_LIB_BAL_BAL_0.01.0 $
 //
-//        $ what a.out | grep BAE
-//                BLP_LIB_BAE_BAE_0.01.0
+//        $ what a.out | grep BAL
+//                BLP_LIB_BAL_BAL_0.01.0
 //
-//        $ strings a.out | grep BAE
-//        $Id: BLP_LIB_BAE_BAE_0.01.0 $
-//        @(#)BLP_LIB_BAE_BAE_0.01.0
-//        BLP_LIB_BAE_BAE_0.01.0
+//        $ strings a.out | grep BAL
+//        $Id: BLP_LIB_BAL_BAL_0.01.0 $
+//        @(#)BLP_LIB_BAL_BAL_0.01.0
+//        BLP_LIB_BAL_BAL_0.01.0
 //..
 // Note that 'ident' and 'what' typically will display many version strings
 // unrelated to 'bae' depending on the libraries used by 'a.out'.

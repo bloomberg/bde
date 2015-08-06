@@ -19,28 +19,28 @@ namespace {
 const char *publicationTypeString(balm::PublicationType::Value value)
 {
     switch (value) {
-      case balm::PublicationType::BAEM_UNSPECIFIED: {
+      case balm::PublicationType::e_BALM_UNSPECIFIED: {
         BSLS_ASSERT(false && "Invalid publication type");
       } break;
-      case balm::PublicationType::BAEM_TOTAL: {
+      case balm::PublicationType::e_BALM_TOTAL: {
         return "total";
       }
-      case balm::PublicationType::BAEM_COUNT: {
+      case balm::PublicationType::e_BALM_COUNT: {
         return "count";
       }
-      case balm::PublicationType::BAEM_MIN: {
+      case balm::PublicationType::e_BALM_MIN: {
         return "min";
       }
-      case balm::PublicationType::BAEM_MAX: {
+      case balm::PublicationType::e_BALM_MAX: {
         return "max";
       }
-      case balm::PublicationType::BAEM_AVG: {
+      case balm::PublicationType::e_BALM_AVG: {
         return "avg (total/count)";
       }
-      case balm::PublicationType::BAEM_RATE: {
+      case balm::PublicationType::e_BALM_RATE: {
         return "rate (total/elapsedTime)";
       }
-      case balm::PublicationType::BAEM_RATE_COUNT: {
+      case balm::PublicationType::e_BALM_RATE_COUNT: {
         return "rate (count/elapsedTime)";
       }
     }
@@ -78,28 +78,28 @@ void formatValue(bsl::ostream&                stream,
                  const balm::MetricFormatSpec *formatSpec)
 {
     switch (publicationType) {
-      case balm::PublicationType::BAEM_UNSPECIFIED: {
+      case balm::PublicationType::e_BALM_UNSPECIFIED: {
         BSLS_ASSERT(false && "Invalid publication type");
       } break;
-      case balm::PublicationType::BAEM_TOTAL: {
+      case balm::PublicationType::e_BALM_TOTAL: {
         formatValue(stream, record.total(), formatSpec);
       } break;
-      case balm::PublicationType::BAEM_COUNT: {
+      case balm::PublicationType::e_BALM_COUNT: {
         formatValue(stream, record.count(), formatSpec);
       } break;
-      case balm::PublicationType::BAEM_MIN: {
+      case balm::PublicationType::e_BALM_MIN: {
         formatValue(stream, record.min(), formatSpec);
       } break;
-      case balm::PublicationType::BAEM_MAX: {
+      case balm::PublicationType::e_BALM_MAX: {
         formatValue(stream, record.max(), formatSpec);
       } break;
-      case balm::PublicationType::BAEM_AVG: {
+      case balm::PublicationType::e_BALM_AVG: {
         formatValue(stream, record.total() / record.count(), formatSpec);
       } break;
-      case balm::PublicationType::BAEM_RATE: {
+      case balm::PublicationType::e_BALM_RATE: {
         formatValue(stream, record.total() / elapsedTime, formatSpec);
       } break;
-      case balm::PublicationType::BAEM_RATE_COUNT: {
+      case balm::PublicationType::e_BALM_RATE_COUNT: {
         formatValue(stream, record.count() / elapsedTime, formatSpec);
       } break;
     }
@@ -117,7 +117,7 @@ void publishRecord(bsl::ostream&            stream,
 
     stream << "\t\t" << record.metricId() << "[ ";
 
-    if (publicationType != balm::PublicationType::BAEM_UNSPECIFIED) {
+    if (publicationType != balm::PublicationType::e_BALM_UNSPECIFIED) {
         stream << publicationTypeString(publicationType) << " = ";
         const balm::MetricFormatSpec *formatSpec =
                               format ? format->formatSpec(publicationType) : 0;
@@ -131,23 +131,23 @@ void publishRecord(bsl::ostream&            stream,
         const balm::MetricFormatSpec *maxSpec   = 0;
 
         if (format) {
-            countSpec = format->formatSpec(balm::PublicationType::BAEM_COUNT);
-            totalSpec = format->formatSpec(balm::PublicationType::BAEM_TOTAL);
-            minSpec   = format->formatSpec(balm::PublicationType::BAEM_MIN);
-            maxSpec   = format->formatSpec(balm::PublicationType::BAEM_MAX);
+           countSpec = format->formatSpec(balm::PublicationType::e_BALM_COUNT);
+           totalSpec = format->formatSpec(balm::PublicationType::e_BALM_TOTAL);
+           minSpec   = format->formatSpec(balm::PublicationType::e_BALM_MIN);
+           maxSpec   = format->formatSpec(balm::PublicationType::e_BALM_MAX);
         }
         stream << "count = ";
         formatValue(stream, record.count(), countSpec);
         stream << ", total = ";
         formatValue(stream, record.total(), totalSpec);
-        if (balm::MetricRecord::DEFAULT_MIN == record.min()) {
+        if (balm::MetricRecord::k_DEFAULT_MIN == record.min()) {
             stream << ", min = undefined";
         }
         else {
             stream << ", min = ";
             formatValue(stream, record.min(), minSpec);
         }
-        if (balm::MetricRecord::DEFAULT_MAX == record.max()) {
+        if (balm::MetricRecord::k_DEFAULT_MAX == record.max()) {
             stream << ", max = undefined";
         }
         else {

@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != Obj::version());
 
             if (veryVerbose) {
-                cout << "BAE version: " << Obj::version() << endl;
+                cout << "BAL version: " << Obj::version() << endl;
             }
         }
       } break;
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
         {
             const char *version = Obj::version();
-            ASSERT(0 == strncmp(version, "BLP_LIB_BDE_BAE_", 16));
+            ASSERT(0 == strncmp(version, "BLP_LIB_BDE_BAL_", 16));
         }
       } break;
       default: {

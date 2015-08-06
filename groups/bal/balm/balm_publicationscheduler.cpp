@@ -6,7 +6,8 @@ BSLS_IDENT_RCSID(balm_publicationscheduler_cpp,"$Id$ $CSID$")
 
 #include <balm_metricsmanager.h>
 
-#include <bdlqq_xxxthread.h>
+#include <bdlqq_mutex.h>
+#include <bdlqq_lockguard.h>
 #include <bdlmt_timereventscheduler.h>
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
@@ -129,8 +130,8 @@ class PublicationScheduler_ClockData {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(PublicationScheduler_ClockData,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(PublicationScheduler_ClockData,
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit PublicationScheduler_ClockData(

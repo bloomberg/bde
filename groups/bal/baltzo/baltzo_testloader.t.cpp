@@ -32,15 +32,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test provides 'baltzo::TestLoader', a class with a simple
-// (easily verified) implementation of the of the 'baltzo::Loader', which is
-// used to test components dependent on that protocol.  Once a the test loader
-// object is primed (via the overloaded 'setTimeZone' method) with a set of
-// known 'baltzo::Zoneinfo' objects, the 'loadTimeZone' method -- the sole,
-// non-CREATOR (virtual) method of the protocol -- can be used to obtain those
-// objects.  Note that this design is convenient for testing components because
-// the user can easily control the timezone information available from the
-// loader.
+// The component under test provides 'baltzo::TestLoader', a class with a
+// simple (easily verified) implementation of the of the 'baltzo::Loader',
+// which is used to test components dependent on that protocol.  Once a the
+// test loader object is primed (via the overloaded 'setTimeZone' method) with
+// a set of known 'baltzo::Zoneinfo' objects, the 'loadTimeZone' method -- the
+// sole, non-CREATOR (virtual) method of the protocol -- can be used to obtain
+// those objects.  Note that this design is convenient for testing components
+// because the user can easily control the timezone information available from
+// the loader.
 //
 // There are two broad concerns in the testing of the 'baltzo::TestLoader'
 // class:
@@ -51,8 +51,8 @@ using namespace bsl;
 // is, in effect, the only ACCESSOR for the container.  (Formally,
 // 'loadTimeZone' is not an ACCESSOR because it is non-'const'.)
 //
-// Although 'baltzo::TestLoader' is a container, it is limited functionality, so
-// many of the normal container concerns do not apply.
+// Although 'baltzo::TestLoader' is a container, it is limited functionality,
+// so many of the normal container concerns do not apply.
 //
 // Global Concerns:
 //: o No memory is ever allocated from the global allocator.
@@ -746,7 +746,7 @@ struct LogVerbosityGuard {
         d_verbose = verbose;
         if (!d_verbose) {
             d_defaultPassthrough =
-                   ball::LoggerManager::singleton().defaultPassThresholdLevel();
+                  ball::LoggerManager::singleton().defaultPassThresholdLevel();
 
             ball::Administration::setDefaultThresholdLevels(
                                               ball::Severity::BAEL_OFF,
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
     ball::DefaultObserver            observer(&bsl::cout);
     ball::LoggerManagerConfiguration configuration;
     ball::LoggerManager&             manager =
-                   ball::LoggerManager::initSingleton(&observer, configuration);
+                  ball::LoggerManager::initSingleton(&observer, configuration);
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
@@ -981,8 +981,8 @@ int main(int argc, char *argv[])
         //:   object.  (C-3, 7)
         //:
         //: 2 Using the table-driven technique: (C-1, 2, 6)
-        //:   1 Prepare two 'bael::TestLoader' objects: one empty, the other set
-        //:     with a 'bael::Zoneinfo' object.
+        //:   1 Prepare two 'baltzo::TestLoader' objects: one empty, the other
+        //:     set with a 'baltzo::Zoneinfo' object.
         //:   2 Create a table of selected combinations of the two objects
         //:     ('obj0' and 'obj1') for various values for the formatting
         //:     parameters ('level' and 'spacesPerLevel'), along with the
@@ -1036,16 +1036,16 @@ int main(int argc, char *argv[])
             baltzo::LocalTimeDescriptor londonType( 10, true, "LONDONTIME", Z);
             baltzo::LocalTimeDescriptor  tokyoType( 10, true, "TOKYOTIME",  Z);
 
-            const bdlt::Datetime NY_DATETIME     = bdlt::Datetime(2009, 2, 1, 1);
-            const bdlt::Datetime LONDON_DATETIME = bdlt::Datetime(2009, 2, 1, 1);
-            const bdlt::Datetime TOKYO_DATETIME  = bdlt::Datetime(2009, 2, 1, 1);
+           const bdlt::Datetime NY_DATETIME(2009, 2, 1, 1);
+           const bdlt::Datetime LONDON_DATETIME(2009, 2, 1, 1);
+           const bdlt::Datetime TOKYO_DATETIME(2009, 2, 1, 1);
 
             const bsls::Types::Int64 NY_INT64     =
-                                    bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
+                                bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
             const bsls::Types::Int64 LONDON_INT64 =
-                                bdlt::EpochUtil::convertToTimeT64(LONDON_DATETIME);
+                            bdlt::EpochUtil::convertToTimeT64(LONDON_DATETIME);
             const bsls::Types::Int64 TOKYO_INT64  =
-                                 bdlt::EpochUtil::convertToTimeT64(TOKYO_DATETIME);
+                             bdlt::EpochUtil::convertToTimeT64(TOKYO_DATETIME);
 
             newYork.addTransition(NY_INT64, nyType);
             london.addTransition(LONDON_INT64, londonType);
@@ -1089,10 +1089,9 @@ int main(int argc, char *argv[])
                               << endl;
 
             baltzo::LocalTimeDescriptor nyType(-10, true, "NYTIME", Z);
-            const bdlt::Datetime        NY_DATETIME =
-                                                 bdlt::Datetime(2009, 12, 1, 1);
-            const bsls::Types::Int64   NY_INT64 =
-                                    bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
+            const bdlt::Datetime        NY_DATETIME(2009, 12, 1, 1);
+            const bsls::Types::Int64    NY_INT64 =
+                                bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
             baltzo::Zoneinfo            newYork(Z);
             newYork.setIdentifier("America/New_York");
             newYork.addTransition(NY_INT64, nyType);
@@ -1266,7 +1265,8 @@ int main(int argc, char *argv[])
         //:   corresponding 'baltzo::Zoneinfo' object.
         //:   1 Create a default (empty) 'baltzo::TestLoader'.
         //:   2 Using the 'setTimeZone' method, insert each of the
-        //:     'baltzo::Zoneinfo' objects into the 'baltzo::TestLoader' object.
+        //:     'baltzo::Zoneinfo' objects into the 'baltzo::TestLoader'
+        //:     object.
         //:   3 Confirm via the 'loadTimeZone' method that each insertion has
         //:     made available the inserted object and that all other
         //:     previously inserted objects are still accessible and unchanged.
@@ -1311,16 +1311,16 @@ int main(int argc, char *argv[])
             baltzo::LocalTimeDescriptor londonType( 10, true, "LONDONTIME", Z);
             baltzo::LocalTimeDescriptor  tokyoType( 10, true, "TOKYOTIME",  Z);
 
-            const bdlt::Datetime NY_DATETIME     = bdlt::Datetime(2009, 2, 1, 1);
-            const bdlt::Datetime LONDON_DATETIME = bdlt::Datetime(2009, 2, 1, 1);
-            const bdlt::Datetime TOKYO_DATETIME  = bdlt::Datetime(2009, 2, 1, 1);
+            const bdlt::Datetime NY_DATETIME(2009, 2, 1, 1);
+            const bdlt::Datetime LONDON_DATETIME(2009, 2, 1, 1);
+            const bdlt::Datetime TOKYO_DATETIME(2009, 2, 1, 1);
 
             const bsls::Types::Int64 NY_INT64     =
-                                    bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
+                                bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
             const bsls::Types::Int64 LONDON_INT64 =
-                                bdlt::EpochUtil::convertToTimeT64(LONDON_DATETIME);
+                            bdlt::EpochUtil::convertToTimeT64(LONDON_DATETIME);
             const bsls::Types::Int64 TOKYO_INT64  =
-                                 bdlt::EpochUtil::convertToTimeT64(TOKYO_DATETIME);
+                             bdlt::EpochUtil::convertToTimeT64(TOKYO_DATETIME);
 
             newYork.addTransition(NY_INT64,     nyType);
             london.addTransition(LONDON_INT64, londonType);
@@ -1335,13 +1335,13 @@ int main(int argc, char *argv[])
             Obj             mX;
 
             rc = mX.loadTimeZone(&timeZone, nyId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, londonId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, tokyoId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(newYork);
 
@@ -1349,11 +1349,11 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(newYork                                 == timeZone);
             rc = mX.loadTimeZone(&timeZone, londonId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, tokyoId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(london);
 
@@ -1364,9 +1364,9 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(london                                  == timeZone);
             rc = mX.loadTimeZone(&timeZone, tokyoId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(tokyo);
 
@@ -1380,22 +1380,22 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(tokyo                                   == timeZone);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 
             // ---------------------------------------------------------------
-            // Create, 'newYorkPrime', a 'bael::Zoneinfo' object, an object
+            // Create, 'newYorkPrime', a 'baltzo::Zoneinfo' object, an object
             // with the same time-zone identifier as the 'newYork' object,
             // but different attributes otherwise.
             // ---------------------------------------------------------------
 
             baltzo::Zoneinfo newYorkPrime(Z); newYorkPrime.setIdentifier(
                                                          newYork.identifier());
-            baltzo::LocalTimeDescriptor nyTypePrime(-11, false, "NYMINUTE",  Z);
+            baltzo::LocalTimeDescriptor nyTypePrime(
+                                                   -11, false, "NYMINUTE",  Z);
 
-            const bdlt::Datetime NY_DATETIME_PRIME  =
-                                                 bdlt::Datetime(2001, 9, 11, 2);
+            const bdlt::Datetime     NY_DATETIME_PRIME(2001, 9, 11, 2);
             const bsls::Types::Int64 NY_INT64_PRIME =
-                              bdlt::EpochUtil::convertToTimeT64(NY_DATETIME_PRIME);
+                          bdlt::EpochUtil::convertToTimeT64(NY_DATETIME_PRIME);
             newYorkPrime.addTransition(NY_INT64_PRIME, nyTypePrime);
 
             ASSERT(newYork != newYorkPrime);
@@ -1412,7 +1412,7 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(tokyo                                   == timeZone);
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
         }
 
         if (verbose) cout << "\nWith 'setTimezone' raw interface" << endl;
@@ -1456,13 +1456,13 @@ int main(int argc, char *argv[])
             Obj              mX;
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, EUROPE_ROME_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, ASIA_SAIGON_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(
                         AMERICA_NEW_YORK_ID,
@@ -1473,11 +1473,11 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(newYork                                 == timeZone);
             rc = mX.loadTimeZone(&timeZone, EUROPE_ROME_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, ASIA_SAIGON_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(EUROPE_ROME_ID,
                            reinterpret_cast<const char  *>(EUROPE_ROME_DATA),
@@ -1490,9 +1490,9 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(rome                                    == timeZone);
             rc = mX.loadTimeZone(&timeZone, ASIA_SAIGON_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(ASIA_SAIGON_ID,
                            reinterpret_cast<const char  *>(ASIA_SAIGON_DATA),
@@ -1508,7 +1508,7 @@ int main(int argc, char *argv[])
             ASSERT(0                                       == rc);
             ASSERT(saigon                                  == timeZone);
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1559,11 +1559,11 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // CTOR AND DTOR Ensure that we can use the default constructor to
-        //   create an 'bael::TestLoader' object, add 'bael::Zoneinfo' objects,
-        //   access added 'bael::Zoneinfo' objects, and use the destructor to
-        //   destroy the 'bael::TestLoader' object safely.  Although the
-        //   'setTimeZone' and 'loadTimeZone' methods are used here, they are
-        //   not thoroughly tested until case 3.
+        //   create an 'baltzo::TestLoader' object, add 'baltzo::Zoneinfo'
+        //   objects, access added 'baltzo::Zoneinfo' objects, and use the
+        //   destructor to destroy the 'baltzo::TestLoader' object safely.
+        //   Although the 'setTimeZone' and 'loadTimeZone' methods are used
+        //   here, they are not thoroughly tested until case 3.
         //
         // Concerns:
         //: 1 If an allocator is *not* supplied to the default constructor, the
@@ -1586,7 +1586,7 @@ int main(int argc, char *argv[])
         //:   allocator.
         //
         // Plan:
-        //: 1 Create a 'bael::Zoneinfo' object.
+        //: 1 Create a 'baltzo::Zoneinfo' object.
         //:
         //: 2 Using a loop-based approach, default-construct three distinct
         //:   objects in turn, each configured differently: (a) without passing
@@ -1625,8 +1625,10 @@ int main(int argc, char *argv[])
         //:   8 In a separate block, test for exception-neutrality using the
         //:     standard 'BSLMA_TESTALLOCATOR_EXCEPTION*' macros.  (C-6)
         //
-        // Testing: baltzo::TestLoader(bslma::Allocator *basicAllocator = 0);
-        //   ~baltzo::TestLoader(); void setTimeZone(const baltzo::Zoneinfo& tz);
+        // Testing:
+        //   baltzo::TestLoader(bslma::Allocator *basicAllocator = 0);
+        //   ~baltzo::TestLoader();
+        //   void setTimeZone(const baltzo::Zoneinfo& tz);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nCTOR AND DOR"
@@ -1642,9 +1644,9 @@ int main(int argc, char *argv[])
         // Add some bogus data
         baltzo::LocalTimeDescriptor nyType(-10, true, "NYTIME", Z);
 
-        const bdlt::Datetime      NY_DATETIME = bdlt::Datetime(2009, 12, 1, 1);
+        const bdlt::Datetime     NY_DATETIME(2009, 12, 1, 1);
         const bsls::Types::Int64 NY_INT64    =
-                                    bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
+                                bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
 
         newYork.addTransition(NY_INT64, nyType);
 
@@ -1710,7 +1712,7 @@ int main(int argc, char *argv[])
             baltzo::Zoneinfo timeZone(Z);
             int             rc;
             rc = mX.loadTimeZone(&timeZone, badId);
-            ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID
+            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID
                            == rc);
             rc = mX.loadTimeZone(&timeZone, nyId);
             ASSERT(0       == rc);
@@ -1805,16 +1807,16 @@ int main(int argc, char *argv[])
         baltzo::LocalTimeDescriptor londonType( 10, true, "LONDONTIME", Z);
         baltzo::LocalTimeDescriptor  tokyoType( 10, true, "TOKYOTIME",  Z);
 
-        const bdlt::Datetime NY_DATETIME     = bdlt::Datetime(2009, 12, 1, 1);
-        const bdlt::Datetime LONDON_DATETIME = bdlt::Datetime(2009, 12, 1, 1);
-        const bdlt::Datetime TOKYO_DATETIME  = bdlt::Datetime(2009, 12, 1, 1);
+        const bdlt::Datetime NY_DATETIME(2009, 12, 1, 1);
+        const bdlt::Datetime LONDON_DATETIME(2009, 12, 1, 1);
+        const bdlt::Datetime TOKYO_DATETIME(2009, 12, 1, 1);
 
         const bsls::Types::Int64 NY_INT64     =
-                                    bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
+                                bdlt::EpochUtil::convertToTimeT64(NY_DATETIME);
         const bsls::Types::Int64 LONDON_INT64 =
-                                bdlt::EpochUtil::convertToTimeT64(LONDON_DATETIME);
+                            bdlt::EpochUtil::convertToTimeT64(LONDON_DATETIME);
         const bsls::Types::Int64 TOKYO_INT64  =
-                                 bdlt::EpochUtil::convertToTimeT64(TOKYO_DATETIME);
+                             bdlt::EpochUtil::convertToTimeT64(TOKYO_DATETIME);
 
         newYork.addTransition(NY_INT64, nyType);
         london.addTransition(LONDON_INT64, londonType);
@@ -1825,16 +1827,16 @@ int main(int argc, char *argv[])
         baltzo::Loader& loader = x;
 
         baltzo::Zoneinfo value(Z);
-        ASSERT(Err::BAETZO_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
-        ASSERT(Err::BAETZO_UNSUPPORTED_ID == x.loadTimeZone(&value, nyId));
-        ASSERT(Err::BAETZO_UNSUPPORTED_ID == x.loadTimeZone(&value, londonId));
-        ASSERT(Err::BAETZO_UNSUPPORTED_ID == x.loadTimeZone(&value, tokyoId));
+        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
+        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, nyId));
+        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, londonId));
+        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, tokyoId));
 
         x.setTimeZone(newYork);
         x.setTimeZone(london);
         x.setTimeZone(tokyo);
 
-        ASSERT(Err::BAETZO_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
+        ASSERT(Err::BALTZO_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));
         ASSERT(0     == x.loadTimeZone(&value, nyId));
         ASSERT(value == newYork);
         ASSERT(0     == x.loadTimeZone(&value, londonId));
@@ -1850,7 +1852,8 @@ int main(int argc, char *argv[])
                             sizeof(ASIA_BANGKOK_DATA)));
         ASSERT(0 == x.loadTimeZone(&value, ASIA_BANGKOK_ID));
 
-        // Bangkok data file has 1 transition, +1 for the first 'bdlt::Datetime'
+        // Bangkok data file has 1 transition, +1 for the first
+        // 'bdlt::Datetime'
 
         LOOP_ASSERT(value.numTransitions(), 3 == value.numTransitions());
 
@@ -1873,11 +1876,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

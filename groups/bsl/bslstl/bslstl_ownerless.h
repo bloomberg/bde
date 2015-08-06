@@ -19,7 +19,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@DESCRIPTION: This component provides the C+11 standard binary comparison
 // functor, 'bsl::owner_less', that determines the order of two smart pointer
 // objects by the relative order of the address of their 'bslma::SharedPtrRep'
-// data.. Note that this class is an empty POD type.
+// data.  Note that this class is an empty POD type.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -62,7 +62,7 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
 
     //! owner_less(const owner_less& original) = default;
         // Create an 'owner_less' object.  Note that as 'hash' is an empty
-        // (stateless) type, this operation will have no observable effect.
+        // (stateless) type, this operation has no observable effect.
 
     //! ~owner_less() = default;
         // Destroy this object.
@@ -72,7 +72,7 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  Note
         // that as 'owner_less' is an empty (stateless) type, this operation
-        // will have no observable effect.
+        // has no observable effect.
 
     // ACCESSORS
     bool operator()(const shared_ptr<ELEMENT_TYPE>& a,
@@ -103,7 +103,7 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
 
     //! owner_less(const owner_less& original) = default;
         // Create an 'owner_less' object.  Note that as 'hash' is an empty
-        // (stateless) type, this operation will have no observable effect.
+        // (stateless) type, this operation has no observable effect.
 
     //! ~owner_less() = default;
         // Destroy this object.
@@ -113,7 +113,7 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  Note
         // that as 'owner_less' is an empty (stateless) type, this operation
-        // will have no observable effect.
+        // has no observable effect.
 
     // ACCESSORS
     bool operator()(const weak_ptr<ELEMENT_TYPE>&   a,

@@ -15,6 +15,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <limits>
 #include <math.h>
@@ -88,30 +89,33 @@ using namespace bslh;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
 // ============================================================================
-//                      STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -120,13 +124,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -155,7 +158,7 @@ void aSsErT(bool b, const char *s, int i)
 //
 ///Example 1: Keying a hash table with a user defined type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a value semantic type, 'Box', that contains attributes that
+// Suppose we have a value-semantic type, 'Box', that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
 // hashing.  Some of these attributes are themselves user defined types.  We
 // want to store objects of type 'Box' in a hash table, so we need to be able
@@ -169,7 +172,7 @@ void aSsErT(bool b, const char *s, int i)
 // two dimensional Cartesian plane.
 //..
     class Point {
-        // This class is a value semantic type that represents a two
+        // This class is a value-semantic type that represents a two
         // dimensional location on a Cartesian plane.
 
       private:
@@ -249,11 +252,11 @@ void aSsErT(bool b, const char *s, int i)
         hashAppend(hashAlg, point.getY());
     }
 //..
-// Then, we declare another value semantic type, 'Box' that will have a 'Point'
+// Then, we declare another value-semantic type, 'Box' that will have a 'Point'
 // as one of its attributes that are salient to hashing.
 //..
     class Box {
-        // This class is a value semantic type that represents a box drawn on
+        // This class is a value-semantic type that represents a box drawn on
         // to a Cartesian plane.
 
       private:
@@ -824,7 +827,9 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
-//  bool veryVeryVeryVerbose = argc > 5;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVeryVeryVerbose;  // suppress warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -975,8 +980,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING BDE TRAITS"
                             "\n==================\n");
-
-        typedef int TYPE;
 
         if (verbose) printf("ASSERT the presence of each trait using the"
                             " 'bslalg::HasTrait' metafunction. (C-1..3)\n");

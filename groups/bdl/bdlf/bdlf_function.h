@@ -1145,7 +1145,7 @@ void swap(bdlf::Function<PROTOTYPE>& a, bdlf::Function<PROTOTYPE>& b);
 #ifdef BSLS_PLATFORM_CMP_IBM
 
                         // ==============================
-                        // struct bdef::Function_Invocable
+                        // struct bdlf::Function_Invocable
                         // ==============================
 
 
@@ -1394,9 +1394,9 @@ struct Function_TypeList {
 #else
 
 #define BDLF_FUNCTION_INVOKER(FUNC, rep) \
-       (((const bdef::Function_Invocable<FUNC, INVOKER_TAG> *)rep)->invocable())
+       (((const bdlf::Function_Invocable<FUNC, INVOKER_TAG> *)rep)->invocable())
     // This private local macro expands to a call to 'repImpl->invocable',
-    // where 'repImpl' is 'rep' reinterpreted as the 'bdef::Function_Invocable'
+    // where 'repImpl' is 'rep' reinterpreted as the 'bdlf::Function_Invocable'
     // object corresponding to the 'FUNC' invocable type with its appropriate
     // traits.  The behavior is undefined unless the
     // 'BDLF_FUNCTION_DECLARE_INVOKER_TAG(FUNC)' macro has been expanded in the

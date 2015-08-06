@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // number of allocation requests exceeds the allocator's allocation limit.
 // This example demonstrates how to use a user-defined allocator (e.g.,
 // 'my_Allocator') and 'bslma::TestAllocatorException' to verify that an object
-// (e.g., 'my_ShortArray') under test is exception neutral:
+// (e.g., 'my_ShortArray') under test is exception-neutral:
 //..
 //  // my_allocator.h
 //  #include <bslma_allocator.h>

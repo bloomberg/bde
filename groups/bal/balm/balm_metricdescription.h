@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // 'balm::MetricDescription' class suppresses copy construction and assignment,
 // and does not provide equality operators: Applications should use a *single*
 // 'balm::MetricDescription' object per metric (such as one provided by the
-// *'baem_MetricRegistry'* component).
+// *'balm::MetricRegistry'* component).
 //
 // IMPORTANT: The metric description's 'name', whose type is 'const char *',
 // must remain constant and valid throughout the lifetime of the
@@ -34,9 +34,9 @@ BSLS_IDENT("$Id: $")
 // 'balm::MetricDescription' is *const* *thread-safe*, meaning that accessors
 // may be invoked concurrently from different threads, but it is not safe to
 // access or modify a 'balm::MetricDescription' in one thread while another
-// thread modifies the same object.  However, clients of the 'baem' package
+// thread modifies the same object.  However, clients of the 'balm' package
 // accessing a non-modifiable 'balm::MetricDescription' supplied by a
-// 'baem_MetricRegistry' (by way of a 'balm::MetricId') can safely access the
+// 'balm::MetricRegistry' (by way of a 'balm::MetricId') can safely access the
 // properties of that metric description at any time.
 //
 ///Usage
@@ -148,7 +148,7 @@ class MetricDescription {
     // PUBLIC TYPES
     typedef int UserDataKey;
         // A key used to refer to a data value associated with a metric.  Note
-        // that a 'UserDataKey' can be used by clients of 'baem' to associate
+        // that a 'UserDataKey' can be used by clients of 'balm' to associate
         // additional information with a metric.  See 'balm_metricregistry'
         // for information on obtaining a unique key.
 
@@ -160,7 +160,7 @@ class MetricDescription {
         // specified 'name'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The initial value for
-        // 'preferredPublicationType' is 'BAEM_UNSPECIFIED', and the initial
+        // 'preferredPublicationType' is 'e_BALM_UNSPECIFIED', and the initial
         // value for 'format' is 0.  The behavior is undefined unless 'name'
         // and 'category' remain valid, and the contents of 'name' remain
         // unmodified, for the lifetime of this object.
@@ -197,7 +197,7 @@ class MetricDescription {
     void setUserData(UserDataKey key, const void *value);
         // Associate the specified 'value' with the specified data 'key'.  The
         // behavior is undefined unless 'key >= 0'.  Note that this method
-        // allows clients of 'baem' to associate (opaque) application-specific
+        // allows clients of 'balm' to associate (opaque) application-specific
         // information with a metric.
 
     // ACCESSORS
@@ -230,7 +230,7 @@ class MetricDescription {
         // user-data 'key'.  If the data for 'key' has not been set, a value of
         // 0 is returned, which is indistinguishable from a valid 'key' with a
         // 0 value.  The behavior is undefined unless 'key >= 0'.    Note that
-        // this method allows clients of 'baem' to access the (opaque)
+        // this method allows clients of 'balm' to access the (opaque)
         // application-specific information that they have previously
         // associated with a metric (via 'setUserData').
 
@@ -269,7 +269,7 @@ MetricDescription::MetricDescription(
                                            bslma::Allocator    *basicAllocator)
 : d_category_p(category)
 , d_name_p(name)
-, d_preferredPublicationType(PublicationType::BAEM_UNSPECIFIED)
+, d_preferredPublicationType(PublicationType::e_BALM_UNSPECIFIED)
 , d_format()
 , d_userData(basicAllocator)
 , d_mutex()

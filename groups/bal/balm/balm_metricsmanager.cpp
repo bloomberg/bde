@@ -26,8 +26,8 @@ BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 //
 //                     PublicationHelper: namespace for 'publish' template
 //                            MapProctor: a proctor for inserting into a map
-// baem::MetricsManager_PublisherRegistry: registry of 'balm::Publisher' objects
-//  baem::MetricsManager_CallbackRegistry: registry of callback functors
+// balm::MetricsManager_PublisherRegistry: registry of 'balm::Publisher' objects
+//  balm::MetricsManager_CallbackRegistry: registry of callback functors
 //
 // The classes are defined here, in the implementation, to avoid exposing the
 // implementation details of the metrics manager in the component header.
@@ -36,7 +36,7 @@ namespace BloombergLP {
 
 namespace {
 
-const char LOG_CATEGORY[] = "BAEM.METRICSMANAGER";
+const char LOG_CATEGORY[] = "BALM.METRICSMANAGER";
 
 struct SampleDescription {
     // This type is used by 'collectSample' to indirectly refer to a series of
@@ -223,7 +223,7 @@ namespace balm {
 class MetricsManager_PublisherRegistry {
     // This class provides a mechanism for associating a 'Publisher'
     // object with one or more categories, or associating a 'Publisher'
-    // with every category.  The 'baem_Metricsmanager_PublisherRegistry' is
+    // with every category.  The 'balm::Metricsmanager_PublisherRegistry' is
     // responsible for managing the registration of 'Publisher' objects
     // for a 'MetricsManager' object.
 
@@ -288,8 +288,8 @@ class MetricsManager_PublisherRegistry {
         // clients).
 
     // PUBLIC TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MetricsManager_PublisherRegistry,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_PublisherRegistry,
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_PublisherRegistry(bslma::Allocator *basicAllocator);
@@ -375,7 +375,7 @@ class MetricsManager_PublisherRegistry {
 class MetricsManager_CallbackRegistry {
     // This class provides a mechanism for associating a
     // 'MetricsCollectionCallback' functor with a category.  The
-    // 'baem_Metricsmanager_CallbackRegistry' is responsible for managing the
+    // 'balm::Metricsmanager_CallbackRegistry' is responsible for managing the
     // registration of 'MetricsCollectionCallback' objects for a
     // 'MetricsManager' object.
 
@@ -411,8 +411,8 @@ class MetricsManager_CallbackRegistry {
         // 'MetricsManager' (therefore, it is not exposed to clients).
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MetricsManager_CallbackRegistry,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_CallbackRegistry,
+                                 bslma::UsesBslmaAllocator);
 
     // CREATORS
     MetricsManager_CallbackRegistry(bslma::Allocator *basicAllocator = 0);

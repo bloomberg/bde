@@ -1193,7 +1193,7 @@ int main(int argc, char *argv[])
             {  L_, Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,   1,
                                                  "PERIOD_ICMA_ACTUAL_ACTUAL" },
 #if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-            {  L_, 0,                                  0,
+            {  L_, -1,                                  0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, ABOVE_ENUM_RANGE,                   0,
                                                   "(* Unknown Enumerator *)" },
@@ -1229,7 +1229,7 @@ int main(int argc, char *argv[])
 
                 const char *res = Obj::toAscii(VALUE);
                 if (veryVerbose) { cout << '\t'; P_(i); P_(VALUE); P(res); }
-                ASSERTV(LINE, i, 0 == strcmp(EXP, res));
+                ASSERTV(LINE, i, EXP, res, 0 == strcmp(EXP, res));
             }
 
             typedef const char *(*FuncPtr)(Enum);

@@ -11,7 +11,7 @@ namespace BloombergLP {
 
 // STATIC DATA
 static
-const char LOG_CATEGORY[] = "BAEM.METRICS";
+const char LOG_CATEGORY[] = "BALM.METRICS";
 
 static
 const char *TYPE_STRING[] = {
