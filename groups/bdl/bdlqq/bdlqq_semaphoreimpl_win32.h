@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides an implementation of 'bdlqq::Semaphore'
 // for Windows (win32) via the template specialization:
 //..
-//  bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Threads>
+//  bdlqq::SemaphoreImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::Semaphore'.
@@ -51,7 +51,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 struct _SECURITY_ATTRIBUTES;
-typedef struct _SECURITY_ATTRIBUTES SECURITY_ATTRIBUTES, *LPSECURITY_ATTRIBUTES;
+typedef struct _SECURITY_ATTRIBUTES  SECURITY_ATTRIBUTES;
+typedef struct _SECURITY_ATTRIBUTES *LPSECURITY_ATTRIBUTES;
 typedef long LONG, *LPLONG;
 typedef int BOOL;
 typedef void *HANDLE;
@@ -86,28 +87,29 @@ extern "C" {
 
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename SEMAPHORE_POLICY>
+template <class SEMAPHORE_POLICY>
 class SemaphoreImpl;
 
-           // ========================================================
-           // class SemaphoreImpl<bdlqq::Platform::Win32Semaphore>
-           // ========================================================
+            // =============================================
+            // class SemaphoreImpl<Platform::Win32Semaphore>
+            // =============================================
 
 template <>
-class SemaphoreImpl<bdlqq::Platform::Win32Semaphore> {
+class SemaphoreImpl<Platform::Win32Semaphore> {
     // This class provides a full specialization of 'SemaphoreImpl'
     // for win32.  The implementation provided here defines an efficient
     // POSIX like semaphore.
 
     // DATA
-    void          *d_handle;     // TBD doc
+    void            *d_handle;     // TBD doc
 
-    bsls::AtomicInt d_resources;  // if positive, number of available resources
-                                 // if negative: number of waiting threads
-                                 // (need this because Windows does not provide
-                                 //  a mechanism to get the semaphore count)
+    bsls::AtomicInt  d_resources;  // if positive, number of available
+                                   // resources if negative: number of waiting
+                                   // threads (need this because Windows does
+                                   // not provide a mechanism to get the
+                                   // semaphore count)
 
     // NOT IMPLEMENTED
     SemaphoreImpl(const SemaphoreImpl&);
@@ -142,18 +144,19 @@ class SemaphoreImpl<bdlqq::Platform::Win32Semaphore> {
         // Return the current value of this semaphore.
 };
 
+}  // close package namespace
+
 // ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ===========================================================================
 
-           // --------------------------------------------------------
-           // class SemaphoreImpl<bdlqq::Platform::Win32Semaphore>
-           // --------------------------------------------------------
+            // ---------------------------------------------
+            // class SemaphoreImpl<Platform::Win32Semaphore>
+            // ---------------------------------------------
 
 // CREATORS
 inline
-SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::SemaphoreImpl(
-                                                                     int count)
+bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::SemaphoreImpl(int count)
 : d_resources(count)
 {
     // Create a semaphore with a 0 count, since the count is actually
@@ -163,14 +166,14 @@ SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::SemaphoreImpl(
 }
 
 inline
-SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::~SemaphoreImpl()
+bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::~SemaphoreImpl()
 {
     CloseHandle(d_handle);
 }
 
 // MANIPULATORS
 inline
-void SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::post()
+void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::post()
 {
     if (++d_resources <= 0) {
         ReleaseSemaphore(d_handle, 1, NULL);
@@ -178,7 +181,7 @@ void SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::post()
 }
 
 inline
-void SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::wait()
+void bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::wait()
 {
     if (--d_resources >= 0) {
         return;
@@ -188,12 +191,11 @@ void SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::wait()
 
 // ACCESSORS
 inline
-int SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::getValue() const
+int bdlqq::SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 
@@ -201,11 +203,18 @@ int SemaphoreImpl<bdlqq::Platform::Win32Semaphore>::getValue() const
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

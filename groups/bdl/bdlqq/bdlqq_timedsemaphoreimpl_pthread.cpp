@@ -21,6 +21,7 @@ BSLS_IDENT_RCSID(bdlqq_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bsl_c_errno.h>
 
 namespace BloombergLP {
+namespace {
 
 #if !defined(BSLS_PLATFORM_OS_DARWIN)
 // Set the condition clock type, except on Darwin which doesn't support it.
@@ -119,13 +120,14 @@ int decrementIfPositive(bsls::AtomicInt *a)
     return -1;
 }
 
-namespace bdlqq {
-           // -----------------------------------------------------
-           // class TimedSemaphoreImpl<PthreadTimedSemaphore>
-           // -----------------------------------------------------
+}  // close unnamed namespace
+
+            // -----------------------------------------------
+            // class TimedSemaphoreImpl<PthreadTimedSemaphore>
+            // -----------------------------------------------
 
 // CREATORS
-TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
+bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
                 TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
 : d_resources(0)
 , d_waiters(0)
@@ -137,7 +139,7 @@ TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
     initializeCondition(&d_condition, clockType);
 }
 
-TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
+bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
      TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
 : d_resources(count)
 , d_waiters(0)
@@ -149,7 +151,7 @@ TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
     initializeCondition(&d_condition, clockType);
 }
 
-TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
+bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
                                                     ~TimedSemaphoreImpl()
 {
     pthread_mutex_lock(&d_lock);
@@ -162,7 +164,7 @@ TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
 }
 
 // MANIPULATORS
-void TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::post()
+void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::post()
 {
     ++d_resources;
     // barrier
@@ -174,7 +176,7 @@ void TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::post()
 }
 
 void
-TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::post(int n)
+bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::post(int n)
 {
     BSLS_ASSERT(n > 0);
 
@@ -187,8 +189,8 @@ TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::post(int n)
     }
 }
 
-int TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::timedWait(
-                                              const bsls::TimeInterval& timeout)
+int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::
+    timedWait(const bsls::TimeInterval& timeout)
 {
     if (0 == decrementIfPositive(&d_resources)) {
         return 0;                                                     // RETURN
@@ -212,8 +214,8 @@ int TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::timedWait(
     return ret;
 }
 
-int TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>
-                               ::timedWaitImp(const bsls::TimeInterval& timeout)
+int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>
+                              ::timedWaitImp(const bsls::TimeInterval& timeout)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     // Darwin supports only realtime clock for the condition variable.
@@ -239,7 +241,8 @@ int TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>
     return status == 0 ? 0 : (status == ETIMEDOUT ? -1 : -2);
 }
 
-int TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::tryWait()
+int bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>
+    ::tryWait()
 {
     const int newValue = decrementIfPositive(&d_resources);
     if (newValue >= 0) {
@@ -251,7 +254,7 @@ int TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::tryWait()
     return 1;
 }
 
-void TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::wait()
+void bdlqq::TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::wait()
 {
     if (0 == decrementIfPositive(&d_resources)) {
         return;                                                       // RETURN
@@ -265,17 +268,23 @@ void TimedSemaphoreImpl<bdlqq::Platform::PthreadTimedSemaphore>::wait()
     --d_waiters;
     pthread_mutex_unlock(&d_lock);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

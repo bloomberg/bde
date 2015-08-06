@@ -1,4 +1,4 @@
-// bdlqq_platform.h                                                    -*-C++-*-
+// bdlqq_platform.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLQQ_PLATFORM
 #define INCLUDED_BDLQQ_PLATFORM
 
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide platform-dependent thread-related trait definitions.
 //
 //@CLASSES:
-//   bdlqq::Platform: namespace for platform-dependent thread-related traits
+//   Platform: namespace for platform-dependent thread-related traits
 //
 //@SEE_ALSO:
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // describe a platform's concurrency properties.  For example, the
 // 'ThreadPolicy' trait is ascribed a "value" (i.e., POSIX or Win32)
 // appropriate for each supported platform.  The various concurrency traits are
-// actually types declared in the 'bdlqq::Platform' 'struct'.  These types are
+// actually types declared in the 'Platform' 'struct'.  These types are
 // intended to be used in specializing template implementations or to enable
 // function overloading based on the prevalent system's characteristics.
 //
@@ -45,13 +45,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-                            // ===================
-                            // class bdlqq::Platform
-                            // ===================
-
 namespace BloombergLP {
-
 namespace bdlqq {
+
+                            // ==============
+                            // class Platform
+                            // ==============
+
 struct Platform {
     // This 'struct' provides a namespace for concurrency trait definitions.
 
@@ -150,7 +150,7 @@ struct Platform {
 
     enum {
       // This constant can be used in synchronization mechanisms to separate
-      // member variables to prevent "false sharing".  
+      // member variables to prevent "false sharing".
       // For POWER cpus:
       // http://www.ibm.com/developerworks/power/library/pa-memory/index.html
       // has a simple program to determine the cache line size of the CPU.
@@ -185,17 +185,24 @@ struct Platform {
 #endif
     };
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

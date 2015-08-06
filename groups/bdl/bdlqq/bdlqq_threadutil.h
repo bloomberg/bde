@@ -25,26 +25,26 @@ BSLS_IDENT("$Id: $")
 // Clients call 'bdlqq::ThreadUtil::create()' to create threads.  This function
 // requires a thread entry point as either a "C" linkage function pointer (of a
 // type defined by 'bdlqq::ThreadUtil::ThreadFunction') or an "invokable" based
-// on 'bdlf::Function' (of a type defined by 'bdlqq::ThreadUtil::Invokable'), and
-// a 'void' pointer to 'userData'.  Upon creation of the thread, the supplied
-// thread entry point is invoked by passing it the 'userData'.  The invoked
-// function becomes the main driver for the new thread; when it returns, the
-// thread terminates.
+// on 'bdlf::Function' (of a type defined by 'bdlqq::ThreadUtil::Invokable'),
+// and a 'void' pointer to 'userData'.  Upon creation of the thread, the
+// supplied thread entry point is invoked by passing it the 'userData'.  The
+// invoked function becomes the main driver for the new thread; when it
+// returns, the thread terminates.
 //
 ///Thread Identity
 ///---------------
 // A thread is identified by an object of the opaque type
-// 'bdlqq::ThreadUtil::Handle'.  A handle of this type is returned when a thread
-// is created (using 'bdlqq::ThreadUtil::create').  A client can also retrieve a
-// 'Handle' for the "current" thread via the 'self' method:
+// 'bdlqq::ThreadUtil::Handle'.  A handle of this type is returned when a
+// thread is created (using 'bdlqq::ThreadUtil::create').  A client can also
+// retrieve a 'Handle' for the "current" thread via the 'self' method:
 //..
 //  bdlqq::ThreadUtil::Handle myHandle = bdlqq::ThreadUtil::self();
 //..
 // Several thread manipulation functions in 'bdlqq::ThreadUtil' take a thread
 // handle, or pointer to a thread handle, as an argument.  To facilitate
 // compatibility with existing systems and allow for non-portable operations,
-// clients also have access to the 'bdlqq::ThreadUtil::NativeHandle' type, which
-// exposes the underlying, platform-specific thread identifier type:
+// clients also have access to the 'bdlqq::ThreadUtil::NativeHandle' type,
+// which exposes the underlying, platform-specific thread identifier type:
 //..
 //  bdlqq::ThreadUtil::NativeHandle myNativeHandle;
 //  myNativeHandle = bdlqq::ThreadUtil::nativeHandle();
@@ -55,8 +55,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Setting Thread Priorities
 ///-------------------------
-// 'bdlqq::ThreadUtil' allows clients to configure the priority of newly created
-// threads by setting the 'inheritSchedule', 'schedulingPolicy', and
+// 'bdlqq::ThreadUtil' allows clients to configure the priority of newly
+// created threads by setting the 'inheritSchedule', 'schedulingPolicy', and
 // 'schedulingPriority' of a thread attributes object supplied to the 'create'
 // method.  The range of legal values for 'schedulingPriority' depends on both
 // the platform and the value of 'schedulingPolicy', and can be obtained from
@@ -64,10 +64,10 @@ BSLS_IDENT("$Id: $")
 // 'schedulingPolicy' and 'schedulingPriority' are ignored unless
 // 'inheritSchedule' is 'false' (the default value is 'true').  Note that not
 // only is effective setting of thread priorities workable on only some
-// combinations of platforms and user privileges, but setting the thread
-// policy and priority appropriately for one platform may cause thread creation
-// to fail on another platform.  Also note that an unset thread
-// priority may be interpreted as being outside the valid range defined by
+// combinations of platforms and user privileges, but setting the thread policy
+// and priority appropriately for one platform may cause thread creation to
+// fail on another platform.  Also note that an unset thread priority may be
+// interpreted as being outside the valid range defined by
 // '[ getMinSchedulingPriority(policy), getMaxSchedulingPriority(policy) ]'.
 //..
 // Platform      Restrictions
@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 //  int main()
 //  {
 //      bdlqq::Configuration::setDefaultThreadStackSize(
-//                   bdlqq::Configuration::recommendedDefaultThreadStackSize());
+//                  bdlqq::Configuration::recommendedDefaultThreadStackSize());
 //
 //      bdlqq::ThreadUtil::Handle handle;
 //
@@ -212,7 +212,7 @@ BSLS_IDENT("$Id: $")
 //      enum { STACK_SIZE = 16384 };
 //      bdlqq::ThreadAttributes attributes;
 //      attributes.setDetachedState(
-//                              bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//                             bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 //      attributes.setStackSize(STACK_SIZE);
 //
 //      char initValue = 1;
@@ -248,7 +248,7 @@ BSLS_IDENT("$Id: $")
 //      bdlqq::ThreadAttributes attributes;
 //      attributes.setInheritSchedule(false);
 //      const bdlqq::ThreadAttributes::SchedulingPolicy policy =
-//                                   bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
+//                                  bdlqq::ThreadAttributes::BCEMT_SCHED_OTHER;
 //      attributes.setSchedulingPolicy(policy);
 //
 //      for (int i = 0; i < NUM_THREADS; ++i) {
@@ -292,6 +292,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_systemclocktype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 #ifndef INCLUDED_BDLF_FUNCTION
 #include <bdlf_function.h>
 #endif
@@ -305,19 +309,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close package namespace
-
-
-namespace bdlqq {template <typename THREAD_POLICY>
-struct ThreadUtilImpl;
-}  // close package namespace
 
 extern "C" {
     typedef void *(*bcemt_ThreadFunction)(void *);
@@ -335,48 +326,52 @@ extern "C" {
 }  // extern "C"
 
 namespace bdlqq {
-                           // =======================
-                           // struct ThreadUtil
-                           // =======================
+
+template <class THREAD_POLICY>
+struct ThreadUtilImpl;
+
+                            // =================
+                            // struct ThreadUtil
+                            // =================
 
 struct ThreadUtil {
     // This 'struct' provides a suite of portable utility functions for
     // managing threads.
 
     // TYPES
-    typedef ThreadUtilImpl<bdlqq::Platform::ThreadPolicy> Imp;
+    typedef ThreadUtilImpl<Platform::ThreadPolicy> Imp;
         // Platform-specific implementation type.  Do not use directly.
 
-    typedef Imp::Handle                                       Handle;
+    typedef Imp::Handle                            Handle;
         // Thread handle type.  Use this type to refer to a thread in a
         // platform-independent way.
 
-    typedef Imp::NativeHandle                                 NativeHandle;
+    typedef Imp::NativeHandle                      NativeHandle;
         // Platform-specific thread handle type.
 
-    typedef Imp::Id                                           Id;
+    typedef Imp::Id                                Id;
         // Thread identifier type - distinguished from a 'Handle' in that
         // it does not have any resources associated with it, whereas 'Handle'
         // may, depending on platform.
 
-    typedef bcemt_ThreadFunction                              ThreadFunction;
+    typedef bcemt_ThreadFunction                   ThreadFunction;
         // Prototype for thread entry-point functions.
 
-    typedef bdlf::Function<void(*)()>                          Invokable;
+    typedef bdlf::Function<void(*)()>              Invokable;
         // Invokable functor wrapper, usable also as a thread entry point.
 
-    typedef Imp::Key                                          Key;
+    typedef Imp::Key                               Key;
         // Thread-specific key type, used to refer to thread-specific storage.
 
-    typedef bcemt_KeyDestructorFunction                       Destructor;
+    typedef bcemt_KeyDestructorFunction            Destructor;
         // Prototype for thread-specific key destructors.
 
     // CLASS METHODS
                          // *** Thread Management ***
 
     static int convertToSchedulingPriority(
-        ThreadAttributes::SchedulingPolicy policy,
-        double                                   normalizedSchedulingPriority);
+              ThreadAttributes::SchedulingPolicy policy,
+              double                             normalizedSchedulingPriority);
         // Return an integer scheduling priority appropriate for the specified
         // 'normalizedSchedulingPriority' and the specified 'policy'.  If
         // either the minimum or maximum priority for this platform cannot be
@@ -386,10 +381,10 @@ struct ThreadUtil {
         // 'policy' is a valid 'ThreadAttributes::SchedulingPolicy' and
         // 'normalizedSchedulingPriority' is in the range '[ 0.0, 1.0 ]'.
 
-    static int create(Handle                        *handle,
+    static int create(Handle                  *handle,
                       const ThreadAttributes&  attributes,
-                      ThreadFunction                 function,
-                      void                          *userData);
+                      ThreadFunction           function,
+                      void                    *userData);
         // Create a new thread of program control having the specified
         // 'attributes' that invokes the specified 'function' with a single
         // argument specified by 'userData', and load into the specified
@@ -427,10 +422,10 @@ struct ThreadUtil {
         // object or through 'Configuration', can lead to non-portable
         // code.
 
-    static int create(Handle                        *handle,
+    static int create(Handle                  *handle,
                       const ThreadAttributes&  attributes,
-                      const Invokable&               function,
-                      bslma::Allocator              *allocator = 0);
+                      const Invokable&         function,
+                      bslma::Allocator        *allocator = 0);
         // Create a new thread of program control having the specified
         // 'attributes' that invokes the specified 'function' object, and load
         // into the specified 'handle' an identifier that may be used to refer
@@ -490,7 +485,7 @@ struct ThreadUtil {
         // is to return from the entry point function.
 
     static int getMinSchedulingPriority(
-                              ThreadAttributes::SchedulingPolicy policy);
+                                    ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
         // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
@@ -500,7 +495,7 @@ struct ThreadUtil {
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMaxSchedulingPriority(
-                              ThreadAttributes::SchedulingPolicy policy);
+                                    ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
         // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
@@ -532,7 +527,7 @@ struct ThreadUtil {
         // suspended depends on many factors including system scheduling and
         // system timer resolution.
 
-    static void sleepUntil(const bsls::TimeInterval&    absoluteTime,
+    static void sleepUntil(const bsls::TimeInterval&   absoluteTime,
                            bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
@@ -684,82 +679,83 @@ struct ThreadUtil {
         // has not been deleted.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                           // -----------------------
-                           // struct ThreadUtil
-                           // -----------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
-                          // *** Thread Management ***
+                            // -----------------
+                            // struct ThreadUtil
+                            // -----------------
+
+                        // *** Thread Management ***
 
 // CLASS METHODS
 inline
-int ThreadUtil::create(ThreadUtil::Handle      *handle,
-                             const ThreadAttributes&  attribute,
-                             ThreadFunction                 function,
-                             void                          *userData)
+int bdlqq::ThreadUtil::create(Handle                  *handle,
+                              const ThreadAttributes&  attribute,
+                              ThreadFunction           function,
+                              void                    *userData)
 {
     return Imp::create(handle, attribute, function, userData);
 }
 
 inline
-int ThreadUtil::create(ThreadUtil::Handle *handle,
-                             ThreadFunction            function,
-                             void                     *userData)
+int bdlqq::ThreadUtil::create(Handle         *handle,
+                              ThreadFunction  function,
+                              void           *userData)
 {
     return Imp::create(handle, function, userData);
 }
 
 inline
-int ThreadUtil::detach(Handle& handle)
+int bdlqq::ThreadUtil::detach(Handle& handle)
 {
     return Imp::detach(handle);
 }
 
 inline
-void ThreadUtil::exit(void *status)
+void bdlqq::ThreadUtil::exit(void *status)
 {
     Imp::exit(status);
 }
 
 inline
-int ThreadUtil::getMinSchedulingPriority(
-                               ThreadAttributes::SchedulingPolicy policy)
+int bdlqq::ThreadUtil::getMinSchedulingPriority(
+                                     ThreadAttributes::SchedulingPolicy policy)
 {
     return Imp::getMinSchedulingPriority(policy);
 }
 
 inline
-int ThreadUtil::getMaxSchedulingPriority(
-                               ThreadAttributes::SchedulingPolicy policy)
+int bdlqq::ThreadUtil::getMaxSchedulingPriority(
+                                     ThreadAttributes::SchedulingPolicy policy)
 {
     return Imp::getMaxSchedulingPriority(policy);
 }
 
 inline
-int ThreadUtil::join(ThreadUtil::Handle&   thread,
-                           void                      **status)
+int bdlqq::ThreadUtil::join(Handle& thread, void **status)
 {
     return Imp::join(thread, status);
 }
 
 inline
-void ThreadUtil::microSleep(int microseconds, int seconds)
+void bdlqq::ThreadUtil::microSleep(int microseconds, int seconds)
 {
     Imp::microSleep(microseconds, seconds);
 }
 
 inline
-void ThreadUtil::sleep(const bsls::TimeInterval& sleepTime)
+void bdlqq::ThreadUtil::sleep(const bsls::TimeInterval& sleepTime)
 {
     Imp::sleep(sleepTime);
 }
 
 inline
-void ThreadUtil::sleepUntil(const bsls::TimeInterval&    absoluteTime,
-                                  bsls::SystemClockType::Enum clockType)
+void bdlqq::ThreadUtil::sleepUntil(const bsls::TimeInterval&   absoluteTime,
+                                   bsls::SystemClockType::Enum clockType)
 {
     int status = Imp::sleepUntil(absoluteTime, clockType);
     (void) status;  // Suppress a unused variable error.
@@ -768,16 +764,15 @@ void ThreadUtil::sleepUntil(const bsls::TimeInterval&    absoluteTime,
 
 
 inline
-void ThreadUtil::yield()
+void bdlqq::ThreadUtil::yield()
 {
     Imp::yield();
 }
 
-                       // *** Thread Identification ***
+                    // *** Thread Identification ***
 
 inline
-bool ThreadUtil::areEqual(const ThreadUtil::Handle& a,
-                                const ThreadUtil::Handle& b)
+bool bdlqq::ThreadUtil::areEqual(const Handle& a, const Handle& b)
 {
     // Some implementations (notably pthreads) do not define the result of
     // comparing invalid handles.  We avoid undefined behavior by explicitly
@@ -789,124 +784,122 @@ bool ThreadUtil::areEqual(const ThreadUtil::Handle& a,
 }
 
 inline
-bool ThreadUtil::areEqualId(const ThreadUtil::Id& a,
-                                  const ThreadUtil::Id& b)
+bool bdlqq::ThreadUtil::areEqualId(const Id& a, const Id& b)
 {
     return Imp::areEqualId(a, b);
 }
 
 inline
-ThreadUtil::Id ThreadUtil::handleToId(
-                                        const ThreadUtil::Handle& handle)
+bdlqq::ThreadUtil::Id bdlqq::ThreadUtil::handleToId(const Handle& handle)
 {
     return Imp::handleToId(handle);
 }
 
 
 inline
-bsls::Types::Uint64 ThreadUtil::idAsUint64(
-                                                const ThreadUtil::Id& id)
+bsls::Types::Uint64 bdlqq::ThreadUtil::idAsUint64(const Id& id)
 {
     return Imp::idAsUint64(id);
 }
 
 
 inline
-int ThreadUtil::idAsInt(const ThreadUtil::Id& id)
+int bdlqq::ThreadUtil::idAsInt(const Id& id)
 {
     return Imp::idAsInt(id);
 }
 
 inline
-const ThreadUtil::Handle& ThreadUtil::invalidHandle()
+const bdlqq::ThreadUtil::Handle& bdlqq::ThreadUtil::invalidHandle()
 {
     return Imp::INVALID_HANDLE;
 }
 
 inline
-bool ThreadUtil::isEqual(const ThreadUtil::Handle& a,
-                               const ThreadUtil::Handle& b)
+bool bdlqq::ThreadUtil::isEqual(const Handle& a, const Handle& b)
 {
     return Imp::areEqual(a, b);
 }
 
 inline
-bool ThreadUtil::isEqualId(const ThreadUtil::Id& a,
-                                 const ThreadUtil::Id& b)
+bool bdlqq::ThreadUtil::isEqualId(const Id& a, const Id& b)
 {
     return Imp::areEqualId(a, b);
 }
 
 inline
-ThreadUtil::NativeHandle
-ThreadUtil::nativeHandle(const ThreadUtil::Handle& handle)
+bdlqq::ThreadUtil::NativeHandle
+bdlqq::ThreadUtil::nativeHandle(const Handle& handle)
 {
     return Imp::nativeHandle(handle);
 }
 
 inline
-ThreadUtil::Handle ThreadUtil::self()
+bdlqq::ThreadUtil::Handle bdlqq::ThreadUtil::self()
 {
     return Imp::self();
 }
 
 inline
-ThreadUtil::Id ThreadUtil::selfId()
+bdlqq::ThreadUtil::Id bdlqq::ThreadUtil::selfId()
 {
     return Imp::selfId();
 }
 
 inline
-bsls::Types::Uint64 ThreadUtil::selfIdAsInt()
+bsls::Types::Uint64 bdlqq::ThreadUtil::selfIdAsInt()
 {
     return Imp::selfIdAsInt();
 }
 
 inline
-bsls::Types::Uint64 ThreadUtil::selfIdAsUint64()
+bsls::Types::Uint64 bdlqq::ThreadUtil::selfIdAsUint64()
 {
     return Imp::selfIdAsUint64();
 }
 
-                // *** Thread-Specific (Local) Storage (TSS or TLS) ***
+            // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
 inline
-int ThreadUtil::createKey(
-                        ThreadUtil::Key        *key,
-                        ThreadUtil::Destructor  threadKeyCleanupFunction)
+int bdlqq::ThreadUtil::createKey(Key *key, Destructor threadKeyCleanupFunction)
 {
     return Imp::createKey(key, threadKeyCleanupFunction);
 }
 
 inline
-int ThreadUtil::deleteKey(ThreadUtil::Key& key)
+int bdlqq::ThreadUtil::deleteKey(Key& key)
 {
     return Imp::deleteKey(key);
 }
 
 inline
-void *ThreadUtil::getSpecific(const ThreadUtil::Key& key)
+void *bdlqq::ThreadUtil::getSpecific(const Key& key)
 {
     return Imp::getSpecific(key);
 }
 
 inline
-int ThreadUtil::setSpecific(const ThreadUtil::Key&  key,
-                                  const void                   *value)
+int bdlqq::ThreadUtil::setSpecific(const Key& key, const void *value)
 {
     return Imp::setSpecific(key, value);
 }
-}  // close package namespace
 
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -182,9 +182,9 @@ class MyBarrier {
         // all waiting threads will unblock.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 // CREATORS
 inline
@@ -237,7 +237,7 @@ void MyBarrier::wait()
 }
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 struct ThreadInfo4 {
@@ -460,7 +460,7 @@ extern "C" void *benchConsumer(void* arg)
         data->resource->wait();
         data->queue->post();
 //        cout << "-" << flush;
-        if (data->stop) return 0;
+        if (data->stop) return 0;                                     // RETURN
         ++data->count;
     }
 }
@@ -472,7 +472,7 @@ extern "C" void *benchProducer(void* arg)
         data->queue->wait();
         data->resource->post();
 //        cout << "+" << flush;
-        if (data->stop) return 0;
+        if (data->stop) return 0;                                     // RETURN
         ++data->count;
     }
     return 0;
@@ -803,9 +803,8 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < NUM_WAITERS; ++i) {
-                ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i + NUM_POSTERS],
-                                                     thread2Wait,
-                                                     &info));
+                ASSERT(0 == bdlqq::ThreadUtil::create(
+                               &threads[i + NUM_POSTERS], thread2Wait, &info));
             }
             bdlqq::ThreadUtil::microSleep(1000 * 100);
             ASSERT(0 == past);
@@ -978,11 +977,18 @@ int main()
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

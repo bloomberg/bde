@@ -16,9 +16,9 @@ BSLS_IDENT_RCSID(bdlqq_sluice_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                   // ----------------------------------------
-                   // class bdlqq::Sluice::GenerationDescriptor
-                   // ----------------------------------------
+                    // ----------------------------------
+                    // class Sluice::GenerationDescriptor
+                    // ----------------------------------
 
 // CREATORS
 bdlqq::Sluice::GenerationDescriptor::GenerationDescriptor(
@@ -30,13 +30,12 @@ bdlqq::Sluice::GenerationDescriptor::GenerationDescriptor(
 {
 }
 
-namespace bdlqq {
-                         // ------------------
-                         // class Sluice
-                         // ------------------
+                                // ------------
+                                // class Sluice
+                                // ------------
 
 // CREATORS
-Sluice::Sluice(bslma::Allocator *basicAllocator)
+bdlqq::Sluice::Sluice(bslma::Allocator *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)
 , d_descriptorPool(0)
@@ -45,8 +44,8 @@ Sluice::Sluice(bslma::Allocator *basicAllocator)
 {
 }
 
-Sluice::Sluice(bsls::SystemClockType::Enum  clockType,
-                           bslma::Allocator            *basicAllocator)
+bdlqq::Sluice::Sluice(bsls::SystemClockType::Enum  clockType,
+                      bslma::Allocator            *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)
 , d_descriptorPool(0)
@@ -55,7 +54,7 @@ Sluice::Sluice(bsls::SystemClockType::Enum  clockType,
 {
 }
 
-Sluice::~Sluice()
+bdlqq::Sluice::~Sluice()
 {
     BSLS_ASSERT(0 == d_signaledGeneration);
     BSLS_ASSERT(0 == d_pendingGeneration);
@@ -72,7 +71,7 @@ Sluice::~Sluice()
 }
 
 // MANIPULATORS
-const void *Sluice::enter()
+const void *bdlqq::Sluice::enter()
 {
     LockGuard<Mutex> lock(&d_mutex);
 
@@ -98,7 +97,7 @@ const void *Sluice::enter()
     return g;
 }
 
-void Sluice::wait(const void *token)
+void bdlqq::Sluice::wait(const void *token)
 {
     GenerationDescriptor *g =
                 static_cast<GenerationDescriptor *>(const_cast<void *>(token));
@@ -123,15 +122,15 @@ void Sluice::wait(const void *token)
                 g->d_next = d_descriptorPool;
                 d_descriptorPool = g;
             }
-            return;
+            return;                                                   // RETURN
         }
         // Spurious wakeups happen because 'timedWait' may timeout on the
         // semaphore, but still consume a signal.
     }
 }
 
-int Sluice::timedWait(const void               *token,
-                            const bsls::TimeInterval&  timeout)
+int bdlqq::Sluice::timedWait(const void               *token,
+                             const bsls::TimeInterval&  timeout)
 {
     GenerationDescriptor *g =
                 static_cast<GenerationDescriptor *>(const_cast<void *>(token));
@@ -170,11 +169,11 @@ int Sluice::timedWait(const void               *token,
             g->d_next = d_descriptorPool;
             d_descriptorPool = g;
         }
-        return rc;
+        return rc;                                                    // RETURN
     }
 }
 
-void Sluice::signalAll()
+void bdlqq::Sluice::signalAll()
 {
     LockGuard<Mutex> lock(&d_mutex);
 
@@ -209,7 +208,7 @@ void Sluice::signalAll()
     }
 }
 
-void Sluice::signalOne()
+void bdlqq::Sluice::signalOne()
 {
     LockGuard<Mutex> lock(&d_mutex);
 
@@ -218,7 +217,7 @@ void Sluice::signalOne()
         g = d_pendingGeneration;
         if (0 == g) {
             // There are no threads to signal.  We are done.
-            return;
+            return;                                                   // RETURN
         }
         d_signaledGeneration = g;
         d_pendingGeneration  = 0;
@@ -234,15 +233,21 @@ void Sluice::signalOne()
     lock.release()->unlock();
     g->d_sema.post();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

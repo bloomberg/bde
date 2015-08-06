@@ -14,15 +14,14 @@ BSLS_IDENT_RCSID(bdlqq_once_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace bdlqq {
-                        // ----------------
-                        // class Once
-                        // ----------------
+                                // ----------
+                                // class Once
+                                // ----------
 
-bool Once::enter(Once::OnceLock *onceLock)
+bool bdlqq::Once::enter(Once::OnceLock *onceLock)
 {
     if (BCEMT_DONE == bsls::AtomicOperations::getInt(&d_state)) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     onceLock->lock(&d_mutex);  // Lock the mutex
@@ -30,7 +29,7 @@ bool Once::enter(Once::OnceLock *onceLock)
 
       case BCEMT_NOT_ENTERED:
         bsls::AtomicOperations::setInt(&d_state, BCEMT_IN_PROGRESS);
-        return true;  // Leave mutex locked
+        return true;  // Leave mutex locked                           // RETURN
 
       case BCEMT_IN_PROGRESS:
         BSLS_ASSERT(! "Can't get here!");
@@ -38,13 +37,13 @@ bool Once::enter(Once::OnceLock *onceLock)
 
       case BCEMT_DONE:
         onceLock->unlock();
-        return false;
+        return false;                                                 // RETURN
     }
 
     return false;
 }
 
-void Once::leave(Once::OnceLock *onceLock)
+void bdlqq::Once::leave(Once::OnceLock *onceLock)
 {
     BSLS_ASSERT(BCEMT_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
@@ -52,7 +51,7 @@ void Once::leave(Once::OnceLock *onceLock)
     onceLock->unlock();
 }
 
-void Once::cancel(Once::OnceLock *onceLock)
+void bdlqq::Once::cancel(Once::OnceLock *onceLock)
 {
     BSLS_ASSERT(BCEMT_IN_PROGRESS == bsls::AtomicOperations::getInt(&d_state));
 
@@ -60,14 +59,14 @@ void Once::cancel(Once::OnceLock *onceLock)
     onceLock->unlock();
 }
 
-                        // ---------------------
-                        // class OnceGuard
-                        // ---------------------
+                            // ---------------
+                            // class OnceGuard
+                            // ---------------
 
-OnceGuard::~OnceGuard()
+bdlqq::OnceGuard::~OnceGuard()
 {
     if (BCEMT_IN_PROGRESS != d_state) {
-        return;
+        return;                                                       // RETURN
     }
 #if ! defined(BSLS_PLATFORM_CMP_MSVC)
     else if (bsl::uncaught_exception()) {
@@ -79,10 +78,10 @@ OnceGuard::~OnceGuard()
     }
 }
 
-bool OnceGuard::enter()
+bool bdlqq::OnceGuard::enter()
 {
     if (BCEMT_DONE == d_state) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     BSLS_ASSERT(BCEMT_IN_PROGRESS != d_state);
@@ -90,14 +89,14 @@ bool OnceGuard::enter()
 
     if (d_once->enter(&d_onceLock)) {
         d_state = BCEMT_IN_PROGRESS;
-        return true;
+        return true;                                                  // RETURN
     }
     else {
-        return false;
+        return false;                                                 // RETURN
     }
 }
 
-void OnceGuard::leave()
+void bdlqq::OnceGuard::leave()
 {
     if (BCEMT_IN_PROGRESS == d_state) {
         d_once->leave(&d_onceLock);
@@ -105,22 +104,28 @@ void OnceGuard::leave()
     }
 }
 
-void OnceGuard::cancel()
+void bdlqq::OnceGuard::cancel()
 {
     if (BCEMT_IN_PROGRESS == d_state) {
         d_once->cancel(&d_onceLock);
         d_state = BCEMT_NOT_ENTERED;
     }
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

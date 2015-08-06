@@ -48,8 +48,7 @@ using bsl::flush;
 //
 // MANIPULATORS
 // [ 2] bsls::Types::Int64 waitTurn();
-// [ 3] void reset(double                   rate,
-//                 const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
+// [ 3] void reset(doublerate, const bsls::TimeInterval& startTime);
 //
 // ACCESSORS
 // [ 2] bsls::Types::Int64 lagTime() const;
@@ -107,8 +106,8 @@ const double EPSILON = 0.035;          // 35 milliseconds
 
 static bdlqq::Mutex coutMutex;
 
-#define COUT  coutMutex.lock(); { bsl::cout << bdlqq::ThreadUtil::selfIdAsInt()\
-                                            << ": "
+#define COUT  coutMutex.lock();                                               \
+              { bsl::cout << bdlqq::ThreadUtil::selfIdAsInt() << ": "
 #define ENDL  bsl::endl;  } coutMutex.unlock()
 #define FLUSH bsl::flush; } coutMutex.unlock()
 
@@ -502,7 +501,7 @@ int main(int argc, char *argv[])
         }
 
         const double            RATE = 1.0;
-        const bsls::TimeInterval OFFSET(1.0);  // turnstile start offset (1 sec)
+        const bsls::TimeInterval OFFSET(1.0); // turnstile start offset (1 sec)
 
         const double WT   = 1.0 / RATE;    // max wait time for each turn
         const Int64  WTUB =
@@ -563,7 +562,7 @@ int main(int argc, char *argv[])
         }
 
         const double            RATE = 1.0;
-        const bsls::TimeInterval OFFSET(1.0);  // turnstile reset offset (1 sec)
+        const bsls::TimeInterval OFFSET(1.0); // turnstile reset offset (1 sec)
 
         Obj        mX(RATE);
         const Obj& X = mX;
@@ -861,10 +860,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007, 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

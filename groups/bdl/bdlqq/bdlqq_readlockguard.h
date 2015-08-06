@@ -150,9 +150,9 @@ BSLS_IDENT("$Id: $")
 //..
 // If the underlying lock object provides an upgrade to a lock for write (as
 // does 'bdlqq::ReaderWriterLock' with the 'upgradeToWriteLock' function, for
-// example), this can be safely used in conjunction with 'bdlqq::ReadLockGuard',
-// as long as the same 'unlock' method is used to release both kinds of locks.
-// The following method illustrates this usage:
+// example), this can be safely used in conjunction with
+// 'bdlqq::ReadLockGuard', as long as the same 'unlock' method is used to
+// release both kinds of locks.  The following method illustrates this usage:
 //..
 //  static void safeUpdateFunc(my_Object *obj, my_RWLock *rwlock)
 //  {
@@ -173,11 +173,11 @@ BSLS_IDENT("$Id: $")
 // In the above code, the call to 'upgradeToWriteLock' is not necessarily
 // atomic, as the upgrade may release the lock for read and be interrupted
 // before getting a lock for write.  It is possible to guarantee atomicity (as
-// does 'bdlqq::ReaderWriterLock' if the 'lockReadReserveWrite' function is used
-// instead of 'lockRead', for example), but the standard constructor should
-// not be used.  Instead, the 'lockReadReserveWrite' lock function should be
-// used explicitly, and the guard constructed with an object which is already
-// locked.  The following method illustrates this usage:
+// does 'bdlqq::ReaderWriterLock' if the 'lockReadReserveWrite' function is
+// used instead of 'lockRead', for example), but the standard constructor
+// should not be used.  Instead, the 'lockReadReserveWrite' lock function
+// should be used explicitly, and the guard constructed with an object which is
+// already locked.  The following method illustrates this usage:
 //..
 //  static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
 //  {
@@ -201,8 +201,8 @@ BSLS_IDENT("$Id: $")
 // called, but is nevertheless required for the code to compile.
 //
 // Instantiations of 'bdlqq::ReadLockGuardUnlock' can be interleaved with
-// instantiations of 'bdlqq::ReadLockGuard' to create both critical sections and
-// regions where the lock is released.
+// instantiations of 'bdlqq::ReadLockGuard' to create both critical sections
+// and regions where the lock is released.
 //..
 //  void f(my_RWLock *lock)
 //  {
@@ -230,11 +230,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                           // =========================
-                           // class ReadLockGuard
-                           // =========================
+                            // ===================
+                            // class ReadLockGuard
+                            // ===================
 
 template <class T>
 class ReadLockGuard {
@@ -283,9 +282,9 @@ class ReadLockGuard {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                           // =========================
-                           // class LockReadGuard
-                           // =========================
+                            // ===================
+                            // class LockReadGuard
+                            // ===================
 
 template <class T>
 class LockReadGuard : public ReadLockGuard<T> {
@@ -305,9 +304,9 @@ class LockReadGuard : public ReadLockGuard<T> {
         // DEPRECATED: Use 'ReadLockGuard' instead.
 };
 
-                       // ===============================
-                       // class ReadLockGuardUnlock
-                       // ===============================
+                        // =========================
+                        // class ReadLockGuardUnlock
+                        // =========================
 
 template <class T>
 class ReadLockGuardUnlock {
@@ -320,8 +319,7 @@ class ReadLockGuardUnlock {
   private:
     // NOT IMPLEMENTED
     ReadLockGuardUnlock(const ReadLockGuardUnlock<T>&);
-    ReadLockGuardUnlock<T>& operator=
-                              (const ReadLockGuardUnlock<T>&);
+    ReadLockGuardUnlock<T>& operator=(const ReadLockGuardUnlock<T>&);
 
   public:
     // CREATORS
@@ -357,9 +355,9 @@ class ReadLockGuardUnlock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-                       // ================================
+                       // ==========================
                        // class ReadLockGuardTryLock
-                       // ================================
+                       // ==========================
 
 template <class T>
 class ReadLockGuardTryLock {
@@ -372,8 +370,7 @@ class ReadLockGuardTryLock {
   private:
     // NOT IMPLEMENTED
     ReadLockGuardTryLock(const ReadLockGuardTryLock<T>&);
-    ReadLockGuardTryLock<T>& operator=(
-                               const ReadLockGuardTryLock<T>&);
+    ReadLockGuardTryLock<T>& operator=(const ReadLockGuardTryLock<T>&);
 
   public:
     // CREATORS
@@ -405,18 +402,20 @@ class ReadLockGuardTryLock {
         // this proctor, or 0 if no lock is currently being managed.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                          // -------------------------
-                          // class ReadLockGuard
-                          // -------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // -------------------
+                            // class ReadLockGuard
+                            // -------------------
 
 // CREATORS
 template <class T>
 inline
-ReadLockGuard<T>::ReadLockGuard(T *lock)
+bdlqq::ReadLockGuard<T>::ReadLockGuard(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -426,7 +425,7 @@ ReadLockGuard<T>::ReadLockGuard(T *lock)
 
 template <class T>
 inline
-ReadLockGuard<T>::ReadLockGuard(T *lock, int preLocked)
+bdlqq::ReadLockGuard<T>::ReadLockGuard(T *lock, int preLocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preLocked) {
@@ -436,7 +435,7 @@ ReadLockGuard<T>::ReadLockGuard(T *lock, int preLocked)
 
 template <class T>
 inline
-ReadLockGuard<T>::~ReadLockGuard()
+bdlqq::ReadLockGuard<T>::~ReadLockGuard()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -446,7 +445,7 @@ ReadLockGuard<T>::~ReadLockGuard()
 // MANIPULATORS
 template <class T>
 inline
-T *ReadLockGuard<T>::release()
+T *bdlqq::ReadLockGuard<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -456,38 +455,38 @@ T *ReadLockGuard<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *ReadLockGuard<T>::ptr() const
+T *bdlqq::ReadLockGuard<T>::ptr() const
 {
     return d_lock_p;
 }
 
-                          // -------------------------
+                          // -------------------
                           // class LockReadGuard
-                          // -------------------------
+                          // -------------------
 
 // CREATORS
 template <class T>
 inline
-LockReadGuard<T>::LockReadGuard(T *lock)
+bdlqq::LockReadGuard<T>::LockReadGuard(T *lock)
 : ReadLockGuard<T>(lock)
 {
 }
 
 template <class T>
 inline
-LockReadGuard<T>::LockReadGuard(T *lock, int preLocked)
+bdlqq::LockReadGuard<T>::LockReadGuard(T *lock, int preLocked)
 : ReadLockGuard<T>(lock, preLocked)
 {
 }
 
-                       // -------------------------------
+                       // -------------------------
                        // class ReadLockGuardUnlock
-                       // -------------------------------
+                       // -------------------------
 
 // CREATORS
 template <class T>
 inline
-ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
+bdlqq::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 : d_lock_p(lock)
 {
     if (d_lock_p) {
@@ -497,8 +496,7 @@ ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock)
 
 template <class T>
 inline
-ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T   *lock,
-                                                        int  preUnlocked)
+bdlqq::ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T *lock, int preUnlocked)
 : d_lock_p(lock)
 {
     if (d_lock_p && !preUnlocked) {
@@ -508,7 +506,7 @@ ReadLockGuardUnlock<T>::ReadLockGuardUnlock(T   *lock,
 
 template <class T>
 inline
-ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
+bdlqq::ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
 {
     if (d_lock_p) {
         d_lock_p->lockRead();
@@ -518,7 +516,7 @@ ReadLockGuardUnlock<T>::~ReadLockGuardUnlock()
 // MANIPULATORS
 template <class T>
 inline
-T *ReadLockGuardUnlock<T>::release()
+T *bdlqq::ReadLockGuardUnlock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -528,18 +526,18 @@ T *ReadLockGuardUnlock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *ReadLockGuardUnlock<T>::ptr() const
+T *bdlqq::ReadLockGuardUnlock<T>::ptr() const
 {
     return d_lock_p;
 }
 
-                          // --------------------------------
-                          // class ReadLockGuardTryLock
-                          // --------------------------------
+                        // --------------------------
+                        // class ReadLockGuardTryLock
+                        // --------------------------
 
 // CREATORS
 template <class T>
-ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int retries)
+bdlqq::ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int retries)
 : d_lock_p(0)
 {
     if (lock) {
@@ -554,7 +552,7 @@ ReadLockGuardTryLock<T>::ReadLockGuardTryLock(T *lock, int retries)
 
 template <class T>
 inline
-ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
+bdlqq::ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
 {
     if (d_lock_p) {
         d_lock_p->unlock();
@@ -564,7 +562,7 @@ ReadLockGuardTryLock<T>::~ReadLockGuardTryLock()
 // MANIPULATORS
 template <class T>
 inline
-T *ReadLockGuardTryLock<T>::release()
+T *bdlqq::ReadLockGuardTryLock<T>::release()
 {
     T *lock  = d_lock_p;
     d_lock_p = 0;
@@ -574,21 +572,27 @@ T *ReadLockGuardTryLock<T>::release()
 // ACCESSORS
 template <class T>
 inline
-T *ReadLockGuardTryLock<T>::ptr() const
+T *bdlqq::ReadLockGuardTryLock<T>::ptr() const
 {
     return d_lock_p;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

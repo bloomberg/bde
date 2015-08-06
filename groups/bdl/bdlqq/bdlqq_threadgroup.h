@@ -114,11 +114,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                           // ======================
-                           // class bcep::ThreadGroup
-                           // ======================
+                            // =================
+                            // class ThreadGroup
+                            // =================
 
 class ThreadGroup {
     // This class provides a simple mechanism for managing a group of joinable
@@ -130,9 +129,9 @@ class ThreadGroup {
     typedef bsl::vector<ThreadUtil::Handle> ThreadContainer;
 
     // INSTANCE DATA
-    bsls::AtomicInt    d_numThreads;
-    ThreadContainer   d_threads;
-    Mutex       d_threadsMutex;
+    bsls::AtomicInt d_numThreads;
+    ThreadContainer d_threads;
+    Mutex           d_threadsMutex;
 
   private:
     // not implemented
@@ -159,7 +158,7 @@ class ThreadGroup {
     // MANIPULATORS
     int addThread(const bdlf::Function<void(*)()>& functor);
     int addThread(const bdlf::Function<void(*)()>& functor,
-                  const ThreadAttributes&   attributes);
+                  const ThreadAttributes&          attributes);
         // Begin executing the specified invokable 'functor' in a new thread,
         // using the optionally specified thread 'attributes'.  Return 0 on
         // success, and a non-zero value otherwise.  Note that threads are
@@ -167,10 +166,10 @@ class ThreadGroup {
         // 'attributes'.
 
     int addThreads(const bdlf::Function<void(*)()>& functor,
-                   int                             numThreads);
+                   int                              numThreads);
     int addThreads(const bdlf::Function<void(*)()>& functor,
-                   int                             numThreads,
-                   const ThreadAttributes&   attributes);
+                   int                              numThreads,
+                   const ThreadAttributes&          attributes);
         // Begin executing the specified invokable 'functor' in the specified
         // new 'numThreads', using the specified thread 'attributes'.  Return
         // the number of threads added.  The behavior is undefined unless
@@ -187,44 +186,53 @@ class ThreadGroup {
         // that have not been joined.
 };
 
+}  // close package namespace
+
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                           // ----------------------
-                           // class bcep::ThreadGroup
-                           // ----------------------
+                            // -----------------
+                            // class ThreadGroup
+                            // -----------------
 
 // MANIPULATORS
 inline
-int ThreadGroup::addThread(const bdlf::Function<void(*)()>& functor)
+int bdlqq::ThreadGroup::addThread(const bdlf::Function<void(*)()>& functor)
 {
     return addThread(functor, ThreadAttributes());
 }
 
 inline
-int ThreadGroup::addThreads(const bdlf::Function<void(*)()>& functor,
-                                  int                             numThreads)
+int bdlqq::ThreadGroup::addThreads(const bdlf::Function<void(*)()>& functor,
+                                  int                               numThreads)
 {
     return addThreads(functor, numThreads, ThreadAttributes());
 }
 
 // ACCESSORS
 inline
-int ThreadGroup::numThreads() const
+int bdlqq::ThreadGroup::numThreads() const
 {
    return d_numThreads.loadRelaxed();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION: This component provides an implementation of 'bdlqq::ThreadUtil'
-// for Windows (win32) via the template specialization:
+//@DESCRIPTION: This component provides an implementation of
+// 'bdlqq::ThreadUtil' for Windows (win32) via the template specialization:
 //..
-//  bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>
+//  bdlqq::ThreadUtilImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::ThreadUtil'.
@@ -116,11 +116,6 @@ extern "C" {
 
 namespace BloombergLP {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
-struct ThreadUtilImpl;
-}  // close package namespace
-
 extern "C" {
     typedef void *(*bcemt_ThreadFunction)(void *);
         // 'bcemt_ThreadFunction' is an alias for a function type taking a
@@ -138,12 +133,16 @@ extern "C" {
 }
 
 namespace bdlqq {
-            // =======================================================
-            // class ThreadUtilImpl<bdlqq::Platform::Win32Threads>
-            // =======================================================
+
+template <class THREAD_POLICY>
+struct ThreadUtilImpl;
+
+                // ============================================
+                // class ThreadUtilImpl<Platform::Win32Threads>
+                // ============================================
 
 template <>
-struct ThreadUtilImpl<bdlqq::Platform::Win32Threads> {
+struct ThreadUtilImpl<Platform::Win32Threads> {
     // This class provides a full specialization of 'ThreadUtilImpl' for
     // Windows.
 
@@ -171,10 +170,10 @@ struct ThreadUtilImpl<bdlqq::Platform::Win32Threads> {
     // CLASS METHODS
     static const Handle INVALID_HANDLE;
 
-    static int create(Handle                        *thread,
+    static int create(Handle                  *thread,
                       const ThreadAttributes&  attribute,
-                      bcemt_ThreadFunction           function,
-                      void                          *userData);
+                      bcemt_ThreadFunction     function,
+                      void                    *userData);
         // Create a new thread of program control having the attributes
         // specified by 'attribute', that invokes the specified 'function'
         // with a single argument specified by 'userData' and load into the
@@ -201,7 +200,7 @@ struct ThreadUtilImpl<bdlqq::Platform::Win32Threads> {
         // associated with the newly created identifier.
 
     static int getMinSchedulingPriority(
-                              ThreadAttributes::SchedulingPolicy policy);
+                                    ThreadAttributes::SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
         // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
@@ -211,7 +210,7 @@ struct ThreadUtilImpl<bdlqq::Platform::Win32Threads> {
         // 'getMaxSchedulingPriority(policy)' return the same value.
 
     static int getMaxSchedulingPriority(
-                              ThreadAttributes::SchedulingPolicy policy);
+                                    ThreadAttributes::SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'ThreadAttributes::SchedulingPolicy'.
         // Return 'ThreadAttributes::BCEMT_UNSET_PRIORITY' if the
@@ -246,7 +245,7 @@ struct ThreadUtilImpl<bdlqq::Platform::Win32Threads> {
         // including system scheduling, and system timer resolution.  On the
         // win32 platform the sleep timer has a resolution of 1 millisecond.
 
-    static int sleepUntil(const bsls::TimeInterval&    absoluteTime,
+    static int sleepUntil(const bsls::TimeInterval&   absoluteTime,
                           bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
@@ -361,75 +360,72 @@ struct ThreadUtilImpl<bdlqq::Platform::Win32Threads> {
 
 // FREE OPERATORS
 bool operator==(
-         const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
-         const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs);
+         const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
+         const ThreadUtilImpl<Platform::Win32Threads>::Handle& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' thread handles have the
     // same value, and 'false' otherwise.
 
 bool operator!=(
-         const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
-         const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs);
-}  // close package namespace
+         const ThreadUtilImpl<Platform::Win32Threads>::Handle& lhs,
+         const ThreadUtilImpl<Platform::Win32Threads>::Handle& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' thread handles do not
     // have the same value, and 'false' otherwise.
 
+}  // close package namespace
+
 // ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ===========================================================================
 
-                             // ----------------------------
-                             // bdlqq::ThreadUtilImpl::Handle
-                             // ----------------------------
+                        // ----------------------------
+                        // ThreadUtilImpl::Handle
+                        // ----------------------------
 
 // FREE OPERATORS
 inline
 bool bdlqq::operator==(
-          const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
-          const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs)
+              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
+              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs)
 {
-    return ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqual(lhs,
-                                                                       rhs);
+    return ThreadUtilImpl<Platform::Win32Threads>::areEqual(lhs, rhs);
 }
 
 inline
 bool bdlqq::operator!=(
-          const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
-          const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs)
+              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& lhs,
+              const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& rhs)
 {
     return !(lhs == rhs);
 }
 
-namespace bdlqq {
-            // -------------------------------------------------------
-            // class ThreadUtilImpl<bdlqq::Platform::Win32Threads>
-            // -------------------------------------------------------
+                // --------------------------------------------
+                // class ThreadUtilImpl<Platform::Win32Threads>
+                // --------------------------------------------
 
 // CLASS METHODS
 inline
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
-                         getMinSchedulingPriority(
-                             ThreadAttributes::SchedulingPolicy )
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
+    getMinSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
     return ThreadAttributes::BCEMT_UNSET_PRIORITY;
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
-                         getMaxSchedulingPriority(
-                               ThreadAttributes::SchedulingPolicy )
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
+    getMaxSchedulingPriority(ThreadAttributes::SchedulingPolicy)
 {
     return ThreadAttributes::BCEMT_UNSET_PRIORITY;
 }
 
 inline
-void ThreadUtilImpl<bdlqq::Platform::Win32Threads>::yield()
+void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::yield()
 {
     ::SleepEx(0, 0);
 }
 
 inline
-void ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleep(
-                                            const bsls::TimeInterval& sleepTime)
+void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleep(
+                                           const bsls::TimeInterval& sleepTime)
 
 {
     DWORD milliSeconds;
@@ -439,7 +435,7 @@ void ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleep(
 }
 
 inline
-void ThreadUtilImpl<bdlqq::Platform::Win32Threads>::microSleep(
+void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::microSleep(
                                                                  int microsecs,
                                                                  int seconds)
 {
@@ -454,8 +450,8 @@ void ThreadUtilImpl<bdlqq::Platform::Win32Threads>::microSleep(
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::self()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::self()
 {
     Handle h;
     h.d_id     = GetCurrentThreadId();
@@ -464,37 +460,37 @@ ThreadUtilImpl<bdlqq::Platform::Win32Threads>::self()
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::NativeHandle
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::nativeHandle(
-       const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& handle)
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::NativeHandle
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::nativeHandle(
+                                                          const Handle& handle)
 {
     return handle.d_handle;
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfId()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfId()
 {
     return GetCurrentThreadId();
 }
 
 inline
 bsls::Types::Uint64
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfIdAsInt()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfIdAsInt()
 {
     return idAsInt(selfId());
 }
 
 inline
 bsls::Types::Uint64
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfIdAsUint64()
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::selfIdAsUint64()
 {
     return idAsUint64(selfId());
 }
 
 inline
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::handleToId(
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::handleToId(
                                                     const Handle& threadHandle)
 {
     return threadHandle.d_id;
@@ -502,42 +498,41 @@ ThreadUtilImpl<bdlqq::Platform::Win32Threads>::handleToId(
 
 inline
 bsls::Types::Uint64
-ThreadUtilImpl<bdlqq::Platform::Win32Threads>::idAsUint64(
-                                                             const Id& threadId)
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::idAsUint64(
+                                                            const Id& threadId)
 {
     return static_cast<bsls::Types::Uint64>(threadId);
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::idAsInt(
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::idAsInt(
                                                             const Id& threadId)
 {
     return static_cast<int>(threadId);
 }
 
 inline
-bool ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqualId(
-                const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id& a,
-                const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Id& b)
+bool bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqualId(
+                                                                   const Id& a,
+                                                                   const Id& b)
 {
     return a == b;
 }
 
 inline
-void *ThreadUtilImpl<bdlqq::Platform::Win32Threads>::getSpecific(
+void *bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::getSpecific(
                                                                 const Key& key)
 {
     return TlsGetValue(key);
 }
 
 inline
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
-                                                 setSpecific(const Key&  key,
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::setSpecific(
+                                                             const Key&  key,
                                                              const void *value)
 {
     return 0 == TlsSetValue(key, (void*)value) ? 1 : 0;
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 
@@ -545,11 +540,18 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

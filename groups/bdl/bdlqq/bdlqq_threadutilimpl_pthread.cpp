@@ -189,22 +189,21 @@ class MachClockGuard {
 
 #endif  // defined(BSLS_PLATFORM_OS_DARWIN)
 
-            // -------------------------------------------------------
-            // class bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>
-            // -------------------------------------------------------
+            // --------------------------------------------
+            // class ThreadUtilImpl<Platform::PosixThreads>
+            // --------------------------------------------
 
 // CLASS DATA
 const pthread_t
 bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::INVALID_HANDLE =
                                                                 (pthread_t) -1;
 
-namespace bdlqq {
 // CLASS METHODS
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::create(
-          ThreadUtilImpl<bdlqq::Platform::PosixThreads>::Handle *handle,
-          const ThreadAttributes&                              attribute,
-          bcemt_ThreadFunction                                       function,
-          void                                                      *userData)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::create(
+                                            Handle                  *handle,
+                                            const ThreadAttributes&  attribute,
+                                            bcemt_ThreadFunction     function,
+                                            void                    *userData)
 {
     int rc;
     pthread_attr_t pthreadAttr;
@@ -231,7 +230,7 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::create(
 
                 // *** Thread Priorities ***
 
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
       getMaxSchedulingPriority(ThreadAttributes::SchedulingPolicy policy)
 {
     typedef ThreadAttributes Attributes;
@@ -326,7 +325,7 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
 
 }
 
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
       getMinSchedulingPriority(ThreadAttributes::SchedulingPolicy policy)
 {
     int pPolicy;
@@ -367,9 +366,9 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::
     return priority;
 }
 
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleep(
-                                        const bsls::TimeInterval&  sleepTime,
-                                        bsls::TimeInterval        *unsleeptTime)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleep(
+                                       const bsls::TimeInterval&  sleepTime,
+                                       bsls::TimeInterval        *unsleeptTime)
 {
     timespec naptime;
     timespec unslept_time;
@@ -383,10 +382,10 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleep(
     return result;
 }
 
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::microSleep(
-                                                int                microsecs,
-                                                int                seconds,
-                                                bsls::TimeInterval *unsleptTime)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::microSleep(
+                                               int                 microsecs,
+                                               int                 seconds,
+                                               bsls::TimeInterval *unsleptTime)
 {
     enum { MILLION = 1000 * 1000 };
 
@@ -404,8 +403,8 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::microSleep(
     return result;
 }
 
-int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
-                             const bsls::TimeInterval&    absoluteTime,
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
+                             const bsls::TimeInterval&   absoluteTime,
                              bool                        retryOnSignalInterupt,
                              bsls::SystemClockType::Enum clockType)
 {
@@ -453,7 +452,7 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
         // the timeout value to make it consistent with the monotonic clock
 
         sleepUntilTime += bsls::SystemTime::nowMonotonicClock()
-                                            - bdlt::CurrentTime::now(clockType);
+                                           - bdlt::CurrentTime::now(clockType);
     }
 
     clock_serv_t clock;
@@ -505,18 +504,23 @@ int ThreadUtilImpl<bdlqq::Platform::PosixThreads>::sleepUntil(
     return result == EINTR ? 0 : result;
 #endif
 }
-}  // close package namespace
-
 
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

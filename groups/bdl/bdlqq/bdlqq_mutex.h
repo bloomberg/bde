@@ -22,8 +22,8 @@ BSLS_IDENT("$Id: $")
 // The behavior is undefined if 'unlock' is invoked on a 'bdlqq::Mutex' object
 // from a thread that did not successfully acquire the lock, or if 'lock' is
 // called twice in a thread without calling 'unlock' in between (i.e.,
-// 'bdlqq::Mutex' is non-recursive).  In particular, 'lock' *may* or *may* *not*
-// deadlock if the current thread holds the lock.
+// 'bdlqq::Mutex' is non-recursive).  In particular, 'lock' *may* or *may*
+// *not* deadlock if the current thread holds the lock.
 //
 ///Usage
 ///-----
@@ -70,8 +70,8 @@ BSLS_IDENT("$Id: $")
 // The implementation of this class is straightforward and omitted here for
 // brevity.
 //
-// Next, we use a 'bdlqq::Mutex' object to render atomic the function calls of a
-// new thread-safe class that uses the thread-unsafe class in its
+// Next, we use a 'bdlqq::Mutex' object to render atomic the function calls of
+// a new thread-safe class that uses the thread-unsafe class in its
 // implementation.  Note the typical use of 'mutable' for the lock:
 //..
 //  class my_SafeAccountHandle {
@@ -223,14 +223,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 class MutexImpl;
 
-                             // =================
-                             // class btemt::Mutex
-                             // =================
+                                // ===========
+                                // class Mutex
+                                // ===========
 
 class Mutex {
     // This 'class' implements a lightweight, portable wrapper of an OS-level
@@ -240,8 +240,8 @@ class Mutex {
     // to 'unLock'.
 
     // DATA
-    MutexImpl<bdlqq::Platform::ThreadPolicy>
-                                    d_imp;  // platform-specific implementation
+    MutexImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
+                                                     //  implementation
 
     // NOT IMPLEMENTED
     Mutex(const Mutex&);
@@ -249,8 +249,7 @@ class Mutex {
 
   public:
     // PUBLIC TYPES
-    typedef MutexImpl<bdlqq::Platform::ThreadPolicy>::NativeType
-                                                                    NativeType;
+    typedef MutexImpl<Platform::ThreadPolicy>::NativeType NativeType;
         // 'NativeType' is an alias for the underlying OS-level mutex type.  It
         // is exposed so that other 'bcemt' components can operate directly on
         // this mutex.
@@ -289,60 +288,68 @@ class Mutex {
         // unless the calling thread currently owns the lock on this mutex.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                             // -----------------
-                             // class Mutex
-                             // -----------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                                // -----------
+                                // class Mutex
+                                // -----------
 
 // CREATORS
 inline
-Mutex::Mutex()
+bdlqq::Mutex::Mutex()
 {
 }
 
 inline
-Mutex::~Mutex()
+bdlqq::Mutex::~Mutex()
 {
 }
 
 // MANIPULATORS
 inline
-void Mutex::lock()
+void bdlqq::Mutex::lock()
 {
     d_imp.lock();
 }
 
 inline
-Mutex::NativeType& Mutex::nativeMutex()
+bdlqq::Mutex::NativeType& bdlqq::Mutex::nativeMutex()
 {
     return d_imp.nativeMutex();
 }
 
 inline
-int Mutex::tryLock()
+int bdlqq::Mutex::tryLock()
 {
     return d_imp.tryLock();
 }
 
 inline
-void Mutex::unlock()
+void bdlqq::Mutex::unlock()
 {
     d_imp.unlock();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a win32 implementation of 'bdlqq::Mutex'.
 //
 //@CLASSES:
-//  bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>: win32 specialization
+//  bdlqq::MutexImpl<Platform::Win32Threads>: win32 specialization
 //
 //@SEE_ALSO: bdlqq_mutex
 //
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides an implementation of 'bdlqq::Mutex' for
 // Windows (win32) via the template specialization:
 //..
-//  bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>
+//  bdlqq::MutexImpl<Platform::Win32Threads>
 //..
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bdlqq::Mutex'.
@@ -75,16 +75,17 @@ extern "C" {
 }  // extern "C"
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 class MutexImpl;
 
-               // ==================================================
-               // class MutexImpl<bdlqq::Platform::Win32Threads>
-               // ==================================================
+               // =======================================
+               // class MutexImpl<Platform::Win32Threads>
+               // =======================================
+
 template <>
-class MutexImpl<bdlqq::Platform::Win32Threads> {
+class MutexImpl<Platform::Win32Threads> {
     // This class provides a full specialization of 'MutexImpl' for
     // Windows.  It provides an efficient proxy for Windows critical sections,
     // and related operations.  Note that the mutex implemented in this class
@@ -160,24 +161,26 @@ class MutexImpl<bdlqq::Platform::Win32Threads> {
         // mutex.
 };
 
+}  // close package namespace
+
 // ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ===========================================================================
 
-               // --------------------------------------------------
-               // class MutexImpl<bdlqq::Platform::Win32Threads>
-               // --------------------------------------------------
+                // ---------------------------------------
+                // class MutexImpl<Platform::Win32Threads>
+                // ---------------------------------------
 
 // CREATORS
 inline
-MutexImpl<bdlqq::Platform::Win32Threads>::MutexImpl()
+bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::MutexImpl()
 {
     InitializeCriticalSectionAndSpinCount(
           reinterpret_cast<_RTL_CRITICAL_SECTION *>(d_lock), BCEMT_SPIN_COUNT);
 }
 
 inline
-MutexImpl<bdlqq::Platform::Win32Threads>::~MutexImpl()
+bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::~MutexImpl()
 {
     DeleteCriticalSection(
         reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
@@ -185,33 +188,32 @@ MutexImpl<bdlqq::Platform::Win32Threads>::~MutexImpl()
 
 // MANIPULATORS
 inline
-void MutexImpl<bdlqq::Platform::Win32Threads>::lock()
+void bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::lock()
 {
     EnterCriticalSection(
         reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
 }
 
 inline
-MutexImpl<bdlqq::Platform::Win32Threads>::NativeType&
-MutexImpl<bdlqq::Platform::Win32Threads>::nativeMutex()
+bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::NativeType&
+bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::nativeMutex()
 {
     return *reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock);
 }
 
 inline
-int MutexImpl<bdlqq::Platform::Win32Threads>::tryLock()
+int bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::tryLock()
 {
     return !TryEnterCriticalSection(
         reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
 }
 
 inline
-void MutexImpl<bdlqq::Platform::Win32Threads>::unlock()
+void bdlqq::MutexImpl<bdlqq::Platform::Win32Threads>::unlock()
 {
     LeaveCriticalSection(
         reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 
@@ -219,11 +221,18 @@ void MutexImpl<bdlqq::Platform::Win32Threads>::unlock()
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlqq_meteredmutex.h      -*-C++-*-
+// bdlqq_meteredmutex.h                                               -*-C++-*-
 #ifndef INCLUDED_BDLQQ_METEREDMUTEX
 #define INCLUDED_BDLQQ_METEREDMUTEX
 
@@ -183,11 +183,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                           // ========================
-                           // class MeteredMutex
-                           // ========================
+                            // ==================
+                            // class MeteredMutex
+                            // ==================
 
 class MeteredMutex {
     // This class implements a mutex, that has the additional capability
@@ -197,10 +196,10 @@ class MeteredMutex {
     // waited for the mutex.
 
     // DATA
-    Mutex        d_mutex;          // underlying mutex
+    Mutex               d_mutex;          // underlying mutex
     bsls::AtomicInt64   d_waitTime;       // wait time
     bsls::AtomicInt64   d_holdTime;       // hold time
-    bsls::Types::Int64 d_startHoldTime;  // starting point of hold time
+    bsls::Types::Int64  d_startHoldTime;  // starting point of hold time
     bsls::AtomicInt64   d_lastResetTime;  // last reset time
 
     // NOT IMPLEMENTED
@@ -265,28 +264,30 @@ class MeteredMutex {
         // if 'resetMetrics' was never called).
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                               // ------------------
-                               // MeteredMutex
-                               // ------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                                // ------------
+                                // MeteredMutex
+                                // ------------
 // CREATORS
 inline
-MeteredMutex::MeteredMutex()
+bdlqq::MeteredMutex::MeteredMutex()
 : d_lastResetTime(bsls::TimeUtil::getTimer())
 {
 }
 
 inline
-MeteredMutex::~MeteredMutex()
+bdlqq::MeteredMutex::~MeteredMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void MeteredMutex::lock()
+void bdlqq::MeteredMutex::lock()
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     d_mutex.lock();
@@ -295,7 +296,7 @@ void MeteredMutex::lock()
 }
 
 inline
-int MeteredMutex::tryLock()
+int bdlqq::MeteredMutex::tryLock()
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     int returnStatus = d_mutex.tryLock();
@@ -308,7 +309,7 @@ int MeteredMutex::tryLock()
 }
 
 inline
-void MeteredMutex::unlock()
+void bdlqq::MeteredMutex::unlock()
 {
     d_holdTime += (bsls::TimeUtil::getTimer() - d_startHoldTime);
     d_mutex.unlock();
@@ -316,33 +317,39 @@ void MeteredMutex::unlock()
 
 // ACCESSORS
 inline
-bsls::Types::Int64 MeteredMutex::holdTime() const
+bsls::Types::Int64 bdlqq::MeteredMutex::holdTime() const
 {
     return d_holdTime;
 }
 
 inline
-bsls::Types::Int64 MeteredMutex::lastResetTime() const
+bsls::Types::Int64 bdlqq::MeteredMutex::lastResetTime() const
 {
     return d_lastResetTime;
 }
 
 inline
-bsls::Types::Int64 MeteredMutex::waitTime() const
+bsls::Types::Int64 bdlqq::MeteredMutex::waitTime() const
 {
     return d_waitTime;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -24,8 +24,9 @@ BSLS_IDENT("$Id: $")
 // 'bdlqq::RecursiveMutex', and should be used instead if at all possible.  In
 // particular, it is rare to need a recursive mutex.
 //
-// The behavior is undefined if 'unlock' is invoked on a 'bdlqq::RecursiveMutex'
-// object from a thread that does not currently own the lock.
+// The behavior is undefined if 'unlock' is invoked on a
+// 'bdlqq::RecursiveMutex' object from a thread that does not currently own the
+// lock.
 //
 ///Usage
 ///-----
@@ -80,14 +81,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 class RecursivemutexImpl;
 
-                     // ==========================
-                     // class btemt::RecursiveMutex
-                     // ==========================
+                            // ====================
+                            // class RecursiveMutex
+                            // ====================
 
 class RecursiveMutex {
     // This 'class' implements a recursive mutex (i.e., a mutex that can be
@@ -98,8 +99,8 @@ class RecursiveMutex {
     // preferred if at all possible.
 
     // DATA
-    RecursiveMutexImpl<bdlqq::Platform::ThreadPolicy>
-                                    d_imp;  // platform-specific implementation
+    RecursiveMutexImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
+                                                       // implementation
 
     // NOT IMPLEMENTED
     RecursiveMutex(const RecursiveMutex&);
@@ -134,54 +135,62 @@ class RecursiveMutex {
         // calling thread currently owns the lock on this recursive mutex.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+}  // close package namespace
 
-                        // --------------------------
-                        // class RecursiveMutex
-                        // --------------------------
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // class RecursiveMutex
+                            // --------------------
 
 // CREATORS
 inline
-RecursiveMutex::RecursiveMutex()
+bdlqq::RecursiveMutex::RecursiveMutex()
 {
 }
 
 inline
-RecursiveMutex::~RecursiveMutex()
+bdlqq::RecursiveMutex::~RecursiveMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void RecursiveMutex::lock()
+void bdlqq::RecursiveMutex::lock()
 {
     d_imp.lock();
 }
 
 inline
-int RecursiveMutex::tryLock()
+int bdlqq::RecursiveMutex::tryLock()
 {
     return d_imp.tryLock();
 }
 
 inline
-void RecursiveMutex::unlock()
+void bdlqq::RecursiveMutex::unlock()
 {
     d_imp.unlock();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

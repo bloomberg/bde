@@ -1,4 +1,4 @@
-// bdlqq_xxxthread.h                                                     -*-C++-*-
+// bdlqq_xxxthread.h                                                  -*-C++-*-
 #ifndef INCLUDED_BDLQQ_XXXTHREAD
 #define INCLUDED_BDLQQ_XXXTHREAD
 
@@ -20,18 +20,18 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Sergey Tarsis (starsis)
 //
 //@DESCRIPTION: [!DEPRECATED!]  This component is deprecated.  The collection
-// of classes previously provided by 'bdlqq_xxxthread' have been properly factored
-// into individual components (with 'bcemt_Attribute' also being renamed) as
-// follows:
+// of classes previously provided by 'bdlqq_xxxthread' have been properly
+// factored into individual components (with 'bcemt_Attribute' also being
+// renamed) as follows:
 //..
 //          Class                  Component
-//  +----------------------+-----------------------------+
-//  | bcemt_Attribute      | bdlqq_threadattributes      |
+//  +-----------------------+-----------------------------+
+//  | bcemt_Attribute       | bdlqq_threadattributes      |
 //  | bdlqq::Condition      | bdlqq_condition             |
 //  | bdlqq::Mutex          | bdlqq_mutex                 |
 //  | bdlqq::RecursiveMutex | bdlqq_recursivemutex        |
 //  | bdlqq::ThreadUtil     | bdlqq_threadutil            |
-//  +----------------------+-----------------------------+
+//  +-----------------------+-----------------------------+
 //..
 // Client code should be modified to use the five aforementioned components
 // directly, as needed.  For backward compatibility, this file includes the
@@ -53,23 +53,23 @@ BSLS_IDENT("$Id: $")
 //..
 ///Thread Management
 ///-----------------
-// The 'bdlqq::ThreadUtil' class is a suite of pure procedures that provides the
-// ability to create and destroy threads, to attach "foreign threads" (that is,
-// threads created outside of 'bcemt'), and to join threads (make one thread
-// block and wait for another thread to exit).
+// The 'bdlqq::ThreadUtil' class is a suite of pure procedures that provides
+// the ability to create and destroy threads, to attach "foreign threads" (that
+// is, threads created outside of 'bcemt'), and to join threads (make one
+// thread block and wait for another thread to exit).
 //
 // A thread is identified by an object of the opaque type
-// 'bdlqq::ThreadUtil::Handle'.  A handle of this type is returned when a thread
-// is created (with 'bdlqq::ThreadUtil::create()').  A client can also
+// 'bdlqq::ThreadUtil::Handle'.  A handle of this type is returned when a
+// thread is created (with 'bdlqq::ThreadUtil::create()').  A client can also
 // retrieve a 'Handle' for the "current" thread with the following function:
 //..
 //  bdlqq::ThreadUtil::Handle myHandle = bdlqq::ThreadUtil::self();
 //..
-// The thread manipulation functions in 'bdlqq::ThreadUtil' take a thread handle
-// or pointer to a thread handle as an argument.  To facilitate compatibility
-// with existing systems and allow for non-portable operations, clients also
-// have access to the 'bdlqq::ThreadUtil::NativeHandle' type, which exposes the
-// underlying, platform-specific thread identifier objects:
+// The thread manipulation functions in 'bdlqq::ThreadUtil' take a thread
+// handle or pointer to a thread handle as an argument.  To facilitate
+// compatibility with existing systems and allow for non-portable operations,
+// clients also have access to the 'bdlqq::ThreadUtil::NativeHandle' type,
+// which exposes the underlying, platform-specific thread identifier objects:
 //..
 //  bdlqq::ThreadUtil::NativeHandle myNativeHandle;
 //  myNativeHandle = bdlqq::ThreadUtil::nativeHandle();
@@ -85,10 +85,10 @@ BSLS_IDENT("$Id: $")
 ///Thread Attributes
 ///- - - - - - - - -
 // Users can specify the attributes of a thread by supplying a
-// 'bdlqq::ThreadAttributes' object to the 'bdlqq::ThreadUtil::create' function.
-// 'bdlqq::ThreadAttributes' is a value-semantic type that enables clients to
-// manipulate a set of basic thread attributes, e.g., the stack size of a
-// thread or its scheduling priority.
+// 'bdlqq::ThreadAttributes' object to the 'bdlqq::ThreadUtil::create'
+// function.  'bdlqq::ThreadAttributes' is a value-semantic type that enables
+// clients to manipulate a set of basic thread attributes, e.g., the stack size
+// of a thread or its scheduling priority.
 //..
 //  bdlqq::ThreadAttributes attributes;
 //  attributes.setStackSize(1024);
@@ -133,10 +133,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Locking
 ///-------
-// 'bdlqq_xxxthread' supports two variants of a mutually exclusive lock (mutex):
-// 'bdlqq::Mutex' and 'bdlqq::RecursiveMutex'.  These may be used directly by
-// client programs.  In addition, they are used by other classes in the
-// 'bdlqq_xxxthread' component.
+// 'bdlqq_xxxthread' supports two variants of a mutually exclusive lock
+// (mutex): 'bdlqq::Mutex' and 'bdlqq::RecursiveMutex'.  These may be used
+// directly by client programs.  In addition, they are used by other classes in
+// the 'bdlqq_xxxthread' component.
 //
 ///'bdlqq::Mutex'
 ///- - - - - - -
@@ -203,20 +203,21 @@ BSLS_IDENT("$Id: $")
 //  int timedWait(bdlqq::Mutex *mutex, const bsls::TimeInterval& timeout);
 //..
 // The caller must lock the mutex before invoking these functions.  The
-// 'bdlqq::Condition' atomically releases the lock and waits, thereby preventing
-// other threads from changing the predicate after the lock is released, but
-// before the thread begins to wait.  The 'bcemt' library guarantees that this
-// lock will be reacquired before returning from a call to the 'wait' methods
-// unless an error occurs.
+// 'bdlqq::Condition' atomically releases the lock and waits, thereby
+// preventing other threads from changing the predicate after the lock is
+// released, but before the thread begins to wait.  The 'bcemt' library
+// guarantees that this lock will be reacquired before returning from a call to
+// the 'wait' methods unless an error occurs.
 //
 // When invoking the 'timedWait' methods, clients must specify a timeout after
 // which the call will return even if the condition is not signaled.  The
-// timeout is expressed as a 'bsls::TimeInterval' object that holds the absolute
-// time value relative to the same system clock type as was indicated at the
-// construction of the 'bdlqq::Condition' object.  By default, the clock type
-// used by a 'bdlqq::Condition' object is 'bsls::SystemClockType::e_REALTIME'.
-// Clients should use the 'bdlt::CurrentTime::now(clockType)' utility method to
-// access the current time for a particular system clock.
+// timeout is expressed as a 'bsls::TimeInterval' object that holds the
+// absolute time value relative to the same system clock type as was indicated
+// at the construction of the 'bdlqq::Condition' object.  By default, the clock
+// type used by a 'bdlqq::Condition' object is
+// 'bsls::SystemClockType::e_REALTIME'.  Clients should use the
+// 'bdlt::CurrentTime::now(clockType)' utility method to access the current
+// time for a particular system clock.
 //
 // Other threads can indicate that the predicate is true by signaling or
 // broadcasting the same 'bdlqq::Condition' object.  A broadcast wakes up all
@@ -341,7 +342,7 @@ BSLS_IDENT("$Id: $")
 //      enum { STACK_SIZE = 16384 };
 //      bdlqq::ThreadAttributes attributes;
 //      attributes.setDetachedState(
-//                              bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
+//                             bdlqq::ThreadAttributes::BCEMT_CREATE_DETACHED);
 //      attributes.setStackSize(STACK_SIZE);
 //
 //      char initValue = 1;
@@ -449,7 +450,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bdlqq::ThreadAttributes attributes;
 //      attributes.setDetachedState(
-//                              bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
+//                             bdlqq::ThreadAttributes::BCEMT_CREATE_JOINABLE);
 //
 //      bdlqq::ThreadUtil::Handle producerHandle;
 //      int status = bdlqq::ThreadUtil::create(&producerHandle,
@@ -686,11 +687,18 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

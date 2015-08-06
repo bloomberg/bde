@@ -17,17 +17,17 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha(irocha)
 //
-//@DESCRIPTION: This component defines a thread "barrier".  Barriers provide a
-// simple mechanism for synchronizing a series of threads at a given point in a
-// program.  A barrier is constructed with a number 'numThreads' which is the
-// number of threads required to reach the synchronization point for the
-// barrier to be unblocked.  As each thread reaches the synchronization point,
-// it calls the 'wait' method and blocks.  An invariant is that the number of
-// threads blocking on a barrier is always less than 'numThreads'.  Once the
-// required 'numThreads' threads have called 'wait', the invariant is restored
-// by unblocking all the threads and resetting the barrier to its initial
-// state.  In particular, the barrier can be reused several times in
-// succession.
+//@DESCRIPTION: This component defines a thread barrier named 'bdlqq::Barrier'.
+// Barriers provide a simple mechanism for synchronizing a series of threads at
+// a given point in a program.  A barrier is constructed with a number
+// 'numThreads' which is the number of threads required to reach the
+// synchronization point for the barrier to be unblocked.  As each thread
+// reaches the synchronization point, it calls the 'wait' method and blocks.
+// An invariant is that the number of threads blocking on a barrier is always
+// less than 'numThreads'.  Once the required 'numThreads' threads have called
+// 'wait', the invariant is restored by unblocking all the threads and
+// resetting the barrier to its initial state.  In particular, the barrier can
+// be reused several times in succession.
 //
 // Note that the number of threads sharing the use of the barrier should be
 // exactly 'numThreads', as only exactly 'numThreads' threads calling 'wait'
@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //..
 // struct TradeThreadArgument {
 //     bsl::vector<Trade> *d_trades_p;
-//     bdlqq::Barrier      *d_barrier_p;
+//     bdlqq::Barrier     *d_barrier_p;
 //     volatile bool      *d_errorFlag_p;
 //     int                 d_tradeNum;
 // };
@@ -207,8 +207,8 @@ BSLS_IDENT("$Id: $")
 //     return args;
 // }
 //..
-// Function 'tradeProcessingThread' is a callback for 'bdlqq::ThreadUtil', which
-// requires 'void' pointers for argument and return type and extern "C"
+// Function 'tradeProcessingThread' is a callback for 'bdlqq::ThreadUtil',
+// which requires 'void' pointers for argument and return type and 'extern "C"'
 // linkage.  'bdlqq::ThreadUtil::create()' expects a pointer to this function,
 // and provides that function pointer to the newly created thread.  The new
 // thread then executes this function.
@@ -285,7 +285,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlqq_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -294,18 +294,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                             // ===================
-                             // class Barrier
-                             // ===================
+                            // =============
+                            // class Barrier
+                            // =============
 
 class Barrier {
     // This class defines a thread barrier.
 
-    Mutex     d_mutex;      // mutex used to control access to this
+    Mutex           d_mutex;      // mutex used to control access to this
                                   // barrier.
-    Condition d_cond;       // condition variable used for signaling
+    Condition       d_cond;       // condition variable used for signaling
                                   // blocked threads.
     const int       d_numThreads; // number of threads required to be waiting
                                   // before this barrier can be signaled.
@@ -322,11 +321,9 @@ class Barrier {
 
   public:
     // CREATORS
-    explicit
-    Barrier(
-             int                         numThreads,
-             bsls::SystemClockType::Enum clockType
-                                          = bsls::SystemClockType::e_REALTIME);
+    explicit Barrier(int                         numThreads,
+                     bsls::SystemClockType::Enum clockType =
+                                            bsls::SystemClockType::e_REALTIME);
         // Create a barrier that requires the specified 'numThreads' to
         // unblock.  Optionally specify a 'clockType' indicating the type of
         // the system clock against which the 'bsls::TimeInterval' timeouts
@@ -351,7 +348,7 @@ class Barrier {
         // thread is released to proceed and ceases to contribute to the number
         // of threads waiting.  Return a non-zero value if a timeout or error
         // occurs.  The 'timeout' is an absolute time represented as an
-        // interval from some epoch, which is detemined by the clock indicated
+        // interval from some epoch, which is determined by the clock indicated
         // at construction (see {'Supported Clock-Types'} in the component
         // documentation).  Note that 'timedWait' and 'wait' should not
         // generally be used together; if one or more threads called 'wait'
@@ -372,15 +369,15 @@ class Barrier {
         // Return the number of threads that are required to call 'wait' before
         // all waiting threads will unblock.
 };
+}  // close package namespace
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS
-inline
-Barrier::Barrier(int                         numThreads,
-                             bsls::SystemClockType::Enum clockType)
+inline bdlqq::Barrier::Barrier(int                         numThreads,
+                               bsls::SystemClockType::Enum clockType)
 : d_mutex()
 , d_cond(clockType)
 , d_numThreads(numThreads)
@@ -392,21 +389,27 @@ Barrier::Barrier(int                         numThreads,
 
 // ACCESSORS
 inline
-int Barrier::numThreads() const
+int bdlqq::Barrier::numThreads() const
 {
     return d_numThreads;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
