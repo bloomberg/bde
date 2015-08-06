@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_dladdr,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-
 #include <dlfcn.h>
 
 // The following is an excerpt from '#include <cxxabi.h>'.  Unfortunately, that
@@ -92,7 +91,7 @@ typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Dladdr>
 }  // close unnamed namespace
 
 // CREATORS
-local::StackTraceResolver::balst::StackTraceResolverImpl(
+local::StackTraceResolver::StackTraceResolverImpl(
                                      balst::StackTrace *stackTrace,
                                      bool              demanglingPreferredFlag)
 : d_stackTrace_p(stackTrace)
@@ -103,7 +102,7 @@ local::StackTraceResolver::balst::StackTraceResolverImpl(
                                               local::DEMANGLING_BUFFER_LENGTH);
 }
 
-local::StackTraceResolver::~balst::StackTraceResolverImpl()
+local::StackTraceResolver::~StackTraceResolverImpl()
 {
     d_hbpAlloc.deallocate(d_demangleBuf_p);
 }
@@ -136,11 +135,12 @@ int local::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
     frame->setSymbolName("");
     if (d_demangleFlag) {
         size_t length = local::DEMANGLING_BUFFER_LENGTH;
-        frame->setSymbolName(abi::__cxa_demangle(
+        const char *demangled = abi::__cxa_demangle(
                                             frame->mangledSymbolName().c_str(),
                                             d_demangleBuf_p,
                                             &length,
-                                            &rc));
+                                            &rc);
+        frame->setSymbolName(demangled ? demangled : "");
     }
 
     if (-2 == rc || frame->symbolName().empty()) {
@@ -161,8 +161,8 @@ int local::StackTraceResolver::resolveFrame(balst::StackTraceFrame *frame)
 
 // CLASS METHODS
 int local::StackTraceResolver::resolve(
-                                     balst::StackTrace *stackTrace,
-                                     bool              demanglingPreferredFlag)
+                                    balst::StackTrace *stackTrace,
+                                    bool               demanglingPreferredFlag)
 {
     int retRc = 0;
     local::StackTraceResolver resolver(stackTrace,
