@@ -33,11 +33,11 @@ BSLS_IDENT("$Id: $")
 // based.  If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
 // 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -94,11 +94,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                         // ==================
+                         // ============
                          // class Sluice
-                         // ==================
+                         // ============
 
 class Sluice {
     // This class controls the release of threads from a common synchronization
@@ -124,7 +123,7 @@ class Sluice {
         int                   d_numSignaled;  // number of threads signaled,
                                               // but not yet finished waiting
 
-        TimedSemaphore  d_sema;         // semaphore on which to wait
+        TimedSemaphore        d_sema;         // semaphore on which to wait
 
         GenerationDescriptor *d_next;         // pointer to the next free
                                               // descriptor in the pool
@@ -136,7 +135,7 @@ class Sluice {
     };
 
     // DATA
-    Mutex           d_mutex;               // for synchronizing access to
+    Mutex                 d_mutex;               // for synchronizing access to
                                                  // data members
 
     GenerationDescriptor *d_signaledGeneration;  // generation in which at
@@ -164,10 +163,10 @@ class Sluice {
   public:
     // CREATORS
     explicit
-    Sluice(bslma::Allocator           *basicAllocator = 0);
+    Sluice(bslma::Allocator            *basicAllocator = 0);
     explicit
     Sluice(bsls::SystemClockType::Enum  clockType,
-                 bslma::Allocator            *basicAllocator = 0);
+           bslma::Allocator            *basicAllocator = 0);
         // Create a sluice.  Optionally specify a 'clockType' indicating the
         // type of the system clock against which the 'bsls::TimeInterval'
         // timeouts passed to the 'timedWait' method are to be interpreted.  If
@@ -211,17 +210,24 @@ class Sluice {
         // a call to 'enter' by this thread, and was not subsequently released
         // (via a call to 'timedWait' or 'wait').
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

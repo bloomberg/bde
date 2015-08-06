@@ -12,7 +12,6 @@ BSLS_IDENT_RCSID(bdlqq_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bdlqq_threadattributes.h>
 
 #include <bsls_systemclocktype.h>
-#include <bdlt_currenttime.h>
 
 #include <bsl_cstring.h>  // 'memcpy'
 
@@ -37,8 +36,10 @@ namespace BloombergLP {
 
 // CLASS DATA
 const bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle
-    bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::INVALID_HANDLE =
+bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::INVALID_HANDLE =
                                                    { INVALID_HANDLE_VALUE, 0 };
+
+namespace {
 
 class HandleGuard {
     // This guard mechanism closes the windows handle (using 'CloseHandle')
@@ -74,26 +75,25 @@ HandleGuard::~HandleGuard()
     }
 }
 
-struct ThreadStartupInfo{
+struct ThreadStartupInfo {
     // Control structure used to pass startup information to the thread entry
     // function.
 
     bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle  d_handle;
-    bcemt_ThreadFunction                                       d_function;
-    void                                                      *d_threadArg;
-    ThreadStartupInfo                                         *d_next;
+    bcemt_ThreadFunction                                          d_function;
+    void                                                         *d_threadArg;
+    ThreadStartupInfo                                            *d_next;
 };
 
 struct ThreadSpecificDestructor {
     // This structure implements a linked list of destructors associated
     // with thread-specific key.
 
-    bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Key  d_key;
-    bcemt_KeyDestructorFunction                             d_destructor;
-    ThreadSpecificDestructor                               *d_next;
+    bdlqq::ThreadUtilImpl<bdlqq:Platform::Win32Threads>::Key  d_key;
+    bcemt_KeyDestructorFunction                               d_destructor;
+    ThreadSpecificDestructor                                 *d_next;
 };
 
-namespace bdlqq {
 struct Win32Initializer {
     // This structure is used to initialize and de-initialize the BCE threading
     // environment.  At creation, 'bcemt_threadutil_win32_Initialize' is
@@ -107,7 +107,6 @@ struct Win32Initializer {
     ~Win32Initializer();
         // De-initialize the BCE threading environment.
 };
-}  // close package namespace
 
 enum InitializationState {
     INITIALIZED   =  0  // threading environment has been initialized
@@ -221,7 +220,6 @@ static void bcemt_threadutil_win32_Deinitialize()
     }
 }
 
-namespace bdlqq {
 Win32Initializer::Win32Initializer()
 {
     bcemt_threadutil_win32_Initialize();
@@ -231,7 +229,6 @@ Win32Initializer::~Win32Initializer()
 {
     bcemt_threadutil_win32_Deinitialize();
 }
-}  // close package namespace
 
 static ThreadStartupInfo *allocStartupInfo()
     // This function provides an efficient allocator for 'ThreadStartupInfo'
@@ -321,13 +318,14 @@ static unsigned _stdcall ThreadEntry(void *arg)
     return (unsigned)(bsls::Types::IntPtr)ret;
 }
 
-namespace bdlqq {
-            // -------------------------------------------------------
-            // class ThreadUtilImpl<bdlqq::Platform::Win32Threads>
-            // -------------------------------------------------------
+}  // close unnamed namespace
+
+                // --------------------------------------------
+                // class ThreadUtilImpl<Platform::Win32Threads>
+                // --------------------------------------------
 
 // CLASS METHODS
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
                                                 Handle               *thread,
                                                 bcemt_ThreadFunction  function,
                                                 void                 *userData)
@@ -336,11 +334,11 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
     return create(thread, attribute, function, userData);
 }
 
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
-          ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle *handle,
-          const ThreadAttributes&                              attribute,
-          bcemt_ThreadFunction                                       function,
-          void                                                      *userData)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
+                                            Handle                  *handle,
+                                            const ThreadAttributes&  attribute,
+                                            bcemt_ThreadFunction     function,
+                                            void                    *userData)
 {
     if (bcemt_threadutil_win32_Initialize()) {
         return 1;                                                     // RETURN
@@ -391,9 +389,9 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::create(
     return 0;
 }
 
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::join(
-           ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle&   handle,
-           void                                                       **status)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::join(
+                                                              Handle&   handle,
+                                                              void    **status)
 {
     // Cannot self - join
 
@@ -428,15 +426,12 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::join(
     return FALSE == result ? 3 : 0;
 }
 
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::detach(
-             ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& handle)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::detach(
+                                                                Handle& handle)
 {
     if (handle.d_handle == GetCurrentThread()
      && handle.d_id     == GetCurrentThreadId()) {
-        ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle *realHandle;
-        realHandle =
-            (ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle *)
-                                             TlsGetValue(s_threadInfoTLSIndex);
+        Handle *realHandle = (Handle *)TlsGetValue(s_threadInfoTLSIndex);
         if (!realHandle || !realHandle->d_handle) {
             return 1;                                                 // RETURN
         }
@@ -456,7 +451,7 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::detach(
     return 2;
 }
 
-void ThreadUtilImpl<bdlqq::Platform::Win32Threads>::exit(void *status)
+void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::exit(void *status)
 {
     invokeDestructors();
 #ifdef BCEMT_USE_RETURN_VALUE_MAP
@@ -469,7 +464,7 @@ void ThreadUtilImpl<bdlqq::Platform::Win32Threads>::exit(void *status)
     _endthreadex((unsigned)(bsls::Types::IntPtr)status);
 }
 
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::createKey(
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::createKey(
                                        Key                         *key,
                                        bcemt_KeyDestructorFunction  destructor)
 {
@@ -498,7 +493,7 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::createKey(
     return 0;
 }
 
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::deleteKey(Key& key)
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::deleteKey(Key& key)
 {
     ThreadSpecificDestructor *prev = 0;
     if (!TlsFree(key)) {
@@ -524,15 +519,15 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::deleteKey(Key& key)
     return 0;
 }
 
-bool ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqual(
-            const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& a,
-            const ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Handle& b)
+bool bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::areEqual(
+                                                               const Handle& a,
+                                                               const Handle& b)
 {
     return a.d_id == b.d_id;
 }
 
-int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
-                                      const bsls::TimeInterval&    absoluteTime,
+int bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
+                                      const bsls::TimeInterval&   absoluteTime,
                                       bsls::SystemClockType::Enum clockType)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and
@@ -601,17 +596,23 @@ int ThreadUtilImpl<bdlqq::Platform::Win32Threads>::sleepUntil(
 
     return 0;
 }
-}  // close package namespace
 
 }  // close namespace BloombergLP
 
 #endif  // BDLQQ_PLATFORM_WIN32_THREADS
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

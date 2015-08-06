@@ -6,15 +6,18 @@ BSLS_IDENT_RCSID(bdlqq_conditionimpl_pthread_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_saturatedtimeconversionimputil.h>
 
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace BloombergLP {
 
+namespace {
+
 #if !defined(BSLS_PLATFORM_OS_DARWIN)
 // Set the condition clock type, except on Darwin which doesn't support it.
+
 
 class CondAttr {
     // This class is a thin wrapper over 'pthread_condattr_t' structure which
@@ -94,13 +97,14 @@ void initializeCondition(pthread_cond_t              *cond,
 #endif
 }
 
-namespace bdlqq {
-             // ------------------------------------------------------
-             // class ConditionImpl<bdlqq::Platform::PosixThreads>
-             // ------------------------------------------------------
+}  // close unnamed namespace
+
+             // -------------------------------------------
+             // class ConditionImpl<Platform::PosixThreads>
+             // -------------------------------------------
 
 // CREATORS
-ConditionImpl<bdlqq::Platform::PosixThreads>::ConditionImpl(
+bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::ConditionImpl(
                                          bsls::SystemClockType::Enum clockType)
 #ifdef BSLS_PLATFORM_OS_DARWIN
 : d_clockType(clockType)
@@ -110,9 +114,9 @@ ConditionImpl<bdlqq::Platform::PosixThreads>::ConditionImpl(
 }
 
 // MANIPULATORS
-int ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
-                                             Mutex              *mutex,
-                                             const bsls::TimeInterval&  timeout)
+int bdlqq::ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
+                                            Mutex                     *mutex,
+                                            const bsls::TimeInterval&  timeout)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     // This implementation is very sensitive to the 'd_clockType'.  For
@@ -126,8 +130,8 @@ int ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
     if (d_clockType != bsls::SystemClockType::e_REALTIME) {
         // since cond_timedwait operates only with the realtime clock, adjust
         // the timeout value to make it consistent with the realtime clock
-        realTimeout += bsls::SystemTime::nowRealtimeClock()
-                                          - bdlt::CurrentTime::now(d_clockType);
+        realTimeout += bsls::SystemTime::nowRealtimeClock() -
+                       bsls::SystemTime::now(d_clockType);
     }
 
     timespec ts;
@@ -140,17 +144,23 @@ int ConditionImpl<bdlqq::Platform::PosixThreads>::timedWait(
 
     return 0 == status ? 0 : (ETIMEDOUT == status ? -1 : -2);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

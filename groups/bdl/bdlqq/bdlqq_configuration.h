@@ -46,14 +46,14 @@ BSLS_IDENT("$Id: $")
 // First, we examine the platform's native thread stack size:
 //..
 //  const int nativeDefault =
-//                         bdlqq::Configuration::nativeDefaultThreadStackSize();
+//                        bdlqq::Configuration::nativeDefaultThreadStackSize();
 //
 //  assert(nativeDefault > 0);
 //..
 // Then, we verify that 'defaultThreadStackSize' is unset.
 //..
 //  assert(bdlqq::ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
-//                              bdlqq::Configuration::defaultThreadStackSize());
+//                             bdlqq::Configuration::defaultThreadStackSize());
 //..
 // Next, we define 'newDefaultStackSize' to some size other than the platform's
 // native default stack size:
@@ -77,11 +77,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                         // ==========================
-                         // struct Configuration
-                         // ==========================
+                            // ====================
+                            // struct Configuration
+                            // ====================
 
 struct Configuration {
     // This 'struct' provides a namespace for a suite of functions that are
@@ -128,15 +127,22 @@ struct Configuration {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bdlqq_xxxthread.t.cpp              -*-C++-*-
+// bdlqq_xxxthread.t.cpp                                              -*-C++-*-
 #include <bdlqq_xxxthread.h>
 
 #include <bdlqq_platform.h>
@@ -33,7 +33,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] int timedWait(bdlqq::Mutex*, const bsls::TimeInterval&);
 //
 //-----------------------------------------------------------------------------
-// Usage Examples
+//                              Usage Examples
 // --------------
 // [ 9] Windows specific example
 // [ 5] Basic thread utilities example
@@ -675,7 +675,8 @@ int main(int argc, char *argv[])
             }
         }
         ASSERT(0 != sts);
-        double finish = bdlt::CurrentTime::now().totalSecondsAsDouble() - start;
+        double finish =
+                       bdlt::CurrentTime::now().totalSecondsAsDouble() - start;
         double end = endT.totalSecondsAsDouble() - start;
         LOOP2_ASSERT(finish, end, finish >= end);
         if (verbose) {
@@ -702,16 +703,17 @@ int main(int argc, char *argv[])
         ASSERT(1 == bdlqq::ThreadUtil::isEqual(validH1, validH1copy));
         ASSERT(0 == bdlqq::ThreadUtil::isEqual(validH1, validH2));
         ASSERT(0 == bdlqq::ThreadUtil::isEqual(
-                                             bdlqq::ThreadUtil::invalidHandle(),
-                                             validH2));
+                                            bdlqq::ThreadUtil::invalidHandle(),
+                                            validH2));
         ASSERT(0 == bdlqq::ThreadUtil::isEqual(
-                                             bdlqq::ThreadUtil::invalidHandle(),
-                                             validH1copy));
-        ASSERT(0 == bdlqq::ThreadUtil::isEqual(validH1,
-                                           bdlqq::ThreadUtil::invalidHandle()));
+                                            bdlqq::ThreadUtil::invalidHandle(),
+                                            validH1copy));
+        ASSERT(0 == bdlqq::ThreadUtil::isEqual(
+                                          validH1,
+                                          bdlqq::ThreadUtil::invalidHandle()));
         ASSERT(1 == bdlqq::ThreadUtil::isEqual(
-                                           bdlqq::ThreadUtil::invalidHandle(),
-                                           bdlqq::ThreadUtil::invalidHandle()));
+                                          bdlqq::ThreadUtil::invalidHandle(),
+                                          bdlqq::ThreadUtil::invalidHandle()));
 
         bdlqq::ThreadUtil::join(validH1);
         bdlqq::ThreadUtil::join(validH2);
@@ -795,11 +797,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

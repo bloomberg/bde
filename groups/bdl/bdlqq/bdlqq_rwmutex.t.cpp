@@ -1,4 +1,4 @@
-// bdlqq_rwmutex.t.cpp    -*-C++-*-
+// bdlqq_rwmutex.t.cpp                                                -*-C++-*-
 
 #include <bdlqq_rwmutex.h>
 
@@ -10,7 +10,6 @@
 #include <bdlqq_threadgroup.h>
 #include <bdlqq_platform.h>
 #include <bdlf_bind.h>
-#include <bdlt_currenttime.h>
 
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
@@ -87,7 +86,7 @@ typedef bdlqq::RWMutex Obj;
 // The default values are 5 and 1.
 //=============================================================================
 
-template <typename LOCK>
+template <class LOCK>
 struct WriteThread
 {
    LOCK*            d_lock;
@@ -110,7 +109,7 @@ struct WriteThread
    }
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct ReadThread
 {
    LOCK            *d_lock;
@@ -139,7 +138,7 @@ struct ReadThread
    }
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct ReadWaitThread
 {
    LOCK*            d_lock;
@@ -162,7 +161,7 @@ struct ReadWaitThread
    }
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct PingPongWriter
 {
    LOCK*            d_locks;
@@ -217,7 +216,7 @@ struct PingPongWriter
    }
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct PingPongReader
 {
    LOCK            *d_locks;
@@ -272,7 +271,7 @@ struct PingPongReader
    }
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct ContentionWriter
 {
    LOCK*            d_locks;
@@ -315,7 +314,7 @@ struct ContentionWriter
    }
 };
 
-template <typename LOCK>
+template <class LOCK>
 struct ContentionReader
 {
    LOCK            *d_locks;
@@ -363,7 +362,7 @@ struct ContentionReader
    }
 };
 
-template <typename LOCK>
+template <class LOCK>
 int benchmarkSpeed (LOCK* lock, const char* lockName,
                     int numWriters, int numReaders)
 {
@@ -414,7 +413,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
    bdlqq::ThreadUtil::Handle hWriter, hReader;
    if (0 != bdlqq::ThreadUtil::create(&hWriter, writerThread)) {
       cout << "ERROR: Could not create a thread!! Failing test" << endl;
-      return -4;
+      return -4;                                                      // RETURN
    }
    startSema.wait();
    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(3));
@@ -435,7 +434,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
    if (0 != bdlqq::ThreadUtil::create(&hWriter, writerThread) ||
        0 != bdlqq::ThreadUtil::create(&hReader, readerThread)) {
       cout << "ERROR: Could not create a thread!! Failing test" << endl;
-      return -4;
+      return -4;                                                      // RETURN
    }
    startBarrier.wait();
    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(3));
@@ -460,7 +459,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
                                                         &score,
                                                         &startBarrier2))) {
       cout << "ERROR: Could not create a thread!! Failing test" << endl;
-      return -4;
+      return -4;                                                      // RETURN
    }
 
    vector<double> readerScores(numReaders, 0.0);
@@ -470,7 +469,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
                                     &startBarrier2);
       if (0 != allThreads.addThread(reader)) {
          cout << "ERROR: Could not create a thread!! Failing test" << endl;
-         return -4;
+         return -4;                                                   // RETURN
       }
    }
    startBarrier2.wait();
@@ -491,7 +490,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
    return 0;
 }
 
-template <typename LOCK>
+template <class LOCK>
 int benchmarkWriterBias(bool* isWriterBias, LOCK* lock)
 {
    bdlqq::ThreadAttributes detached;
@@ -503,14 +502,14 @@ int benchmarkWriterBias(bool* isWriterBias, LOCK* lock)
 
    if (0 != bdlqq::ThreadUtil::create
        (&h, detached, ReadThread<LOCK>(lock, &readHold, &readRelease))) {
-      return -4;
+      return -4;                                                      // RETURN
    }
    readHold.wait();
    // Now there is a read thread holding the lock
 
    if (0 != bdlqq::ThreadUtil::create
        (&h, detached, WriteThread<LOCK>(lock, &writeStart, &writeRelease))) {
-      return -4;
+      return -4;                                                      // RETURN
    }
    writeStart.wait();
    bdlqq::ThreadUtil::yield();
@@ -526,7 +525,7 @@ int benchmarkWriterBias(bool* isWriterBias, LOCK* lock)
    return 0;
 }
 
-template <typename LOCK>
+template <class LOCK>
 int benchmarkBiasFairness(bool* isFair, LOCK* lock)
 {
    bdlqq::ThreadAttributes detached;
@@ -540,14 +539,14 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    if (0 != bdlqq::ThreadUtil::create
        (&h, detached, ReadThread<LOCK>(lock, &readHold,
                                  &readRelease1, &readDone))) {
-      return -4;
+      return -4;                                                      // RETURN
    }
    readHold.wait();
    // Now there is a read thread holding the lock
 
    if (0 != bdlqq::ThreadUtil::create
        (&h, detached, WriteThread<LOCK>(lock, &writeStart, &writeRelease1))) {
-      return -4;
+      return -4;                                                      // RETURN
    }
    writeStart.wait();
    bdlqq::ThreadUtil::yield();
@@ -558,7 +557,7 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    ReadWaitThread<LOCK> readWaitThread(lock, &readStart,
                                        &rwThreadHasLock);
    if (0 != bdlqq::ThreadUtil::create(&h, detached, readWaitThread)) {
-      return -4;
+      return -4;                                                      // RETURN
    }
    readStart.wait();
    bdlqq::ThreadUtil::yield();
@@ -573,7 +572,7 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    // Create a second thread to wait on the write lock
    if (0 != bdlqq::ThreadUtil::create
        (&h, detached, WriteThread<LOCK>(lock, &writeStart, &writeRelease2))) {
-      return -4;
+      return -4;                                                      // RETURN
    }
    writeStart.wait();
    bdlqq::ThreadUtil::yield();
@@ -590,7 +589,7 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    return 0;
 }
 
-template <typename LOCK>
+template <class LOCK>
 int benchmarkBias (LOCK* lock, const char* lockName)
 {
    // The "bias" of the RW mutex is the behavior it exhibits when the
@@ -612,7 +611,7 @@ int benchmarkBias (LOCK* lock, const char* lockName)
    int rc = benchmarkWriterBias(&writerBias, lock);
    if (0 != rc) {
       cout << "Error benchmarking writer bias: " << rc << endl;
-      return rc;
+      return rc;                                                      // RETURN
    }
 
    if (writerBias) {
@@ -622,7 +621,7 @@ int benchmarkBias (LOCK* lock, const char* lockName)
       rc = benchmarkBiasFairness(&fair, lock);
       if (0 != rc) {
          cout << "Error benchmarking writer fairness: " << rc << endl;
-         return rc;
+         return rc;                                                   // RETURN
       }
 
       cout << (fair ? "with " : "without ")
@@ -635,7 +634,7 @@ int benchmarkBias (LOCK* lock, const char* lockName)
    return 0;
 }
 
-template <typename LOCK>
+template <class LOCK>
 int benchmarkRecursion (LOCK* lock, const char* lockName)
 {
    // We are specifically testing read-lock recursion here.  First try
@@ -675,7 +674,7 @@ int benchmarkRecursion (LOCK* lock, const char* lockName)
    if (0 != bdlqq::ThreadUtil::create
        (&handle, detached,
         WriteThread<LOCK>(lock, &writeStart, &writeRelease))) {
-      return -4;
+      return -4;                                                      // RETURN
    }
    writeStart.wait();
    bdlqq::ThreadUtil::yield();
@@ -828,11 +827,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

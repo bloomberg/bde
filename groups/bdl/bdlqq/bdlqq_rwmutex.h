@@ -57,21 +57,22 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
-
-namespace bdlqq {template <typename THREAD_POLICY>
+template <class THREAD_POLICY>
 struct RWMutexImpl;
+
 }  // close package namespace
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace bdlqq {
-                   // ======================================
-                   // struct RWMutexImpl<PosixThreads>
-                   // ======================================
+                    // ================================
+                    // struct RWMutexImpl<PosixThreads>
+                    // ================================
 
 template <>
-struct RWMutexImpl<bdlqq::Platform::PosixThreads> {
+struct RWMutexImpl<Platform::PosixThreads> {
     // This is a platform-specific implementation detail that is not intended
     // for use outside of this component.  Use the 'RWMutex' class
     // instead.  This structure is a wrapper around a POSIX RW lock on Sun (on
@@ -93,14 +94,15 @@ struct RWMutexImpl<bdlqq::Platform::PosixThreads> {
     int tryLockWrite();
     void unlock();
 };
+
 }  // close package namespace
 
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
 namespace bdlqq {
-                             // ===================
-                             // class RWMutex
-                             // ===================
+                            // =============
+                            // class RWMutex
+                            // =============
 
 class RWMutex {
     // This class is a platform-independent interface to a reader-writer lock
@@ -115,7 +117,7 @@ class RWMutex {
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BDLQQ_PLATFORM_WIN32_THREADS)
     ReaderWriterLock d_impl;
 #else
-    RWMutexImpl<bdlqq::Platform::ThreadPolicy> d_impl;
+    RWMutexImpl<Platform::ThreadPolicy> d_impl;
 #endif
 
     // NOT IMPLEMENTED
@@ -165,18 +167,22 @@ class RWMutex {
         // The behavior is undefined unless the calling thread currently has a
         // lock on this RW mutex.
 };
+
 }  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 #ifdef BDLQQ_PLATFORM_POSIX_THREADS
 
-namespace bdlqq {
-                          // ------------------------
-                          // struct RWMutexImpl
-                          // ------------------------
+                            // ------------------
+                            // struct RWMutexImpl
+                            // ------------------
 
 // CREATORS
 inline
-RWMutexImpl<bdlqq::Platform::PosixThreads>::RWMutexImpl()
+bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::RWMutexImpl()
 {
     const int rc = pthread_rwlock_init(&d_lock, NULL);
 
@@ -187,7 +193,7 @@ RWMutexImpl<bdlqq::Platform::PosixThreads>::RWMutexImpl()
 }
 
 inline
-RWMutexImpl<bdlqq::Platform::PosixThreads>::~RWMutexImpl()
+bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::~RWMutexImpl()
 {
     const int rc = pthread_rwlock_destroy(&d_lock);
 
@@ -200,7 +206,7 @@ RWMutexImpl<bdlqq::Platform::PosixThreads>::~RWMutexImpl()
 // MANIPULATORS
 inline
 void
-RWMutexImpl<bdlqq::Platform::PosixThreads>::lockRead()
+bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::lockRead()
 {
     const int rc = pthread_rwlock_rdlock(&d_lock);
 
@@ -212,7 +218,7 @@ RWMutexImpl<bdlqq::Platform::PosixThreads>::lockRead()
 
 inline
 void
-RWMutexImpl<bdlqq::Platform::PosixThreads>::lockWrite()
+bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::lockWrite()
 {
     const int rc = pthread_rwlock_wrlock(&d_lock);
 
@@ -224,85 +230,89 @@ RWMutexImpl<bdlqq::Platform::PosixThreads>::lockWrite()
 
 inline
 int
-RWMutexImpl<bdlqq::Platform::PosixThreads>::tryLockRead()
+bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::tryLockRead()
 {
     return pthread_rwlock_tryrdlock(&d_lock) ? 1 : 0;
 }
 
 inline
 int
-RWMutexImpl<bdlqq::Platform::PosixThreads>::tryLockWrite()
+bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::tryLockWrite()
 {
     return pthread_rwlock_trywrlock(&d_lock) ? 1 : 0;
 }
 
 inline
 void
-RWMutexImpl<bdlqq::Platform::PosixThreads>::unlock()
+bdlqq::RWMutexImpl<bdlqq::Platform::PosixThreads>::unlock()
 {
     pthread_rwlock_unlock(&d_lock);
 }
-}  // close package namespace
 
 #endif  // BDLQQ_PLATFORM_POSIX_THREADS
 
-namespace bdlqq {
-                             // -------------------
-                             // class RWMutex
-                             // -------------------
+                            // -------------
+                            // class RWMutex
+                            // -------------
 
 // CREATORS
 inline
-RWMutex::RWMutex()
+bdlqq::RWMutex::RWMutex()
 {
 }
 
 inline
-RWMutex::~RWMutex()
+bdlqq::RWMutex::~RWMutex()
 {
 }
 
 // MANIPULATORS
 inline
-void RWMutex::lockRead()
+void bdlqq::RWMutex::lockRead()
 {
     d_impl.lockRead();
 }
 
 inline
-void RWMutex::lockWrite()
+void bdlqq::RWMutex::lockWrite()
 {
     d_impl.lockWrite();
 }
 
 inline
-int RWMutex::tryLockRead()
+int bdlqq::RWMutex::tryLockRead()
 {
     return d_impl.tryLockRead();
 }
 
 inline
-int RWMutex::tryLockWrite()
+int bdlqq::RWMutex::tryLockWrite()
 {
     return d_impl.tryLockWrite();
 }
 
 inline
-void RWMutex::unlock()
+void bdlqq::RWMutex::unlock()
 {
     d_impl.unlock();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------ END-OF-FILE ---------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

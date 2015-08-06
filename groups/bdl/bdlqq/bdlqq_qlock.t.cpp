@@ -1,4 +1,4 @@
-// bdlqq_qlock.t.cpp              -*-C++-*-
+// bdlqq_qlock.t.cpp                                                  -*-C++-*-
 #include <bdlqq_qlock.h>
 
 #include <bdlqq_barrier.h>
@@ -89,7 +89,7 @@ int verbose = 0;
 int veryVerbose = 0;
 
 //-----------------------------------------------------------------------------
-//   Class providing thread pool to run testCase functions
+//          Class providing thread pool to run testCase functions
 //-----------------------------------------------------------------------------
 
 class MyTask {
@@ -230,8 +230,8 @@ int MyTask::start(int numThreads)
 
             ASSERT(rc == 0);
             ASSERT(!bdlqq::ThreadUtil::isEqual(
-                                           d_handles[i],
-                                           bdlqq::ThreadUtil::invalidHandle()));
+                                          d_handles[i],
+                                          bdlqq::ThreadUtil::invalidHandle()));
         }
     }
 
@@ -297,7 +297,7 @@ void *MyTask::run()
 }
 
 //-----------------------------------------------------------------------------
-//   Class generating random numbers
+//                      Class generating random numbers
 //-----------------------------------------------------------------------------
 class Rand {
 
@@ -341,7 +341,7 @@ void printMetrics(bsl::ostream&     out,
 
 typedef bdlqq::Semaphore Semaphore;
 
-// --------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // TestCase 7. Multiple-threads, 2-qlocks
 //
 // Concerns:
@@ -358,7 +358,7 @@ typedef bdlqq::Semaphore Semaphore;
 // flag has been represented in the other context structure, all threads
 // exit.  An error is reported if the maximum loop count is reached.
 //
-// --------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 struct ContextCase7 {
     bdlqq::QLock     *d_qlock;
@@ -421,7 +421,7 @@ void *testCase7(int threadNum, const MyTask& task)
      return 0;
 }
 
-// --------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // TestCase 6. Fairness Test
 //
 // Concerns:
@@ -439,7 +439,7 @@ void *testCase7(int threadNum, const MyTask& task)
 //
 //   Repeat above scenario several times, incrementing the number of
 //   threads by one on each iteration.
-// --------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 struct DataCase6 {
     bsl::vector<int>  d_slots;
@@ -484,7 +484,7 @@ void *testCase6(int threadNum, const MyTask& task)
      return 0;
 }
 
-// -------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Case 5
 // Multiple threads - multiple QLocks Test.  At the same time
 // this test can be used for performance evaluation for such
@@ -505,7 +505,7 @@ void *testCase6(int threadNum, const MyTask& task)
 //
 //  Repeat above scenario several times, incrementing the number of
 //  threads by one on each iteration.
-// -------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 struct CaseData5 {
     int           d_numIter;
     int           d_numElements;
@@ -576,7 +576,7 @@ void *testCase5_fn2(int threadNum, const MyTask& task)
     return 0;
 }
 
-// --------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Case 4.
 // Set/Wait Flags Test
 //
@@ -598,7 +598,7 @@ void *testCase5_fn2(int threadNum, const MyTask& task)
 //        synchronization object with address 'XXX'.  'setFlag' must
 //        post/signal/notify that synchronization object.
 //
-// --------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 static Semaphore *const dummySemaphorePtr =
       reinterpret_cast<Semaphore *const> (-1L);
 
@@ -656,7 +656,7 @@ void waitOnFlag(bsls::AtomicPointer<Semaphore> *flag, int spinCount)
             // The event handle has been stored in the flag;
             // wait on it now.
             localSemaphore.wait();
-            return;
+            return;                                                   // RETURN
         }
     }
     ASSERT(event == dummySemaphorePtr);
@@ -876,7 +876,7 @@ void *testCase3a(int threadNum, const MyTask& task)
 }
 
 // ----------------------------------------------------------------------------
-// USAGE EXAMPLE
+//                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // For this example, assume that we have the need to use the string "Hello"
@@ -1452,11 +1452,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

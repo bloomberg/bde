@@ -15,25 +15,26 @@ BSLS_IDENT_RCSID(bdlqq_threadattributes_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace bdlqq {
 // Implementation note:  'get[Min|Max]SchedPriority' have been deprecated for
 // at least 1 release, and the 4 users have been notified twice.  There appear
 // to be no remaining users, but I'm leaving these methods to ensure BDE 2.23
 // does not break compilation, they should be removed in BDE 2.24.
 
 // CLASS METHODS
-int ThreadAttributes::getMaxSchedPriority(ThreadAttributes::SchedulingPolicy)
+int bdlqq::ThreadAttributes::getMaxSchedPriority(
+                                            ThreadAttributes::SchedulingPolicy)
 {
     return BCEMT_UNSET_PRIORITY;
 }
 
-int ThreadAttributes::getMinSchedPriority(ThreadAttributes::SchedulingPolicy)
+int bdlqq::ThreadAttributes::getMinSchedPriority(
+                                            ThreadAttributes::SchedulingPolicy)
 {
     return BCEMT_UNSET_PRIORITY;
 }
 
 // CREATORS
-ThreadAttributes::ThreadAttributes()
+bdlqq::ThreadAttributes::ThreadAttributes()
 : d_detachedState(BCEMT_CREATE_JOINABLE)
 , d_guardSize(BCEMT_UNSET_GUARD_SIZE)
 , d_inheritScheduleFlag(true)
@@ -42,11 +43,10 @@ ThreadAttributes::ThreadAttributes()
 , d_stackSize(BCEMT_UNSET_STACK_SIZE)
 {
 }
-}  // close package namespace
 
 // FREE OPERATORS
 bool bdlqq::operator==(const ThreadAttributes& lhs,
-                const ThreadAttributes& rhs)
+                       const ThreadAttributes& rhs)
 {
     return lhs.detachedState()      == rhs.detachedState()      &&
            lhs.guardSize()          == rhs.guardSize()          &&
@@ -57,7 +57,7 @@ bool bdlqq::operator==(const ThreadAttributes& lhs,
 }
 
 bool bdlqq::operator!=(const ThreadAttributes& lhs,
-                const ThreadAttributes& rhs)
+                       const ThreadAttributes& rhs)
 {
     return lhs.detachedState()      != rhs.detachedState()      ||
            lhs.guardSize()          != rhs.guardSize()          ||
@@ -69,11 +69,18 @@ bool bdlqq::operator!=(const ThreadAttributes& lhs,
 
 }  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

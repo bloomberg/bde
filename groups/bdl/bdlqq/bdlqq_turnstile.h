@@ -32,10 +32,10 @@ BSLS_IDENT("$Id: $")
 // processing step.  For example, given two functions that take 'rate' (turns
 // per second) and 'duration' (expected execution time in seconds), and execute
 // 'rate * duration' calls to 'bsl::sqrt', calling 'waitTurn' on a turnstile or
-// 'bdlqq::ThreadUtil::microSleep' with duration '1000000 / rate', respectively;
-// the elapsed time for each call results in the following table, showing that
-// the 'bdlqq::Turnstile' implementation maintains the correct rate while the
-// 'microSleep' implementation accumulates errors.
+// 'bdlqq::ThreadUtil::microSleep' with duration '1000000 / rate',
+// respectively; the elapsed time for each call results in the following table,
+// showing that the 'bdlqq::Turnstile' implementation maintains the correct
+// rate while the 'microSleep' implementation accumulates errors.
 //..
 //                     Elapsed Time
 //  Rate  Duration  Turnstile     Sleep
@@ -117,11 +117,10 @@ BSLS_IDENT("$Id: $")
 
 
 namespace BloombergLP {
-
 namespace bdlqq {
-                           // =====================
-                           // class Turnstile
-                           // =====================
+                            // ===============
+                            // class Turnstile
+                            // ===============
 
 class Turnstile {
     // This class provides a mechanism to meter time.  Using either the
@@ -162,8 +161,8 @@ class Turnstile {
   public:
     // CREATORS
     explicit
-    Turnstile(double                   rate,
-                    const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
+    Turnstile(double                    rate,
+              const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
         // Create a turnstile object that admits clients at the specified
         // 'rate', expressed as the number of turns per second.  Optionally
         // specify the (relative) 'startTime' of the first turn.  If
@@ -175,7 +174,7 @@ class Turnstile {
         // by the compiler.
 
     // MANIPULATORS
-    void reset(double                   rate,
+    void reset(double                    rate,
                const bsls::TimeInterval& startTime = bsls::TimeInterval(0));
         // Reset the rate of this turnstile to the specified 'rate', expressed
         // as the number of turns per second.  Optionally specify the
@@ -194,16 +193,23 @@ class Turnstile {
         // the current time and the next turn, indicating that the turnstile is
         // lagging behind the configured rate.  Otherwise, return 0.
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007, 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ------------------------------- END-OF-FILE --------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

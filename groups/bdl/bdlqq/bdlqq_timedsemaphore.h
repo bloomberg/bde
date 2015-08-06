@@ -23,10 +23,10 @@ BSLS_IDENT("$Id: $")
 //
 // 'bdlqq::TimedSemaphore' differs from 'bdlqq::Semaphore' in that the former
 // supports a 'timedWait' method, whereas the latter does not.  In addition,
-// 'bdlqq::Semaphore' has a 'getValue' accessor, whereas 'bdlqq::TimedSemaphore'
-// does not.  In the case of the timed semaphore, 'getValue' cannot be
-// implemented efficiently on all platforms, so that method is *intentionally*
-// not provided.
+// 'bdlqq::Semaphore' has a 'getValue' accessor, whereas
+// 'bdlqq::TimedSemaphore' does not.  In the case of the timed semaphore,
+// 'getValue' cannot be implemented efficiently on all platforms, so that
+// method is *intentionally* not provided.
 //
 ///Supported Clock-Types
 ///-------------------------
@@ -35,11 +35,11 @@ BSLS_IDENT("$Id: $")
 // based.  If the clock type indicated at construction is
 // 'bsls::SystemClockType::e_REALTIME', the timeout should be expressed as an
 // absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
-// used in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
+// used in 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  If the
 // clock type indicated at construction is
 // 'bsls::SystemClockType::e_MONOTONIC', the timeout should be expressed as an
 // absolute offset since the epoch of this clock (which matches the epoch used
-// in 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
+// in 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
 ///Usage
 ///-----
@@ -52,9 +52,9 @@ BSLS_IDENT("$Id: $")
 //      // FIFO queue of integer values.
 //
 //      // DATA
-//      bdlc::Queue<int>      d_queue;        // underlying queue
-//      bdlqq::TimedSemaphore d_mutexSem;     // mutual-access semaphore
-//      bdlqq::TimedSemaphore d_resourceSem;  // resource-availability semaphore
+//      bdlc::Queue<int>      d_queue;       // underlying queue
+//      bdlqq::TimedSemaphore d_mutexSem;    // mutual-access semaphore
+//      bdlqq::TimedSemaphore d_resourceSem; // resource-availability semaphore
 //
 //      // NOT IMPLEMENTED
 //      IntQueue(const IntQueue&);
@@ -144,27 +144,19 @@ BSLS_IDENT("$Id: $")
 #include <bsls_systemclocktype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 namespace BloombergLP {
-
-
-namespace bdlqq {template <class TIMED_SEMAPHORE_POLICY>
-class TimedSemaphoreImpl;
-}  // close package namespace
-
-
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close package namespace
-
 namespace bdlqq {
-                         // ==========================
-                         // class TimedSemaphore
-                         // ==========================
+
+template <class TIMED_SEMAPHORE_POLICY>
+class TimedSemaphoreImpl;
+
+                            // ====================
+                            // class TimedSemaphore
+                            // ====================
 
 class TimedSemaphore {
     // This class implements a portable timed semaphore type for thread
@@ -172,8 +164,8 @@ class TimedSemaphore {
     // platform-specific implementation.
 
     // DATA
-    TimedSemaphoreImpl<bdlqq::Platform::TimedSemaphorePolicy>
-                                   d_impl;  // platform-specific implementation
+    TimedSemaphoreImpl<Platform::TimedSemaphorePolicy> d_impl;
+                                            // platform-specific implementation
     // NOT IMPLEMENTED
     TimedSemaphore(const TimedSemaphore&);
     TimedSemaphore& operator=(const TimedSemaphore&);
@@ -191,7 +183,7 @@ class TimedSemaphore {
 
     explicit
     TimedSemaphore(int                         count,
-                         bsls::SystemClockType::Enum clockType
+                   bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
@@ -230,76 +222,82 @@ class TimedSemaphore {
         // then atomically decrement the count and return.
 };
 
+}  // close package namespace
+
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                         // --------------------------
+                         // --------------------
                          // class TimedSemaphore
-                         // --------------------------
+                         // --------------------
 
 // CREATORS
 inline
-TimedSemaphore::TimedSemaphore(
-                                         bsls::SystemClockType::Enum clockType)
+bdlqq::TimedSemaphore::TimedSemaphore(bsls::SystemClockType::Enum clockType)
 : d_impl(clockType)
 {
 }
 
 inline
-TimedSemaphore::TimedSemaphore(
-                                         int                         count,
-                                         bsls::SystemClockType::Enum clockType)
+bdlqq::TimedSemaphore::TimedSemaphore(int                         count,
+                                      bsls::SystemClockType::Enum clockType)
 : d_impl(count, clockType)
 {
 }
 
 inline
-TimedSemaphore::~TimedSemaphore()
+bdlqq::TimedSemaphore::~TimedSemaphore()
 {
 }
 
 // MANIPULATORS
 inline
-void TimedSemaphore::post()
+void bdlqq::TimedSemaphore::post()
 {
     d_impl.post();
 }
 
 inline
-void TimedSemaphore::post(int value)
+void bdlqq::TimedSemaphore::post(int value)
 {
     d_impl.post(value);
 }
 
 inline
-int TimedSemaphore::timedWait(const bsls::TimeInterval& timeout)
+int bdlqq::TimedSemaphore::timedWait(const bsls::TimeInterval& timeout)
 {
     return d_impl.timedWait(timeout);
 }
 
 inline
-int TimedSemaphore::tryWait()
+int bdlqq::TimedSemaphore::tryWait()
 {
     return d_impl.tryWait();
 }
 
 inline
-void TimedSemaphore::wait()
+void bdlqq::TimedSemaphore::wait()
 {
     d_impl.wait();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

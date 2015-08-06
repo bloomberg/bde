@@ -1,4 +1,4 @@
-// bdlqq_once.t.cpp                  -*-C++-*-
+// bdlqq_once.t.cpp                                                   -*-C++-*-
 
 #include <bdlqq_once.h>
 #include <bdlqq_barrier.h>
@@ -56,9 +56,9 @@ using namespace BloombergLP;
 // [10] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -70,7 +70,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { bsl::cout << #I << ": " << I << "\n"; \
                 aSsErT(1, #X, __LINE__); } }
@@ -193,7 +193,8 @@ struct my_TestRecord {
 
 extern "C"
 void *enterLeaveTest(void *ptr)
-    // Thread function for testing 'bdlqq::Once::enter' and 'bdlqq::Once::leave'
+    // Thread function for testing 'bdlqq::Once::enter' and
+    // 'bdlqq::Once::leave'
 {
     my_TestRecord *testRec = static_cast<my_TestRecord*>(ptr);
     ASSERT(testRec != 0);
@@ -263,7 +264,7 @@ void *enterCancelTest(void *ptr)
             testRec->d_once_p->cancel(&context);
             testRec->d_endTime = bsls::TimeUtil::getTimer();
             testRec->d_threadRan = true;
-            return ptr;
+            return ptr;                                               // RETURN
         }
         else {
             // Second winner completes the operation
@@ -362,7 +363,7 @@ void *guardCancelTest(void *ptr)
                 ASSERT(! onceGuard.isInProgress());
                 testRec->d_endTime = bsls::TimeUtil::getTimer();
                 testRec->d_threadRan = true;
-                return ptr;
+                return ptr;                                           // RETURN
             }
             else {
                 // Second winner completes the operation
@@ -447,7 +448,7 @@ void *macroCancelTest(void *ptr)
             BDLQQ_ONCE_CANCEL();
             testRec->d_endTime = bsls::TimeUtil::getTimer();
             testRec->d_threadRan = true;
-            return ptr;
+            return ptr;                                               // RETURN
         }
         else {
             // Second winner completes the operation
@@ -1296,8 +1297,9 @@ int main(int argc, char *argv[])
         //   - Verify that only one thread set its "winner" flag.
         //   - Repeat the test without resetting the bdlqq::Once structure.
         //   - Verify that none of the threads are winners the second time.
-        //   - Reset the 'bdlqq::Once' object and repeat this test several times
-        //     to maximize the chance of exposing unhandled race conditions.
+        //   - Reset the 'bdlqq::Once' object and repeat this test several
+        //     times to maximize the chance of exposing unhandled race
+        //     conditions.
         //   - Repeat the entire test with two separate 'bdlqq::Once' objects
         //     such that half the threads access one object and the other half
         //     access the other object.
@@ -2155,11 +2157,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

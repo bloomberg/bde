@@ -256,7 +256,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BDLQQ_MUTEXASSERT_IS_LOCKED(mutex_p) do {                         \
-        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                            \
+        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                           \
                            (mutex_p),                                         \
                            "BDLQQ_MUTEXASSERT_IS_LOCKED(" #mutex_p ")",       \
                            __FILE__,                                          \
@@ -267,7 +267,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     #define BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(mutex_p) do {                    \
-        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                            \
+        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                           \
                            (mutex_p),                                         \
                            "BDLQQ_MUTEXASSERT_IS_LOCKED_SAFE(" #mutex_p ")",  \
                            __FILE__,                                          \
@@ -278,7 +278,7 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BDLQQ_MUTEXASSERT_IS_LOCKED_OPT(mutex_p) do {                     \
-        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                            \
+        bdlqq::MutexAssert_Imp::assertIsLockedImpl(                           \
                            (mutex_p),                                         \
                            "BDLQQ_MUTEXASSERT_IS_LOCKED_OPT(" #mutex_p ")",   \
                            __FILE__,                                          \
@@ -288,13 +288,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlqq {
 
+class Mutex;
 
-namespace bdlqq {class Mutex;
-
-                       // ===========================
-                       // class MutexAssert_Imp
-                       // ===========================
+                        // =====================
+                        // class MutexAssert_Imp
+                        // =====================
 
 struct MutexAssert_Imp {
     // This 'struct' provides a (component private) namespace for
@@ -302,11 +302,10 @@ struct MutexAssert_Imp {
     // component.  This class should *not* be used directly in client code.
 
     // CLASS METHODS
-    static
-    void assertIsLockedImpl(Mutex *mutex,
-                            const char  *text,
-                            const char  *file,
-                            int          line);
+    static void assertIsLockedImpl(Mutex      *mutex,
+                                   const char *text,
+                                   const char *file,
+                                   int         line);
         // If the specified 'mutex' is not locked, call
         // 'bsls::Assert::invokeHandler' with the specified 'text', 'file', and
         // 'line', where 'text' is text describing the assertion being
@@ -319,15 +318,22 @@ struct MutexAssert_Imp {
 };
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

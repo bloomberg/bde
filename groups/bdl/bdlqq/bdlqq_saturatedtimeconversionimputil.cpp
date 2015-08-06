@@ -16,7 +16,7 @@ enum {
 
 
 // PRIVATE CLASS METHODS
-template <typename TYPE>
+template <class TYPE>
 static inline
 TYPE maxOf(const TYPE&)
     // Return the maximum representable value of 'TYPE'
@@ -24,7 +24,7 @@ TYPE maxOf(const TYPE&)
     return bsl::numeric_limits<TYPE>::max();
 };
 
-template <typename TYPE>
+template <class TYPE>
 static inline
 TYPE minOf(const TYPE&)
     // Return the minimum representable value of 'TYPE'
@@ -111,11 +111,10 @@ void toTimeTImp(unsigned long *dst, bsls::Types::Int64 src)
     *dst = result;
 }
 
-namespace bdlqq {
 // PUBLIC CLASS METHODS
-void SaturatedTimeConversionImpUtil::toTimeSpec(
-                                                 TimeSpec                 *dst,
-                                                 const bsls::TimeInterval&  src)
+void bdlqq::SaturatedTimeConversionImpUtil::toTimeSpec(
+                                                TimeSpec                  *dst,
+                                                const bsls::TimeInterval&  src)
 {
     BSLS_ASSERT(dst);
 
@@ -133,13 +132,12 @@ void SaturatedTimeConversionImpUtil::toTimeSpec(
                  ? -MAX_NANOSECONDS
                  : src.nanoseconds();
 }
-}  // close package namespace
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
 
-namespace bdlqq {void SaturatedTimeConversionImpUtil::toTimeSpec(
-                                                 mach_timespec_t          *dst,
-                                                 const bsls::TimeInterval&  src)
+void bdlqq::SaturatedTimeConversionImpUtil::toTimeSpec(
+                                                mach_timespec_t           *dst,
+                                                const bsls::TimeInterval&  src)
 {
     BSLS_ASSERT(dst);
 
@@ -156,11 +154,9 @@ namespace bdlqq {void SaturatedTimeConversionImpUtil::toTimeSpec(
                  ? 0
                  : src.nanoseconds();
 }
-}  // close package namespace
 #endif
 
-namespace bdlqq {
-void SaturatedTimeConversionImpUtil::toTimeT(
+void bdlqq::SaturatedTimeConversionImpUtil::toTimeT(
                                                  bsl::time_t              *dst,
                                                  const bsls::Types::Int64  src)
 {
@@ -169,9 +165,9 @@ void SaturatedTimeConversionImpUtil::toTimeT(
     toTimeTImp(dst, src);
 }
 
-void SaturatedTimeConversionImpUtil::toMillisec(
-                                                 unsigned int             *dst,
-                                                 const bsls::TimeInterval&  src)
+void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+                                                unsigned int              *dst,
+                                                const bsls::TimeInterval&  src)
 {
     BSLS_ASSERT(dst);
 
@@ -192,9 +188,9 @@ void SaturatedTimeConversionImpUtil::toMillisec(
     }
 }
 
-void SaturatedTimeConversionImpUtil::toMillisec(
-                                                 unsigned long            *dst,
-                                                 const bsls::TimeInterval&  src)
+void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+                                                unsigned long             *dst,
+                                                const bsls::TimeInterval&  src)
 {
     BSLS_ASSERT_SAFE(dst);
 
@@ -209,9 +205,9 @@ void SaturatedTimeConversionImpUtil::toMillisec(
     *dst = result;
 }
 
-void SaturatedTimeConversionImpUtil::toMillisec(
-                                                 bsls::Types::Uint64      *dst,
-                                                 const bsls::TimeInterval&  src)
+void bdlqq::SaturatedTimeConversionImpUtil::toMillisec(
+                                                bsls::Types::Uint64       *dst,
+                                                const bsls::TimeInterval&  src)
 {
     BSLS_ASSERT(dst);
 
@@ -220,7 +216,7 @@ void SaturatedTimeConversionImpUtil::toMillisec(
     const int nanoMilliSeconds = src.nanoseconds() / NANOSEC_PER_MILLISEC;
     const Uint64 MAX_UINT64 = maxOf(*dst);
     const Uint64 MAX_SEC    = MAX_UINT64 / 1000;
-    const Uint64 MAX_MILLI_FOR_MAX_SEC = 
+    const Uint64 MAX_MILLI_FOR_MAX_SEC =
                                       MAX_UINT64 - ((MAX_UINT64)/1000) * 1000;
 
     if (src.seconds() < 0 || (0 == src.seconds() && nanoMilliSeconds <= 0)) {
@@ -235,15 +231,21 @@ void SaturatedTimeConversionImpUtil::toMillisec(
         *dst = maxOf(*dst);
     }
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
