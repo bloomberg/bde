@@ -1,6 +1,6 @@
-// bdlc_idxclerk.h                                                    -*-C++-*-
-#ifndef INCLUDED_BDLC_IDXCLERK
-#define INCLUDED_BDLC_IDXCLERK
+// bdlc_indexclerk.h                                                  -*-C++-*-
+#ifndef INCLUDED_BDLC_INDEXCLERK
+#define INCLUDED_BDLC_INDEXCLERK
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,21 +10,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a manager of reusable, non-negative integer indices.
 //
 //@CLASSES:
-//   bdlc::IdxClerkIter: sequential accessor to decommissioned indices
-//       bdlc::IdxClerk: manager of reusable, non-negative integer indices
+//   bdlc::IndexClerkIter: sequential accessor to decommissioned indices
+//   bdlc::IndexClerk: manager of reusable, non-negative integer indices
 //
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component implements an efficient, value-semantic manager
 // class for reusable, non-negative integer indices.  Each new instance of a
-// 'bdlc::IdxClerk' will issue consecutive integers on request, beginning with
-// { 0, 1, 2 ... }.  Indices that are no longer needed may be returned for
+// 'bdlc::IndexClerk' will issue consecutive integers on request, beginning
+// with '0, 1, 2, ...'.  Indices that are no longer needed may be returned for
 // reuse.  Existing decommissioned indices are reissued before any new ones are
 // created.  Value-semantic operations such as copy construction and
 // assignment, equality comparison, and streaming are also provided.  Finally,
-// a 'bdlc::IdxClerkIter' is provided to enable sequential, read-only access to
-// the currently decommissioned indices.  Note that the order of iteration is
-// not defined.
+// a 'bdlc::IndexClerkIter' is provided to enable sequential, read-only access
+// to the currently decommissioned indices.  Note that the order of iteration
+// is not defined.
 //
 ///PERFORMANCE
 ///-----------
@@ -51,10 +51,10 @@ BSLS_IDENT("$Id: $")
 //..
 ///Usage
 ///-----
-// A 'bdlc::IdxClerk' is commonly used in conjunction with an array to enable
+// A 'bdlc::IndexClerk' is commonly used in conjunction with an array to enable
 // machine-address-independent referencing.  Rather than dynamically allocating
 // an object and holding its address, the object is stored in the array at the
-// next position dispensed by its associated 'bdlc::IdxClerk', and that index
+// next position dispensed by its associated 'bdlc::IndexClerk', and that index
 // becomes an identifier (Id) for the new object.  Instead of destroying an
 // unneeded object, its Id is merely returned to the clerk.
 //
@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 // following two functions:
 //..
 //  int addSecurity(bsl::vector<Security> *securityArray,
-//                  bdlc::IdxClerk        *securityClerk,
+//                  bdlc::IndexClerk      *securityClerk,
 //                  const Security&        newSecurity)
 //      // Add a copy of the specified 'newSecurity' to the specified
 //      // 'securityArray' at the index dispensed by the specified
@@ -91,7 +91,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  void removeSecurity(bsl::vector<Security> *securityArray,
-//                      bdlc::IdxClerk        *securityClerk,
+//                      bdlc::IndexClerk      *securityClerk,
 //                      int                    securityId)
 //      // Remove the security object identified by the specified 'securityId'
 //      // from the specified 'securityArray', and update the specified
@@ -156,57 +156,56 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlc {
-                        // ========================
-                        // class IdxClerkIter
-                        // ========================
+                            // ====================
+                            // class IndexClerkIter
+                            // ====================
 
-class IdxClerkIter {
+class IndexClerkIter {
     // This class defines an in-core value-semantic iterator providing
     // sequential read-only access to the decommissioned indices of a
-    // 'IdxClerk'.  The order of iteration is implementation dependent.
+    // 'IndexClerk'.  The order of iteration is implementation dependent.
 
     // DATA
     bsl::reverse_iterator<const int *> d_index_p;  // pointer to current
                                                    // decommissioned index
 
     // FRIENDS
-    friend bool operator==(const IdxClerkIter& lhs,
-                           const IdxClerkIter& rhs);
-    friend bool operator!=(const IdxClerkIter& lhs,
-                           const IdxClerkIter& rhs);
+    friend bool operator==(const IndexClerkIter& lhs,
+                           const IndexClerkIter& rhs);
+    friend bool operator!=(const IndexClerkIter& lhs,
+                           const IndexClerkIter& rhs);
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IdxClerkIter,
+    BSLALG_DECLARE_NESTED_TRAITS(IndexClerkIter,
                                  bslalg::TypeTraitBitwiseCopyable);
     // CREATORS
-    IdxClerkIter();
+    IndexClerkIter();
         // Create an unbound iterator.
 
-    IdxClerkIter(const int *index);
+    IndexClerkIter(const int *index);
         // Create an iterator referring to the specified integer 'index'.
 
-    IdxClerkIter(const IdxClerkIter& original);
+    IndexClerkIter(const IndexClerkIter& original);
         // Create an iterator having the same value as the specified 'original'
         // iterator.
 
-  //~IdxClerkIter();
+  //~IndexClerkIter();
         // Destroy this index clerk iterator.  Note that this method is
         // generated by the compiler.
 
     // MANIPULATORS
-    IdxClerkIter& operator=(const IdxClerkIter& rhs);
+    IndexClerkIter& operator=(const IndexClerkIter& rhs);
         // Create an iterator having the same value as the specified 'rhs'
         // iterator.
 
-    IdxClerkIter& operator++();
+    IndexClerkIter& operator++();
         // Increment this iterator to refer to the next index in the
         // corresponding sequence of decommissioned indices.  Return a
         // reference to this modifiable iterator.  The behavior is undefined
         // unless the current index is within the range '[ begin() .. end() )'.
 
-    IdxClerkIter& operator--();
+    IndexClerkIter& operator--();
         // Decrement this iterator to refer to the previous index in the
         // corresponding sequence of decommissioned indices.  Return a
         // reference to this modifiable iterator.  The behavior is undefined
@@ -219,7 +218,7 @@ class IdxClerkIter {
         // range '[ begin() .. end() )'.
 };
 
-bool operator==(const IdxClerkIter& lhs, const IdxClerkIter& rhs);
+bool operator==(const IndexClerkIter& lhs, const IndexClerkIter& rhs);
     // Return 'true' if 'lhs' and 'rhs' have the same value and 'false'
     // otherwise.  Two iterators have the same value if they refer to the same
     // element of the same container or if they both have the end iterator
@@ -227,7 +226,7 @@ bool operator==(const IdxClerkIter& lhs, const IdxClerkIter& rhs);
     // and 'rhs' refer to the same container and are non-singular (i.e., are
     // not default-constructed or copies of singular iterators).
 
-bool operator!=(const IdxClerkIter& lhs, const IdxClerkIter& rhs);
+bool operator!=(const IndexClerkIter& lhs, const IndexClerkIter& rhs);
     // Return 'true' if 'lhs' and 'rhs' do not have the same value and 'false'
     // otherwise.  Two iterators do not have the same value if they do not
     // refer to the same element of the same container or if one has the end
@@ -236,11 +235,11 @@ bool operator!=(const IdxClerkIter& lhs, const IdxClerkIter& rhs);
     // and 'rhs' refer to the same container and are non-singular (i.e., are
     // not default-constructed or copies of singular iterators).
 
-                        // ====================
-                        // class IdxClerk
-                        // ====================
+                            // ================
+                            // class IndexClerk
+                            // ================
 
-class IdxClerk {
+class IndexClerk {
     // This class defines an efficient, value-semantic manager type for
     // reusable, non-negative integer indices.  The class invariants are that
     // the all decommissioned indices must be non-negative, less than the next
@@ -251,22 +250,23 @@ class IdxClerk {
     int              d_nextNewIndex;  // next unused index to be created
 
     // FRIENDS
-    friend bool operator==(const IdxClerk&, const IdxClerk&);
-    friend bool operator!=(const IdxClerk&, const IdxClerk&);
+    friend bool operator==(const IndexClerk&, const IndexClerk&);
+    friend bool operator!=(const IndexClerk&, const IndexClerk&);
 
     // PRIVATE CLASS METHODS
     static bool areInvariantsPreserved(const bsl::vector<int>& unusedStack,
                                        int                     nextNewIndex);
-        // Return 'true' if the class invariants of this object are preserved
-        // and 'false' otherwise.  The class invariants are that all
-        // decommissioned indices are non-negative, less than 'nextNewIndex()',
-        // and unique.  Note that the run time of this function is proportional
-        // to 'numDecommissionedIndices()', but it requires temporary space
-        // that is proportional to 'nextNewIndex()'.
+        // Return 'true' if the class invariants of the object represented by
+        // the specified 'unusedStack' are preserved and 'false' otherwise.
+        // The class invariants are that all decommissioned indices are
+        // non-negative, less than the specified 'nextNewIndex', and unique.
+        // Note that the run time of this function is proportional to
+        // 'numDecommissionedIndices()', but it requires temporary space that
+        // is proportional to 'nextNewIndex'.
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(IdxClerk,
+    BSLALG_DECLARE_NESTED_TRAITS(IndexClerk,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
@@ -282,26 +282,27 @@ class IdxClerk {
         // containers.
 
     // CREATORS
-    explicit IdxClerk(bslma::Allocator *basicAllocator = 0);
+    explicit IndexClerk(bslma::Allocator *basicAllocator = 0);
         // Create a new index clerk that dispenses consecutive non-negative
-        // integers beginning with { 0, 1, 2, ... }; however, indices returned
+        // integers beginning with '0, 1, 2, ...'; however, indices returned
         // via 'putIndex' will be reissued before any new ones are created.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    IdxClerk(const IdxClerk&  original,
-                   bslma::Allocator      *basicAllocator = 0);
+    IndexClerk(const IndexClerk&  original,
+               bslma::Allocator  *basicAllocator = 0);
         // Create a new index clerk having the value of the specified
         // 'original' index clerk.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    ~IdxClerk();
+    ~IndexClerk();
         // Destroy this index clerk.
 
     // MANIPULATORS
-    // !IdxClerk& operator=(const IdxClerk& rhs);
+
+    // !IndexClerk& operator=(const IndexClerk& rhs);
         // Assign to this index clerk the value of the specified 'rhs' index
         // clerk, and return a reference to this modifiable index clerk.  Note
         // that this method's definition is compiler generated.
@@ -326,8 +327,8 @@ class IdxClerk {
     void putIndex(int index);
         // Return the specified 'index' to this index clerk, which indicates
         // that 'index' is no longer in use and may be reissued.  The behavior
-        // is undefined if the specified 'index' has never been generated by
-        // this clerk or is currently decommissioned.
+        // is undefined if 'index' has never been generated by this clerk or is
+        // currently decommissioned.
 
     void removeAll();
         // Remove all of the indices from this index clerk.  Note that the
@@ -350,14 +351,14 @@ class IdxClerk {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
-    IdxClerkIter begin() const;
-        // Return a 'IdxClerkIter' referring to the first index returned
-        // to this 'IdxClerk' that is currently unused, or 'end()' if
-        // there are currently no decommissioned indices.
+    IndexClerkIter begin() const;
+        // Return a 'IndexClerkIter' referring to the first index returned to
+        // this 'IndexClerk' that is currently unused, or 'end()' if there are
+        // currently no decommissioned indices.
 
-    IdxClerkIter end() const;
-        // Return a 'IdxClerkIter' referring to an invalid index,
-        // indicating the end of the sequence of decommissioned index.
+    IndexClerkIter end() const;
+        // Return a 'IndexClerkIter' referring to an invalid index, indicating
+        // the end of the sequence of decommissioned index.
 
     bool isInUse(int index) const;
         // Return 'true' if the specified 'index' is currently in use, and
@@ -402,64 +403,63 @@ class IdxClerk {
 };
 
 // FREE OPERATORS
-inline
-bool operator==(const IdxClerk& lhs, const IdxClerk& rhs);
+bool operator==(const IndexClerk& lhs, const IndexClerk& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' index clerks have the
-    // same value, and 'false' otherwise.  Two 'IdxClerk' objects have
-    // the same value if they have the same 'nextNewIndex()' and would always
+    // same value, and 'false' otherwise.  Two 'IndexClerk' objects have the
+    // same value if they have the same 'nextNewIndex()' and would always
     // generate the same sequence of integer indices.
 
-inline
-bool operator!=(const IdxClerk& lhs, const IdxClerk& rhs);
+bool operator!=(const IndexClerk& lhs, const IndexClerk& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' index clerks do not have
-    // the same value, and 'false' otherwise.  Two 'IdxClerk' objects do
-    // not have the same value if they do not have the same 'nextNewIndex()',
-    // or might generate different sequences of integer indices.
+    // the same value, and 'false' otherwise.  Two 'IndexClerk' objects do not
+    // have the same value if they do not have the same 'nextNewIndex()', or
+    // might generate different sequences of integer indices.
 
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const IdxClerk& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const IndexClerk& rhs);
     // Write the specified 'rhs' index clerk to the specified output 'stream'
     // in some single-line (human-readable) format, and return a reference to
     // the modifiable 'stream'.
 
+}  // close package namespace
+
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------------
-                        // class IdxClerkIter
-                        // ------------------------
+                            // --------------------
+                            // class IndexClerkIter
+                            // --------------------
 
 // CREATORS
 inline
-IdxClerkIter::IdxClerkIter()
+bdlc::IndexClerkIter::IndexClerkIter()
 : d_index_p(0)
 {
 }
 
 inline
-IdxClerkIter::IdxClerkIter(const int *index)
+bdlc::IndexClerkIter::IndexClerkIter(const int *index)
 : d_index_p(index)
 {
 }
 
 inline
-IdxClerkIter::IdxClerkIter(const IdxClerkIter& original)
+bdlc::IndexClerkIter::IndexClerkIter(const IndexClerkIter& original)
 : d_index_p(original.d_index_p)
 {
 }
 
 // MANIPULATORS
 inline
-IdxClerkIter&
-IdxClerkIter::operator=(const IdxClerkIter& rhs)
+bdlc::IndexClerkIter&
+bdlc::IndexClerkIter::operator=(const IndexClerkIter& rhs)
 {
     d_index_p = rhs.d_index_p;
     return *this;
 }
 
 inline
-IdxClerkIter& IdxClerkIter::operator++()
+bdlc::IndexClerkIter& bdlc::IndexClerkIter::operator++()
 {
     BSLS_ASSERT_SAFE(0 != d_index_p.base());
 
@@ -468,7 +468,7 @@ IdxClerkIter& IdxClerkIter::operator++()
 }
 
 inline
-IdxClerkIter& IdxClerkIter::operator--()
+bdlc::IndexClerkIter& bdlc::IndexClerkIter::operator--()
 {
     BSLS_ASSERT_SAFE(0 != d_index_p.base());
 
@@ -478,57 +478,55 @@ IdxClerkIter& IdxClerkIter::operator--()
 
 // ACCESSORS
 inline
-int IdxClerkIter::operator*() const
+int bdlc::IndexClerkIter::operator*() const
 {
     BSLS_ASSERT_SAFE(0 != d_index_p.base());
 
     return *d_index_p;
 }
-}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool bdlc::operator==(const IdxClerkIter& lhs, const IdxClerkIter& rhs)
+bool bdlc::operator==(const IndexClerkIter& lhs, const IndexClerkIter& rhs)
 {
     return lhs.d_index_p == rhs.d_index_p;
 }
 
 inline
-bool bdlc::operator!=(const IdxClerkIter& lhs, const IdxClerkIter& rhs)
+bool bdlc::operator!=(const IndexClerkIter& lhs, const IndexClerkIter& rhs)
 {
     return lhs.d_index_p != rhs.d_index_p;
 }
 
-namespace bdlc {
-                        // --------------------
-                        // class IdxClerk
-                        // --------------------
+                            // ----------------
+                            // class IndexClerk
+                            // ----------------
 
 // CREATORS
 inline
-IdxClerk::IdxClerk(bslma::Allocator *basicAllocator)
+bdlc::IndexClerk::IndexClerk(bslma::Allocator *basicAllocator)
 : d_unusedStack(basicAllocator)
 , d_nextNewIndex(0)
 {
 }
 
 inline
-IdxClerk::IdxClerk(const IdxClerk&  original,
-                               bslma::Allocator      *basicAllocator)
+bdlc::IndexClerk::IndexClerk(const IndexClerk&  original,
+                             bslma::Allocator  *basicAllocator)
 : d_unusedStack(original.d_unusedStack, basicAllocator)
 , d_nextNewIndex(original.d_nextNewIndex)
 {
 }
 
 inline
-IdxClerk::~IdxClerk()
+bdlc::IndexClerk::~IndexClerk()
 {
     BSLS_ASSERT_SAFE(areInvariantsPreserved(d_unusedStack, d_nextNewIndex));
 }
 
 // MANIPULATORS
 inline
-int IdxClerk::getIndex()
+int bdlc::IndexClerk::getIndex()
 {
     if (d_unusedStack.empty()) {
         return d_nextNewIndex++;                                      // RETURN
@@ -541,7 +539,7 @@ int IdxClerk::getIndex()
 }
 
 inline
-void IdxClerk::putIndex(int index)
+void bdlc::IndexClerk::putIndex(int index)
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(     index < d_nextNewIndex);
@@ -551,7 +549,7 @@ void IdxClerk::putIndex(int index)
 }
 
 inline
-void IdxClerk::removeAll()
+void bdlc::IndexClerk::removeAll()
 {
     d_unusedStack.clear();
     d_nextNewIndex = 0;
@@ -560,7 +558,7 @@ void IdxClerk::removeAll()
 // Note: Order changed from declaration to make use of inlined 'removeAll'.
 
 template <class STREAM>
-STREAM& IdxClerk::bdexStreamIn(STREAM& stream, int version)
+STREAM& bdlc::IndexClerk::bdexStreamIn(STREAM& stream, int version)
 {
     switch (version) {
       case 1: {
@@ -595,7 +593,7 @@ STREAM& IdxClerk::bdexStreamIn(STREAM& stream, int version)
 // ACCESSORS
 template <class STREAM>
 inline
-STREAM& IdxClerk::bdexStreamOut(STREAM& stream, int version) const
+STREAM& bdlc::IndexClerk::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
@@ -613,37 +611,37 @@ STREAM& IdxClerk::bdexStreamOut(STREAM& stream, int version) const
 }
 
 inline
-int IdxClerk::numCommissionedIndices() const
+int bdlc::IndexClerk::numCommissionedIndices() const
 {
     return d_nextNewIndex - static_cast<int>(d_unusedStack.size());
 }
 
 inline
-IdxClerkIter IdxClerk::begin() const
+bdlc::IndexClerkIter bdlc::IndexClerk::begin() const
 {
-    return IdxClerkIter(d_unusedStack.begin() + d_unusedStack.size());
+    return IndexClerkIter(d_unusedStack.begin() + d_unusedStack.size());
 }
 
 inline
-IdxClerkIter IdxClerk::end() const
+bdlc::IndexClerkIter bdlc::IndexClerk::end() const
 {
-    return IdxClerkIter(d_unusedStack.begin());
+    return IndexClerkIter(d_unusedStack.begin());
 }
 
 inline
-int IdxClerk::numDecommissionedIndices() const
+int bdlc::IndexClerk::numDecommissionedIndices() const
 {
     return static_cast<int>(d_unusedStack.size());
 }
 
 inline
-int IdxClerk::nextNewIndex() const
+int bdlc::IndexClerk::nextNewIndex() const
 {
     return d_nextNewIndex;
 }
 
 inline
-int IdxClerk::maxSupportedBdexVersion(int /* versionSelector */)
+int bdlc::IndexClerk::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;
 }
@@ -652,32 +650,30 @@ int IdxClerk::maxSupportedBdexVersion(int /* versionSelector */)
 
 // DEPRECATED METHODS
 inline
-int IdxClerk::maxSupportedBdexVersion()
+int bdlc::IndexClerk::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
-}  // close package namespace
-
 // FREE OPERATORS
 inline
-bool bdlc::operator==(const IdxClerk& lhs, const IdxClerk& rhs)
+bool bdlc::operator==(const IndexClerk& lhs, const IndexClerk& rhs)
 {
     return lhs.d_nextNewIndex == rhs.d_nextNewIndex
         && lhs.d_unusedStack  == rhs.d_unusedStack;
 }
 
 inline
-bool bdlc::operator!=(const IdxClerk& lhs, const IdxClerk& rhs)
+bool bdlc::operator!=(const IndexClerk& lhs, const IndexClerk& rhs)
 {
     return lhs.d_nextNewIndex != rhs.d_nextNewIndex
         || lhs.d_unusedStack  != rhs.d_unusedStack;
 }
 
 inline
-bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const IdxClerk& rhs)
+bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const IndexClerk& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -687,10 +683,17 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const IdxClerk& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

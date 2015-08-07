@@ -18,11 +18,11 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component implements an efficient, in-place, indexable,
 // double-ended queue of 'T' values, where 'T' is a templatized, user-defined
-// type.  The functionality of a 'bdec' queue is relatively rich; it is almost
-// a proper superset of a vector, with efficient implementations of
-// 'front', 'back', 'pushFront', and 'popBack' methods added.  However, the
-// queue does *not* provide a 'data' method (yielding direct access to the
-// underlying memory), because its internal organization is not array-like.
+// type.  The functionality of a 'bdlc::Queue' is relatively rich; it is almost
+// a proper superset of a vector, with efficient implementations of 'front',
+// 'back', 'pushFront', and 'popBack' methods added.  However, the queue does
+// *not* provide a 'data' method (yielding direct access to the underlying
+// memory), because its internal organization is not array-like.
 //
 // Typical usage involves pushing (appending) values to the back of the queue,
 // popping (removing) values from the front of the queue, and retrieving
@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 ///Abstract Representation
 ///-----------------------
 // The logical organization of an indexable, in-place, double-ended
-// 'bdlc::Queue' object 'q' is shown below, along with an illustration of
-// some of its most common methods:
+// 'bdlc::Queue' object 'q' is shown below, along with an illustration of some
+// of its most common methods:
 //..
 //                                    QUEUE
 //                 v = q.front()                          v = q.back()
@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 //      const double E1 = 100.01;
 //      const double E2 = 200.02;
 //
-//      bdlc::Queue<double> q;           assert( 0 == q.length());
+//      bdlc::Queue<double> q;          assert( 0 == q.length());
 //
 //      q.append(E1);                   assert( 1 == q.length());
 //                                      assert(E1 == q[0]);
@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 //                                      assert(E3 == q[2]);
 //..
 // Next, iterate over the elements in 'q', printing them in increasing order of
-// their index positions, [0 .. q.length() - 1],
+// their index positions, '[0 .. q.length() - 1]',
 //..
 //      bsl::cout << '[';
 //      int len = q.length();
@@ -245,17 +245,17 @@ class Queue {
 
     // PRIVATE TYPES
     enum {
-        BDEC_INITIAL_SIZE   = 2,  // initial physical capacity (number of
+        BDLC_INITIAL_SIZE   = 2,  // initial physical capacity (number of
                                   // elements)
 
-        BDEC_GROW_FACTOR    = 2,  // multiplicative factor by which to grow
+        BDLC_GROW_FACTOR    = 2,  // multiplicative factor by which to grow
                                   // 'd_size'
 
-        BDEC_EXTRA_CAPACITY = 2   // additional capacity required by
+        BDLC_EXTRA_CAPACITY = 2   // additional capacity required by
                                   // implementation
     };
         // The queue is full when 'd_front == d_back'.  Hence,
-        // 'BDEC_INITIAL_SIZE' must be at least two.
+        // 'BDLC_INITIAL_SIZE' must be at least two.
 
   public:
     // TYPES
@@ -296,10 +296,10 @@ class Queue {
     int calculateSufficientSize(int minLength, int size);
         // Grow geometrically the specified current 'size' value while it is
         // less than the specified 'minLength' value plus any additional
-        // capacity required by the implementation (i.e., 'BDEC_EXTRA_CAPACITY'
+        // capacity required by the implementation (i.e., 'BDLC_EXTRA_CAPACITY'
         // elements).  Return the new size value.  The behavior is undefined
-        // unless 'BDEC_INITIAL_SIZE <= size' and '0 <= minLength'.  Note that
-        // if 'minLength + BDEC_EXTRA_CAPACITY <= size' then 'size' is
+        // unless 'BDLC_INITIAL_SIZE <= size' and '0 <= minLength'.  Note that
+        // if 'minLength + BDLC_EXTRA_CAPACITY <= size' then 'size' is
         // returned.
 
     int memcpyCircular(T       *dstArray,
@@ -318,9 +318,9 @@ class Queue {
         // have to be broken into multiple parts since the underlying array is
         // linear.  The behavior is undefined unless '0 <= dstSize',
         // '0 <= dstIndex < dstSize', '0 <= srcIndex < srcSize',
-        // '0 <= numElements', 'numElements <= dstSize - BDEC_EXTRA_CAPACITY',
-        // and 'numElements <= srcSize - BDEC_EXTRA_CAPACITY' (the
-        // 'BDEC_EXTRA_CAPACITY' accounts for the locations of 'd_front' and
+        // '0 <= numElements', 'numElements <= dstSize - BDLC_EXTRA_CAPACITY',
+        // and 'numElements <= srcSize - BDLC_EXTRA_CAPACITY' (the
+        // 'BDLC_EXTRA_CAPACITY' accounts for the locations of 'd_front' and
         // 'd_back').  Note that aliasing is not handled properly.
 
     void memShiftLeft(T   *array,
@@ -329,13 +329,14 @@ class Queue {
                       int  srcIndex,
                       int  numElements);
         // Copy efficiently the specified 'numElements' data values from the
-        // specified 'array' of the specified 'size' starting at index position
-        // 'srcIndex' to the specified 'dstIndex' assuming the elements are to
-        // be moved to the left (towards the front of the queue).  'array' is
-        // assumed to be a queue; it is circular.  The behavior is undefined
-        // unless '0 <= size', '0 <= dstIndex < size', '0 <= srcIndex < size',
-        // and '0 <= numElements <= size - BDEC_EXTRA_CAPACITY'.  Note that
-        // this function is alias safe.
+        // specified 'array' of the specified 'size' starting at the specified
+        // index 'srcIndex' to the specified 'dstIndex' assuming the elements
+        // are to be moved to the left (towards the front of the queue).
+        // 'array' is assumed to be a queue; it is circular.  The behavior is
+        // undefined unless '0 <= size', '0 <= dstIndex < size',
+        // '0 <= srcIndex < size', and
+        // '0 <= numElements <= size - BDLC_EXTRA_CAPACITY'.  Note that this
+        // function is alias safe.
 
     void memShiftRight(T   *array,
                        int  size,
@@ -343,13 +344,14 @@ class Queue {
                        int  srcIndex,
                        int  numElements);
         // Copy efficiently the specified 'numElements' data values from the
-        // specified 'array' of the specified 'size' starting at index position
-        // 'srcIndex' to the specified 'dstIndex' assuming the elements are to
-        // be moved to the right (towards the back of the queue).  'array' is
-        // assumed to be a queue; it is circular.  The behavior is undefined
-        // unless '0 <= size', '0 <= dstIndex < size', '0 <= srcIndex < size',
-        // and '0 <= numElements <= size - BDEC_EXTRA_CAPACITY'.  Note that
-        // this function is alias safe.
+        // specified 'array' of the specified 'size' starting at the specified
+        // index 'srcIndex' to the specified 'dstIndex' assuming the elements
+        // are to be moved to the right (towards the back of the queue).
+        // 'array' is assumed to be a queue; it is circular.  The behavior is
+        // undefined unless '0 <= size', '0 <= dstIndex < size',
+        // '0 <= srcIndex < size', and
+        // '0 <= numElements <= size - BDLC_EXTRA_CAPACITY'.  Note that this
+        // function is alias safe.
 
     void copyData(T       *dstArray,
                   int     *dstBack,
@@ -363,7 +365,7 @@ class Queue {
         // the specified 'srcSize' with the specified 'srcFront' and the
         // specified 'srcBack' into the queue indicated by the specified
         // 'dstArray' of the specified 'dstSize', with the specified
-        // 'srcFront'.  The specified 'dstBack' is set to make the length of
+        // 'dstFront'.  The specified 'dstBack' is set to make the length of
         // the destination queue the same as the length of the source queue.
         // The behavior is undefined unless '0 <= dstSize',
         // '0 <= dstFront < dstSize', '0 <= srcSize',
@@ -383,7 +385,7 @@ class Queue {
         // 'back' to the new queue and update the values of both 'front' and
         // 'back'.  Use the specified 'allocator' to supply and retrieve
         // memory.  The behavior is undefined unless
-        // 'BDEC_INITIAL_SIZE <= newSize', 'BDEC_INITIAL_SIZE <= size',
+        // 'BDLC_INITIAL_SIZE <= newSize', 'BDLC_INITIAL_SIZE <= size',
         // 'size <= newSize', '0 <= *front < size', and '0 <= *back < size'.
 
     void increaseSize();
@@ -413,10 +415,10 @@ class Queue {
     Queue(bslma::Allocator *basicAllocator = 0);
     explicit
     Queue(unsigned int      initialLength,
-               bslma::Allocator *basicAllocator = 0);
+          bslma::Allocator *basicAllocator = 0);
     Queue(int               initialLength,
-               const T&          initialValue,
-               bslma::Allocator *basicAllocator = 0);
+          const T&          initialValue,
+          bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue.  By default, the queue is empty.
         // Optionally specify the 'initialLength' of the queue.  Queue elements
         // are initialized with the specified 'initialValue', or to 0.0 if
@@ -427,7 +429,7 @@ class Queue {
 
     explicit
     Queue(const InitialCapacity&  numElements,
-               bslma::Allocator       *basicAllocator = 0);
+          bslma::Allocator       *basicAllocator = 0);
         // Create an in-place queue with sufficient initial capacity to
         // accommodate up to the specified 'numElements' values without
         // subsequent reallocation.  A valid reference returned by the
@@ -439,8 +441,8 @@ class Queue {
         // undefined unless '0 <= numElements'.
 
     Queue(const T          *srcArray,
-               int               numElements,
-               bslma::Allocator *basicAllocator = 0);
+          int               numElements,
+          bslma::Allocator *basicAllocator = 0);
         // Create an in-place queue initialized with the specified
         // 'numElements' leading values from the specified 'srcArray'.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
@@ -449,8 +451,7 @@ class Queue {
         // that 'srcArray' must refer to sufficient memory to hold
         // 'numElements' values.
 
-    Queue(const Queue<T>&  original,
-               bslma::Allocator     *basicAllocator = 0);
+    Queue(const Queue& original, bslma::Allocator* basicAllocator = 0);
         // Create an in-place queue initialized to the value of the specified
         // 'original' queue.  Optionally specify the 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -460,7 +461,7 @@ class Queue {
         // Destroy this object.
 
     // MANIPULATORS
-    Queue& operator=(const Queue<T>& rhs);
+    Queue& operator=(const Queue& rhs);
         // Assign to this queue the value of the specified 'rhs' queue and
         // return a reference to this modifiable queue.
 
@@ -479,7 +480,7 @@ class Queue {
         //   insert(length(), item);
         //..
 
-    void append(const Queue<T>& srcQueue);
+    void append(const Queue& srcQueue);
         // Append to the end of this queue the sequence of values in the
         // specified 'srcQueue'.  Note that this function is logically
         // equivalent to:
@@ -487,9 +488,7 @@ class Queue {
         //   insert(length(), srcQueue);
         //..
 
-    void append(const Queue<T>& srcQueue,
-                int                  srcIndex,
-                int                  numElements);
+    void append(const Queue& srcQueue, int srcIndex, int numElements);
         // Append to the end of this queue the specified 'numElements' value in
         // the specified 'srcQueue' starting at the specified index position
         // 'srcIndex'.  Note that this function is logically equivalent to:
@@ -526,16 +525,16 @@ class Queue {
         // are shifted up by one index position.  The behavior is undefined
         // unless '0 <= dstIndex <= length()'.
 
-    void insert(int dstIndex, const Queue<T>& srcQueue);
+    void insert(int dstIndex, const Queue& srcQueue);
         // Insert the specified 'srcQueue' into this queue at the specified
         // 'dstIndex'.  All current values with indices at or above 'dstIndex'
         // are shifted up by 'srcQueue.length()' index positions.  The behavior
         // is undefined unless '0 <= dstIndex <= length()'.
 
-    void insert(int                  dstIndex,
-                const Queue<T>& srcQueue,
-                int                  srcIndex,
-                int                  numElements);
+    void insert(int          dstIndex,
+                const Queue& srcQueue,
+                int          srcIndex,
+                int          numElements);
         // Insert the specified 'numElements' values starting at the specified
         // 'srcIndex' position from the specified 'srcQueue' into this queue at
         // the specified 'dstIndex'.  All current values with indices at or
@@ -587,8 +586,8 @@ class Queue {
     void remove(int index, int numElements);
         // Remove from this queue, beginning at the specified 'index', the
         // specified 'numElements' values.  All values with initial indices at
-        // or above index + numElements are shifted down by 'numElements' index
-        // positions.  The behavior is undefined unless '0 <= index',
+        // or above 'index + numElements' are shifted down by 'numElements'
+        // index positions.  The behavior is undefined unless '0 <= index',
         // '0 <= numElements', and 'index + numElements <= length()'.
 
     void removeAll(bsl::vector<T> *buffer = 0);
@@ -607,10 +606,10 @@ class Queue {
         //    remove(dstIndex + 1);
         //..
 
-    void replace(int                  dstIndex,
-                 const Queue<T>& srcQueue,
-                 int                  srcIndex,
-                 int                  numElements);
+    void replace(int          dstIndex,
+                 const Queue& srcQueue,
+                 int          srcIndex,
+                 int          numElements);
         // Replace the specified 'numElements' values beginning at the
         // specified 'dstIndex' in this queue with values from the specified
         // 'srcQueue' beginning at the specified 'srcIndex'.  The behavior is
@@ -782,8 +781,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Queue<T>& queue);
     // Write the specified 'queue' to the specified output 'stream' and return
     // a reference to the modifiable 'stream'.
 
+}  // close package namespace
+
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // TBD pass through allocator
@@ -795,7 +796,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Queue<T>& queue);
 
 template <class T>
 inline
-int Queue<T>::length() const
+int bdlc::Queue<T>::length() const
 {
     return d_back > d_front ? d_back - d_front - 1
                             : d_back + d_size - d_front - 1;
@@ -803,23 +804,23 @@ int Queue<T>::length() const
 
 // PRIVATE MANIPULATORS
 template <class T>
-int Queue<T>::calculateSufficientSize(int minLength, int size)
+int bdlc::Queue<T>::calculateSufficientSize(int minLength, int size)
 {
-    const int len = minLength + BDEC_EXTRA_CAPACITY;
+    const int len = minLength + BDLC_EXTRA_CAPACITY;
     while (size < len) {
-        size *= BDEC_GROW_FACTOR;
+        size *= BDLC_GROW_FACTOR;
     }
     return size;
 }
 
 template <class T>
-int Queue<T>::memcpyCircular(T       *dstArray,
-                                  int      dstSize,
-                                  int      dstIndex,
-                                  const T *srcArray,
-                                  int      srcSize,
-                                  int      srcIndex,
-                                  int      numElements)
+int bdlc::Queue<T>::memcpyCircular(T       *dstArray,
+                                   int      dstSize,
+                                   int      dstIndex,
+                                   const T *srcArray,
+                                   int      srcSize,
+                                   int      srcIndex,
+                                   int      numElements)
 {
     int dst;  // temporary value to store the current destination location
 
@@ -866,7 +867,7 @@ int Queue<T>::memcpyCircular(T       *dstArray,
             dstLen = dst;  // max numElements that can be copied to index 0
             dst = lenSrcA;
 
-            // TBD doc above assert(lenSrcA <= dstLen - BDEC_EXTRA_CAPACITY);
+            // TBD doc above assert(lenSrcA <= dstLen - BDLC_EXTRA_CAPACITY);
         }
     }
     else {  // two linear source arrays
@@ -912,7 +913,7 @@ int Queue<T>::memcpyCircular(T       *dstArray,
 
             // TBD
             // doc above assert(
-            // lenSrcA + lenSrcB <= dstLen - BDEC_EXTRA_CAPACITY);
+            // lenSrcA + lenSrcB <= dstLen - BDLC_EXTRA_CAPACITY);
         }
         dstLen -= lenSrcA;
 
@@ -946,11 +947,11 @@ int Queue<T>::memcpyCircular(T       *dstArray,
 }
 
 template <class T>
-void Queue<T>::memShiftLeft(T   *array,
-                                 int  size,
-                                 int  dstIndex,
-                                 int  srcIndex,
-                                 int  numElements)
+void bdlc::Queue<T>::memShiftLeft(T   *array,
+                                  int  size,
+                                  int  dstIndex,
+                                  int  srcIndex,
+                                  int  numElements)
 {
     // Move the elements that do not wrap around the array end.
 
@@ -1013,11 +1014,11 @@ void Queue<T>::memShiftLeft(T   *array,
 }
 
 template <class T>
-void Queue<T>::memShiftRight(T   *array,
-                                  int  size,
-                                  int  dstIndex,
-                                  int  srcIndex,
-                                  int  numElements)
+void bdlc::Queue<T>::memShiftRight(T   *array,
+                                   int  size,
+                                   int  dstIndex,
+                                   int  srcIndex,
+                                   int  numElements)
 {
     if (dstIndex == srcIndex) {
         return;                                                       // RETURN
@@ -1081,14 +1082,14 @@ void Queue<T>::memShiftRight(T   *array,
 
 template <class T>
 inline
-void Queue<T>::copyData(T       *dstArray,
-                             int     *dstBack,
-                             int      dstSize,
-                             int      dstFront,
-                             const T *srcArray,
-                             int      srcSize,
-                             int      srcFront,
-                             int      srcBack)
+void bdlc::Queue<T>::copyData(T       *dstArray,
+                              int     *dstBack,
+                              int      dstSize,
+                              int      dstFront,
+                              const T *srcArray,
+                              int      srcSize,
+                              int      srcFront,
+                              int      srcBack)
 {
     const int dstIndex = (dstFront + 1) % dstSize;
     const int srcIndex = (srcFront + 1) % srcSize;
@@ -1104,12 +1105,12 @@ void Queue<T>::copyData(T       *dstArray,
 }
 
 template <class T>
-int Queue<T>::increaseSizeImp(T                **addrArray,
-                                   int               *front,
-                                   int               *back,
-                                   int                newSize,
-                                   int                size,
-                                   bslma::Allocator  *allocator)
+int bdlc::Queue<T>::increaseSizeImp(T                **addrArray,
+                                    int               *front,
+                                    int               *back,
+                                    int                newSize,
+                                    int                size,
+                                    bslma::Allocator  *allocator)
 {
     T *array = (T *)allocator->allocate(newSize * sizeof **addrArray);
 
@@ -1133,12 +1134,12 @@ int Queue<T>::increaseSizeImp(T                **addrArray,
 
 template <class T>
 inline
-void Queue<T>::increaseSize()
+void bdlc::Queue<T>::increaseSize()
 {
     d_size = increaseSizeImp(&d_array_p,
                              &d_front,
                              &d_back,
-                             d_size * BDEC_GROW_FACTOR,
+                             d_size * BDLC_GROW_FACTOR,
                              d_size,
                              d_allocator_p);
 }
@@ -1146,7 +1147,7 @@ void Queue<T>::increaseSize()
 // CLASS METHODS
 template <class T>
 inline
-int Queue<T>::maxSupportedBdexVersion(int /* versionSelector */)
+int bdlc::Queue<T>::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;  // Required by BDE policy; versions start at 1.
 }
@@ -1157,14 +1158,14 @@ int Queue<T>::maxSupportedBdexVersion(int /* versionSelector */)
 
 template <class T>
 inline
-int Queue<T>::maxSupportedVersion()
+int bdlc::Queue<T>::maxSupportedVersion()
 {
     return maxSupportedBdexVersion();
 }
 
 template <class T>
 inline
-int Queue<T>::maxSupportedBdexVersion()
+int bdlc::Queue<T>::maxSupportedBdexVersion()
 {
     return 1;  // Required by BDE policy; versions start at 1.
 }
@@ -1173,9 +1174,9 @@ int Queue<T>::maxSupportedBdexVersion()
 
 // CREATORS
 template <class T>
-Queue<T>::Queue(bslma::Allocator *basicAllocator)
-: d_size(BDEC_INITIAL_SIZE)
-, d_front(BDEC_INITIAL_SIZE - 1)
+bdlc::Queue<T>::Queue(bslma::Allocator *basicAllocator)
+: d_size(BDLC_INITIAL_SIZE)
+, d_front(BDLC_INITIAL_SIZE - 1)
 , d_back(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1183,12 +1184,12 @@ Queue<T>::Queue(bslma::Allocator *basicAllocator)
 }
 
 template <class T>
-Queue<T>::Queue(unsigned int      initialLength,
-                          bslma::Allocator *basicAllocator)
+bdlc::Queue<T>::Queue(unsigned int      initialLength,
+                      bslma::Allocator *basicAllocator)
 : d_back(initialLength)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_size = calculateSufficientSize(initialLength, BDEC_INITIAL_SIZE);
+    d_size = calculateSufficientSize(initialLength, BDLC_INITIAL_SIZE);
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
     d_front = d_size - 1;
 
@@ -1202,13 +1203,13 @@ Queue<T>::Queue(unsigned int      initialLength,
 }
 
 template <class T>
-Queue<T>::Queue(int               initialLength,
-                          const T&          initialValue,
-                          bslma::Allocator *basicAllocator)
+bdlc::Queue<T>::Queue(int               initialLength,
+                      const T&          initialValue,
+                      bslma::Allocator *basicAllocator)
 : d_back(initialLength)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_size = calculateSufficientSize(initialLength, BDEC_INITIAL_SIZE);
+    d_size = calculateSufficientSize(initialLength, BDLC_INITIAL_SIZE);
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
     d_front = d_size - 1;
 
@@ -1221,10 +1222,10 @@ Queue<T>::Queue(int               initialLength,
 }
 
 template <class T>
-Queue<T>::Queue(const InitialCapacity&  numElements,
-                          bslma::Allocator       *basicAllocator)
-: d_size(numElements.d_i + BDEC_EXTRA_CAPACITY) // to hold the empty positions
-, d_front(numElements.d_i + BDEC_EXTRA_CAPACITY - 1)
+bdlc::Queue<T>::Queue(const InitialCapacity&  numElements,
+                      bslma::Allocator       *basicAllocator)
+: d_size(numElements.d_i + BDLC_EXTRA_CAPACITY) // to hold the empty positions
+, d_front(numElements.d_i + BDLC_EXTRA_CAPACITY - 1)
 , d_back(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -1232,13 +1233,13 @@ Queue<T>::Queue(const InitialCapacity&  numElements,
 }
 
 template <class T>
-Queue<T>::Queue(const T          *srcArray,
-                          int               numElements,
-                          bslma::Allocator *basicAllocator)
+bdlc::Queue<T>::Queue(const T          *srcArray,
+                      int               numElements,
+                      bslma::Allocator *basicAllocator)
 : d_back(numElements)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_size = calculateSufficientSize(numElements, BDEC_INITIAL_SIZE);
+    d_size = calculateSufficientSize(numElements, BDLC_INITIAL_SIZE);
     d_front = d_size - 1;
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
 
@@ -1250,11 +1251,10 @@ Queue<T>::Queue(const T          *srcArray,
 }
 
 template <class T>
-Queue<T>::Queue(const Queue<T>&  original,
-                          bslma::Allocator     *basicAllocator)
+bdlc::Queue<T>::Queue(const Queue& original, bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_size = calculateSufficientSize(original.length(), BDEC_INITIAL_SIZE);
+    d_size = calculateSufficientSize(original.length(), BDLC_INITIAL_SIZE);
     d_array_p = (T *)d_allocator_p->allocate(d_size * sizeof *d_array_p);
     d_front = d_size - 1;
     copyData(d_array_p,
@@ -1268,7 +1268,7 @@ Queue<T>::Queue(const Queue<T>&  original,
 }
 
 template <class T>
-Queue<T>::~Queue()
+bdlc::Queue<T>::~Queue()
 {
     // TBD efficiency
 
@@ -1281,11 +1281,11 @@ Queue<T>::~Queue()
 
 // MANIPULATORS
 template <class T>
-Queue<T>& Queue<T>::operator=(const Queue<T>& rhs)
+bdlc::Queue<T>& bdlc::Queue<T>::operator=(const Queue& rhs)
 {
     if (this != &rhs) {
         const int newSize = calculateSufficientSize(rhs.length(),
-                                                    BDEC_INITIAL_SIZE);
+                                                    BDLC_INITIAL_SIZE);
         if (newSize > d_size) {
             T *array =
                      (T *)d_allocator_p->allocate(newSize * sizeof *d_array_p);
@@ -1323,13 +1323,13 @@ Queue<T>& Queue<T>::operator=(const Queue<T>& rhs)
 
 template <class T>
 inline
-T& Queue<T>::operator[](int index)
+T& bdlc::Queue<T>::operator[](int index)
 {
     return d_array_p[(index + d_front + 1) % d_size];
 }
 
 template <class T>
-void Queue<T>::append(const Queue<T>& srcQueue)
+void bdlc::Queue<T>::append(const Queue& srcQueue)
 {
     const int numElements = srcQueue.length();
     const int newLength = length() + numElements;
@@ -1352,9 +1352,9 @@ void Queue<T>::append(const Queue<T>& srcQueue)
 }
 
 template <class T>
-void Queue<T>::append(const Queue<T>& srcQueue,
-                              int srcIndex,
-                              int numElements)
+void bdlc::Queue<T>::append(const Queue& srcQueue,
+                            int          srcIndex,
+                            int          numElements)
 {
     const int newLength = length() + numElements;
     const int minSize = calculateSufficientSize(newLength, d_size);
@@ -1378,25 +1378,25 @@ void Queue<T>::append(const Queue<T>& srcQueue,
 
 template <class T>
 inline
-T& Queue<T>::back()
+T& bdlc::Queue<T>::back()
 {
     return d_array_p[(d_back - 1 + d_size) % d_size];
 }
 
 template <class T>
 inline
-T& Queue<T>::front()
+T& bdlc::Queue<T>::front()
 {
     return d_array_p[(d_front + 1) % d_size];
 }
 
 template <class T>
-void Queue<T>::insert(int dstIndex, const T& itemTmp)
+void bdlc::Queue<T>::insert(int dstIndex, const T& itemTmp)
 {
     T item(itemTmp);  // TBD hack for aliased case
 
     // The capacity must always be greater than or equal to
-    // length + BDEC_EXTRA_CAPACITY.
+    // 'length + BDLC_EXTRA_CAPACITY'.
 
     const int originalLength = length();
     const int newLength = originalLength + 1;
@@ -1481,13 +1481,13 @@ void Queue<T>::insert(int dstIndex, const T& itemTmp)
 }
 
 template <class T>
-void Queue<T>::insert(int                  dstIndex,
-                           const Queue<T>& srcQueue,
-                           int                  srcIndex,
-                           int                  numElements)
+void bdlc::Queue<T>::insert(int          dstIndex,
+                            const Queue& srcQueue,
+                            int          srcIndex,
+                            int          numElements)
 {
     // The capacity must always be greater than or equal to
-    // length + BDEC_EXTRA_CAPACITY.
+    // 'length + BDLC_EXTRA_CAPACITY'.
 
     const int originalLength = length();
     const int newLength = originalLength + numElements;
@@ -1660,14 +1660,14 @@ void Queue<T>::insert(int                  dstIndex,
 
 template <class T>
 inline
-void Queue<T>::insert(int dstIndex, const Queue<T>& srcQueue)
+void bdlc::Queue<T>::insert(int dstIndex, const Queue& srcQueue)
 {
     insert(dstIndex, srcQueue, 0, srcQueue.length());
 }
 
 template <class T>
 inline
-void Queue<T>::popBack()
+void bdlc::Queue<T>::popBack()
 {
     d_back = (d_back - 1 + d_size) % d_size;
     d_array_p[d_back].~T();
@@ -1675,14 +1675,14 @@ void Queue<T>::popBack()
 
 template <class T>
 inline
-void Queue<T>::popFront()
+void bdlc::Queue<T>::popFront()
 {
     d_front = (d_front + 1) % d_size;
     d_array_p[d_front].~T();
 }
 
 template <class T>
-void Queue<T>::pushBack(const T& itemTmp)
+void bdlc::Queue<T>::pushBack(const T& itemTmp)
 {
     T item(itemTmp);  // TBD aliasing hack
 
@@ -1696,7 +1696,7 @@ void Queue<T>::pushBack(const T& itemTmp)
 }
 
 template <class T>
-void Queue<T>::pushFront(const T& itemTmp)
+void bdlc::Queue<T>::pushFront(const T& itemTmp)
 {
     T item(itemTmp);  // TBD aliasing hack
 
@@ -1711,21 +1711,21 @@ void Queue<T>::pushFront(const T& itemTmp)
 
 template <class T>
 inline
-void Queue<T>::append(const T& item)
+void bdlc::Queue<T>::append(const T& item)
 {
     pushBack(item);
 }
 
 template <class T>
-void Queue<T>::remove(int index)
+void bdlc::Queue<T>::remove(int index)
 {
     d_array_p[(index + d_front + 1) % d_size].~T();
 
-    // Compute number of elements that are past the insertion point: the
-    // back length.
+    // Compute number of elements that are past the insertion point: the back
+    // length.
 
     const int backLen =
-            (d_back - d_front - BDEC_EXTRA_CAPACITY - index + d_size) % d_size;
+            (d_back - d_front - BDLC_EXTRA_CAPACITY - index + d_size) % d_size;
 
     if (index < backLen) {
         d_front = (d_front + 1) % d_size;
@@ -1747,7 +1747,7 @@ void Queue<T>::remove(int index)
 }
 
 template <class T>
-void Queue<T>::remove(int index, int numElements)
+void bdlc::Queue<T>::remove(int index, int numElements)
 {
     // TBD efficiency
 
@@ -1755,8 +1755,8 @@ void Queue<T>::remove(int index, int numElements)
         d_array_p[(index + d_front + 1 + i) % d_size].~T();
     };
 
-    // Compute number of elements that are past the insertion point: the
-    // back length.
+    // Compute number of elements that are past the insertion point: the back
+    // length.
 
     const int backLen = (d_back - d_front - 1
                                       - index - numElements + d_size) % d_size;
@@ -1782,7 +1782,7 @@ void Queue<T>::remove(int index, int numElements)
 }
 
 template <class T>
-void Queue<T>::removeAll(bsl::vector<T> *buffer)
+void bdlc::Queue<T>::removeAll(bsl::vector<T> *buffer)
 {
     d_front = (d_front + 1) % d_size;
 
@@ -1804,7 +1804,7 @@ void Queue<T>::removeAll(bsl::vector<T> *buffer)
 }
 
 template <class T>
-void Queue<T>::replace(int dstIndex, const T& itemTmp)
+void bdlc::Queue<T>::replace(int dstIndex, const T& itemTmp)
 {
     T item(itemTmp);  // TBD hack for aliased case
 
@@ -1815,10 +1815,10 @@ void Queue<T>::replace(int dstIndex, const T& itemTmp)
 }
 
 template <class T>
-void Queue<T>::replace(int                     dstIndex,
-                               const Queue<T>& srcQueue,
-                               int                  srcIndex,
-                               int                  numElements)
+void bdlc::Queue<T>::replace(int          dstIndex,
+                             const Queue& srcQueue,
+                             int          srcIndex,
+                             int          numElements)
 {
     // TBD need placement new
 
@@ -1851,7 +1851,7 @@ void Queue<T>::replace(int                     dstIndex,
 }
 
 template <class T>
-void Queue<T>::reserveCapacity(int numElements)
+void bdlc::Queue<T>::reserveCapacity(int numElements)
 {
     const int newSize = calculateSufficientSize(numElements, d_size);
     if (d_size < newSize) {
@@ -1873,9 +1873,9 @@ void Queue<T>::reserveCapacity(int numElements)
 }
 
 template <class T>
-void Queue<T>::reserveCapacityRaw(int numElements)
+void bdlc::Queue<T>::reserveCapacityRaw(int numElements)
 {
-    const int newSize = numElements + BDEC_EXTRA_CAPACITY; // to hold the
+    const int newSize = numElements + BDLC_EXTRA_CAPACITY; // to hold the
                                                            // front/back
                                                            // positions
     if (d_size < newSize) {
@@ -1889,9 +1889,9 @@ void Queue<T>::reserveCapacityRaw(int numElements)
 }
 
 template <class T>
-void Queue<T>::setLength(int newLength)
+void bdlc::Queue<T>::setLength(int newLength)
 {
-    const int newSize = newLength + BDEC_EXTRA_CAPACITY;  // to hold the
+    const int newSize = newLength + BDLC_EXTRA_CAPACITY;  // to hold the
                                                           // front/back
                                                           // positions
     if (d_size < newSize) {
@@ -1930,9 +1930,9 @@ void Queue<T>::setLength(int newLength)
 }
 
 template <class T>
-void Queue<T>::setLength(int newLength, const T& initialValue)
+void bdlc::Queue<T>::setLength(int newLength, const T& initialValue)
 {
-    const int newSize = newLength + BDEC_EXTRA_CAPACITY; // to hold the empty
+    const int newSize = newLength + BDLC_EXTRA_CAPACITY; // to hold the empty
                                                     // positions
     if (d_size < newSize) {
         d_size = increaseSizeImp(&d_array_p,
@@ -1969,9 +1969,9 @@ void Queue<T>::setLength(int newLength, const T& initialValue)
 }
 
 template <class T>
-void Queue<T>::setLengthRaw(int newLength)
+void bdlc::Queue<T>::setLengthRaw(int newLength)
 {
-    const int newSize = newLength + BDEC_EXTRA_CAPACITY; // to hold the empty
+    const int newSize = newLength + BDLC_EXTRA_CAPACITY; // to hold the empty
                                                          // positions
     if (d_size < newSize) {
         d_size = increaseSizeImp(&d_array_p,
@@ -1986,7 +1986,7 @@ void Queue<T>::setLengthRaw(int newLength)
 
 template <class T>
 template <class STREAM>
-STREAM& Queue<T>::bdexStreamIn(STREAM& stream, int version)
+STREAM& bdlc::Queue<T>::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
@@ -2021,7 +2021,7 @@ STREAM& Queue<T>::bdexStreamIn(STREAM& stream, int version)
 }
 
 template <class T>
-void Queue<T>::swap(int index1, int index2)
+void bdlc::Queue<T>::swap(int index1, int index2)
 {
     if (index1 != index2) {
         const int tmp = d_front + 1;
@@ -2039,29 +2039,29 @@ void Queue<T>::swap(int index1, int index2)
 // ACCESSORS
 template <class T>
 inline
-const T& Queue<T>::operator[](int index) const
+const T& bdlc::Queue<T>::operator[](int index) const
 {
     return d_array_p[(index + d_front + 1) % d_size];
 }
 
 template <class T>
 inline
-const T& Queue<T>::back() const
+const T& bdlc::Queue<T>::back() const
 {
     return d_array_p[(d_back - 1 + d_size) % d_size];
 }
 
 template <class T>
 inline
-const T& Queue<T>::front() const
+const T& bdlc::Queue<T>::front() const
 {
     return d_array_p[(d_front + 1) % d_size];
 }
 
 template <class T>
-bsl::ostream& Queue<T>::print(bsl::ostream& stream,
-                                   int           level,
-                                   int           spacesPerLevel) const
+bsl::ostream& bdlc::Queue<T>::print(bsl::ostream& stream,
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     if (level < 0) {
         level = -level;
@@ -2100,7 +2100,7 @@ bsl::ostream& Queue<T>::print(bsl::ostream& stream,
 
 template <class T>
 template <class STREAM>
-STREAM& Queue<T>::bdexStreamOut(STREAM& stream, int version) const
+STREAM& bdlc::Queue<T>::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
@@ -2119,7 +2119,6 @@ STREAM& Queue<T>::bdexStreamOut(STREAM& stream, int version) const
     }
     return stream;
 }
-}  // close package namespace
 
 // FREE OPERATORS
 template <class T>
@@ -2159,10 +2158,17 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const Queue<T>& queue)
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
