@@ -156,6 +156,7 @@ struct Socks5Session : public btlmt::Session {
     template<typename MSG>
     int readMessage(void (Socks5Session::*func)(const MSG *data,
                                                 int        length,
+                                                int       *consumed,
                                                 int       *numNeeded));
         // Queue up reading a message of the specified type 'MSG', and arrange
         // to invoke the specified 'func' when it's received.
@@ -167,6 +168,7 @@ struct Socks5Session : public btlmt::Session {
                        int           channelId,
                        void (Socks5Session::*func)(const MSG *data,
                                                    int        length,
+                                                   int       *consumed,
                                                    int       *numNeeded));
         // If the specified 'result' is 'BTEMT_SUCCESS' invoke the specified
         // 'func' passing it the data from the specified 'msg' as the specified
@@ -180,11 +182,13 @@ struct Socks5Session : public btlmt::Session {
 
     void readIgnore(const unsigned char *data,
                           int            length,
+                          int           *consumed,
                           int           *needed);
         // Keep reading and discarding input from the client.
 
     void readMethods(const Socks5MethodRequestHeader *data,
                      int                              length,
+                     int                             *consumed,
                      int                             *needed);
         // TBD: consumed doc
         // Read a SOCKS5 Method Request represented by the specified 'data'
@@ -193,6 +197,7 @@ struct Socks5Session : public btlmt::Session {
 
     void readCredentials(const Socks5CredentialsHeader *data,
                          int                            length,
+                         int                           *consumed,
                          int                           *needed);
         // Read and validate a SOCKS5 Username/Password authentication request
         // represented by the specified 'data' with the specified 'length', and
@@ -200,6 +205,7 @@ struct Socks5Session : public btlmt::Session {
 
     void readConnect(const Socks5ConnectBase *data,
                      int                      length,
+                     int                     *consumed,
                      int                     *needed);
         // Read, validate, and process the SOCKS5 connection request
         // represented by the specified 'data' with the specified 'length', and
@@ -350,6 +356,7 @@ template<typename MSG>
 int Socks5Session::readMessage(
     void (Socks5Session::*func)(const MSG *data,
                                 int        length,
+                                int       *consumed,
                                 int       *numNeeded))
 {
     using namespace bdlf::PlaceHolders;
@@ -374,15 +381,24 @@ void Socks5Session::readMessageCb(int           result,
                                   void (Socks5Session::*func)(
                                                         const MSG *data,
                                                         int        length,
+                                                        int       *consumed,
                                                         int       *numNeeded))
 {
     if (btlmt::AsyncChannel::BTEMT_SUCCESS == result) {
         const int length = msg->length();
         bsl::string buf(length, '\0');
         bdlmca::BlobUtil::copy(&buf[0], *msg, 0, length);
-        (this->*func)(reinterpret_cast<MSG *>(&buf[0]), length, needed);
+
+        int consumed = 0;
+        (this->*func)(reinterpret_cast<MSG *>(&buf[0]),
+                      length,
+                      &consumed,
+                      needed);
+
         LOG_TRACE << "read " << length << " bytes"
-                  << ", needed " << *needed;
+                  << ", needed " << *needed <<", consumed " << consumed;
+
+        bdlmca::BlobUtil::erase(msg, 0, consumed);
     } else {
         LOG_ERROR << "async read failed, result " << result;
         stop();
@@ -440,15 +456,18 @@ int Socks5Session::clientWrite(const char *buf, int length)
 
 void Socks5Session::readIgnore(const unsigned char *data,
                                int                  length,
+                               int                 *consumed,
                                int                 *needed)
 {
     UNUSED(data);
     UNUSED(length);
+    *consumed = 1;
     *needed = 1;  // keep reading one byte at a time
 }
 
 void Socks5Session::readMethods(const Socks5MethodRequestHeader *data,
                                 int                              length,
+                                int                             *consumed,
                                 int                             *needed)
 {
     BSLS_ASSERT(5 == data->d_version);
@@ -458,6 +477,7 @@ void Socks5Session::readMethods(const Socks5MethodRequestHeader *data,
         return;                                                       // RETURN
     }
     *needed = 0;
+    *consumed = sizeof(*data) + data->d_numMethods;
 
     LOG_DEBUG << "method request: version " << (int) data->d_version
               << ", " << (int) data->d_numMethods << " methods:";
@@ -494,6 +514,7 @@ void Socks5Session::readMethods(const Socks5MethodRequestHeader *data,
 
 void Socks5Session::readCredentials(const Socks5CredentialsHeader *data,
                                     int                            length,
+                                    int                           *consumed,
                                     int                           *needed)
 {
     const int ulen = data->d_usernameLength;
@@ -519,6 +540,7 @@ void Socks5Session::readCredentials(const Socks5CredentialsHeader *data,
     }
 
     *needed = 0;
+    *consumed = sizeof(*data) + ulen + 1 + plen;
     
     bsl::string username((const char *) ubuf, ulen, d_allocator_p);
     bsl::string password(reinterpret_cast<const char *>(ubuf + ulen + 1),
@@ -548,6 +570,7 @@ void Socks5Session::readCredentials(const Socks5CredentialsHeader *data,
 
 void Socks5Session::readConnect(const Socks5ConnectBase *data,
                                 int                      length,
+                                int                     *consumed,
                                 int                     *needed)
 {
     LOG_DEBUG << "Read ConnectBase"
@@ -579,6 +602,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
             return;                                                   // RETURN
         }
         *needed = 0;
+        *consumed = sizeof(*data) + sizeof(Socks5ConnectBody1);
 
         const Socks5ConnectBody1&
             body1 = *reinterpret_cast<const Socks5ConnectBody1 *>(data + 1);
@@ -607,6 +631,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
             return;                                                   // RETURN
         }
         *needed = 0;
+        *consumed = sizeof(*data) + 1 + hostLen + 2;
 
         const char *hostBuffer = reinterpret_cast<const char *>(data + 1) + 1;
         bdlb::BigEndianInt16 port;
@@ -683,6 +708,7 @@ void Socks5Session::readProxy(int           result,
             stop();
         }
         else {
+            bdlmca::BlobUtil::erase(msg, 0, length);
             *needed = 1;
         }
     }

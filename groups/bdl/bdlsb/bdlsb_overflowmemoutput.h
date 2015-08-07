@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an overflowable output 'streambuf' using a client buffer.
 //
 //@CLASSES:
-// bdlsb::OverflowMemOutput: overflowable output 'streambuf' using client memory
+// bdlsb::OverflowMemOutput: overflowable output 'streambuf' using client
+// memory
 //
 //@AUTHOR: Guillaume Morin (gmorin1), Robert Day (rday7)
 //
@@ -28,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlsb_overflowmemoutstreambuf' is that the class 'bdlsb::OverflowMemOutput'
 // does *not* derive from 'bsl::streambuf' and does not support locales.
 // Nevertheless, method names correspond to the protocol-specified method
-// names; refer/to the C++ Standard, Sect. 27.5.2, for a full specification of
+// names; refer/to the C++ Standard, Sect.  27.5.2, for a full specification of
 // the 'bsl::basic_streambuf' interface.
 //
 ///Overflow Buffer
@@ -49,17 +50,147 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // Stream buffers are designed to decouple device handling from content
 // formatting, providing the requisite device handling and possible buffering
-// services, and leaving the formatting to the client stream.  The standard
-// C++ IOStreams library further partitions streaming into input streaming and
+// services, and leaving the formatting to the client stream.  The standard C++
+// IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
 // layer and the stream buffer layer.  The BDE streaming library for 'bdex',
 // including all of 'bdesb', follows this model.
 //
 ///Usage
 ///-----
-// See the 'bdlsb_overflowmemoutstreambuf' component for an identical usage
-// example, where every occurrence of 'bdlsb::OverflowMemOutStreamBuf' can be
-// substituted for 'bdlsb::OverflowMemOutput'.
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
+// character data that passes through its management.  (To simplify the
+// example, we do not include the functions for streaming non-character data.)
+//..
+//  // my_capitalizingstream.h
+//
+//  class my_CapitalizingStream {
+//      // This class capitalizes character data....
+//
+//      // PRIVATE TYPES
+//      enum { k_STREAMBUF_CAPACITY = 10 };
+//
+//      // DATA
+//      char                     *d_buffer;      // initial buffer (owned)
+//      bdlsb::OverflowMemOutput *d_streamBuf;   // stream buffer (owned)
+//      bslma::Allocator         *d_allocator_p; // allocator (held, not owned)
+//
+//      // FRIENDS
+//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                               const bsl::string&     data);
+//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                               const char            *data);
+//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                               char                   data);
+//    public:
+//      // TRAITS
+//      BSLALG_DECLARE_NESTED_TRAITS(my_CapitalizingStream,
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//
+//      // CREATORS
+//      my_CapitalizingStream(bslma::Allocator *allocator = 0);
+//          // Create a stream that capitalizes everything.
+//
+//      ~my_CapitalizingStream();
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      const bdlsb::OverflowMemOutput *streamBuf() {
+//          return d_streamBuf;
+//      }
+//          // Return the stream buffer used by this stream.  Note that this
+//          // function is for debugging only.
+//  };
+//
+//  // FREE OPERATORS
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    const bsl::string&      data);
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    const char             *data);
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    char                    data);
+//      // Write the specified 'data' in capitalized form to the
+//      // specified 'stream'....
+//..
+// As is typical, the streaming operators are made friends of the class.  We
+// use the 'transform' algorithm to convert all string characters to upper-
+// case.
+//..
+//  // my_capitalizingstream.cpp
+//  #include <bsl_algorithm.h>
+//
+//  my_CapitalizingStream::my_CapitalizingStream(
+//                                            bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      d_buffer = reinterpret_cast<char*>(
+//                              d_allocator_p->allocate(k_STREAMBUF_CAPACITY));
+//
+//      d_streamBuf = new(*d_allocator_p) bdlsb::OverflowMemOutput(
+//                                                        d_buffer,
+//                                                        k_STREAMBUF_CAPACITY,
+//                                                        d_allocator_p);
+//  }
+//
+//  my_CapitalizingStream::~my_CapitalizingStream()
+//  {
+//      d_allocator_p->deleteObjectRaw(d_streamBuf);
+//      d_allocator_p->deleteObjectRaw(d_buffer);
+//  }
+//
+//  // FREE OPERATORS
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                    const bsl::string&     data)
+//  {
+//      bsl::string tmp(data);
+//      bsl::transform(tmp.begin(),
+//                     tmp.end(),
+//                     tmp.begin(),
+//                     (int(*)(int))bsl::toupper);
+//      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
+//      return stream;
+//  }
+//
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    const char             *data)
+//  {
+//      bsl::string tmp(data);
+//      bsl::transform(tmp.begin(),
+//                     tmp.end(),
+//                     tmp.begin(),
+//                     (int(*)(int))bsl::toupper);
+//      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
+//      return stream;
+//  }
+//
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                    char                   data)
+//  {
+//       stream.d_streamBuf->sputc(bsl::toupper(data));
+//       stream.d_streamBuf->pubsync();
+//       return stream;
+//  }
+//..
+// Given the above two functions, we can now write 'main', as follows:
+//..
+//  bslma::TestAllocator allocator;
+//
+//  {
+//      my_CapitalizingStream cs(&allocator);
+//      cs << "Hello" << ' ' << "world." << '\0';
+//
+//      assert(10 == cs.streamBuf()->dataLengthInInitialBuffer());
+//      assert(0 == strncmp("HELLO WORL", cs.streamBuf()->initialBuffer(),
+//                          cs.streamBuf()->dataLengthInInitialBuffer()));
+//      assert(3 == cs.streamBuf()->dataLengthInOverflowBuffer());
+//      assert(0 == strncmp("D.", cs.streamBuf()->overflowBuffer(),
+//                          cs.streamBuf()->dataLengthInOverflowBuffer()));
+//  }
+//
+//  ASSERT(0 <  allocator.numAllocations());
+//  ASSERT(0 == allocator.numBytesInUse());
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -86,22 +217,21 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlsb {
-                       // =============================
-                       // class OverflowMemOutput
-                       // =============================
+
+                         // =======================
+                         // class OverflowMemOutput
+                         // =======================
 
 class OverflowMemOutput {
     // This class, like 'OverflowMemOutStreamBuf', implements the output
     // functionality of the 'bsl::basic_streambuf' interface, using a
     // client-supplied buffer and client-supplied allocator if additional
     // memory is needed.  It has an interface similar to
-    // 'OverflowMemOutStreamBuf' but does *not* inherit from
-    // 'bsl::streambuf'.  Thus, it is suitable for use as template parameter to
-    // 'bdlxxxx::GenericByteOutStream' (but not to 'bdlxxxx::ByteOutStream' or
-    // 'bdlxxxx::ByteOutStreamFormatter').  Note that this class is not designed to
-    // be derived from.
+    // 'OverflowMemOutStreamBuf' but does *not* inherit from 'bsl::streambuf'.
+    // Thus, it is suitable for use as template parameter to
+    // 'bslx::GenericOutStream' (but not to 'bslx::StreamBufOutStream').  Note
+    // that this class is not designed to be derived from.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;
@@ -152,7 +282,7 @@ class OverflowMemOutput {
                             bslma::Allocator *basicAllocator = 0);
         // Create an empty stream buffer that uses the specified 'buffer' as an
         // initial output buffer of the specified 'length' (in bytes).
-        // Optionally specify a 'basicAllocator' used to supply memory.   If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Note that this stream buffer does not assume ownership of
         // 'buffer'.
@@ -182,14 +312,13 @@ class OverflowMemOutput {
         // otherwise.  Note that 'offset' may be negative.  Also note that this
         // method will fail if 'mode & bsl::ios_base::in' is not 0.
 
-    bsl::streampos pubseekpos(bsl::streampos     position,
-                              ios_base::openmode mode = bsl::ios_base::in
-                                                      | bsl::ios_base::out);
+    bsl::streampos pubseekpos(
+             bsl::streampos     position,
+             ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out);
         // Set the location from which the next I/O operation indicated by the
-        // specified 'mode' will occur to the specified 'position'.
-        // Return 'position' on success, and 'bsl::streampos(-1)' otherwise.
-        // Note that this method will fail if 'mode & bsl::ios_base::in' is not
-        // 0.
+        // specified 'mode' will occur to the specified 'position'.  Return
+        // 'position' on success, and 'bsl::streampos(-1)' otherwise.  Note
+        // that this method will fail if 'mode & bsl::ios_base::in' is not 0.
 
     int pubsync();
         // Synchronize this stream buffer.
@@ -264,12 +393,12 @@ class OverflowMemOutput {
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                       // -----------------------------
-                       // class OverflowMemOutput
-                       // -----------------------------
+                         // -----------------------
+                         // class OverflowMemOutput
+                         // -----------------------
 
 // CREATORS
 inline
@@ -286,9 +415,8 @@ bsl::streambuf *OverflowMemOutput::pubsetbuf(char *, bsl::streamsize)
 }
 
 inline
-bsl::streampos OverflowMemOutput::pubseekpos(
-                                              bsl::streampos          position,
-                                              bsl::ios_base::openmode which)
+bsl::streampos OverflowMemOutput::pubseekpos(bsl::streampos          position,
+                                             bsl::ios_base::openmode which)
 {
     return pubseekoff(bsl::streamoff(position), bsl::ios_base::beg, which);
 }
@@ -385,15 +513,22 @@ int OverflowMemOutput::initialBufferSize() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

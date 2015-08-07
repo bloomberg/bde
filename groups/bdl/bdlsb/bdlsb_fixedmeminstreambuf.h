@@ -31,21 +31,21 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // Stream buffers are designed to decouple device handling from content
 // formatting, providing the requisite device handling and possible buffering
-// services, and leaving the formatting to the client stream.  The standard
-// C++ IOStreams library further partitions streaming into input streaming and
+// services, and leaving the formatting to the client stream.  The standard C++
+// IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
 // layer and the stream buffer layer.  The BDE streaming library for 'bdex',
 // including all of 'bdesb', follows this model.
 //
 ///Usage Example
 ///-------------
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream that breaks up space-delimited strings into individual words.  It
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream that breaks up space-delimited strings into individual words.  It
 // thus gives the clients the ability to read one (English) word at a time,
 // using a natural streaming interface.
 //
-// This example is deliberately simple, and does not check for multiple
-// spaces between words, nor other possible error inputs.
+// This example is deliberately simple, and does not check for multiple spaces
+// between words, nor other possible error inputs.
 //..
 // // my_wordstreamer.h
 //
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //     // This class tokenizes white-space delimited input into distinct
 //     // words.
 //
-//    enum { LINE_SIZE_REQUEST = 512 };
+//    enum { k_LINE_SIZE_REQUEST = 512 };
 //
 //    basic_streambuf<char, char_traits<char> > *d_streamBuf;
 //                                              // buffer to read from
@@ -88,9 +88,9 @@ BSLS_IDENT("$Id: $")
 //                       basic_streambuf<char, char_traits<char> > *streamBuf)
 //  : d_streamBuf(streamBuf)
 //  , d_cursor(0)
-//  , d_currentLine(new char[LINE_SIZE_REQUEST])
+//  , d_currentLine(new char[k_LINE_SIZE_REQUEST])
 // {
-//     d_lineLength = streamBuf->sgetn(d_currentLine, LINE_SIZE_REQUEST);
+//     d_lineLength = streamBuf->sgetn(d_currentLine, k_LINE_SIZE_REQUEST);
 // }
 //
 // my_WordStreamer::~my_WordStreamer()
@@ -118,24 +118,24 @@ BSLS_IDENT("$Id: $")
 // Note that if a 'bdlsb::FixedMemInStreamBuf' is the underlying character
 // source for the 'WordStreamer', once it has read past the number of
 // characters contained by the stream buffer, no replenishment is possible.
-// However, if the initial 'LINE_SIZE_REQUEST' is smaller than the number
-// of characters stored by the buffer, repeated requests can succeed (until
-// the character store is exhausted); furthermore, when using other stream
-// buffers, replenishment may be possible.
+// However, if the initial 'k_LINE_SIZE_REQUEST' is smaller than the number of
+// characters stored by the buffer, repeated requests can succeed (until the
+// character store is exhausted); furthermore, when using other stream buffers,
+// replenishment may be possible.
 //..
 //     // No word in existing buffer.  See if we can replenish/add.
 //     word.assign(&(stream.d_currentLine[stream.d_cursor]),
 //                stream.d_lineLength - stream.d_cursor); // copy over existing
-//     while(1) {
+//     while (1) {
 //         stream.d_lineLength = stream.d_streamBuf->sgetn(
-//                             stream.d_currentLine, stream.LINE_SIZE_REQUEST);
+//                           stream.d_currentLine, stream.k_LINE_SIZE_REQUEST);
 //         stream.d_cursor = 0;
 //         if (0 == stream.d_lineLength) {
 //             word.clear();
 //             return stream;
 //         }
 //
-//         for(int i = 0; i < stream.d_lineLength; ++i) {
+//         for (int i = 0; i < stream.d_lineLength; ++i) {
 //
 //             // Found the word.  Copy & exit.
 //             if (' ' == stream.d_currentLine[i]) {
@@ -221,11 +221,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlsb {
-                       // ===============================
-                       // class FixedMemInStreamBuf
-                       // ===============================
+
+                        // =========================
+                        // class FixedMemInStreamBuf
+                        // =========================
 
 class FixedMemInStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
@@ -274,8 +274,8 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // be next read if 'which' includes the flag 'bsl::ios_base::in', and
         // 'char_traits<char>::pos_type(char_traits<char>::off_type(-1))'
         // otherwise.  'offset' may be negative.  If 'which' includes the flag
-        // 'bsl::ios_base::in' then the behavior is undefined unless
-        // 0 <= 'fixedPosition' + 'offset' < length().
+        // 'bsl::ios_base::in' then the behavior is undefined unless 0 <=
+        // 'fixedPosition' + 'offset' < length().
 
     virtual pos_type seekpos(
                             pos_type                offset,
@@ -288,10 +288,8 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // otherwise.  If 'which' includes the flag 'bsl::ios_base::in' then
         // the behavior is undefined unless 0 <= 'position' < length().
 
-    FixedMemInStreamBuf *setbuf(const char      *buffer,
-                                      bsl::streamsize  length);
-    FixedMemInStreamBuf *setbuf(char            *buffer,
-                                      bsl::streamsize  length);
+    FixedMemInStreamBuf *setbuf(const char *buffer, bsl::streamsize length);
+    FixedMemInStreamBuf *setbuf(char *buffer, bsl::streamsize length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
         // modifiable stream buffer.  Upon reinitialization for use of the new
@@ -299,8 +297,8 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // preserved.  Note that 'buffer' is held but not owned.
 
     virtual bsl::streamsize showmanyc();
-        // Return the number of characters currently available for reading
-        // from this stream buffer, or -1 if there are none.
+        // Return the number of characters currently available for reading from
+        // this stream buffer, or -1 if there are none.
 
     virtual bsl::streamsize xsgetn(char_type       *destination,
                                    bsl::streamsize  numChars);
@@ -311,18 +309,16 @@ class FixedMemInStreamBuf : public bsl::streambuf {
   public:
     // CREATORS
     FixedMemInStreamBuf(const char *buffer, bsl::streamsize length);
-        // Create a 'FixedMemInStreamBuf' using the specified 'buffer'
-        // of the specified 'length'.  The behavior is undefined unless
-        // '0 < length'.
+        // Create a 'FixedMemInStreamBuf' using the specified 'buffer' of the
+        // specified 'length'.  The behavior is undefined unless '0 < length'.
 
     ~FixedMemInStreamBuf();
         // Destroy this stream buffer.
 
     // MANIPULATORS
-    FixedMemInStreamBuf *pubsetbuf(char            *buffer,
-                                         bsl::streamsize  length);
+    FixedMemInStreamBuf *pubsetbuf(char *buffer, bsl::streamsize length);
     virtual FixedMemInStreamBuf *pubsetbuf(const char      *buffer,
-                                                 bsl::streamsize  length);
+                                           bsl::streamsize  length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
         // modifiable stream buffer.  Upon reinitialization for use of the new
@@ -338,20 +334,19 @@ class FixedMemInStreamBuf : public bsl::streambuf {
         // Return the number of characters available in this stream buffer.
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
-                       // -------------------------------
-                       // class FixedMemInStreamBuf
-                       // -------------------------------
+                        // -------------------------
+                        // class FixedMemInStreamBuf
+                        // -------------------------
 
 // PROTECTED MANIPULATORS
 // coverity[bad_override]
 inline
-FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(
-                                                       char            *buffer,
-                                                       bsl::streamsize  length)
+FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(char            *buffer,
+                                                 bsl::streamsize  length)
 
 {
     BSLS_ASSERT_SAFE(buffer || 0 == length);
@@ -459,11 +454,18 @@ bsl::streamsize FixedMemInStreamBuf::length() const
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
