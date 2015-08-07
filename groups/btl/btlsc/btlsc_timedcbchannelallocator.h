@@ -153,30 +153,31 @@ BSLS_IDENT("$Id: $")
 //      my_Tick(const char *ticker, double bestBid, double bestOffer);
 //      ~my_Tick() { assert (d_bestBid > 0); };
 //
-//      static int maxSupportedBdexVersion() { return 1; }
-//      static int maxSupportedVersion() { return maxSupportedBdexVersion(); }
+//      static int maxSupportedBdexVersion(int versionSelector) { return 1; }
 //
 //      template <class STREAM>
 //      STREAM& bdexStreamOut(STREAM& stream, int version) const;
-//          // Write this 'my_Tick' to the specified output 'stream' formatted
-//          // in the specified 'version' and return a reference to the
-//          // modifiable 'stream'.  If 'version' is not supported, 'stream'
-//          // is unmodified.  Note that the 'version' is not written to the
-//          // stream.  See the package group level documentation for more
-//          // information on 'bdex' streaming of container types.
+//          // Write this value to the specified output 'stream' using the
+//          // specified 'version' format, and return a reference to 'stream'.
+//          // If 'stream' is initially invalid, this operation has no effect.
+//          // If 'version' is not supported, 'stream' is invalidated but
+//          // otherwise unmodified.  Note that 'version' is not written to
+//          // 'stream'.  See the 'bslx' package-level documentation for more
+//          // information on BDEX streaming of value-semantic types and
+//          // containers.
 //
 //      template <class STREAM>
 //      STREAM& bdexStreamIn(STREAM& stream, int version);
 //          // Assign to this object the value read from the specified input
-//          // 'stream' using the specified 'version' and return a reference
-//          // to the modifiable 'stream'.  If 'stream' is initially invalid,
-//          // the operation has no effect.  If 'stream' becomes invalid
-//          // during this operation, this object is valid, but its value is
-//          // undefined.  If the specified 'version' isn't supported,
-//          // 'stream' is marked invalid, but this object is unaltered.
-//          // Note that no version is read from 'stream'.  (See the
-//          // package-group-level documentation for more information on
-//          // 'bdex' streaming of container types.)
+//          // 'stream' using the specified 'version' format, and return a
+//          // reference to 'stream'.  If 'stream' is initially invalid, this
+//          // operation has no effect.  If 'version' is not supported, this
+//          // object is unaltered and 'stream' is invalidated but otherwise
+//          // unmodified.  If 'version' is supported but 'stream' becomes
+//          // invalid during this operation, this object has an undefined, but
+//          // valid, state.  Note that no version is read from 'stream'.  See
+//          // the 'bslx' package-level documentation for more information on
+//          // BDEX streaming of value-semantic types and containers.
 //
 //      void print(bsl::ostream& stream) const;
 //  };
@@ -228,6 +229,9 @@ BSLS_IDENT("$Id: $")
 //          stream.putFloat64(d_bestBid);
 //          stream.putFloat64(d_bestOffer);
 //        } break;
+//        default: {
+//          stream.invalidate();
+//        } break;
 //      }
 //      return stream;
 //  }
@@ -251,6 +255,9 @@ BSLS_IDENT("$Id: $")
 //            stream.getFloat64(d_bestBid);
 //            stream.getFloat64(d_bestOffer);
 //        } break;
+//        default: {
+//          stream.invalidate();
+//        } break;
 //      }
 //      return stream;
 //  }
@@ -261,12 +268,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
 //      // Print the value of the specified 'buffer' interpreted as a
-//      // 'bdex' byte-stream representation of a 'my_Tick' value, to the
+//      // BDEX byte-stream representation of a 'my_Tick' value, to the
 //      // specified 'stream' or report an error to 'stream' if 'buffer' is
 //      // determined *not* to hold an encoding of a valid 'my_Tick' value.
 //  {
 //      my_Tick tick;
-//      bdlxxxx::ByteInStream input(buffer, len);
+//      bslx::ByteInStream input(buffer, len);
 //      input >> tick;
 //
 //      stream << tick;
@@ -338,6 +345,7 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this server object.
 //  };
 //
+//  #define VERSION_SELECTOR 20140601
 //
 //  const double ACCEPT_TIME_LIMIT = 300;               // 5 minutes
 //  const double   READ_TIME_LIMIT =  60;               // 1 minutes
@@ -349,15 +357,14 @@ BSLS_IDENT("$Id: $")
 //      double bid = 0, offer = 0;
 //      my_Tick dummy("dummy", bid, offer);
 //
-//      //typedef bdlxxxx::ByteOutSTREAM bdlxxxx::ByteOutStream;
-//      bdlxxxx::ByteOutStream bos;
+//      bslx::ByteOutStream bos(VERSION_SELECTOR);
 //      bos << dummy;
 //
 //      return bos.length();
 //  }
 //
 //  static int myTickMessageSize()
-//      // Return the number of bytes in a 'bdex' byte-stream encoding
+//      // Return the number of bytes in a BDEX byte-stream encoding
 //      // of a 'my_Tick' value without creating a runtime-initialized
 //      // file-scope static variable (which is link-order dependent).
 //  {
@@ -703,7 +710,7 @@ BSLS_IDENT("$Id: $")
 //                            ticks[i % NUM_TICKS].d_bestBid,
 //                            ticks[i % NUM_TICKS].d_bestOffer);
 //
-//               bdlxxxx::ByteOutStream bos;
+//               bslx::ByteOutStream bos(VERSION_SELECTOR);
 //               bos << tick;
 //               int msgSize = bos.length();
 //

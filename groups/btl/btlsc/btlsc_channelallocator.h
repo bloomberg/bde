@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 // neutral encodings of type 'my_Tick':
 //..
 //  static int calculateMyTickMessageSize()
-//      // Calculate and return the number of bytes in a 'bdex' byte-stream
+//      // Calculate and return the number of bytes in a BDEX byte-stream
 //      // encoding of a (dummy) 'my_Tick' value (called just once, see below).
 //  {
 //      my_Tick dummy;
@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  static int myTickMessageSize()
-//      // Return the number of bytes in a 'bdex' byte-stream encoding
+//      // Return the number of bytes in a BDEX byte-stream encoding
 //      // of a 'my_Tick' value without creating a runtime-initialized
 //      // file-scope static variable (which is link-order dependent).
 //  {
@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //
 //  static void myPrintTick(bsl::ostream& stream, const char *buffer);
 //      // Print the value of the specified 'buffer' interpreted as a
-//      // 'bdex' byte-stream representation of a 'my_Tick' value to the
+//      // BDEX byte-stream representation of a 'my_Tick' value to the
 //      // specified 'stream' or report an error to 'stream' if 'buffer' is
 //      // determined *not* to hold an encoding of a valid 'my_Tick' value.
 //..
