@@ -10,6 +10,7 @@
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 #include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_deque.h>
 #include <bsl_iostream.h>

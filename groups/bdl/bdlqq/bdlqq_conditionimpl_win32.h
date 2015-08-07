@@ -169,19 +169,19 @@ bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::ConditionImpl(
 }
 
 inline
-bdlqq::ConditionImpl<Pbdlqq::latform::Win32Threads>::~ConditionImpl()
+bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::~ConditionImpl()
 {
 }
 
 // MANIPULATORS
 inline
-void bdlqq::ConditionImpl<Pbdlqq::latform::Win32Threads>::broadcast()
+void bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::broadcast()
 {
     d_waitSluice.signalAll();
 }
 
 inline
-void bdlqq::ConditionImpl<Pbdlqq::latform::Win32Threads>::signal()
+void bdlqq::ConditionImpl<bdlqq::Platform::Win32Threads>::signal()
 {
     d_waitSluice.signalOne();
 }

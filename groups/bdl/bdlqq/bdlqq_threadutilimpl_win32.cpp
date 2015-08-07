@@ -12,6 +12,7 @@ BSLS_IDENT_RCSID(bdlqq_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bdlqq_threadattributes.h>
 
 #include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_cstring.h>  // 'memcpy'
 
@@ -89,9 +90,9 @@ struct ThreadSpecificDestructor {
     // This structure implements a linked list of destructors associated
     // with thread-specific key.
 
-    bdlqq::ThreadUtilImpl<bdlqq:Platform::Win32Threads>::Key  d_key;
-    bcemt_KeyDestructorFunction                               d_destructor;
-    ThreadSpecificDestructor                                 *d_next;
+    bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::Key  d_key;
+    bcemt_KeyDestructorFunction                                d_destructor;
+    ThreadSpecificDestructor                                  *d_next;
 };
 
 struct Win32Initializer {
@@ -135,7 +136,7 @@ static TReturnValueMap                    s_returnValueMap(
                                             bslma::Default::globalAllocator());
 #endif
 
-static bcemt::Win32Initializer   s_initializer;
+static Win32Initializer   s_initializer;
 
 static inline
 int bcemt_threadutil_win32_Initialize()
