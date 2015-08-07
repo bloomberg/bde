@@ -127,12 +127,14 @@ BSLS_IDENT("$Id: $")
 // Let's assume that we have a function that knows how to print platform
 // neutral encodings of type 'my_Tick':
 //..
+//  #define VERSION_SELECTOR 20140601
+//
 //  static int calculateMyTickMessageSize()
 //      // Calculate and return the number of bytes in a BDEX byte-stream
 //      // encoding of a (dummy) 'my_Tick' value (called just once, see below).
 //  {
 //      my_Tick dummy;
-//      bdlxxxx::ByteOutStream bos;
+//      bslx::ByteOutStream bos(VERSION_SELECTOR);
 //      bos << dummy;
 //      return bos.length();
 //  }
@@ -384,7 +386,7 @@ BSLS_IDENT("$Id: $")
 //                            << bsl::endl;
 //              }
 //              else {
-//                  bdlxxxx::ByteOutStream bos;
+//                  bslx::ByteOutStream bos(VERSION_SELECTOR);
 //                  bos << tick;
 //                  int msgSize = bos.length();
 //                  if (0 >= newChannel->timedWrite(bos.data(),
