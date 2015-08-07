@@ -1,4 +1,4 @@
-// bdlsb_overflowmemoutput.t.cpp -*-C++-*-
+// bdlsb_overflowmemoutput.t.cpp                                      -*-C++-*-
 #include <bdlsb_overflowmemoutput.h>
 
 #include <bslalg_typetraits.h>                  // for testing only
@@ -11,13 +11,13 @@
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_iomanip.h>     // setw(), setfill()
+#include <bsl_iomanip.h>     // 'setw', 'setfill'
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_strstream.h>
 #include <bsl_vector.h>
 
-#include <bsl_cctype.h>      // isdigit(), isupper(), islower()
+#include <bsl_cctype.h>      // 'isdigit', 'isupper', 'islower'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -34,11 +34,11 @@ using namespace bsl;  // automatically added by script
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
-// behavior, and that they conform to a feasible interpretation of the
-// standard as described in the function documentation, where the standard
-// defined behavior only loosely.  For those methods that are not protocol
-// defined, we check only compliance with the behavior as described in the
-// function documentation.
+// behavior, and that they conform to a feasible interpretation of the standard
+// as described in the function documentation, where the standard defined
+// behavior only loosely.  For those methods that are not protocol defined, we
+// check only compliance with the behavior as described in the function
+// documentation.
 //
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ---------------------------------------------------------------
@@ -53,12 +53,12 @@ using namespace bsl;  // automatically added by script
 //                              bslma::Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
-//   We can bring a 'bdlsb::OverflowMemOutput' to any achievable white-box state
-//   by using a combination of 'pubseekpos', which allows us to reposition the
-//   "cursor" (i.e., the position that the next write operation will output to)
-//   anywhere in the stream buffer, and 'sputc', which writes a single
-//   character into the stream buffer.  'sputn' is widely used with 'sputc' to
-//   modify the buffer.
+//   We can bring a 'bdlsb::OverflowMemOutput' to any achievable white-box
+//   state by using a combination of 'pubseekpos', which allows us to
+//   reposition the "cursor" (i.e., the position that the next write operation
+//   will output to) anywhere in the stream buffer, and 'sputc', which writes a
+//   single character into the stream buffer.  'sputn' is widely used with
+//   'sputc' to modify the buffer.
 //
 //    o int_type sputc(char_type);
 //    o pos_type pubseekpos(pos_type, ios_base::openmode);
@@ -80,10 +80,10 @@ using namespace bsl;  // automatically added by script
 //     o const char *overflowBuffer() const;
 //     o int overflowBufferSize() const;
 //
-// This class is an out stream and should behave as such.
-// All classes in this component are value-semantic types that represent
-// big-endian integer types.  They have the same value if they have the
-// same in-core big endian representation.
+// This class is an out stream and should behave as such.  All classes in this
+// component are value-semantic types that represent big-endian integer types.
+// They have the same value if they have the same in-core big endian
+// representation.
 //--------------------------------------------------------------------------
 //
 // CLASS METHODS
@@ -190,14 +190,13 @@ const int INITIAL_BUFSIZE = 20;
 const int FIRST_OVER_BUFSIZE = 40;
 const int TOTAL_CAP = INITIAL_BUFSIZE + FIRST_OVER_BUFSIZE;
 
-
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-              // ======================================
-              // operator<< for bdlsb::OverflowMemOutput
-              // ======================================
+                 // =======================================
+                 // operator<< for bdlsb::OverflowMemOutput
+                 // =======================================
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&                  stream,
@@ -243,8 +242,8 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
 //-----------------------------------------------------------------------------
 // Usage
 // -----
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream with simple formatting requirements -- namely, capitalizing all
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
 // character data that passes through its management.  (To simplify the
 // example, we do not include the functions for streaming non-character data.)
 //..
@@ -254,7 +253,7 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
         // This class capitalizes character data....
 
         // PRIVATE TYPES
-        enum { STREAMBUF_CAPACITY = 10 };
+        enum { k_STREAMBUF_CAPACITY = 10 };
 
         // DATA
         char                    *d_buffer;       // initial buffer (owned)
@@ -310,12 +309,12 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
     : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_buffer = reinterpret_cast<char*>(
-                                  d_allocator_p->allocate(STREAMBUF_CAPACITY));
+                                d_allocator_p->allocate(k_STREAMBUF_CAPACITY));
 
         d_streamBuf = new(*d_allocator_p) bdlsb::OverflowMemOutput(
-                                                            d_buffer,
-                                                            STREAMBUF_CAPACITY,
-                                                            d_allocator_p);
+                                                          d_buffer,
+                                                          k_STREAMBUF_CAPACITY,
+                                                          d_allocator_p);
     }
 
     my_CapitalizingStream::~my_CapitalizingStream()
@@ -383,7 +382,6 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
 //..
 // HELLO WORLD.
 //..
-
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -677,21 +675,21 @@ int main(int argc, char *argv[])
             typedef bdlsb::OverflowMemOutput Obj;
             const int EOF_VAL = bsl::streambuf::traits_type::eof();
 
-            enum { BUF_SIZE              = 20 ,
-                   MAGIC_CHAR_SIZE       = 6 };
-            char buffer[BUF_SIZE + MAGIC_CHAR_SIZE];
-            for (int i=0; i < BUF_SIZE + MAGIC_CHAR_SIZE; i++) {
+            enum { k_BUF_SIZE              = 20 ,
+                   k_MAGIC_CHAR_SIZE       = 6 };
+            char buffer[k_BUF_SIZE + k_MAGIC_CHAR_SIZE];
+            for (int i=0; i < k_BUF_SIZE + k_MAGIC_CHAR_SIZE; i++) {
                 buffer[i]='A'+i;
             }
 
-            Obj mX(buffer, BUF_SIZE, &ta);
+            Obj mX(buffer, k_BUF_SIZE, &ta);
 
             // Beginning of initial buffer.
 
             ASSERT((char)EOF_VAL == (char)mX.sputc(EOF_VAL));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(0        == mX.overflowBufferSize());
             ASSERT(0        == mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -707,7 +705,7 @@ int main(int argc, char *argv[])
             ASSERT((char)EOF_VAL == (char)mX.sputc(EOF_VAL));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(0        == mX.overflowBufferSize());
             ASSERT(0        == mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -720,12 +718,12 @@ int main(int argc, char *argv[])
 
             // End of initial buffer.
 
-            mX.pubseekoff(BUF_SIZE-1, bsl::ios_base::beg,
+            mX.pubseekoff(k_BUF_SIZE-1, bsl::ios_base::beg,
                           bsl::ios_base::out);
             ASSERT((char)EOF_VAL == (char)mX.sputc(EOF_VAL));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(0        == mX.overflowBufferSize());
             ASSERT(0        == mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -739,7 +737,7 @@ int main(int argc, char *argv[])
             ASSERT((char)EOF_VAL == (char)mX.sputc(EOF_VAL));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(40       == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -752,7 +750,7 @@ int main(int argc, char *argv[])
             ASSERT((char)EOF_VAL == (char)mX.sputc(EOF_VAL));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(40       == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -762,7 +760,6 @@ int main(int argc, char *argv[])
             ASSERT((char)EOF_VAL  == (char)buffer[19]);
             ASSERT((char)EOF_VAL  == (char)mX.overflowBuffer()[0]);
             ASSERT((char)EOF_VAL  == (char)mX.overflowBuffer()[1]);
-
 
             char source[] = "The only thing that tastes better than free"
                             " liquor is stolen liquor";
@@ -780,7 +777,7 @@ int main(int argc, char *argv[])
             ASSERT(putOut == mX.sputn(source, putOut));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(40       == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -788,7 +785,7 @@ int main(int argc, char *argv[])
             ASSERT(19       == mX.dataLengthInInitialBuffer());
             ASSERT(19       == mX.dataLength());
             ASSERT(0        == strncmp(source, mX.initialBuffer(),
-                                       BUF_SIZE - 1));
+                                       k_BUF_SIZE - 1));
 
             // Write to end of initial buffer.
 
@@ -798,7 +795,7 @@ int main(int argc, char *argv[])
             ASSERT(putOut == mX.sputn(source, putOut));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(40       == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -806,7 +803,7 @@ int main(int argc, char *argv[])
             ASSERT(20       == mX.dataLengthInInitialBuffer());
             ASSERT(20       == mX.dataLength());
             ASSERT(0        == strncmp(source, mX.initialBuffer(),
-                                       BUF_SIZE));
+                                       k_BUF_SIZE));
 
             // Write to first char of overflow buffer triggering expansion.
 
@@ -816,7 +813,7 @@ int main(int argc, char *argv[])
             ASSERT(putOut == mX.sputn(source, putOut));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(40       == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -824,7 +821,7 @@ int main(int argc, char *argv[])
             ASSERT(20       == mX.dataLengthInInitialBuffer());
             ASSERT(21       == mX.dataLength());
             ASSERT(0        == strncmp(source, mX.initialBuffer(),
-                                       BUF_SIZE));
+                                       k_BUF_SIZE));
             ASSERT(0        == strncmp(source + mX.initialBufferSize(),
                                        mX.overflowBuffer(), 1));
 
@@ -839,7 +836,7 @@ int main(int argc, char *argv[])
                                       putOut));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(40       == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -847,7 +844,7 @@ int main(int argc, char *argv[])
             ASSERT(20       == mX.dataLengthInInitialBuffer());
             ASSERT(59       == mX.dataLength());
             ASSERT(0        == strncmp(source, mX.initialBuffer(),
-                                       BUF_SIZE));
+                                       k_BUF_SIZE));
             ASSERT(0        == strncmp(source + mX.initialBufferSize(),
                                        mX.overflowBuffer(),
                                        mX.dataLength()
@@ -864,7 +861,7 @@ int main(int argc, char *argv[])
                                       putOut));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(40       == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -872,7 +869,7 @@ int main(int argc, char *argv[])
             ASSERT(20       == mX.dataLengthInInitialBuffer());
             ASSERT(60       == mX.dataLength());
             ASSERT(0        == strncmp(source, mX.initialBuffer(),
-                                       BUF_SIZE));
+                                       k_BUF_SIZE));
             ASSERT(0        == strncmp(source + mX.initialBufferSize(),
                                        mX.overflowBuffer(),
                                        mX.dataLength()
@@ -890,7 +887,7 @@ int main(int argc, char *argv[])
                                       putOut));
 
             mX.pubsync();
-            ASSERT(BUF_SIZE == mX.initialBufferSize());
+            ASSERT(k_BUF_SIZE == mX.initialBufferSize());
             ASSERT(160      == mX.overflowBufferSize());
             ASSERT(0        != mX.overflowBuffer());
             ASSERT(buffer   == mX.initialBuffer());
@@ -898,7 +895,7 @@ int main(int argc, char *argv[])
             ASSERT(20       == mX.dataLengthInInitialBuffer());
             ASSERT(61       == mX.dataLength());
             ASSERT(0        == strncmp(source, mX.initialBuffer(),
-                                       BUF_SIZE));
+                                       k_BUF_SIZE));
             ASSERT(0        == strncmp(source + mX.initialBufferSize(),
                                        mX.overflowBuffer(),
                                        mX.dataLength()
@@ -1002,8 +999,8 @@ int main(int argc, char *argv[])
                             mSB.sputc('A');
                         }
 
-                        // Test pubseekoff from beginning, while
-                        // currently not at the beginning..
+                        // Test pubseekoff from beginning, while currently not
+                        // at the beginning..
 
                         ret = mSB.pubseekoff(offset, bsl::ios_base::beg,
                                              bsl::ios_base::out);
@@ -1054,8 +1051,8 @@ int main(int argc, char *argv[])
                         int capacity = mSB.initialBufferSize()
                                      + mSB.overflowBufferSize();
 
-                        // Test pubseekoff from end, while
-                        // currently not at the beginning.
+                        // Test pubseekoff from end, while currently not at the
+                        // beginning.
 
                         ret = mSB.pubseekoff(offset,
                                              bsl::ios_base::end,
@@ -1204,16 +1201,16 @@ int main(int argc, char *argv[])
 
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This segment verifies correct behavior across different
-            // initial buffer states (buffer length x buffer contents.)
+            // This segment verifies correct behavior across different initial
+            // buffer states (buffer length x buffer contents.)
 
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
 
                 char *bytes = new char[DATA[i].d_initSize];
                 bdlsb::OverflowMemOutput sb(bytes,
                                            DATA[i].d_initSize, &ta);
-                for(unsigned j = 0; j < strlen(DATA[i].d_initData); ++j ) {
+                for (unsigned j = 0; j < strlen(DATA[i].d_initData); ++j ) {
                     sb.sputc(DATA[i].d_initData[j]);
                 }
                 sb.pubsync();
@@ -1475,7 +1472,7 @@ int main(int argc, char *argv[])
         //     as to address various combinations of the above concerns.
         //
         //   (data and length)
-        //   - Create an empty 'bdlsb::OverflowMemOutput' and verify its length.
+        //   - Create empty 'bdlsb::OverflowMemOutput' and verify its length.
         //   - Add a character, and verify the length and content.
         //   - Add enough characters to use all the initial capacity, and then
         //     verify length and content.
@@ -1527,7 +1524,7 @@ int main(int argc, char *argv[])
             ASSERT(SB.initialBuffer()  == buffer);
             ASSERT(SB.overflowBuffer() == 0);
 
-            if(veryVerbose) P(SB);
+            if (veryVerbose) P(SB);
         }
         if (verbose) cout << "\nTesting sputc." << endl;
         {
@@ -1635,10 +1632,10 @@ int main(int argc, char *argv[])
 
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This segment verifies correct behavior across different
-            // initial buffer states (buffer length x buffer contents.)
+            // This segment verifies correct behavior across different initial
+            // buffer states (buffer length x buffer contents.)
 
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 char *bytes         = new char[DATA[i].d_initSize];
                 bdlsb::OverflowMemOutput mSB(bytes, DATA[i].d_initSize, &ta);
@@ -1685,8 +1682,8 @@ int main(int argc, char *argv[])
                   "\n\tVerifying that overflow does not corrupt the streambuf."
                                    << endl; }
 
-            // Do an extra test to ensure that overflow does not corrupt
-            // the stream.
+            // Do an extra test to ensure that overflow does not corrupt the
+            // stream.
             char buffer[5];
             memset(buffer, 'X', 5);
             bdlsb::OverflowMemOutput x(buffer, 5, &ta);
@@ -1808,7 +1805,7 @@ int main(int argc, char *argv[])
                  ASSERT(0      == ta.numAllocations());
                  ASSERT(0      == ta.numBytesInUse());
 
-                 if(veryVerbose) P(SB);
+                 if (veryVerbose) P(SB);
              }
 
              if (verbose) cout << "\nEnsure that the stream buffer will "
@@ -1938,7 +1935,6 @@ int main(int argc, char *argv[])
                                               + SB.dataLengthInInitialBuffer(),
                                              SB.dataLengthInOverflowBuffer()));
 
-
             if (verbose) { cout <<
                         "\n\tWrite a string (23 chars) to the stream buffer: ";
                            P(SB) }
@@ -1978,11 +1974,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

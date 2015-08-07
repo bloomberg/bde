@@ -1,4 +1,4 @@
-// bdlsb_fixedmemoutstreambuf.t.cpp             -*-C++-*-
+// bdlsb_fixedmemoutstreambuf.t.cpp                                   -*-C++-*-
 
 #include <bdlsb_fixedmemoutstreambuf.h>
 
@@ -20,20 +20,20 @@ using namespace bsl;  // automatically added by script
 //                          *** Overview ***
 //
 // This test driver exercises all the protected virtual methods from the
-// 'basic_streambuf' protocol that are overridden by the derived concrete
-// class 'bdlsb::FixedMemOutStreamBuf', as well as each new (non-protocol)
-// public method added in the 'bdlsb::FixedMemOutStreamBuf' class.
+// 'basic_streambuf' protocol that are overridden by the derived concrete class
+// 'bdlsb::FixedMemOutStreamBuf', as well as each new (non-protocol) public
+// method added in the 'bdlsb::FixedMemOutStreamBuf' class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
-// behavior, and that they conform to a feasible interpretation of the
-// standard as described in the function documentation, where the standard
-// defined behavior only loosely.  For those methods that are not protocol
-// defined, we check only compliance with the behavior as described in the
-// function documentation.
+// behavior, and that they conform to a feasible interpretation of the standard
+// as described in the function documentation, where the standard defined
+// behavior only loosely.  For those methods that are not protocol defined, we
+// check only compliance with the behavior as described in the function
+// documentation.
 //
-// The protected methods (whose implementation or re-implementation define
-// the behavior that differentiates one kind of stream buffer from another) are
+// The protected methods (whose implementation or re-implementation define the
+// behavior that differentiates one kind of stream buffer from another) are
 // "driven", or invoked, by various (base-class) public methods provided for
 // stream-buffer client use.  One recurrent concern in this test driver is to
 // ensure correct interplay between these protected methods and the base-
@@ -186,15 +186,15 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 //-----------------------------------------------------------------------------
 // Usage
 // -----
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream with simple formatting requirements -- namely, capitalizing all
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
 // character data that passes through its management.  (To simplify the
 // example, we do not include the functions for streaming non-character data.)
 //..
  class my_CapitalizingStream {
      // This class capitalizes character data....
 
-     enum { STREAMBUF_CAPACITY = 30 };
+     enum { k_STREAMBUF_CAPACITY = 30 };
 
      char *d_buffer;
      bdlsb::FixedMemOutStreamBuf *d_streamBuf;
@@ -237,9 +237,9 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 
  my_CapitalizingStream::my_CapitalizingStream()
  {
-     d_buffer = new char[STREAMBUF_CAPACITY];
+     d_buffer = new char[k_STREAMBUF_CAPACITY];
      d_streamBuf = new bdlsb::FixedMemOutStreamBuf(d_buffer,
-                                                           STREAMBUF_CAPACITY);
+                                                   k_STREAMBUF_CAPACITY);
  }
 
  my_CapitalizingStream::~my_CapitalizingStream()
@@ -273,6 +273,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
      stream.d_streamBuf->sputc(bsl::toupper(data));
      return stream;
  }
+//..
 
 typedef bsl::ios_base::openmode io_openmode;
 typedef bsl::ios_base::seekdir  io_seekdir;
@@ -317,7 +318,8 @@ int main(int argc, char **argv)
         //
         // Concerns:
         //   That it is possible to initialize an ostream with a
-        //   bdlsb::FixedMemOutStreamBuf and do some output using stream output.
+        //   bdlsb::FixedMemOutStreamBuf and do some output using stream
+        //   output.
         //
         // Plan:
         //   Initialize an ostream with a bdlsb::FixedMemOutStreamBuf, do some
@@ -447,9 +449,9 @@ int main(int argc, char **argv)
                 LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
                 if (veryVerbose) P(ret);
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (FINAL_POS >= INITIAL_BUFSIZE) {
                     continue;
@@ -530,9 +532,9 @@ int main(int argc, char **argv)
                 LOOP_ASSERT(LINE, FINAL_POS == SB.length());
                 LOOP_ASSERT(LINE, 0 == bsl::memcmp(mFILL,buffer,SB.length()));
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (FINAL_POS >= INITIAL_BUFSIZE) {
                     continue;
@@ -615,14 +617,14 @@ int main(int argc, char **argv)
 
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This segment verifies correct behavior across different
-            // initial buffer states (buffer length x buffer contents.)
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            // This segment verifies correct behavior across different initial
+            // buffer states (buffer length x buffer contents.)
+            for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
 
                 char *bytes = new char[DATA[i].d_strCap];
                 bdlsb::FixedMemOutStreamBuf sb(bytes, DATA[i].d_strCap);
-                for(unsigned j = 0; j < strlen(DATA[i].d_initialCont); ++j ) {
+                for (unsigned j = 0; j < strlen(DATA[i].d_initialCont); ++j ) {
                     sb.sputc(DATA[i].d_initialCont[j]);
                 }
                 int retResult = sb.sputn(DATA[i].d_outStr,
@@ -850,7 +852,7 @@ int main(int argc, char **argv)
             ASSERT(0 == SB.length());
             ASSERT(SB.data() == buffer);
 
-            if(veryVerbose) P(SB);
+            if (veryVerbose) P(SB);
         }
 
         if (verbose) cout << "\nTesting sputc." << endl;
@@ -937,9 +939,9 @@ int main(int argc, char **argv)
 
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This segment verifies correct behavior across different
-            // initial buffer states (buffer length x buffer contents.)
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            // This segment verifies correct behavior across different initial
+            // buffer states (buffer length x buffer contents.)
+            for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 char *bytes = new char[DATA[i].d_strCap];
                 bdlsb::FixedMemOutStreamBuf mSB(bytes, DATA[i].d_strCap);
@@ -964,8 +966,8 @@ int main(int argc, char **argv)
                   "\n\tVerifying that overflow does not corrupt the streambuf."
                                    << endl; }
 
-            // Do an extra test to ensure that overflow does not corrupt
-            // the stream
+            // Do an extra test to ensure that overflow does not corrupt the
+            // stream
             char buffer[5];
             memset(buffer, 'X', 5);
             bdlsb::FixedMemOutStreamBuf x(buffer, 5);
@@ -1012,7 +1014,7 @@ int main(int argc, char **argv)
                                             INITIAL_BUFSIZE);
 
                 bdlsb::FixedMemOutStreamBuf::pos_type ret;
-                for(int j = 0; j < INITIAL_BUFSIZE; ++j) {
+                for (int j = 0; j < INITIAL_BUFSIZE; ++j) {
                     mSB.sputc('a');
                 }
 
@@ -1021,9 +1023,9 @@ int main(int argc, char **argv)
                 if (veryVerbose) P(ret)
                 LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (FINAL_POS < 0 || INITIAL_BUFSIZE - 1)
                     continue;
@@ -1091,7 +1093,7 @@ int main(int argc, char **argv)
                  mSB.sputc('a');
                  LOOP_ASSERT(i, 'a' == buffer[i]);
                  LOOP_ASSERT(i, 'Z' == buffer[i + 1]);
-                 if(veryVerbose) P(SB);
+                 if (veryVerbose) P(SB);
              }
 
              if (verbose) cout <<
@@ -1188,11 +1190,18 @@ int main(int argc, char **argv)
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -23,11 +23,11 @@ BSLS_IDENT("$Id: $")
 // 'bdlsb_fixedmemoutput', they can no longer reinitialize the stream buffer
 // with a different character buffer by calling the 'pubsetbuf' method;
 // instead, if that buffer runs out, the 'bdlsb::OverflowMemOutput' will
-// allocate another buffer (see "Overflow Buffer" below).   The only difference
+// allocate another buffer (see "Overflow Buffer" below).  The only difference
 // between this component and 'bdlsb_overflowmemoutput' is that the class
 // 'bdlsb::OverflowMemOutput' *does* derive from a 'bsl::streambuf'.  Method
 // names necessarily correspond to the protocol-specified method names.  Refer
-// to the C++ Standard, Sect. 27.5.2, for a full specification of the
+// to the C++ Standard, Sect.  27.5.2, for a full specification of the
 // 'bsl::basic_streambuf' interface.  This component provides none of the
 // input-related functionality of 'basic_streambuf' (see Streaming
 // Architecture, below), nor does it use locales in any way.
@@ -50,21 +50,21 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // Stream buffers are designed to decouple device handling from content
 // formatting, providing the requisite device handling and possible buffering
-// services, and leaving the formatting to the client stream.  The standard
-// C++ IOStreams library further partitions streaming into input streaming and
+// services, and leaving the formatting to the client stream.  The standard C++
+// IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
 // layer and the stream buffer layer.  The BDE streaming library for 'bdex',
 // including all of 'bdesb', follows this model.
 //
 ///Usage
 ///-----
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream with simple formatting requirements -- namely, capitalizing all
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
 // character data that passes through its management.  (To simplify the
 // example, we do not include the functions for streaming non-character data.)
 //
-// The stream uses a user-supplied 'char'-array-based stream buffer, which
-// is inherently a fixed-size buffer.
+// The stream uses a user-supplied 'char'-array-based stream buffer, which is
+// inherently a fixed-size buffer.
 //..
 //  // my_capitalizingstream.h
 //
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 //      // This class capitalizes character data....
 //
 //      // PRIVATE TYPES
-//      enum { STREAMBUF_CAPACITY = 10 };
+//      enum { k_STREAMBUF_CAPACITY = 10 };
 //
 //      // DATA
 //      char                    *d_buffer;       // initial buffer (owned)
@@ -131,12 +131,12 @@ BSLS_IDENT("$Id: $")
 //  : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      d_buffer = reinterpret_cast<char*>(
-//                                d_allocator_p->allocate(STREAMBUF_CAPACITY));
+//                              d_allocator_p->allocate(k_STREAMBUF_CAPACITY));
 //
 //      d_streamBuf = new(*d_allocator_p) bdlsb::OverflowMemOutput(
-//                                                          d_buffer,
-//                                                          STREAMBUF_CAPACITY,
-//                                                          d_allocator_p);
+//                                                        d_buffer,
+//                                                        k_STREAMBUF_CAPACITY,
+//                                                        d_allocator_p);
 //  }
 //
 //  my_CapitalizingStream::~my_CapitalizingStream()
@@ -217,19 +217,19 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlsb {
-                   // ===================================
-                   // class OverflowMemOutStreamBuf
-                   // ===================================
+
+                      // =============================
+                      // class OverflowMemOutStreamBuf
+                      // =============================
 
 class OverflowMemOutStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the
     // 'bsl::basic_streambuf' protocol, using client-supplied memory and
     // client-supplied allocator if additional memory is needed.  It does
     // derive from 'bsl::streambuf', thus it is suitable for use as template
-    // parameter to 'bdlxxxx::GenericByteOutStream' as well as 'bdlxxxx::ByteOutStream'
-    // or 'bdlxxxx::ByteOutStreamFormatter'.
+    // parameter to 'bdlxxxx::GenericByteOutStream' as well as
+    // 'bdlxxxx::ByteOutStream' or 'bdlxxxx::ByteOutStreamFormatter'.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;
@@ -256,8 +256,7 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
 
     // NOT IMPLEMENTED
     OverflowMemOutStreamBuf(const OverflowMemOutStreamBuf&);
-    OverflowMemOutStreamBuf& operator=(
-                                         const OverflowMemOutStreamBuf&);
+    OverflowMemOutStreamBuf& operator=(const OverflowMemOutStreamBuf&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -284,10 +283,9 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
         // Return 0 unconditionally.
 
     virtual pos_type seekoff(
-                            off_type                offset,
-                            bsl::ios_base::seekdir  fixedPosition,
-                            bsl::ios_base::openmode mode = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+        off_type                offset,
+        bsl::ios_base::seekdir  fixedPosition,
+        bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out);
         // Set the location from which the next I/O operation indicated by the
         // specified 'which' mode will occur to the specified 'offset' position
         // from the location indicated by the specified 'fixedPosition'.
@@ -296,9 +294,8 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
         // 'mode & bsl::ios_base::in' is not 0.
 
     virtual pos_type seekpos(
-                            pos_type                position,
-                            bsl::ios_base::openmode mode = bsl::ios_base::in
-                                                         | bsl::ios_base::out);
+        pos_type                position,
+        bsl::ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out);
         // Set the location from which the next I/O operation indicated by the
         // specified 'which' mode will occur to the specified 'position'.
         // Return 'position' on success, and 'pos_type(-1)' otherwise.  Note
@@ -324,8 +321,8 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
 
                         // *** 27.5.2.4.4 putback ***
 
-    virtual int_type pbackfail(int_type c =
-                                           bsl::streambuf::traits_type::eof());
+    virtual int_type pbackfail(
+                              int_type c = bsl::streambuf::traits_type::eof());
         // Return 'traits_type::eof()' unconditionally.
 
                         // *** 27.5.2.4.5 put area ***
@@ -393,12 +390,12 @@ typedef OverflowMemOutStreamBuf OverflowMemOutStreambuf;
     // DEPRECATED: Use 'OverflowMemOutStreamBuf' instead.
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                    // -----------------------------------
-                    // class OverflowMemOutStreamBuf
-                    // -----------------------------------
+                      // -----------------------------
+                      // class OverflowMemOutStreamBuf
+                      // -----------------------------
 
 // PROTECTED VIRTUAL FUNCTIONS
 inline
@@ -467,15 +464,22 @@ int OverflowMemOutStreamBuf::overflowBufferSize() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

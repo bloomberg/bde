@@ -1,4 +1,4 @@
-// bdlsb_fixedmemoutstreambuf.cpp               -*-C++-*-
+// bdlsb_fixedmemoutstreambuf.cpp                                     -*-C++-*-
 #include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bsls_ident.h>
@@ -10,8 +10,8 @@ BSLS_IDENT_RCSID(bdlsb_fixedmemoutstreambuf_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace bdlsb {
+
 // PROTECTED MANIPULATORS
 FixedMemOutStreamBuf::pos_type
 FixedMemOutStreamBuf::seekoff(off_type                offset,
@@ -24,14 +24,13 @@ FixedMemOutStreamBuf::seekoff(off_type                offset,
     }
 
     // Compute offset from current position.  In this stream, pptr() defines
-    // both the current position and the end of the logical byte stream.
-    // Thus, bsl::ios_base::curr and bsl::ios_base::end are handled
-    // identically.
+    // both the current position and the end of the logical byte stream.  Thus,
+    // bsl::ios_base::curr and bsl::ios_base::end are handled identically.
     off_type currOffset = (bsl::ios_base::beg == fixedPosition ?
                            offset - length() : offset);
 
-    // currOffset id invalid if it is positive or has an
-    // absolute-value > length.
+    // currOffset id invalid if it is positive or has an absolute-value >
+    // length.
     if (currOffset > 0 || -currOffset > length()) {
         return pos_type(-1);
     }
@@ -51,11 +50,18 @@ FixedMemOutStreamBuf::seekpos(pos_type                position,
 
 } // end namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
