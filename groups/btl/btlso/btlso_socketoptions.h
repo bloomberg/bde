@@ -141,14 +141,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_nullablevalue.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -170,16 +162,16 @@ class SocketOptions {
     //
     // More generally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment, equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  (A precise
-    // operational definition of when two objects have the same value can be
-    // found in the description of the homogeneous (free) 'operator==' for this
-    // class.)  This class is *exception* *safe*, but provides no general
-    // guarantee of rollback: If an exception is thrown during the invocation
-    // of a method on a pre-existing object, the object will be left in a
-    // coherent state, but (unless otherwise stated) its value is not defined.
-    // In no event is memory leaked.  Finally, *aliasing* (e.g., using all or
-    // part of an object as both source and destination) for the same operation
-    // is supported in all cases.
+    // comparison, 'ostream' printing.  (A precise operational definition of
+    // when two objects have the same value can be found in the description of
+    // the homogeneous (free) 'operator==' for this class.)  This class is
+    // *exception* *safe*, but provides no general guarantee of rollback: If an
+    // exception is thrown during the invocation of a method on a pre-existing
+    // object, the object will be left in a coherent state, but (unless
+    // otherwise stated) its value is not defined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) for the same operation is supported in all
+    // cases.
 
     // DATA
     bdlb::NullableValue<LingerOptions>
@@ -237,13 +229,6 @@ class SocketOptions {
     BSLALG_DECLARE_NESTED_TRAITS(SocketOptions,
                                  bslalg::TypeTraitBitwiseMoveable);
 
-    // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     // CREATORS
     SocketOptions();
         // Create a socket options object having none of the option values
@@ -259,18 +244,6 @@ class SocketOptions {
     // MANIPULATORS
     SocketOptions& operator=(const SocketOptions& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this socket options object to the default value (i.e., its
@@ -346,15 +319,6 @@ class SocketOptions {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     const bdlb::NullableValue<bool>& debugFlag() const;
         // Return a reference to the non-modifiable 'debugFlag' attribute.
@@ -434,51 +398,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const SocketOptions& rhs);
                        // class SocketOptions
                        // -------------------------
 
-// CLASS METHODS
-inline
-int SocketOptions::maxSupportedBdexVersion()
-{
-    return 2;
-}
-
 // MANIPULATORS
-template <class STREAM>
-STREAM& SocketOptions::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 2:
-            bdex_InStreamFunctions::streamIn(stream, d_tcpNoDelay, 1);
-                                                                // FALL THROUGH
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_debugFlag, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_allowBroadcasting, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_reuseAddress, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_keepAlive, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_bypassNormalRouting, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_linger, 1);
-            bdex_InStreamFunctions::streamIn(stream,
-                                             d_leaveOutOfBandDataInline,
-                                             1);
-            bdex_InStreamFunctions::streamIn(stream, d_sendBufferSize, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_receiveBufferSize, 1);
-            bdex_InStreamFunctions::streamIn(stream,
-                                             d_minimumSendBufferSize,
-                                             1);
-            bdex_InStreamFunctions::streamIn(stream,
-                                             d_minimumReceiveBufferSize,
-                                             1);
-            bdex_InStreamFunctions::streamIn(stream, d_sendTimeout, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_receiveTimeout, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
-
 inline
 void SocketOptions::setDebugFlag(bool value)
 {
@@ -564,36 +484,6 @@ void SocketOptions::setTcpNoDelay(bool value)
 }
 
 // ACCESSORS
-template <class STREAM>
-STREAM& SocketOptions::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 2:
-        bdex_OutStreamFunctions::streamOut(stream, d_tcpNoDelay, 1);
-        // fall through
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_debugFlag, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_allowBroadcasting, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_reuseAddress, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_keepAlive, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_bypassNormalRouting, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_linger, 1);
-        bdex_OutStreamFunctions::streamOut(stream,
-                                           d_leaveOutOfBandDataInline,
-                                           1);
-        bdex_OutStreamFunctions::streamOut(stream, d_sendBufferSize, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_receiveBufferSize, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_minimumSendBufferSize, 1);
-        bdex_OutStreamFunctions::streamOut(stream,
-                                           d_minimumReceiveBufferSize,
-                                           1);
-        bdex_OutStreamFunctions::streamOut(stream, d_sendTimeout, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_receiveTimeout, 1);
-      } break;
-    }
-    return stream;
-}
-
 inline
 const bdlb::NullableValue<bool>& SocketOptions::debugFlag() const
 {
