@@ -1618,8 +1618,8 @@ int main(int argc, char *argv[])
                                          // channel
         } SCRIPTS[][MAX_CMDS] =
  {
-   // line       cmd       PendingR  ReadE  PendingW  WriteE  Type  d_expData
-   // ----       ----      --------  -----  --------  ------  ----  ---------
+   //line       cmd       PendingR  ReadE  PendingW  WriteE  Type  d_expData
+   //----       ----      --------  -----  --------  ------  ----  ---------
    #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
    { // Invalidate a channel.
      {L_,  "iw",              0,       0,      0,       0,  NON_VEC,   ""  },
@@ -2565,8 +2565,8 @@ int main(int argc, char *argv[])
                                          // channel
         } SCRIPTS[][MAX_CMDS] =
  {
-   // line       cmd       PendingR  ReadE  PendingW  WriteE  Type  d_expData
-   // ----       ----      --------  -----  --------  ------  ----  ---------
+   //line       cmd       PendingR  ReadE  PendingW  WriteE  Type  d_expData
+   //----       ----      --------  -----  --------  ------  ----  ---------
    #if defined(BSLS_PLATFORM_OS_WINDOWS)      // windows test data
    { // Invalidate a channel.
      {L_,  "iw",               0,       0,      0,       0,  NON_VEC,   ""  },
@@ -7365,8 +7365,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
         {
-   // line cmd       PendingR  ReadE  PendingW  WriteE  Type   d_expData
-   // ---- ---       --------  -----  --------  ------  ----   ---------
+   //line cmd       PendingR  ReadE  PendingW  WriteE  Type   d_expData
+   //---- ---       --------  -----  --------  ------  ----   ---------
    { // Enqueue 1 request, then dispatch: concern (2).
      { L_, "W4",         0,      0,      0,       0,  NON_VEC,     ""      },
      { L_, "rr4,0,4,0",  1,      1,      0,       1,  NON_VEC,     ""      },
@@ -7651,8 +7651,8 @@ int main(int argc, char *argv[])
                 const char *d_expData;       // expected data read from the
                                              // channel
             } SCRIPTS[MAX_CMDS] =
-   // line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
-   // ---- ---             --------  -----  --------  ------  ----  ---------
+   //line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
+   //---- ---             --------  -----  --------  ------  ----  ---------
      // First test channel read and write buffer (entry 1);
      // then test cancelALL(); next test invalidate().
      // Note that it's important to make sure read and write event will not
@@ -7914,8 +7914,8 @@ int main(int argc, char *argv[])
      // then test cancelALL(); next test invalidate().
      // Note that it's important to make sure read and write event will not
      // interfere with each other.
-    // line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
-    // ---- ---             --------  -----  --------  ------  ----  ---------
+    //line cmd             PendingR  ReadE  PendingW  WriteE  Type  d_expData
+    //---- ---             --------  -----  --------  ------  ----  ---------
     #if defined(BSLS_PLATFORM_OS_WINDOWS)     // windows test data
     {
      { L_, "rb1,0,0,-1",       1,     1,      0,        1,  NON_VEC,   ""    },

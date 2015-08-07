@@ -2026,8 +2026,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----               ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  { // Issue 1 request, which should be finished without being enqueued.
    {L_, "wbvit5,(255,90),1,40,0",  0,   0,    0,    0,    0, NVEC,   ""  },
@@ -2632,8 +2632,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----               ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
@@ -3251,8 +3251,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd                     PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----                     ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd                     PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                     ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  {
    {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, NVEC,  ""  },
@@ -3948,8 +3948,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----               ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  {
    {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },

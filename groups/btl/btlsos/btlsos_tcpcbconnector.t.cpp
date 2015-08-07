@@ -1100,6 +1100,7 @@ int main(int argc, char *argv[])
                 // Because there are many items listed in the table for each
                 // test command, the following document specify which column
                 // in the table specifies which item.
+                //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
                 //   A      d_lineNum                G       d_expStatus
@@ -1108,14 +1109,15 @@ int main(int argc, char *argv[])
                 //   D      d_timedRequestFlag       J       d_expNumChannels
                 //   E      d_timeoutFlag            K       d_cancelFlag
                 //   F      d_validChannel           L       d_returnValue
+                //..
 
                 TestCommand commands[][MAX_COMMANDS] =
                 #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback succeed
                   // right away so we do not need a dispatch call.  This is
                   // absolutely not guaranteed by POSIX though.
-                    // A    B    C   D   E   F   G   H   I   J   K     L
-                    // -    -    -   -   -   -   -   -   -   -   -     -
+                    //A     B    C   D   E   F   G   H   I   J   K     L
+                    //-     -    -   -   -   -   -   -   -   -   -     -
                 {
                   { // There's no channel established before calling
                     // invalidate().
@@ -1142,6 +1144,7 @@ int main(int argc, char *argv[])
                     // Because there are many items listed in the table for
                     // each test command, the following document specify which
                     // column in the table specifies which item.
+                    //..
                     // Column     Item               Column       Item
                     // ------     ----               ------       ----
                     //   A     d_lineNum                G     d_expStatus
@@ -1150,9 +1153,10 @@ int main(int argc, char *argv[])
                     //   D     d_timedRequestFlag       J     d_expNumChannels
                     //   E     d_timeoutFlag            K     d_cancelFlag
                     //   F     d_validChannel           L     d_returnValue
+                    //..
 
-                    // A    B    C   D   E   F   G   H   I   J   K    L
-                    // -    -    -   -   -   -   -   -   -   -   -    -
+                    //A     B    C   D   E   F   G   H   I   J   K    L
+                    //-     -    -   -   -   -   -   -   -   -   -    -
                   { // There's no channel established before calling
                     // invalidate().
                     { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
@@ -1282,6 +1286,7 @@ int main(int argc, char *argv[])
                 // Because there are many items listed in the table for each
                 // test command, the following document specify which column
                 // in the table specifies which item.
+                //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
                 //   A      d_lineNum                G       d_expStatus
@@ -1290,14 +1295,16 @@ int main(int argc, char *argv[])
                 //   D      d_timedRequestFlag       J       d_expNumChannels
                 //   E      d_timeoutFlag            K       d_cancelFlag
                 //   F      d_validChannel           L       d_returnValue
+                //..
 
                 TestCommand commands[] =
                 #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback succeed
                   // right away so we do not need a dispatch call.  This is
                   // absolutely not guaranteed by POSIX though.
-                  // A    B    C   D   E   F   G   H   I   J   K   L
-                  // -    -    -   -   -   -   -   -   -   -   -   -
+                  // 
+                  //A     B    C   D   E   F   G   H   I   J   K   L
+                  //-     -    -   -   -   -   -   -   -   -   -   -
                 {
                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  1,  0, VALID },
                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  2,  0, VALID },
@@ -1307,6 +1314,7 @@ int main(int argc, char *argv[])
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
                   // in the table specifies which item.
+                  //..
                   // Column      Item                Column       Item
                   // ------      ----                ------       ----
                   //   A      d_lineNum                G       d_expStatus
@@ -1315,8 +1323,9 @@ int main(int argc, char *argv[])
                   //   D      d_timedRequestFlag       J       d_expNumChannel
                   //   E      d_timeoutFlag            K       d_cancelFlag
                   //   F      d_validChannel           L       d_returnValue
-                  // A    B    C   D   E   F    G   H   I   J   K    L
-                  // -    -    -   -   -   -    -   -   -   -   -    -
+                  //..
+                  //A     B    C   D   E   F    G   H   I   J   K    L
+                  //-     -    -   -   -   -    -   -   -   -   -    -
                   // There's no channel established before calling cancelAll().
                   { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  0,  0, VALID },
                   { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  0,  0, VALID },
@@ -1441,6 +1450,7 @@ int main(int argc, char *argv[])
                 // Because there are many items listed in the table for each
                 // test command, the following document specify which column
                 // in the table specifies which item.
+                //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
                 //   A      d_lineNum                G       d_expStatus
@@ -1449,14 +1459,16 @@ int main(int argc, char *argv[])
                 //   D      d_timedRequestFlag       J       d_expNumChannels
                 //   E      d_timeoutFlag            K       d_cancelFlag
                 //   F      d_validChannel           L       d_returnValue
+                //..
 
                 TestCommand commands[] =
                 #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback succeed
                   // right away so we do not need a dispatch call.  This is
                   // absolutely not guaranteed by POSIX though.
-                  // A    B    C   D   E   F   G   H   I   J   K    L
-                  // -    -    -   -   -   -   -   -   -   -   -    -
+                  //
+                  //A    B    C   D   E   F   G   H   I   J   K    L
+                  //-    -    -   -   -   -   -   -   -   -   -    -
                 {
                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  2,  0, VALID },
@@ -1473,6 +1485,7 @@ int main(int argc, char *argv[])
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
                   // in the table specifies which item.
+                  //..
                   // Column      Item                Column       Item
                   // ------      ----                ------       ----
                   //   A      d_lineNum                G       d_expStatus
@@ -1481,9 +1494,10 @@ int main(int argc, char *argv[])
                   //   D      d_timedRequestFlag       J       d_expNumChannel
                   //   E      d_timeoutFlag            K       d_cancelFlag
                   //   F      d_validChannel           L       d_returnValue
+                  //..
 
-                  // A    B    C   D   E   F   G   H   I   J   K    L
-                  // -    -    -   -   -   -   -   -   -   -   -    -
+                  //A     B    C   D   E   F   G   H   I   J   K    L
+                  //-     -    -   -   -   -   -   -   -   -   -    -
                   // Submit one request to establish one connection.
                   { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  0,  0, VALID },
                   { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
@@ -1601,6 +1615,7 @@ int main(int argc, char *argv[])
                 // Because there are many items listed in the table for each
                 // test command, the following document specify which column
                 // in the table specifies which item.
+                //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
                 //   A      d_lineNum                G       d_expStatus
@@ -1609,14 +1624,16 @@ int main(int argc, char *argv[])
                 //   D      d_timedRequestFlag       J       d_expNumChannels
                 //   E      d_timeoutFlag            K       d_cancelFlag
                 //   F      d_validChannel
+                //..
 
                 TestCommand commands[] =
                 #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback succeed
                   // right away so we do not need a dispatch call.  This is
                   // absolutely not guaranteed by POSIX though.
-                  // A    B    C   D   E   F   G   H   I   J   K    L
-                  // -    -    -   -   -   -   -   -   -   -   -    -
+                  //
+                  //A     B    C   D   E   F   G   H   I   J   K    L
+                  //-     -    -   -   -   -   -   -   -   -   -    -
                 {
                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, VALID },
@@ -1634,6 +1651,7 @@ int main(int argc, char *argv[])
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
                   // in the table specifies which item.
+                  //..
                   // Column      Item                Column       Item
                   // ------      ----                ------       ----
                   //   A      d_lineNum                G       d_expStatus
@@ -1642,9 +1660,9 @@ int main(int argc, char *argv[])
                   //   D      d_timedRequestFlag       J       d_expNumChannel
                   //   E      d_timeoutFlag            K       d_cancelFlag
                   //   F      d_validChannel           L       d_returnValue
-
-                  // A    B    C   D   E   F   G   H   I   J   K    L
-                  // -    -    -   -   -   -   -   -   -   -   -    -
+                  //..
+                  //A     B    C   D   E   F   G   H   I   J   K    L
+                  //-     -    -   -   -   -   -   -   -   -   -    -
                   // Submit one request to establish one connection.
                   { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  0,  0, VALID },
                   { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
@@ -1765,6 +1783,7 @@ int main(int argc, char *argv[])
                 // Because there are many items listed in the table for each
                 // test command, the following document specify which column
                 // in the table specifies which item.
+                //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
                 //   A      d_lineNum                G       d_expStatus
@@ -1773,14 +1792,15 @@ int main(int argc, char *argv[])
                 //   D      d_timedRequestFlag       J       d_expNumChannels
                 //   E      d_timeoutFlag            K       d_cancelFlag
                 //   F      d_validChannel           L       d_returnValue
+                //..
 
                 TestCommand commands[] =
                 #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback succeed
                   // right away so we do not need a dispatch call.  This is
                   // absolutely not guaranteed by POSIX though.
-                  // A    B    C   D   E   F   G   H   I   J   K    L
-                  // -    -    -   -   -   -   -   -   -   -   -    -
+                  //A     B    C   D   E   F   G   H   I   J   K    L
+                  //-     -    -   -   -   -   -   -   -   -   -    -
                 {
                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, VALID },
@@ -1797,6 +1817,7 @@ int main(int argc, char *argv[])
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
                   // in the table specifies which item.
+                  //..
                   // Column      Item                Column       Item
                   // ------      ----                ------       ----
                   //   A      d_lineNum                G       d_expStatus
@@ -1805,8 +1826,9 @@ int main(int argc, char *argv[])
                   //   D      d_timedRequestFlag       J       d_expNumChannels
                   //   E      d_timeoutFlag            K       d_cancelFlag
                   //   F      d_validChannel           L       d_returnValue
-                  // A    B    C   D   E   F   G   H   I   J   K    L
-                  // -    -    -   -   -   -   -   -   -   -   -    -
+                  //..
+                  //A     B    C   D   E   F   G   H   I   J   K    L
+                  //-     -    -   -   -   -   -   -   -   -   -    -
                   // Submit one request to establish one connection.
                   { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  0,  0, VALID },
                   { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
