@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Finding Right Functions Test\n"
                              "============================\n";
 
-// #ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
         // 'thunk' functions which just call the actual routine.  I wish they
@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
 
         unsigned int result = CASE_FOUR::func6();
         LOOP2_ASSERT(result, 6 * 5 * 4 * 3 * 2, result == 6 * 5 * 4 * 3 * 2);
-// #endif
+#endif
       }  break;
       case 3: {
         // --------------------------------------------------------------------

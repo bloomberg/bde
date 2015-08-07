@@ -467,12 +467,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
     int stackFrameIndex;
     HANDLE currentThread = GetCurrentThread();
 
-    // In this loop, we begin our iterations at -1, since the first frame we
-    // encounter will be our own frame, which is of no interest to us.  So
-    // we do not record stack frame '-1' into the buffer, but start recorrding
-    // stack frames at 0.
-
-    for (stackFrameIndex = -1; stackFrameIndex < maxFrames; ++stackFrameIndex){
+    for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex){
         bool rc = balst::DbghelpDllImpl_Windows::stackWalk64(MACHINE,
                                                              currentThread,
                                                              &stackFrame,
@@ -480,12 +475,10 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
         if (!rc) {
             break;
         }
-        if (stackFrameIndex >= 0) {
-            buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
-        }
+        buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
     }
 
-    return stackFrameIndex < 0 ? 0 : stackFrameIndex;
+    return stackFrameIndex;
 }
 
 }  // close package namespace
