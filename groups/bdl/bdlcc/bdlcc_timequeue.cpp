@@ -2,7 +2,7 @@
 #include <bdlcc_timequeue.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_timequeue_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_timequeue_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

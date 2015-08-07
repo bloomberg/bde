@@ -2,7 +2,7 @@
 #include <bdlcc_objectcatalog.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_objectcatalog_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_objectcatalog_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_barrier.h> // for testing only
 

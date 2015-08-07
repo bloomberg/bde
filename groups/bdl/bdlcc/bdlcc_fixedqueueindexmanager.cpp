@@ -2,7 +2,7 @@
 #include <bdlcc_fixedqueueindexmanager.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_fixedqueueindexmanager_cpp,"$Id$ $CSID$")
 
 #include <bdlqq_threadutil.h>
 

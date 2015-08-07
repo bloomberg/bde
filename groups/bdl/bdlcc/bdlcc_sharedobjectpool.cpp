@@ -2,7 +2,7 @@
 #include <bdlcc_sharedobjectpool.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_sharedobjectpool_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_sharedobjectpool_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 

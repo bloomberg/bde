@@ -2,7 +2,7 @@
 #include <bdlcc_objectpool.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_objectpool_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_objectpool_cpp,"$Id$ $CSID$")
 
 #include <bdlcc_fixedqueue.h>     // for testing only
 #include <bdlf_bind.h>

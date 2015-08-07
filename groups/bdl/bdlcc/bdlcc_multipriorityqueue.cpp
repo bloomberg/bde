@@ -2,7 +2,7 @@
 #include <bdlcc_multipriorityqueue.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_multipriorityqueue_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_multipriorityqueue_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

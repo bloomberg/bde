@@ -154,7 +154,7 @@ void Pool::reserveCapacity(int numBlocks)
         return;                                                       // RETURN
     }
 
-    numBlocks -= (d_end_p - d_begin_p) / d_internalBlockSize;
+    numBlocks -= static_cast<int>((d_end_p - d_begin_p) / d_internalBlockSize);
 
     if (numBlocks > 0) {
 

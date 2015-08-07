@@ -361,8 +361,8 @@ class ConcurrentPool {
 
   public:
     // CREATORS
-    explicit ConcurrentPool(int                 blockSize,
-                            bslma::Allocator   *basicAllocator = 0);
+    explicit ConcurrentPool(int               blockSize,
+                            bslma::Allocator *basicAllocator = 0);
     ConcurrentPool(int                          blockSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bslma::Allocator            *basicAllocator = 0);

@@ -2,7 +2,7 @@
 #include <bdlcc_skiplist.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_skiplist_cpp, "$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_skiplist_cpp,"$Id$ $CSID$")
 
 #include <bdlma_infrequentdeleteblocklist.h>
 #include <bdlb_random.h>
