@@ -30,16 +30,16 @@ namespace BloombergLP {
                          // ========================
 
 enum {
-    ARENA_SIZE    = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
+    k_ARENA_SIZE    = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
                     ? sizeof(btlsos::TcpTimedChannel)
                     : sizeof(btlsos::TcpChannel) };
 
 enum {
-    INVALID       = -4,
-    FAILED        = -3,
-    PEER_UNSET    = -2,
-    CANCELLED     = -1,
-    SUCCESS       =  0
+    e_INVALID       = -4,
+    e_FAILED        = -3,
+    e_PEER_UNSET    = -2,
+    e_CANCELLED     = -1,
+    e_SUCCESS       =  0
 };
 
 template <class RESULT>
@@ -65,7 +65,7 @@ RESULT *allocate(int                                          *status,
 
         if (0 == s) break;
         if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != s) {
-            *status = FAILED; // Any negative number satisfies the contract.
+            *status = e_FAILED; // Any negative number satisfies the contract.
             factory->deallocate(socket_p);
             return NULL;
         }
@@ -122,7 +122,7 @@ RESULT *timedAllocate(
                 return NULL;
             }
             else if (s && btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != s) {
-                *status = FAILED;
+                *status = e_FAILED;
                 factory->deallocate(socket);
                 return NULL;
             }
@@ -136,7 +136,7 @@ RESULT *timedAllocate(
     }
     else if (0 != s) {
         if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != s) {
-            *status = FAILED;
+            *status = e_FAILED;
             factory->deallocate(socket);
             return NULL;
         }
@@ -161,7 +161,7 @@ namespace btlsos {
 TcpTimedConnector::TcpTimedConnector(
                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
                  bslma::Allocator                             *basicAllocator)
-: d_pool(ARENA_SIZE, basicAllocator)
+: d_pool(k_ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
 , d_isInvalidFlag(0)
@@ -173,7 +173,7 @@ TcpTimedConnector::TcpTimedConnector(
                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
                  int                                           numElements,
                  bslma::Allocator                             *basicAllocator)
-: d_pool(ARENA_SIZE,
+: d_pool(k_ARENA_SIZE,
          bsls::BlockGrowth::BSLS_CONSTANT,
          numElements,
          basicAllocator)
@@ -206,10 +206,10 @@ btlsc::Channel *TcpTimedConnector::allocate(int *status, int flags)
     if (d_isInvalidFlag || btlso::IPv4Address::BTESO_ANY_PORT ==
                                                   d_peerAddress.portNumber()) {
         if (btlso::IPv4Address::BTESO_ANY_PORT == d_peerAddress.portNumber()) {
-            *status = PEER_UNSET;
+            *status = e_PEER_UNSET;
         }
         else {
-            *status = INVALID;
+            *status = e_INVALID;
         }
         return NULL;
     }
@@ -235,10 +235,10 @@ btlsc::TimedChannel *TcpTimedConnector::allocateTimed(int *status, int flags)
     if (d_isInvalidFlag || btlso::IPv4Address::BTESO_ANY_PORT ==
                                                   d_peerAddress.portNumber()) {
         if (btlso::IPv4Address::BTESO_ANY_PORT == d_peerAddress.portNumber()) {
-            *status = PEER_UNSET;
+            *status = e_PEER_UNSET;
         }
         else {
-            *status = INVALID;
+            *status = e_INVALID;
         }
         return NULL;
     }
@@ -268,10 +268,10 @@ btlsc::Channel *TcpTimedConnector::timedAllocate(
     if (d_isInvalidFlag || btlso::IPv4Address::BTESO_ANY_PORT ==
                                                   d_peerAddress.portNumber()) {
         if (btlso::IPv4Address::BTESO_ANY_PORT == d_peerAddress.portNumber()) {
-            *status = PEER_UNSET;
+            *status = e_PEER_UNSET;
         }
         else {
-            *status = INVALID;
+            *status = e_INVALID;
         }
         return NULL;
     }
@@ -301,10 +301,10 @@ btlsc::TimedChannel *TcpTimedConnector::timedAllocateTimed(
     if (d_isInvalidFlag || btlso::IPv4Address::BTESO_ANY_PORT ==
                                                   d_peerAddress.portNumber()) {
         if (btlso::IPv4Address::BTESO_ANY_PORT == d_peerAddress.portNumber()) {
-            *status = PEER_UNSET;
+            *status = e_PEER_UNSET;
         }
         else {
-            *status = INVALID;
+            *status = e_INVALID;
         }
         return NULL;
     }
