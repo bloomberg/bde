@@ -1,4 +1,4 @@
-// btlsos_tcptimedchannel.h     -*-C++-*-
+// btlsos_tcptimedchannel.h                                           -*-C++-*-
 #ifndef INCLUDED_BTLSOS_TCPTIMEDCHANNEL
 #define INCLUDED_BTLSOS_TCPTIMEDCHANNEL
 
@@ -213,28 +213,26 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso { template<class ADDRESS> class StreamSocket; }
-
-
 
 // Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
 // Updated declarations tagged with '// bdet -> bdlt'.
 
 namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
 namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
+
 }  // close package namespace
 
 namespace btlsos {
-                        // ============================
-                        // class TcpTimedChannel
-                        // ============================
+
+                          // =====================
+                          // class TcpTimedChannel
+                          // =====================
 
 class TcpTimedChannel : public btlsc::TimedChannel {
-    // This class implements 'btlsc::TimedChannel' protocol over TCP/IP sockets.
-    // It operates on top of the stream-socket interface, which is provided at
-    // construction.
+    // This class implements 'btlsc::TimedChannel' protocol over TCP/IP
+    // sockets.  It operates on top of the stream-socket interface, which is
+    // provided at construction.
 
     btlso::StreamSocket<btlso::IPv4Address> *d_socket_p;       // not owned
     int                                    d_isInvalidFlag;
@@ -584,10 +582,10 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // until consumed by subsequent read operations.  A negative "status",
         // however, indicates a permanent error (leaving 'buffer' undefined);
         // -1 implies that the connection was closed by the peer (but the
-        // converse is not guaranteed).  The behavior is undefined unless
-        // 0 < numBytes.  Note that if the specified 'timeout' value has
-        // already passed, the "read" operation will still be attempted, but
-        // the attempt will not block.
+        // converse is not guaranteed).  The behavior is undefined unless 0 <
+        // numBytes.  Note that if the specified 'timeout' value has already
+        // passed, the "read" operation will still be attempted, but the
+        // attempt will not block.
 
     int bufferedReadRaw(const char **buffer,
                         int          numBytes,
@@ -766,10 +764,10 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // retried (with arguments suitably adjusted) with some reasonable hope
         // of success.  A negative "status", however, indicates a permanent
         // error; -1 implies that the connection was closed by the peer (but
-        // the converse is not guaranteed).  The behavior is undefined unless
-        // 0 < numBytes.  Note that if the specified 'timeout' value has
-        // already passed, the "write" operation will still be attempted, but
-        // the attempt will not block.
+        // the converse is not guaranteed).  The behavior is undefined unless 0
+        // < numBytes.  Note that if the specified 'timeout' value has already
+        // passed, the "write" operation will still be attempted, but the
+        // attempt will not block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -991,15 +989,22 @@ int TcpTimedChannel::isInvalid() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

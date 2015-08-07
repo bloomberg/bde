@@ -1,4 +1,4 @@
-// btlsos_tcpchannel.cpp     -*-C++-*-
+// btlsos_tcpchannel.cpp                                              -*-C++-*-
 #include <btlsos_tcpchannel.h>
 
 #include <bsls_ident.h>
@@ -17,12 +17,12 @@ BSLS_IDENT_RCSID(btlsos_tcpchannel_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     ERROR_INTERRUPTED  =  1,
@@ -31,9 +31,9 @@ enum {
     ERROR_UNCLASSIFIED = -3
 };
 
-                       // ==============================
-                       // local function adjustVecBuffer
-                       // ==============================
+                      // ==============================
+                      // local function adjustVecBuffer
+                      // ==============================
 
 template <class VECTYPE>
 inline
@@ -72,13 +72,14 @@ int adjustVecBuffer(const VECTYPE        *buffers,
 }
 
 namespace btlsos {
+
 // ============================================================================
-//                        END LOCAL DEFINITIONS
+//                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
-                          // class TcpChannel
-                          // -----------------------
+                             // ----------------
+                             // class TcpChannel
+                             // ----------------
 
 // PRIVATE MANIPULATORS
 
@@ -780,9 +781,9 @@ int TcpChannel::bufferedRead(const char **buffer,
         }
         else {
             numBytesRead = availableData;
-            // Move the unconsumed data at the beginning of the internal
-            // buffer and try reading from the channel to 'd_readBuffer'
-            // after these data.
+            // Move the unconsumed data at the beginning of the internal buffer
+            // and try reading from the channel to 'd_readBuffer' after these
+            // data.
             bsl::memcpy(&d_readBuffer.front(),
                         &d_readBuffer[d_readBufferedStartPointer],
                         availableData);
@@ -855,9 +856,9 @@ int TcpChannel::bufferedRead(int         *augStatus,
         }
         else {
             numBytesRead = availableData;
-            // Move the unconsumed data at the beginning of the internal
-            // buffer and try reading from the channel to 'd_readBuffer'
-            // after these data.
+            // Move the unconsumed data at the beginning of the internal buffer
+            // and try reading from the channel to 'd_readBuffer' after these
+            // data.
             bsl::memcpy(&d_readBuffer.front(),
                         &d_readBuffer[d_readBufferedStartPointer],
                         availableData);
@@ -1718,13 +1719,20 @@ int TcpChannel::setOption(int level, int option, int value)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1415,7 +1415,7 @@ int main(int argc, char *argv[])
                     cout << "client begins to dispatch()....." << endl;
                 }
 
-                while(0 != sem.dispatch(0)) {
+                while (0 != sem.dispatch(0)) {
                      // Do nothing.
                 }
             }

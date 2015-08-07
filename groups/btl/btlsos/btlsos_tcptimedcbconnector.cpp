@@ -34,31 +34,31 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbconnector_cpp,"$Id$ $CSID$")
 // ===========================================================================
 // IMPLEMENTATION DETAILS
 // ---------------------------------------------------------------------------
-// 1. Internally, this connector holds a queue of callbacks for allocation
-// requests.  The queue contains both timed and non-timed callbacks along
-// with any supporting data for a request, such as the timeout value, if any,
-// and flags.
+// 1.  Internally, this connector holds a queue of callbacks for allocation
+// requests.  The queue contains both timed and non-timed callbacks along with
+// any supporting data for a request, such as the timeout value, if any, and
+// flags.
 //
-// 2. At most two callbacks are registered with the socket event manager:
+// 2.  At most two callbacks are registered with the socket event manager:
 // timer callbacks and accept callback.  Timer callback is registered only if
-// accept callback is registered.  The timer registration ID is cached and
-// a NULL-value for the timer ID  is used to figure out if timer callback is
+// accept callback is registered.  The timer registration ID is cached and a
+// NULL-value for the timer ID is used to figure out if timer callback is
 // registered.
 //
-// 3. Timer callback is registered if and only if the corresponding request
-// is for a timed operation (i.e., as a result of 'timedAllocate' or
+// 3.  Timer callback is registered if and only if the corresponding request is
+// for a timed operation (i.e., as a result of 'timedAllocate' or
 // 'timedAllocateTimed' operations.
 //
-// 4. The request queue keeps the type of the result (i.e., timed or non-timed
+// 4.  The request queue keeps the type of the result (i.e., timed or non-timed
 // channel) and the request can invoke the callback in a type-safe manner.
 //
-// 5. Whenever an accept callback is registered with the socket event manager,
+// 5.  Whenever an accept callback is registered with the socket event manager,
 // the 'd_isRegisteredFlag' is set.
 //
-// 6. All allocate methods register callbacks with a socket event manager if
-// the request queue size is 1 (i.e., when only the current request is
-// cached).  An allocate method can set the value of 'd_isRegisteredFlag' to
-// 1, but not to 0 (i.e., it cannot deregister the accept callback).
+// 6.  All allocate methods register callbacks with a socket event manager if
+// the request queue size is 1 (i.e., when only the current request is cached).
+// An allocate method can set the value of 'd_isRegisteredFlag' to 1, but not
+// to 0 (i.e., it cannot deregister the accept callback).
 //
 // 7.
 // ===========================================================================
@@ -66,12 +66,12 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbconnector_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     CALLBACK_SIZE      = sizeof(btlsc::TimedCbChannelAllocator::Callback),
@@ -100,9 +100,10 @@ enum {
 };
 
 namespace btlsos {
-                       // =====================================
-                       // class btesos_TcpTimedCbConnector_RReg
-                       // =====================================
+
+                  // =====================================
+                  // class btesos_TcpTimedCbConnector_RReg
+                  // =====================================
 
 class TcpTimedCbConnector_Reg {
 
@@ -142,9 +143,8 @@ class TcpTimedCbConnector_Reg {
     void invoke(int status);
     void invoke(btlsc::CbChannel *channel, int status);
     void invokeTimed(btlsc::TimedCbChannel *channel, int status);
-    // The behavior is undefined unless this registration holds
-    // a non-timed callback or unless 'channel' is actually a
-    // 'btlsc::TimedCbChannel'.
+    // The behavior is undefined unless this registration holds a non-timed
+    // callback or unless 'channel' is actually a 'btlsc::TimedCbChannel'.
 
     // ACCESSORS
     int flags() const;
@@ -282,12 +282,12 @@ TcpTimedCbConnector_Reg::timedCallback() const {
 }
 
 // ============================================================================
-//                        END LOCAL DEFINITIONS
+//                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                       // --------------------------------
-                       // class TcpTimedCbConnector
-                       // --------------------------------
+                        // -------------------------
+                        // class TcpTimedCbConnector
+                        // -------------------------
 
 // PRIVATE MANIPULATORS
 
@@ -297,14 +297,13 @@ int TcpTimedCbConnector::initiateTimedConnection(
                                        const bsls::TimeInterval& timeout,
                                        int                      flags,
                                        int                      enqueueRequest)
-    // Initiate a non-blocking connection to the peer server, invoke
-    // the specified 'callback' if the operation completed immediately,
-    // either successfully or not, (and allocate a channel, if needed),
-    // or enqueue the request for a connection completion after
-    // the specified 'timeout' absolute time.  Return 0 if operation
-    // completed successfully, a negative value if an error occurred and
-    // a positive value if an operation could not complete immediately
-    // (and thus was enqueued for further processing).
+    // Initiate a non-blocking connection to the peer server, invoke the
+    // specified 'callback' if the operation completed immediately, either
+    // successfully or not, (and allocate a channel, if needed), or enqueue the
+    // request for a connection completion after the specified 'timeout'
+    // absolute time.  Return 0 if operation completed successfully, a negative
+    // value if an error occurred and a positive value if an operation could
+    // not complete immediately (and thus was enqueued for further processing).
 {
     d_connectingSocket_p = d_factory_p->allocate();
     if (NULL == d_connectingSocket_p) {
@@ -386,17 +385,16 @@ int TcpTimedCbConnector::initiateTimedConnection(
 }
 
 template <class CALLBACK_TYPE, class CHANNEL>
-int TcpTimedCbConnector::initiateConnection(
-                                            const CALLBACK_TYPE& callback,
+int TcpTimedCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
                                             int                  flags,
                                             int                  createRequest)
-    // Initiate a non-blocking connection to the peer server, invoke
-    // the specified 'callback' if operation completed immediately,
-    // either successfully or not, (and allocate a channel, if needed),
-    // or enqueue the request for a connection completion.   Return 0 if
-    // operation completed successfully, a negative value if an error
-    // occurred and a positive value if an operation could not complete
-    // immediately (and thus was enqueued for further processing).
+    // Initiate a non-blocking connection to the peer server, invoke the
+    // specified 'callback' if operation completed immediately, either
+    // successfully or not, (and allocate a channel, if needed), or enqueue the
+    // request for a connection completion.  Return 0 if operation completed
+    // successfully, a negative value if an error occurred and a positive value
+    // if an operation could not complete immediately (and thus was enqueued
+    // for further processing).
 {
     d_connectingSocket_p = d_factory_p->allocate();
     if (NULL == d_connectingSocket_p) {
@@ -717,7 +715,7 @@ TcpTimedCbConnector::~TcpTimedCbConnector()
     cancelAll();
 
     // Deallocate channels
-    while(d_channels.size()) {
+    while (d_channels.size()) {
         btlsc::CbChannel *ch = d_channels[0];
         BSLS_ASSERT(ch);
         ch->invalidate();
@@ -728,8 +726,7 @@ TcpTimedCbConnector::~TcpTimedCbConnector()
 
 // MANIPULATORS
 
-int TcpTimedCbConnector::allocate(const Callback& callback,
-                                         int             flags)
+int TcpTimedCbConnector::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -748,15 +745,14 @@ int TcpTimedCbConnector::allocate(const Callback& callback,
 }
 
 int TcpTimedCbConnector::allocateTimed(const TimedCallback& callback,
-                                              int                  flags)
+                                       int                  flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
     }
 
-    // Implementation note: the request must be pushed onto the queue
-    // before the corresponding callback is registered with an
-    // event manager.
+    // Implementation note: the request must be pushed onto the queue before
+    // the corresponding callback is registered with an event manager.
 
     if (d_callbacks.size() == 0) {
         initiateConnection<TimedCallback, TcpTimedCbChannel>
@@ -788,8 +784,8 @@ void TcpTimedCbConnector::cancelAll() {
         }
     }
     else {
-        // This part is reached when 'cancelAll' is invoked not
-        // from a callback.
+        // This part is reached when 'cancelAll' is invoked not from a
+        // callback.
 
         bsl::deque<TcpTimedCbConnector_Reg *> toBeCancelled(
                                                    d_callbacks, d_allocator_p);
@@ -807,7 +803,7 @@ void TcpTimedCbConnector::cancelAll() {
             d_factory_p->deallocate(d_connectingSocket_p);
         }
 
-        while(--numToCancel >= 0) {
+        while (--numToCancel >= 0) {
             TcpTimedCbConnector_Reg *reg = toBeCancelled[numToCancel];
             reg->invoke(-1);
             d_callbackPool.deleteObjectRaw(reg);
@@ -829,10 +825,9 @@ void TcpTimedCbConnector::deallocate(btlsc::CbChannel *channel)
     d_manager_p->registerTimer(bdlt::CurrentTime::now(), cb);
 }
 
-int TcpTimedCbConnector::timedAllocate(
-        const Callback&          callback,
-        const bsls::TimeInterval& timeout,
-        int                      flags)
+int TcpTimedCbConnector::timedAllocate(const Callback&           callback,
+                                       const bsls::TimeInterval& timeout,
+                                       int                       flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -851,10 +846,9 @@ int TcpTimedCbConnector::timedAllocate(
     return 0;
 }
 
-int TcpTimedCbConnector::timedAllocateTimed(
-                                             const TimedCallback&     callback,
-                                             const bsls::TimeInterval& timeout,
-                                             int                      flags)
+int TcpTimedCbConnector::timedAllocateTimed(const TimedCallback&      callback,
+                                            const bsls::TimeInterval& timeout,
+                                            int                       flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -883,13 +877,20 @@ int TcpTimedCbConnector::isInvalid() const {
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

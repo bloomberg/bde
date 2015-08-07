@@ -1,4 +1,4 @@
-// btlsos_tcptimedcbchannel.cpp  -*-C++-*-
+// btlsos_tcptimedcbchannel.cpp                                       -*-C++-*-
 #include <btlsos_tcptimedcbchannel.h>
 
 #include <bsls_ident.h>
@@ -27,9 +27,9 @@ namespace BloombergLP {
 //                     LOCAL DEFINITIONS
 //============================================================================
 
-                       // ========================
-                       // local typedefs and enums
-                       // ========================
+                         // ========================
+                         // local typedefs and enums
+                         // ========================
 
 typedef btlsc::TimedCbChannel::ReadCallback         ReadCb;
 typedef btlsc::TimedCbChannel::BufferedReadCallback BReadCb;
@@ -56,9 +56,10 @@ enum {
 };
 
 namespace btlsos {
-                       // ===================================
+
+                       // ============================
                        // class TcpTimedCbChannel_RReg
-                       // ===================================
+                       // ============================
 
 class TcpTimedCbChannel_RReg {
 
@@ -153,15 +154,15 @@ public:
 
     void invoke(int, int) const;
         // Invoke the callback contained in this request passing it the
-        // specified 'status', and the specified 'augStatus'.  The behavior
-        // is undefined unless the callback type (as reported by
-        // 'd_callbackType') is 'VFUNC2'.
+        // specified 'status', and the specified 'augStatus'.  The behavior is
+        // undefined unless the callback type (as reported by 'd_callbackType')
+        // is 'VFUNC2'.
 
     void invokeConditionally(int status, int augStatus) const;
         // Invoke the callback contained in this requests passing it the
-        // specified 'status' and the specified 'augStatus'.  If the
-        // contained callback is VFUNC3, NULL address is passed for
-        // the first argument (i.e., buffer).
+        // specified 'status' and the specified 'augStatus'.  If the contained
+        // callback is VFUNC3, NULL address is passed for the first argument
+        // (i.e., buffer).
 
 };
 
@@ -377,9 +378,9 @@ bsl::ostream& operator<<(bsl::ostream&                        out,
     return out;
 }
 
-                         // ===================================
-                         // class TcpTimedCbChannel_WReg
-                         // ===================================
+                       // ============================
+                       // class TcpTimedCbChannel_WReg
+                       // ============================
 
 class TcpTimedCbChannel_WReg {
 
@@ -709,9 +710,9 @@ bsl::ostream& operator<<(bsl::ostream& out,
 
 // FREE OPERATORS
 
-                         // ===========================
-                         // local function dequeue<REG>
-                         // ===========================
+                       // ===========================
+                       // local function dequeue<REG>
+                       // ===========================
 
 template <class REG>
 inline void
@@ -733,9 +734,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     queue->clear();
 }
 
-                         // ================================
-                         // local function completeOperation
-                         // ================================
+                     // ================================
+                     // local function completeOperation
+                     // ================================
 
 static inline
 int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
@@ -834,9 +835,9 @@ int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
     return rv;
 }
 
-                         // ===============================
-                         // local function initializeBuffer
-                         // ===============================
+                     // ===============================
+                     // local function initializeBuffer
+                     // ===============================
 
 static inline
 void initializeBuffer(bsl::vector<char>                     *buffer,
@@ -858,13 +859,14 @@ void initializeBuffer(bsl::vector<char>                     *buffer,
 }
 
 namespace btlsos {
+
 //============================================================================
 //                     END OF LOCAL DEFINITIONS
 //============================================================================
 
-                        // ------------------------------
-                        // class TcpTimedCbChannel
-                        // ------------------------------
+                         // -----------------------
+                         // class TcpTimedCbChannel
+                         // -----------------------
 
 // PRIVATE MANIPULATORS
 
@@ -1018,8 +1020,8 @@ void TcpTimedCbChannel::bufferedReadCb()
         d_readRequests.push_back(d_currentReadRequest_p);
     }
 
-    // At this point, the request is processed, and associated callback
-    // is invoked.  The associated timer, if any, is deregistered.
+    // At this point, the request is processed, and associated callback is
+    // invoked.  The associated timer, if any, is deregistered.
     BSLS_ASSERT(NULL == d_readTimerId);
 
     // Destroy current request.
@@ -1211,8 +1213,8 @@ void TcpTimedCbChannel::readCb()
                   BSLS_ASSERT(0 <= numBytes);
                   // Note: we support only RAW VECTORIZED operations for
                   // performance reasons.  If a vectorized request is not
-                  // satisfied completely in one read, the user of the
-                  // channel can do adjustments more efficiently.
+                  // satisfied completely in one read, the user of the channel
+                  // can do adjustments more efficiently.
 
                   BSLS_ASSERT(0 == d_currentReadRequest_p->d_numSysCalls);
 
@@ -1291,8 +1293,8 @@ void TcpTimedCbChannel::readCb()
           }
         };
 
-        // At this point, the request is processed, and associated callback
-        // is invoked.  The associated timer, if any, is deregistered.
+        // At this point, the request is processed, and associated callback is
+        // invoked.  The associated timer, if any, is deregistered.
         BSLS_ASSERT(NULL == d_readTimerId);
 
         // Destroy current request.
@@ -1609,8 +1611,8 @@ void TcpTimedCbChannel::bufferedWriteCb()
     }
     else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == s) {
         d_currentWriteRequest_p = NULL;
-        return; // Fake wake up from the event manager
-                // The number of system calls is not counted
+        return; // Fake wake up from the event manager The number of system
+                // calls is not counted
     }
     else {
         // Hard error on the channel --> invalidate.
@@ -1630,8 +1632,8 @@ void TcpTimedCbChannel::bufferedWriteCb()
         d_writeRequests.push_back(d_currentWriteRequest_p);
         BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
     }
-    // At this point, the request is processed, and associated callback
-    // is invoked.  The associated timer, if any, is deregistered.
+    // At this point, the request is processed, and associated callback is
+    // invoked.  The associated timer, if any, is deregistered.
     BSLS_ASSERT(NULL == d_writeTimerId);
 
     d_writeRequests.pop_back();
@@ -2245,9 +2247,10 @@ TcpTimedCbChannel::~TcpTimedCbChannel() {
 ///Read section
 ///------------
 
-int TcpTimedCbChannel::read(char *buffer, int    numBytes,
-                                   const ReadCallback&  readCallback,
-                                   int                  flags)
+int TcpTimedCbChannel::read(char                *buffer,
+                            int                  numBytes,
+                            const ReadCallback&  readCallback,
+                            int                  flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2286,10 +2289,11 @@ int TcpTimedCbChannel::read(char *buffer, int    numBytes,
     return 0;
 }
 
-int TcpTimedCbChannel::timedRead(char *buffer, int         numBytes,
-                                        const bsls::TimeInterval&  timeout,
-                                        const ReadCallback&       readCallback,
-                                        int                       flags)
+int TcpTimedCbChannel::timedRead(char                      *buffer,
+                                 int                        numBytes,
+                                 const bsls::TimeInterval&  timeout,
+                                 const ReadCallback&        readCallback,
+                                 int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2329,9 +2333,9 @@ int TcpTimedCbChannel::timedRead(char *buffer, int         numBytes,
 }
 
 int TcpTimedCbChannel::readRaw(char                *buffer,
-                                      int                  numBytes,
-                                      const ReadCallback&  readCallback,
-                                      int                  flags)
+                               int                  numBytes,
+                               const ReadCallback&  readCallback,
+                               int                  flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2418,10 +2422,10 @@ TcpTimedCbChannel::timedReadRaw(char                     *buffer,
     return 0;
 }
 
-int TcpTimedCbChannel::readv(const btls::Iovec    *buffers,
-                                    int                  numBuffers,
-                                    const ReadCallback&  readCallback,
-                                    int                  flags)
+int TcpTimedCbChannel::readv(const btls::Iovec   *buffers,
+                             int                  numBuffers,
+                             const ReadCallback&  readCallback,
+                             int                  flags)
 {
     return readvRaw(buffers, numBuffers, readCallback, flags);
 }
@@ -2566,10 +2570,10 @@ TcpTimedCbChannel::bufferedRead(
 }
 
 int TcpTimedCbChannel::timedBufferedRead(
-        int                         numBytes,
-        const bsls::TimeInterval&    timeout,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+                              int                         numBytes,
+                              const bsls::TimeInterval&   timeout,
+                              const BufferedReadCallback& bufferedReadCallback,
+                              int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -2610,9 +2614,9 @@ int TcpTimedCbChannel::timedBufferedRead(
 }
 
 int TcpTimedCbChannel::bufferedReadRaw(
-        int                         numBytes,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+                              int                         numBytes,
+                              const BufferedReadCallback& bufferedReadCallback,
+                              int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -2700,9 +2704,9 @@ TcpTimedCbChannel::timedBufferedReadRaw(
 ///-------------
 
 int TcpTimedCbChannel::write(const char           *buffer,
-                                    int                   numBytes,
-                                    const WriteCallback&  writeCallback,
-                                    int                   flags)
+                             int                   numBytes,
+                             const WriteCallback&  writeCallback,
+                             int                   flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2778,12 +2782,11 @@ int TcpTimedCbChannel::write(const char           *buffer,
     return 0;
 }
 
-int TcpTimedCbChannel::timedWrite(
-        const char               *buffer,
-        int                       numBytes,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+int TcpTimedCbChannel::timedWrite(const char                *buffer,
+                                  int                        numBytes,
+                                  const bsls::TimeInterval&  timeout,
+                                  const WriteCallback&       writeCallback,
+                                  int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2865,9 +2868,9 @@ int TcpTimedCbChannel::timedWrite(
 }
 
 int TcpTimedCbChannel::writeRaw(const char           *buffer,
-                                       int                   numBytes,
-                                       const WriteCallback&  writeCallback,
-                                       int                   flags)
+                                int                   numBytes,
+                                const WriteCallback&  writeCallback,
+                                int                   flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2933,12 +2936,11 @@ int TcpTimedCbChannel::writeRaw(const char           *buffer,
     return 0;
 }
 
-int TcpTimedCbChannel::timedWriteRaw(
-        const char               *buffer,
-        int                       numBytes,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+int TcpTimedCbChannel::timedWriteRaw(const char                *buffer,
+                                     int                        numBytes,
+                                     const bsls::TimeInterval&  timeout,
+                                     const WriteCallback&       writeCallback,
+                                     int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -3006,46 +3008,44 @@ int TcpTimedCbChannel::timedWriteRaw(
     return 0;
 }
 
-int TcpTimedCbChannel::writev(const btls::Ovec  *buffers,
-                                     int                      numBuffers,
-                                     const WriteCallback&     writeCallback,
-                                     int                      flags)
+int TcpTimedCbChannel::writev(const btls::Ovec     *buffers,
+                              int                   numBuffers,
+                              const WriteCallback&  writeCallback,
+                              int                   flags)
 {
     return writevRaw(buffers, numBuffers, writeCallback, flags);
 }
 
-int TcpTimedCbChannel::writev(const btls::Iovec *buffers,
-                                     int                      numBuffers,
-                                     const WriteCallback&     writeCallback,
-                                     int                      flags)
+int TcpTimedCbChannel::writev(const btls::Iovec    *buffers,
+                              int                   numBuffers,
+                              const WriteCallback&  writeCallback,
+                              int                   flags)
 {
     return writevRaw(buffers, numBuffers, writeCallback, flags);
 }
 
-int TcpTimedCbChannel::timedWritev(
-        const btls::Ovec   *buffers,
-        int                       numBuffers,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+int TcpTimedCbChannel::timedWritev(const btls::Ovec          *buffers,
+                                   int                        numBuffers,
+                                   const bsls::TimeInterval&  timeout,
+                                   const WriteCallback&       writeCallback,
+                                   int                        flags)
 {
     return timedWritevRaw(buffers, numBuffers, timeout, writeCallback, flags);
 }
 
-int TcpTimedCbChannel::timedWritev(
-        const btls::Iovec  *buffers,
-        int                       numBuffers,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+int TcpTimedCbChannel::timedWritev(const btls::Iovec         *buffers,
+                                   int                        numBuffers,
+                                   const bsls::TimeInterval&  timeout,
+                                   const WriteCallback&       writeCallback,
+                                   int                        flags)
 {
     return timedWritevRaw(buffers, numBuffers, timeout, writeCallback, flags);
 }
 
-int TcpTimedCbChannel::writevRaw(const btls::Ovec  *buffers,
-                                        int                      numBuffers,
-                                        const WriteCallback&     writeCallback,
-                                        int                      flags)
+int TcpTimedCbChannel::writevRaw(const btls::Ovec     *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3109,10 +3109,10 @@ int TcpTimedCbChannel::writevRaw(const btls::Ovec  *buffers,
     }
     return 0;
 }
-int TcpTimedCbChannel::writevRaw(const btls::Iovec *buffers,
-                                        int                      numBuffers,
-                                        const WriteCallback&     writeCallback,
-                                        int                      flags)
+int TcpTimedCbChannel::writevRaw(const btls::Iovec    *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3178,12 +3178,11 @@ int TcpTimedCbChannel::writevRaw(const btls::Iovec *buffers,
     return 0;
 }
 
-int TcpTimedCbChannel::timedWritevRaw(
-        const btls::Ovec   *buffers,
-        int                       numBuffers,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+int TcpTimedCbChannel::timedWritevRaw(const btls::Ovec          *buffers,
+                                      int                        numBuffers,
+                                      const bsls::TimeInterval&  timeout,
+                                      const WriteCallback&       writeCallback,
+                                      int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3251,12 +3250,11 @@ int TcpTimedCbChannel::timedWritevRaw(
     return 0;
 }
 
-int TcpTimedCbChannel::timedWritevRaw(
-        const btls::Iovec  *buffers,
-        int                       numBuffers,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+int TcpTimedCbChannel::timedWritevRaw(const btls::Iovec         *buffers,
+                                      int                        numBuffers,
+                                      const bsls::TimeInterval&  timeout,
+                                      const WriteCallback&       writeCallback,
+                                      int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -3326,11 +3324,10 @@ int TcpTimedCbChannel::timedWritevRaw(
     return 0;
 }
 
-int TcpTimedCbChannel::bufferedWrite(
-        const char           *buffer,
-        int                   numBytes,
-        const WriteCallback&  writeCallback,
-        int                   flags)
+int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
+                                     int                   numBytes,
+                                     const WriteCallback&  writeCallback,
+                                     int                   flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -4261,13 +4258,20 @@ int TcpTimedCbChannel::numPendingWriteOperations() const {
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

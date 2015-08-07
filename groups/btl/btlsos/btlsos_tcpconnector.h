@@ -1,4 +1,4 @@
-// btlsos_tcpconnector.h   -*-C++-*-
+// btlsos_tcpconnector.h                                              -*-C++-*-
 #ifndef INCLUDED_BTLSOS_TCPCONNECTOR
 #define INCLUDED_BTLSOS_TCPCONNECTOR
 
@@ -159,17 +159,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlsc { class TimedChannel; }
 namespace btlsc { class Channel; }
-
 namespace btlso { template <class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template <class ADDRESS> class StreamSocket; }
-
 namespace btlsos {
-                        // =========================
-                        // class TcpConnector
-                        // =========================
+
+                            // ==================
+                            // class TcpConnector
+                            // ==================
 
 class TcpConnector : public btlsc::ChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for
@@ -203,8 +201,8 @@ class TcpConnector : public btlsc::ChannelAllocator {
   public:
     // CREATORS
     explicit TcpConnector(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a connector that uses the specified 'factory' to create
         // stream sockets.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -222,9 +220,9 @@ class TcpConnector : public btlsc::ChannelAllocator {
         // the specified 'numElements' channels without reallocation.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if 'factory' is 0 or
-        // 0 >= numElements.  Note that connector is created NOT in an invalid
-        // state (as reported by the 'isInvalid' method), though subsequent
+        // used.  The behavior is undefined if 'factory' is 0 or 0 >=
+        // numElements.  Note that connector is created NOT in an invalid state
+        // (as reported by the 'isInvalid' method), though subsequent
         // allocations will *fail* until the peer is specified (using
         // 'setPeer').
 
@@ -335,15 +333,22 @@ int TcpConnector::isInvalid() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

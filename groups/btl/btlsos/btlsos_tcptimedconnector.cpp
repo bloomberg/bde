@@ -1,4 +1,4 @@
-// btlsos_tcptimedconnector.cpp    -*-C++-*-
+// btlsos_tcptimedconnector.cpp                                       -*-C++-*-
 #include <btlsos_tcptimedconnector.h>
 
 #include <bsls_ident.h>
@@ -22,12 +22,12 @@ BSLS_IDENT_RCSID(btlsos_tcptimedconnector_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     ARENA_SIZE    = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
@@ -60,7 +60,7 @@ RESULT *allocate(int                                          *status,
     int rc = socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
 
     BSLS_ASSERT(0 == rc);
-    while(1) {
+    while (1) {
         int s = socket_p->connect(peerAddress);
 
         if (0 == s) break;
@@ -81,12 +81,13 @@ RESULT *allocate(int                                          *status,
 
 template <class RESULT>
 inline
-RESULT *timedAllocate(int                                         *status,
-                     int                                           flags,
-                     const btlso::IPv4Address&                      peerAddress,
-                     btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                     bdlma::Pool                                   *pool,
-                     const bsls::TimeInterval&                      timeout)
+RESULT *timedAllocate(
+                   int                                            *status,
+                   int                                             flags,
+                   const btlso::IPv4Address&                       peerAddress,
+                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                   bdlma::Pool                                    *pool,
+                   const bsls::TimeInterval&                       timeout)
 {
     BSLS_ASSERT(factory); BSLS_ASSERT(pool); BSLS_ASSERT(status);
 
@@ -151,9 +152,10 @@ RESULT *timedAllocate(int                                         *status,
 }
 
 namespace btlsos {
-                       // ================================
-                       // class TcpTimedCbConnector
-                       // ================================
+
+                        // =========================
+                        // class TcpTimedCbConnector
+                        // =========================
 
 // CREATORS
 TcpTimedConnector::TcpTimedConnector(
@@ -188,7 +190,7 @@ TcpTimedConnector::~TcpTimedConnector()
     BSLS_ASSERT(d_factory_p);
 
     // Deallocate channels.
-    while(d_channels.size()) {
+    while (d_channels.size()) {
         btlsc::Channel *ch = d_channels[0];
         BSLS_ASSERT(ch);
         ch->invalidate();
@@ -226,8 +228,7 @@ btlsc::Channel *TcpTimedConnector::allocate(int *status, int flags)
     return channel;
 }
 
-btlsc::TimedChannel *TcpTimedConnector::allocateTimed(int *status,
-                                                            int  flags)
+btlsc::TimedChannel *TcpTimedConnector::allocateTimed(int *status, int flags)
 {
     BSLS_ASSERT(status);
 
@@ -258,9 +259,9 @@ btlsc::TimedChannel *TcpTimedConnector::allocateTimed(int *status,
 }
 
 btlsc::Channel *TcpTimedConnector::timedAllocate(
-                                            int                      *status,
+                                            int                       *status,
                                             const bsls::TimeInterval&  timeout,
-                                            int                       flags)
+                                            int                        flags)
 {
     BSLS_ASSERT(status);
 
@@ -291,9 +292,9 @@ btlsc::Channel *TcpTimedConnector::timedAllocate(
 }
 
 btlsc::TimedChannel *TcpTimedConnector::timedAllocateTimed(
-                                           int                      *status,
-                                           const bsls::TimeInterval&  timeout,
-                                           int                       flags)
+                                            int                       *status,
+                                            const bsls::TimeInterval&  timeout,
+                                            int                        flags)
 {
     BSLS_ASSERT(status);
 
@@ -356,13 +357,20 @@ void TcpTimedConnector::deallocate(btlsc::Channel *channel)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

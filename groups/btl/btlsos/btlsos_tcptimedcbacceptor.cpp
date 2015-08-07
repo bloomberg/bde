@@ -1,4 +1,4 @@
-// btlsos_tcptimedcbacceptor.cpp  -*-C++-*-
+// btlsos_tcptimedcbacceptor.cpp                                      -*-C++-*-
 #include <btlsos_tcptimedcbacceptor.h>
 
 #include <bsls_ident.h>
@@ -34,12 +34,12 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbacceptor_cpp,"$Id$ $CSID$")
 // ===========================================================================
 // IMPLEMENTATION DETAILS
 // ---------------------------------------------------------------------------
-// 1. Internally, this acceptor holds a queue of callbacks for allocation
+// 1.  Internally, this acceptor holds a queue of callbacks for allocation
 // requests.  The queue contains both timed and non-timed callbacks along with
 // any supporting data for a request, such as the timeout value, if any, and
 // flags.
 //
-// 2. At most two callbacks are registered at any time with the socket event
+// 2.  At most two callbacks are registered at any time with the socket event
 // manager: a timer callback and an accept callback.  A timer callback is
 // registered if and only if an accept callback is registered and if the
 // corresponding request is for a timed operation (i.e., as a result of
@@ -49,30 +49,30 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbacceptor_cpp,"$Id$ $CSID$")
 // cached.  A NULL value is used for the timer ID to determine if a timer
 // callback is registered.
 //
-// 4. The request queue keeps the type of the result (i.e., timed or non-timed
+// 4.  The request queue keeps the type of the result (i.e., timed or non-timed
 // channel) and the request can invoke the callback in a type-safe manner.
 //
-// 5. All allocate methods register callbacks with a socket event manager if
+// 5.  All allocate methods register callbacks with a socket event manager if
 // the request queue size is 1 (i.e., when only the current request is cached).
 // Subsequent requests are simply queued.  They are loaded into the current
 // request when that request has been completed, but no additional callback is
 // registered for that (see end of method 'acceptCb').
 //
-// 6. The 'deallocate' method does not deallocate a channel directly, it rather
-// installs the deallocate callback to be invoked on the next invocation of the
-// 'dispatch' method of the timer event manager.  The deallocate callback will
-// actually destroy the resources allocates for a channel.
+// 6.  The 'deallocate' method does not deallocate a channel directly, it
+// rather installs the deallocate callback to be invoked on the next invocation
+// of the 'dispatch' method of the timer event manager.  The deallocate
+// callback will actually destroy the resources allocates for a channel.
 // ===========================================================================
 
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     CALLBACK_SIZE      = sizeof(btlsc::TimedCbChannelAllocator::Callback),
@@ -98,9 +98,10 @@ enum {
 };
 
 namespace btlsos {
-                    // ===================================
-                    // class TcpTimedCbAcceptor_Reg
-                    // ===================================
+
+                       // ============================
+                       // class TcpTimedCbAcceptor_Reg
+                       // ============================
 
 class TcpTimedCbAcceptor_Reg {
     // This class stores either a callback or a timed callback, and allows to
@@ -248,8 +249,7 @@ void TcpTimedCbAcceptor_Reg::invoke(int status) {
 }
 
 inline
-void TcpTimedCbAcceptor_Reg::invoke(btlsc::CbChannel *channel,
-                                           int              status) {
+void TcpTimedCbAcceptor_Reg::invoke(btlsc::CbChannel *channel, int status) {
     BSLS_ASSERT(!d_isTimedChannel);
     bdlf::Function<void (*)(btlsc::CbChannel*, int)> *cb =
              (bdlf::Function<void (*)(btlsc::CbChannel*, int)> *)
@@ -259,7 +259,7 @@ void TcpTimedCbAcceptor_Reg::invoke(btlsc::CbChannel *channel,
 
 inline
 void TcpTimedCbAcceptor_Reg::invokeTimed(btlsc::TimedCbChannel *channel,
-                                                int                   status) {
+                                         int                    status) {
     BSLS_ASSERT(d_isTimedChannel);
     bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
         (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *)
@@ -289,12 +289,12 @@ const bsls::TimeInterval& TcpTimedCbAcceptor_Reg::timeout() const {
 }
 
 // ============================================================================
-//                        END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                        // -------------------------------
-                        // class TcpTimedCbAcceptor
-                        // -------------------------------
+                         // ------------------------
+                         // class TcpTimedCbAcceptor
+                         // ------------------------
 
 // PRIVATE MANIPULATORS
 void TcpTimedCbAcceptor::acceptCb()
@@ -511,8 +511,7 @@ TcpTimedCbAcceptor::~TcpTimedCbAcceptor()
 }
 
 // MANIPULATORS
-int TcpTimedCbAcceptor::allocate(const Callback& callback,
-                                        int             flags)
+int TcpTimedCbAcceptor::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -545,8 +544,7 @@ int TcpTimedCbAcceptor::allocate(const Callback& callback,
     return SUCCESS;
 }
 
-int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& callback,
-                                             int                  flags)
+int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -657,8 +655,8 @@ void TcpTimedCbAcceptor::invalidate()
 }
 
 int TcpTimedCbAcceptor::open(const btlso::IPv4Address& endpoint,
-                                    int                      queueSize,
-                                    int                      reuseAddress)
+                             int                       queueSize,
+                             int                       reuseAddress)
 {
     BSLS_ASSERT(0 < queueSize);
     BSLS_ASSERT(NULL == d_serverSocket_p);
@@ -706,9 +704,9 @@ int TcpTimedCbAcceptor::open(const btlso::IPv4Address& endpoint,
         return LISTEN_FAILED;
     }
 #ifndef BTLSO_PLATFORM_WIN_SOCKETS
-    // Windows has a bug -- setting listening socket to non-blocking
-    // mode will force subsequent 'accept' calls to return
-    // WSAEWOULDBLOCK *even when connection is present*.
+    // Windows has a bug -- setting listening socket to non-blocking mode will
+    // force subsequent 'accept' calls to return WSAEWOULDBLOCK *even when
+    // connection is present*.
 
     if (0 != d_serverSocket_p->setBlockingMode(
                                            bteso_Flag::BTESO_NONBLOCKING_MODE))
@@ -727,9 +725,9 @@ int TcpTimedCbAcceptor::setOption(int level, int option, int value)
     return d_serverSocket_p->setOption(level, option, value);
 }
 
-int TcpTimedCbAcceptor::timedAllocate(const Callback&          callback,
-                                             const bsls::TimeInterval& timeout,
-                                             int                      flags)
+int TcpTimedCbAcceptor::timedAllocate(const Callback&           callback,
+                                      const bsls::TimeInterval& timeout,
+                                      int                       flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -766,10 +764,9 @@ int TcpTimedCbAcceptor::timedAllocate(const Callback&          callback,
     return SUCCESS;
 }
 
-int TcpTimedCbAcceptor::timedAllocateTimed(
-                                             const TimedCallback&     callback,
-                                             const bsls::TimeInterval& timeout,
-                                             int                      flags)
+int TcpTimedCbAcceptor::timedAllocateTimed(const TimedCallback&      callback,
+                                           const bsls::TimeInterval& timeout,
+                                           int                       flags)
 {
 
     if (d_isInvalidFlag) {
@@ -820,13 +817,20 @@ int TcpTimedCbAcceptor::isInvalid() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

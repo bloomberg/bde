@@ -1,4 +1,4 @@
-// btlsos_tcptimedchannel.cpp     -*-C++-*-
+// btlsos_tcptimedchannel.cpp                                         -*-C++-*-
 #include <btlsos_tcptimedchannel.h>
 
 #include <bsls_ident.h>
@@ -19,12 +19,12 @@ BSLS_IDENT_RCSID(btlsos_tcptimedchannel_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // local typedefs and enums
-                       // ========================
+                         // ========================
+                         // local typedefs and enums
+                         // ========================
 
 enum {
     ERROR_INTERRUPTED  =  1,
@@ -34,9 +34,9 @@ enum {
     ERROR_UNCLASSIFIED = -3
 };
 
-                       // ==============================
-                       // local function adjustVecBuffer
-                       // ==============================
+                      // ==============================
+                      // local function adjustVecBuffer
+                      // ==============================
 
 template <class VECTYPE>
 inline
@@ -75,13 +75,14 @@ int adjustVecBuffer(const VECTYPE        *buffers,
 }
 
 namespace btlsos {
+
 // ============================================================================
-//                        END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                          // ----------------------------
+                          // ---------------------
                           // class TcpTimedChannel
-                          // ----------------------------
+                          // ---------------------
 
 // PRIVATE MANIPULATORS
 
@@ -1536,9 +1537,9 @@ int TcpTimedChannel::bufferedRead(const char **buffer,
         }
         else {
             numBytesRead = availableData;
-            // Move the unconsumed data at the beginning of the internal
-            // buffer and try reading from the channel to 'd_readBuffer'
-            // after these data.
+            // Move the unconsumed data at the beginning of the internal buffer
+            // and try reading from the channel to 'd_readBuffer' after these
+            // data.
             bsl::memcpy(&d_readBuffer.front(),
                         &d_readBuffer[d_readBufferedStartPointer],
                         availableData);
@@ -1607,9 +1608,9 @@ int TcpTimedChannel::bufferedRead(int         *augStatus,
         }
         else {
             numBytesRead = availableData;
-            // Move the unconsumed data at the beginning of the internal
-            // buffer and try reading from the channel to 'd_readBuffer'
-            // after these data.
+            // Move the unconsumed data at the beginning of the internal buffer
+            // and try reading from the channel to 'd_readBuffer' after these
+            // data.
             bsl::memcpy(&d_readBuffer.front(),
                         &d_readBuffer[d_readBufferedStartPointer],
                         availableData);
@@ -1686,9 +1687,9 @@ int TcpTimedChannel::timedBufferedRead(
         }
         else {
             numBytesRead = availableData;
-            // Move the unconsumed data at the beginning of the internal
-            // buffer and try reading from the channel to 'd_readBuffer'
-            // after these data.
+            // Move the unconsumed data at the beginning of the internal buffer
+            // and try reading from the channel to 'd_readBuffer' after these
+            // data.
             bsl::memcpy(&d_readBuffer.front(),
                         &d_readBuffer[d_readBufferedStartPointer],
                         availableData);
@@ -1788,9 +1789,9 @@ int TcpTimedChannel::timedBufferedRead(
         }
         else {
             numBytesRead = availableData;
-            // Move the unconsumed data at the beginning of the internal
-            // buffer and try reading from the channel to 'd_readBuffer'
-            // after these data.
+            // Move the unconsumed data at the beginning of the internal buffer
+            // and try reading from the channel to 'd_readBuffer' after these
+            // data.
             bsl::memcpy(&d_readBuffer.front(),
                         &d_readBuffer[d_readBufferedStartPointer],
                         availableData);
@@ -1846,7 +1847,7 @@ int TcpTimedChannel::timedBufferedRead(
                 break;
             }
         }
-        else if(rc < 0) { // Errors other than "AE", "EOF" or "TIMEDOUT" occur.
+        else if (rc < 0) { // Errors other than "AE", "EOF" or "TIMEDOUT".
             d_isInvalidFlag = 1;
             retValue = ERROR_UNCLASSIFIED;
             break;
@@ -2332,7 +2333,8 @@ int TcpTimedChannel::timedWrite(const char               *buffer,
             }
         }
         //bsl::cout << "TW(no-aug) after waitForIo, rc = " << rc << bsl::endl;
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -2397,7 +2399,8 @@ int TcpTimedChannel::timedWrite(int                      *augStatus,
             }
         }
         //bsl::cout << "TW(aug) after waitForIo, rc = " << rc << bsl::endl;
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -2559,7 +2562,8 @@ int TcpTimedChannel::timedWriteRaw(const char               *buffer,
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -2612,7 +2616,8 @@ int TcpTimedChannel::timedWriteRaw(int                      *augStatus,
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -2931,7 +2936,8 @@ int TcpTimedChannel::timedWritev(const btls::Ovec          *buffers,
             }
         }
         //bsl::cout << "In timedwritevo(no-aug), rc = " << rc << bsl::endl;
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -3013,7 +3019,8 @@ int TcpTimedChannel::timedWritev(const btls::Iovec         *buffers,
             }
         }
         //bsl::cout << "In timedwritevi(no-aug), rc = " << rc << bsl::endl;
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -3096,7 +3103,8 @@ int TcpTimedChannel::timedWritev(int                      *augStatus,
             }
         }
         //bsl::cout << "In timedwritevo(aug), rc = " << rc << bsl::endl;
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -3182,7 +3190,8 @@ int TcpTimedChannel::timedWritev(int                      *augStatus,
         }
         //bsl::cout << "In timedwritevi(aug), rc = " << rc << bsl::endl;
 
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF occurs.
+        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {    // EOF
+                                                                  // occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -3681,13 +3690,20 @@ int TcpTimedChannel::setOption(int level, int option, int value)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// btlsos_tcpcbchannel.h         -*-C++-*-
+// btlsos_tcpcbchannel.h                                              -*-C++-*-
 #ifndef INCLUDED_BTLSOS_TCPCBCHANNEL
 #define INCLUDED_BTLSOS_TCPCBCHANNEL
 
@@ -88,17 +88,18 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso { class IPv4Address; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
+namespace btlsos {class TcpCbChannel_RReg;  // Component local class
 
-namespace btlsos {class TcpCbChannel_RReg;  // Component local class declaration
+                                            // declaration
+
 class TcpCbChannel_WReg;  // Component local class declaration
 
-                          // =========================
-                          // class TcpCbChannel
-                          // =========================
+                            // ==================
+                            // class TcpCbChannel
+                            // ==================
 
 class TcpCbChannel : public btlsc::CbChannel {
     // This class implements a 'btesc'-style (non-timed) callback-based channel
@@ -264,10 +265,10 @@ class TcpCbChannel : public btlsc::CbChannel {
         // and remains valid until the (non-null) 'readCallback' completes, and
         // 0 < numBytes.
 
-    int readv(const btls::Iovec *buffers,
-              int                      numBuffers,
-              const ReadCallback&      readCallback,
-              int                      flags = 0);
+    int readv(const btls::Iovec   *buffers,
+              int                  numBuffers,
+              const ReadCallback&  readCallback,
+              int                  flags = 0);
         // Initiate a non-blocking operation to read from this channel into the
         // specified sequence of 'buffers' of specified sequence length
         // 'numBuffers' the respective numbers of bytes as defined by the
@@ -330,13 +331,13 @@ class TcpCbChannel : public btlsc::CbChannel {
         // error: -1 implies that the connection was closed by the peer (but
         // the converse is not guaranteed).  The behavior is undefined unless
         // 'buffer' has sufficient capacity to hold the requested data and
-        // remains valid until the (non-null) 'readCallback' completes, and
-        // 0 < numBytes.
+        // remains valid until the (non-null) 'readCallback' completes, and 0 <
+        // numBytes.
 
-     int readvRaw(const btls::Iovec *buffers,
-                  int                      numBuffers,
-                  const ReadCallback&      readCallback,
-                  int                      flags = 0);
+     int readvRaw(const btls::Iovec   *buffers,
+                  int                  numBuffers,
+                  const ReadCallback&  readCallback,
+                  int                  flags = 0);
         // Initiate a non-blocking operation to *atomically* read from this
         // channel into the specified sequence of 'buffers' of specified
         // sequence length 'numBuffers' *up* *to* the respective numbers of
@@ -468,8 +469,8 @@ class TcpCbChannel : public btlsc::CbChannel {
         // "status", however, indicates a permanent error; -1 implies that the
         // connection was closed by the peer (but the converse is not
         // guaranteed).  The behavior is undefined unless 'buffer' remains
-        // valid until the (non-null) 'writeCallback' completes, and
-        // 0 < numBytes.
+        // valid until the (non-null) 'writeCallback' completes, and 0 <
+        // numBytes.
 
     int writeRaw(const char           *buffer,
                  int                   numBytes,
@@ -506,14 +507,14 @@ class TcpCbChannel : public btlsc::CbChannel {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    int writev(const btls::Ovec  *buffers,
-               int                      numBuffers,
-               const WriteCallback&     writeCallback,
-               int                      flags = 0);
-    int writev(const btls::Iovec *buffers,
-               int                      numBuffers,
-               const WriteCallback&     writeCallback,
-               int                      flags = 0);
+    int writev(const btls::Ovec     *buffers,
+               int                   numBuffers,
+               const WriteCallback&  writeCallback,
+               int                   flags = 0);
+    int writev(const btls::Iovec    *buffers,
+               int                   numBuffers,
+               const WriteCallback&  writeCallback,
+               int                   flags = 0);
         // Initiate a non-blocking operation to write to this channel from the
         // specified sequence of 'buffers' of specified sequence length
         // 'numBuffers' the respective numbers of bytes as defined by the
@@ -545,14 +546,14 @@ class TcpCbChannel : public btlsc::CbChannel {
         // data to which it refers) remains valid until the (non-null)
         // 'writeCallback' completes.
 
-    int writevRaw(const btls::Ovec  *buffers,
-                  int                      numBuffers,
-                  const WriteCallback&     writeCallback,
-                  int                      flags = 0);
-    int writevRaw(const btls::Iovec *buffers,
-                  int                      numBuffers,
-                  const WriteCallback&     writeCallback,
-                  int                      flags = 0);
+    int writevRaw(const btls::Ovec     *buffers,
+                  int                   numBuffers,
+                  const WriteCallback&  writeCallback,
+                  int                   flags = 0);
+    int writevRaw(const btls::Iovec    *buffers,
+                  int                   numBuffers,
+                  const WriteCallback&  writeCallback,
+                  int                   flags = 0);
         // Initiate a non-blocking operation to *atomically* write *up *to* the
         // total number of bytes indicated by the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers' the respective
@@ -620,14 +621,14 @@ class TcpCbChannel : public btlsc::CbChannel {
         // behavior is undefined unless 'buffer' remains valid until the
         // (non-null) 'writeCallback' completes, and 0 < numBytes.
 
-    int bufferedWritev(const btls::Ovec  *buffers,
-                       int                      numBuffers,
-                       const WriteCallback&     writeCallback,
-                       int                      flags = 0);
-    int bufferedWritev(const btls::Iovec *buffers,
-                       int                      numBuffers,
-                       const WriteCallback&     writeCallback,
-                       int                      flags = 0);
+    int bufferedWritev(const btls::Ovec     *buffers,
+                       int                   numBuffers,
+                       const WriteCallback&  writeCallback,
+                       int                   flags = 0);
+    int bufferedWritev(const btls::Iovec    *buffers,
+                       int                   numBuffers,
+                       const WriteCallback&  writeCallback,
+                       int                   flags = 0);
         // Initiate a non-blocking operation to write to this channel from the
         // specified sequence of 'buffers' of specified sequence length
         // 'numBuffers' the respective numbers of bytes as defined by the
@@ -771,15 +772,22 @@ btlso::TimerEventManager *TcpCbChannel::writeEventManager() const {
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

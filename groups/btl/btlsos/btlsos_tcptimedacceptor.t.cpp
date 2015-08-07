@@ -622,7 +622,7 @@ int main(int argc, char *argv[]) {
                                       &status,
                                       bdlt::CurrentTime::now() + acceptTimeout);
                 if (channel) {
-                    while(1) {
+                    while (1) {
                          const char * result;
                          int readStatus =
                              channel->timedBufferedReadRaw(

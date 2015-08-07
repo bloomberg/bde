@@ -1,4 +1,4 @@
-// btlsos_tcpcbchannel.cpp       -*-C++-*-
+// btlsos_tcpcbchannel.cpp                                            -*-C++-*-
 #include <btlsos_tcpcbchannel.h>
 
 #include <bsls_ident.h>
@@ -22,12 +22,12 @@ BSLS_IDENT_RCSID(btlsos_tcpcbchannel_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 typedef btlsc::CbChannel::ReadCallback         ReadCb;
 typedef btlsc::CbChannel::BufferedReadCallback BReadCb;
@@ -53,9 +53,10 @@ enum {
 };
 
 namespace btlsos {
-                       // ==============================
-                       // class TcpCbChannel_RReg
-                       // ==============================
+
+                         // =======================
+                         // class TcpCbChannel_RReg
+                         // =======================
 
 class TcpCbChannel_RReg {
 public:
@@ -127,15 +128,15 @@ public:
 
     void invoke(int status, int augStatus) const;
         // Invoke the callback contained in this request passing it the
-        // specified 'status', and the specified 'augStatus'.  The behavior
-        // is undefined unless the callback type (as reported by
-        // 'd_callbackType') is 'VFUNC2'.
+        // specified 'status', and the specified 'augStatus'.  The behavior is
+        // undefined unless the callback type (as reported by 'd_callbackType')
+        // is 'VFUNC2'.
 
     void invokeConditionally(int status, int augStatus) const;
         // Invoke the callback contained in this requests passing it the
-        // specified 'status' and the specified 'augStatus'.  If the
-        // contained callback is VFUNC3, NULL address is passed for
-        // the first argument (i.e., buffer).
+        // specified 'status' and the specified 'augStatus'.  If the contained
+        // callback is VFUNC3, NULL address is passed for the first argument
+        // (i.e., buffer).
 
 };
 
@@ -272,9 +273,9 @@ bsl::ostream& operator<<(bsl::ostream&                   out,
     return out;
 }
 
-                       // ==============================
-                       // class TcpCbChannel_WReg
-                       // ==============================
+                         // =======================
+                         // class TcpCbChannel_WReg
+                         // =======================
 
 class TcpCbChannel_WReg {
 public:
@@ -576,9 +577,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     queue->clear();
 }
 
-                       // ===============================
-                       // local function initializeBuffer
-                       // ===============================
+                     // ===============================
+                     // local function initializeBuffer
+                     // ===============================
 
 static inline
 void initializeBuffer(bsl::vector<char>                     *buffer,
@@ -600,13 +601,14 @@ void initializeBuffer(bsl::vector<char>                     *buffer,
 }
 
 namespace btlsos {
+
 // ============================================================================
-//                        END LOCAL DEFINITIONS
+//                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                          // -------------------------
-                          // class TcpCbChannel
-                          // -------------------------
+                            // ------------------
+                            // class TcpCbChannel
+                            // ------------------
 
 // PRIVATE MANIPULATORS
 
@@ -715,8 +717,8 @@ void TcpCbChannel::bufferedReadCb()
     }
     else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == s) {
         d_currentReadRequest_p = NULL;
-        return; // Fake wake up from the event manager
-                // The number of system calls is not counted
+        return; // Fake wake up from the event manager The number of system
+                // calls is not counted
     }
     else {
         BSLS_ASSERT(s < 0);
@@ -861,9 +863,9 @@ void TcpCbChannel::readCb()
               numBytes -= s;
               BSLS_ASSERT(0 <= numBytes);
               // Note: we support only RAW VECTORIZED operations for
-              // performance reasons.  If a vectorized request is not
-              // satisfied completely in one read, the user of the
-              // channel can do adjustments more efficiently.
+              // performance reasons.  If a vectorized request is not satisfied
+              // completely in one read, the user of the channel can do
+              // adjustments more efficiently.
 
               BSLS_ASSERT(0 == d_currentReadRequest_p->d_numSysCalls);
               d_currentReadRequest_p->invoke(requestLength - numBytes, 0);
@@ -1066,8 +1068,8 @@ void TcpCbChannel::bufferedWriteCb() {
     }
     else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == s) {
         d_currentWriteRequest_p = NULL;
-        return; // Fake wake up from the event manager
-                // The number of system calls is not counted
+        return; // Fake wake up from the event manager The number of system
+                // calls is not counted
     }
     else {
         // Hard error on the channel -> invalidate and dequeue.
@@ -1423,9 +1425,10 @@ TcpCbChannel::~TcpCbChannel() {
 ///Read section
 ///------------
 
-int TcpCbChannel::read(char *buffer, int    numBytes,
-                              const ReadCallback&  readCallback,
-                              int   flags)
+int TcpCbChannel::read(char                *buffer,
+                       int                  numBytes,
+                       const ReadCallback&  readCallback,
+                       int                  flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1462,9 +1465,9 @@ int TcpCbChannel::read(char *buffer, int    numBytes,
 }
 
 int TcpCbChannel::readRaw(char                *buffer,
-                                      int                  numBytes,
-                                      const ReadCallback&  readCallback,
-                                      int                  flags)
+                          int                  numBytes,
+                          const ReadCallback&  readCallback,
+                          int                  flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1499,10 +1502,10 @@ int TcpCbChannel::readRaw(char                *buffer,
     return 0;
 }
 
-int TcpCbChannel::readv(const btls::Iovec *buffers,
-                                    int                      numBuffers,
-                                    const ReadCallback&      readCallback,
-                                    int                      flags)
+int TcpCbChannel::readv(const btls::Iovec   *buffers,
+                        int                  numBuffers,
+                        const ReadCallback&  readCallback,
+                        int                  flags)
 {
     return readvRaw(buffers, numBuffers, readCallback, flags);
 }
@@ -1585,9 +1588,9 @@ TcpCbChannel::bufferedRead(
 }
 
 int TcpCbChannel::bufferedReadRaw(
-        int                         numBytes,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+                              int                         numBytes,
+                              const BufferedReadCallback& bufferedReadCallback,
+                              int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -1628,9 +1631,9 @@ int TcpCbChannel::bufferedReadRaw(
 ///-------------
 
 int TcpCbChannel::write(const char           *buffer,
-                               int                   numBytes,
-                               const WriteCallback&  writeCallback,
-                               int                   flags)
+                        int                   numBytes,
+                        const WriteCallback&  writeCallback,
+                        int                   flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1707,9 +1710,9 @@ int TcpCbChannel::write(const char           *buffer,
 }
 
 int TcpCbChannel::writeRaw(const char           *buffer,
-                                  int                   numBytes,
-                                  const WriteCallback&  writeCallback,
-                                  int                   flags)
+                           int                   numBytes,
+                           const WriteCallback&  writeCallback,
+                           int                   flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -1773,26 +1776,26 @@ int TcpCbChannel::writeRaw(const char           *buffer,
     return 0;
 }
 
-int TcpCbChannel::writev(const btls::Ovec         *buffers,
-                                int                      numBuffers,
-                                const WriteCallback&     writeCallback,
-                                int                      flags)
+int TcpCbChannel::writev(const btls::Ovec     *buffers,
+                         int                   numBuffers,
+                         const WriteCallback&  writeCallback,
+                         int                   flags)
 {
     return writevRaw(buffers, numBuffers, writeCallback, flags);
 }
 
-int TcpCbChannel::writev(const btls::Iovec        *buffers,
-                                int                      numBuffers,
-                                const WriteCallback&     writeCallback,
-                                int                      flags)
+int TcpCbChannel::writev(const btls::Iovec    *buffers,
+                         int                   numBuffers,
+                         const WriteCallback&  writeCallback,
+                         int                   flags)
 {
     return writevRaw(buffers, numBuffers, writeCallback, flags);
 }
 
-int TcpCbChannel::writevRaw(const btls::Ovec         *buffers,
-                                   int                      numBuffers,
-                                   const WriteCallback&     writeCallback,
-                                   int                      flags)
+int TcpCbChannel::writevRaw(const btls::Ovec     *buffers,
+                            int                   numBuffers,
+                            const WriteCallback&  writeCallback,
+                            int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1856,10 +1859,10 @@ int TcpCbChannel::writevRaw(const btls::Ovec         *buffers,
     return 0;
 }
 
-int TcpCbChannel::writevRaw(const btls::Iovec        *buffers,
-                                   int                      numBuffers,
-                                   const WriteCallback&     writeCallback,
-                                   int                      flags)
+int TcpCbChannel::writevRaw(const btls::Iovec    *buffers,
+                            int                   numBuffers,
+                            const WriteCallback&  writeCallback,
+                            int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1924,11 +1927,10 @@ int TcpCbChannel::writevRaw(const btls::Iovec        *buffers,
     return 0;
 }
 
-int TcpCbChannel::bufferedWrite(
-        const char           *buffer,
-        int                   numBytes,
-        const WriteCallback&  writeCallback,
-        int                   flags)
+int TcpCbChannel::bufferedWrite(const char           *buffer,
+                                int                   numBytes,
+                                const WriteCallback&  writeCallback,
+                                int                   flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2415,13 +2417,20 @@ int TcpCbChannel::numPendingWriteOperations() const {
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

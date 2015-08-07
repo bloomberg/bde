@@ -1,4 +1,4 @@
-// btlsos_tcpcbacceptor.cpp  -*-C++-*-
+// btlsos_tcpcbacceptor.cpp                                           -*-C++-*-
 #include <btlsos_tcpcbacceptor.h>
 
 #include <bsls_ident.h>
@@ -31,33 +31,31 @@ BSLS_IDENT_RCSID(btlsos_tcpcbacceptor_cpp,"$Id$ $CSID$")
 // ===========================================================================
 // IMPLEMENTATION DETAILS
 // ---------------------------------------------------------------------------
-// 1. Internally, this acceptor holds a queue of callbacks for allocation
-// requests.  The queue contains non-timed callbacks along with any
-// supporting data for a request, if any.
+// 1.  Internally, this acceptor holds a queue of callbacks for allocation
+// requests.  The queue contains non-timed callbacks along with any supporting
+// data for a request, if any.
 //
-// 2. The request queue keeps the type of the result (i.e., timed or non-timed
+// 2.  The request queue keeps the type of the result (i.e., timed or non-timed
 // channel) and the request can invoke the callback in a type-safe manner.
 //
-// 3. All allocate methods register callbacks with a socket event manager if
-// the request queue size is 1 (i.e., when only the current request is
-// cached).
+// 3.  All allocate methods register callbacks with a socket event manager if
+// the request queue size is 1 (i.e., when only the current request is cached).
 //
-// 4. The 'deallocate' method does not deallocate a channel directly, it
-// rather installs the deallocate callback to be invoked on the next
-// invocation of the 'dispatch' method of the event manager.  The
-// deallocate callback will actually destroy the resources allocates for a
-// channel.
+// 4.  The 'deallocate' method does not deallocate a channel directly, it
+// rather installs the deallocate callback to be invoked on the next invocation
+// of the 'dispatch' method of the event manager.  The deallocate callback will
+// actually destroy the resources allocates for a channel.
 // ===========================================================================
 
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     CALLBACK_SIZE      = sizeof(btlsc::CbChannelAllocator::Callback),
@@ -82,9 +80,10 @@ enum {
 };
 
 namespace btlsos {
-                    // ==============================
-                    // class TcpCbAcceptor_Reg
-                    // ==============================
+
+                         // =======================
+                         // class TcpCbAcceptor_Reg
+                         // =======================
 
 class TcpCbAcceptor_Reg {
     // This class stores a callback, and allows to invoke it.
@@ -194,8 +193,7 @@ void TcpCbAcceptor_Reg::invoke(int status)
 }
 
 inline
-void TcpCbAcceptor_Reg::invoke(btlsc::CbChannel *channel,
-                                           int              status)
+void TcpCbAcceptor_Reg::invoke(btlsc::CbChannel *channel, int status)
 {
     BSLS_ASSERT(0 == d_isTimedChannel);
     bdlf::Function<void (*)(btlsc::CbChannel*, int)> *cb =
@@ -205,8 +203,7 @@ void TcpCbAcceptor_Reg::invoke(btlsc::CbChannel *channel,
 }
 
 inline
-void TcpCbAcceptor_Reg::invokeTimed(btlsc::TimedCbChannel *channel,
-                                           int                   status)
+void TcpCbAcceptor_Reg::invokeTimed(btlsc::TimedCbChannel *channel, int status)
 {
     BSLS_ASSERT(1 == d_isTimedChannel);
     bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
@@ -229,12 +226,12 @@ int TcpCbAcceptor_Reg::isTimedResult() const
 }
 
 // ============================================================================
-//                        END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                          // --------------------------
-                          // class TcpCbAcceptor
-                          // --------------------------
+                           // -------------------
+                           // class TcpCbAcceptor
+                           // -------------------
 
 //PRIVATE MANIPULATORS
 
@@ -395,7 +392,7 @@ TcpCbAcceptor::~TcpCbAcceptor()
         close();
     }
     // Deallocate channels
-    while(d_channels.size()) {
+    while (d_channels.size()) {
         btlsc::CbChannel *ch = d_channels[0];
         BSLS_ASSERT(ch);
         ch->invalidate();
@@ -405,8 +402,7 @@ TcpCbAcceptor::~TcpCbAcceptor()
 
 // MANIPULATORS
 
-int TcpCbAcceptor::allocate(const Callback& callback,
-                                   int             flags)
+int TcpCbAcceptor::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -439,8 +435,7 @@ int TcpCbAcceptor::allocate(const Callback& callback,
     return SUCCESS;
 }
 
-int TcpCbAcceptor::allocateTimed(const TimedCallback& callback,
-                                        int                  flags)
+int TcpCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -537,8 +532,8 @@ void TcpCbAcceptor::invalidate()
 }
 
 int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
-                                    int                 queueSize,
-                                    int                 reuseAddress)
+                        int                       queueSize,
+                        int                       reuseAddress)
 {
     BSLS_ASSERT(0 < queueSize);
     BSLS_ASSERT(NULL == d_serverSocket_p);
@@ -586,9 +581,9 @@ int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
         return LISTEN_FAILED;
     }
 #ifndef BTLSO_PLATFORM_WIN_SOCKETS
-    // Windows has a bug -- setting listening socket to non-blocking
-    // mode will force subsequent 'accept' calls to return
-    // WSAEWOULDBLOCK *even when connection is present*.
+    // Windows has a bug -- setting listening socket to non-blocking mode will
+    // force subsequent 'accept' calls to return WSAEWOULDBLOCK *even when
+    // connection is present*.
 
     if (0 != d_serverSocket_p->setBlockingMode(
                                          bteso_Flag::BTESO_NONBLOCKING_MODE)) {
@@ -620,13 +615,20 @@ int TcpCbAcceptor::isInvalid() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

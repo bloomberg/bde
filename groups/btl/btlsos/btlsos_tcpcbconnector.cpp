@@ -1,4 +1,4 @@
-// btlsos_tcpcbconnector.cpp  -*-C++-*-
+// btlsos_tcpcbconnector.cpp                                          -*-C++-*-
 #include <btlsos_tcpcbconnector.h>
 
 #include <bsls_ident.h>
@@ -33,33 +33,33 @@ BSLS_IDENT_RCSID(btlsos_tcpcbconnector_cpp,"$Id$ $CSID$")
 // ===========================================================================
 // IMPLEMENTATION DETAILS
 // ---------------------------------------------------------------------------
-// 1. Internally, this connector holds a queue of callbacks for allocation
-// requests.  The queue contains both timed and non-timed callbacks along
-// with any supporting data for a request, such as the timeout value, if any,
-// and flags.
+// 1.  Internally, this connector holds a queue of callbacks for allocation
+// requests.  The queue contains both timed and non-timed callbacks along with
+// any supporting data for a request, such as the timeout value, if any, and
+// flags.
 //
-// 2. The request queue keeps the type of the result (i.e., timed or non-timed
+// 2.  The request queue keeps the type of the result (i.e., timed or non-timed
 // channel) and the request can invoke the callback in a type-safe manner.
 //
-// 3. Whenever an accept callback is registered with the socket event manager,
+// 3.  Whenever an accept callback is registered with the socket event manager,
 // the 'd_isRegisteredFlag' is set.
 //
-// 4. All allocate methods register callbacks with a socket event manager if
-// the request queue size is 1 (i.e., when only the current request is
-// cached).  An allocate method can set the value of 'd_isRegisteredFlag' to
-// 1, but not to 0 (i.e., it cannot deregister the accept callback).
+// 4.  All allocate methods register callbacks with a socket event manager if
+// the request queue size is 1 (i.e., when only the current request is cached).
+// An allocate method can set the value of 'd_isRegisteredFlag' to 1, but not
+// to 0 (i.e., it cannot deregister the accept callback).
 //
 // ===========================================================================
 
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     CALLBACK_SIZE      = sizeof(btlsc::CbChannelAllocator::Callback),
@@ -86,9 +86,10 @@ enum {
 };
 
 namespace btlsos {
-                       // ================================
-                       // class btesos_TcpCbConnector_RReg
-                       // ================================
+
+                     // ================================
+                     // class btesos_TcpCbConnector_RReg
+                     // ================================
 
 class TcpCbConnector_Reg {
 
@@ -120,9 +121,8 @@ public:
     void invoke(int status);
     void invoke(btlsc::CbChannel *channel, int status);
     void invokeTimed(btlsc::TimedCbChannel *channel, int status);
-    // The behavior is undefined unless this registration holds
-    // a non-timed callback or unless 'channel' is actually a
-    // 'btlsc::TimedCbChannel'.
+    // The behavior is undefined unless this registration holds a non-timed
+    // callback or unless 'channel' is actually a 'btlsc::TimedCbChannel'.
 
     int flags() const;
     int isTimedResult() const;
@@ -231,12 +231,12 @@ TcpCbConnector_Reg::timedCallback() const
 }
 
 // ============================================================================
-//                        END LOCAL DEFINITIONS
+//                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ---------------------------
-                       // class TcpCbConnector
-                       // ---------------------------
+                           // --------------------
+                           // class TcpCbConnector
+                           // --------------------
 
 // PRIVATE MANIPULATORS
 
@@ -473,8 +473,7 @@ TcpCbConnector::~TcpCbConnector()
 
 // MANIPULATORS
 
-int TcpCbConnector::allocate(const Callback& callback,
-                                    int             flags)
+int TcpCbConnector::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
@@ -492,16 +491,14 @@ int TcpCbConnector::allocate(const Callback& callback,
     return 0;
 }
 
-int TcpCbConnector::allocateTimed(const TimedCallback& callback,
-                                         int                  flags)
+int TcpCbConnector::allocateTimed(const TimedCallback& callback, int flags)
 {
     if (d_isInvalidFlag) {
         return INVALID;
     }
 
-    // Implementation note: the request must be pushed onto the queue
-    // before the corresponding callback is registered with an
-    // event manager.
+    // Implementation note: the request must be pushed onto the queue before
+    // the corresponding callback is registered with an event manager.
 
     if (d_callbacks.size() == 0) {
         initiateConnection<TimedCallback, TcpTimedCbChannel>
@@ -534,8 +531,8 @@ void TcpCbConnector::cancelAll()
         }
     }
     else {
-        // This part is reached when 'cancelAll' is invoked not
-        // from a callback.
+        // This part is reached when 'cancelAll' is invoked not from a
+        // callback.
 
         bsl::deque<TcpCbConnector_Reg *>
                                      toBeCancelled(d_callbacks, d_allocator_p);
@@ -548,7 +545,7 @@ void TcpCbConnector::cancelAll()
             d_factory_p->deallocate(d_connectingSocket_p);
         }
 
-        while(--numToCancel >= 0) {
+        while (--numToCancel >= 0) {
             TcpCbConnector_Reg *reg = toBeCancelled[numToCancel];
             reg->invoke(-1);
             d_callbackPool.deleteObjectRaw(reg);
@@ -573,13 +570,20 @@ int TcpCbConnector::isInvalid() const {
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

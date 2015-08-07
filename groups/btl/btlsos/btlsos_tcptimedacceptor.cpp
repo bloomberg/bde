@@ -1,4 +1,4 @@
-// btlsos_tcptimedacceptor.cpp    -*-C++-*-
+// btlsos_tcptimedacceptor.cpp                                        -*-C++-*-
 #include <btlsos_tcptimedacceptor.h>
 
 #include <bsls_ident.h>
@@ -22,12 +22,12 @@ BSLS_IDENT_RCSID(btlsos_tcptimedacceptor_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     BLOCKING_MODE    = bteso_Flag::BTESO_BLOCKING_MODE,
@@ -65,7 +65,7 @@ RESULT *allocate(int                                   *status,
 
     btlso::IPv4Address peer;
     btlso::StreamSocket<btlso::IPv4Address> *acceptedConnection = 0;
-    while(1) {
+    while (1) {
         int s = socket->accept(&acceptedConnection, &peer);
 
         if (acceptedConnection) { break; }
@@ -94,10 +94,11 @@ RESULT *allocate(int                                   *status,
 
 template <class RESULT>
 inline
-RESULT *timedAllocate(int                    *status, int flags,
+RESULT *timedAllocate(int                                     *status,
+                      int                                      flags,
                       btlso::StreamSocket<btlso::IPv4Address> *socket,
-                      bdlma::Pool *pool,
-                      const bsls::TimeInterval& timeout)
+                      bdlma::Pool                             *pool,
+                      const bsls::TimeInterval&                timeout)
 {
     BSLS_ASSERT(socket);
     BSLS_ASSERT(pool);
@@ -133,7 +134,7 @@ RESULT *timedAllocate(int                    *status, int flags,
             *status = 1;  // Any positive number satisfies the contract.
             return NULL;
         }
-    } while(bdlt::CurrentTime::now() <= timeout);
+    } while (bdlt::CurrentTime::now() <= timeout);
 
     if (!acceptedConnection) {
         *status = 0; // Timeout occurred.
@@ -147,13 +148,14 @@ RESULT *timedAllocate(int                    *status, int flags,
 }
 
 namespace btlsos {
+
 // ============================================================================
-//                        END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                       // -----------------------------
-                       // class TcpTimedAcceptor
-                       // -----------------------------
+                          // ----------------------
+                          // class TcpTimedAcceptor
+                          // ----------------------
 
 // CREATORS
 TcpTimedAcceptor::TcpTimedAcceptor(
@@ -196,7 +198,7 @@ TcpTimedAcceptor::~TcpTimedAcceptor() {
         close();
     }
     // Deallocate channels
-    while(d_channels.size()) {
+    while (d_channels.size()) {
         btlsc::Channel *ch = d_channels[0];
         BSLS_ASSERT(ch);
         ch->invalidate();
@@ -266,8 +268,7 @@ btlsc::Channel *TcpTimedAcceptor::allocate(int *status, int flags)
     return channel;
 }
 
-btlsc::TimedChannel *TcpTimedAcceptor::allocateTimed(int *status,
-                                                          int flags)
+btlsc::TimedChannel *TcpTimedAcceptor::allocateTimed(int *status, int flags)
 {
     BSLS_ASSERT(status);
     if (d_isInvalidFlag || NULL == d_serverSocket_p) {
@@ -294,9 +295,9 @@ btlsc::TimedChannel *TcpTimedAcceptor::allocateTimed(int *status,
 }
 
 btlsc::Channel *TcpTimedAcceptor::timedAllocate(
-                                           int                      *status,
-                                           const bsls::TimeInterval&  timeout,
-                                           int                       flags)
+                                            int                       *status,
+                                            const bsls::TimeInterval&  timeout,
+                                            int                        flags)
 {
     BSLS_ASSERT(status);
 
@@ -324,9 +325,9 @@ btlsc::Channel *TcpTimedAcceptor::timedAllocate(
 }
 
 btlsc::TimedChannel *TcpTimedAcceptor::timedAllocateTimed(
-                                            int                     *status,
-                                            const bsls::TimeInterval& timeout,
-                                            int                      flags)
+                                            int                       *status,
+                                            const bsls::TimeInterval&  timeout,
+                                            int                        flags)
 {
     BSLS_ASSERT(status);
 
@@ -365,7 +366,8 @@ int TcpTimedAcceptor::close()
 }
 
 int TcpTimedAcceptor::open(const btlso::IPv4Address& endpoint,
-                                  int queueSize, int reuseAddressFlag)
+                           int                       queueSize,
+                           int                       reuseAddressFlag)
 {
     BSLS_ASSERT(0 < queueSize);
     BSLS_ASSERT(NULL == d_serverSocket_p);
@@ -447,13 +449,20 @@ TcpTimedAcceptor::getOption(int *result, int level, int option) const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

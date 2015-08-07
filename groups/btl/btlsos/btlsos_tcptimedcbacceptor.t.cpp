@@ -893,7 +893,7 @@ static void *threadToConnect(void *arg)
                                           clients(&threadTestAllocator);
     int i = 0;
 
-    while(i < info.d_numConnections) {
+    while (i < info.d_numConnections) {
         btlso::StreamSocket<btlso::IPv4Address>
             *d_connectingSocket_p = factory.allocate();
 

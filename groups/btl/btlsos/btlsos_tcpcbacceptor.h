@@ -1,4 +1,4 @@
-// btlsos_tcpcbacceptor.h   -*-C++-*-
+// btlsos_tcpcbacceptor.h                                             -*-C++-*-
 #ifndef INCLUDED_BTLSOS_TCPCBACCEPTOR
 #define INCLUDED_BTLSOS_TCPCBACCEPTOR
 
@@ -299,7 +299,7 @@ BSLS_IDENT("$Id: $")
 //         return -1;
 //     }
 //
-//     while(manager.dispatch(btlso::TimerEventManager::NON_INTERRUPTIBLE)) {
+//     while (manager.dispatch(btlso::TimerEventManager::NON_INTERRUPTIBLE)) {
 //         // Do nothing
 //     }
 //
@@ -340,18 +340,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
-
 namespace btlso { class TimerEventManager; }
-
-
 namespace btlsos {class TcpCbAcceptor_Reg; // component-local class declaration
 
-                        // ==========================
-                        // class TcpCbAcceptor
-                        // ==========================
+                           // ===================
+                           // class TcpCbAcceptor
+                           // ===================
 
 class TcpCbAcceptor : public btlsc::CbChannelAllocator {
     // This class implements a 'btesc'-style callback-based channel allocator
@@ -454,8 +450,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // allocator.
 
     // MANIPULATORS
-    virtual int allocate(const Callback& callback,
-                         int             flags = 0);
+    virtual int allocate(const Callback& callback, int flags = 0);
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
@@ -478,8 +473,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // permanent one; the allocator itself may still be valid (see
         // 'isInvalid').  The behavior is undefined unless 'callback' is valid.
 
-    int allocateTimed(const TimedCallback& timedCallback,
-                      int                  flags = 0);
+    int allocateTimed(const TimedCallback& timedCallback, int flags = 0);
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
@@ -537,8 +531,8 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // (using the 'close' method).
 
     int open(const btlso::IPv4Address& endpoint,
-             int                      queueSize,
-             int                      reuseAddress = 1);
+             int                       queueSize,
+             int                       reuseAddress = 1);
         // Establish a listening socket having the specified 'queueSize'
         // maximum number of pending connections on the specified 'endpoint'.
         // Optionally specify a 'reuseAddress' value to be used for setting
@@ -547,9 +541,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // success, and a non-zero value otherwise.  The behavior is undefined
         // unless 0 < queueSize and the listening socket is closed.
 
-    int setOption(int level,
-                  int option,
-                  int value);
+    int setOption(int level, int option, int value);
         // Set the specified socket 'option' having the specified 'level' on
         // the listening socket to the specified 'value'.  Return 0 on success
         // and a non-zero value otherwise.  (The list of commonly supported
@@ -564,9 +556,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // invalid address '(ANY_ADDRESS, ANY_PORT)' if the server is not
         // established (see 'btlso_ipv4address').
 
-    int getOption(int *result,
-                  int level,
-                  int option) const;
+    int getOption(int *result, int level, int option) const;
         // Load into the specified 'result' the current value of the specified
         // option of the specified 'level' set on the listening socket.  Return
         // 0 on success and a non-zero value otherwise.  The list of commonly
@@ -600,15 +590,22 @@ int TcpCbAcceptor::numChannels() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

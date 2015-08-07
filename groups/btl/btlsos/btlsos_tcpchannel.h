@@ -1,4 +1,4 @@
-// btlsos_tcpchannel.h             -*-C++-*-
+// btlsos_tcpchannel.h                                                -*-C++-*-
 #ifndef INCLUDED_BTLSOS_TCPCHANNEL
 #define INCLUDED_BTLSOS_TCPCHANNEL
 
@@ -193,13 +193,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso { template<class ADDRESS> class StreamSocket; }
-
 namespace btlsos {
-                        // =======================
-                        // class TcpChannel
-                        // =======================
+
+                             // ================
+                             // class TcpChannel
+                             // ================
 
 class TcpChannel : public btlsc::Channel {
     // This class implements 'btlsc::Channel' protocol over TCP/IP sockets.  It
@@ -301,27 +300,27 @@ class TcpChannel : public btlsc::Channel {
                  int   flags = 0);
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
-        // 'augStatus' to receive status specific to a "partial result".
-        // Return 'numBytes' on success, a negative value on error, and the
-        // number of bytes newly read into 'buffer' (indicating a partial
-        // result) otherwise.  On a partial result, load 'augStatus', if
-        // supplied, with a positive value if an asynchronous event interrupted
-        // this operation and a negative value if the atomic OS-level operation
-        // transmitted at least one byte, but less than 'numBytes'; otherwise,
-        // 'augStatus' is unmodified.  A partial result typically does not
-        // invalidate this channel; hence, this (or another) operation may be
-        // retried (with arguments suitably adjusted) with some reasonable hope
-        // of success.  A negative "status", however, indicates a permanent
-        // error (leaving the contents of 'buffer' undefined); -1 implies that
-        // the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 'buffer' has
-        // sufficient capacity to hold the requested data and 0 < numBytes.
-        // Note that if the specified 'timeout' value has already passed, the
-        // "read" operation will still be attempted, but the attempt will not
-        // block.
+        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT',
+        // "asynchronous events" are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) 'augStatus' to receive status specific to a
+        // "partial result".  Return 'numBytes' on success, a negative value on
+        // error, and the number of bytes newly read into 'buffer' (indicating
+        // a partial result) otherwise.  On a partial result, load 'augStatus',
+        // if supplied, with a positive value if an asynchronous event
+        // interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // 'numBytes'; otherwise, 'augStatus' is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative "status", however,
+        // indicates a permanent error (leaving the contents of 'buffer'
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless 'buffer' has sufficient capacity to hold the requested data
+        // and 0 < numBytes.  Note that if the specified 'timeout' value has
+        // already passed, the "read" operation will still be attempted, but
+        // the attempt will not block.
 
      int readvRaw(const btls::Iovec *buffers,
                          int        numBuffers,
@@ -334,9 +333,9 @@ class TcpChannel : public btlsc::Channel {
         // 'buffers' of specified sequence length 'numBuffers' *at* *most* the
         // respective numbers of bytes as specified in each corresponding
         // 'btls::Iovec' buffer.  If the optionally specified 'flags'
-        // incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events"
-        // are permitted to interrupt this operation; by default, such events
-        // are ignored.  Optionally specify (as a *leading* argument)
+        // incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
+        // events" are permitted to interrupt this operation; by default, such
+        // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
         // Return 'numBytes' on success, a negative value on error, and the
         // number of bytes newly read into 'buffers' (indicating a partial
@@ -451,25 +450,25 @@ class TcpChannel : public btlsc::Channel {
                  int         flags = 0);
         // *Atomically* write to this channel from the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
-        // 'augStatus' to receive status specific to a "partial result".
-        // Return 'numBytes' on success, a negative value on error, and the
-        // number of bytes newly written from 'buffer' (indicating a partial
-        // result) otherwise.  On a partial result, load 'augStatus', if
-        // supplied, with a positive value if an asynchronous event interrupted
-        // this operation and a negative value if the atomic OS-level operation
-        // transmitted at least one byte, but less than 'numBytes'; otherwise,
-        // 'augStatus' is unmodified.  A partial result typically does not
-        // invalidate this channel; hence, this (or another) operation may be
-        // retried (with arguments suitably adjusted) with some reasonable hope
-        // of success.  A negative "status", however, indicates a permanent
-        // error; -1 implies that the connection was closed by the peer (but
-        // the converse is not guaranteed).  The behavior is undefined unless
-        // 0 < numBytes.  Note that if the specified 'timeout' value has
-        // already passed, the "write" operation will still be attempted, but
-        // the attempt will not block.
+        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT',
+        // "asynchronous events" are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) 'augStatus' to receive status specific to a
+        // "partial result".  Return 'numBytes' on success, a negative value on
+        // error, and the number of bytes newly written from 'buffer'
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // 'augStatus', if supplied, with a positive value if an asynchronous
+        // event interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // 'numBytes'; otherwise, 'augStatus' is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative "status", however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless 0 < numBytes.  Note that if the
+        // specified 'timeout' value has already passed, the "write" operation
+        // will still be attempted, but the attempt will not block.
 
     int writev(const btls::Ovec  *buffers,
                int               numBuffers,
@@ -489,9 +488,9 @@ class TcpChannel : public btlsc::Channel {
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each corresponding 'btls::Ovec' (or
         // 'btls::Iovec') buffer.  If the optionally specified 'flags'
-        // incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events"
-        // are permitted to interrupt this operation; by default, such events
-        // are ignored.  Optionally specify (as a *leading* argument)
+        // incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
+        // events" are permitted to interrupt this operation; by default, such
+        // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a partial result.  Return
         // 'numBytes' on success, a negative value on error, and the number of
         // bytes newly written from 'buffers' (indicating a partial result)
@@ -523,23 +522,23 @@ class TcpChannel : public btlsc::Channel {
         // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
         // respective numbers of bytes as specified in each corresponding
         // 'btls::Ovec' (or 'btls::Iovec') buffer.  If the optionally specified
-        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous
-        // events" are permitted to interrupt this operation; by default, such
-        // events are ignored.  Optionally specify (as a *leading* argument)
-        // 'augStatus' to receive status specific to a "partial result".
-        // Return 'numBytes' on success, a negative value on error, and the
-        // number of bytes newly written from 'buffer' (indicating a partial
-        // result) otherwise.  On a partial result, load 'augStatus', if
-        // supplied, with a positive value if an asynchronous event interrupted
-        // this operation and a negative value if the atomic OS-level operation
-        // transmitted at least one byte, but less than 'numBytes'; otherwise,
-        // 'augStatus' is unmodified.  A partial result typically does not
-        // invalidate this channel; hence, this (or another) operation may be
-        // retried (with arguments suitably adjusted) with some reasonable hope
-        // of success.  A negative "status", however, indicates a permanent
-        // error; -1 implies that the connection was closed by the peer (but
-        // the converse is not guaranteed).  The behavior is undefined unless
-        // 0 < numBytes.
+        // 'flags' incorporates 'btlsc::Channel::ASYNC_INTERRUPT',
+        // "asynchronous events" are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) 'augStatus' to receive status specific to a
+        // "partial result".  Return 'numBytes' on success, a negative value on
+        // error, and the number of bytes newly written from 'buffer'
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // 'augStatus', if supplied, with a positive value if an asynchronous
+        // event interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // 'numBytes'; otherwise, 'augStatus' is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative "status", however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless 0 < numBytes.
 
     void invalidate();
         // Make this channel invalid; no subsequent operations can be completed
@@ -604,15 +603,22 @@ int TcpChannel::isInvalid() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -624,7 +624,7 @@ int main(int argc, char *argv[]) {
                 btlsc::TimedChannel *channel =
                     acceptor.allocateTimed(&status);
                 if (channel) {
-                    while(1) {
+                    while (1) {
                          char result[READ_SIZE];
                          int readStatus =
                              channel->read(result, READ_SIZE);

@@ -1,4 +1,4 @@
-// btlsos_tcpconnector.cpp    -*-C++-*-
+// btlsos_tcpconnector.cpp                                            -*-C++-*-
 #include <btlsos_tcpconnector.h>
 
 #include <bsls_ident.h>
@@ -22,12 +22,12 @@ BSLS_IDENT_RCSID(btlsos_tcpconnector_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // ========================
-                       // Local typedefs and enums
-                       // ========================
+                         // ========================
+                         // Local typedefs and enums
+                         // ========================
 
 enum {
     ARENA_SIZE = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
@@ -43,9 +43,9 @@ enum {
     SUCCESS       =  0
 };
 
-                       // =======================
-                       // local function allocate
-                       // =======================
+                         // =======================
+                         // local function allocate
+                         // =======================
 
 template <class RESULT>
 inline
@@ -87,13 +87,14 @@ inline
 }
 
 namespace btlsos {
+
 // ============================================================================
-//                        LOCAL DEFINITIONS
+//                             LOCAL DEFINITIONS
 // ============================================================================
 
-                       // -------------------------
-                       // class TcpConnector
-                       // -------------------------
+                            // ------------------
+                            // class TcpConnector
+                            // ------------------
 
 // CREATORS
 TcpConnector::TcpConnector(
@@ -167,8 +168,7 @@ btlsc::Channel *TcpConnector::allocate(int *status, int flags)
     return channel;
 }
 
-btlsc::TimedChannel *TcpConnector::allocateTimed(int *status,
-                                                       int  flags)
+btlsc::TimedChannel *TcpConnector::allocateTimed(int *status, int flags)
 {
     BSLS_ASSERT(status);
 
@@ -231,13 +231,20 @@ void TcpConnector::deallocate(btlsc::Channel *channel)
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// btlsos_tcptimedacceptor.h   -*-C++-*-
+// btlsos_tcptimedacceptor.h                                          -*-C++-*-
 #ifndef INCLUDED_BTLSOS_TCPTIMEDACCEPTOR
 #define INCLUDED_BTLSOS_TCPTIMEDACCEPTOR
 
@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a blocking single-port acceptor of TCP
 // connections with timeout capability that adheres to
-// 'btlsc::TimedChannelAllocator' protocol.  Both timed and non-timed (blocking)
-// channels can be allocated in a timed or non-timed fashion correspondingly as
-// indicated by the following table:
+// 'btlsc::TimedChannelAllocator' protocol.  Both timed and non-timed
+// (blocking) channels can be allocated in a timed or non-timed fashion
+// correspondingly as indicated by the following table:
 //..
 //       +=============================================================+
 //       |  Result/Operation |        Timed         |    Non-Timed     |
@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //                                    &status,
 //                                    bdesu::SystemTime::now() + acceptTimeout);
 //       if (channel) {
-//           while(1) {
+//           while (1) {
 //                char *result;
 //                int readStatus =
 //                    channel->timedBufferedReadRaw(
@@ -165,24 +165,21 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
-
 namespace btlsc { class TimedChannel; }
 namespace btlsc { class Channel; }
-
-
 
 // Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
 // Updated declarations tagged with '// bdet -> bdlt'.
 
 namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
 namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
+
 }  // close package namespace
 
 namespace btlsos {                        // =============================
+
                         // class TcpTimedAcceptor
                         // =============================
 
@@ -190,15 +187,16 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for a
     // single, server-side (i.e., listening) socket.  The allocations can be
     // timed or not-timed and produce either timed or non-timed channels.  The
-    // return status for an operation mandated by 'btlsc::TimedChannelAllocator'
-    // protocol is negative for failure, 0 on timeout, and positive for a
-    // (restartable) interrupt on an underlying system call.  The status value
-    // of -2 is reserved to indicate an allocation attempt on an uninitialized
-    // acceptor (i.e., no listening socket is established).  The acceptor
-    // provides a "delayed open" (where a listening socket is established at
-    // some point after construction), and allows the listening socket to be
-    // closed (and opened again) with no effect on the state of any other
-    // channel currently managed by this acceptor.
+    // return status for an operation mandated by
+    // 'btlsc::TimedChannelAllocator' protocol is negative for failure, 0 on
+    // timeout, and positive for a (restartable) interrupt on an underlying
+    // system call.  The status value of -2 is reserved to indicate an
+    // allocation attempt on an uninitialized acceptor (i.e., no listening
+    // socket is established).  The acceptor provides a "delayed open" (where a
+    // listening socket is established at some point after construction), and
+    // allows the listening socket to be closed (and opened again) with no
+    // effect on the state of any other channel currently managed by this
+    // acceptor.
 
     bdlma::Pool                                    d_pool;
         // memory pool for channels
@@ -244,8 +242,8 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // the specified 'initialCapacity' channels without reallocation.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if 'factory' is 0 or unless
-        // 0 < initialCapacity.  Note that the acceptor is created NOT in an
+        // used.  The behavior is undefined if 'factory' is 0 or unless 0 <
+        // initialCapacity.  Note that the acceptor is created NOT in an
         // invalid state (as reported by the 'isInvalid' method), though the
         // subsequent allocations will *fail* until a listening socket is
         // created (using 'open').
@@ -440,15 +438,22 @@ int TcpTimedAcceptor::numChannels() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

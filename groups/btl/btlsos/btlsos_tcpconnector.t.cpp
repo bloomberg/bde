@@ -259,7 +259,7 @@ void* threadAsServer(void *arg)
 
     btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
     int i = 0;
-    while(i < info.d_numConnections) {
+    while (i < info.d_numConnections) {
         btlso::StreamSocket<btlso::IPv4Address> *connection = 0;
 
         int stat = info.d_serverSocket_p->accept(&connection);

@@ -1,4 +1,4 @@
-// btlsos_tcpcbconnector.h   -*-C++-*-
+// btlsos_tcpcbconnector.h                                            -*-C++-*-
 #ifndef INCLUDED_BTLSOS_TCPCBCONNECTOR
 #define INCLUDED_BTLSOS_TCPCBCONNECTOR
 
@@ -452,27 +452,25 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
-
 namespace btlso { class TimerEventManager; }
-
-
 
 // Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
 // Updated declarations tagged with '// bdet -> bdlt'.
 
 namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
 namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
+
 }  // close package namespace
 
-namespace btlsos {class TcpCbConnector_Reg; // component-local class declaration
+namespace btlsos {class TcpCbConnector_Reg; // component-local class
 
-                       // ===========================
-                       // class TcpCbConnector
-                       // ===========================
+                                            // declaration
+
+                           // ====================
+                           // class TcpCbConnector
+                           // ====================
 
 class TcpCbConnector : public btlsc::CbChannelAllocator {
     // This class implements a 'btesc'-style timed callback-based channel
@@ -520,10 +518,10 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
     // Private (implementation) methods
 
     template <class CALLBACK_TYPE, class CHANNEL>
-    int initiateTimedConnection(const CALLBACK_TYPE&     callback,
+    int initiateTimedConnection(const CALLBACK_TYPE&      callback,
                                 const bsls::TimeInterval& timeout,
-                                int                      flags,
-                                int                      createRequest);
+                                int                       flags,
+                                int                       createRequest);
         // Initiate a non-blocking connection to the peer server, invoke the
         // specified 'callback' if the operation completed immediately (and
         // allocate a channel, if needed), or enqueue the request for a
@@ -597,7 +595,7 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // channels allocated from this connector have been deallocated.
 
     // MANIPULATORS
-    virtual int allocate(const Callback& callback, int  flags = 0);
+    virtual int allocate(const Callback& callback, int flags = 0);
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
@@ -712,15 +710,22 @@ int TcpCbConnector::numChannels() const
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
