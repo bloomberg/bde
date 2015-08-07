@@ -136,9 +136,9 @@ class BerEncoderOptions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED

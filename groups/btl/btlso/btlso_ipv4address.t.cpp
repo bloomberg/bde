@@ -439,12 +439,12 @@ int main(int argc, char *argv[])
         } break;
         case 10: {
             // ----------------------------------------------------------------
-            // TESTING 'bdex' STREAMING FUNCTIONALITY:
-            //   The 'bdex' streaming concerns for this component are
+            // TESTING BDEX STREAMING FUNCTIONALITY:
+            //   The BDEX streaming concerns for this component are
             //   absolutely standard.  We first probe the member functions
             //   'outStream' and 'inStream' in the manner of a "breathing test"
             //   to verify basic functionality, then we thoroughly test that
-            //   functionality using the available bdex functions which
+            //   functionality using the available BDEX functions which
             //   forward appropriate calls to the member functions.  We next
             //   step through the sequence of possible stream states (valid,
             //   empty, invalid, incomplete, and corrupted), appropriately
