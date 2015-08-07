@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //                                          (); // invocation
 //..
 // Similarly, we can also create a reference-counted shared binder using the
-// 'bindS' method: 
+// 'bindS' method:
 //..
 //      bdlf::BindUtil::bindS(allocator,                    // allocator,
 //                            &invocable,                   // bound object and
@@ -1626,7 +1626,7 @@ struct BindUtil {
 
     // CLASS METHODS
 
-                        // - - - - 'bind' methods - - - - 
+                        // - - - - 'bind' methods - - - -
 
     template <class FUNC>
     static
@@ -1843,7 +1843,7 @@ struct BindUtil {
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
     }
 
-                        // - - - - 'bindA' methods - - - - 
+                        // - - - - 'bindA' methods - - - -
 
     template <class FUNC>
     static
@@ -2073,7 +2073,7 @@ struct BindUtil {
                             allocator),allocator);
     }
 
-                        // - - - - 'bindR' methods - - - - 
+                        // - - - - 'bindR' methods - - - -
 
     template <class RET, class FUNC>
     static
@@ -2298,7 +2298,7 @@ struct BindUtil {
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
     }
 
-                        // - - - - 'bindS' methods - - - - 
+                        // - - - - 'bindS' methods - - - -
 
     template <class FUNC>
     static inline BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0 >
@@ -2532,7 +2532,7 @@ struct BindUtil {
                             allocator), allocator);
     }
 
-                        // - - - - 'bindSR' methods - - - - 
+                        // - - - - 'bindSR' methods - - - -
 
     template <class RET, class FUNC>
     static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0 >
