@@ -50,8 +50,8 @@ BSLS_IDENT("$Id: $")
 //..
 //    btlso::SocketHandle::Handle handles[2];
 //    int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-//                                   handles,
-//                                   btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+//                                  handles,
+//                                  btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
 //    assert(0 == ret);
 //    // The following socket options are set only if necessary.
 //
@@ -75,7 +75,8 @@ BSLS_IDENT("$Id: $")
 // 'btlso::SocketHandle::Handle', whose value is set to a socket created above.
 // Then I/O operations can be invoked on the channel:
 //..
-//    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&testAllocator);
+//    btlso::InetStreamSocketFactory<btlso::IPv4Address>
+//                                                     factory(&testAllocator);
 //    btlso::StreamSocket<btlso::IPv4Address> *sSocket =
 //                                            factory.allocate(handles[0]);
 //    assert(sSocket);
@@ -93,9 +94,9 @@ BSLS_IDENT("$Id: $")
 //
 //        // Write data at the other side of the channel and so "read"
 //        // operations can be done at the channel side.
-//        enum { LEN = 30 };
-//        char writeBuf[LEN] = "abcdefghij1234567890",
-//             readBuf[LEN];
+//        enum { k_LEN = 30 };
+//        char writeBuf[k_LEN] = "abcdefghij1234567890",
+//             readBuf[k_LEN];
 //        int numBytes = 0, augStatus = -1, interruptFlag = 1;
 //        int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
 //                                                     strlen(writeBuf));
@@ -159,11 +160,11 @@ BSLS_IDENT("$Id: $")
 //        assert(1 == channel.isInvalid());
 //
 //        numBytes = 5;
-//        enum { INVALID = -2 };
+//        enum { e_INVALID = -2 };
 //        // Try writing 5 bytes from the channel.
 //        len = channel.read(&augStatus, readBuf,
 //                                   numBytes, interruptFlag);
-//        assert(INVALID == len);
+//        assert(e_INVALID == len);
 //
 //        timer.addMilliseconds(milliSec);
 //        timer.addNanoseconds(nanoSec);
@@ -172,13 +173,13 @@ BSLS_IDENT("$Id: $")
 //        // Try writing 10 bytes from the channel with a timeout value.
 //        len = channel.timedRead(&augStatus, readBuf,
 //                                        numBytes, timer, interruptFlag);
-//        assert(INVALID == len);
+//        assert(e_INVALID == len);
 //        // Try writing 1 byte to the channel.
 //        numBytes = 1;
 //        augStatus = -1;
 //        len = channel.write(&augStatus, writeBuf,
 //                                    numBytes, interruptFlag);
-//        assert(INVALID == len);
+//        assert(e_INVALID == len);
 //
 //        timer.addMilliseconds(milliSec);
 //        timer.addNanoseconds(nanoSec);
@@ -187,7 +188,7 @@ BSLS_IDENT("$Id: $")
 //        // Try writing 10 bytes to the channel with a timeout value.
 //        len = channel.timedWrite(&augStatus, writeBuf,
 //                                          numBytes, timer, interruptFlag);
-//        assert(INVALID == len);
+//        assert(e_INVALID == len);
 //    }
 //    factory.deallocate(sSocket);
 //..
@@ -214,15 +215,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace btlso { template<class ADDRESS> class StreamSocket; }
-
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-
-}  // close package namespace
-
 namespace btlsos {
 
                           // =====================

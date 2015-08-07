@@ -30,9 +30,9 @@ namespace BloombergLP {
                          // ========================
 
 enum {
-    k_ARENA_SIZE    = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
-                    ? sizeof(btlsos::TcpTimedChannel)
-                    : sizeof(btlsos::TcpChannel) };
+    k_ARENA_SIZE = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
+                 ? sizeof(btlsos::TcpTimedChannel)
+                 : sizeof(btlsos::TcpChannel) };
 
 enum {
     e_INVALID       = -4,

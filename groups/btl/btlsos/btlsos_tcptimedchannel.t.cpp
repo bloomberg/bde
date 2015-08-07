@@ -1290,9 +1290,9 @@ int main(int argc, char *argv[]) {
 
                 // Write data at the other side of the channel and so "read"
                 // operations can be done at the channel side.
-                enum { LEN = 30 };
-                char writeBuf[LEN] = "abcdefghij1234567890",
-                     readBuf[LEN];
+                enum { k_LEN = 30 };
+                char writeBuf[k_LEN] = "abcdefghij1234567890",
+                     readBuf[k_LEN];
                 int numBytes = 0, augStatus = -1, interruptFlag = 1;
                 int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
                                                      strlen(writeBuf));
@@ -1357,11 +1357,11 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == channel.isInvalid());
 
                 numBytes = 5;
-                enum { INVALID = -2 };
+                enum { e_INVALID = -2 };
                 // Try writing 5 bytes from the channel.
                 len = channel.read(&augStatus, readBuf,
                                    numBytes, interruptFlag);
-                ASSERT(INVALID == len);
+                ASSERT(e_INVALID == len);
 
                 timer.addMilliseconds(milliSec);
                 timer.addNanoseconds(nanoSec);
@@ -1370,13 +1370,13 @@ int main(int argc, char *argv[]) {
                 // Try writing 10 bytes from the channel with a timeout value.
                 len = channel.timedRead(&augStatus, readBuf,
                                         numBytes, timer, interruptFlag);
-                ASSERT(INVALID == len);
+                ASSERT(e_INVALID == len);
                 // Try writing 1 byte to the channel.
                 numBytes = 1;
                 augStatus = -1;
                 len = channel.write(&augStatus, writeBuf,
                                     numBytes, interruptFlag);
-                ASSERT(INVALID == len);
+                ASSERT(e_INVALID == len);
 
                 timer.addMilliseconds(milliSec);
                 timer.addNanoseconds(nanoSec);
@@ -1385,7 +1385,7 @@ int main(int argc, char *argv[]) {
                 // Try writing 10 bytes to the channel with a timeout value.
                 len = channel.timedWrite(&augStatus, writeBuf,
                                          numBytes, timer, interruptFlag);
-                ASSERT(INVALID == len);
+                ASSERT(e_INVALID == len);
             }
             factory.deallocate(sSocket);
             if (verbose) {

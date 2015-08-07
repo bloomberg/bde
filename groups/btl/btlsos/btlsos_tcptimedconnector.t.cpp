@@ -50,7 +50,7 @@ using namespace bsl;  // automatically added by script
 // function being tested to address all concerns about it.
 //-----------------------------------------------------------------------------
 // [ 2] virtual btlsos::TcpTimedAcceptor()
-// [ 2] virtual btlsos::TcpTimedAcceptor(..., int initialCapacity, ...)
+// [ 2] virtual btlsos::TcpTimedAcceptor(..., initialCapacity, ...)
 // [ 2] virtual ~btlsos::TcpTimedAcceptor()
 // [ 4] btlsc::Channel *allocate()
 // [ 5] btlsc::Channel *allocateTimed()
@@ -139,19 +139,16 @@ const char* REMOTE_HOST = "204.228.67.117"; // An outside host IP address
 const bsls::TimeInterval *INFINITED = 0;
 
 enum {
-    DEFAULT_PORT_NUMBER     = 0,
-    REMOTE_PORT_NUMBER      = 7,
-    DEFAULT_NUM_CONNECTIONS = 10,
-    DEFAULT_EQUEUE_SIZE     = 5,
-    SLEEP_TIME              = 100000,
-    VALID                   = 0,
-    INVALID                 = -1,
-    NO_OP                   = -2
+    k_DEFAULT_PORT_NUMBER     = 0,
+    k_REMOTE_PORT_NUMBER      = 7,
+    k_DEFAULT_NUM_CONNECTIONS = 10,
+    k_DEFAULT_EQUEUE_SIZE     = 5,
+    k_SLEEP_TIME              = 100000
 };
 
 enum {
-    CHANNEL   = 0,              // 'btlsos::TcpChannel'
-    T_CHANNEL = 1               // 'btlsos::TcpTimedChannel'
+    e_CHANNEL   = 0,              // 'btlsos::TcpChannel'
+    e_T_CHANNEL = 1               // 'btlsos::TcpTimedChannel'
 };
 
 struct ConnectionInfo {
@@ -230,7 +227,7 @@ void* threadAsServer(void *arg)
     int signals = info.d_signals;    // This flag also indicates the number of
                                      // signals to be generated.
     while (signals-- > 0) {
-        bdlqq::ThreadUtil::microSleep(2 * SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
         pthread_kill(info.d_tid, SIGSYS);
         if (verbose) {
             P_T(bdlqq::ThreadUtil::self());
@@ -341,7 +338,7 @@ static int testExecutionHelper(btlsos::TcpTimedConnector   *connector,
 
     switch (command->d_commandCode) {
     case 'A': {  // an "ACCEPTOR" request
-        if (CHANNEL == command->d_channelType) {
+        if (e_CHANNEL == command->d_channelType) {
             if (INFINITED == command->d_timeout) {
                 *newChannel = connector->allocate(status,
                                                   command->d_interruptFlags);
@@ -430,7 +427,7 @@ int processTest(
         }
     }
     if (!signals) {
-        bdlqq::ThreadUtil::microSleep(2 * SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
     }
 
     for (int i = 0; i < numCommands; i++) { // different test data
@@ -449,7 +446,7 @@ int processTest(
 
         if (newChannel) {
             channels->push_back(newChannel);
-            if (CHANNEL == commands[i].d_channelType) {
+            if (e_CHANNEL == commands[i].d_channelType) {
                 btlsos::TcpChannel *c =
                     dynamic_cast<btlsos::TcpChannel*>(newChannel);
                 LOOP_ASSERT(commands[i].d_lineNum, 0 != c);
@@ -470,7 +467,7 @@ int processTest(
             P_(commands[i].d_expNumChannels);
             P(connector->numChannels());
         }
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
     }
     bdlqq::ThreadUtil::join(threadHandle);
     return ret;
@@ -531,33 +528,34 @@ int main(int argc, char *argv[]) {
                                   << "=============" << endl;
         {
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            enum { ECHO_PORT = 1888 };
+            enum { k_ECHO_PORT = 1888 };
             enum {
-                NUM_PACKETS = 5,
-                PACKET_SIZE = 10
+                k_NUM_PACKETS = 5,
+                k_PACKET_SIZE = 10
             }; // TCP/IP over Ethernet
 
             const char *SERVER_IP = "127.0.0.1";        // assume local host
-            btlso::IPv4Address serverAddress(SERVER_IP, ECHO_PORT);
+            btlso::IPv4Address serverAddress(SERVER_IP, k_ECHO_PORT);
 
             bsls::TimeInterval connectTimeout(120, 0);  // 2 minutes
             btlsos::TcpTimedConnector connector(&factory);
                                                        // Use default allocator
             ASSERT(0 == connector.isInvalid());
-            connector.setPeer(serverAddress);       // 'serverAddress' is valid
+            connector.setPeer(serverAddress);        // 'serverAddress' is
+                                                     // valid
             ASSERT(0 == connector.isInvalid());
-            enum { READ_SIZE = 10 };                // only for demo
+
             bsls::TimeInterval readTimeout(1.0);     // 1 second
             bsls::TimeInterval writeTimeout(30.0);   // 30 seconds
-            char controlPacket[PACKET_SIZE];
-            char inputPacket[PACKET_SIZE];
-            generatePattern(inputPacket, PACKET_SIZE);
-            memcpy(controlPacket, inputPacket, PACKET_SIZE);
+            char controlPacket[k_PACKET_SIZE];
+            char inputPacket[k_PACKET_SIZE];
+            generatePattern(inputPacket, k_PACKET_SIZE);
+            memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
             int status;
             btlsc::TimedChannel *channel =
-                     connector.timedAllocateTimed(
-                                     &status,
-                                     bdlt::CurrentTime::now() + connectTimeout);
+                    connector.timedAllocateTimed(
+                                    &status,
+                                    bdlt::CurrentTime::now() + connectTimeout);
             if (!channel) {
                 ASSERT(0 >= status);    // Async interrupts are *not* enabled.
                 if (status) {
@@ -575,28 +573,30 @@ int main(int argc, char *argv[]) {
                 return -1;
             }
             ASSERT(0 == channel->isInvalid());
-            char receivedPacket[PACKET_SIZE];
-            for (int i = 0; i < NUM_PACKETS; ++i) {
+            char receivedPacket[k_PACKET_SIZE];
+            for (int i = 0; i < k_NUM_PACKETS; ++i) {
                  // Request/response mechanism
-                int writeStatus =
-                   channel->timedWrite(inputPacket,
-                                       PACKET_SIZE,
-                                       bdlt::CurrentTime::now() + writeTimeout);
-                if (PACKET_SIZE != writeStatus) {
+                int writeStatus = channel->timedWrite(
+                                      inputPacket,
+                                      k_PACKET_SIZE,
+                                      bdlt::CurrentTime::now() + writeTimeout);
+                if (k_PACKET_SIZE != writeStatus) {
                     if (verbose) bsl::cout << "Failed to send data."
                                            << bsl::endl;
                     break;
                 }
                 int readStatus = channel->timedRead(
-                                        receivedPacket,
-                                        PACKET_SIZE,
-                                        bdlt::CurrentTime::now() + readTimeout);
-                if (PACKET_SIZE != readStatus) {
+                                       receivedPacket,
+                                       k_PACKET_SIZE,
+                                       bdlt::CurrentTime::now() + readTimeout);
+                if (k_PACKET_SIZE != readStatus) {
                     if (verbose) cout << "Failed to read data"
                                       << bsl::endl;
                     break;
                 }
-                ASSERT(0 == memcmp(receivedPacket, controlPacket,PACKET_SIZE));
+                ASSERT(0 == memcmp(receivedPacket,
+                                   controlPacket,
+                                   k_PACKET_SIZE));
             }
 
             // Perform proper shut down procedure
@@ -667,13 +667,13 @@ int main(int argc, char *argv[]) {
                       QT("Test 'deallocate' and 'setPeer' methods.");
                       QT("========================================");
                   }
-                  enum { NUM_PEERS = 4 };
-                  for (int j = 0; j < NUM_PEERS; ++j) {
+                  enum { k_NUM_PEERS = 4 };
+                  for (int j = 0; j < k_NUM_PEERS; ++j) {
                       btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                            factory.allocate();
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
                       ASSERT(0 == serverSocket->bind(serverAddress));
 
                       ASSERT(0 == serverSocket->localAddress(&actualAddress));
@@ -689,32 +689,32 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // A channel is established before "time" is reached.
-  {L_, 'A',  CHANNEL, interruptible,   INFINITED,  0,       1,    length + 1 },
+// A channel is established before "time" is reached.
+{L_, 'A',  e_CHANNEL, interruptible,   INFINITED,  0,       1,    length + 1 },
 
-  // A channel is established before "time" is reached.
-  {L_, 'A',  CHANNEL, interruptible,   &time,      0,       1,    length + 2 },
+// A channel is established before "time" is reached.
+{L_, 'A',  e_CHANNEL, interruptible,   &time,      0,       1,    length + 2 },
 
-  // Multiple channels can be established.
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 3 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 4 },
+// Multiple channels can be established.
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 3 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 4 },
 
-  // Now deallocate a channel.
-  {L_, 'D',   CHANNEL, non_interrupt,  &time,      0,       0,    length + 3 },
-  {L_, 'D', T_CHANNEL, non_interrupt,  &time,      0,       0,    length + 2 },
+// Now deallocate a channel.
+{L_, 'D',   e_CHANNEL, non_interrupt,  &time,      0,       0,    length + 3 },
+{L_, 'D', e_T_CHANNEL, non_interrupt,  &time,      0,       0,    length + 2 },
 
-  // Establish new channels after the above deallocate.
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 3 },
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,       1,    length + 4 },
-  {L_, 'A',   CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 5 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 6 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 7 },
-  /*
-  // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'I', T_CHANNEL, non_interrupt,  INFINITED,  0,       0,           7 },
-  {L_, 'A', T_CHANNEL, interruptible,  &time,     -4,       0,           7 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,     -4,       0,           7 },
-  */
+// Establish new channels after the above deallocate.
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 3 },
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,       1,    length + 4 },
+{L_, 'A',   e_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 5 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 6 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 7 },
+/*
+// Close the 'acceptor' can't establish any more channels: concern (8).
+{L_, 'I', e_T_CHANNEL, non_interrupt,  INFINITED,  0,       0,           7 },
+{L_, 'A', e_T_CHANNEL, interruptible,  &time,     -4,       0,           7 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,     -4,       0,           7 },
+*/
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -754,7 +754,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       ASSERT(0 == serverSocket->bind(serverAddress));
 
@@ -771,25 +771,25 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // A channel is established before "time" is reached.
-  {L_, 'A',  CHANNEL, interruptible,   INFINITED,   0,      1,    length + 1 },
+// A channel is established before "time" is reached.
+{L_, 'A',  e_CHANNEL, interruptible,   INFINITED,   0,      1,    length + 1 },
 
-  // A channel is established before "time" is reached.
-  {L_, 'A',  CHANNEL, interruptible,   &time,      0,       1,    length + 2 },
+// A channel is established before "time" is reached.
+{L_, 'A',  e_CHANNEL, interruptible,   &time,      0,       1,    length + 2 },
 
-  // Multiple channels can be established.
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 3 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 4 },
+// Multiple channels can be established.
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 3 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 4 },
 
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 5 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 6 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,       1,    length + 5 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  0,       1,    length + 6 },
 
-  // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'I', T_CHANNEL, non_interrupt,  INFINITED,   0,      0,    length + 6 },
-  {L_, 'A',   CHANNEL, interruptible,  INFINITED,  -4,      0,    length + 6 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  -4,      0,    length + 6 },
-  {L_, 'A',   CHANNEL, interruptible,  &time,     -4,       0,    length + 6 },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,     -4,       0,    length + 6 },
+// Close the 'acceptor' can't establish any more channels: concern (8).
+{L_, 'I', e_T_CHANNEL, non_interrupt,  INFINITED,   0,      0,    length + 6 },
+{L_, 'A',   e_CHANNEL, interruptible,  INFINITED,  -4,      0,    length + 6 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  -4,      0,    length + 6 },
+{L_, 'A',   e_CHANNEL, interruptible,  &time,     -4,       0,    length + 6 },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,     -4,       0,    length + 6 },
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -949,7 +949,7 @@ int main(int argc, char *argv[]) {
                   {
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       ASSERT(0 == serverSocket->bind(serverAddress));
 
@@ -965,29 +965,29 @@ int main(int argc, char *argv[]) {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
   // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A', T_CHANNEL,  interruptible,  &time,     0,      1,         1   },
+  {L_, 'A', e_T_CHANNEL,  interruptible,  &time,     0,      1,         1   },
 
   // Submit more "allocate" requests to establish multiple channels (concern
   // 2).
-  {L_, 'A', T_CHANNEL,  non_interrupt,  &time,     0,      1,         2   },
-  {L_, 'A', T_CHANNEL,  non_interrupt,  &time,     0,      1,         3   },
+  {L_, 'A', e_T_CHANNEL,  non_interrupt,  &time,     0,      1,         2   },
+  {L_, 'A', e_T_CHANNEL,  non_interrupt,  &time,     0,      1,         3   },
 
   // Now deallocate a channel (concern 3).
-  {L_, 'D', T_CHANNEL, non_interrupt,   &time,     0,      0,         2   },
+  {L_, 'D', e_T_CHANNEL, non_interrupt,   &time,     0,      0,         2   },
 
   // More channels can be established after the deletion (concern 3).
-  {L_, 'A', T_CHANNEL,  non_interrupt,  INFINITED, 0,      1,         3   },
+  {L_, 'A', e_T_CHANNEL,  non_interrupt,  INFINITED, 0,      1,         3   },
 
   // More channels can be established by other "allocate" functions (concern
   // 4).
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,         4   },
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,         5   },
+  {L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,         4   },
+  {L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,         5   },
 
-  {L_, 'A',   CHANNEL, non_interrupt,  INFINITED,  0,      1,         6   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  0,      1,         7   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,      1,         8   },
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,         9   },
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,        10   },
+  {L_, 'A',   e_CHANNEL, non_interrupt,  INFINITED,  0,      1,         6   },
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  0,      1,         7   },
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,      1,         8   },
+  {L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,         9   },
+  {L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,        10   },
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1022,7 +1022,7 @@ int main(int argc, char *argv[]) {
                       // outside the company.
                       serverAddress.setIpAddress(REMOTE_HOST);
                       //serverAddress.setIpAddress("130.127.69.228");
-                      serverAddress.setPortNumber(REMOTE_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_REMOTE_PORT_NUMBER);
 
                       connector.setPeer(serverAddress);
                       ASSERT(0 == connector.isInvalid());
@@ -1036,21 +1036,21 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // New channels can still be established: concern (5).
-  {L_, 'A', T_CHANNEL,  interruptible, &time,     1,         0,     existing},
-  // This request will be interrupted by a signal, but will keep trying.
-  {L_, 'A', T_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
-  // The following request will not be interrupted by a signal.
-  {L_, 'A', T_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
+// New channels can still be established: concern (5).
+{L_, 'A', e_T_CHANNEL,  interruptible, &time,     1,         0,     existing},
+// This request will be interrupted by a signal, but will keep trying.
+{L_, 'A', e_T_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
+// The following request will not be interrupted by a signal.
+{L_, 'A', e_T_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
 };
 #else
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // This request will be interrupted by a signal, but will keep trying.
-  {L_, 'A', T_CHANNEL,  non_interrupt, &timeout,  0,         0,   existing },
-  // The following request will not be interrupted by a signal.
-  {L_, 'A', T_CHANNEL,  non_interrupt, &timeout,  0,         0,   existing },
+// This request will be interrupted by a signal, but will keep trying.
+{L_, 'A', e_T_CHANNEL,  non_interrupt, &timeout,  0,         0,   existing },
+// The following request will not be interrupted by a signal.
+{L_, 'A', e_T_CHANNEL,  non_interrupt, &timeout,  0,         0,   existing },
 };
 #endif
 // ===================>
@@ -1088,7 +1088,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -1104,12 +1104,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A', T_CHANNEL, interruptible,  &time,    0,      1,    existing + 1},
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,    0,      1,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 3},
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 4},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,    0,      1,    existing + 5},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A', e_T_CHANNEL, interruptible,  &time,    0,      1,    existing + 1},
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,    0,      1,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 3},
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 4},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,    0,      1,    existing + 5},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1143,7 +1143,8 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER + 5000);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER
+                                                + 5000);
 
                       connector.setPeer(serverAddress);
 
@@ -1154,9 +1155,9 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit 'allocate' requests, which are supposed to fail.
-  {L_, 'A',   T_CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
-  {L_, 'A',   T_CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
+// Submit 'allocate' requests, which are supposed to fail.
+{L_, 'A',   e_T_CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
+{L_, 'A',   e_T_CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1191,7 +1192,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -1207,12 +1208,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A', T_CHANNEL, interruptible,  &time,      0,      1,    existing + 1},
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
-  {L_, 'I', T_CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A', e_T_CHANNEL, interruptible,  &time,      0,      1,    existing + 1},
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
+{L_, 'I', e_T_CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1373,7 +1374,7 @@ int main(int argc, char *argv[]) {
                   {
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       ASSERT(0 == serverSocket->bind(serverAddress));
 
@@ -1388,30 +1389,28 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A',  CHANNEL,  interruptible,  &time,      0,      1,         1   },
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A',  e_CHANNEL,  interruptible,  &time,      0,      1,         1   },
 
-  // Submit more "allocate" requests to establish multiple channels (concern
-  // 2).
-  {L_, 'A',  CHANNEL,  non_interrupt,  &time,      0,      1,         2   },
-  {L_, 'A',  CHANNEL,  non_interrupt,  &time,      0,      1,         3   },
+// Submit more "allocate" requests to establish multiple channels (concern 2).
+{L_, 'A',  e_CHANNEL,  non_interrupt,  &time,      0,      1,         2   },
+{L_, 'A',  e_CHANNEL,  non_interrupt,  &time,      0,      1,         3   },
 
-  // Now deallocate a channel (concern 3).
-  {L_, 'D',  CHANNEL,  non_interrupt,  &time,      0,      0,         2   },
+// Now deallocate a channel (concern 3).
+{L_, 'D',  e_CHANNEL,  non_interrupt,  &time,      0,      0,         2   },
 
-  // More channels can be established after the deletion (concern 3).
-  {L_, 'A',  CHANNEL,  non_interrupt,  INFINITED,  0,      1,         3   },
+// More channels can be established after the deletion (concern 3).
+{L_, 'A',  e_CHANNEL,  non_interrupt,  INFINITED,  0,      1,         3   },
 
-  // More channels can be established by other "allocate" functions (concern
-  // 4).
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  0,      1,         4   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,      1,         5   },
+// More channels can be established by other "allocate" functions (concern 4).
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  0,      1,         4   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,      1,         5   },
 
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,      1,         6   },
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,         7   },
-  {L_, 'A',   CHANNEL, non_interrupt,  INFINITED,  0,      1,         8   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,      1,         9   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  0,      1,        10   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,      1,         6   },
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,         7   },
+{L_, 'A',   e_CHANNEL, non_interrupt,  INFINITED,  0,      1,         8   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,      1,         9   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  0,      1,        10   },
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1446,7 +1445,7 @@ int main(int argc, char *argv[]) {
                       // outside the company.
                       serverAddress.setIpAddress(REMOTE_HOST);
                       //serverAddress.setIpAddress("130.127.69.228");
-                      serverAddress.setPortNumber(REMOTE_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_REMOTE_PORT_NUMBER);
 
                       connector.setPeer(serverAddress);
                       ASSERT(0 == connector.isInvalid());
@@ -1460,21 +1459,21 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // New channels can still be established: concern (5).
-  {L_, 'A',  CHANNEL,  interruptible, &time,     1,         0,     existing},
-  // This request will be interrupted by a signal, but will keep trying.
-  {L_, 'A',  CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
-  // The following request will not be interrupted by a signal.
-  {L_, 'A',  CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
+// New channels can still be established: concern (5).
+{L_, 'A',  e_CHANNEL,  interruptible, &time,     1,         0,     existing},
+// This request will be interrupted by a signal, but will keep trying.
+{L_, 'A',  e_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
+// The following request will not be interrupted by a signal.
+{L_, 'A',  e_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
 };
 #else
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-   // This request will be interrupted by a signal, but will keep trying.
-  {L_, 'A',  CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
-  // The following request will not be interrupted by a signal.
-  {L_, 'A',  CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
+// This request will be interrupted by a signal, but will keep trying.
+{L_, 'A',  e_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
+// The following request will not be interrupted by a signal.
+{L_, 'A',  e_CHANNEL,  non_interrupt, &timeout,  0,         0,     existing},
 };
 
 #endif
@@ -1513,7 +1512,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -1529,12 +1528,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A',   CHANNEL, interruptible,  &time,    0,      1,    existing + 1},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,    0,      1,    existing + 2},
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 3},
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 4},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,    0,      1,    existing + 5},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A',   e_CHANNEL, interruptible,  &time,    0,      1,    existing + 1},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,    0,      1,    existing + 2},
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 3},
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED, 0,      1,    existing + 4},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,    0,      1,    existing + 5},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1569,7 +1568,8 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER + 5000);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER
+                                                + 5000);
 
                       connector.setPeer(serverAddress);
 
@@ -1580,9 +1580,9 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit 'allocate' requests, which are supposed to fail.
-  {L_, 'A',   CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
-  {L_, 'A',   CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
+// Submit 'allocate' requests, which are supposed to fail.
+{L_, 'A',   e_CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
+{L_, 'A',   e_CHANNEL,  non_interrupt, &time,  -3,       0,      existing},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1617,7 +1617,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -1633,12 +1633,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A',   CHANNEL, interruptible,  &time,      0,      1,    existing + 1},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
-  {L_, 'I',   CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A',   e_CHANNEL, interruptible,  &time,      0,      1,    existing + 1},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
+{L_, 'I',   e_CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1805,7 +1805,7 @@ int main(int argc, char *argv[]) {
                   {
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       ASSERT(0 == serverSocket->bind(serverAddress));
 
@@ -1820,30 +1820,28 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A', T_CHANNEL,  interruptible,  INFINITED,   0,      1,         1   },
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A', e_T_CHANNEL,  interruptible,  INFINITED,   0,      1,         1   },
 
-  // Submit more "allocate" requests to establish multiple channels (concern
-  // 2).
-  {L_, 'A', T_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         2   },
-  {L_, 'A', T_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
+// Submit more "allocate" requests to establish multiple channels (concern 2).
+{L_, 'A', e_T_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         2   },
+{L_, 'A', e_T_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
 
-  // Now deallocate a channel (concern 3).
-  {L_, 'D', T_CHANNEL, non_interrupt,   &time,       0,      0,         2   },
+// Now deallocate a channel (concern 3).
+{L_, 'D', e_T_CHANNEL, non_interrupt,   &time,       0,      0,         2   },
 
-  // More channels can be established after the deletion (concern 3).
-  {L_, 'A', T_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
+// More channels can be established after the deletion (concern 3).
+{L_, 'A', e_T_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
 
-  // More channels can be established by other "allocate" functions (concern
-  // 4).
-  {L_, 'A',   CHANNEL, non_interrupt,   INFINITED,   0,      1,         4   },
-  {L_, 'A',   CHANNEL, non_interrupt,   &time,       0,      1,         5   },
+// More channels can be established by other "allocate" functions (concern 4).
+{L_, 'A',   e_CHANNEL, non_interrupt,   INFINITED,   0,      1,         4   },
+{L_, 'A',   e_CHANNEL, non_interrupt,   &time,       0,      1,         5   },
 
-  {L_, 'A',   CHANNEL, non_interrupt,   &time,       0,      1,         6   },
-  {L_, 'A', T_CHANNEL, non_interrupt,   &time,       0,      1,         7   },
-  {L_, 'A', T_CHANNEL, non_interrupt,   INFINITED,   0,      1,         8   },
-  {L_, 'A',   CHANNEL, non_interrupt,   &time,       0,      1,         9   },
-  {L_, 'A',   CHANNEL, non_interrupt,   INFINITED,   0,      1,        10   },
+{L_, 'A',   e_CHANNEL, non_interrupt,   &time,       0,      1,         6   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,   &time,       0,      1,         7   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,   INFINITED,   0,      1,         8   },
+{L_, 'A',   e_CHANNEL, non_interrupt,   &time,       0,      1,         9   },
+{L_, 'A',   e_CHANNEL, non_interrupt,   INFINITED,   0,      1,        10   },
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1879,7 +1877,7 @@ int main(int argc, char *argv[]) {
                       // Now set the 'connector's server IP address to a host
                       // outside the company.
                       serverAddress.setIpAddress(REMOTE_HOST);
-                      serverAddress.setPortNumber(REMOTE_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_REMOTE_PORT_NUMBER);
 
                       connector.setPeer(serverAddress);
                       ASSERT(0 == connector.isInvalid());
@@ -1892,21 +1890,21 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // New channels can still be established: concern (5).
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
+// New channels can still be established: concern (5).
+{L_, 'A', e_T_CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
 #if defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
     defined(BSLS_PLATFORM_OS_AIX)
-  // Solaris and AIX will incorrectly return very quickly from this call to
-  // connect.  The other platforms would timeout at some point but it would
-  // have taken a very long time.
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+// Solaris and AIX will incorrectly return very quickly from this call to
+// connect.  The other platforms would timeout at some point but it would have
+// taken a very long time.
+{L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 #endif
 };
 #else
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+{L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 };
 #endif
 // ===================>
@@ -1945,7 +1943,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -1961,12 +1959,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A', T_CHANNEL, interruptible,  INFINITED,  0,      1,    existing + 1},
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 3},
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,    existing + 4},
-  {L_, 'A',   CHANNEL, non_interrupt,  INFINITED,  0,      1,    existing + 5},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A', e_T_CHANNEL, interruptible,  INFINITED,  0,      1,    existing + 1},
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 3},
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 4},
+{L_, 'A',   e_CHANNEL, non_interrupt,  INFINITED,  0,      1,    existing + 5},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2001,7 +1999,8 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER + 5000);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER
+                                                + 5000);
 
                       connector.setPeer(serverAddress);
 
@@ -2012,9 +2011,9 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit 'allocate' requests, which are supposed to fail.
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
+// Submit 'allocate' requests, which are supposed to fail.
+{L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
+{L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2050,7 +2049,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -2066,12 +2065,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A', T_CHANNEL, interruptible,  INFINITED,  0,      1,    existing + 1},
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
-  {L_, 'I', T_CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED, -4,      0,    existing + 2},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A', e_T_CHANNEL, interruptible,  INFINITED,  0,      1,    existing + 1},
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
+{L_, 'I', e_T_CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED, -4,      0,    existing + 2},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2234,7 +2233,7 @@ int main(int argc, char *argv[]) {
                   {
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       ASSERT(0 == serverSocket->bind(serverAddress));
 
@@ -2249,30 +2248,28 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A',  CHANNEL,  interruptible,  INFINITED,   0,      1,         1   },
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A',  e_CHANNEL,  interruptible,  INFINITED,   0,      1,         1   },
 
-  // Submit more "allocate" requests to establish multiple channels (concern
-  // 2).
-  {L_, 'A',  CHANNEL,  non_interrupt,  INFINITED,   0,      1,         2   },
-  {L_, 'A',  CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
+// Submit more "allocate" requests to establish multiple channels (concern 2).
+{L_, 'A',  e_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         2   },
+{L_, 'A',  e_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
 
-  // Now deallocate a channel (concern 3).
-  {L_, 'D',   CHANNEL, non_interrupt,  &time,       0,      0,         2   },
+// Now deallocate a channel (concern 3).
+{L_, 'D',   e_CHANNEL, non_interrupt,  &time,       0,      0,         2   },
 
-  // More channels can be established after the deletion (concern 3).
-  {L_, 'A',  CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
+// More channels can be established after the deletion (concern 3).
+{L_, 'A',  e_CHANNEL,  non_interrupt,  INFINITED,   0,      1,         3   },
 
-  // More channels can be established by other "allocate" functions (concern
-  // 4).
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,      1,         4   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,       0,      1,         5   },
+// More channels can be established by other "allocate" functions (concern 4).
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,      1,         4   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,       0,      1,         5   },
 
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,       0,      1,         6   },
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,       0,      1,         7   },
-  {L_, 'A',   CHANNEL, non_interrupt,  INFINITED,   0,      1,         8   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,       0,      1,         9   },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,      1,        10   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,       0,      1,         6   },
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,       0,      1,         7   },
+{L_, 'A',   e_CHANNEL, non_interrupt,  INFINITED,   0,      1,         8   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,       0,      1,         9   },
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,      1,        10   },
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2306,7 +2303,7 @@ int main(int argc, char *argv[]) {
                       // Now set the 'connector's server IP address to a host
                       // outside the company.
                       serverAddress.setIpAddress(REMOTE_HOST);
-                      serverAddress.setPortNumber(REMOTE_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_REMOTE_PORT_NUMBER);
 
                       connector.setPeer(serverAddress);
                       ASSERT(0 == connector.isInvalid());
@@ -2319,22 +2316,22 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // New channels can still be established: concern (5).
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
+// New channels can still be established: concern (5).
+{L_, 'A',  e_CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
 #if defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
     defined(BSLS_PLATFORM_OS_AIX)
-  // Solaris and AIX will incorrectly return very quickly from this call to
-  // connect.  The other platforms would timeout at some point but it would
-  // have taken a very long time.
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+// Solaris and AIX will incorrectly return very quickly from this call to
+// connect.  The other platforms would timeout at some point but it would have
+// taken a very long time.
+{L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 #endif
 };
 #else
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // New channels can still be established: concern (5).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+// New channels can still be established: concern (5).
+{L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 };
 #endif
 // ===================>
@@ -2372,7 +2369,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -2388,12 +2385,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A',   CHANNEL, interruptible,  INFINITED,   0,     1,    existing + 1},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,       0,     1,    existing + 2},
-  {L_, 'A',   CHANNEL, non_interrupt,  &time,       0,     1,    existing + 3},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,       0,     1,    existing + 4},
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,     1,    existing + 5},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A',   e_CHANNEL, interruptible,  INFINITED,   0,     1,    existing + 1},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,       0,     1,    existing + 2},
+{L_, 'A',   e_CHANNEL, non_interrupt,  &time,       0,     1,    existing + 3},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,       0,     1,    existing + 4},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,     1,    existing + 5},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2429,7 +2426,8 @@ int main(int argc, char *argv[]) {
                       btlso::IPv4Address serverAddress, actualAddress;
 
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER + 5000);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER
+                                                + 5000);
 
                       connector.setPeer(serverAddress);
 
@@ -2440,9 +2438,9 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit 'allocate' requests, which are supposed to fail.
-  {L_, 'A',   CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
-  {L_, 'A',   CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
+// Submit 'allocate' requests, which are supposed to fail.
+{L_, 'A',   e_CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
+{L_, 'A',   e_CHANNEL,  non_interrupt, INFINITED,  -3,       0,      existing},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2478,7 +2476,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       int ret= serverSocket->bind(serverAddress);
                       ASSERT(0 == ret);
@@ -2494,12 +2492,12 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout  expStat validChannel expNumConn
 //---- --- -----------  -------------  -------  ------- ------------ ----------
-  // Submit an "allocate" request to establish one channel (concern 1).
-  {L_, 'A',   CHANNEL, interruptible,  INFINITED,   0,     1,    existing + 1},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
-  {L_, 'I',   CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  -4,     0,    existing + 2},
+// Submit an "allocate" request to establish one channel (concern 1).
+{L_, 'A',   e_CHANNEL, interruptible,  INFINITED,   0,     1,    existing + 1},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,      0,      1,    existing + 2},
+{L_, 'I',   e_CHANNEL, non_interrupt,  &time,      0,      0,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  &time,     -4,      0,    existing + 2},
+{L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  -4,     0,    existing + 2},
 };
 // ===================>
                       const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2589,7 +2587,7 @@ int main(int argc, char *argv[]) {
 
                   btlso::IPv4Address serverAddress, actualAddress;
                   serverAddress.setIpAddress(HOST_NAME);
-                  serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                  serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                   ASSERT(0 == serverSocket->bind(serverAddress));
 
@@ -2606,14 +2604,14 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // Each of the following command is to establish a channel.
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          1   },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,        1,          2   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3   },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,        1,          4   },
-  {L_, 'A',   CHANNEL, interruptible, INFINITED,   0,        1,          5   },
+// Each of the following command is to establish a channel.
+{L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          1   },
+{L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,        1,          2   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3   },
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,        1,          4   },
+{L_, 'A',   e_CHANNEL, interruptible, INFINITED,   0,        1,          5   },
 
-  {L_, 'I',   CHANNEL, interruptible, INFINITED,   0,        0,          5   },
+{L_, 'I',   e_CHANNEL, interruptible, INFINITED,   0,        0,          5   },
 };
 // ===============>
                   const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2662,7 +2660,7 @@ int main(int argc, char *argv[]) {
           //   from each channel operation.
           // Testing:
           //   virtual btlsos::TcpTimedConnector();
-          //   virtual btlsos::TcpTimedConnector(..., int initialCapacity, ...);
+          //   virtual btlsos::TcpTimedConnector(..., initialCapacity, ...);
           //   virtual ~btlsos::TcpTimedConnector();
           // ----------------------------------------------------------------
           if (verbose) {
@@ -2717,7 +2715,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress, actualAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       ASSERT(0 == serverSocket->bind(serverAddress));
 
@@ -2733,30 +2731,30 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  // Each of the following command is to establish a channel.
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,        1,          1   },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,        1,          2   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3   },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,        1,          4   },
-  {L_, 'A',   CHANNEL, interruptible, INFINITED,   0,        1,          5   },
+// Each of the following command is to establish a channel.
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,        1,          1   },
+{L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,        1,          2   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3   },
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,        1,          4   },
+{L_, 'A',   e_CHANNEL, interruptible, INFINITED,   0,        1,          5   },
 
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,        1,          6   },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,        1,          7   },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,        1,          8   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          9   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,         10   },
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,        1,          6   },
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,        1,          7   },
+{L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,        1,          8   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          9   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,         10   },
 
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,         11   },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,        1,         12   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,         13   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,         14   },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,        1,         15   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,         11   },
+{L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,        1,         12   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,         13   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,         14   },
+{L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,        1,         15   },
 
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,         16   },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,        1,         17   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,         18   },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,         19   },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,        1,         20   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,         16   },
+{L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,        1,         17   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,         18   },
+{L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,         19   },
+{L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,        1,         20   },
 };
 // ===============>
                   const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2814,10 +2812,10 @@ int main(int argc, char *argv[]) {
                 btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                         factory.allocate();
                 {
-                    enum { FAILED = -3 };
+                    enum { e_FAILED = -3 };
                     btlso::IPv4Address serverAddress, actualAddress;
 
-                    serverAddress.setPortNumber(REMOTE_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_REMOTE_PORT_NUMBER);
 
                     connector.setPeer(serverAddress);
                     ASSERT(0 == connector.isInvalid());
@@ -2826,7 +2824,7 @@ int main(int argc, char *argv[]) {
 #if 0
                     btlsc::Channel *newChannel = connector.allocate(&status);
                     ASSERT(0 == newChannel);
-                    ASSERT(FAILED == status);
+                    ASSERT(e_FAILED == status);
 #endif
                     factory.deallocate(serverSocket);
                 }
