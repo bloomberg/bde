@@ -248,8 +248,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
     // NOT IMPLEMENTED
     ConcurrentAllocatorAdapter(
                                    const ConcurrentAllocatorAdapter&);
-    ConcurrentAllocatorAdapter& operator=(
-                                   const ConcurrentAllocatorAdapter&);
+    ConcurrentAllocatorAdapter& operator=(const ConcurrentAllocatorAdapter&);
   public:
     // CREATORS
     ConcurrentAllocatorAdapter(bdlqq::Mutex     *mutex,

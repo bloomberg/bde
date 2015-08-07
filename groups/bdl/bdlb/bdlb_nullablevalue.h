@@ -128,9 +128,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlb {
 
-
-namespace bdlb {template <class TYPE>
+template <class TYPE>
 class NullableValue_WithAllocator;
 
 template <class TYPE>
@@ -434,16 +434,14 @@ bool operator!=(const TYPE&                      lhs,
 template <typename TYPE>
 bsl::ostream& operator<<(bsl::ostream&                    stream,
                          const NullableValue<TYPE>& rhs);
-}  // close package namespace
     // Print the specified 'rhs' to the specified 'stream' in some
     // human-readable, single-line format, and return a reference to the
     // modifiable 'stream'.
 
 // FREE FUNCTIONS
 template <typename TYPE>
-void swap(bdlb::NullableValue<TYPE>& a, bdlb::NullableValue<TYPE>& b);
-
-namespace bdlb {    // Swap the values of the specified 'a' and 'b' objects.  This method
+void swap(NullableValue<TYPE>& a, NullableValue<TYPE>& b);
+    // Swap the values of the specified 'a' and 'b' objects.  This method
     // provides the no-throw guarantee if the 'TYPE' template parameter has a
     // no-throw 'swap' and the result of the 'isNull' method for the two
     // objects being swapped is the same.  The behavior is undefined if the
@@ -900,9 +898,8 @@ const TYPE *NullableValue<TYPE>::valueOr(const TYPE *defaultValue) const
 {
     return d_imp.isNull() ? defaultValue : &d_imp.value();
 }
+
 }  // close package namespace
-
-
 
 // FREE OPERATORS
 
@@ -970,13 +967,15 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&                    stream,
     return rhs.print(stream, 0, -1);
 }
 
+
 // FREE FUNCTIONS
 template <typename TYPE>
 inline
-void swap(bdlb::NullableValue<TYPE>& a, bdlb::NullableValue<TYPE>& b)
+void bdlb::swap(bdlb::NullableValue<TYPE>& a, bdlb::NullableValue<TYPE>& b)
 {
     a.swap(b);
 }
+
 
 namespace bdlb {
                // ---------------------------------------------
@@ -1327,6 +1326,7 @@ const TYPE& NullableValue_WithoutAllocator<TYPE>::value() const
 
     return d_buffer.object();
 }
+
 }  // close package namespace
 
 }  // close namespace BloombergLP

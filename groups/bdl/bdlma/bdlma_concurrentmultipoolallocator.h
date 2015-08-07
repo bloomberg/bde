@@ -164,8 +164,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_Node,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_Node,
+//                                     bslma::UsesBslmaAllocator);
 //
 //      // CREATORS
 //      explicit my_Node(bslma::Allocator *basicAllocator = 0);
@@ -196,8 +196,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_Graph,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_Graph,
+//                                     bslma::UsesBslmaAllocator);
 //
 //      // CREATORS
 //      explicit my_Graph(bslma::Allocator *basicAllocator = 0);
@@ -226,8 +226,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_NamedGraphContainer,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_NamedGraphContainer,
+//                                     bslma::UsesBslmaAllocator);
 //
 //      // CREATORS
 //      explicit my_NamedGraphContainer(bslma::Allocator *basicAllocator = 0);

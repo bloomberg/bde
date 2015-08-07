@@ -1,16 +1,16 @@
-// bdlcc_fixedqueue.cpp                                                -*-C++-*-
+// bdlcc_fixedqueue.cpp                                               -*-C++-*-
 
 #include <bdlcc_fixedqueue.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlcc_fixedqueue_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlcc_fixedqueue_cpp,"$Id$$CSID$")
 
 namespace BloombergLP {
 
 ///Implementation Note
 ///===================
 // This component is implemented using a ring buffer data structure.  A ring
-// buffer is a fixed size buffer that logically wraps around itself. It is the
+// buffer is a fixed size buffer that logically wraps around itself.  It is the
 // ideal container for a fixed sized queue, since this structure imposes a
 // strict upper bound on it's internal capacity.
 //
@@ -46,8 +46,8 @@ namespace BloombergLP {
 // was designed to minimize contention between threads.
 //
 // Conceptually, this ring buffer could be thought of as two concentric ring
-// buffers.  Cells of the outer ring hold an atomic integer which facilitates
-// a state machine (sn) whose purpose is to protect access to a value (vn)
+// buffers.  Cells of the outer ring hold an atomic integer which facilitates a
+// state machine (sn) whose purpose is to protect access to a value (vn)
 // contained at the homogeneous inner cell:
 //..
 //
@@ -73,18 +73,25 @@ namespace BloombergLP {
 //                        +---| s0|s19|---+
 //                            +-------+
 //..
-// The outer ring implemented in the class 'bdlcc::FixedQueueIndexManager'.  The
-// inner ring is implemented in the class 'bdlcc::FixedQueue'.  Each
-// 'bdlcc::FixedQueue' object holds a 'bdlcc::AtomicRinBufferIndexManager' that it
-// uses to manage the state of the elements in 'd_elements'.
+// The outer ring implemented in the class 'bdlcc::FixedQueueIndexManager'.
+// The inner ring is implemented in the class 'bdlcc::FixedQueue'.  Each
+// 'bdlcc::FixedQueue' object holds a 'bdlcc::AtomicRinBufferIndexManager' that
+// it uses to manage the state of the elements in 'd_elements'.
 
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

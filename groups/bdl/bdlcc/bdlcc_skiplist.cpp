@@ -1,4 +1,4 @@
-// bdlcc_skiplist.cpp                                                  -*-C++-*-
+// bdlcc_skiplist.cpp                                                 -*-C++-*-
 #include <bdlcc_skiplist.h>
 
 #include <bsls_ident.h>
@@ -17,37 +17,38 @@ BSLS_IDENT_RCSID(bdlcc_skiplist_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 enum {
-      REF_COUNT_NUM_BITS = bdlcc::SkipList_Control::BCEC_NUM_REFERENCE_BITS
-    , REF_COUNT_INC = 1
-    , MAX_REF_COUNT = (1 << REF_COUNT_NUM_BITS) - 1
-    , REF_COUNT_MASK = MAX_REF_COUNT
+      k_REF_COUNT_NUM_BITS = bdlcc::SkipList_Control::k_NUM_REFERENCE_BITS
+    , k_REF_COUNT_INC = 1
+    , k_MAX_REF_COUNT = (1 << k_REF_COUNT_NUM_BITS) - 1
+    , k_REF_COUNT_MASK = k_MAX_REF_COUNT
 
-    , RELEASE_FLAG_NUM_BITS = 1
-    , RELEASE_FLAG_OFFSET = REF_COUNT_NUM_BITS
-    , RELEASE_FLAG_MASK = 1 << RELEASE_FLAG_OFFSET
+    , k_RELEASE_FLAG_NUM_BITS = 1
+    , k_RELEASE_FLAG_OFFSET = k_REF_COUNT_NUM_BITS
+    , k_RELEASE_FLAG_MASK = 1 << k_RELEASE_FLAG_OFFSET
 
-    , ACQUIRE_COUNT_NUM_BITS = 7
-    , ACQUIRE_COUNT_OFFSET = RELEASE_FLAG_OFFSET + RELEASE_FLAG_NUM_BITS
-    , ACQUIRE_COUNT_INC = 1 << ACQUIRE_COUNT_OFFSET
-    , MAX_ACQUIRE_COUNT = (1 << ACQUIRE_COUNT_NUM_BITS) - 1
-    , ACQUIRE_COUNT_MASK = MAX_ACQUIRE_COUNT << ACQUIRE_COUNT_OFFSET
+    , k_ACQUIRE_COUNT_NUM_BITS = 7
+    , k_ACQUIRE_COUNT_OFFSET = k_RELEASE_FLAG_OFFSET + k_RELEASE_FLAG_NUM_BITS
+    , k_ACQUIRE_COUNT_INC = 1 << k_ACQUIRE_COUNT_OFFSET
+    , k_MAX_k_ACQUIRE_COUNT = (1 << k_ACQUIRE_COUNT_NUM_BITS) - 1
+    , k_ACQUIRE_COUNT_MASK = k_MAX_k_ACQUIRE_COUNT << k_ACQUIRE_COUNT_OFFSET
 
-      // The value of this is asserted below as a sanity-check.  If
-      // the number of bits is changed, the assertion will need to change.
-    , RESERVED_NUM_BITS = 32 - ACQUIRE_COUNT_NUM_BITS -
-                               RELEASE_FLAG_NUM_BITS -
-                               REF_COUNT_NUM_BITS
+      // The value of this is asserted below as a sanity-check.  If the number
+      // of bits is changed, the assertion will need to change.
+    , RESERVED_NUM_BITS = 32 - k_ACQUIRE_COUNT_NUM_BITS -
+                               k_RELEASE_FLAG_NUM_BITS -
+                               k_REF_COUNT_NUM_BITS
 };
 
 namespace bdlcc {
-                         // ===========================
-                         // class SkipList_Control
-                         // ===========================
+
+                          // ======================
+                          // class SkipList_Control
+                          // ======================
 
 // MANIPULATORS
 void SkipList_Control::init(int level)
 {
-    BSLS_ASSERT(static_cast<unsigned>(level) <= 31);  // BCEC_MAX_LEVEL
+    BSLS_ASSERT(static_cast<unsigned>(level) <= 31);  // k_MAX_LEVEL
 
     d_level = static_cast<unsigned char>(level);
     d_cw    = 0;
@@ -56,37 +57,37 @@ void SkipList_Control::init(int level)
 int SkipList_Control::incrementRefCount()
 {
     int oldBits = d_cw;
-    BSLS_ASSERT((oldBits & REF_COUNT_MASK) != REF_COUNT_MASK);
+    BSLS_ASSERT((oldBits & k_REF_COUNT_MASK) != k_REF_COUNT_MASK);
 
-    int newBits = oldBits + REF_COUNT_INC;
+    int newBits = oldBits + k_REF_COUNT_INC;
     int result;
 
     while (oldBits != (result = d_cw.testAndSwap(oldBits, newBits))) {
         oldBits = result;
-        BSLS_ASSERT((oldBits & REF_COUNT_MASK) != REF_COUNT_MASK);
+        BSLS_ASSERT((oldBits & k_REF_COUNT_MASK) != k_REF_COUNT_MASK);
 
-        newBits = oldBits + REF_COUNT_INC;
+        newBits = oldBits + k_REF_COUNT_INC;
     }
 
-    return newBits & REF_COUNT_MASK;
+    return newBits & k_REF_COUNT_MASK;
 }
 
 int SkipList_Control::decrementRefCount()
 {
     int oldBits = d_cw;
-    BSLS_ASSERT(oldBits & REF_COUNT_MASK);
+    BSLS_ASSERT(oldBits & k_REF_COUNT_MASK);
 
-    int newBits = oldBits - REF_COUNT_INC;
+    int newBits = oldBits - k_REF_COUNT_INC;
     int result;
 
     while (oldBits != (result = d_cw.testAndSwap(oldBits, newBits))) {
         oldBits = result;
-        BSLS_ASSERT(oldBits & REF_COUNT_MASK);
+        BSLS_ASSERT(oldBits & k_REF_COUNT_MASK);
 
-        newBits = oldBits - REF_COUNT_INC;
+        newBits = oldBits - k_REF_COUNT_INC;
     }
 
-    return newBits & REF_COUNT_MASK;
+    return newBits & k_REF_COUNT_MASK;
 }
 
 // ACCESSORS
@@ -95,12 +96,12 @@ int SkipList_Control::level() const
     return d_level;
 }
 
-                     // ========================================
-                     // class SkipList_RandomLevelGenerator
-                     // ========================================
+                   // ===================================
+                   // class SkipList_RandomLevelGenerator
+                   // ===================================
 
 SkipList_RandomLevelGenerator::SkipList_RandomLevelGenerator()
-: d_seed(BCEC_SEED), d_randomBits(1)
+: d_seed(k_SEED), d_randomBits(1)
 {
 }
 
@@ -133,13 +134,14 @@ int SkipList_RandomLevelGenerator::randomLevel()
 
     d_randomBits.storeRelaxed(randomBits);
 
-    return level > BCEC_MAX_LEVEL ? BCEC_MAX_LEVEL : level;
+    return level > k_MAX_LEVEL ? k_MAX_LEVEL : level;
 }
+
 }  // close package namespace
 
-                             // ============================
-                             // class bcec_SkipList_PoolNode
-                             // ============================
+                       // ============================
+                       // class bcec_SkipList_PoolNode
+                       // ============================
 
 struct bcec_SkipList_PoolNode {
     typedef bdlcc::SkipList_Control  Control;
@@ -149,9 +151,9 @@ struct bcec_SkipList_PoolNode {
     Node *volatile  d_next_p;
 };
 
-                             // ========================
-                             // class bcec_SkipList_Pool
-                             // ========================
+                         // ========================
+                         // class bcec_SkipList_Pool
+                         // ========================
 
 struct bcec_SkipList_Pool {
     typedef bcec_SkipList_PoolNode Node;
@@ -163,18 +165,22 @@ struct bcec_SkipList_Pool {
 };
 
 namespace bdlcc {
-                             // ===============================
-                             // class SkipList_PoolManager
-                             // ===============================
+
+                        // ==========================
+                        // class SkipList_PoolManager
+                        // ==========================
 
 class SkipList_PoolManager {
     enum {
-        MAX_POOLS = 32
-      , INITIAL_NUM_OBJECTS = -1  // default 'numObjects' value
-      , GROW_FACTOR         =  2  // multiplicative factor to grow
-                                  // pool capacity
-      , MAX_NUM_OBJECTS     = -32 // minimum 'd_numObjects' value beyond
-                                  // which 'd_numObjects' becomes positive
+        k_MAX_POOLS           =  32,
+
+        k_INITIAL_NUM_OBJECTS =  -1,  // default 'numObjects' value
+
+        k_GROW_FACTOR         =   2,  // multiplicative factor to grow pool
+                                      // capacity
+
+        k_MAX_NUM_OBJECTS     = -32   // minimum 'd_numObjects' value beyond
+                                      // which 'd_numObjects' becomes positive
     };
 
     typedef bcec_SkipList_PoolNode  Node;
@@ -183,7 +189,7 @@ class SkipList_PoolManager {
     bdlma::InfrequentDeleteBlockList   d_blockList;  // supplies free memory
     bdlqq::Mutex                       d_mutex;      // protects the block list
 
-    Pool                              d_pools[MAX_POOLS];
+    Pool                              d_pools[k_MAX_POOLS];
 
     void initPool(Pool *pool, int level, int objectSize);
     void replenish(Pool *pool);
@@ -192,8 +198,8 @@ class SkipList_PoolManager {
 
   public:
     explicit SkipList_PoolManager(int              *objectSizes,
-                                       int               numPools,
-                                       bslma::Allocator *basicAllocator);
+                                  int               numPools,
+                                  bslma::Allocator *basicAllocator);
     ~SkipList_PoolManager();
 
     void *allocate(int level);
@@ -228,10 +234,11 @@ void SkipList_PoolManager::replenish(Pool *pool)
     } while (old != pool->d_freeList.testAndSwap(old,(Node*)(void*)start));
 
     // Grow pool capacity only if 'd_numObjects' is negative and greater than
-    // 'MAX_NUM_OBJECTS' (i.e., |newNumObjects| < |MAX_NUM_OBJECTS|).
+    // 'k_MAX_NUM_OBJECTS' (i.e., |newNumObjects| < |k_MAX_NUM_OBJECTS|).
+
     if (numObjects < 0) {
-        if (numObjects > MAX_NUM_OBJECTS) {
-            pool->d_numObjects *= GROW_FACTOR;
+        if (numObjects > k_MAX_NUM_OBJECTS) {
+            pool->d_numObjects *= k_GROW_FACTOR;
         }
         else {
             pool->d_numObjects = -numObjects;
@@ -249,14 +256,14 @@ void *SkipList_PoolManager::allocate(Pool *pool)
             continue;
         }
 
-        int controlBits = p->d_control.d_cw.add(ACQUIRE_COUNT_INC);
-        if (ACQUIRE_COUNT_INC != (ACQUIRE_COUNT_MASK & controlBits)) {
+        int controlBits = p->d_control.d_cw.add(k_ACQUIRE_COUNT_INC);
+        if (k_ACQUIRE_COUNT_INC != (k_ACQUIRE_COUNT_MASK & controlBits)) {
             for (int i=0; i < 3; ++i) {
-                // To avoid unnecessary contention, assume that if we did
-                // not get the first reference, then the other thread is
-                // about to complete the pop.  Wait for a few cycles until
-                // he does.  If he does not complete then go on and try to
-                // acquire it ourselves.
+                // To avoid unnecessary contention, assume that if we did not
+                // get the first reference, then the other thread is about to
+                // complete the pop.  Wait for a few cycles until he does.  If
+                // he does not complete then go on and try to acquire it
+                // ourselves.
                 if (pool->d_freeList != p) {
                     break;
                 }
@@ -264,8 +271,8 @@ void *SkipList_PoolManager::allocate(Pool *pool)
         }
 
         // Make sure that freeList has not changed since we acquired a
-        // reference, since then it's unsafe to dereference 'p' (note
-        // that therefore *both* of these 'testAndSwap's are required).
+        // reference, since then it's unsafe to dereference 'p' (note that
+        // therefore *both* of these 'testAndSwap's are required).
 
         if (pool->d_freeList.testAndSwap(0,0) == p
          && pool->d_freeList.testAndSwap(p,p->d_next_p) == p) {
@@ -275,18 +282,18 @@ void *SkipList_PoolManager::allocate(Pool *pool)
             int controlBits;
             for (;;) {
                 controlBits = p->d_control.d_cw;
-                if ( controlBits & RELEASE_FLAG_MASK ) {
+                if ( controlBits & k_RELEASE_FLAG_MASK ) {
                     if (controlBits == p->d_control.d_cw.testAndSwap(
                                 controlBits,
-                                controlBits^RELEASE_FLAG_MASK)) {
-                        // The node is now free but not on the free list.
-                        // Take it.
+                                controlBits^k_RELEASE_FLAG_MASK)) {
+                        // The node is now free but not on the free list.  Take
+                        // it.
                         return p;
                     }
                 }
                 else if (controlBits == p->d_control.d_cw.testAndSwap(
                                 controlBits,
-                                controlBits - ACQUIRE_COUNT_INC)) {
+                                controlBits - k_ACQUIRE_COUNT_INC)) {
                     break;
                 }
             }
@@ -305,18 +312,18 @@ void SkipList_PoolManager::deallocate(Pool *pool, void *node)
     for (;;) {
         controlBits = p->d_control.d_cw;
 
-        if ((ACQUIRE_COUNT_INC == (ACQUIRE_COUNT_MASK & controlBits))) {
+        if ((k_ACQUIRE_COUNT_INC == (k_ACQUIRE_COUNT_MASK & controlBits))) {
             if (controlBits == p->d_control.d_cw.testAndSwap(
-                                            controlBits,
-                                            controlBits - ACQUIRE_COUNT_INC)) {
+                                          controlBits,
+                                          controlBits - k_ACQUIRE_COUNT_INC)) {
                 break;
             }
         }
         else if (controlBits == p->d_control.d_cw.testAndSwap(
-                    controlBits,
-                    (controlBits - ACQUIRE_COUNT_INC) | RELEASE_FLAG_MASK)) {
-            // Someone else is still trying to pop this item.  Just let
-            // them have it.
+                  controlBits,
+                  (controlBits - k_ACQUIRE_COUNT_INC) | k_RELEASE_FLAG_MASK)) {
+            // Someone else is still trying to pop this item.  Just let them
+            // have it.
             return;
         }
     }
@@ -331,23 +338,21 @@ void SkipList_PoolManager::deallocate(Pool *pool, void *node)
 }
 
 inline
-void SkipList_PoolManager::initPool(
-    Pool *pool, int level, int objectSize)
+void SkipList_PoolManager::initPool(Pool *pool, int level, int objectSize)
 {
     pool->d_freeList = 0;
     pool->d_objectSize = objectSize;
-    pool->d_numObjects = INITIAL_NUM_OBJECTS;
+    pool->d_numObjects = k_INITIAL_NUM_OBJECTS;
     pool->d_level = level;
 }
 
-SkipList_PoolManager::SkipList_PoolManager(
-    int              *objectSizes,
-    int               numPools,
-    bslma::Allocator *basicAllocator)
+SkipList_PoolManager::SkipList_PoolManager(int              *objectSizes,
+                                           int               numPools,
+                                           bslma::Allocator *basicAllocator)
 : d_blockList(basicAllocator)
 {
     BSLS_ASSERT(numPools > 0);
-    BSLS_ASSERT(numPools <= MAX_POOLS);
+    BSLS_ASSERT(numPools <= k_MAX_POOLS);
 
     // sanity-check
     BSLMF_ASSERT(4 == RESERVED_NUM_BITS);
@@ -375,9 +380,9 @@ void SkipList_PoolManager::deallocate(void *node)
     deallocate(&d_pools[level], node);
 }
 
-                             // ============================
-                             // class SkipList_PoolUtil
-                             // ============================
+                         // =======================
+                         // class SkipList_PoolUtil
+                         // =======================
 
 void *SkipList_PoolUtil::allocate(PoolManager *poolManager, int level)
 {
@@ -390,30 +395,36 @@ void SkipList_PoolUtil::deallocate(PoolManager *poolManager, void *node)
 }
 
 SkipList_PoolManager *SkipList_PoolUtil::createPoolManager(
-    int              *objectSizes,
-    int               numPools,
-    bslma::Allocator *basicAllocator)
+                                              int              *objectSizes,
+                                              int               numPools,
+                                              bslma::Allocator *basicAllocator)
 {
     return new (*basicAllocator) PoolManager(objectSizes,
                                              numPools,
                                              basicAllocator);
 }
 
-void SkipList_PoolUtil::deletePoolManager(
-    bslma::Allocator *basicAllocator,
-    PoolManager      *poolManager)
+void SkipList_PoolUtil::deletePoolManager(bslma::Allocator *basicAllocator,
+                                          PoolManager      *poolManager)
 {
     basicAllocator->deleteObject(poolManager);
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,6 +1,8 @@
-// bdlsb_fixedmeminstreambuf.t.cpp             -*-C++-*-
+// bdlsb_fixedmeminstreambuf.t.cpp                                    -*-C++-*-
 
 #include <bdlsb_fixedmeminstreambuf.h>
+
+#include <bdls_testutil.h>
 
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
@@ -17,20 +19,20 @@ using namespace bsl;  // automatically added by script
 //                          *** Overview ***
 //
 // This test driver exercises all the protected virtual methods from the
-// 'basic_streambuf' protocol that are overridden by the derived concrete
-// class 'bdlsb::FixedMemInStreamBuf', as well as each new (non-protocol) public
+// 'basic_streambuf' protocol that are overridden by the derived concrete class
+// 'bdlsb::FixedMemInStreamBuf', as well as each new (non-protocol) public
 // method added in the 'bdlsb::FixedMemInStreamBuf' class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
-// behavior, and that they conform to a feasible interpretation of the
-// standard as described in the function documentation, where the standard
-// defined behavior only loosely.  For those methods that are not protocol
-// defined, we check only compliance with the behavior as described in the
-// function documentation.
+// behavior, and that they conform to a feasible interpretation of the standard
+// as described in the function documentation, where the standard defined
+// behavior only loosely.  For those methods that are not protocol defined, we
+// check only compliance with the behavior as described in the function
+// documentation.
 //
-// The protected methods (whose implementation or re-implementation define
-// the behavior that differentiates one kind of stream buffer from another) are
+// The protected methods (whose implementation or re-implementation define the
+// behavior that differentiates one kind of stream buffer from another) are
 // "driven", or invoked, by various (base-class) public methods provided for
 // stream-buffer client use.  One recurrent concern in this test driver is to
 // ensure correct interplay between these protected methods and the base-
@@ -92,57 +94,45 @@ using namespace bsl;  // automatically added by script
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
-static int testStatus = 0;
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -190,10 +180,9 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 // -----
 
  class my_WordStreamer {
-     // This class tokenizes white-space delimited input into distinct
-     // words.
+     // This class tokenizes white-space delimited input into distinct words.
 
-    enum { LINE_SIZE_REQUEST = 512 };
+    enum { k_LINE_SIZE_REQUEST = 512 };
 
     bsl::streambuf *d_streamBuf;   // buffer to read from
     char           *d_currentLine; // local cache to store a line
@@ -212,10 +201,10 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 
  my_WordStreamer::my_WordStreamer(bsl::streambuf *streamBuf)
  : d_streamBuf(streamBuf)
- , d_currentLine(new char[LINE_SIZE_REQUEST])
+ , d_currentLine(new char[k_LINE_SIZE_REQUEST])
  , d_cursor(0)
  {
-     d_lineLength = streamBuf->sgetn(d_currentLine, LINE_SIZE_REQUEST);
+     d_lineLength = streamBuf->sgetn(d_currentLine, k_LINE_SIZE_REQUEST);
  }
 
  my_WordStreamer::~my_WordStreamer(void)
@@ -239,16 +228,16 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
      // No word in existing buffer.  See if we can replenish/add.
      word.assign(&(stream.d_currentLine[stream.d_cursor]),
                 stream.d_lineLength - stream.d_cursor); // copy over existing
-     while(1) {
+     while (1) {
          stream.d_lineLength = stream.d_streamBuf->sgetn(
-                             stream.d_currentLine, stream.LINE_SIZE_REQUEST);
+                             stream.d_currentLine, stream.k_LINE_SIZE_REQUEST);
          stream.d_cursor = 0;
          if (0 == stream.d_lineLength) {
              word.clear();
              return stream;
          }
 
-         for(int i = 0; i < stream.d_lineLength; ++i) {
+         for (int i = 0; i < stream.d_lineLength; ++i) {
 
              // Found the word.  Copy & exit.
              if (' ' == stream.d_currentLine[i]) {
@@ -324,7 +313,7 @@ int main(int argc, char **argv)
         //   CONCERN: 'setbuf' overrides base class method.
         // --------------------------------------------------------------------
 
-        if (verbose) cout 
+        if (verbose) cout
                << "'setbuf' OVERRIDES 'basic_streambuf<char>::setbuf'" << endl
                << "==================================================" << endl;
 
@@ -386,7 +375,7 @@ int main(int argc, char **argv)
 
                 // Test for entire capacity and entire-minus-one left
                 for (int k = 0; k <= 1; ++k) {
-                    for(int j = 0; j < i; ++j) {
+                    for (int j = 0; j < i; ++j) {
                         buffer[j] = 'a' + (j %26);
                     }
                     bdlsb::FixedMemInStreamBuf mSB(buffer, i);
@@ -408,7 +397,7 @@ int main(int argc, char **argv)
                 if (veryVerbose) cout << endl;
 
                 for (int k = 1; k >= 0; --k) {
-                    for(int j = 0; j < i; ++j) {
+                    for (int j = 0; j < i; ++j) {
                         buffer[j] = 'a' + (j %26);
                     }
                     bdlsb::FixedMemInStreamBuf mSB(buffer, i);
@@ -525,7 +514,7 @@ int main(int argc, char **argv)
                                        DATA[i].d_retVal : 0);
 
                 char buffer[ARBITRARY_INITIAL_BUFSIZE];
-                for(int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
+                for (int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
                     buffer[j] = 'a' + (j %26);
                 }
                 bdlsb::FixedMemInStreamBuf mSB(buffer,
@@ -538,8 +527,8 @@ int main(int argc, char **argv)
                 LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
                 if (veryVerbose) { T_ P(ret) };
 
-                // Verify positioning by reading one char, and check the
-                // char (except for out-of-bounds positions).
+                // Verify positioning by reading one char, and check the char
+                // (except for out-of-bounds positions).
                 int expectedChar = (FINAL_POS < ARBITRARY_INITIAL_BUFSIZE ?
                                     'a' + FINAL_POS % 26 : -1);
                 if (veryVerbose) {
@@ -586,7 +575,7 @@ int main(int argc, char **argv)
                                        DATA[i].d_initialPosition);
 
                 char buffer[ARBITRARY_INITIAL_BUFSIZE];
-                for(int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
+                for (int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
                     buffer[j] = 'a' + (j %26);
                 }
                 bdlsb::FixedMemInStreamBuf mSB(buffer,
@@ -602,8 +591,8 @@ int main(int argc, char **argv)
 
                 LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
 
-                // Verify positioning by reading one char, and check the
-                // char (except for out-of-bounds positions).
+                // Verify positioning by reading one char, and check the char
+                // (except for out-of-bounds positions).
                 int expectedChar = (FINAL_POS < ARBITRARY_INITIAL_BUFSIZE ?
                                     'a' + FINAL_POS % 26 : -1);
                 if (veryVerbose) {
@@ -767,7 +756,7 @@ int main(int argc, char **argv)
 
             const int BUF_LEN = 100;
             char buffer[BUF_LEN];
-            for(int k = 0; k < 100; ++k) {
+            for (int k = 0; k < 100; ++k) {
                 buffer[k] = 'a' + (k %26);
             }
             bdlsb::FixedMemInStreamBuf mSB(buffer, BUF_LEN);
@@ -778,7 +767,7 @@ int main(int argc, char **argv)
             char *resultBuf[10] = { a, b, c, d, e, f, g, h, i, j };
             int result;
             const char *nextCompare = buffer;
-            for(int j = 1; j < 10; ++j) {
+            for (int j = 1; j < 10; ++j) {
                 result = mSB.sgetn(resultBuf[j - 1], j);
                 LOOP_ASSERT(j, j == result);
                 LOOP_ASSERT(j, 0 == memcmp(nextCompare, resultBuf[j - 1], j));
@@ -894,7 +883,6 @@ int main(int argc, char **argv)
         }
       } break;
 
-
       case 5: {
         // --------------------------------------------------------------------
         // OUTPUT: bsl::ostream& 'operator<<'
@@ -938,7 +926,7 @@ int main(int argc, char **argv)
 
             const int BUF_LEN = 10;
             char buffer[BUF_LEN];
-            for(int j = 0; j < BUF_LEN; ++j) {
+            for (int j = 0; j < BUF_LEN; ++j) {
                 buffer[j] = 'a' + (j %26);
             }
             const bdlsb::FixedMemInStreamBuf SB(buffer, BUF_LEN);
@@ -956,7 +944,7 @@ int main(int argc, char **argv)
 
             const int BUF_LEN = 10;
             char buffer[BUF_LEN];
-            for(int j = 0; j < BUF_LEN; ++j) {
+            for (int j = 0; j < BUF_LEN; ++j) {
                 buffer[j] = 'a' + (j %26);
             }
             bdlsb::FixedMemInStreamBuf mSB(buffer, BUF_LEN);
@@ -1050,7 +1038,7 @@ int main(int argc, char **argv)
             const int TEST_LENGTH = 5;
             char buffer[TEST_LENGTH];
             for (int i = 1; i <= TEST_LENGTH; ++i) {
-                for(int j = 0; j < i; ++j) {
+                for (int j = 0; j < i; ++j) {
                     buffer[j] = 'a' + (j %26);
                 }
                 bdlsb::FixedMemInStreamBuf mSB(buffer, i);
@@ -1058,7 +1046,7 @@ int main(int argc, char **argv)
                 ASSERT(i == SB.length());
                 ASSERT(SB.data() == buffer);
 
-                if(veryVerbose) { T_ P(SB) }
+                if (veryVerbose) { T_ P(SB) }
             }
         }
 
@@ -1077,7 +1065,7 @@ int main(int argc, char **argv)
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
             const int BUF_LEN = 100;
             char buffer[BUF_LEN];
-            for(int i = 0; i < BUF_LEN; ++i) {
+            for (int i = 0; i < BUF_LEN; ++i) {
                 buffer[i] = 'a' + (i % 26);
             }
             bdlsb::FixedMemInStreamBuf mSB(buffer, BUF_LEN);
@@ -1159,7 +1147,7 @@ int main(int argc, char **argv)
                                        DATA[i].d_retVal : 0);
 
                 char buffer[ARBITRARY_INITIAL_BUFSIZE];
-                for(int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
+                for (int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
                     buffer[j] = 'a' + (j %26);
                 }
                 bdlsb::FixedMemInStreamBuf mSB(buffer,
@@ -1172,8 +1160,8 @@ int main(int argc, char **argv)
                 if (veryVerbose) { T_ P(ret) }
                 LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
 
-                // Verify positioning by reading one char, and check the
-                // char (except for out-of-bounds positions).
+                // Verify positioning by reading one char, and check the char
+                // (except for out-of-bounds positions).
                 int expectedChar = (FINAL_POS < ARBITRARY_INITIAL_BUFSIZE ?
                                     'a' + FINAL_POS % 26 : -1);
                 if (veryVerbose) {
@@ -1335,7 +1323,7 @@ int main(int argc, char **argv)
 
         const int BUF_LEN = 100;
         char buffer[BUF_LEN];
-        for(int i = 0; i < BUF_LEN; ++i) {
+        for (int i = 0; i < BUF_LEN; ++i) {
             buffer[i] = 'a' + (i % 26);
         }
         bdlsb::FixedMemInStreamBuf mSB(buffer, BUF_LEN);
@@ -1373,11 +1361,18 @@ int main(int argc, char **argv)
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

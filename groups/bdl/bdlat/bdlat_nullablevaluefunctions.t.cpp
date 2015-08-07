@@ -24,7 +24,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ static void aSsErT(int c, const char *s, int i)
                         // class GetValue<LVALUE_TYPE>
                         // ===========================
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 class GetValue {
     // This visitor assigns the value of the visited member to
     // 'd_destination_p'.
@@ -108,7 +108,7 @@ class GetValue {
     int operator()(const LVALUE_TYPE& object) const;
         // Assign 'object' to '*d_destination_p'.
 
-    template <typename RVALUE_TYPE>
+    template <class RVALUE_TYPE>
     int operator()(const RVALUE_TYPE& object) const;
         // Do nothing.
 };
@@ -117,7 +117,7 @@ class GetValue {
                        // class AssignValue<RVALUE_TYPE>
                        // ==============================
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 class AssignValue {
     // This visitor assigns 'd_value' to the visited member.
 
@@ -132,7 +132,7 @@ class AssignValue {
     int operator()(RVALUE_TYPE *object) const;
         // Assign 'd_value' to '*object'.
 
-    template <typename LVALUE_TYPE>
+    template <class LVALUE_TYPE>
     int operator()(LVALUE_TYPE *object) const;
         // Do nothing.
 };
@@ -143,7 +143,7 @@ class AssignValue {
 
 // CREATORS
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 : d_lValue_p(lValue)
 {
@@ -151,15 +151,15 @@ GetValue<LVALUE_TYPE>::GetValue(LVALUE_TYPE *lValue)
 
 // ACCESSORS
 
-template <typename LVALUE_TYPE>
+template <class LVALUE_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const LVALUE_TYPE& object) const
 {
     *d_lValue_p = object;
     return 0;
 }
 
-template <typename LVALUE_TYPE>
-template <typename RVALUE_TYPE>
+template <class LVALUE_TYPE>
+template <class RVALUE_TYPE>
 int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object) const
 {
     return -1;
@@ -171,7 +171,7 @@ int GetValue<LVALUE_TYPE>::operator()(const RVALUE_TYPE& object) const
 
 // CREATORS
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 : d_value(value)
 {
@@ -179,15 +179,15 @@ AssignValue<RVALUE_TYPE>::AssignValue(const RVALUE_TYPE& value)
 
 // ACCESSORS
 
-template <typename RVALUE_TYPE>
+template <class RVALUE_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(RVALUE_TYPE *object) const
 {
     *object = d_value;
     return 0;
 }
 
-template <typename RVALUE_TYPE>
-template <typename LVALUE_TYPE>
+template <class RVALUE_TYPE>
+template <class LVALUE_TYPE>
 int AssignValue<RVALUE_TYPE>::operator()(LVALUE_TYPE *object) const
 {
     return -1;
@@ -214,7 +214,7 @@ class PrintValue {
     struct IsNullableValueType    { };
 
     // PRIVATE OPERATIONS
-    template <typename TYPE>
+    template <class TYPE>
     int execute(const TYPE& value, IsNotNullableValueType)
     {
         enum { SUCCESS = 0 };
@@ -224,7 +224,7 @@ class PrintValue {
         return SUCCESS;
     }
 
-    template <typename TYPE>
+    template <class TYPE>
     int execute(const TYPE& value, IsNullableValueType)
     {
         enum { SUCCESS = 0 };
@@ -232,7 +232,7 @@ class PrintValue {
         if (bdeat_NullableValueFunctions::isNull(value)) {
             (*d_stream_p) << "NULL";
 
-            return SUCCESS;
+            return SUCCESS;                                           // RETURN
         }
 
         return bdeat_NullableValueFunctions::accessValue(value, *this);
@@ -246,7 +246,7 @@ class PrintValue {
     }
 
     // OPERATIONS
-    template <typename TYPE>
+    template <class TYPE>
     int operator()(const TYPE& value)
     {
         typedef typename
@@ -392,11 +392,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

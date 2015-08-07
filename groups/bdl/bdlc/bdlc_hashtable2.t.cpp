@@ -1,4 +1,4 @@
-// bdlc_hashtable2.t.cpp                  -*-C++-*-
+// bdlc_hashtable2.t.cpp                                              -*-C++-*-
 
 #include <bdlc_hashtable2.h>
 
@@ -322,7 +322,7 @@ int PRIMES_1000[] = {
 
 namespace TestCase3 {
 
-template <typename TYPE>
+template <class TYPE>
 void testIsNullFootprint(TYPE *ignored)
 {
     typedef TYPE                          Bucket;
@@ -340,7 +340,7 @@ void testIsNullFootprint(TYPE *ignored)
     }
 }
 
-template <typename TYPE>
+template <class TYPE>
 void testIsRemovedFootprint(TYPE *ignored)
 {
     typedef TYPE                          Bucket;
@@ -370,7 +370,7 @@ bool isPrime(unsigned int n)
     for (unsigned int i = 2; i <= upper; ++i) {
         if (0 == (n % i)) {
             LOOP2_ASSERT(n, i, 0);
-            return false;
+            return false;                                             // RETURN
         }
     }
 
@@ -463,7 +463,7 @@ void usageExample()
 }
 //..
 
-} // close anonymous namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                               MAIN PROGRAM
@@ -1831,11 +1831,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2004
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

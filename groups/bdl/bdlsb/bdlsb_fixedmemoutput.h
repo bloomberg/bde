@@ -18,17 +18,17 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component implements the output portion of the
 // 'bsl::basic_streambuf' protocol using a client-supplied memory buffer.
-// Method names correspond to the protocol-specified method names.
-// Clients supply the character buffer at stream buffer construction, and can
-// later reinitialize the stream buffer with a different character buffer by
-// calling the 'pubsetbuf' method.  The only difference between this component
-// and 'bdlsb_fixedmemoutstreambuf' is that the class 'bdlsb::FixedMemOutput'
-// does *not* derive from a 'bsl::streambuf' and does not support locales.
-// This is advantageous for performance reasons, as the overhead of the
-// initialization and virtual function calls of a 'bsl::streambuf' can be
-// undesirable.  It is especially designed for streaming a very small amount of
-// information into a fixed-length buffer using a 'bdlxxxx::GenericByteOutStream'
-// when the output is guaranteed not to exceed the length of the buffer.
+// Method names correspond to the protocol-specified method names.  Clients
+// supply the character buffer at stream buffer construction, and can later
+// reinitialize the stream buffer with a different character buffer by calling
+// the 'pubsetbuf' method.  The only difference between this component and
+// 'bdlsb_fixedmemoutstreambuf' is that the class 'bdlsb::FixedMemOutput' does
+// *not* derive from a 'bsl::streambuf' and does not support locales.  This is
+// advantageous for performance reasons, as the overhead of the initialization
+// and virtual function calls of a 'bsl::streambuf' can be undesirable.  It is
+// especially designed for streaming a very small amount of information into a
+// fixed-length buffer using a 'bslx::GenericOutStream' when the output is
+// guaranteed not to exceed the length of the buffer.
 //
 ///Usage
 ///-----
@@ -81,21 +81,20 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlsb {
-                        // ====================
-                        // FixedMemOutput
-                        // ====================
+
+                              // ==============
+                              // FixedMemOutput
+                              // ==============
 
 class FixedMemOutput {
     // This class, like 'FixedMemOutStreamBuf', implements the output
     // functionality of the 'basic_streambuf' interface, using client-supplied
     // 'char *' memory.  It has an identical interface to
-    // 'FixedMemOutStreamBuf' but does *not* inherit from
-    // 'bsl::streambuf'.  Thus, it is suitable for use as template parameter to
-    // 'bdlxxxx::GenericByteOutStream' (but not to 'bdlxxxx::ByteOutStream' or
-    // 'bdlxxxx::ByteOutStreamFormatter').  Note that this class is not designed to
-    // be derived from.
+    // 'FixedMemOutStreamBuf' but does *not* inherit from 'bsl::streambuf'.
+    // Thus, it is suitable for use as template parameter to
+    // 'bdlx::GenericOutStream' (but not to 'bslx::StreamBufOutStream').  Note
+    // that this class is not designed to be derived from.
 
   public:
     // TYPES
@@ -123,7 +122,7 @@ class FixedMemOutput {
     int_type overflow(int_type c = bsl::char_traits<char>::eof());
         // Return 'c' to indicate success, except when
         // 'traits::eq_int_type(c,traits::eof())' returns true, in which case
-        // return 'traits::not_eof(c)'.  (From note 278, p. 634 of the C++
+        // return 'traits::not_eof(c)'.  (From note 278, p.  634 of the C++
         // standard ISO/IEC 14882:2003(E).)
 
     // NOT IMPLEMENTED
@@ -153,21 +152,20 @@ class FixedMemOutput {
 
                              // *** 27.5.2.2.2 buffer and positioning: ***
 
-    FixedMemOutput *pubsetbuf(char            *buffer,
-                                    bsl::streamsize  length);
+    FixedMemOutput *pubsetbuf(char *buffer, bsl::streamsize length);
         // Reset the internal buffer of this stream to the specified 'buffer'
         // of the specified 'length'.  Note that the next write operation will
         // start at the beginning of 'buffer'.
 
-    pos_type pubseekoff(off_type                offset,
-                        bsl::ios_base::seekdir  fixedPosition,
-                        bsl::ios_base::openmode which =
-                            bsl::ios_base::in | bsl::ios_base::out);
+    pos_type pubseekoff(
+       off_type                offset,
+       bsl::ios_base::seekdir  fixedPosition,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Move the current write cursor position by the specified 'offset'.
 
-    pos_type pubseekpos(pos_type                position,
-                        bsl::ios_base::openmode which =
-                            bsl::ios_base::in | bsl::ios_base::out);
+    pos_type pubseekpos(
+       pos_type                position,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Move the current write cursor position to the specified 'position'.
 
     int pubsync();
@@ -189,12 +187,10 @@ class FixedMemOutput {
 
     // ACCESSORS
     bsl::streamsize capacity() const;
-        // Return the size in bytes of the buffer held by this stream
-        // buffer.
+        // Return the size in bytes of the buffer held by this stream buffer.
 
     const char *data() const;
-        // Return the address of the non-modifiable character
-        // buffer held by
+        // Return the address of the non-modifiable character buffer held by
         // this stream buffer.
 
     bsl::streamsize length() const;
@@ -217,19 +213,19 @@ class FixedMemOutput {
         // buffer.  See 'length', below, for the span of bytes actually
         // written.
         //
-        // DEPRECATED:  Use the 'capacity' method instead.
+        // DEPRECATED: Use the 'capacity' method instead.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ====================
-                        // FixedMemOutput
-                        // ====================
+                              // ==============
+                              // FixedMemOutput
+                              // ==============
 
 // PRIVATE MANIPULATORS
 inline
@@ -344,6 +340,7 @@ bsl::streamsize FixedMemOutput::length() const
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bdlsb {
+
 inline
 bsl::streamsize FixedMemOutput::bufSize() const
 {
@@ -357,11 +354,18 @@ bsl::streamsize FixedMemOutput::bufSize() const
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

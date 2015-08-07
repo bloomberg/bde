@@ -1,4 +1,4 @@
-// bdlat_enumeratorinfo.h                  -*-C++-*-
+// bdlat_enumeratorinfo.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLAT_ENUMERATORINFO
 #define INCLUDED_BDLAT_ENUMERATORINFO
 
@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container for enumerator information.
 //
 //@CLASSES:
-//   bdeat_EnumeratorInfo: container for enumerator information
+//   bdlat_EnumeratorInfo: container for enumerator information
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
 //@DESCRIPTION:
-// This component provides the 'bdeat_EnumeratorInfo' 'class' which is a
+// This component provides the 'bdlat_EnumeratorInfo' 'class' which is a
 // container for holding information (properties) about an enumerator.  The
 // properties of an enumerator include its name and the length of its name, its
 // value, and a brief annotation.  Although each enumerator property is
@@ -29,6 +29,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -51,10 +55,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
                         // ===========================
-                        // struct bdeat_EnumeratorInfo
+                        // struct bdlat_EnumeratorInfo
                         // ===========================
 
-struct bdeat_EnumeratorInfo {
+struct bdlat_EnumeratorInfo {
     // This 'struct' holds information about an enumerator.  Its data members
     // are 'public' by design so that instances may be statically initialized.
 
@@ -66,24 +70,24 @@ struct bdeat_EnumeratorInfo {
     const char *d_annotation_p;  // enumerator annotation
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_EnumeratorInfo,
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_EnumeratorInfo,
                                    bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_EnumeratorInfo,
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_EnumeratorInfo,
                                    bsl::is_trivially_default_constructible);
 
     // CREATORS
     // The following methods are not defined by design:
     //..
-    //   bdeat_EnumeratorInfo();
-    //   bdeat_EnumeratorInfo(const bdeat_EnumeratorInfo& original);
-    //   ~bdeat_EnumeratorInfo();
+    //   bdlat_EnumeratorInfo();
+    //   bdlat_EnumeratorInfo(const bdlat_EnumeratorInfo& original);
+    //   ~bdlat_EnumeratorInfo();
     //..
     // The corresponding methods supplied by the compiler are sufficient.
 
     // MANIPULATORS
     // The following method is not defined by design:
     //..
-    //   bdeat_EnumeratorInfo& operator=(const bdeat_EnumeratorInfo& rhs);
+    //   bdlat_EnumeratorInfo& operator=(const bdlat_EnumeratorInfo& rhs);
     //..
     // The assignment operator supplied by the compiler is sufficient.
 
@@ -121,52 +125,52 @@ struct bdeat_EnumeratorInfo {
 
 // FREE OPERATORS
 inline
-bool operator==(const bdeat_EnumeratorInfo& lhs,
-                const bdeat_EnumeratorInfo& rhs);
+bool operator==(const bdlat_EnumeratorInfo& lhs,
+                const bdlat_EnumeratorInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' enumerator info objects
     // have the same value, and 'false' otherwise.  Two enumerator info objects
     // have the same value if each of their respective properties are
     // identical.
 
 inline
-bool operator!=(const bdeat_EnumeratorInfo& lhs,
-                const bdeat_EnumeratorInfo& rhs);
+bool operator!=(const bdlat_EnumeratorInfo& lhs,
+                const bdlat_EnumeratorInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' enumerator info objects
     // do not have the same value, and 'false' otherwise.  Two enumerator info
     // objects do not have the same value if at least one of their respective
     // properties is not identical.
 
 bsl::ostream& operator<<(bsl::ostream&               stream,
-                         const bdeat_EnumeratorInfo& enumeratorInfo);
+                         const bdlat_EnumeratorInfo& enumeratorInfo);
     // Write the value of the specified 'enumeratorInfo' to the specified
     // 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 
 inline
-const char *& bdeat_EnumeratorInfo::annotation()
+const char *& bdlat_EnumeratorInfo::annotation()
 {
     return d_annotation_p;
 }
 
 inline
-const char *& bdeat_EnumeratorInfo::name()
+const char *& bdlat_EnumeratorInfo::name()
 {
     return d_name_p;
 }
 
 inline
-int& bdeat_EnumeratorInfo::nameLength()
+int& bdlat_EnumeratorInfo::nameLength()
 {
     return d_nameLength;
 }
 
 inline
-int& bdeat_EnumeratorInfo::value()
+int& bdlat_EnumeratorInfo::value()
 {
     return d_value;
 }
@@ -174,25 +178,25 @@ int& bdeat_EnumeratorInfo::value()
 // ACCESSORS
 
 inline
-const char *bdeat_EnumeratorInfo::annotation() const
+const char *bdlat_EnumeratorInfo::annotation() const
 {
     return d_annotation_p;
 }
 
 inline
-const char *bdeat_EnumeratorInfo::name() const
+const char *bdlat_EnumeratorInfo::name() const
 {
     return d_name_p;
 }
 
 inline
-int bdeat_EnumeratorInfo::nameLength() const
+int bdlat_EnumeratorInfo::nameLength() const
 {
     return d_nameLength;
 }
 
 inline
-int bdeat_EnumeratorInfo::value() const
+int bdlat_EnumeratorInfo::value() const
 {
     return d_value;
 }
@@ -200,8 +204,8 @@ int bdeat_EnumeratorInfo::value() const
 // FREE OPERATORS
 
 inline
-bool operator==(const bdeat_EnumeratorInfo& lhs,
-                const bdeat_EnumeratorInfo& rhs)
+bool operator==(const bdlat_EnumeratorInfo& lhs,
+                const bdlat_EnumeratorInfo& rhs)
 {
     return lhs.value()      == rhs.value()
         && lhs.nameLength() == rhs.nameLength()
@@ -210,23 +214,21 @@ bool operator==(const bdeat_EnumeratorInfo& lhs,
 }
 
 inline
-bool operator!=(const bdeat_EnumeratorInfo& lhs,
-                const bdeat_EnumeratorInfo& rhs)
+bool operator!=(const bdlat_EnumeratorInfo& lhs,
+                const bdlat_EnumeratorInfo& rhs)
 {
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
-
-
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

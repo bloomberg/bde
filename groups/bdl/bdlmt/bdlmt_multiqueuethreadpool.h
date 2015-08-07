@@ -318,7 +318,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLQQ_XXXATOMICTYPES
-#include <bdlqq_xxxatomictypes.h>  // for SpinLock
+#include <bdlqq_xxxatomictypes.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC

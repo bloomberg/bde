@@ -1,6 +1,8 @@
-// bdlsb_fixedmemoutput.t.cpp             -*-C++-*-
+// bdlsb_fixedmemoutput.t.cpp                                         -*-C++-*-
 
 #include <bdlsb_fixedmemoutput.h>
+
+#include <bdls_testutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
@@ -18,19 +20,18 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                          *** Overview ***
 //
-// This test driver exercises all the public methods from the
-// 'basic_streambuf' protocol that are implemented by the class
-// 'bdlsb::FixedMemOutput', as well as each public method in the
-// 'bdlsb::FixedMemOutput' class that is not part of the 'basic_streambuf'
-// protocol.
+// This test driver exercises all the public methods from the 'basic_streambuf'
+// protocol that are implemented by the class 'bdlsb::FixedMemOutput', as well
+// as each public method in the 'bdlsb::FixedMemOutput' class that is not part
+// of the 'basic_streambuf' protocol.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
-// behavior, and that they conform to a feasible interpretation of the
-// standard as described in the function documentation, where the standard
-// defined behavior only loosely.  For those methods that are not protocol
-// defined, we check only compliance with the behavior as described in the
-// function documentation.
+// behavior, and that they conform to a feasible interpretation of the standard
+// as described in the function documentation, where the standard defined
+// behavior only loosely.  For those methods that are not protocol defined, we
+// check only compliance with the behavior as described in the function
+// documentation.
 //
 //       Primary Constructors, Primary Manipulators, and Basic Accessors
 //       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,53 +90,42 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -181,15 +171,15 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 //-----------------------------------------------------------------------------
 // Usage
 // -----
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream with simple formatting requirements -- namely, capitalizing all
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
 // character data that passes through its management.  (To simplify the
 // example, we do not include the functions for streaming non-character data.)
 //..
  class my_CapitalizingStream {
      // This class capitalizes character data....
 
-     enum { STREAMBUF_CAPACITY = 30 };
+     enum { k_STREAMBUF_CAPACITY = 30 };
 
      char *d_buffer;
      bdlsb::FixedMemOutput *d_streamBuf;
@@ -232,9 +222,8 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
 
  my_CapitalizingStream::my_CapitalizingStream()
  {
-     d_buffer = new char[STREAMBUF_CAPACITY];
-     d_streamBuf = new bdlsb::FixedMemOutput(d_buffer,
-                                                           STREAMBUF_CAPACITY);
+     d_buffer = new char[k_STREAMBUF_CAPACITY];
+     d_streamBuf = new bdlsb::FixedMemOutput(d_buffer, k_STREAMBUF_CAPACITY);
  }
 
  my_CapitalizingStream::~my_CapitalizingStream()
@@ -268,6 +257,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
      stream.d_streamBuf->sputc(bsl::toupper(data));
      return stream;
  }
+//..
 
 typedef bsl::ios_base::openmode io_openmode;
 typedef bsl::ios_base::seekdir  io_seekdir;
@@ -293,6 +283,13 @@ int main(int argc, char **argv)
         // Testing:
         //   A capitalizing stream.
         // --------------------------------------------------------------------
+
+///Usage
+///-----
+// See the 'bdlsb_fixedmemoutstreambuf' component for an identical usage
+// example, where every occurrence of 'bdlsb::FixedMemOutStreamBuf' can be
+// substituted for 'bdlsb::FixedMemOutput'.
+
         {
             my_CapitalizingStream cs;
             cs << "Hello" << ' ' << "world." << '\0';
@@ -417,9 +414,9 @@ int main(int argc, char **argv)
                 LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
                 if (veryVerbose) P(ret);
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (FINAL_POS >= INITIAL_BUFSIZE) {
                     continue;
@@ -502,9 +499,9 @@ int main(int argc, char **argv)
                 LOOP_ASSERT(LINE, FINAL_POS == SB.length());
                 LOOP_ASSERT(LINE, 0 == bsl::memcmp(mFILL,buffer,SB.length()));
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (FINAL_POS >= INITIAL_BUFSIZE) {
                     continue;
@@ -587,14 +584,14 @@ int main(int argc, char **argv)
 
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This segment verifies correct behavior across different
-            // initial buffer states (buffer length x buffer contents.)
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            // This segment verifies correct behavior across different initial
+            // buffer states (buffer length x buffer contents.)
+            for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
 
                 char *bytes = new char[DATA[i].d_strCap];
                 bdlsb::FixedMemOutput sb(bytes, DATA[i].d_strCap);
-                for(unsigned j = 0; j < strlen(DATA[i].d_initialCont); ++j ) {
+                for (unsigned j = 0; j < strlen(DATA[i].d_initialCont); ++j ) {
                     sb.sputc(DATA[i].d_initialCont[j]);
                 }
                 int retResult = sb.sputn(DATA[i].d_outStr,
@@ -827,7 +824,7 @@ int main(int argc, char **argv)
             ASSERT(0 == SB.length());
             ASSERT(SB.data() == buffer);
 
-            if(veryVerbose) P(SB);
+            if (veryVerbose) P(SB);
         }
 
         if (verbose) cout << "\nTesting sputc." << endl;
@@ -914,9 +911,9 @@ int main(int argc, char **argv)
 
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This segment verifies correct behavior across different
-            // initial buffer states (buffer length x buffer contents.)
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            // This segment verifies correct behavior across different initial
+            // buffer states (buffer length x buffer contents.)
+            for (int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 char *bytes = new char[DATA[i].d_strCap];
                 bdlsb::FixedMemOutput mSB(bytes, DATA[i].d_strCap);
@@ -941,8 +938,8 @@ int main(int argc, char **argv)
                   "\n\tVerifying that overflow does not corrupt the streambuf."
                                    << endl; }
 
-            // Do an extra test to ensure that overflow does not corrupt
-            // the stream
+            // Do an extra test to ensure that overflow does not corrupt the
+            // stream
             char buffer[5];
             memset(buffer, 'X', 5);
             bdlsb::FixedMemOutput x(buffer, 5);
@@ -989,7 +986,7 @@ int main(int argc, char **argv)
                                             INITIAL_BUFSIZE);
 
                 bdlsb::FixedMemOutput::pos_type ret;
-                for(int j = 0; j < INITIAL_BUFSIZE; ++j) {
+                for (int j = 0; j < INITIAL_BUFSIZE; ++j) {
                     mSB.sputc('a');
                 }
 
@@ -1000,9 +997,9 @@ int main(int argc, char **argv)
                 if (veryVerbose) P(ret)
                 LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (FINAL_POS < 0 || INITIAL_BUFSIZE - 1)
                     continue;
@@ -1070,7 +1067,7 @@ int main(int argc, char **argv)
                  mSB.sputc('a');
                  LOOP_ASSERT(i, 'a' == buffer[i]);
                  LOOP_ASSERT(i, 'Z' == buffer[i + 1]);
-                 if(veryVerbose) P(SB);
+                 if (veryVerbose) P(SB);
              }
 
              if (verbose) cout <<
@@ -1167,11 +1164,18 @@ int main(int argc, char **argv)
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

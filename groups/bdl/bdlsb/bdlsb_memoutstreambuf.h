@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an output 'basic_streambuf' using managed memory.
 //
 //@CLASSES:
-//   bdlsb::MemOutStreamBuf: output stream buffer using memory from an allocator
+//   bdlsb::MemOutStreamBuf: output stream buffer using managed memory
 //
 //@AUTHOR: Lea Fester (lfester)
 //
@@ -54,11 +54,10 @@ BSLS_IDENT("$Id: $")
 //      bdlsb::MemOutStreamBuf d_streamBuf;  // buffer to write to
 //
 //      friend
-//      my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                        char                    data);
+//      my_CapitalizingStream& operator<<(my_CapitalizingStream&, char);
 //      friend
-//      my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                        const char             *data);
+//      my_CapitalizingStream& operator<<(my_CapitalizingStream&,
+//                                        const char *);
 //
 //    public:
 //      // CREATORS
@@ -96,13 +95,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  // my_capitalizingstream.cpp
 //
-//  #include <algorithm>
-//
 //  // FREE OPERATORS
 //  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream, char data)
 //  {
-//      stream.d_streamBuf.sputc(
-//                             bsl::toupper(static_cast<unsigned char>(data)));
+//      stream.d_streamBuf.sputc(static_cast<char>(bsl::toupper(data)));
 //      return stream;
 //  }
 //
@@ -110,7 +106,10 @@ BSLS_IDENT("$Id: $")
 //                                    const char             *data)
 //  {
 //      bsl::string tmp(data);
-//      transform(tmp.begin(), tmp.end(), tmp.begin(), bsl::toupper);
+//      transform(tmp.begin(),
+//                tmp.end(),
+//                tmp.begin(),
+//                (int(*)(int))bsl::toupper);
 //      stream.d_streamBuf.sputn(tmp.data(), tmp.length());
 //      return stream;
 //  }
@@ -174,11 +173,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlsb {
-                         // ===========================
-                         // class MemOutStreamBuf
-                         // ===========================
+
+                          // =====================
+                          // class MemOutStreamBuf
+                          // =====================
 
 class MemOutStreamBuf : public bsl::streambuf {
     // This 'class' implements the output functionality of the
@@ -191,24 +190,16 @@ class MemOutStreamBuf : public bsl::streambuf {
 
         k_GROWTH_FACTOR       =   2   // geometric growth factor to use when
                                       // resizing internal buffer
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDESB_INITIAL_BUFFER_SIZE = k_INITIAL_BUFFER_SIZE
-      , BDESB_GROWTH_FACTOR       = k_GROWTH_FACTOR
-      , INITIAL_BUFFER_SIZE       = k_INITIAL_BUFFER_SIZE
-      , GROWTH_FACTOR             = k_GROWTH_FACTOR
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
-    bslma::Allocator *d_allocator_p;  // memory source for buffer memory
-                                      // (held, not owned)
+    bslma::Allocator *d_allocator_p;  // memory source for buffer memory (held,
+                                      // not owned)
 
   private:
     // NOT IMPLEMENTED
     MemOutStreamBuf(const MemOutStreamBuf&); // = delete;
-    MemOutStreamBuf& operator=(
-                                    const MemOutStreamBuf&); // = delete;
+    MemOutStreamBuf& operator=(const MemOutStreamBuf&); // = delete;
 
   private:
     // PRIVATE MANIPULATORS
@@ -314,7 +305,7 @@ class MemOutStreamBuf : public bsl::streambuf {
 };
 
 // ============================================================================
-//                      INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 // PRIVATE ACCESSORS
@@ -376,10 +367,17 @@ bsl::size_t MemOutStreamBuf::length() const
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

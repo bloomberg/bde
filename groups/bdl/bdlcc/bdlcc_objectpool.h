@@ -1,4 +1,4 @@
-// bdlcc_objectpool.h                                                  -*-C++-*-
+// bdlcc_objectpool.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLCC_OBJECTPOOL
 #define INCLUDED_BDLCC_OBJECTPOOL
 
@@ -11,43 +11,44 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdlcc::ObjectPool: thread-enabled container of managed objects
-//  bdlcc::ObjectPoolFunctors: namespace for resetter and creator implementations
+//  bdlcc::ObjectPoolFunctors: namespace for resetter/creator implementations
 //
 //@SEE_ALSO: bdlcc_sharedobjectpool
 //
 //@AUTHOR: Ujjwal Bhoota (ubhoota), David Schumann (dschumann1)
 //
-//@DESCRIPTION: This component provides a generic thread-safe pool of
-// objects using the acquire-release idiom.  An object pool provides two main
-// methods: 'getObject', which returns an object from the pool, and
-// 'releaseObject', which returns an object to the pool for further reuse
-// (thus avoiding the overhead of object construction and destruction).  A
-// major requirement of using the object pool is that any call to 'getObject'
-// can be satisfied by any object in the pool.
+//@DESCRIPTION: This component provides a generic thread-safe pool of objects,
+// 'bdlcc::ObjectPool', using the acquire-release idiom and a 'struct' with
+// useful functors for a pool of objects, 'bdlcc::ObjectPoolFunctors'.  An
+// object pool provides two main methods: 'getObject', which returns an object
+// from the pool, and 'releaseObject', which returns an object to the pool for
+// further reuse (thus avoiding the overhead of object construction and
+// destruction).  A major requirement of using the object pool is that any call
+// to 'getObject' can be satisfied by any object in the pool.
 //
 ///Object construction and destruction
 ///-----------------------------------
-// The object pool owns the memory required to store the pooled objects,
-// and manages the construction, resetting, and destruction of objects.
-// The user may supply functors to create objects and to reset them to a
-// valid state for their return to the pool.  Alternatively, this component
-// supplies reasonable defaults.  Upon destruction, the object pool deallocates
-// all memory associated with the objects in the pool.
+// The object pool owns the memory required to store the pooled objects, and
+// manages the construction, resetting, and destruction of objects.  The user
+// may supply functors to create objects and to reset them to a valid state for
+// their return to the pool.  Alternatively, this component supplies reasonable
+// defaults.  Upon destruction, the object pool deallocates all memory
+// associated with the objects in the pool.
 //
-// The object pool also implements the 'bdlma::Factory' protocol for TYPE.
-// Its 'createObject' and 'deleteObject' methods are provided *only* for this
+// The object pool also implements the 'bdlma::Factory' protocol for TYPE.  Its
+// 'createObject' and 'deleteObject' methods are provided *only* for this
 // purpose and should not be invoked directly (they are just synonyms for
 // 'getObject' and 'releaseObject', respectively).  The pool can thus be used
 // anywhere a 'bdlma::Factory' (or, therefore, a 'bdlma::Deleter') is expected.
 //
 ///Integrating with 'bslma::ManagedPtr' and 'bsl::shared_ptr'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlcc::ObjectPool' is designed to work with both managed and shared pointer
-// types.  Note however, that 'bdlcc_sharedobjectpool' is an object-pool
-// specifically designed for use with shared pointers.
+// A 'bdlcc::ObjectPool' is designed to work with both managed and shared
+// pointer types.  Note however, that 'bdlcc_sharedobjectpool' is an
+// object-pool specifically designed for use with shared pointers.
 //
-// Because 'bdlcc::ObjectPool' provides a 'deleteObject' method, it can serve as
-// a factory of both 'bslma::ManagedPtr' and 'bsl::shared_ptr' objects. For
+// Because 'bdlcc::ObjectPool' provides a 'deleteObject' method, it can serve
+// as a factory of both 'bslma::ManagedPtr' and 'bsl::shared_ptr' objects.  For
 // example, to create a managed pointer from an object pool of 'bsl::string'
 // objects:
 //..
@@ -68,16 +69,15 @@ BSLS_IDENT("$Id: $")
 ///--------------------------------------
 // 'bdlcc::ObjectPool' is templated on two types 'CREATOR' and 'RESETTER' in
 // addition to the underlying object 'TYPE'.  Objects of these types may be
-// provided at construction.  The namespace 'bdlcc::ObjectPoolFunctors' provides
-// several commonly used implementations.  The creator will be invoked as:
-// 'void(*)(void*, bslma::Allocator*)'.  The resetter will be invoked as:
-// 'void(*)(TYPE*);.  The creator functor is called to construct a new object
+// provided at construction.  The namespace 'bdlcc::ObjectPoolFunctors'
+// provides several commonly used implementations.  The creator will be invoked
+// as: 'void(*)(void*, bslma::Allocator*)'.  The resetter will be invoked as:
+// 'void(*)(TYPE*)'.  The creator functor is called to construct a new object
 // of the parameterized 'TYPE' when the pool must be expanded (and thus it
-// typically invokes placement 'new' and passes its allocator argument to
-// the constructor of 'TYPE').  The resetter functor is called before each
-// object is returned to the pool, and is required to put the object into a
-// state such that it is ready to be reused.  The defaults for these types are
-// as follows:
+// typically invokes placement 'new' and passes its allocator argument to the
+// constructor of 'TYPE').  The resetter functor is called before each object
+// is returned to the pool, and is required to put the object into a state such
+// that it is ready to be reused.  The defaults for these types are as follows:
 //..
 //    CREATOR  = bdlcc::ObjectPoolFunctors::DefaultCreator
 //    RESETTER = bdlcc::ObjectPoolFunctors::Nil
@@ -87,167 +87,163 @@ BSLS_IDENT("$Id: $")
 // Otherwise another kind of 'RESETTER' should be provided.  In
 // 'bdlcc::ObjectPoolFunctors', the classes 'Clear', 'RemoveAll', and 'Reset'
 // are all acceptable types for 'RESETTER'.  Since these functor types are
-// fully inlined, it is generally most efficient to define 'reset'
-// (or 'clear' or 'removeAll') in the underlying 'TYPE' and allow the
-// functor to call that method.  The 'CREATOR' functor defaults to an object
-// that invokes the default constructor with placement new, passing the
-// allocator argument if the type traits of the object indicate it uses an
-// allocator (see 'bslalg_typetraits').  If a custom creator functor or a
-// custom 'CREATOR' type is specified, it is the user's responsibility to
-// ensure that it correctly passes its allocator argument to the constructor
-// of 'TYPE' if 'TYPE' takes an allocator.
+// fully inlined, it is generally most efficient to define 'reset' (or 'clear'
+// or 'removeAll') in the underlying 'TYPE' and allow the functor to call that
+// method.  The 'CREATOR' functor defaults to an object that invokes the
+// default constructor with placement new, passing the allocator argument if
+// the type traits of the object indicate it uses an allocator (see
+// 'bslalg_typetraits').  If a custom creator functor or a custom 'CREATOR'
+// type is specified, it is the user's responsibility to ensure that it
+// correctly passes its allocator argument to the constructor of 'TYPE' if
+// 'TYPE' takes an allocator.
 //
 ///Exception safety
 ///----------------
 // There are two potential sources of exceptions in this component: memory
 // allocation and object construction.  The object pool is exception-neutral
-// with full guarantee of rollback for the following methods:  if an exception
+// with full guarantee of rollback for the following methods: if an exception
 // is thrown in 'getObject', 'reserveCapacity', or 'increaseCapacity', then the
 // pool is in a valid unmodified state (i.e., identical to its state prior to
 // the call to 'getObject').  No other method of 'bdlcc::ObjectPool' can throw.
 //
 ///Pool replenishment policy
 ///-------------------------
-// The 'growBy' parameter can be specified in the pool's constructor
-// to instruct the pool how to increase its capacity each time the pool is
+// The 'growBy' parameter can be specified in the pool's constructor to
+// instruct the pool how to increase its capacity each time the pool is
 // depleted.  If 'growBy' is positive, the pool always replenishes itself with
-// enough objects to satisfy at least 'growBy' object requests before
-// the next replenishment.  If 'growBy' is negative, the pool will increase
-// its capacity geometrically until it exceeds the internal maximum (which is
-// implementation-defined), and after that it will be replenished with
-// constant number of objects.  If 'growBy' is not specified, it defaults
-// to -1 (i.e., geometric increase beginning at 1).
+// enough objects to satisfy at least 'growBy' object requests before the next
+// replenishment.  If 'growBy' is negative, the pool will increase its capacity
+// geometrically until it exceeds the internal maximum (which is
+// implementation-defined), and after that it will be replenished with constant
+// number of objects.  If 'growBy' is not specified, it defaults to -1 (i.e.,
+// geometric increase beginning at 1).
 //
 ///Usage
 ///-----
+//
+///Example 1
+/// - - - -
 // In this example, we simulate a database server accepting queries from
 // clients and executing each query in a separate thread.  Client requests are
-// simulated by function 'getClientQuery' which returns a query to be
-// executed.  The class 'Query' encapsulates a database query and
-// 'queryFactory' is an object of a query factory class 'QueryFactory'.
+// simulated by function 'getClientQuery' which returns a query to be executed.
+// The class 'Query' encapsulates a database query and 'queryFactory' is an
+// object of a query factory class 'QueryFactory'.
 //..
-//    enum {
-//        CONNECTION_OPEN_TIME  = 100,    // (simulated) time to open
-//                                        //  a connection (in microseconds)
+//  enum {
+//      k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open
+//                                      // a connection (in microseconds)
 //
-//        CONNECTION_CLOSE_TIME = 8,     // (simulated) time to close
-//                                       //  a connection (in microseconds)
+//      k_CONNECTION_CLOSE_TIME = 8,    // (simulated) time to close
+//                                      // a connection (in microseconds)
 //
-//        QUERY_EXECUTION_TIME  = 4      // (simulated) time to execute
-//                                       //  a query (in microseconds)
-//    };
+//      k_QUERY_EXECUTION_TIME  = 4     // (simulated) time to execute
+//                                      // a query (in microseconds)
+//  };
 //
-//    class my_DatabaseConnection
-//        // This class simulates a database connection.
-//    {
-//      bslma::Allocator *d_allocator_p; // held
-//      int               d_connectionId;
-//      public:
-//        BSLALG_DECLARE_NESTED_TRAITS(my_DatabaseConnection,
-//                                     bslalg::TypeTraitUsesBslmaAllocator);
+//  class my_DatabaseConnection
+//      // This class simulates a database connection.
+//  {
+//    public:
+//      my_DatabaseConnection()
+//      {
+//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
+//      }
 //
-//        my_DatabaseConnection(int               connectionId   = 0,
-//                              bslma::Allocator *basicAllocator = 0)
-//          : d_allocator_p(bslma::Default::allocator(basicAllocator))
-//          , d_connectionId(connectionId)
-//        {
-//            bdlqq::ThreadUtil::microSleep(CONNECTION_OPEN_TIME);
-//        }
+//      ~my_DatabaseConnection()
+//      {
+//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
+//      }
 //
-//        ~my_DatabaseConnection()
-//        {
-//            bdlqq::ThreadUtil::microSleep(CONNECTION_CLOSE_TIME);
-//        }
-//
-//        void executeQuery(Query *query)
-//        {
-//            bdlqq::ThreadUtil::microSleep(QUERY_EXECUTION_TIME);
-//        }
-//    };
+//      void executeQuery(Query *query)
+//      {
+//          bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+//          (void *)query;
+//      }
+//  };
 //..
 // The server runs several threads which, on each iteration, obtain a new
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-//    void serverThread(bsls::AtomicInt *queries, int max,
-//                      void(*queryHandler)(Query*))
-//    {
-//        while (++(*queries) <= max) {
-//            Query *query = queryFactory->createQuery();
-//            queryHandler(query);
-//        }
-//    }
+//  extern "C" void serverThread(bsls::AtomicInt *queries,
+//                               int              max,
+//                               void(*queryHandler)(Query*))
+//  {
+//      while (++(*queries) <= max) {
+//          Query *query = queryFactory->createQuery();
+//          queryHandler(query);
+//      }
+//  }
+//..
+// We first give an implementation that does not uses the object pool.  Later
+// we will give an implementation using an object pool to manage the database
+// connections.  We also keep track of total response time for each case.  When
+// object pool is *not* used, each thread, in order to execute a query, creates
+// a *new* database connection, calls its 'executeQuery' method to execute the
+// query and finally closes the connection.
+//..
+//  void queryHandler1(Query *query)
+//      // Handle the specified 'query' without using an objectpool.
+//  {
+//      bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
+//      my_DatabaseConnection connection;
+//      connection.executeQuery(query);
+//      bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
+//
+//      totalResponseTime1 += t2 - t1;
+//
+//      queryFactory->destroyQuery(query);
+//
+//      // 'connection' is implicitly destroyed on function return.
+//  }
 //..
 // The main thread starts and joins these threads:
 //..
-//    enum {
-//       NUM_THREADS = 8,
-//       NUM_QUERIES = 10000
-//    };
+//  enum {
+//      k_NUM_THREADS = 8,
+//      k_NUM_QUERIES = 10000
+//  };
 //
-//    bsls::AtomicInt numQueries = 0;
-//    bdlqq::ThreadGroup tg;
+//  bsls::AtomicInt numQueries(0);
+//  bdlqq::ThreadGroup tg;
 //
-//    tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
-//                                      NUM_QUERIES, &queryHandler1),
-//                  NUM_THREADS);
-//    tg.joinAll();
-//..
-// We first give an implementation that does not uses the object
-// pool.  Later we will give an implementation using an
-// object pool to manage the database connections.  We also keep track of
-// total response time for each case.
-// When object pool is *not* used, each thread, in order to execute a
-// query, creates a *new* database connection, calls its
-// 'executeQuery' method to execute the query and finally closes the
-// connection.
-//..
-//     void queryHandler1(Query *query)
-//         // Handle the specified 'query' without using an objectpool.
-//     {
-//         bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
-//         my_DatabaseConnection connection;
-//         connection.executeQuery(query);
-//         bsls::Types::Int64 t2 = bsls::TimeUtil::getTimer();
-//
-//         totalResponseTime1 += t2 - t1;
-//
-//         queryFactory->destroyQuery(query);
-//             // 'connection' is implicitly destroyed on function return.
-//     }
+//  tg.addThreads(bdlf::BindUtil::bind(&serverThread,
+//                                     &numQueries,
+//                                     static_cast<int>(k_NUM_QUERIES),
+//                                     &queryHandler1),
+//                k_NUM_THREADS);
+//  tg.joinAll();
 //..
 // In above strategy, clients always incur the delay associated with opening
-// and closing a database connection.
-// Now we show an implementation that will use object pool to *pool* the
-// database connections.
+// and closing a database connection.  Now we show an implementation that will
+// use object pool to *pool* the database connections.
 //
 ///Object pool creation and functor argument
-///- - - - - - - - - - - - - - - - - - - - -
-// In order to create an object pool, we may specify, at construction
-// time, a functor encapsulating object creation.  The pool invokes this
-// this functor to create an object in a memory location supplied by the
-// allocator specified at construction and owned by the pool.
-// By default, the creator invokes the default constructor of the underlying
-// type, passing the pool's allocator if the type uses the bslma::Allocator
-// protocol to supply memory (as specified by the "Uses Bslma Allocator"
-// trait, see 'bslalg_typetraits').  If this behavior is not sufficient, we
-// can supply our own functor for type creation.
+/// - - - - - - - - - - - - - - - - - - - -
+// In order to create an object pool, we may specify, at construction time, a
+// functor encapsulating object creation.  The pool invokes this this functor
+// to create an object in a memory location supplied by the allocator specified
+// at construction and owned by the pool.  By default, the creator invokes the
+// default constructor of the underlying type, passing the pool's allocator if
+// the type uses the bslma::Allocator protocol to supply memory (as specified
+// by the "Uses Bslma Allocator" trait, see 'bslalg_typetraits').  If this
+// behavior is not sufficient, we can supply our own functor for type creation.
 //
 ///Creating an object pool that constructs default objects
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// When the default constructor of our type is sufficient, whether or not
-// that type uses 'bslma::Allocator', we can simply use the default behavior
-// of 'bdlcc::ObjectPool':
+/// - - - - - - - - - - - - - - - - - - -
+// When the default constructor of our type is sufficient, whether or not that
+// type uses 'bslma::Allocator', we can simply use the default behavior of
+// 'bdlcc::ObjectPool':
 //..
-//    bdlcc::ObjectPool<my_DatabaseConnection> pool;
+//  bdlcc::ObjectPool<my_DatabaseConnection> pool(-1);
 //..
 ///Creating an object pool that constructs non-default objects
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // In this example, if we decide that connection IDs must be supplied to
 // objects allocated from the pool, we must define a function which invokes
-// placement new appropriately.  When using a custom creator functor, it is
-// the responsibility of client code to pass the pool's allocator (supplied as
-// the second argument to the functor) to the new object if it uses
+// placement new appropriately.  When using a custom creator functor, it is the
+// responsibility of client code to pass the pool's allocator (supplied as the
+// second argument to the functor) to the new object if it uses
 // bslma::Allocator.
 //..
 //    void createConnection(void *arena, bslma::Allocator *alloc, int id)
@@ -266,24 +262,25 @@ BSLS_IDENT("$Id: $")
 //..
 // Whichever creator we choose, the modified server looks like
 //..
-//    connectionPool = &pool;
+//  connectionPool = &pool;
 //
-//    for (int i = 0; i < NUM_QUERIES; ++i) {
-//        my_Query *query = getClientQuery();
-//        bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
-//    }
-//    for (int i = 0; i < NUM_QUERIES; ++i) {
-//        bdlqq::ThreadUtil::join(threads[i]);
-//    }
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      my_Query *query = getClientQuery();
+//      bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//  }
+//  for (int i = 0; i < k_NUM_QUERIES; ++i) {
+//      bdlqq::ThreadUtil::join(threads[i]);
+//  }
 //..
 ///Modified 'queryHandler'
 ///- - - - - - - - - - - -
-// Now each thread, instead of creating a new connection, gets a
-// connection from the object pool.  After using the connection,
-// the client returns it back to the pool for further reuse.  The
-// modified 'queryHandler' is following.
+// Now each thread, instead of creating a new connection, gets a connection
+// from the object pool.  After using the connection, the client returns it
+// back to the pool for further reuse.  The modified 'queryHandler' is
+// following.
 //..
 //    bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
+//
 //    void queryHandler2(Query *query)
 //        // Process the specified 'query'.
 //    {
@@ -376,18 +373,21 @@ BSLS_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSL_CLIMITS
+#include <bsl_climits.h>
+#endif
 
+namespace BloombergLP {
 namespace bdlcc {
-                       // ==============================
-                       // struct ObjectPoolFunctors
-                       // ==============================
+
+                        // =========================
+                        // struct ObjectPoolFunctors
+                        // =========================
 
 struct ObjectPoolFunctors {
     // This struct provides several functors that are suitable 'RESETTER'
-    // parameter types for 'ObjectPool'.  It also provides a 'typedef'
-    // that specifies the default 'CREATOR' parameter type for
-    // 'ObjectPool'.
+    // parameter types for 'ObjectPool'.  It also provides a 'typedef' that
+    // specifies the default 'CREATOR' parameter type for 'ObjectPool'.
 
     // PUBLIC TYPES
     typedef bdlf::Function<void(*)(void*, bslma::Allocator*)> DefaultCreator;
@@ -396,10 +396,10 @@ struct ObjectPoolFunctors {
 
     template <class TYPE>
     class Nil {
-        // This fully-inlined class, suitable as the 'RESETTER' parameter
-        // type for 'ObjectPool', is a functor taking a pointer to the
-        // parameterized 'TYPE' argument, and can be invoked as:
-        // 'void(*)(TYPE*)'.  It does nothing.
+        // This fully-inlined class, suitable as the 'RESETTER' parameter type
+        // for 'ObjectPool', is a functor taking a pointer to the parameterized
+        // 'TYPE' argument, and can be invoked as: 'void(*)(TYPE*)'.  It does
+        // nothing.
 
       public:
         // Use compiler-generated constructors.
@@ -411,9 +411,9 @@ struct ObjectPoolFunctors {
     template <class TYPE>
     class Reset {
         // This fully-inlined class, suitable as the 'RESETTER' parameter type
-        // for 'ObjectPool', is a functor taking a pointer to the
-        // parameterized 'TYPE' argument, and can be invoked as:
-        // 'void(*)(TYPE*)'.  It calls 'reset' upon the provided object.
+        // for 'ObjectPool', is a functor taking a pointer to the parameterized
+        // 'TYPE' argument, and can be invoked as: 'void(*)(TYPE*)'.  It calls
+        // 'reset' upon the provided object.
 
       public:
         // Use compiler-generated constructors.
@@ -425,9 +425,9 @@ struct ObjectPoolFunctors {
     template <class TYPE>
     class Clear {
         // This fully-inlined class, suitable as the 'RESETTER' parameter type
-        // for 'ObjectPool', is a functor taking a pointer to the
-        // parameterized 'TYPE' argument, and can be invoked as:
-        // 'void(*)(TYPE*)'.  It calls 'clear' upon the provided object.
+        // for 'ObjectPool', is a functor taking a pointer to the parameterized
+        // 'TYPE' argument, and can be invoked as: 'void(*)(TYPE*)'.  It calls
+        // 'clear' upon the provided object.
 
       public:
         // Use compiler-generated constructors.
@@ -439,9 +439,9 @@ struct ObjectPoolFunctors {
     template <class TYPE>
     class RemoveAll {
         // This fully-inlined class, suitable as the 'RESETTER' parameter type
-        // for 'ObjectPool', is a functor taking a pointer to the
-        // parameterized 'TYPE' argument, and can be invoked as:
-        // 'void(*)(TYPE*)'.  It calls 'removeAll' upon the provided object.
+        // for 'ObjectPool', is a functor taking a pointer to the parameterized
+        // 'TYPE' argument, and can be invoked as: 'void(*)(TYPE*)'.  It calls
+        // 'removeAll' upon the provided object.
 
       public:
         // Use compiler-generated constructors.
@@ -452,9 +452,9 @@ struct ObjectPoolFunctors {
 
 };
 
-                   // ======================================
-                   // class ObjectPool_CreatorConverter
-                   // ======================================
+                    // =================================
+                    // class ObjectPool_CreatorConverter
+                    // =================================
 
 template <class TYPE, class OTHERTYPE>
 class ObjectPool_CreatorConverter {
@@ -482,14 +482,13 @@ class ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
                                        bdlf::Function<void(*)(void*)> > {
     // The purpose of this private class is to avoid ambiguity between
     // different template instantiations of bdlf::Function accepted by the
-    // constructors of 'ObjectPool'.   It should not be used directly.
+    // constructors of 'ObjectPool'.  It should not be used directly.
     //
     // This version of the converter is a full template specialization for the
     // case that the default creator type is used with a unary creator.  In
     // this case, 'creator' will return a binder (see 'bdlf_bind') that adapts
-    // the unary creator to a binary creator that discards the second
-    // argument.  This usage is *DEPRECATED* and provided only for backward
-    // compatibility.
+    // the unary creator to a binary creator that discards the second argument.
+    // This usage is *DEPRECATED* and provided only for backward compatibility.
 
     // DATA
     const bdlf::Function<void(*)(void*)>& d_creator;
@@ -503,22 +502,21 @@ class ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
     ObjectPoolFunctors::DefaultCreator creator() const;
 };
 
-                     // ==================================
-                     // class ObjectPool_CreatorProxy
-                     // ==================================
+                      // =============================
+                      // class ObjectPool_CreatorProxy
+                      // =============================
 
 template <class TYPE, class OTHERTYPE>
 class ObjectPool_CreatorProxy {
-    // This private class provides a default constructor which simply
-    // invokes the default constructor of the parameterized 'TYPE';
-    // the parameterized 'OTHERTYPE' is ignored.
+    // This private class provides a default constructor which simply invokes
+    // the default constructor of the parameterized 'TYPE'; the parameterized
+    // 'OTHERTYPE' is ignored.
 
     // DATA
     bsls::ObjectBuffer<TYPE> d_object;
 
     // NOT IMPLEMENTED
-    ObjectPool_CreatorProxy& operator=(
-                                 const ObjectPool_CreatorProxy&);
+    ObjectPool_CreatorProxy& operator=(const ObjectPool_CreatorProxy&);
     ObjectPool_CreatorProxy(const ObjectPool_CreatorProxy&);
 
   public:
@@ -529,24 +527,24 @@ class ObjectPool_CreatorProxy {
     // CREATORS
     explicit
     ObjectPool_CreatorProxy (bslma::Allocator *basicAllocator);
-       // Create a new proxy and a new object of the parameterized 'TYPE'.
-       // If 'TYPE' declares the "Uses Allocator" trait, 'basicAllocator' is
-       // supplied to its default constructor; otherwise 'basicAllocator'
-       // is ignored.
+        // Create a new proxy and a new object of the parameterized 'TYPE'.  If
+        // 'TYPE' declares the "Uses Allocator" trait, the specified
+        // 'basicAllocator' is supplied to its default constructor; otherwise
+        // 'basicAllocator' is ignored.
 
     ObjectPool_CreatorProxy(const TYPE&       other,
-                                 bslma::Allocator *basicAllocator);
-       // Create a new proxy and a new object constructed from the specified
-       // 'other' object.  If 'TYPE' declares the "Uses Allocator" trait,
-       // 'basicAllocator' is supplied to its copy constructor; otherwise
-       // 'basicAllocator' is ignored.
+                            bslma::Allocator *basicAllocator);
+        // Create a new proxy and a new object constructed from the specified
+        // 'other' object.  If 'TYPE' declares the "Uses Allocator" trait, the
+        // specified 'basicAllocator' is supplied to its copy constructor;
+        // otherwise 'basicAllocator' is ignored.
 
     ~ObjectPool_CreatorProxy();
-       // Destroy this proxy and the underlying object.
+        // Destroy this proxy and the underlying object.
 
     // MANIPULATORS
     TYPE& object();
-       // Return a reference to the modifiable object held by this proxy.
+        // Return a reference to the modifiable object held by this proxy.
 };
 
 // SPECIALIZATIONS
@@ -559,23 +557,23 @@ class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
     // parameterized 'OTHERTYPE' with placement 'new'.
 
     // PRIVATE TYPES
-    typedef ObjectPool_CreatorProxy<
-                                       ObjectPoolFunctors::DefaultCreator,
-                                       OTHERTYPE> MyType;
+    typedef ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
+                                    OTHERTYPE> MyType;
 
     // DATA
     ObjectPoolFunctors::DefaultCreator d_object;
 
     // NOT IMPLEMENTED
     ObjectPool_CreatorProxy(const ObjectPool_CreatorProxy&);
-    ObjectPool_CreatorProxy& operator=(
-                                 const ObjectPool_CreatorProxy&);
+    ObjectPool_CreatorProxy& operator=(const ObjectPool_CreatorProxy&);
 
   private:
     // PRIVATE CLASS METHODS
     static void defaultConstruct(void *arena, bslma::Allocator *allocator);
-      // Invoke 'bslalg::ScalarPrimitives::defaultConstruct(arena, allocator).
-      // This method is necessary to select the correct overload for OTHERTYPE.
+        // Invoke, with the specified 'arena' and 'allocator',
+        // 'bslalg::ScalarPrimitives::defaultConstruct(arena, allocator)'.
+        // This method is necessary to select the correct overload for
+        // OTHERTYPE.
 
   public:
     // TRAITS
@@ -585,33 +583,33 @@ class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
     // CREATORS
     explicit
     ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator);
-       // Create a new proxy for a function object which invokes the default
-       // constructor of OTHERTYPE.  Use 'basicAllocator' to supply memory.
+        // Create a new proxy for a function object which invokes the default
+        // constructor of OTHERTYPE.  Use the specified 'basicAllocator' to
+        // supply memory.
 
     ObjectPool_CreatorProxy(
-               const ObjectPoolFunctors::DefaultCreator&  rhs,
-               bslma::Allocator                               *basicAllocator);
-       // Create a proxy for a newly created function object constructed from
-       // the specified 'rhs' creator.  Use a 'basicAllocator' to supply
-       // memory.
+                    const ObjectPoolFunctors::DefaultCreator&  rhs,
+                    bslma::Allocator                          *basicAllocator);
+        // Create a proxy for a newly created function object constructed from
+        // the specified 'rhs' creator.  Use a 'basicAllocator' to supply
+        // memory.
 
     ~ObjectPool_CreatorProxy();
-       // Destroy this proxy and the underlying object.
+        // Destroy this proxy and the underlying object.
 
     // MANIPULATORS
     ObjectPoolFunctors::DefaultCreator& object();
-       // Return a reference to the modifiable function object held by this
-       // proxy.
+        // Return a reference to the modifiable function object held by this
+        // proxy.
 };
 
-                           // =====================
-                           // class ObjectPool
-                           // =====================
+                             // ================
+                             // class ObjectPool
+                             // ================
 
 template <class TYPE,
           class CREATOR  = ObjectPoolFunctors::DefaultCreator,
-          class RESETTER = ObjectPoolFunctors::Nil<TYPE>
-         >
+          class RESETTER = ObjectPoolFunctors::Nil<TYPE> >
 class ObjectPool : public bdlma::Factory<TYPE> {
     // This class provides a thread-safe pool of reusable objects.  It also
     // implements the 'bdlma::Factory' protocol: "creating" objects gets them
@@ -630,7 +628,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // released again).
 
         struct {
-            ObjectNode           *d_next_p;
+            ObjectNode                               *d_next_p;
             bsls::AtomicOperations::AtomicTypes::Int  d_refCount;
         } d_inUse;
         typename bsls::AlignmentFromType<TYPE>::Type d_dummy;
@@ -655,10 +653,10 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     class AutoCleanup {
         // This class, private to ObjectPool, implements a proctor for objects
         // created and stored into a temporary list of object nodes as in the
-        // 'ObjectPool' type, used in the replenishing method called
-        // from 'getObject', 'reserveCapacity' and 'increaseCapacity', to
-        // ensure the exception-neutrality with full rollback guarantees of
-        // the object pool.
+        // 'ObjectPool' type, used in the replenishing method called from
+        // 'getObject', 'reserveCapacity' and 'increaseCapacity', to ensure the
+        // exception-neutrality with full rollback guarantees of the object
+        // pool.
 
       public:
         // TYPES
@@ -669,26 +667,26 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
       private:
         // DATA
-        BlockNode                       *d_block_p;      // held, not owned
-        ObjectNode                      *d_head_p;       // held, not owned
+        BlockNode                        *d_block_p;      // held, not owned
+        ObjectNode                       *d_head_p;       // held, not owned
         bdlma::InfrequentDeleteBlockList *d_allocator_p;  // held, not owned
-        int                              d_numNodes;
+        int                               d_numNodes;
 
       public:
         // CREATORS
-        AutoCleanup(BlockNode                       *block,
-                    ObjectNode                      *head,
+        AutoCleanup(BlockNode                        *block,
+                    ObjectNode                       *head,
                     bdlma::InfrequentDeleteBlockList *allocator,
-                    int                              numNodes = 0);
-            // Create a proctor for the list of the specified 'numNodes'
-            // number of nodes with the specified 'head', using the
+                    int                               numNodes = 0);
+            // Create a proctor for the list of the optionally specified
+            // 'numNodes' number of nodes with the specified 'head', using the
             // 'allocator' to deallocate the block starting at the specified
             // 'block' at destruction after all the objects in the list have
             // been destroyed, unless the 'release' method has been called.
 
         ~AutoCleanup();
-            // Destroy this object, using the 'allocator' to deallocate
-            // the block under management at destruction after all the objects
+            // Destroy this object, using the 'allocator' to deallocate the
+            // block under management at destruction after all the objects
             // under management in the list have been destroyed, unless the
             // 'release' method has been called.
 
@@ -711,35 +709,35 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // unit because it lets us do pointer arithmetic on 'ObjectNode *' more
         // easily.
 
-        BCEC_ROUNDED_NUM_OBJECTS = (sizeof(TYPE) + sizeof(ObjectNode) - 1) /
+        k_ROUNDED_NUM_OBJECTS = (sizeof(TYPE) + sizeof(ObjectNode) - 1) /
                                                              sizeof(ObjectNode)
                                      // number of 'ObjectNode' needed to
-                                     // contain an object of 'TYPE' (rounded
-                                     // up to the next integer)
+                                     // contain an object of 'TYPE' (rounded up
+                                     // to the next integer)
 
-      , BCEC_NUM_OBJECTS_PER_FRAME = 1 + BCEC_ROUNDED_NUM_OBJECTS
+      , k_NUM_OBJECTS_PER_FRAME = 1 + k_ROUNDED_NUM_OBJECTS
                                      // number of 'ObjectNode' equivalent (in
                                      // size) to a frame (object node followed
                                      // by 'TYPE')
 
-      , BCEC_MAX_NUM_OBJECTS_PER_FRAME = (INT_MAX / sizeof(ObjectNode) - 1) /
-                                                     BCEC_NUM_OBJECTS_PER_FRAME
+      , k_MAX_NUM_OBJECTS_PER_FRAME = (INT_MAX / sizeof(ObjectNode) - 1) /
+                                                        k_NUM_OBJECTS_PER_FRAME
                                      // 'N' must be less than this
-                                     // 'BCEC_MAX_NUM_OBJECTS_PER_FRAME' so
-                                     // that the number of bytes in a block,
-                                     // which is
-                                     // '(1 + N * NUM_OBJECTS_PER_FRAME)' times
-                                     // 'sizeof(ObjectNode)', does not overflow
+                                     // 'k_MAX_NUM_OBJECTS_PER_FRAME' so that
+                                     // the number of bytes in a block, which
+                                     // is '(1 + N * NUM_OBJECTS_PER_FRAME)'
+                                     // times 'sizeof(ObjectNode)', does not
+                                     // overflow
     };
 
     enum {
         // Default configuration parameters.  Adjust these to tune up
         // performance of 'ObjectPool'.
 
-        BCEC_GROW_FACTOR           =   2  // multiplicative factor to grow
+        k_GROW_FACTOR           =   2  // multiplicative factor to grow
                                           // capacity
 
-      , BCEC_MAX_NUM_OBJECTS       = -32  // minimum 'd_numReplenishObjects'
+      , k_MAX_NUM_OBJECTS       = -32  // minimum 'd_numReplenishObjects'
                                           // value beyond which
                                           // 'd_numReplenishObjects' becomes
                                           // positive
@@ -759,11 +757,11 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     int                    d_numReplenishObjects;  // pool growth behavior
                                                    // option (see above)
 
-    bsls::AtomicInt         d_numAvailableObjects;  // number of available
+    bsls::AtomicInt        d_numAvailableObjects;  // number of available
                                                    // objects
 
-    bsls::AtomicInt         d_numObjects;           // number of objects
-                                                   // created by this pool
+    bsls::AtomicInt        d_numObjects;           // number of objects created
+                                                   // by this pool
 
     BlockNode             *d_blockList;            // list of memory blocks
 
@@ -772,7 +770,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     bslma::Allocator      *d_allocator_p;          // held, not owned
 
-    bdlqq::Mutex            d_mutex;                // pool replenishment
+    bdlqq::Mutex           d_mutex;                // pool replenishment
                                                    // serializer
 
     // NOT IMPLEMENTED
@@ -789,8 +787,8 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // policy specified by the 'growBy' argument at construction.
 
     void addObjects(int numObjects);
-        // Create the specified 'numObjects' objects and attach them to
-        // this object pool.
+        // Create the specified 'numObjects' objects and attach them to this
+        // object pool.
 
   public:
     // TYPES
@@ -804,79 +802,79 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     // CREATORS
     explicit
     ObjectPool(int               growBy = -1,
-                    bslma::Allocator *basicAllocator = 0);
+               bslma::Allocator *basicAllocator = 0);
         // Create an object pool that invokes the default constructor of the
         // the parameterized 'TYPE' to construct objects.  When the pool is
         // depleted, it will increase its capacity according to the optionally
         // specified 'growBy' value.  If 'growBy' is positive, the pool
         // replenishes itself with at least 'growBy' new objects.  If 'growBy'
         // is negative, the amount of increase begins at '-growBy' and grows
-        // geometrically up to an implementation-defined maximum.  When
-        // objects are returned to the pool, the default value of RESETTER is
-        // invoked with a pointer to the returned object to restore the
-        // object to a reusable state.  The optionally specified
-        // 'basicAllocator' is used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.  The
-        // behavior is undefined unless '0 != growBy'.
+        // geometrically up to an implementation-defined maximum.  When objects
+        // are returned to the pool, the default value of RESETTER is invoked
+        // with a pointer to the returned object to restore the object to a
+        // reusable state.  The optionally specified 'basicAllocator' is used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // '0 != growBy'.
 
     explicit
     ObjectPool(const CREATOR&    objectCreator,
-                    int               growBy,
-                    bslma::Allocator *basicAllocator = 0);
+               int               growBy,
+               bslma::Allocator *basicAllocator = 0);
     explicit
     ObjectPool(const CREATOR&    objectCreator,
-                    bslma::Allocator *basicAllocator = 0);
+               bslma::Allocator *basicAllocator = 0);
         // Create an object pool that uses the specified 'objectCreator'
-        // (encapsulating the construction of objects) to create objects.
-        // The client must ensure that 'objectCreator(buf, alloc)' creates an
+        // (encapsulating the construction of objects) to create objects.  The
+        // client must ensure that 'objectCreator(buf, alloc)' creates an
         // object at memory location 'buf' using 'alloc' to supply memory.
         // When the pool is depleted, it will grow capacity according to the
         // optionally specified 'growBy' value.  If 'growBy' is positive, the
         // pool replenishes itself with at least 'growBy' new objects.  If
-        // 'growBy' is negative, the amount of increase begins at '-growBy'
-        // and grows geometrically up to an implementation-defined maximum.
-        // When objects are returned to the pool, the default value of
-        // RESETTER is invoked with a pointer to the returned object to
-        // restore the object to a reusable state.  The optionally specified
-        // 'basicAllocator' is used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.  The
-        // behavior is undefined unless '0 != growBy'.
+        // 'growBy' is negative, the amount of increase begins at '-growBy' and
+        // grows geometrically up to an implementation-defined maximum.  When
+        // objects are returned to the pool, the default value of RESETTER is
+        // invoked with a pointer to the returned object to restore the object
+        // to a reusable state.  The optionally specified 'basicAllocator' is
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The behavior is undefined
+        // unless '0 != growBy'.
 
     ObjectPool(const CREATOR&    objectCreator,
-                    const RESETTER&   objectResetter,
-                    int               growBy = -1,
-                    bslma::Allocator *basicAllocator = 0);
+               const RESETTER&   objectResetter,
+               int               growBy = -1,
+               bslma::Allocator *basicAllocator = 0);
         // Create an object pool that uses the specified 'objectCreator'
-        // (encapsulating the construction of objects) to create objects.
-        // The client must ensure that 'objectCreator(buf, alloc)' creates an
+        // (encapsulating the construction of objects) to create objects.  The
+        // client must ensure that 'objectCreator(buf, alloc)' creates an
         // object at memory location 'buf' using 'alloc' to supply memory.
         // When the pool is depleted, it will increase its capacity according
         // to the optionally specified 'growBy' value.  If 'growBy' is
         // positive, the pool replenishes itself with at least 'growBy' new
-        // objects.  If 'growBy' is negative, the amount of increase begins
-        // at '-growBy' and grows geometrically up to an
-        // implementation-defined maximum.  When objects are returned to the
-        // pool, the specified 'objectResetter' is invoked with a pointer to
-        // the returned object to restore the object to a reusable state.  The
-        // optionally specified 'basicAllocator' is used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless '0 != growBy'.
+        // objects.  If 'growBy' is negative, the amount of increase begins at
+        // '-growBy' and grows geometrically up to an implementation-defined
+        // maximum.  When objects are returned to the pool, the specified
+        // 'objectResetter' is invoked with a pointer to the returned object to
+        // restore the object to a reusable state.  The optionally specified
+        // 'basicAllocator' is used to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.  The behavior
+        // is undefined unless '0 != growBy'.
 
     template <class ANYPROTO>
     explicit
-    ObjectPool(const bdlf::Function<ANYPROTO>&   objectCreator,
-                    int                              growBy,
-                    bslma::Allocator                *basicAllocator = 0);
+    ObjectPool(const bdlf::Function<ANYPROTO>&  objectCreator,
+               int                              growBy,
+               bslma::Allocator                *basicAllocator = 0);
     template <class ANYPROTO>
     explicit
-    ObjectPool(const bdlf::Function<ANYPROTO>&   objectCreator,
-                    bslma::Allocator                *basicAllocator = 0);
-        // *DEPRECATED*  Use a creator of the parameterized 'CREATOR' type.
+    ObjectPool(const bdlf::Function<ANYPROTO>&  objectCreator,
+               bslma::Allocator                *basicAllocator = 0);
+        // *DEPRECATED* Use a creator of the parameterized 'CREATOR' type.
 
     virtual ~ObjectPool();
-        // Destroy this object pool.  All objects created by this pool
-        // are destroyed (even if some of them are still in use) and
-        // memory is reclaimed.
+        // Destroy this object pool.  All objects created by this pool are
+        // destroyed (even if some of them are still in use) and memory is
+        // reclaimed.
 
     // MANIPULATORS
     TYPE *getObject();
@@ -887,35 +885,33 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     void increaseCapacity(int numObjects);
         // Create the specified 'numObjects' objects and add them to this
-        // object pool.  The behavior is undefined unless 0 <= numObjects.
+        // object pool.  The behavior is undefined unless '0 <= numObjects'.
 
     void releaseObject(TYPE *object);
-        // Return the specified 'object' back to this object pool.  Invoke
-        // the RESETTER specified at construction, or the default RESETTER
-        // if none was provided, before making the object available for reuse.
-        // Note that if RESETTER is the default type
-        // ('ObjectPoolFunctors::Nil'), then this method should be
-        // invoked to return only *valid* objects because the pool uses
-        // the released objects to satisfy further 'getObject' requests.
-        // The behavior is undefined unless the 'object' was obtained from
-        // this object pool's 'getObject' method.
+        // Return the specified 'object' back to this object pool.  Invoke the
+        // RESETTER specified at construction, or the default RESETTER if none
+        // was provided, before making the object available for reuse.  Note
+        // that if RESETTER is the default type ('ObjectPoolFunctors::Nil'),
+        // then this method should be invoked to return only *valid* objects
+        // because the pool uses the released objects to satisfy further
+        // 'getObject' requests.  The behavior is undefined unless the 'object'
+        // was obtained from this object pool's 'getObject' method.
 
     void reserveCapacity(int numObjects);
-        // Create enough objects to satisfy requests for at least the
-        // specified 'numObjects' objects before the next replenishment.
-        // The behavior is undefined unless 0 <= numObjects.  Note that this
-        // method is different from 'increaseCapacity' in that the number
-        // of created objects may be less than 'numObjects'.
+        // Create enough objects to satisfy requests for at least the specified
+        // 'numObjects' objects before the next replenishment.  The behavior is
+        // undefined unless '0 <= numObjects'.  Note that this method is
+        // different from 'increaseCapacity' in that the number of created
+        // objects may be less than 'numObjects'.
 
     // ACCESSORS
     int numAvailableObjects() const;
         // Return a *snapshot* of the number of objects available in this pool.
 
     int numObjects() const;
-        // Return the (instantaneous) number of objects managed by
-        // this pool.  This includes both the objects available in the pool
-        // and the objects that were allocated from the pool and not yet
-        // released.
+        // Return the (instantaneous) number of objects managed by this pool.
+        // This includes both the objects available in the pool and the objects
+        // that were allocated from the pool and not yet released.
 
     // 'bdlma::Factory' INTERFACE
     virtual TYPE *createObject();
@@ -924,18 +920,18 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     virtual void deleteObject(TYPE *object);
         // This concrete implementation of 'bdlma::Factory::deleteObject'
-        // invokes 'releaseObject' on the specified 'object', returning it
-        // to this pool.  Note that this does *not* destroy the object and
-        // should not be invoked directly.
+        // invokes 'releaseObject' on the specified 'object', returning it to
+        // this pool.  Note that this does *not* destroy the object and should
+        // not be invoked directly.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
-                               // ---------------
-                               // ObjectPool
-                               // ---------------
+                                // ----------
+                                // ObjectPool
+                                // ----------
 
 // PRIVATE MANIPULATORS
 template <class TYPE, class CREATOR, class RESETTER>
@@ -947,12 +943,12 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::replenish()
     addObjects(numObjects);
 
     // Grow pool capacity only if 'd_numReplenishObjects' is negative and
-    // greater than 'BCEC_MAX_NUM_OBJECTS' (i.e., if the absolute value of
-    // 'numObjects' is less than 'BCEC_MAX_NUM_OBJECTS').
+    // greater than 'k_MAX_NUM_OBJECTS' (i.e., if the absolute value of
+    // 'numObjects' is less than 'k_MAX_NUM_OBJECTS').
 
     if (d_numReplenishObjects < 0) {
-        if (d_numReplenishObjects > BCEC_MAX_NUM_OBJECTS) {
-            d_numReplenishObjects *= BCEC_GROW_FACTOR;
+        if (d_numReplenishObjects > k_MAX_NUM_OBJECTS) {
+            d_numReplenishObjects *= k_GROW_FACTOR;
         }
         else {
             d_numReplenishObjects = -d_numReplenishObjects;
@@ -967,11 +963,11 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
     // object nodes, and objects.  Too large a value for 'numObjects' would
     // cause overflow in 'NUM_BYTES_PER_BLOCK' below.
 
-    BSLS_ASSERT_SAFE(numObjects <= BCEC_MAX_NUM_OBJECTS_PER_FRAME);
+    BSLS_ASSERT_SAFE(numObjects <= k_MAX_NUM_OBJECTS_PER_FRAME);
 
     const int NUM_BYTES_PER_BLOCK = (int)(sizeof(BlockNode) +
                                           sizeof(ObjectNode) * numObjects *
-                                                   BCEC_NUM_OBJECTS_PER_FRAME);
+                                                   k_NUM_OBJECTS_PER_FRAME);
 
     BlockNode *start = (BlockNode *) d_blockAllocator.allocate(
                                                           NUM_BYTES_PER_BLOCK);
@@ -987,12 +983,12 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
     AutoCleanup startGuard(start, last, &d_blockAllocator, 0);
 
     for (int i = 0; i < numObjects; ++i, ++startGuard) {
-        last->d_inUse.d_next_p = last + BCEC_NUM_OBJECTS_PER_FRAME;
+        last->d_inUse.d_next_p = last + k_NUM_OBJECTS_PER_FRAME;
         bsls::AtomicOperations::initInt(&last->d_inUse.d_refCount, 0);
         d_objectCreator.object()(last + 1, d_allocator_p);
-        last += BCEC_NUM_OBJECTS_PER_FRAME;
+        last += k_NUM_OBJECTS_PER_FRAME;
     }
-    last -= BCEC_NUM_OBJECTS_PER_FRAME;
+    last -= k_NUM_OBJECTS_PER_FRAME;
     bsls::AtomicOperations::initInt(&last->d_inUse.d_refCount, 0);
 
     // If all went well (no exceptions), attach it to 'd_blockList'
@@ -1016,8 +1012,8 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
 // CREATORS
 template <class TYPE, class CREATOR, class RESETTER>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-        int               growBy,
-        bslma::Allocator *basicAllocator)
+                                              int               growBy,
+                                              bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(basicAllocator)
 , d_objectResetter(basicAllocator)
@@ -1031,9 +1027,9 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 
 template <class TYPE, class CREATOR, class RESETTER>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-        const CREATOR&    objectCreator,
-        int               growBy,
-        bslma::Allocator *basicAllocator)
+                                              const CREATOR&    objectCreator,
+                                              int               growBy,
+                                              bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
@@ -1048,8 +1044,8 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-        const CREATOR&    objectCreator,
-        bslma::Allocator *basicAllocator)
+                                              const CREATOR&    objectCreator,
+                                              bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(basicAllocator)
@@ -1064,8 +1060,8 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 template <class ANYPROTO>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-        const bdlf::Function<ANYPROTO>&  objectCreator,
-        bslma::Allocator               *basicAllocator)
+                               const bdlf::Function<ANYPROTO>&  objectCreator,
+                               bslma::Allocator                *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(ObjectPool_CreatorConverter<CREATOR,
                                                    bdlf::Function<ANYPROTO> >(
@@ -1083,9 +1079,9 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 template <class ANYPROTO>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-        const bdlf::Function<ANYPROTO>&  objectCreator,
-        int                             growBy,
-        bslma::Allocator               *basicAllocator)
+                               const bdlf::Function<ANYPROTO>&  objectCreator,
+                               int                              growBy,
+                               bslma::Allocator                *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(ObjectPool_CreatorConverter<CREATOR,
                                                    bdlf::Function<ANYPROTO> >(
@@ -1102,10 +1098,10 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 
 template <class TYPE, class CREATOR, class RESETTER>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-        const CREATOR&    objectCreator,
-        const RESETTER&   objectResetter,
-        int               growBy,
-        bslma::Allocator *basicAllocator)
+                                              const CREATOR&    objectCreator,
+                                              const RESETTER&   objectResetter,
+                                              int               growBy,
+                                              bslma::Allocator *basicAllocator)
 : d_freeObjectsList(0)
 , d_objectCreator(objectCreator, basicAllocator)
 , d_objectResetter(objectResetter, basicAllocator)
@@ -1120,16 +1116,16 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 ObjectPool<TYPE, CREATOR, RESETTER>::~ObjectPool()
 {
-    // Traverse the 'd_blockList', destroying all the objects associated
-    // with each block, irrespective of whether their reference count is zero
-    // or not.
+    // Traverse the 'd_blockList', destroying all the objects associated with
+    // each block, irrespective of whether their reference count is zero or
+    // not.
 
     for (; d_blockList; d_blockList = d_blockList->d_inUse.d_next_p) {
         int numObjects = d_blockList->d_inUse.d_numObjects;
         ObjectNode *p = (ObjectNode *)(d_blockList + 1);
         for (; numObjects != 0; --numObjects) {
            ((TYPE *)(p + 1))->~TYPE();
-            p += BCEC_NUM_OBJECTS_PER_FRAME;
+            p += k_NUM_OBJECTS_PER_FRAME;
       }
   }
 }
@@ -1152,14 +1148,14 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
             }
         }
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                   2 != bsls::AtomicOperations::addIntNv(&p->d_inUse.d_refCount,2))) {
+            2 != bsls::AtomicOperations::addIntNv(&p->d_inUse.d_refCount,2))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             for (int i = 0; i < 3; ++i) {
-                // To avoid unnecessary contention, assume that if we did
-                // not get the first reference, then the other thread is
-                // about to complete the pop.  Wait for a few cycles until
-                // he does.  If he does not complete then go on and try to
-                // acquire it ourselves.
+                // To avoid unnecessary contention, assume that if we did not
+                // get the first reference, then the other thread is about to
+                // complete the pop.  Wait for a few cycles until he does.  If
+                // he does not complete then go on and try to acquire it
+                // ourselves.
 
                 if (d_freeObjectsList != p) {
                     break;
@@ -1173,12 +1169,11 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         // observe the new free list value (== p) and because of the release
         // barrier, we can observe the new 'd_next_p' value (this relies on a
         // dependent load) or 'loadRelaxed' will the "old" (!= p) and the
-        // condition will fail.
-        // Note that 'h' is made volatile so that the compiler does not replace
-        // the 'h->d_inUse' load with 'p->d_inUse' (and thus removing the data
-        // dependency).
-        // TBD to be completely thorough 'h->d_inUse.d_next_p' needs a load
-        // dependent barrier (no-op on all current architectures though).
+        // condition will fail.  Note that 'h' is made volatile so that the
+        // compiler does not replace the 'h->d_inUse' load with 'p->d_inUse'
+        // (and thus removing the data dependency).  TBD to be completely
+        // thorough 'h->d_inUse.d_next_p' needs a load dependent barrier (no-op
+        // on all current architectures though).
 
         const ObjectNode * volatile h = d_freeObjectsList.loadRelaxed();
 
@@ -1198,8 +1193,8 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
             refCount = bsls::AtomicOperations::getInt(&p->d_inUse.d_refCount);
 
             if (refCount & 1) {
-                // The node is now free but not on the free list.
-                // Try to take it.
+                // The node is now free but not on the free list.  Try to take
+                // it.
 
                 if (refCount == bsls::AtomicOperations::testAndSwapInt(
                                                     &p->d_inUse.d_refCount,
@@ -1208,7 +1203,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
                     // Taken!
                     p->d_inUse.d_next_p = 0;  // not strictly necessary
                     d_numAvailableObjects.addRelaxed(-1);
-                    return (TYPE*)(p + 1);
+                    return (TYPE*)(p + 1);                            // RETURN
 
                 }
             }
@@ -1219,7 +1214,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
                 break;
             }
         }
-    } while(1);
+    } while (1);
 
     p->d_inUse.d_next_p = 0;  // not strictly necessary
     d_numAvailableObjects.addRelaxed(-1);
@@ -1236,17 +1231,19 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::increaseCapacity(int numObjects)
 }
 
 template <class TYPE, class CREATOR, class RESETTER>
-void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
+void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *object)
 {
-    ObjectNode *current = (ObjectNode *)(void *)objPtr - 1;
-    d_objectResetter.object()(objPtr);
+    ObjectNode *current = (ObjectNode *)(void *)object - 1;
+    d_objectResetter.object()(object);
 
-    int refCount = bsls::AtomicOperations::getIntRelaxed(&current->d_inUse.d_refCount);
+    int refCount = bsls::AtomicOperations::getIntRelaxed(
+                                                 &current->d_inUse.d_refCount);
     do {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
-            refCount =
-                bsls::AtomicOperations::testAndSwapInt(&current->d_inUse.d_refCount,
-                                                2, 0);
+            refCount = bsls::AtomicOperations::testAndSwapInt(
+                                                  &current->d_inUse.d_refCount,
+                                                  2,
+                                                  0);
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
                 break;
             }
@@ -1264,10 +1261,10 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
             // have it.
 
             d_numAvailableObjects.addRelaxed(1);
-            return;
+            return;                                                   // RETURN
         }
 
-    } while(1);
+    } while (1);
 
     ObjectNode *head = d_freeObjectsList.loadRelaxed();
     for (;;) {
@@ -1321,9 +1318,9 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::deleteObject(TYPE *object)
     releaseObject(object);
 }
 
-                      // --------------------------------
-                      // ObjectPool_CreatorConverter
-                      // --------------------------------
+                       // ---------------------------
+                       // ObjectPool_CreatorConverter
+                       // ---------------------------
 
 // CREATORS
 template <class TYPE, class OTHERTYPE>
@@ -1343,24 +1340,24 @@ const TYPE& ObjectPool_CreatorConverter<TYPE, OTHERTYPE>::creator() const
 
 inline
 ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
-                                 bdlf::Function<void(*)(void*)> >::
+                            bdlf::Function<void(*)(void*)> >::
                             ObjectPool_CreatorConverter(
-                                 const bdlf::Function<void(*)(void*)> & creator)
+                                const bdlf::Function<void(*)(void*)> & creator)
 : d_creator(creator)
 {
 }
 
-                        // ----------------------------
-                        // ObjectPool_CreatorProxy
-                        // ----------------------------
+                         // -----------------------
+                         // ObjectPool_CreatorProxy
+                         // -----------------------
 
 // CLASS METHODS
 template <class OTHERTYPE>
 inline
 void ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                                  OTHERTYPE>::defaultConstruct(
-                                                  void             *arena,
-                                                  bslma::Allocator *allocator)
+                                                  OTHERTYPE>::defaultConstruct(
+                                                   void             *arena,
+                                                   bslma::Allocator *allocator)
 {
     bslalg::ScalarPrimitives::defaultConstruct((OTHERTYPE*)arena, allocator);
 }
@@ -1378,17 +1375,17 @@ ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
 template <class TYPE, class OTHERTYPE>
 inline
 ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
-            ObjectPool_CreatorProxy(const TYPE&       rhs,
-                                         bslma::Allocator *basicAllocator)
+                      ObjectPool_CreatorProxy(const TYPE&       other,
+                                              bslma::Allocator *basicAllocator)
 {
-    bslalg::ScalarPrimitives::copyConstruct(&d_object.object(), rhs,
+    bslalg::ScalarPrimitives::copyConstruct(&d_object.object(),
+                                            other,
                                             basicAllocator);
 }
 
 template <class TYPE, class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
-                                         ~ObjectPool_CreatorProxy()
+ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::~ObjectPool_CreatorProxy()
 {
     bslalg::ScalarDestructionPrimitives::destroy(&d_object.object());
 }
@@ -1396,7 +1393,7 @@ ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
 template <class OTHERTYPE>
 inline
 ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                             OTHERTYPE>::ObjectPool_CreatorProxy(
+                                           OTHERTYPE>::ObjectPool_CreatorProxy(
                                               bslma::Allocator *basicAllocator)
 : d_object(&MyType::defaultConstruct, basicAllocator)
 {
@@ -1405,9 +1402,9 @@ ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
 template <class OTHERTYPE>
 inline
 ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                             OTHERTYPE>::ObjectPool_CreatorProxy(
-                           const ObjectPoolFunctors::DefaultCreator& rhs,
-                           bslma::Allocator *basicAllocator)
+                                           OTHERTYPE>::ObjectPool_CreatorProxy(
+                     const ObjectPoolFunctors::DefaultCreator&  rhs,
+                     bslma::Allocator                          *basicAllocator)
 : d_object(rhs, basicAllocator)
 {
 }
@@ -1437,9 +1434,9 @@ ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
 }
 }  // close package namespace
 
-                       // ------------------------------
-                       // bdlcc::ObjectPoolFunctors::Reset
-                       // ------------------------------
+                     // --------------------------------
+                     // bdlcc::ObjectPoolFunctors::Reset
+                     // --------------------------------
 
 // ACCESSORS
 template <class TYPE>
@@ -1449,9 +1446,9 @@ void bdlcc::ObjectPoolFunctors::Reset<TYPE>::operator()(TYPE *object) const
    object->reset();
 }
 
-                        // ----------------------------
-                        // bdlcc::ObjectPoolFunctors::Nil
-                        // ----------------------------
+                      // ------------------------------
+                      // bdlcc::ObjectPoolFunctors::Nil
+                      // ------------------------------
 
 // ACCESSORS
 template <class TYPE>
@@ -1460,9 +1457,9 @@ void bdlcc::ObjectPoolFunctors::Nil<TYPE>::operator()(TYPE *) const
 {
 }
 
-                       // ------------------------------
-                       // bdlcc::ObjectPoolFunctors::Clear
-                       // ------------------------------
+                     // --------------------------------
+                     // bdlcc::ObjectPoolFunctors::Clear
+                     // --------------------------------
 
 // ACCESSORS
 template <class TYPE>
@@ -1472,9 +1469,9 @@ void bdlcc::ObjectPoolFunctors::Clear<TYPE>::operator()(TYPE *object) const
    object->clear();
 }
 
-                     // ----------------------------------
-                     // bdlcc::ObjectPoolFunctors::RemoveAll
-                     // ----------------------------------
+                   // ------------------------------------
+                   // bdlcc::ObjectPoolFunctors::RemoveAll
+                   // ------------------------------------
 
 // ACCESSORS
 template <class TYPE>
@@ -1484,18 +1481,18 @@ void bdlcc::ObjectPoolFunctors::RemoveAll<TYPE>::operator()(TYPE *object) const
    object->removeAll();
 }
 
-                        // ---------------------------
-                        // bdlcc::ObjectPool_AutoCleanup
-                        // ---------------------------
+                      // -----------------------------
+                      // bdlcc::ObjectPool_AutoCleanup
+                      // -----------------------------
 
 // CREATORS
 template <class TYPE, class CREATOR, class RESETTER>
 inline
 bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
-                                    BlockNode                       *block,
-                                    ObjectNode                      *head,
-                                    bdlma::InfrequentDeleteBlockList *allocator,
-                                    int                              numNodes)
+                                   BlockNode                        *block,
+                                   ObjectNode                       *head,
+                                   bdlma::InfrequentDeleteBlockList *allocator,
+                                   int                               numNodes)
 : d_block_p(block)
 , d_head_p(head)
 , d_allocator_p(allocator)
@@ -1507,13 +1504,13 @@ template <class TYPE, class CREATOR, class RESETTER>
 bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
 {
     enum {
-        BCEC_NUM_OBJECTS_PER_FRAME =
-           bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::BCEC_NUM_OBJECTS_PER_FRAME
+        k_NUM_OBJECTS_PER_FRAME =
+           bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::k_NUM_OBJECTS_PER_FRAME
     };
     if (d_head_p) {
         for (++d_head_p; d_numNodes > 0; --d_numNodes) {
             ((TYPE *)d_head_p)->~TYPE();
-            d_head_p += BCEC_NUM_OBJECTS_PER_FRAME;
+            d_head_p += k_NUM_OBJECTS_PER_FRAME;
         }
         d_allocator_p->deallocate(d_block_p);
     }
@@ -1537,15 +1534,22 @@ void bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::release()
     d_head_p = 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007, 2008
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

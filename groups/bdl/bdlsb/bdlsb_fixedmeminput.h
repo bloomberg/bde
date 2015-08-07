@@ -22,9 +22,9 @@ BSLS_IDENT("$Id: $")
 // Clients supply the character buffer at stream buffer construction, and can
 // later reinitialize the stream buffer with a different character buffer by
 // calling the 'pubsetbuf' method.  The only difference between this component
-// and 'bdlsb_fixedmeminstreambuf' is that the class 'bdlsb::FixedMemInput' does
-// *not* derive from a 'bsl::streambuf', and is generally more efficient (at
-// initialization and due to the lack of virtual functions).
+// and 'bdlsb_fixedmeminstreambuf' is that the class 'bdlsb::FixedMemInput'
+// does *not* derive from a 'bsl::streambuf', and is generally more efficient
+// (at initialization and due to the lack of virtual functions).
 //
 ///Usage
 ///-----
@@ -73,26 +73,25 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlsb {
-                        // =========================
-                        // class FixedMemInput
-                        // =========================
+
+                           // ===================
+                           // class FixedMemInput
+                           // ===================
 
 class FixedMemInput {
     // This class, like 'FixedMemInStreamBuf', implements the input
     // functionality of the 'basic_streambuf' interface, using client-supplied
-    // 'char *' memory.  It has an interface identical to
-    // 'FixedMemInStreamBuf' but does *not* inherit from
-    // 'bsl::streambuf'.  Thus, it is suitable for use as template parameter to
-    // 'bdlxxxx::GenericByteInStream' (but not to 'bdlxxxx::ByteInStreamFormatter').
-    // This usage is advantageous for performance reasons, as the overhead of
-    // the initialization and virtual function calls of a 'bsl::streambuf' can
-    // be undesirable.  It is especially designed for streaming a very small
-    // amount of information from a fixed-length buffer using a
-    // 'bdlxxxx::GenericByteInStream' when the number of characters read from the
-    // input is guaranteed not to exceed the length of the buffer.  Note that
-    // this class is not designed to be derived from.
+    // 'char *' memory.  It has an interface identical to 'FixedMemInStreamBuf'
+    // but does *not* inherit from 'bsl::streambuf'.  Thus, it is suitable for
+    // use as template parameter to 'bslx::GenericInStream' (but not to
+    // 'bslx::StreamBufInStream').  This usage is advantageous for performance
+    // reasons, as the overhead of the initialization and virtual function
+    // calls of a 'bsl::streambuf' can be undesirable.  It is especially
+    // designed for streaming a very small amount of information from a
+    // fixed-length buffer using a 'bslx::GenericInStream' when the number of
+    // characters read from the input is guaranteed not to exceed the length of
+    // the buffer.  Note that this class is not designed to be derived from.
 
   public:
     // TYPES
@@ -130,25 +129,23 @@ class FixedMemInput {
 
                              // *** 27.5.2.2.2 buffer and positioning: ***
 
-    FixedMemInput *pubsetbuf(char            *buffer,
-                                   bsl::streamsize  length);
-    FixedMemInput *pubsetbuf(const char      *buffer,
-                                   bsl::streamsize  length);
+    FixedMemInput *pubsetbuf(char *buffer, bsl::streamsize length);
+    FixedMemInput *pubsetbuf(const char *buffer, bsl::streamsize length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
         // modifiable stream buffer.  Upon reinitialization for use of the new
         // buffer, neither the content nor the next input location is
         // preserved.  Note that 'buffer' is held but not owned.
 
-    pos_type pubseekoff(off_type                offset,
-                        bsl::ios_base::seekdir  fixedPosition,
-                        bsl::ios_base::openmode which = bsl::ios_base::in
-                                                      | bsl::ios_base::out);
+    pos_type pubseekoff(
+       off_type                offset,
+       bsl::ios_base::seekdir  fixedPosition,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Move the current write cursor position by the specified 'offset'.
 
-    pos_type pubseekpos(pos_type                position,
-                        bsl::ios_base::openmode which = bsl::ios_base::in
-                                                      | bsl::ios_base::out);
+    pos_type pubseekpos(
+       pos_type                position,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
         // Move the current write cursor position to the specified 'position'.
 
                              // *** 27.5.2.2.3 Get area: ***
@@ -210,13 +207,13 @@ class FixedMemInput {
         // of this buffer.
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
-                        // -------------------------
-                        // class FixedMemInput
-                        // -------------------------
+                           // -------------------
+                           // class FixedMemInput
+                           // -------------------
 
 // CREATORS
 inline
@@ -359,11 +356,18 @@ bsl::streamsize FixedMemInput::length() const
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

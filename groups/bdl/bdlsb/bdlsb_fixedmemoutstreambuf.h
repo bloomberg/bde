@@ -31,24 +31,24 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // Stream buffers are designed to decouple device handling from content
 // formatting, providing the requisite device handling and possible buffering
-// services, and leaving the formatting to the client stream.  The standard
-// C++ IOStreams library further partitions streaming into input streaming and
+// services, and leaving the formatting to the client stream.  The standard C++
+// IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
 // layer and the stream buffer layer.  The BDE streaming library for 'bdex',
 // including all of 'bdesb', follows this model.
 //
 ///Usage Example
 ///-------------
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream with simple formatting requirements -- namely, capitalizing all
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
 // character data that passes through its management.  (To simplify the
 // example, we do not include the functions for streaming non-character data.)
 //
-// The stream uses a client-supplied 'char'-array-based stream buffer, which
-// is inherently a fixed-size buffer.  In order to minimize data loss, this
-// stream (simplistically) flushes itself whenever utilization of the
-// underlying buffer exceeds 90 percent.  (In this simplified example,
-// 'flush' merely writes the buffer's contents to the screen.)
+// The stream uses a client-supplied 'char'-array-based stream buffer, which is
+// inherently a fixed-size buffer.  In order to minimize data loss, this stream
+// (simplistically) flushes itself whenever utilization of the underlying
+// buffer exceeds 90 percent.  (In this simplified example, 'flush' merely
+// writes the buffer's contents to the screen.)
 //..
 // // my_capitalizingstream.h
 //
@@ -203,11 +203,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlsb {
-                       // ================================
-                       // class FixedMemOutStreamBuf
-                       // ================================
+
+                        // ==========================
+                        // class FixedMemOutStreamBuf
+                        // ==========================
 
 class FixedMemOutStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
@@ -242,12 +242,12 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
         // 'position < 0 || length() < position'.
 
     virtual FixedMemOutStreamBuf *setbuf(char_type       *buffer,
-                                               bsl::streamsize  length);
+                                         bsl::streamsize  length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
         // modifiable stream buffer.  Upon reinitialization for use of the new
-        // buffer, the length and next output location are reset to zero.
-        // Note that 'buffer' is held but not owned.
+        // buffer, the length and next output location are reset to zero.  Note
+        // that 'buffer' is held but not owned.
 
   public:
     // CREATORS
@@ -262,14 +262,14 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
 
     // MANIPULATORS
     char *data();
-        // Return the address of the modifiable character buffer held by
-        // this stream buffer.
+        // Return the address of the modifiable character buffer held by this
+        // stream buffer.
 
     // ACCESSORS
     bsl::streamsize capacity() const;
-        // Return the number of characters in the buffer held by this
-        // stream buffer.  See 'length', below, for the span of bytes
-        // actually written.
+        // Return the number of characters in the buffer held by this stream
+        // buffer.  See 'length', below, for the span of bytes actually
+        // written.
 
     const char *data() const;
         // Return the address of the non-modifiable character buffer held by
@@ -277,31 +277,31 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
 
     bsl::streamsize length() const;
         // Return the number of characters from the beginning of the buffer to
-        // the current write position.  This function returns the same value
-        // as 'seekoff(0, bsl::ios_base::end)'.  The length is modified by a
-        // call to 'seekpos' or 'seekoff' and reset to zero by a call to
+        // the current write position.  This function returns the same value as
+        // 'seekoff(0, bsl::ios_base::end)'.  The length is modified by a call
+        // to 'seekpos' or 'seekoff' and reset to zero by a call to
         // 'pubsetbuf'.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     bsl::streamsize bufSize() const;
-        // Return the number of characters in the buffer held by this
-        // stream buffer.  See 'length', below, for the span of bytes
-        // actually written.
+        // Return the number of characters in the buffer held by this stream
+        // buffer.  See 'length', below, for the span of bytes actually
+        // written.
         //
-        // DEPRECATED:  Use 'capacity()' instead.
+        // DEPRECATED: Use 'capacity()' instead.
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
-                       // --------------------------------
-                       // class FixedMemOutStreamBuf
-                       // --------------------------------
+                        // --------------------------
+                        // class FixedMemOutStreamBuf
+                        // --------------------------
 
 // PROTECTED MANIPULATORS
 inline
@@ -362,6 +362,7 @@ bsl::streamsize FixedMemOutStreamBuf::length() const
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bdlsb {
+
 inline
 bsl::streamsize FixedMemOutStreamBuf::bufSize() const
 {
@@ -371,15 +372,22 @@ bsl::streamsize FixedMemOutStreamBuf::bufSize() const
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

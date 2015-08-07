@@ -2,5 +2,3 @@ bdlmca_blob
 bdlmca_blobstreambuf
 bdlmca_blobutil
 bdlmca_pooledblobbufferfactory
-bdlmca_xxxpooledbufferchain
-bdlmca_xxxpooledbufferchainstreambuf

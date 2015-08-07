@@ -1292,7 +1292,7 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::Types::Int64 numAllocations = TAX.numAllocations();
-                int numBytes = TAX.lastAllocatedNumBytes();
+                bsls::Types::Int64 numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize,
                             TAY.numAllocations() == numAllocations);
@@ -1329,7 +1329,7 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::Types::Int64 numAllocations = TAX.numAllocations();
-                int numBytes = TAX.lastAllocatedNumBytes();
+                bsls::Types::Int64 numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize, TAY.numAllocations() == numAllocations);
                 LOOP_ASSERT(chunkSize, (int)TAY.lastAllocatedNumBytes()

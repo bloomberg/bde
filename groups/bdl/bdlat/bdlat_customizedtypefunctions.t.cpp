@@ -1,4 +1,4 @@
-// bdlat_customizedtypefunctions.t.cpp                  -*-C++-*-
+// bdlat_customizedtypefunctions.t.cpp                                -*-C++-*-
 
 #include <bdlat_customizedtypefunctions.h>
 #include <bdlat_typetraits.h>
@@ -23,7 +23,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 // [ 1] METHOD FORWARDING TEST
 // [ 2] TESTING META-FUNCTIONS
@@ -225,9 +225,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Cusip& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 
@@ -277,7 +277,7 @@ int Cusip::fromString(const bsl::string& value)
     globalFlag = 1;
 
     if (9 < value.size()) {
-        return FAILURE;
+        return FAILURE;                                               // RETURN
     }
 
     d_value = value;
@@ -303,7 +303,7 @@ const bsl::string& Cusip::toString() const
     return d_value;
 }
 
-}  // close namespace mine;
+}  // close namespace mine
 
 // TRAITS
 
@@ -332,13 +332,13 @@ bsl::ostream& mine::operator<<(bsl::ostream& stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close namespace BloombergLP;
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // *End-of-File Block removed.*
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -359,10 +359,10 @@ namespace bdeat_CustomizedTypeFunctions {
         enum { VALUE = 1 };
     };
 
-} // close namespace 'bdeat_CustomizedTypeFunctions'
-} // close namespace 'BloombergLP'
+}  // close namespace bdeat_CustomizedTypeFunctions
+}  // close enterprise namespace
 
-template <typename TYPE>
+template <class TYPE>
 int readCusip(bsl::istream& stream, TYPE *object)
 {
     bsl::string value;
@@ -488,11 +488,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

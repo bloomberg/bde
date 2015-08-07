@@ -1,9 +1,8 @@
-// btls_iovecutil.t.cpp          -*-C++-*-
+// btls_iovecutil.t.cpp                                               -*-C++-*-
 
 #include <btls_iovecutil.h>
 
 #include <bdlmca_blob.h>
-#include <bdlmca_xxxpooledbufferchain.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 
 #include <bslma_testallocator.h>                // for testing only
@@ -28,14 +27,14 @@ using namespace bsl;  // automatically added by script
 // [ 1]  btls::IovecUtil::length
 // [ 1]  btls::IovecUtil::scatter
 // [ 1]  btls::IovecUtil::gather
-// [ 2]  btls::IovecUtil::chain
-// [ 3]  btls::IovecUtil::appendToBlob
+// [ 2]  btls::IovecUtil::appendToBlob
 //-----------------------------------------------------------------------------
-// [ 4]  USAGE EXAMPLE
-//=============================================================================
+// [ 3]  USAGE EXAMPLE
 
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -111,7 +110,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // Usage example
         //
@@ -122,7 +121,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // Test appendToBlob()
         //
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
                         cout << "\tTesting offset " << offset << ".\n";
                     // Create and initialize blob.
                     bdlmca::Blob *blob = new (testAllocator)
-                                          bdlmca::Blob(&factory, &testAllocator);
+                                        bdlmca::Blob(&factory, &testAllocator);
                     blob->setLength(j);
 
                     for (int k = 0; k < j; ++k) {
@@ -266,7 +265,7 @@ int main(int argc, char *argv[])
                         cout << "\tTesting offset " << offset << ".\n";
                     // Create and initialize blob.
                     bdlmca::Blob *blob = new (testAllocator)
-                                          bdlmca::Blob(&factory, &testAllocator);
+                                        bdlmca::Blob(&factory, &testAllocator);
                     blob->setLength(j);
 
                     for (int k = 0; k < j; ++k) {
@@ -294,90 +293,6 @@ int main(int argc, char *argv[])
                     }
                     testAllocator.deleteObjectRaw(blob);
                 }
-            }
-
-        } // for (int i...)
-        } // for (int m...)
-
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // Test chain()
-        //
-        // Concerns:
-        //   The chain is correctly generated using the correct offset.
-        //
-        // Plan:
-        //
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting 'chain'"
-                          << "\n===============" << endl;
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        enum {
-            BUFFER_MAX_SIZE = 5,
-            BUFFER_SIZE     = 100,
-            VECTOR_NB       = 14   // must be big enough to contain BUFFER_SIZE
-        };
-
-        // Generate seemingly random buffer.
-
-        char buffer[BUFFER_SIZE];
-        for (int i = 0; i < BUFFER_SIZE; ++i) {
-            buffer[i] = (char)(67 + i * (i+13));
-            if (veryVerbose) { int c = buffer[i]; P_(c); }
-        }
-        if (veryVerbose) { P(BUFFER_SIZE); }
-
-        // Try several buffer sizes for the 'factory'.
-        for (int m = 1; m < BUFFER_MAX_SIZE; ++m) {
-            bdlmca::PooledBlobBufferFactory factory(m, &testAllocator);
-
-        //--^
-        // Try any number of vectors, containing up to BUFFER_SIZE characters.
-        for (int i = 1; i < BUFFER_SIZE && (i * (i+1) / 2) < BUFFER_SIZE;
-             ++i) {
-            bdlmca::PooledBufferChainFactory factory(m, &testAllocator);
-            btls::Iovec                     vecs[VECTOR_NB];
-            int                            numVecs = 0;
-
-            // Generate up to VECTOR_NB vectors with vec[j].length() == j+1.
-            // The data is contiguously taken from the buffer.
-
-            int dataSize = 0;
-            for (int j = 1; j <= i; ++j) {
-                vecs[j - 1].setBuffer(buffer + j * (j - 1) / 2, j);
-                ++numVecs;
-                dataSize += j;
-            }
-            ASSERT(numVecs <= VECTOR_NB);
-            ASSERT(dataSize <= BUFFER_SIZE);
-            ASSERT(numVecs * (numVecs+1) / 2 == dataSize);
-            if (verbose) { T_(); P_(numVecs); P(dataSize); }
-
-            // Chain the vectors, starting at all possible offsets, and verify
-            // that the resulting chain is valid.
-
-            for (int offset = 0; offset < dataSize; ++offset) {
-                if (veryVerbose) { T_(); T_(); T_(); P(offset); }
-                // Utility under testing:
-                bdlmca::PooledBufferChain *chain =
-                                               btls::IovecUtil::chain(vecs,
-                                                                     numVecs,
-                                                                     offset,
-                                                                     &factory);
-
-                // Verify length of chain is as expected.
-                LOOP5_ASSERT(m, i, offset, chain->length(), numVecs,
-                                         chain->length() == dataSize - offset);
-
-                // Verify contents of chain is as expected.
-                for (int k = offset, l = 0; k < dataSize; ++k, ++l) {
-                    LOOP4_ASSERT(m, i, offset, k,
-                                     buffer[k] == chain->buffer(l / m)[l % m]);
-                }
-                factory.deleteObject(chain);
             }
 
         } // for (int i...)
@@ -742,7 +657,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

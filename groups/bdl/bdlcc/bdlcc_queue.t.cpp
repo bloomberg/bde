@@ -1,6 +1,8 @@
-// bdlcc_queue.t.cpp                                                   -*-C++-*-
+// bdlcc_queue.t.cpp                                                  -*-C++-*-
 
 #include <bdlcc_queue.h>
+
+#include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
@@ -104,50 +106,46 @@ using namespace bsl;  // automatically added by script
 // [ 8] Usage example 2
 // [ 9] Usage example 1
 // [10] Use of the 'bdlc::Queue' interface example
+
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 namespace {
 
-volatile int testStatus = 0;
+int testStatus = 0;
 
 void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
-                 << "    (failed)" << endl;
+             << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
-
 //=============================================================================
-//                      STANDARD BDE LOOP-ASSERT TEST MACRO
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-        if (!(X)) { cout << #I << ":" << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-        if (!(X)) { cout << #I << ":" << I << "\n" << #J << ":" << J << "\n"; \
-                    aSsErT(1, #X, __LINE__);}}
-
-//=============================================================================
-//                      SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define T_()  cout << '\t' << flush;          // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
-#define TAB cout << '\t';
-
-#define PP(X) (cout << #X " = " << (X) << endl, false) // Print identifier and
-                                         // value, return false, as expression.
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                                    GLOBALS
@@ -179,6 +177,7 @@ static const int MICRO_DECI_SEC =    10000;
 
 namespace BloombergLP {
 namespace bslma {
+
 bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 {
     ta.print();
@@ -189,14 +188,14 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 
 Element randElement(int *seed)
 {
-    enum { DIV_BIT  = 1 << 14,
-           DIV_MASK = DIV_BIT - 1 };
+    enum { k_DIV_BIT  = 1 << 14,
+           k_DIV_MASK = k_DIV_BIT - 1 };
 
     const unsigned int num = bdlb::Random::generate15(seed);
     const unsigned int div = bdlb::Random::generate15(seed);
-    const Element      ret = num + ((double) (div & DIV_MASK) / DIV_BIT);
+    const Element      ret = num + ((double) (div & k_DIV_MASK) / k_DIV_BIT);
 
-    return (div & DIV_BIT) ? ret : -ret;
+    return (div & k_DIV_BIT) ? ret : -ret;
 }
 
 class MyBarrier {
@@ -233,20 +232,21 @@ class MyBarrier {
 //=============================================================================
 //          USAGE use of the 'bdlc::Queue' interface from header
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE {
+
+namespace QUEUE_USE_OF_QUEUE_INTERFACE {
 
 struct MyData
 {
     // MyData...
 };
 
-bdlcc::Queue<MyData>  myWorkQueue;
-bdlc::Queue<MyData>& rawQueue = myWorkQueue.queue();
+bdlcc::Queue<MyData> myWorkQueue;
+bdlc::Queue<MyData>& rawQueue   = myWorkQueue.queue();
 bdlqq::Mutex&        queueMutex = myWorkQueue.mutex();
 
-MyData  data1;
-MyData  data2;
-bool pairFoundFlag = false;
+MyData data1;
+MyData data2;
+bool   pairFoundFlag = false;
 
 void myWork()
     // Take two elements from the queue atomically
@@ -266,160 +266,307 @@ void myWork()
     }
 }
 
-}  // close namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE
+}  // close namespace QUEUE_USE_OF_QUEUE_INTERFACE
+
 //=============================================================================
 //          USAGE example 1 from header (with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_USAGE_EXAMPLE_1 {
+
+namespace QUEUE_USAGE_EXAMPLE_1 {
 
 struct my_WorkData;
 
 int getWorkData(my_WorkData *)
-    // Dummy implementation of 'getWorkData' function required by the
-    // usage example.
+    // Dummy implementation of 'getWorkData' function required by the usage
+    // example.
 {
     static int i = 1;
     return !(++i%100);
 }
 
-enum {
-    MAX_CONSUMER_THREADS = 10
-};
-
-struct my_WorkData{
-    // Work data...
-};
-
-struct my_WorkRequest {
-    enum RequestType {
-        WORK = 1
-      , STOP = 2
+///Usage
+///-----
+///Example 1: Simple Thread Pool
+///- - - - - - - - - - - - - - -
+// The following example demonstrates a typical usage of a 'bdlcc::Queue'.
+//
+// This 'bdlcc::Queue' is used to communicate between a single "producer"
+// thread and multiple "consumer" threads.  The "producer" will push work
+// requests onto the queue, and each "consumer" will iteratively take a work
+// request from the queue and service the request.  This example shows a
+// partial, simplified implementation of the 'bdlmt::ThreadPool' class.  See
+// component 'bdlmt_threadpool' for more information.
+//
+// We begin our example with some utility classes that define a simple "work
+// item":
+//..
+    enum {
+        k_MAX_CONSUMER_THREADS = 10
     };
 
-    RequestType d_type;
-    my_WorkData d_data;
-    // Work data...
-};
+    struct my_WorkData {
+        // Work data...
+    };
 
-void myDoWork(my_WorkData&)
-{
-    // do some stuff...
-}
+    struct my_WorkRequest {
+        enum RequestType {
+            e_WORK = 1,
+            e_STOP = 2
+        };
 
-void myConsumer(bdlcc::Queue<my_WorkRequest> *queue)
-{
-    while (1) {
-        my_WorkRequest item = queue->popFront();
-        if (item.d_type == my_WorkRequest::STOP) break;
-        myDoWork(item.d_data);
+        RequestType d_type;
+        my_WorkData d_data;
+        // Work data...
+    };
+//..
+// Next, we provide a simple function to service an individual work item.  The
+// details are unimportant for this example.
+//..
+    void myDoWork(my_WorkData& data)
+    {
+        // do some stuff...
+        (void)data;
     }
-}
+//..
+// The 'myConsumer' function will pop items off the queue and process them.  As
+// discussed above, note that the call to 'queue->popFront()' will block until
+// there is an item available on the queue.  This function will be executed in
+// multiple threads, so that each thread waits in 'queue->popFront()', and
+// 'bdlcc::Queue' guarantees that each thread gets a unique item from the
+// queue.
+//..
+    void myConsumer(bdlcc::Queue<my_WorkRequest> *queue)
+    {
+        while (1) {
+            // 'popFront()' will wait for a 'my_WorkRequest' until available.
 
-extern "C" void *myConsumerThread(void *queuePtr)
-{
-    myConsumer ((bdlcc::Queue<my_WorkRequest>*)queuePtr);
-    return queuePtr;
-}
-
-void myProducer(int numThreads)
-{
-    my_WorkRequest item;
-    my_WorkData workData;
-
-    bdlcc::Queue<my_WorkRequest> queue;
-
-    ASSERT(0 < numThreads && numThreads <= MAX_CONSUMER_THREADS);
-    bdlqq::ThreadUtil::Handle consumerHandles[MAX_CONSUMER_THREADS];
-
-    for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&consumerHandles[i],
-                                 myConsumerThread,
-                                 &queue);
+            my_WorkRequest item = queue->popFront();
+            if (item.d_type == my_WorkRequest::e_STOP) break;
+            myDoWork(item.d_data);
+        }
     }
-
-    while (!getWorkData(&workData)) {
-        item.d_type = my_WorkRequest::WORK;
-        item.d_data = workData;
-        queue.pushBack(item);
+//..
+// The function below is a callback for 'bdlqq::ThreadUtil', which requires a
+// "C" signature.  'bdlqq::ThreadUtil::create()' expects a pointer to this
+// function, and provides that function pointer to the newly created thread.
+// The new thread then executes this function.
+//
+// Since 'bdlqq::ThreadUtil::create()' uses the familiar "C" convention of
+// passing a 'void' pointer, our function simply casts that pointer to our
+// required type ('bdlcc::Queue<my_WorkRequest*> *'), and then delegates to the
+// queue-specific function 'myConsumer', above.
+//..
+    extern "C" void *myConsumerThread(void *queuePtr)
+    {
+        myConsumer ((bdlcc::Queue<my_WorkRequest> *)queuePtr);
+        return queuePtr;
     }
+//..
+// In this simple example, the 'myProducer' function serves multiple roles: it
+// creates the 'bdlcc::Queue', starts out the consumer threads, and then
+// produces and queues work items.  When work requests are exhausted, this
+// function queues one 'STOP' item for each consumer queue.
+//
+// When each Consumer thread reads a 'STOP', it terminates its thread-handling
+// function.  Note that, although the producer cannot control which thread
+// 'pop's a particular work item, it can rely on the knowledge that each
+// Consumer thread will read a single 'STOP' item and then terminate.
+//
+// Finally, the 'myProducer' function "joins" each Consumer thread, which
+// ensures that the thread itself will terminate correctly; see the
+// 'bdlqq_threadutil' component for details.
+//..
+    void myProducer(int numThreads)
+    {
+        my_WorkRequest item;
+        my_WorkData    workData;
 
-    for (int i = 0; i < numThreads; ++i) {
-        item.d_type = my_WorkRequest::STOP;
-        queue.pushBack(item);
+        bdlcc::Queue<my_WorkRequest> queue;
+
+        ASSERT(0 < numThreads && numThreads <= k_MAX_CONSUMER_THREADS);
+        bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
+
+        for (int i = 0; i < numThreads; ++i) {
+            bdlqq::ThreadUtil::create(&consumerHandles[i],
+                                      myConsumerThread,
+                                      &queue);
+        }
+
+        while (!getWorkData(&workData)) {
+            item.d_type = my_WorkRequest::e_WORK;
+            item.d_data = workData;
+            queue.pushBack(item);
+        }
+
+        for (int i = 0; i < numThreads; ++i) {
+            item.d_type = my_WorkRequest::e_STOP;
+            queue.pushBack(item);
+        }
+
+        for (int i = 0; i < numThreads; ++i) {
+            bdlqq::ThreadUtil::join(consumerHandles[i]);
+        }
     }
+//..
 
-    for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(consumerHandles[i]);
-    }
-}
+}  // close namespace QUEUE_USAGE_EXAMPLE_1
 
-}  // close namespace BCEC_QUEUE_USAGE_EXAMPLE_1
 //=============================================================================
 //          USAGE example 2 from header (with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_USAGE_EXAMPLE_2 {
 
-enum {
-    MAX_CONSUMER_THREADS=10
-  , MAX_EVENT_TEXT=80
-};
+namespace QUEUE_USAGE_EXAMPLE_2 {
 
-struct my_Event {
-    enum EventType {
-          IN_PROGRESS=1
-        , TASK_COMPLETE=2
+///Example 2: Multi-Threaded Observer
+/// - - - - - - - - - - - - - - - - -
+// The previous example shows a simple mechanism for distributing work requests
+// over multiple threads.  This approach works well for large tasks that can be
+// decomposed into discrete, independent tasks that can benefit from parallel
+// execution.  Note also that the various threads are synchronized only at the
+// end of execution, when the Producer "joins" the various consumer threads.
+//
+// The simple strategy used in the first example works well for tasks that
+// share no state, and are completely independent of one another.  For
+// instance, a web server might use a similar strategy to distribute http
+// requests across multiple worker threads.
+//
+// In more complicated examples, it is often necessary or desirable to
+// synchronize the separate tasks during execution.  The second example below
+// shows a single "Observer" mechanism that receives event notification from
+// the various worker threads.
+//
+// We first create a simple 'my_Event' data type.  Worker threads will use this
+// data type to report information about their work.  In our example, we will
+// report the "worker Id", the event number, and some arbitrary text.
+//
+// As with the previous example, class 'my_Event' also contains an 'EventType',
+// which is an enumeration which that indicates whether the worker has
+// completed all work.  The "Observer" will use this enumerated value to note
+// when a Worker thread has completed its work.
+//..
+    enum {
+        k_MAX_CONSUMER_THREADS = 10,
+        k_MAX_EVENT_TEXT       = 80
     };
 
-    EventType d_type;
-    int d_workerId;
-    int d_eventNumber;
-    char d_eventText[MAX_EVENT_TEXT];
-};
+    struct my_Event {
+        enum EventType {
+            e_IN_PROGRESS   = 1,
+            e_TASK_COMPLETE = 2
+        };
 
-struct my_WorkerData {
-    int d_workerId;
-    bdlcc::Queue<my_Event> *d_queue_p;
-};
+        EventType d_type;
+        int       d_workerId;
+        int       d_eventNumber;
+        char      d_eventText[k_MAX_EVENT_TEXT];
+    };
+//..
+// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns a new
+// thread, which invokes a simple "C" function taking a 'void' pointer.  In the
+// previous example, we simply converted that 'void' pointer into a pointer to
+// the parameterized 'bdlcc::Queue<TYPE>' object.
+//
+// In this example, we want to pass an additional data item.  Each worker
+// thread is initialized with a unique integer value ("worker Id") that
+// identifies that thread.  We create a simple data structure that contains
+// both of these values:
+//..
+    struct my_WorkerData {
+        int                     d_workerId;
+        bdlcc::Queue<my_Event> *d_queue_p;
+    };
+//..
+// Function 'myWorker' simulates a working thread by enqueuing multiple
+// 'my_Event' events during execution.  In a normal application, each
+// 'my_Event' structure would likely contain different textual information; for
+// the sake of simplicity, our loop uses a constant value for the text field.
+//..
+    void myWorker(int workerId, bdlcc::Queue<my_Event> *queue)
+    {
+        const int NEVENTS = 5;
+        int evnum;
 
-void myWorker(int workerId, bdlcc::Queue<my_Event> *queue)
-{
-    const int NEVENTS = 5;
-    int evnum;
+        for (evnum = 0; evnum < NEVENTS; ++evnum) {
+            my_Event ev = {
+                my_Event::e_IN_PROGRESS,
+                workerId,
+                evnum,
+                "In-Progress Event"
+            };
+            queue->pushBack(ev);
+        }
 
-    for (evnum = 0; evnum < NEVENTS; ++evnum) {
         my_Event ev = {
-            my_Event::IN_PROGRESS,
+            my_Event::e_TASK_COMPLETE,
             workerId,
             evnum,
-            "In-Progress Event"
+            "Task Complete"
         };
         queue->pushBack(ev);
     }
+//..
+// The callback function invoked by 'bdlqq::ThreadUtil::create()' takes the
+// traditional 'void' pointer.  The expected data is the composite structure
+// 'my_WorkerData'.  The callback function casts the 'void' pointer to the
+// application-specific data type and then uses the referenced object to
+// construct a call to the 'myWorker' function.
+//..
+    extern "C" void *myWorkerThread(void *v_worker_p)
+    {
+        my_WorkerData *worker_p = (my_WorkerData *) v_worker_p;
+        myWorker(worker_p->d_workerId, worker_p->d_queue_p);
+        return v_worker_p;
+    }
+//..
+// For the sake of simplicity, we will implement the Observer behavior in the
+// main thread.  The 'void' function 'myObserver' starts out multiple threads
+// running the 'myWorker' function, reads 'my_Event's from the queue, and logs
+// all messages in the order of arrival.
+//
+// As each 'myWorker' thread terminates, it sends a 'e_TASK_COMPLETE' event.
+// Upon receiving this event, the 'myObserver' function uses the 'd_workerId'
+// to find the relevant thread, and then "joins" that thread.
+//
+// The 'myObserver' function determines when all tasks have completed simply by
+// counting the number of 'e_TASK_COMPLETE' messages received.
+//..
+    void myObserver()
+    {
+        const int NTHREADS = 10;
+        bdlcc::Queue<my_Event> queue;
 
-    my_Event ev = {
-        my_Event::TASK_COMPLETE,
-        workerId,
-        evnum,
-        "Task Complete"
-    };
-    queue->pushBack(ev);
-}
+        ASSERT(NTHREADS > 0 && NTHREADS <= k_MAX_CONSUMER_THREADS);
+        bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
-extern "C"
-void *myWorkerThread(void *v_worker_p)
-{
-    my_WorkerData  *worker_p = (my_WorkerData *) v_worker_p;
-    myWorker(worker_p->d_workerId, worker_p->d_queue_p);
-    return v_worker_p;
-}
+        my_WorkerData workerData;
+        workerData.d_queue_p = &queue;
+        for (int i = 0; i < NTHREADS; ++i) {
+            workerData.d_workerId = i;
+            bdlqq::ThreadUtil::create(&workerHandles[i],
+                                      myWorkerThread,
+                                      &workerData);
+        }
+        int nStop = 0;
+        while (nStop < NTHREADS) {
+            my_Event ev = queue.popFront();
+            bsl::cout << "[" << ev.d_workerId    << "] "
+                             << ev.d_eventNumber << ". "
+                             << ev.d_eventText   << bsl::endl;
+            if (my_Event::e_TASK_COMPLETE == ev.d_type) {
+                ++nStop;
+                bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
+            }
+        }
+    }
+//..
 
-}  // close namespace BCEC_QUEUE_USAGE_EXAMPLE_2
+}  // close namespace QUEUE_USAGE_EXAMPLE_2
 
 //=============================================================================
 //          TEST CASE 12
 //-----------------------------------------------------------------------------
 
-namespace BCEC_QUEUE_TEST_CASE_12 {
+namespace QUEUE_TEST_CASE_12 {
 
 class TestPopFront {
     Obj     *d_mX;
@@ -453,13 +600,13 @@ class TestPopFront {
 
             v.clear();
             d_mX->tryPopFront(20, &v);
-            int s = v.size();
+            int s = static_cast<int>(v.size());
             for (int i = 0; i < s; ++i) {
                 LOOP2_ASSERT(expectedVal, v[i],
                                           expectedVal++ == v[i] && "popFront");
             }
             if (s > d_maxVecSize) {
-                d_maxVecSize = v.size();
+                d_maxVecSize = static_cast<int>(v.size());
                 d_maxVecSizeAt = expectedVal;
             }
         }
@@ -504,13 +651,13 @@ class TestPopBack {
 
             v.clear();
             d_mX->tryPopBack(20, &v);
-            int s = v.size();
+            int s = static_cast<int>(v.size());
             for (int i = 0; i < s; ++i) {
                 LOOP2_ASSERT(expectedVal, v[i],
                                            expectedVal++ == v[i] && "popBack");
             }
             if (s > d_maxVecSize) {
-                d_maxVecSize = v.size();
+                d_maxVecSize = static_cast<int>(v.size());
                 d_maxVecSizeAt = expectedVal;
             }
         }
@@ -522,13 +669,13 @@ class TestPopBack {
     }
 };
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_12
+}  // close namespace QUEUE_TEST_CASE_12
 
 //=============================================================================
 //          TEST CASE 11
 //-----------------------------------------------------------------------------
 
-namespace BCEC_QUEUE_TEST_CASE_11 {
+namespace QUEUE_TEST_CASE_11 {
 
 int exitCode1;
 int exitCode2;
@@ -539,15 +686,15 @@ void *const THREAD_EXIT_2 = &exitCode2;
 void *const THREAD_EXIT_3 = &exitCode3;
 
 class TestClass13 {      // this class is a functor passed to thread::create
-    Obj              *d_queue;
-    bdlqq::Barrier    *d_barrier;
-    bsls::TimeInterval d_timeout;
+    Obj                *d_queue;
+    bdlqq::Barrier     *d_barrier;
+    bsls::TimeInterval  d_timeout;
 
   public:
     static int         s_pushCount;
     enum {
-        VALID_VAL = 45,
-        INVALID_VAL = 46
+        k_VALID_VAL   = 45,
+        k_INVALID_VAL = 46
     };
 
     TestClass13(Obj *queue, bdlqq::Barrier *barrier)
@@ -576,7 +723,7 @@ class TestClass13 {      // this class is a functor passed to thread::create
         for (int i = 0; 6 > i; ++i) {
             bool back = !(i & 1);
 
-            Element e = VALID_VAL;
+            Element e = k_VALID_VAL;
 
             if (back) {
                 ASSERT((sts = d_queue->timedPushBack(e, d_timeout), !sts));
@@ -600,12 +747,13 @@ class TestClass13 {      // this class is a functor passed to thread::create
 };
 int TestClass13::s_pushCount;
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_11
+}  // close namespace QUEUE_TEST_CASE_11
 
 //=============================================================================
 //          TEST CASE 10
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_TEST_CASE_10 {
+
+namespace QUEUE_TEST_CASE_10 {
 
 class TestClass12 {      // this class is a functor passed to thread::create
     Obj              *d_queue;
@@ -614,8 +762,8 @@ class TestClass12 {      // this class is a functor passed to thread::create
 
   public:
     enum {
-        VALID_VAL = 45,
-        TERMINATE = 46
+        k_VALID_VAL = 45,
+        k_TERMINATE = 46
     };
     TestClass12(Obj *queue, bdlqq::Barrier *barrier)
         // c'tor
@@ -655,11 +803,11 @@ class TestClass12 {      // this class is a functor passed to thread::create
                 bdlqq::ThreadUtil::exit((void *) 1);
             }
 
-            if (TERMINATE == e) {
+            if (k_TERMINATE == e) {
                 bdlqq::ThreadUtil::exit((void *) 0);
             }
 
-            ASSERT(VALID_VAL == e);
+            ASSERT(k_VALID_VAL == e);
 
             sts = d_barrier->timedWait(d_timeout);
             ASSERT(!sts);
@@ -670,12 +818,13 @@ class TestClass12 {      // this class is a functor passed to thread::create
     }
 };
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_10
+}  // close namespace QUEUE_TEST_CASE_10
 
 //=============================================================================
 //          TEST CASE 6
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_TEST_CASE_6 {
+
+namespace QUEUE_TEST_CASE_6 {
 
 class TestClass6 {
 
@@ -736,17 +885,18 @@ class TestClass6 {
 extern "C"
 void *test6(void *arg)
 {
-    using namespace BCEC_QUEUE_TEST_CASE_6;
+    using namespace QUEUE_TEST_CASE_6;
     TestClass6 *x = (TestClass6*)arg;
     x->callback();
     return 0;
 }
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_6
+}  // close namespace QUEUE_TEST_CASE_6
 //=============================================================================
 //          TEST CASE 5
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_TEST_CASE_5 {
+
+namespace QUEUE_TEST_CASE_5 {
 
 class TestClass5back {
 
@@ -782,16 +932,16 @@ class TestClass5back {
 
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushBack(
-                                          d_toBeInserted,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         d_toBeInserted,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
         d_waitingFlag = 1;
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushBack(
-                                          d_toBeInserted,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         d_toBeInserted,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
     }
 
@@ -838,16 +988,16 @@ class TestClass5front {
 
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushFront(
-                                          d_toBeInserted,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         d_toBeInserted,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
         d_waitingFlag = 1;
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPushFront(
-                                          d_toBeInserted,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         d_toBeInserted,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
     }
 
@@ -859,7 +1009,7 @@ class TestClass5front {
 extern "C"
 void *test5back(void *arg)
 {
-    using namespace BCEC_QUEUE_TEST_CASE_5;
+    using namespace QUEUE_TEST_CASE_5;
     TestClass5back *x = (TestClass5back*)arg;
     x->callback();
     return 0;
@@ -868,17 +1018,18 @@ void *test5back(void *arg)
 extern "C"
 void *test5front(void *arg)
 {
-    using namespace BCEC_QUEUE_TEST_CASE_5;
+    using namespace QUEUE_TEST_CASE_5;
     TestClass5front *x = (TestClass5front*)arg;
     x->callback();
     return 0;
 }
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_5
+}  // close namespace QUEUE_TEST_CASE_5
 //=============================================================================
 //          TEST CASE 4
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_TEST_CASE_4 {
+
+namespace QUEUE_TEST_CASE_4 {
 
 class TestClass4back {
 
@@ -953,7 +1104,7 @@ class TestClass4front {
 extern "C"
 void *test4back(void *arg)
 {
-    using namespace BCEC_QUEUE_TEST_CASE_4;
+    using namespace QUEUE_TEST_CASE_4;
     TestClass4back *x = (TestClass4back*)arg;
     x->callback();
     return 0;
@@ -962,17 +1113,18 @@ void *test4back(void *arg)
 extern "C"
 void *test4front(void *arg)
 {
-    using namespace BCEC_QUEUE_TEST_CASE_4;
+    using namespace QUEUE_TEST_CASE_4;
     TestClass4front *x = (TestClass4front*)arg;
     x->callback();
     return 0;
 }
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_4
+}  // close namespace QUEUE_TEST_CASE_4
 //=============================================================================
 //          TEST CASE 3
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_TEST_CASE_3 {
+
+namespace QUEUE_TEST_CASE_3 {
 
 class TestClass3back {
     // DATA
@@ -1008,16 +1160,16 @@ class TestClass3back {
         d_waitingFlag = 1;
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPopBack(
-                                          &result,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         &result,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
         d_waitingFlag = 1;
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPopBack(
-                                          &result,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         &result,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
         if (0 == d_timeoutFlag) {
             ASSERT(result == d_expected);
@@ -1064,16 +1216,16 @@ class TestClass3front {
         d_waitingFlag = 1;
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPopFront(
-                                          &result,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         &result,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
 
         d_barrier_p->wait();
         d_waitingFlag = 1;
         d_barrier_p->wait();
         d_timeoutFlag = d_queue_p->timedPopFront(
-                                          &result,
-                                          bdlt::CurrentTime::now() + d_timeout);
+                                         &result,
+                                         bdlt::CurrentTime::now() + d_timeout);
         d_waitingFlag = 0;
         if (0 == d_timeoutFlag) {
             ASSERT(result == d_expected);
@@ -1115,12 +1267,12 @@ struct TestStruct3 {
     }
 };
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_3
+}  // close namespace QUEUE_TEST_CASE_3
 
 extern "C" {
     void *test3back(void *arg)
     {
-        using namespace BCEC_QUEUE_TEST_CASE_3;
+        using namespace QUEUE_TEST_CASE_3;
         TestClass3back *x = (TestClass3back*)arg;
         x->callback();
         return 0;
@@ -1128,7 +1280,7 @@ extern "C" {
 
     void *test3front(void *arg)
     {
-        using namespace BCEC_QUEUE_TEST_CASE_3;
+        using namespace QUEUE_TEST_CASE_3;
         TestClass3front *x = (TestClass3front*)arg;
         x->callback();
         return 0;
@@ -1138,7 +1290,8 @@ extern "C" {
 //=============================================================================
 //          TEST CASE 2
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_TEST_CASE_2 {
+
+namespace QUEUE_TEST_CASE_2 {
 
 class TestClass2back {
 
@@ -1212,7 +1365,7 @@ class TestClass2front {
 extern "C"
 void *test2back(void *arg)
 {
-    using namespace BCEC_QUEUE_TEST_CASE_2;
+    using namespace QUEUE_TEST_CASE_2;
     TestClass2back *x = (TestClass2back*)arg;
     x->callback();
     return 0;
@@ -1221,18 +1374,19 @@ void *test2back(void *arg)
 extern "C"
 void *test2front(void *arg)
 {
-    using namespace BCEC_QUEUE_TEST_CASE_2;
+    using namespace QUEUE_TEST_CASE_2;
     TestClass2front *x = (TestClass2front*)arg;
     x->callback();
     return 0;
 }
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_2
+}  // close namespace QUEUE_TEST_CASE_2
 
 //=============================================================================
 //          TEST CASE 2
 //-----------------------------------------------------------------------------
-namespace BCEC_QUEUE_TEST_CASE_MINUS_1 {
+
+namespace QUEUE_TEST_CASE_MINUS_1 {
 
 bdlqq::Mutex outputMutex;
 
@@ -1280,11 +1434,12 @@ struct Consumer {
     }
 };
 
-}  // close namespace BCEC_QUEUE_TEST_CASE_MINUS_1
+}  // close namespace QUEUE_TEST_CASE_MINUS_1
 
 //=============================================================================
 //         SEQUENCE CONSTRAINT TEST
 //-----------------------------------------------------------------------------
+
 namespace seqtst {
 
 struct Item {
@@ -1342,7 +1497,7 @@ void popperThread(Control *control)
     control->d_barrier->wait();
 
     int numPopped;
-    while((numPopped = control->d_numPopped++) < totalToPop) {
+    while ((numPopped = control->d_numPopped++) < totalToPop) {
 
         Item item = queue->popFront();
 
@@ -1354,10 +1509,10 @@ void popperThread(Control *control)
 void runtest(int numIterations, int numPushers, int numPoppers)
 {
     enum {
-        QUEUE_SIZE = 2047
+        k_QUEUE_SIZE = 2047
     };
 
-    bdlcc::Queue<Item> queue(QUEUE_SIZE);
+    bdlcc::Queue<Item> queue(k_QUEUE_SIZE);
 
     bdlqq::Barrier barrier(numPushers + numPoppers);
 
@@ -1439,7 +1594,7 @@ void popperThread(Control *control)
     control->d_barrier->wait();
 
     int numPopped;
-    while((numPopped = control->d_numPopped++) < totalToPop) {
+    while ((numPopped = control->d_numPopped++) < totalToPop) {
 
         Item item;
         queue->popFront(&item);
@@ -1452,10 +1607,10 @@ void popperThread(Control *control)
 void runtest(int numIterations, int numPushers, int numPoppers)
 {
     enum {
-        QUEUE_SIZE = 2047
+        k_QUEUE_SIZE = 2047
     };
 
-    bdlcc::Queue<Item> queue(QUEUE_SIZE);
+    bdlcc::Queue<Item> queue(k_QUEUE_SIZE);
 
     bdlqq::Barrier barrier(numPushers + numPoppers);
 
@@ -1537,7 +1692,7 @@ void popperThread(Control *control)
     control->d_barrier->wait();
 
     int numPopped;
-    while((numPopped = control->d_numPopped++) < totalToPop) {
+    while ((numPopped = control->d_numPopped++) < totalToPop) {
 
         Item item;
         queue->popBack(&item);
@@ -1550,10 +1705,10 @@ void popperThread(Control *control)
 void runtest(int numIterations, int numPushers, int numPoppers)
 {
     enum {
-        QUEUE_SIZE = 2047
+        k_QUEUE_SIZE = 2047
     };
 
-    bdlcc::Queue<Item> queue(QUEUE_SIZE);
+    bdlcc::Queue<Item> queue(k_QUEUE_SIZE);
 
     bdlqq::Barrier barrier(numPushers + numPoppers);
 
@@ -1581,27 +1736,23 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 //=============================================================================
 //         ZERO PTR TEST
 //-----------------------------------------------------------------------------
+
 namespace zerotst {
 
 struct Control {
-    bdlqq::Barrier         *d_barrier;
-
-    bdlcc::Queue<void *>    *d_queue;
-
-    int                    d_numExpectedPushers;
-    int                    d_iterations;
-
-    bsls::AtomicInt         d_numPushers;
-    bsls::AtomicInt         d_numPopped;
+    bdlqq::Barrier       *d_barrier;
+    bdlcc::Queue<void *> *d_queue;
+    int                   d_numExpectedPushers;
+    int                   d_iterations;
+    bsls::AtomicInt       d_numPushers;
+    bsls::AtomicInt       d_numPopped;
 };
 
 void pusherThread(Control *control)
 {
-    int threadId;
-
     bdlcc::Queue<void *> *queue = control->d_queue;
 
-    threadId = control->d_numPushers++;
+    control->d_numPushers++;
 
     control->d_barrier->wait();
 
@@ -1619,7 +1770,7 @@ void popperThread(Control *control)
     control->d_barrier->wait();
 
     int numPopped;
-    while((numPopped = control->d_numPopped++) < totalToPop) {
+    while ((numPopped = control->d_numPopped++) < totalToPop) {
         queue->popFront();
     }
 }
@@ -1627,10 +1778,10 @@ void popperThread(Control *control)
 void runtest(int numIterations, int numPushers, int numPoppers)
 {
     enum {
-        QUEUE_SIZE = 2047
+        k_QUEUE_SIZE = 2047
     };
 
-    bdlcc::Queue<void *> queue(QUEUE_SIZE);
+    bdlcc::Queue<void *> queue(k_QUEUE_SIZE);
 
     bdlqq::Barrier barrier(numPushers + numPoppers);
 
@@ -1697,14 +1848,14 @@ int main(int argc, char *argv[])
                           << "sequence constraint test 'backwars'" << endl
                           << "===================================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 5000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 5000
         };
 
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
-        for(int numPoppers=1; numPoppers<=NUM_THREADS; numPoppers++) {
+        for (int numPushers=1; numPushers<=k_NUM_THREADS; numPushers++) {
+        for (int numPoppers=1; numPoppers<=k_NUM_THREADS; numPoppers++) {
 
-            seqtst3::runtest(NUM_ITERATIONS, numPushers, numPoppers);
+            seqtst3::runtest(k_NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
 
@@ -1721,14 +1872,14 @@ int main(int argc, char *argv[])
                           << "========================"
                           << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 5000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 5000
         };
 
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
-        for(int numPoppers=1; numPoppers<=NUM_THREADS; numPoppers++) {
+        for (int numPushers=1; numPushers<=k_NUM_THREADS; numPushers++) {
+        for (int numPoppers=1; numPoppers<=k_NUM_THREADS; numPoppers++) {
 
-            seqtst2::runtest(NUM_ITERATIONS, numPushers, numPoppers);
+            seqtst2::runtest(k_NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
 
@@ -1793,14 +1944,14 @@ int main(int argc, char *argv[])
                           << "zero ptr test" << endl
                           << "========================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 5000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 5000
         };
 
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
-        for(int numPoppers=1; numPoppers<=NUM_THREADS; numPoppers++) {
+        for (int numPushers=1; numPushers<=k_NUM_THREADS; numPushers++) {
+        for (int numPoppers=1; numPoppers<=k_NUM_THREADS; numPoppers++) {
 
-            zerotst::runtest(NUM_ITERATIONS, numPushers, numPoppers);
+            zerotst::runtest(k_NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
 
@@ -1815,14 +1966,14 @@ int main(int argc, char *argv[])
                           << "sequence constraint test" << endl
                           << "========================" << endl;
         enum {
-            NUM_THREADS = 4,
-            NUM_ITERATIONS = 5000
+            k_NUM_THREADS = 4,
+            k_NUM_ITERATIONS = 5000
         };
 
-        for(int numPushers=1; numPushers<=NUM_THREADS; numPushers++) {
-        for(int numPoppers=1; numPoppers<=NUM_THREADS; numPoppers++) {
+        for (int numPushers=1; numPushers<=k_NUM_THREADS; numPushers++) {
+        for (int numPoppers=1; numPoppers<=k_NUM_THREADS; numPoppers++) {
 
-            seqtst::runtest(NUM_ITERATIONS, numPushers, numPoppers);
+            seqtst::runtest(k_NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
 
@@ -1845,7 +1996,7 @@ int main(int argc, char *argv[])
         //   USAGE example
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_USAGE_EXAMPLE_1;
+        using namespace QUEUE_USAGE_EXAMPLE_1;
 
         if (verbose) cout << endl
                           << "Testing USAGE example 1" << endl
@@ -1877,7 +2028,7 @@ int main(int argc, char *argv[])
         //   USAGE example
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_USAGE_EXAMPLE_2;
+        using namespace QUEUE_USAGE_EXAMPLE_2;
 
         if (verbose) cout << endl
                           << "Testing USAGE example 2" << endl
@@ -1886,8 +2037,8 @@ int main(int argc, char *argv[])
             const int NTHREADS = 10;
             bdlcc::Queue<my_Event> queue;
 
-            ASSERT(0 < NTHREADS && NTHREADS <= MAX_CONSUMER_THREADS);
-            bdlqq::ThreadUtil::Handle workerHandles[MAX_CONSUMER_THREADS];
+            ASSERT(0 < NTHREADS && NTHREADS <= k_MAX_CONSUMER_THREADS);
+            bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
             my_WorkerData wdata[NTHREADS];
             for (int i=0; i < NTHREADS; ++i) {
@@ -1905,7 +2056,7 @@ int main(int argc, char *argv[])
                          << ev.d_eventNumber << ". "
                          << ev.d_eventText << endl;
                 }
-                if (my_Event::TASK_COMPLETE == ev.d_type) {
+                if (my_Event::e_TASK_COMPLETE == ev.d_type) {
                     ++n_Stop;
                     bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
                 }
@@ -1931,12 +2082,14 @@ int main(int argc, char *argv[])
         //   void tryPopBack(int, vector<TYPE> *);
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_12;
+        using namespace QUEUE_TEST_CASE_12;
 
         Element waitTable[] = { 4, 5, 6, 7, 15, 20, 30, 31, 32, 33, 34 };
-        enum { waitTableLength = sizeof waitTable / sizeof *waitTable };
+        int waitTableLength = static_cast<int>(sizeof waitTable
+                                             / sizeof *waitTable);
+
         const Element *waitTableBegin = waitTable;
-        const Element *waitTableEnd = waitTable + waitTableLength;
+        const Element *waitTableEnd   = waitTable + waitTableLength;
 
         Obj mX;
         bdlqq::ThreadUtil::Handle handle;
@@ -1987,7 +2140,7 @@ int main(int argc, char *argv[])
         //   pushBack
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_11;
+        using namespace QUEUE_TEST_CASE_11;
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1995,8 +2148,8 @@ int main(int argc, char *argv[])
         vector<Element> v;
         bdlqq::ThreadUtil::Handle handle;
         bdlqq::Barrier barrier(2);
-        bsls::TimeInterval timeout = bdlt::CurrentTime::now() +
-                                                        bsls::TimeInterval(4.0);
+        bsls::TimeInterval timeout =
+                            bdlt::CurrentTime::now() + bsls::TimeInterval(4.0);
 
         ASSERT(bdlt::CurrentTime::now() < timeout);
 
@@ -2017,14 +2170,14 @@ int main(int argc, char *argv[])
         ASSERT(4 == tc13.s_pushCount);
         ASSERT(4 == mX.length());  // 5th push is blocking on high watermark
 
-        ASSERT(TestClass13::VALID_VAL == mX.popFront());
+        ASSERT(TestClass13::k_VALID_VAL == mX.popFront());
         ASSERT(!barrier.timedWait(timeout));
         bdlqq::ThreadUtil::yield();
         bdlqq::ThreadUtil::microSleep(50*1000);        // 50 mSec
         ASSERT(5 == tc13.s_pushCount);
         ASSERT(4 == mX.length());
 
-        ASSERT(TestClass13::VALID_VAL == mX.popBack());
+        ASSERT(TestClass13::k_VALID_VAL == mX.popBack());
         ASSERT(!barrier.timedWait(timeout));
         bdlqq::ThreadUtil::yield();
         bdlqq::ThreadUtil::microSleep(50*1000);        // 50 mSec
@@ -2034,10 +2187,10 @@ int main(int argc, char *argv[])
         for (int i = 0; 4 > i; ++i) {
             bool back = !(1 & i);
             if (back) {
-                ASSERT(TestClass13::VALID_VAL == mX.popBack());
+                ASSERT(TestClass13::k_VALID_VAL == mX.popBack());
             }
             else {
-                ASSERT(TestClass13::VALID_VAL == mX.popFront());
+                ASSERT(TestClass13::k_VALID_VAL == mX.popFront());
             }
             ASSERT(6 == tc13.s_pushCount);
             ASSERT(3 - i == mX.length());
@@ -2067,12 +2220,12 @@ int main(int argc, char *argv[])
         //   int timedPopFront(TYPE *, const bsls::TimeInterval&);
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_10;
+        using namespace QUEUE_TEST_CASE_10;
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(&ta);
-        Element e = TestClass12::VALID_VAL;
+        Element e = TestClass12::k_VALID_VAL;
         vector<Element> v;
         bdlqq::ThreadUtil::Handle handle;
         bdlqq::Barrier barrier(2);
@@ -2081,8 +2234,8 @@ int main(int argc, char *argv[])
         // so have a pessimistic timeout time -- normally this will take MUCH
         // less than 9 seconds.
 
-        bsls::TimeInterval timeout = bdlt::CurrentTime::now() +
-                                                        bsls::TimeInterval(9.0);
+        bsls::TimeInterval timeout = bdlt::CurrentTime::now()
+                                   + bsls::TimeInterval(9.0);
 
         ASSERT(bdlt::CurrentTime::now() < timeout);
 
@@ -2105,11 +2258,11 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.length());
 
         for (int i = 0; i < 4; ++i) {
-            enum { SLEEP_TIME = 10 * 1000 };        // 10 mSec
+            enum { k_SLEEP_TIME = 10 * 1000 };        // 10 mSec
 
             ASSERT(!barrier.timedWait(timeout));
             bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+            bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
             ASSERT(0 == mX.length());
 
             mX.pushBack(e);
@@ -2119,7 +2272,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.length());
         }
 
-        e = TestClass12::TERMINATE;
+        e = TestClass12::k_TERMINATE;
         mX.pushFront(e);
         ASSERT(!barrier.timedWait(timeout));
 
@@ -2281,7 +2434,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TEST USE OF THE BDEC_QUEUE INTERFACE
+        // TEST USE OF THE QUEUE INTERFACE
         //
         // Concern:
         //   That the example use of the 'bdlc::Queue' interface code
@@ -2295,7 +2448,7 @@ int main(int argc, char *argv[])
         //   USAGE use of the 'bdlc::Queue' interface
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_USE_OF_BDEC_QUEUE_INTERFACE;
+        using namespace QUEUE_USE_OF_QUEUE_INTERFACE;
 
         {
             myWorkQueue.pushBack( MyData() );
@@ -2368,7 +2521,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING INTERNAL BDEC QUEUE ACCESSORS
+        // TESTING INTERNAL QUEUE ACCESSORS
         //
         // Concerns:
         //   That queue accessor gives internal access to queue, that mutex
@@ -2399,7 +2552,7 @@ int main(int argc, char *argv[])
         //   bdlc::Queue<T>& queue();
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_6;
+        using namespace QUEUE_TEST_CASE_6;
 
         if (verbose)
             cout << endl <<
@@ -2547,7 +2700,7 @@ int main(int argc, char *argv[])
         //   void timedPushFront(const T& item);
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_5;
+        using namespace QUEUE_TEST_CASE_5;
 
         if (verbose)
             cout << endl
@@ -2559,10 +2712,10 @@ int main(int argc, char *argv[])
             int d_highWaterMark;
             int d_insertions;
         } VALUES[] = {
-            // line     high-water mark    insertions
+            // line high-water mark insertions
             // ----     ---------------    ----------
             { L_ ,                   -1,           10 },
-         // { L_ ,                    0,            0 }, // undefined behavior
+         // { L_ , 0, 0 }, // undefined behavior
             { L_ ,                    1,            1 },
             { L_ ,                    3,            3 },
         };
@@ -2611,7 +2764,8 @@ int main(int argc, char *argv[])
                     barrier.wait();
                     bdlqq::ThreadUtil::microSleep(T);
 
-                    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+                    bsls::TimeInterval elapsed =
+                                                bdlt::CurrentTime::now() - now;
                     if (elapsed < T4) {
                         LOOP_ASSERT(i, 0 != testObj.waitingFlag() );
                         LOOP_ASSERT(i, VA == x.popBack() );
@@ -2688,7 +2842,8 @@ int main(int argc, char *argv[])
                     barrier.wait();
                     bdlqq::ThreadUtil::microSleep(T);
 
-                    bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
+                    bsls::TimeInterval elapsed =
+                                                bdlt::CurrentTime::now() - now;
                     if (elapsed < T4) {
                         LOOP_ASSERT(i, 0 != testObj.waitingFlag() );
                         LOOP_ASSERT(i, VA == x.popFront() );
@@ -2754,7 +2909,7 @@ int main(int argc, char *argv[])
         //   void forcePushFront(const T& item);
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_4;
+        using namespace QUEUE_TEST_CASE_4;
 
         if (verbose) cout << endl
            << "TESTING 'highWaterMark' and associated c'tor along with" << endl
@@ -2766,10 +2921,10 @@ int main(int argc, char *argv[])
             int d_lineNum;
             int d_highWaterMark;
         } VALUES[] = {
-            // line     high-water mark
+            // line high-water mark
             // ----     ---------------
             { L_ ,                   -1 },
-         // { L_ ,                    0 }, // undefined behavior
+         // { L_ , 0 }, // undefined behavior
             { L_ ,                    1 },
             { L_ ,                    2 },
             { L_ ,                   10 },
@@ -2807,11 +2962,11 @@ int main(int argc, char *argv[])
 
                 if (0 < HIGH_WATER_MARK) {
                     // Yielding is not bullet-proof because it does not ENSURE
-                    // that testObj is blocking on the 'pushFront', so we
-                    // make sure by waiting as long as necessary -- to prevent
-                    // failure in high loads should the 'popBack' below
-                    // execute before 'pushFront' in testObj (which actually
-                    // happens erratically).
+                    // that testObj is blocking on the 'pushFront', so we make
+                    // sure by waiting as long as necessary -- to prevent
+                    // failure in high loads should the 'popBack' below execute
+                    // before 'pushFront' in testObj (which actually happens
+                    // erratically).
 
                     int iter = 100;
                     while (0 == testObj.waitingFlag() && 0 < --iter) {
@@ -2915,7 +3070,7 @@ int main(int argc, char *argv[])
         //   int timedPopFront(T *buffer, const bsls::TimeInterval& timeout);
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_3;
+        using namespace QUEUE_TEST_CASE_3;
 
         if (verbose) cout
                        << endl
@@ -2949,9 +3104,8 @@ int main(int argc, char *argv[])
             barrier.wait();
             bdlqq::ThreadUtil::microSleep(T);
 
-            // Already, microSleep could oversleep and prevent to push
-            // in time for pop to unblock in the other thread, so we test
-            // for security.
+            // Already, microSleep could oversleep and prevent to push in time
+            // for pop to unblock in the other thread, so we test for security.
 
             x.pushBack( VA ); // this should unlock the timedPopBack in testObj
 
@@ -3061,7 +3215,7 @@ int main(int argc, char *argv[])
         //   T popFront();
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_2;
+        using namespace QUEUE_TEST_CASE_2;
 
         if (verbose) cout << endl
                           << "TESTING 'popBack' and 'popFront'" << endl
@@ -3225,14 +3379,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t1. Explicit Pushes and Pops\n";
         {
-            enum { NUM_V = 4 };
-            Element v[NUM_V];    const Element *V = &v[0];
-            for (int ti = 0; ti < NUM_V; ++ti) {
+            enum { k_NUM_V = 4 };
+            Element v[k_NUM_V];    const Element *V = &v[0];
+            for (int ti = 0; ti < k_NUM_V; ++ti) {
                 v[ti] = randElement(&seed);
                 for (int tj = 0; tj < ti; ++tj) {
                     ASSERT(V[tj] != V[ti]);
                 }
-                if (veryVerbose) { T_() T_() P_(ti); P(V[ti]); }
+                if (veryVerbose) { T_ T_ P_(ti); P(V[ti]); }
             }
 
             Obj x(&ta);    const Obj& X = x;
@@ -3334,7 +3488,7 @@ int main(int argc, char *argv[])
                             x.pushBack(v);
                             d.push_back(v);
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPUB: " << v << endl;
                             }
                         }
@@ -3342,7 +3496,7 @@ int main(int argc, char *argv[])
                             x.pushFront(v);
                             d.push_front(v);
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPUF: " << v << endl;
                             }
                         }
@@ -3363,7 +3517,7 @@ int main(int argc, char *argv[])
                             d.pop_back();
                             ASSERT(popped == x.popBack());
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPOB: " << popped << endl;
                             }
                         }
@@ -3372,7 +3526,7 @@ int main(int argc, char *argv[])
                             d.pop_front();
                             ASSERT(popped == x.popFront());
                             if (veryVerbose) {
-                                T_() T_() P_(i) P_(LENGTH) P_(expectedLength);
+                                T_ T_ P_(i) P_(LENGTH) P_(expectedLength);
                                 cout << "\tPOF: " << popped << endl;
                             }
                         }
@@ -3448,23 +3602,23 @@ int main(int argc, char *argv[])
             Element front, back;
             int    result;
 
-            result = x1.timedPopFront( &front,
-                                 bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopFront(
+                        &front, bdlt::CurrentTime::now().addMilliseconds(250));
             ASSERT(0 != result);
 
             x1.pushBack(VA);
-            result = x1.timedPopFront( &front,
-                                 bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopFront(
+                        &front, bdlt::CurrentTime::now().addMilliseconds(250));
             ASSERT(0 == result);
             ASSERT(VA == front);
 
-            result = x1.timedPopBack( &back,
-                                 bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopBack(
+                         &back, bdlt::CurrentTime::now().addMilliseconds(250));
             ASSERT(0 != result);
 
             x1.pushBack(VB);
-            result = x1.timedPopBack( &back,
-                                 bdlt::CurrentTime::now().addMilliseconds(250));
+            result = x1.timedPopBack(
+                         &back, bdlt::CurrentTime::now().addMilliseconds(250));
             ASSERT(0 == result);
             ASSERT(VB == back);
         }
@@ -3655,26 +3809,26 @@ int main(int argc, char *argv[])
         //   with and without a high watermark.
         // --------------------------------------------------------------------
 
-        using namespace BCEC_QUEUE_TEST_CASE_MINUS_1;
+        using namespace QUEUE_TEST_CASE_MINUS_1;
 
         enum {
-            CONSUMER_COUNT = 4,
-            PRODUCER_COUNT = 2 * CONSUMER_COUNT,
-            PRODUCER_ITERATIONS = 100 * 1000
+            k_CONSUMER_COUNT = 4,
+            k_PRODUCER_COUNT = 2 * k_CONSUMER_COUNT,
+            k_PRODUCER_ITERATIONS = 100 * 1000
         };
 
         enum {
-            WATERMARK_OFF,
-            WATERMARK_ON,
-            DONE
+            k_WATERMARK_OFF,
+            k_WATERMARK_ON,
+            k_DONE
         };
 
-        for (int w = WATERMARK_OFF; DONE > w; ++w) {
-            bdlcc::Queue<int> queue(WATERMARK_ON == w ? 1024 : -1);
+        for (int w = k_WATERMARK_OFF; k_DONE > w; ++w) {
+            bdlcc::Queue<int> queue(k_WATERMARK_ON == w ? 1024 : -1);
 
             Producer prod;
             prod.d_queue = &queue;
-            prod.d_iterations = PRODUCER_ITERATIONS;
+            prod.d_iterations = k_PRODUCER_ITERATIONS;
 
             Consumer cons;
             cons.d_queue = &queue;
@@ -3683,16 +3837,16 @@ int main(int argc, char *argv[])
 
             bdlqq::ThreadGroup tgroup;
 
-            tgroup.addThreads(cons, CONSUMER_COUNT);
-            tgroup.addThreads(prod, PRODUCER_COUNT);
+            tgroup.addThreads(cons, k_CONSUMER_COUNT);
+            tgroup.addThreads(prod, k_PRODUCER_COUNT);
 
             tgroup.joinAll();
 
             ASSERT(0 == queue.length());
 
             if (verbose) {
-                cout << "Total seconds = " <<
-                               bdlt::CurrentTime::now().totalSecondsAsDouble() -
+                cout << "Total seconds = "
+                     << bdlt::CurrentTime::now().totalSecondsAsDouble() -
                                                              startTime << endl;
             }
         } // for w
@@ -3712,13 +3866,13 @@ int main(int argc, char *argv[])
                           << "STRESS TEST -2" << endl
                           << "==============" << endl;
         enum {
-            NUM_THREADS = 6,
-            NUM_ITERATIONS = 1000000
+            k_NUM_THREADS = 6,
+            k_NUM_ITERATIONS = 1000000
         };
 
-        int numIterations = argc > 2 ? atoi(argv[2]) : NUM_ITERATIONS;
-        int numPushers = argc > 3 ? atoi(argv[3]) : NUM_THREADS;
-        int numPoppers = argc > 4 ? atoi(argv[4]) : NUM_THREADS;
+        int numIterations = argc > 2 ? atoi(argv[2]) : k_NUM_ITERATIONS;
+        int numPushers = argc > 3 ? atoi(argv[3]) : k_NUM_THREADS;
+        int numPoppers = argc > 4 ? atoi(argv[4]) : k_NUM_THREADS;
 
         if (verbose) cout << endl
                           << "NUM ITERATIONS: " << numIterations << endl
@@ -3741,13 +3895,13 @@ int main(int argc, char *argv[])
                           << "STRESS TEST -3" << endl
                           << "==============" << endl;
         enum {
-            NUM_THREADS = 6,
-            NUM_ITERATIONS = 1000000
+            k_NUM_THREADS = 6,
+            k_NUM_ITERATIONS = 1000000
         };
 
-        int numIterations = argc > 2 ? atoi(argv[2]) : NUM_ITERATIONS;
-        int numPushers = argc > 3 ? atoi(argv[3]) : NUM_THREADS;
-        int numPoppers = argc > 4 ? atoi(argv[4]) : NUM_THREADS;
+        int numIterations = argc > 2 ? atoi(argv[2]) : k_NUM_ITERATIONS;
+        int numPushers = argc > 3 ? atoi(argv[3]) : k_NUM_THREADS;
+        int numPoppers = argc > 4 ? atoi(argv[4]) : k_NUM_THREADS;
 
         if (verbose) cout << endl
                           << "NUM ITERATIONS: " << numIterations << endl
@@ -3767,11 +3921,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

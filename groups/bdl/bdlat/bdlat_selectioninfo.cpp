@@ -1,4 +1,4 @@
-// bdlat_selectioninfo.cpp                  -*-C++-*-
+// bdlat_selectioninfo.cpp                                            -*-C++-*-
 #include <bdlat_selectioninfo.h>
 
 #include <bsls_ident.h>
@@ -9,12 +9,12 @@ BSLS_IDENT_RCSID(bdlat_selectioninfo_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
                         // --------------------------
-                        // struct bdeat_SelectionInfo
+                        // struct bdlat_SelectionInfo
                         // --------------------------
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bdeat_SelectionInfo& selectionInfo)
+                         const bdlat_SelectionInfo& selectionInfo)
 {
     stream << "( " << selectionInfo.formattingMode()
            << ", " << selectionInfo.id()
@@ -44,13 +44,13 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     return stream;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

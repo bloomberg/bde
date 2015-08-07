@@ -1,4 +1,4 @@
-// bdlat_choicefunctions.t.cpp                  -*-C++-*-
+// bdlat_choicefunctions.t.cpp                                        -*-C++-*-
 
 #include <bdlat_choicefunctions.h>
 
@@ -21,7 +21,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD doc
+//                                  TBD doc
 //-----------------------------------------------------------------------------
 // [ 3] int lookupSelectionInfo(*info, object, *name, nameLength);
 // [ 3] int lookupSelectionInfo(*info, object, id);
@@ -206,7 +206,7 @@ class Figure {
         return globalFlag;
     }
 
-    template<typename MANIPULATOR>
+    template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& m)
         // visits modifiable selection
     {
@@ -227,7 +227,7 @@ class Figure {
     }
 
     // ACCESSORS
-    template<typename ACCESSOR>
+    template<class ACCESSOR>
     int accessSelection(ACCESSOR& a) const
         // visits non-modifiable selection
     {
@@ -273,12 +273,13 @@ const bdeat_SelectionInfo *Figure::lookupSelectionInfo(
     switch(nameLength) {
         case 6: {
             if (0 == bsl::strncmp(name, "Circle", 6)) {
-                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_CIRCLE];
+                return &SELECTION_INFO_ARRAY[SELECTION_INDEX_CIRCLE]; // RETURN
             }
         } break;
         case 7: {
             if (0 == bsl::strncmp(name, "Polygon", 7)) {
                 return &SELECTION_INFO_ARRAY[SELECTION_INDEX_POLYGON];
+                                                                      // RETURN
             }
         } break;
     }
@@ -297,7 +298,7 @@ const bdeat_SelectionInfo *Figure::lookupSelectionInfo(int id)
     }
 }
 
-}  // end namespace geom
+}  // close namespace geom
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -365,7 +366,7 @@ struct MyChoice {
         // specified 'selectionNameLength'.  Return 0 on success, and
         // non-zero value otherwise (i.e., the selection is not found).
 
-    template <typename MANIPULATOR>
+    template <class MANIPULATOR>
     int bdeat_choiceManipulateSelection(MyChoice     *object,
                                         MANIPULATOR&  manipulator);
         // Invoke the specified 'manipulator' on the address of the
@@ -375,7 +376,7 @@ struct MyChoice {
         // value returned from the invocation of 'manipulator' otherwise.
 
     // ACCESSORS
-    template <typename ACCESSOR>
+    template <class ACCESSOR>
     int bdeat_choiceAccessSelection(const MyChoice& object,
                                     ACCESSOR&       accessor);
         // Invoke the specified 'accessor' on the (non-modifiable)
@@ -405,27 +406,27 @@ int mine::bdeat_choiceMakeSelection(MyChoice *object,
         object->d_selectionId = selectionId;
         object->d_charValue   = 0;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
       }
       case MyChoice::INT_SELECTION_ID: {
         object->d_selectionId = selectionId;
         object->d_intValue    = 0;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
       }
       case MyChoice::FLOAT_SELECTION_ID: {
         object->d_selectionId = selectionId;
         object->d_floatValue  = 0;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
       }
       case MyChoice::UNDEFINED_SELECTION_ID: {
         object->d_selectionId = selectionId;
 
-        return SUCCESS;
+        return SUCCESS;                                               // RETURN
       }
       default: {
-        return NOT_FOUND;
+        return NOT_FOUND;                                             // RETURN
       }
     }
 }
@@ -464,7 +465,7 @@ int mine::bdeat_choiceMakeSelection(MyChoice   *object,
 // component-level documentation for more information.  The implementation of
 // the remaining functions are as follows:
 //..
-template <typename MANIPULATOR>
+template <class MANIPULATOR>
 int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
                                           MANIPULATOR&  manipulator)
 {
@@ -478,7 +479,7 @@ int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
         info.name()           = "charValue";
         info.nameLength()     = 9;
 
-        return manipulator(&object->d_charValue, info);
+        return manipulator(&object->d_charValue, info);               // RETURN
       }
       case MyChoice::INT_SELECTION_ID: {
         bdeat_SelectionInfo info;
@@ -489,7 +490,7 @@ int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
         info.name()           = "intValue";
         info.nameLength()     = 8;
 
-        return manipulator(&object->d_intValue, info);
+        return manipulator(&object->d_intValue, info);                // RETURN
       }
       case MyChoice::FLOAT_SELECTION_ID: {
         bdeat_SelectionInfo info;
@@ -500,7 +501,7 @@ int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
         info.name()           = "floatValue";
         info.nameLength()     = 10;
 
-        return manipulator(&object->d_floatValue, info);
+        return manipulator(&object->d_floatValue, info);              // RETURN
       }
       default:
         BSLS_ASSERT_SAFE(!"Invalid selection!");
@@ -510,7 +511,7 @@ int mine::bdeat_choiceManipulateSelection(MyChoice     *object,
 
 // ACCESSORS
 
-template <typename ACCESSOR>
+template <class ACCESSOR>
 int mine::bdeat_choiceAccessSelection(const MyChoice& object,
                                       ACCESSOR&       accessor)
 {
@@ -524,7 +525,7 @@ int mine::bdeat_choiceAccessSelection(const MyChoice& object,
         info.name()           = "charValue";
         info.nameLength()     = 9;
 
-        return accessor(object.d_charValue, info);
+        return accessor(object.d_charValue, info);                    // RETURN
       }
       case MyChoice::INT_SELECTION_ID: {
         bdeat_SelectionInfo info;
@@ -535,7 +536,7 @@ int mine::bdeat_choiceAccessSelection(const MyChoice& object,
         info.name()           = "intValue";
         info.nameLength()     = 8;
 
-        return accessor(object.d_intValue, info);
+        return accessor(object.d_intValue, info);                     // RETURN
       }
       case MyChoice::FLOAT_SELECTION_ID: {
         bdeat_SelectionInfo info;
@@ -546,7 +547,7 @@ int mine::bdeat_choiceAccessSelection(const MyChoice& object,
         info.name()           = "floatValue";
         info.nameLength()     = 10;
 
-        return accessor(object.d_floatValue, info);
+        return accessor(object.d_floatValue, info);                   // RETURN
       }
       default:
         BSLS_ASSERT_SAFE(!"Invalid selection!");
@@ -572,8 +573,8 @@ namespace bdeat_ChoiceFunctions {
         enum { VALUE = 1 };
     };
 
-} // close namespace 'bdeat_ChoiceFunctions'
-} // close namespace 'BloombergLP'
+}  // close namespace bdeat_ChoiceFunctions
+}  // close enterprise namespace
 //..
 // The 'bdeat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'MyChoice' as a "choice" type.  For example, suppose we
@@ -621,7 +622,7 @@ struct PrintSelection {
     // DATA MEMBERS
     bsl::ostream *d_stream_p;
 
-    template <typename TYPE, typename INFO>
+    template <class TYPE, class INFO>
     int operator()(const TYPE& object, const INFO& info)
     {
       (*d_stream_p) << info.name() << ": " << object << bsl::endl;
@@ -629,7 +630,7 @@ struct PrintSelection {
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 void printChoiceSelection(bsl::ostream& stream, const TYPE& object)
 {
     using namespace BloombergLP;
@@ -783,11 +784,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

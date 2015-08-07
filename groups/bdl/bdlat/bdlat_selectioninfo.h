@@ -1,4 +1,4 @@
-// bdlat_selectioninfo.h                  -*-C++-*-
+// bdlat_selectioninfo.h                                              -*-C++-*-
 #ifndef INCLUDED_BDLAT_SELECTIONINFO
 #define INCLUDED_BDLAT_SELECTIONINFO
 
@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container for selection information.
 //
 //@CLASSES:
-//  bdeat_SelectionInfo: container for selection information
+//  bdlat_SelectionInfo: container for selection information
 //
 //@SEE_ALSO: bdlat_choicefunctions
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
-//@DESCRIPTION: This component provides the 'bdeat_SelectionInfo' 'struct',
+//@DESCRIPTION: This component provides the 'bdlat_SelectionInfo' 'struct',
 // which is a container for holding information (properties) about a choice
 // selection.  The properties of a selection include its name and the length of
 // its name, its distinct id within its containing type, its formatting mode,
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // accessible, a manipulator and accessor is also supplied for each.
 //
 // When accessing or manipulating a selection of a "choice" type (using one of
-// the functions from the 'bdeat_ChoiceFunctions' namespace), an instance of
+// the functions from the 'bdlat_ChoiceFunctions' namespace), an instance of
 // this 'struct' will be passed as the second argument to the accessor or
 // manipulator.
 //
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //      // OPERATIONS
 //      template <typename TYPE>
 //      int operator()(const TYPE&                selection,
-//                     const bdeat_SelectionInfo& info)
+//                     const bdlat_SelectionInfo& info)
 //      {
 //          (*d_stream_p) << selection << " ("
 //                        << bsl::string(info.name(),
@@ -88,14 +88,17 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include <bdlat_bdeatoverrides.h>
+#endif
 
 namespace BloombergLP {
 
                         // ==========================
-                        // struct bdeat_SelectionInfo
+                        // struct bdlat_SelectionInfo
                         // ==========================
 
-struct bdeat_SelectionInfo {
+struct bdlat_SelectionInfo {
     // This 'struct' holds information about an selection.  Its data members
     // are 'public' by design so that instances may be statically initialized.
 
@@ -108,24 +111,24 @@ struct bdeat_SelectionInfo {
     int         d_formattingMode;  // formatting mode
 
     // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_SelectionInfo,
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_SelectionInfo,
                                    bsl::is_trivially_copyable);
-    BSLMF_NESTED_TRAIT_DECLARATION(bdeat_SelectionInfo,
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_SelectionInfo,
                                    bsl::is_trivially_default_constructible);
 
     // CREATORS
     // The following methods are not defined by design:
     //..
-    //   bdeat_SelectionInfo();
-    //   bdeat_SelectionInfo(const bdeat_SelectionInfo& original);
-    //   ~bdeat_SelectionInfo();
+    //   bdlat_SelectionInfo();
+    //   bdlat_SelectionInfo(const bdlat_SelectionInfo& original);
+    //   ~bdlat_SelectionInfo();
     //..
     // The corresponding methods supplied by the compiler are sufficient.
 
     // MANIPULATORS
     // The following method is not defined by design:
     //..
-    //   bdeat_SelectionInfo& operator=(const bdeat_SelectionInfo& rhs);
+    //   bdlat_SelectionInfo& operator=(const bdlat_SelectionInfo& rhs);
     //..
     // The assignment operator supplied by the compiler is sufficient.
 
@@ -170,58 +173,58 @@ struct bdeat_SelectionInfo {
 
 // FREE OPERATORS
 inline
-bool operator==(const bdeat_SelectionInfo& lhs,
-                                               const bdeat_SelectionInfo& rhs);
+bool operator==(const bdlat_SelectionInfo& lhs,
+                                               const bdlat_SelectionInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' selection info objects
     // have the same value, and 'false' otherwise.  Two selection info objects
     // have the same value if each of their respective properties are
     // identical.
 
 inline
-bool operator!=(const bdeat_SelectionInfo& lhs,
-                                               const bdeat_SelectionInfo& rhs);
+bool operator!=(const bdlat_SelectionInfo& lhs,
+                                               const bdlat_SelectionInfo& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' selection info objects do
     // not have the same value, and 'false' otherwise.  Two selection info
     // objects do not have the same value if at least one of their respective
     // properties is not identical.
 
 bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bdeat_SelectionInfo& selectionInfo);
+                         const bdlat_SelectionInfo& selectionInfo);
     // Write the value of the specified 'selectionInfo' to the specified
     // 'stream'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 
 inline
-const char *& bdeat_SelectionInfo::annotation()
+const char *& bdlat_SelectionInfo::annotation()
 {
     return d_annotation_p;
 }
 
 inline
-int& bdeat_SelectionInfo::formattingMode()
+int& bdlat_SelectionInfo::formattingMode()
 {
     return d_formattingMode;
 }
 
 inline
-int& bdeat_SelectionInfo::id()
+int& bdlat_SelectionInfo::id()
 {
     return d_id;
 }
 
 inline
-const char *& bdeat_SelectionInfo::name()
+const char *& bdlat_SelectionInfo::name()
 {
     return d_name_p;
 }
 
 inline
-int& bdeat_SelectionInfo::nameLength()
+int& bdlat_SelectionInfo::nameLength()
 {
     return d_nameLength;
 }
@@ -229,31 +232,31 @@ int& bdeat_SelectionInfo::nameLength()
 // ACCESSORS
 
 inline
-const char *bdeat_SelectionInfo::annotation() const
+const char *bdlat_SelectionInfo::annotation() const
 {
     return d_annotation_p;
 }
 
 inline
-int bdeat_SelectionInfo::formattingMode() const
+int bdlat_SelectionInfo::formattingMode() const
 {
     return d_formattingMode;
 }
 
 inline
-int bdeat_SelectionInfo::id() const
+int bdlat_SelectionInfo::id() const
 {
     return d_id;
 }
 
 inline
-const char *bdeat_SelectionInfo::name() const
+const char *bdlat_SelectionInfo::name() const
 {
     return d_name_p;
 }
 
 inline
-int bdeat_SelectionInfo::nameLength() const
+int bdlat_SelectionInfo::nameLength() const
 {
     return d_nameLength;
 }
@@ -261,7 +264,7 @@ int bdeat_SelectionInfo::nameLength() const
 // FREE OPERATORS
 
 inline
-bool operator==(const bdeat_SelectionInfo& lhs, const bdeat_SelectionInfo& rhs)
+bool operator==(const bdlat_SelectionInfo& lhs, const bdlat_SelectionInfo& rhs)
 {
     return lhs.formattingMode() == rhs.formattingMode()
         && lhs.id()             == rhs.id()
@@ -271,22 +274,20 @@ bool operator==(const bdeat_SelectionInfo& lhs, const bdeat_SelectionInfo& rhs)
 }
 
 inline
-bool operator!=(const bdeat_SelectionInfo& lhs, const bdeat_SelectionInfo& rhs)
+bool operator!=(const bdlat_SelectionInfo& lhs, const bdlat_SelectionInfo& rhs)
 {
     return !(lhs == rhs);
 }
 
-}  // close namespace BloombergLP
-
-
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

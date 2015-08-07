@@ -1,4 +1,4 @@
-// bdlcc_fixedqueueindexmanager.h                                      -*-C++-*-
+// bdlcc_fixedqueueindexmanager.h                                     -*-C++-*-
 #ifndef INCLUDED_BDLCC_FIXEDQUEUEINDEXMANAGER
 #define INCLUDED_BDLCC_FIXEDQUEUEINDEXMANAGER
 
@@ -61,17 +61,17 @@ BSLS_IDENT("$Id: $")
 //      // fixed maximum capacity.
 //
 //      // DATA
-//      bdlcc::FixedQueueIndexManager d_indexManager;  // manages indices
-//                                                         // of 'd_values'
+//      bdlcc::FixedQueueIndexManager d_indexManager;  // manages 'd_values'
+//                                                     // indices
 //
-//      bsl::vector<int>                  d_values;        // maintain values
+//      bsl::vector<int>              d_values;        // maintains values
 //
 //    public:
 //..
 // Then, we declare the methods of an integer queue:
 //..
 //      // CREATORS
-//      explicit IntegerQueue(unsigned int      capacity,
+//      explicit IntegerQueue(bsl::size_t       capacity,
 //                            bslma::Allocator *basicAllocator = 0);
 //          // Create a queue capable of holding up to the specified
 //          // 'capacity' number of integer values.
@@ -91,11 +91,11 @@ BSLS_IDENT("$Id: $")
 //          // on success, and a non-zero value otherwise.
 //
 //      // ACCESSORS
-//      unsigned int length() const;
+//      bsl::size_t length() const;
 //          // Return a snapshot of the number of elements currently in this
 //          // queue.
 //
-//      unsigned int capacity() const;
+//      bsl::size_t capacity() const;
 //          // Return the maximum number of elements that this queue can hold.
 //  };
 //..
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //  and vector with the supplied capacity:
 //..
 //  // CREATORS
-//  IntegerQueue::IntegerQueue(unsigned int      capacity,
+//  IntegerQueue::IntegerQueue(bsl::size_t       capacity,
 //                             bslma::Allocator *basicAllocator)
 //  : d_indexManager(capacity, basicAllocator)
 //  , d_values(capacity, 0, basicAllocator)
@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //      if (0 == d_indexManager.reservePushIndex(&generation, &index)) {
 //          d_values[index] = value;
 //          d_indexManager.commitPushIndex(generation, index);
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //      return -1;
 //  }
@@ -136,23 +136,23 @@ BSLS_IDENT("$Id: $")
 //      if (0 == d_indexManager.reservePopIndex(&generation, &index)) {
 //          *result = d_values[index];
 //          d_indexManager.commitPopIndex(generation, index);
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //      return -1;
 //  }
 //..
-// Notice that because none of these operations allocate memory, we do not
-// need to add code to ensure exception safety.
+// Notice that because none of these operations allocate memory, we do not need
+// to add code to ensure exception safety.
 //
 // Then, we define the accessors to the integer queue:
 //..
 //  // ACCESSORS
-//  unsigned int IntegerQueue::length() const
+//  bsl::size_t IntegerQueue::length() const
 //  {
 //      return d_indexManager.length();
 //  }
 //
-//  unsigned int IntegerQueue::capacity() const
+//  bsl::size_t IntegerQueue::capacity() const
 //  {
 //      return d_indexManager.capacity();
 //  }
@@ -220,11 +220,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlcc {
-                     // =================================
-                     // class FixedQueueIndexManager
-                     // =================================
+
+                       // ============================
+                       // class FixedQueueIndexManager
+                       // ============================
 
 class FixedQueueIndexManager {
     // This class implements a circular buffer of atomic state variables.
@@ -234,9 +234,9 @@ class FixedQueueIndexManager {
 
     // PRIVATE CONSTANTS
     enum {
-        e_PADDING = bdlqq::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
+        k_PADDING =
+                   bdlqq::Platform::e_CACHE_LINE_SIZE - sizeof(bsls::AtomicInt)
     };
-
 
     // DATA
     bsls::AtomicInt     d_pushIndex;
@@ -244,18 +244,18 @@ class FixedQueueIndexManager {
                            // element will be pushed (see implementation note
                            // in .cpp)
 
-    const char          d_pushIndexPad[e_PADDING];
+    const char          d_pushIndexPad[k_PADDING];
                            // padding to prevent false sharing
 
     bsls::AtomicInt     d_popIndex;
                            // index in the circular buffer from which the next
-                           // element will be popped  (see implementation note
+                           // element will be popped (see implementation note
                            // in .cpp)
 
-    const char          d_popIndexPad[e_PADDING];
+    const char          d_popIndexPad[k_PADDING];
                            // padding to prevent false sharing
 
-    const unsigned int  d_capacity;
+    const bsl::size_t   d_capacity;
                            // maximum number of elements that can be held in
                            // the circular buffer
 
@@ -265,10 +265,10 @@ class FixedQueueIndexManager {
                            // detail)
 
     const unsigned int  d_maxCombinedIndex;
-                           // maximum combination of index and generation
-                           // count that can stored in 'd_pushIndex' and
-                           // 'd_popIndex' of this object (see implementation
-                           // note in the .cpp file for more detail)
+                           // maximum combination of index and generation count
+                           // that can stored in 'd_pushIndex' and 'd_popIndex'
+                           // of this object (see implementation note in the
+                           // .cpp file for more detail)
 
     bsls::AtomicInt    *d_states;
                            // array of index state variables
@@ -278,18 +278,17 @@ class FixedQueueIndexManager {
 
   private:
     // NOT IMPLEMENTED
-    FixedQueueIndexManager(
-                        const FixedQueueIndexManager&); // = delete;
+    FixedQueueIndexManager(const FixedQueueIndexManager&); // = delete;
     FixedQueueIndexManager& operator=(
-                        const FixedQueueIndexManager&); // = delete;
+                                   const FixedQueueIndexManager&); // = delete;
 
   private:
 
     // PRIVATE ACCESSORS
     unsigned int nextCombinedIndex(unsigned int combinedIndex) const;
         // Return the combined index value subsequent to the specified
-        // 'combinedIndex'.  Note that a "combined index" is the combination
-        // of generation count and element index held in 'd_pushIndex' and
+        // 'combinedIndex'.  Note that a "combined index" is the combination of
+        // generation count and element index held in 'd_pushIndex' and
         // 'd_popIndex', and is defined as:
         //..
         //  ('generationCount * d_capacity) + index'.
@@ -298,7 +297,6 @@ class FixedQueueIndexManager {
 
     unsigned int nextGeneration(unsigned int generation) const;
         // Return the generation subsequent to the specified 'generation'.
-
 
   public:
     // TRAITS
@@ -331,34 +329,34 @@ class FixedQueueIndexManager {
         // The behavior is undefined unless 'minuend < modulo',
         // 'subtrahend < modulo', and 'modulo <= INT_MAX + 1'.
 
-    static unsigned int numRepresentableGenerations(unsigned int capacity);
-        // Return the number of representable generations for a circular
-        // buffer of the specified 'capacity'.
+    static unsigned int numRepresentableGenerations(bsl::size_t capacity);
+        // Return the number of representable generations for a circular buffer
+        // of the specified 'capacity'.
 
     // PUBLIC CONSTANTS
     enum {
-        e_MAX_CAPACITY = 1 << ((sizeof(int) * 8) - 2)
+        k_MAX_CAPACITY = 1 << ((sizeof(int) * 8) - 2)
                                     // maximum capacity of an index manager;
                                     // note that 2 bits of 'd_pushIndex' are
-                                    // reserved for holding the disabled
-                                    // status flag, and ensuring that the
+                                    // reserved for holding the disabled status
+                                    // flag, and ensuring that the
                                     // representable number of generation
                                     // counts is at least 2 (see the
-                                    // implementation note in the .cpp for
-                                    // more details)
+                                    // implementation note in the .cpp for more
+                                    // details)
 
     };
 
     // CREATORS
     explicit
-    FixedQueueIndexManager(unsigned int      capacity,
-                                      bslma::Allocator *basicAllocator = 0);
+    FixedQueueIndexManager(bsl::size_t       capacity,
+                           bslma::Allocator *basicAllocator = 0);
         // Create an index manager for a circular buffer having the specified
         // maximum 'capacity'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  'isEnabled' will be 'true' for the
-        // newly created index manager.  The behavior is undefined unless
-        // '0 < capacity' and 'capacity <= e_MAX_CAPACITY'.
+        // default allocator is used.  'isEnabled' will be 'true' for the newly
+        // created index manager.  The behavior is undefined unless
+        // '0 < capacity' and 'capacity <= k_MAX_CAPACITY'.
 
     ~FixedQueueIndexManager();
         // Destroy this object.
@@ -366,8 +364,7 @@ class FixedQueueIndexManager {
     // MANIPULATORS
                          // Pushing Elements
 
-    int reservePushIndex(unsigned int *generation,
-                         unsigned int *index);
+    int reservePushIndex(unsigned int *generation, unsigned int *index);
         // Reserve the next available index at which to enqueue an element in
         // an (externally managed) circular buffer; load the specified 'index'
         // with the reserved index and load the specified 'generation' with the
@@ -393,8 +390,7 @@ class FixedQueueIndexManager {
 
                          // Popping Elements
 
-    int reservePopIndex(unsigned int *generation,
-                        unsigned int *index);
+    int reservePopIndex(unsigned int *generation, unsigned int *index);
         // Reserve the next available index from which to dequeue an element
         // from an (externally managed) circular buffer; load the specified
         // 'index' with the reserved index and load the specified 'generation'
@@ -441,10 +437,10 @@ class FixedQueueIndexManager {
         // cell; otherwise this operation has no effect.  Return 0 if an index
         // was successfully reserved, and a non-zero value if the current pop
         // index is at 'endIndex' and 'endGeneration'.  The behavior is
-        // undefined unless 'endGeneration' and 'endIndex' refer to a cell
-        // that has been acquired for writing.  Note that this operation is
-        // used to facilitate removing all the elements in a circular buffer if
-        // an exception is thrown between reserving an index for pushing, and
+        // undefined unless 'endGeneration' and 'endIndex' refer to a cell that
+        // has been acquired for writing.  Note that this operation is used to
+        // facilitate removing all the elements in a circular buffer if an
+        // exception is thrown between reserving an index for pushing, and
         // committing that index -- the intended usage is to call
         // 'reservePopIndexForClear' and then 'commitPopIndex', emptying all
         // the cells up to the index that was reserved for writing, and then
@@ -456,21 +452,21 @@ class FixedQueueIndexManager {
         // generation following the specified 'generation'.  The behavior is
         // undefined unless the calling thread holds a reservation on
         // 'generation' and 'index', and 'clearPopIndex' and then
-        // 'commitPushIndex' have been repeatedly invoked with 'generation'
-        // and 'index' as input until no indices remain to clear.  Note that
-        // this operation is used to facilitate removing all the elements in a
-        // circular buffer if an exception is thrown between reserving an
-        // index for pushing, and committing that index.
+        // 'commitPushIndex' have been repeatedly invoked with 'generation' and
+        // 'index' as input until no indices remain to clear.  Note that this
+        // operation is used to facilitate removing all the elements in a
+        // circular buffer if an exception is thrown between reserving an index
+        // for pushing, and committing that index.
 
     // ACCESSORS
     bool isEnabled() const;
         // Return 'true' if the queue is enabled, and 'false' if it is
         // disabled.
 
-    unsigned int length() const;
+    bsl::size_t length() const;
         // Return a snapshot of the number of items in the queue.
 
-    unsigned int capacity() const;
+    bsl::size_t capacity() const;
         // Return the maximum number of items that may be stored in the queue.
 
     bsl::ostream& print(bsl::ostream& stream) const;
@@ -482,12 +478,12 @@ class FixedQueueIndexManager {
 };
 
 // ============================================================================
-//                           INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                     // ---------------------------------
-                     // class FixedQueueIndexManager
-                     // ---------------------------------
+                       // ----------------------------
+                       // class FixedQueueIndexManager
+                       // ----------------------------
 
 // PRIVATE ACCESSORS
 inline
@@ -518,21 +514,28 @@ unsigned int FixedQueueIndexManager::nextGeneration(
 
 // ACCESSORS
 inline
-unsigned int FixedQueueIndexManager::capacity() const
+bsl::size_t FixedQueueIndexManager::capacity() const
 {
     return d_capacity;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

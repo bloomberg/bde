@@ -538,12 +538,12 @@ class ConcurrentMultipool {
 
    private:
     // PRIVATE MANIPULATORS
-    void initialize(bsls::BlockGrowth::Strategy        growthStrategy,
-                    int                                maxBlocksPerChunk);
+    void initialize(bsls::BlockGrowth::Strategy growthStrategy,
+                    int                         maxBlocksPerChunk);
     void initialize(const bsls::BlockGrowth::Strategy *growthStrategyArray,
                     int                                maxBlocksPerChunk);
-    void initialize(bsls::BlockGrowth::Strategy        growthStrategy,
-                    const int                         *maxBlocksPerChunkArray);
+    void initialize(bsls::BlockGrowth::Strategy  growthStrategy,
+                    const int                   *maxBlocksPerChunkArray);
     void initialize(const bsls::BlockGrowth::Strategy *growthStrategyArray,
                     const int                         *maxBlocksPerChunkArray);
         // Initialize this multipool with the specified 'growthStrategy[Array]'

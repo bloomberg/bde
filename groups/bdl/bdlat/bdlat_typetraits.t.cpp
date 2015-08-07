@@ -1,4 +1,4 @@
-// bdlat_typetraits.t.cpp                  -*-C++-*-
+// bdlat_typetraits.t.cpp                                             -*-C++-*-
 
 #include <bdlat_typetraits.h>
 
@@ -164,7 +164,7 @@ struct my_ClassWithBasicCustomizedTypeAllocBitwiseTraits {
 BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicCustomizedTypeAllocBitwiseTraits)
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -463,11 +463,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2005
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

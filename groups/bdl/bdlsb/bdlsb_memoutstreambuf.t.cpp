@@ -1,6 +1,8 @@
-// bdlsb_memoutstreambuf.t.cpp               -*-C++-*-
+// bdlsb_memoutstreambuf.t.cpp                                        -*-C++-*-
 
 #include <bdlsb_memoutstreambuf.h>
+
+#include <bdls_testutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -27,20 +29,20 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 // This test driver exercises all the protected virtual methods from the
-// 'basic_streambuf' protocol that are overridden by the derived concrete
-// class 'bdlsb::MemOutStreamBuf', as well as each new (non-protocol) public
-// method added in the 'bdlsb::MemOutStreamBuf' class.
+// 'basic_streambuf' protocol that are overridden by the derived concrete class
+// 'bdlsb::MemOutStreamBuf', as well as each new (non-protocol) public method
+// added in the 'bdlsb::MemOutStreamBuf' class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
-// behavior, and that they conform to a feasible interpretation of the
-// standard as described in the function documentation, where the standard
-// defined behavior only loosely.  For those methods that are not protocol
-// defined, we check only compliance with the behavior as described in the
-// function documentation.
+// behavior, and that they conform to a feasible interpretation of the standard
+// as described in the function documentation, where the standard defined
+// behavior only loosely.  For those methods that are not protocol defined, we
+// check only compliance with the behavior as described in the function
+// documentation.
 //
-// The protected methods (whose implementation or re-implementation define
-// the behavior that differentiates one kind of stream buffer from another) are
+// The protected methods (whose implementation or re-implementation define the
+// behavior that differentiates one kind of stream buffer from another) are
 // "driven", or invoked, by various (base-class) public methods provided for
 // stream-buffer client use.  One recurrent concern in this test driver is to
 // ensure correct interplay between these protected methods and the base-
@@ -98,58 +100,45 @@ using namespace bsl;  // automatically added by script
 // [11] USAGE EXAMPLE: Capitalizing Stream
 //-----------------------------------------------------------------------------
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
-static int testStatus = 0;
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -177,9 +166,9 @@ const bsl::size_t MAX_CAPACITY              =
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-                   // ====================================
-                   // operator<< for bdlsb::MemOutStreamBuf
-                   // ====================================
+                  // =====================================
+                  // operator<< for bdlsb::MemOutStreamBuf
+                  // =====================================
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&                stream,
@@ -451,22 +440,20 @@ bsls::Types::Int64 LimitsTestAllocator::numDeallocations() const
     return d_numDeallocations;
 }
 
-
-
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
 ///Usage
 ///-----
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream with simple formatting requirements -- namely, capitalizing all
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
 // lower-case ASCII character data that is output.  To simplify the example, we
 // do not include the functions for streaming non-character data, e.g., numeric
 // values:
 //..
-//  // my_capitalizingstream.h
-//
+    // my_capitalizingstream.h
+
     class my_CapitalizingStream {
         // This class capitalizes lower-case ASCII characters that are output.
 
@@ -512,10 +499,8 @@ bsls::Types::Int64 LimitsTestAllocator::numDeallocations() const
 // As is typical, the streaming operators are made friends of the class.  We
 // use the 'transform' algorithm to convert lower-case characters to uppercase:
 //..
-//  // my_capitalizingstream.cpp
-//
-//  #include <algorithm>
-//
+    // my_capitalizingstream.cpp
+
     // FREE OPERATORS
     my_CapitalizingStream& operator<<(my_CapitalizingStream& stream, char data)
     {
@@ -732,7 +717,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting seekoff from beginning and end."
                           << endl;
 
-#ifdef IN // 'IN' and 'OUT'  are #define'd in a windows header
+#ifdef IN // 'IN' and 'OUT' are #define'd in a windows header
 #undef IN
 #undef OUT
 #endif
@@ -786,7 +771,6 @@ int main(int argc, char *argv[])
                { L_,  OUT,    0,       END,      IB  },
                { L_,  OUT,    1,       END,      -1 },
 
-
                // seekoff in the "get" area
                { L_,  IN,    22,       END,      -1  },
 
@@ -822,9 +806,9 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, FINAL_POS == SB.length());
                 LOOP_ASSERT(LINE, 0 == bsl::memcmp(FILL, SB.data(), IB));
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (veryVerbose) P(ret);
                 mSB.sputc('!');
@@ -893,9 +877,9 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, FINAL_POS == SB.length());
                 LOOP_ASSERT(LINE, 0 == bsl::memcmp(FILL, SB.data(), IB));
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (veryVerbose) P(ret);
                 mSB.sputc('!');
@@ -1087,7 +1071,6 @@ int main(int argc, char *argv[])
                   { L_,  MAX_CAPACITY,     MAX_CAPACITY          }
             };   // end table DATA
 
-
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < DATA_LEN; ++i ) {
@@ -1149,10 +1132,10 @@ int main(int argc, char *argv[])
                 mSB.reserveCapacity(DATA[i].d_requestAmount);
                 LOOP_ASSERT(LINE, DATA[i].d_capacity == ta.numBytesInUse());
 
-                // Now prove that the entirety of the returned memory is
-                // used for capacity (rather than, say, other object
-                // infrastructure) by writing out that many characters and
-                // showing that no realloc happens.
+                // Now prove that the entirety of the returned memory is used
+                // for capacity (rather than, say, other object infrastructure)
+                // by writing out that many characters and showing that no
+                // realloc happens.
 
                 for (int j = 0; j < DATA[i].d_capacity; ++j) {
                     mSB.sputc('Z');
@@ -1490,8 +1473,8 @@ int main(int argc, char *argv[])
                   //L#  output char    resulting
                   //                 stream contents
                   //--  -----------  ---------------
-                  // Printing character equivalence classes are
-                  // ranges [0..31], [32..126], and {127}.
+                  // Printing character equivalence classes are ranges [0..31],
+                  // [32..126], and {127}.
                   { L_,    0  },
                   { L_,    3  },
                   { L_,    3  },
@@ -1619,13 +1602,13 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, RET_VAL   == ret);
                 LOOP_ASSERT(LINE, FINAL_POS == SB.length());
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor. (Except for
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except for
                 // out-of-bounds positions).
 
-                // Verify positioning by writing one char, and check the
-                // char, its predecessor, and its successor.  (Except in
-                // out of bounds conditions.)
+                // Verify positioning by writing one char, and check the char,
+                // its predecessor, and its successor.  (Except in out of
+                // bounds conditions.)
 
                 if (veryVerbose) P(ret);
                 mSB.sputc('!');
@@ -1689,8 +1672,10 @@ int main(int argc, char *argv[])
                           << "PRIMARY CONSTRUCTOR" << endl
                           << "===================" << endl;
 
-        if (verbose) cout <<
-              "\nEnsure bdem::Default::allocator() is used by default." << endl;
+        if (verbose) {
+            cout << "\nEnsure bdem::Default::allocator() is used by default."
+                 << endl;
+        }
         {
 
             bslma::TestAllocator da(veryVeryVerbose);
@@ -1890,11 +1875,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

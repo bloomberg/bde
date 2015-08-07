@@ -1,4 +1,4 @@
-// bdlc_queue.t.cpp       -*-C++-*-
+// bdlc_queue.t.cpp                                                   -*-C++-*-
 
 #include <bdlc_queue.h>
 
@@ -9,9 +9,9 @@
 
 #include <bsls_platform.h>                      // for testing only
 
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
+#include <bslx_testinstream.h>                  // for testing only
+#include <bslx_testinstreamexception.h>         // for testing only
+#include <bslx_testoutstream.h>                 // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_new.h>         // placement syntax
@@ -39,7 +39,7 @@ using namespace bsl;  // automatically added by script
 // Note that each manipulator must support aliasing, and those that perform
 // memory allocation must be tested for exception neutrality via the
 // 'bslma_testallocator' component.  Exception neutrality involving streaming
-// is verified using 'bdlxxxx_testinstream' (and 'bdlxxxx_testoutstream').
+// is verified using 'bslx_testinstream' (and 'bslx_testoutstream').
 //
 // The extended list of primary manipulator (relative to, for example, arrays)
 // is required to obtain arbitrary white-box state.  Specifically, the data
@@ -80,14 +80,14 @@ using namespace bsl;  // automatically added by script
 // [12] void setLengthRaw(int newLength);
 // [12] void setLength(int newLength);
 // [12] void setLength(int newLength, double iVal);
-// [10] bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream);
+// [10] bslx::InStream& streamIn(bslx::InStream& stream);
 // [16] void swap(int index1, int index2);
 // [ 4] const double& operator[](int index) const;
 // [ 4] const double& back();
 // [ 4] const double& front();
 // [ 4] int length() const;
 // [15] ostream& print(ostream& stream, int level, int spl);
-// [10] bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream) const;
+// [10] bslx::OutStream& streamOut(bslx::OutStream& stream) const;
 //
 // [ 6] operator==(const bdlc::Queue&, const bdlc::Queue&);
 // [ 6] operator!=(const bdlc::Queue&, const bdlc::Queue&);
@@ -384,7 +384,7 @@ int ggg(T *object, const char *spec, int verboseFlag = 1)
             goto error;
         }
    }
-   return SUCCESS;
+   return SUCCESS;                                                    // RETURN
 
 error:
    if (verboseFlag) {
@@ -5499,8 +5499,8 @@ DEFINE_TEST_CASE(10) {
         //     input stream has gone invalid.
         //
         // Testing:
-        //   bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream);
-        //   bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream) const;
+        //   bslx::InStream& streamIn(bslx::InStream& stream);
+        //   bslx::OutStream& streamOut(bslx::OutStream& stream) const;
         // --------------------------------------------------------------------
 
         bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -5516,19 +5516,18 @@ DEFINE_TEST_CASE(10) {
             const Obj X(g("ABC"), &testAllocator);
             if (veryVerbose) { cout << "\t   Value being streamed: "; P(X); }
 
-            bdlxxxx::TestOutStream out;
-            bdex_OutStreamFunctions::streamOut(out, X, VERSION);
+            bslx::TestOutStream out(1);
+            bslx::OutStreamFunctions::bdexStreamOut(out, X, VERSION);
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
 
-            bdlxxxx::TestInStream in(OD, LOD);  ASSERT(in);  ASSERT(!in.isEmpty());
-            in.setSuppressVersionCheck(1);
+            bslx::TestInStream in(OD, LOD); ASSERT(in); ASSERT(!in.isEmpty());
             Obj t(g("DE"), &testAllocator);
 
             if (veryVerbose) { cout << "\tValue being overwritten: "; P(t); }
             ASSERT(X != t);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
             ASSERT(in);  ASSERT(in.isEmpty());
 
             if (veryVerbose) { cout << "\t  Value after overwrite: "; P(t); }
@@ -5577,19 +5576,18 @@ DEFINE_TEST_CASE(10) {
                     Obj mU(&testAllocator);     stretchRemoveAll(&mU, U_N);
                     const Obj& U = mU;          gg(&mU, U_SPEC);
 
-                    bdlxxxx::TestOutStream out;
+                    bslx::TestOutStream out(1);
 
                     // testing stream-out operator here
-                    bdex_OutStreamFunctions::streamOut(out, U, VERSION);
+                    bslx::OutStreamFunctions::bdexStreamOut(out, U, VERSION);
 
                     const char *const OD  = out.data();
                     const int         LOD = out.length();
 
                     // Must reset stream for each iteration of inner loop.
-                    bdlxxxx::TestInStream testInStream(OD, LOD);
-                    testInStream.setSuppressVersionCheck(1);
-                    LOOP2_ASSERT(U_SPEC, U_N, testInStream);
-                    LOOP2_ASSERT(U_SPEC, U_N, !testInStream.isEmpty());
+                    bslx::TestInStream in(OD, LOD);
+                    LOOP2_ASSERT(U_SPEC, U_N, in);
+                    LOOP2_ASSERT(U_SPEC, U_N, !in.isEmpty());
 
                     for (int vi = 0; SPECS[vi]; ++vi) {
                         const char *const V_SPEC = SPECS[vi];
@@ -5608,14 +5606,14 @@ DEFINE_TEST_CASE(10) {
                         for (int vj = 0; vj < NUM_EXTEND; ++vj) {
                           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                          BEGIN_BDEX_EXCEPTION_TEST {
-                            testInStream.reset();
+                          BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                            in.reset();
                             const int V_N = EXTEND[vj];
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
             //--------------^
-            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, testInStream);
-            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, !testInStream.isEmpty());
+            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, in);
+            LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, !in.isEmpty());
             //--------------v
                             Obj mV(&testAllocator); stretchRemoveAll(&mV, V_N);
                             const Obj& V = mV;      gg(&mV, V_SPEC);
@@ -5632,7 +5630,7 @@ DEFINE_TEST_CASE(10) {
 
                             testAllocator.setAllocationLimit(AL);
                             // test stream-in operator here
-                            bdex_InStreamFunctions::streamIn(testInStream,
+                            bslx::InStreamFunctions::bdexStreamIn(in,
                                                              mV,
                                                              VERSION);
 
@@ -5640,7 +5638,7 @@ DEFINE_TEST_CASE(10) {
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, UU == V);
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  U == V);
 
-                          } END_BDEX_EXCEPTION_TEST
+                          } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                           } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
                     }
@@ -5666,8 +5664,7 @@ DEFINE_TEST_CASE(10) {
             };
             const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
 
-            bdlxxxx::TestInStream testInStream("", 0);
-            testInStream.setSuppressVersionCheck(1);
+            bslx::TestInStream in("", 0);
 
             int oldLen = -1;
             for (int ti = 0; SPECS[ti]; ++ti) {
@@ -5688,8 +5685,8 @@ DEFINE_TEST_CASE(10) {
 
                 for (int ei = 0; ei < NUM_EXTEND; ++ei) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                  BEGIN_BDEX_EXCEPTION_TEST {
-                    testInStream.reset();
+                  BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
 
                     const int N = EXTEND[ei];
 
@@ -5701,18 +5698,18 @@ DEFINE_TEST_CASE(10) {
                   // Ensure that reading from an empty or invalid input stream
                   // leaves the stream invalid and the target object unchanged.
 
-                                        LOOP2_ASSERT(ti, ei, testInStream);
+                                        LOOP2_ASSERT(ti, ei, in);
                                         LOOP2_ASSERT(ti, ei, X == t);
 
-                    bdex_InStreamFunctions::streamIn(testInStream, t, VERSION);
-                    LOOP2_ASSERT(ti, ei, !testInStream);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
+                    LOOP2_ASSERT(ti, ei, !in);
                     LOOP2_ASSERT(ti, ei, X == t);
 
-                    bdex_InStreamFunctions::streamIn(testInStream, t, VERSION);
-                    LOOP2_ASSERT(ti, ei, !testInStream);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
+                    LOOP2_ASSERT(ti, ei, !in);
                     LOOP2_ASSERT(ti, ei, X == t);
 
-                  } END_BDEX_EXCEPTION_TEST
+                  } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                   } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
@@ -5725,19 +5722,17 @@ DEFINE_TEST_CASE(10) {
             const Obj X2 = g("ADE"),    Y2 = g("CABDE"), Z2 = g("B");
             const Obj X3 = g("DEEDDE"), Y3 = g("C"),     Z3 = g("DBED");
 
-            bdlxxxx::TestOutStream out;
-            bdex_OutStreamFunctions::streamOut(out, Y1, VERSION);
+            bslx::TestOutStream out(1);
+            bslx::OutStreamFunctions::bdexStreamOut(out, Y1, VERSION);
             const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, Y2, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, Y2, VERSION);
             const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, Y3, VERSION);
+            bslx::OutStreamFunctions::bdexStreamOut(out, Y3, VERSION);
             const int LOD  = out.length();
             const char *const OD = out.data();
 
             for (int i = 0; i < LOD; ++i) {
-                bdlxxxx::TestInStream testInStream(OD, i);
-                bdlxxxx::TestInStream& in = testInStream;
-                in.setSuppressVersionCheck(1);
+                bslx::TestInStream in(OD, i);
                 LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
 
                 if (veryVerbose) { cout << "\t\t"; P(i); }
@@ -5748,7 +5743,7 @@ DEFINE_TEST_CASE(10) {
 
                 if (i < LOD1) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
+                  BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
@@ -5757,19 +5752,19 @@ DEFINE_TEST_CASE(10) {
                     t3 = X3;
 
                     testAllocator.setAllocationLimit(AL);
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                     LOOP_ASSERT(i, !in);
                     if (0 == i) LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                     LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
                     LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X3 == t3);
-                  } END_BDEX_EXCEPTION_TEST
+                  } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                   } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 else if (i < LOD2) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
+                  BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
@@ -5778,19 +5773,19 @@ DEFINE_TEST_CASE(10) {
                     t3 = X3;
 
                     testAllocator.setAllocationLimit(AL);
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                     LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Y1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                     LOOP_ASSERT(i, !in);
                                      if (LOD1 == i) LOOP_ASSERT(i, X2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
                     LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X3 == t3);
-                  } END_BDEX_EXCEPTION_TEST
+                  } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                   } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 else {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
+                  BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
@@ -5799,14 +5794,14 @@ DEFINE_TEST_CASE(10) {
                     t3 = X3;
 
                     testAllocator.setAllocationLimit(AL);
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t1, VERSION);
                     LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Y1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t2, VERSION);
                     LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, Y2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                    bslx::InStreamFunctions::bdexStreamIn(in, t3, VERSION);
                     LOOP_ASSERT(i, !in);
                                      if (LOD2 == i) LOOP_ASSERT(i, X3 == t3);
-                  } END_BDEX_EXCEPTION_TEST
+                  } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                   } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
@@ -5837,7 +5832,7 @@ DEFINE_TEST_CASE(10) {
         {
             const int length = 3;
 
-            bdlxxxx::TestOutStream out;
+            bslx::TestOutStream out(1);
             out.putLength(length);
             for (int i = 0; i < A_LEN; ++i) {
                 out.putFloat64(a[i]);
@@ -5846,9 +5841,8 @@ DEFINE_TEST_CASE(10) {
             const int         LOD = out.length();
 
             Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD); ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
+            bslx::TestInStream in(OD, LOD); ASSERT(in);
+            bslx::InStreamFunctions::bdexStreamIn(in, t, VERSION);
             ASSERT(in);
             ASSERT(W != t);    ASSERT(X != t);      ASSERT(Y == t);
         }
@@ -5858,7 +5852,7 @@ DEFINE_TEST_CASE(10) {
             const char version = 0; // too small
             const int length   = 3;
 
-            bdlxxxx::TestOutStream out;
+            bslx::TestOutStream out(1);
             out.putVersion(version);
             out.putLength(length);
             for (int i = 0; i < A_LEN; ++i) {
@@ -5868,8 +5862,7 @@ DEFINE_TEST_CASE(10) {
             const int         LOD = out.length();
 
             Obj t(X);   ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
-            bdlxxxx::TestInStream in(OD, LOD);
-            in.setSuppressVersionCheck(1);
+            bslx::TestInStream in(OD, LOD);
             ASSERT(in); in >> t; ASSERT(!in);
             ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
         }
@@ -8080,11 +8073,11 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
