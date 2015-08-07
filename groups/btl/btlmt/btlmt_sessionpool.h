@@ -10,30 +10,29 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide thread-enabled session-based IPv4 communication
 //
 //@CLASSES:
-//                btlmt::SessionPool: session manager
-// btlmt::SessionPoolSessionIterator: iterator over the sessions managed by a
-//                                   session pool
+//  btlmt::SessionPool: session manager
+//  btlmt::SessionPoolSessionIterator: sessions iterator
 //
 //@SEE_ALSO: btlmt_session, btlmt_asyncchannel, btlmt_channelpool
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@DESCRIPTION:  This component provides a thread-enabled asynchronous
+//@DESCRIPTION: This component provides a thread-enabled asynchronous
 // 'btlmt::Session' manager of the IPV4-based byte stream communication
 // sessions.  The sessions are allocated automatically when the appropriate
 // events occur, and destroyed based on user requests.  A new session is
 // allocated automatically when an incoming connection is accepted, by the
-// 'btlmt::SessionFactory' specified during the call to 'listen', or when a user
-// explicitly requests a connection to a server, by a 'btlmt::SessionFactory'
-// specified during the call to 'connect'.  Session pool has both client-side
-// (aka connector) and server-side (aka acceptor) facilities.  The session pool
-// manages efficient delivery of messages to/from the user based on
-// configuration information supplied at construction.  The states of
-// individual messages are not reported; rather, session pool notifies the user
-// when a session changes its state.  It also notifies the user when the state
-// of the pool is affected, and provides the classification of errors.  The
-// notification is done via asynchronous callbacks that can be invoked from any
-// (managed) thread.
+// 'btlmt::SessionFactory' specified during the call to 'listen', or when a
+// user explicitly requests a connection to a server, by a
+// 'btlmt::SessionFactory' specified during the call to 'connect'.  Session
+// pool has both client-side (aka connector) and server-side (aka acceptor)
+// facilities.  The session pool manages efficient delivery of messages to/from
+// the user based on configuration information supplied at construction.  The
+// states of individual messages are not reported; rather, session pool
+// notifies the user when a session changes its state.  It also notifies the
+// user when the state of the pool is affected, and provides the classification
+// of errors.  The notification is done via asynchronous callbacks that can be
+// invoked from any (managed) thread.
 //
 ///Message Management and Delivery
 ///-------------------------------
@@ -61,9 +60,9 @@ BSLS_IDENT("$Id: $")
 // To set up this server, users must create a concrete session class derived
 // from 'btlmt::Session' protocol, and a factory for creating instances of this
 // concrete session type.  'my_EchoSession' objects are created by a factory
-// that must be derived from 'btlmt::SessionFactory'.  A 'my_EchoSessionFactory'
-// just allocates and deallocates sessions (with no pooling or allocation
-// strategy).  This is the simplest form of factory.
+// that must be derived from 'btlmt::SessionFactory'.  A
+// 'my_EchoSessionFactory' just allocates and deallocates sessions (with no
+// pooling or allocation strategy).  This is the simplest form of factory.
 //..
 //  // my_echoserver.h
 //
@@ -76,13 +75,13 @@ BSLS_IDENT("$Id: $")
 //     // protocol to use along with 'my_EchoServer' objects.
 //
 //     // DATA
-//     btlmt::AsyncChannel *d_channel_p; // underlying channel (held, not owned)
+//     btlmt::AsyncChannel *d_channel_p;// underlying channel (held, not owned)
 //
 //     // PRIVATE MANIPULATORS
-//     void readCb(int                  state,
-//                 int                 *numConsumed,
-//                 int                 *numNeeded,
-//                 const btlmt::DataMsg& msg);
+//     void readCb(int           result,
+//                 int          *numNeeded,
+//                 bdlmca::Blob *blob,
+//                 int           channelId);
 //         // Read callback for session pool.
 //
 //   private:
@@ -138,9 +137,9 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      virtual void allocate(btlmt::AsyncChannel                    *channel,
-//                            const btlmt::SessionFactory::Callback&  callback);
+//                            const btlmt::SessionFactory::Callback&  cb);
 //         // Asynchronously allocate a 'btlmt::Session' object for the
-//         // specified 'channel', and invoke the specified 'callback' with
+//         // specified 'channel', and invoke the specified 'cb' with
 //         // this session.
 //
 //      virtual void deallocate(btlmt::Session *session);
@@ -158,26 +157,23 @@ BSLS_IDENT("$Id: $")
 //                          // --------------------
 //
 //  // PRIVATE MANIPULATORS
-//  void my_EchoSession::readCb(int                   state,
-//                              int                  *numConsumed,
-//                              int                  *numNeeded,
-//                              const btlmt::DataMsg&  msg)
+//  void my_EchoSession::readCb(int           result,
+//                              int          *numNeeded,
+//                              bdlmca::Blob *blob,
+//                              int           channelId)
 //  {
-//      if (state) {
-//          // Session is going down.
-//
+//      if (result) {
 //          d_channel_p->close();
 //          return;
 //      }
 //
-//      assert(numConsumed);
-//      assert(msg.data());
-//      assert(0 < msg.data()->length());
+//      ASSERT(numNeeded);
+//      ASSERT(0 < blob->length());
 //
-//      assert(0 == d_channel_p->write(msg));
+//      ASSERT(0 == d_channel_p->write(*blob));
 //
-//      *numConsumed = msg.data()->length();
 //      *numNeeded   = 1;
+//      bdlmca::BlobUtil::erase(blob, 0, blob->length());
 //
 //      d_channel_p->close(); // close connection.
 //  }
@@ -195,9 +191,10 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //  int my_EchoSession::start()
 //  {
-//      return d_channel_p->read(1,
-//                               bdlf::MemFnUtil::memFn(&my_EchoSession::readCb,
-//                               this));
+//      return d_channel_p->read(
+//                              1,
+//                              bdlf::MemFnUtil::memFn(&my_EchoSession::readCb,
+//                              this));
 //  }
 //
 //  int my_EchoSession::stop()
@@ -230,8 +227,8 @@ BSLS_IDENT("$Id: $")
 //  // MANIPULATORS
 //  void
 //  my_EchoSessionFactory::allocate(
-//                             btlmt::AsyncChannel                    *channel,
-//                             const btlmt::SessionFactory::Callback&  callback)
+//                            btlmt::AsyncChannel                    *channel,
+//                            const btlmt::SessionFactory::Callback&  callback)
 //  {
 //      my_EchoSession *session = new (*d_allocator_p) my_EchoSession(channel);
 //      callback(0, session);
@@ -256,23 +253,23 @@ BSLS_IDENT("$Id: $")
 //      // This class implements a multi-user multi-threaded echo server.
 //
 //      // DATA
-//      btlmt::ChannelPoolConfiguration d_config;          // pool
+//      btlmt::ChannelPoolConfiguration  d_config;        // pool
 //                                                        // configuration
 //
-//      btlmt::SessionPool             *d_sessionPool_p;   // managed pool
+//      btlmt::SessionPool              *d_sessionPool_p; // managed pool
 //                                                        // (owned)
 //
-//      my_EchoSessionFactory          d_sessionFactory;  // my_EchoSession
+//      my_EchoSessionFactory            d_sessionFactory;// my_EchoSession
 //                                                        // factory
 //
-//      int                            d_portNumber;      // port on which this
+//      int                              d_portNumber;    // port on which this
 //                                                        // server is
 //                                                        // listening
 //
-//      bdlqq::Mutex                   *d_coutLock_p;      // mutex protecting
+//      bdlqq::Mutex                    *d_coutLock_p;    // mutex protecting
 //                                                        // bsl::cout
 //
-//      bslma::Allocator              *d_allocator_p;     // memory allocator
+//      bslma::Allocator                *d_allocator_p;   // memory allocator
 //                                                        // (held)
 //
 //      // PRIVATE MANIPULATORS
@@ -296,7 +293,7 @@ BSLS_IDENT("$Id: $")
 //                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      my_EchoServer(bdlqq::Mutex      *coutLock,
+//      my_EchoServer(bdlqq::Mutex     *coutLock,
 //                    int               portNumber,
 //                    int               numConnections,
 //                    bool              reuseAddressFlag,
@@ -375,7 +372,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // CREATORS
-//  my_EchoServer::my_EchoServer(bdlqq::Mutex      *lock,
+//  my_EchoServer::my_EchoServer(bdlqq::Mutex     *lock,
 //                               int               portNumber,
 //                               int               numConnections,
 //                               bslma::Allocator *basicAllocator)
@@ -389,9 +386,9 @@ BSLS_IDENT("$Id: $")
 //      d_config.setMaxWriteCache(1<<10);           // 1Mb
 //      d_config.setIncomingMessageSizes(1, 100, 1024);
 //
-//      typedef btlmt::SessionPool::SessionPoolStateCallback SessionPoolStateCb;
+//      typedef btlmt::SessionPool::SessionPoolStateCallback SessionStateCb;
 //
-//      SessionPoolStateCb poolStateCb = bdlf::MemFnUtil::memFn(
+//      SessionStateCb poolStateCb = bdlf::MemFnUtil::memFn(
 //                                          &my_EchoServer::poolStateCb, this);
 //
 //      d_sessionPool_p = new (*d_allocator_p)
@@ -491,16 +488,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_XXXPOOLEDBUFFERCHAIN
-#include <bdlmca_xxxpooledbufferchain.h>
-#endif
-
 #ifndef INCLUDED_BDLMCA_BLOB
 #include <bdlmca_blob.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -519,28 +508,33 @@ BSLS_IDENT("$Id: $")
 #include <bslma_managedptr.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
 #endif
 
 namespace BloombergLP {
 
+namespace btlmt {
 
-namespace btlmt {class ChannelPool;
-class DataMsg;
+class ChannelPool;
 class Session;
 class SessionFactory;
 
 struct SessionPool_Handle;
 class SessionPool;
+
 }  // close package namespace
 
 namespace btlso { class SocketOptions; }
 
 namespace btlmt {
-                   // ======================================
+                   // ================================
                    // class SessionPoolSessionIterator
-                   // ======================================
+                   // ================================
 
 class SessionPoolSessionIterator {
     // Provide read-only sequential access to the allocated sessions in a
@@ -551,20 +545,19 @@ class SessionPoolSessionIterator {
                                                                CatalogIterator;
 
     // DATA
-    CatalogIterator                 d_iterator;  // underlying catalog iterator
+    CatalogIterator           d_iterator;  // underlying catalog iterator
 
     bsl::pair<int, Session*>  d_current;   // pair referenced by
-                                                 // this iterator
+                                           // this iterator
 
     bsl::pair<int, Session*> *d_current_p; // points to 'd_current' if
-                                                 // the iterator is valid, or
-                                                 // 0 otherwise.
+                                           // the iterator is valid, or
+                                           // 0 otherwise.
 
   private:
     // NOT IMPLEMENTED
     SessionPoolSessionIterator(const SessionPoolSessionIterator&);
-    SessionPoolSessionIterator& operator=(
-                                      const SessionPoolSessionIterator&);
+    SessionPoolSessionIterator& operator=(const SessionPoolSessionIterator&);
 
     bool operator==(const SessionPoolSessionIterator&) const;
     bool operator!=(const SessionPoolSessionIterator&) const;
@@ -598,9 +591,9 @@ class SessionPoolSessionIterator {
         // iterator is *valid*.
 };
 
-                           // =======================
+                           // =================
                            // class SessionPool
-                           // =======================
+                           // =================
 
 class SessionPool {
     // This class provides a mechanism for establishing and managing network
@@ -608,22 +601,22 @@ class SessionPool {
     // passing in a 'ChannelPoolConfiguration' object and allows the
     // establishment of both server sessions via the 'listen' method and client
     // sessions via the 'connect' method.  The connection initiation methods
-    // take a 'SessionFactory' object that allows users to return a
-    // 'Session' object that the session pool stores as a reference for
-    // the connection.  During the allocation of the 'Session' object
-    // clients are provided an 'AsyncChannel' that they can use for
-    // exchanging data with the other endpoint in the connection.  An existing
-    // socket can be imported into a session pool and this will create a
-    // session enabled both for read and for write.  All of the callbacks
-    // invoked by session pool are run in a number of threads created at start
-    // up.  Session pool ensures that callback methods of a particular
-    // connection are always invoked on the same thread so users dont have to
-    // synchroninze data associated with a particular connection.  Session pool
-    // can be started or stopped via the 'start' and 'stop' methods
-    // respectively.  Once started and until stopped, the session pool
-    // dispatches incoming and outgoing connections, messages, and other
-    // session functions to the processing threads.  Once stopped, the channel
-    // pool can be started again and the channels will resume their operations.
+    // take a 'SessionFactory' object that allows users to return a 'Session'
+    // object that the session pool stores as a reference for the connection.
+    // During the allocation of the 'Session' object clients are provided an
+    // 'AsyncChannel' that they can use for exchanging data with the other
+    // endpoint in the connection.  An existing socket can be imported into a
+    // session pool and this will create a session enabled both for read and
+    // for write.  All of the callbacks invoked by session pool are run in a
+    // number of threads created at start up.  Session pool ensures that
+    // callback methods of a particular connection are always invoked on the
+    // same thread so users dont have to synchroninze data associated with a
+    // particular connection.  Session pool can be started or stopped via the
+    // 'start' and 'stop' methods respectively.  Once started and until
+    // stopped, the session pool dispatches incoming and outgoing connections,
+    // messages, and other session functions to the processing threads.  Once
+    // stopped, the channel pool can be started again and the channels will
+    // resume their operations.
 
   public:
     // PUBLIC TYPES
@@ -681,33 +674,28 @@ class SessionPool {
                                                                  HandleCatalog;
 
     // DATA
-    HandleCatalog                  d_handles;            // handles catalog
+    HandleCatalog                   d_handles;            // handles catalog
 
-    ChannelPoolConfiguration d_config;             // channel
-                                                         // configuration
+    ChannelPoolConfiguration        d_config;             // channel config
 
-    ChannelPool             *d_channelPool_p;      // underlying channel
-                                                         // manager (owned)
+    ChannelPool                    *d_channelPool_p;      // underlying channel
+                                                          // manager (owned)
 
-    SessionPoolStateCallback       d_poolStateCB;        // pool state callback
+    SessionPoolStateCallback        d_poolStateCB;        // pool state
+                                                          // callback
 
-    bdlma::ConcurrentPoolAllocator            d_spAllocator;        // smart pointers
-                                                         // allocators
-
-    bdlmca::PooledBufferChainFactory d_bufferChainFactory; // buffer chain
-                                                         // factory
+    bdlma::ConcurrentPoolAllocator  d_spAllocator;        // smart pointers
+                                                          // allocators
 
     bslma::ManagedPtr<bdlmca::BlobBufferFactory>
                                     d_blobBufferFactory;  // blob buffer
                                                           // factory
 
-    const bool                     d_useBlobForDataReads;// use blob for
-                                                         // data reads
+    bsls::AtomicInt                 d_numSessions;        // number of
+                                                          // allocated
+                                                          // sessions
 
-    bsls::AtomicInt                 d_numSessions;        // number of allocated
-                                                         // sessions
-
-    bslma::Allocator              *d_allocator_p;        // allocator (held)
+    bslma::Allocator               *d_allocator_p;        // allocator (held)
 
     // PRIVATE MANIPULATORS
     void channelStateCb(int   channelId,
@@ -718,22 +706,16 @@ class SessionPool {
         // callback.
 
     void connectAbortTimerCb(
-                     const bsl::shared_ptr<SessionPool_Handle>& handle,
-                     int                                              clockId);
+                           const bsl::shared_ptr<SessionPool_Handle>& handle,
+                           int                                        clockId);
         // Deregister the timer callback having the specified 'clockId'
         // registered with the underlying channel pool and destroy the
         // specified 'handle'.
 
-    void pooledBufferChainBasedReadCb(int                  *numConsumed,
-                                      int                  *numNeeded,
-                                      const DataMsg&  msg,
-                                      void                 *userData);
-        // Channel pool's pooled buffer chain based read callback.
-
-    void blobBasedReadCb(int        *numNeeded,
+    void blobBasedReadCb(int          *numNeeded,
                          bdlmca::Blob *msg,
-                         int         channelId,
-                         void       *userData);
+                         int           channelId,
+                         void         *userData);
         // Channel pool's blob based read callback.
 
     void terminateSession(SessionPool_Handle *handle);
@@ -746,9 +728,7 @@ class SessionPool {
     void poolStateCb(int state, int source, int severity);
         // Wrapper for the channel pool state callback and session pool's.
 
-    void sessionAllocationCb(int            result,
-                             Session *session,
-                             int            handleId);
+    void sessionAllocationCb(int result, Session *session, int handleId);
         // Session allocation callback passed to the factory at allocation
         // time.
 
@@ -756,14 +736,14 @@ class SessionPool {
         // Initialize this session pool.
 
     int makeConnectHandle(
-               const SessionPool::SessionStateCallback&  cb,
-               int                                             numAttempts,
-               void                                           *userData,
-               SessionFactory                           *factory);
+                         const SessionPool::SessionStateCallback&  cb,
+                         int                                       numAttempts,
+                         void                                     *userData,
+                         SessionFactory                           *factory);
        // Add a handle for a connection session with the specified
-       // 'numAttempts', 'userData', and 'cb' parameters to this session
-       // pool. The factory will be allocated from the specified 'factory'.
-       // Return the identifier for the new handle.
+       // 'numAttempts', 'userData', and 'cb' parameters to this session pool.
+       // The factory will be allocated from the specified 'factory'.  Return
+       // the identifier for the new handle.
 
     // FRIENDS
     friend class SessionPoolSessionIterator;
@@ -779,46 +759,25 @@ class SessionPool {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    SessionPool(
-                    const ChannelPoolConfiguration&  config,
-                    const SessionPoolStateCallback&        poolStateCallback,
-                    bslma::Allocator                      *basicAllocator = 0);
-    SessionPool(
-                    const ChannelPoolConfiguration&  config,
-                    const SessionPoolStateCallback&        poolStateCallback,
-                    bool                                   useBlobForDataReads,
-                    bslma::Allocator                      *basicAllocator = 0);
-        // Create a new session pool according to the specified 'config' and
-        // with the specified 'poolStateCallback' to be invoked when the pool
-        // state changes.  Optionally use 'useBlobForDataReads' to specify
-        // if 'bdlmca::Blob's should be used for reading data.  Optionally
-        // specify 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  If 'config.readTimeout()' is the default configured
+    SessionPool(const ChannelPoolConfiguration&  config,
+                const SessionPoolStateCallback&  poolStateCallback,
+                bslma::Allocator                *basicAllocator = 0);
+    SessionPool(bdlmca::BlobBufferFactory       *blobBufferFactory,
+                const ChannelPoolConfiguration&  config,
+                const SessionPoolStateCallback&  poolStateCallback,
+                bslma::Allocator                *basicAllocator = 0);
+        // Create a new session pool according to the specified 'config' that
+        // uses 'bdlmca::Blob's for reading data and invokes the specified
+        // 'poolStateCallback' when the pool state changes.  Use the specified
+        // 'blobBufferFactory' to supply buffers for the blobs used for reading
+        // data.  Optionally specify 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.  If 'config.readTimeout()' is the default configured
         // read-timeout value, then this session pool will disable the
         // underlying channel pool's read-timeout event (i.e., this session
         // pool will set the configured read timeout to 0.0s).  Note that read
         // timeout events generated by the underlying channel pool are ignored
         // by this session pool (so there is no benefit to enabling them).
-
-    SessionPool(
-                    bdlmca::BlobBufferFactory               *blobBufferFactory, 
-                    const ChannelPoolConfiguration&  config,
-                    const SessionPoolStateCallback&        poolStateCallback,
-                    bslma::Allocator                      *basicAllocator = 0);
-        // Create a new session pool according to the specified 'config' that
-        // uses 'bdlmca::Blob's for reading data and invokes the specified 
-        // 'poolStateCallback' when the pool state changes.  Use the 
-        // specified 'blobBufferFactory' to supply buffers for the blobs used
-        // for reading data.  Optionally specify 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  If 'config.readTimeout()' is the
-        // default configured read-timeout value, then this session pool will 
-        // disable the underlying channel pool's read-timeout event (i.e.,
-        // this session pool will set the configured read timeout to 0.0s).  
-        // Note that read timeout events generated by the underlying channel 
-        // pool are ignored by this session pool (so there is no benefit to
-        // enabling them).
 
     ~SessionPool();
         // Destroy this session pool.
@@ -847,40 +806,36 @@ class SessionPool {
 
                                   // *** server-related section ***
 
-    int listen(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            int                                             portNumber,
-            int                                             backlog,
-            SessionFactory                           *factory,
-            void                                           *userData = 0,
-            const btlso::SocketOptions                      *socketOptions = 0);
-    int listen(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            int                                             portNumber,
-            int                                             backlog,
-            int                                             reuseAddress,
-            SessionFactory                           *factory,
-            void                                           *userData = 0,
-            const btlso::SocketOptions                      *socketOptions = 0);
-    int listen(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            const btlso::IPv4Address&                        endpoint,
-            int                                             backlog,
-            SessionFactory                           *factory,
-            void                                           *userData = 0,
-            const btlso::SocketOptions                      *socketOptions = 0);
-    int listen(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            const btlso::IPv4Address&                        endpoint,
-            int                                             backlog,
-            int                                             reuseAddress,
-            SessionFactory                           *factory,
-            void                                           *userData = 0,
-            const btlso::SocketOptions                      *socketOptions = 0);
+    int listen(int                                      *handleBuffer,
+               const SessionPool::SessionStateCallback&  callback,
+               int                                       portNumber,
+               int                                       backlog,
+               SessionFactory                           *factory,
+               void                                     *userData = 0,
+               const btlso::SocketOptions               *socketOptions = 0);
+    int listen(int                                      *handleBuffer,
+               const SessionPool::SessionStateCallback&  callback,
+               int                                       portNumber,
+               int                                       backlog,
+               int                                       reuseAddress,
+               SessionFactory                           *factory,
+               void                                     *userData = 0,
+               const btlso::SocketOptions               *socketOptions = 0);
+    int listen(int                                      *handleBuffer,
+               const SessionPool::SessionStateCallback&  callback,
+               const btlso::IPv4Address&                 endpoint,
+               int                                       backlog,
+               SessionFactory                           *factory,
+               void                                     *userData = 0,
+               const btlso::SocketOptions               *socketOptions = 0);
+    int listen(int                                      *handleBuffer,
+               const SessionPool::SessionStateCallback&  callback,
+               const btlso::IPv4Address&                 endpoint,
+               int                                       backlog,
+               int                                       reuseAddress,
+               SessionFactory                           *factory,
+               void                                     *userData = 0,
+               const btlso::SocketOptions               *socketOptions = 0);
         // Asynchronously listen for connection requests on the specified
         // 'portNumber' on all local interfaces or the specified 'endpoint',
         // depending on which overload of listen is used, with up to a maximum
@@ -905,32 +860,30 @@ class SessionPool {
         // 'handle'.  Return 0 on success, or a non-zero value if the specified
         // 'handle' does not match any currently allocation session handle.
 
-    int connect(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            const char                                     *hostname,
-            int                                             port,
-            int                                             numAttempts,
-            const bsls::TimeInterval&                        interval,
-            bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                           *socket,
-            SessionFactory                           *factory,
-            void                                           *userData = 0,
-            ConnectResolutionMode                           resolutionMode
+    int connect(int                                      *handleBuffer,
+                const SessionPool::SessionStateCallback&  callback,
+                const char                               *hostname,
+                int                                       port,
+                int                                       numAttempts,
+                const bsls::TimeInterval&                 interval,
+                bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                         *socket,
+                SessionFactory                           *factory,
+                void                                     *userData = 0,
+                ConnectResolutionMode                     resolutionMode
                                                                = RESOLVE_ONCE);
-    int connect(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            const char                                     *hostname,
-            int                                             port,
-            int                                             numAttempts,
-            const bsls::TimeInterval&                        interval,
-            SessionFactory                           *factory,
-            void                                           *userData = 0,
-            ConnectResolutionMode                           resolutionMode
+    int connect(int                                      *handleBuffer,
+                const SessionPool::SessionStateCallback&  callback,
+                const char                               *hostname,
+                int                                       port,
+                int                                       numAttempts,
+                const bsls::TimeInterval&                 interval,
+                SessionFactory                           *factory,
+                void                                     *userData = 0,
+                ConnectResolutionMode                     resolutionMode
                                                                = RESOLVE_ONCE,
-            const btlso::SocketOptions                      *socketOptions = 0,
-            const btlso::IPv4Address                        *localAddress = 0);
+                const btlso::SocketOptions               *socketOptions = 0,
+                const btlso::IPv4Address                 *localAddress = 0);
         // Asynchronously attempt to connect to the specified 'hostname' on the
         // specified 'port' up to the specified 'numAttempts' delaying for the
         // specified 'interval' between each attempt.  Optionally specify a
@@ -943,38 +896,36 @@ class SessionPool {
         // 'factory' and load a handle for the initiated connection into
         // 'handleBuffer'.  Whenever this session state changes (i.e., is
         // established), the specified 'callback' will be invoked along with a
-        // pointer to newly created 'Session' and the optionally
-        // specified 'userData'.  Optionally specify either 'socketOptions'
-        // that will be used to specify what options should be set on the
-        // connecting socket and/or the specified 'localAddress' to be used as
-        // the source address, or specify 'socket' to use as the connecting
-        // socket (with any desired options and/or source address already set).
-        // If 'socket' is specified, this pool will assume its ownership, if
-        // this function returns successfully, and will be left unchanged if an
-        // error is returned.  Return 0 on successful initiation, and a
-        // non-zero value otherwise.  The behavior is undefined unless
-        // '0 < numAttempts', and '0 < interval || 1 == numAttempts'.
+        // pointer to newly created 'Session' and the optionally specified
+        // 'userData'.  Optionally specify either 'socketOptions' that will be
+        // used to specify what options should be set on the connecting socket
+        // and/or the specified 'localAddress' to be used as the source
+        // address, or specify 'socket' to use as the connecting socket (with
+        // any desired options and/or source address already set).  If 'socket'
+        // is specified, this pool will assume its ownership, if this function
+        // returns successfully, and will be left unchanged if an error is
+        // returned.  Return 0 on successful initiation, and a non-zero value
+        // otherwise.  The behavior is undefined unless '0 < numAttempts', and
+        // '0 < interval || 1 == numAttempts'.
 
-    int connect(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            btlso::IPv4Address const&                        endpoint,
-            int                                             numAttempts,
-            const bsls::TimeInterval&                        interval,
-            bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                           *socket,
-            SessionFactory                           *factory,
-            void                                           *userData = 0);
-    int connect(
-            int                                            *handleBuffer,
-            const SessionPool::SessionStateCallback&  callback,
-            btlso::IPv4Address const&                        endpoint,
-            int                                             numAttempts,
-            const bsls::TimeInterval&                        interval,
-            SessionFactory                           *factory,
-            void                                           *userData = 0,
-            const btlso::SocketOptions                      *socketOptions = 0,
-            const btlso::IPv4Address                        *localAddress = 0);
+    int connect(int                                      *handleBuffer,
+                const SessionPool::SessionStateCallback&  callback,
+                btlso::IPv4Address const&                 endpoint,
+                int                                       numAttempts,
+                const bsls::TimeInterval&                 interval,
+                bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                         *socket,
+                SessionFactory                           *factory,
+                void                                     *userData = 0);
+    int connect(int                                      *handleBuffer,
+                const SessionPool::SessionStateCallback&  callback,
+                btlso::IPv4Address const&                 endpoint,
+                int                                       numAttempts,
+                const bsls::TimeInterval&                 interval,
+                SessionFactory                           *factory,
+                void                                     *userData = 0,
+                const btlso::SocketOptions               *socketOptions = 0,
+                const btlso::IPv4Address                 *localAddress = 0);
         // Asynchronously attempt to connect to the specified 'endpoint' up to
         // the specified 'numAttempts' delaying for the specified 'interval'
         // between each attempt; once a connection is successfully established,
@@ -995,16 +946,16 @@ class SessionPool {
         // '1 == numAttempts'.
 
     int import(int                                            *handleBuffer,
-               const SessionPool::SessionStateCallback&  callback,
-               btlso::StreamSocket<btlso::IPv4Address>          *streamSocket,
-               btlso::StreamSocketFactory<btlso::IPv4Address>   *socketFactory,
-               SessionFactory                           *sessionFactory,
+               const SessionPool::SessionStateCallback&        callback,
+               btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
+               btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+               SessionFactory                                 *sessionFactory,
                void                                           *userData = 0);
     int import(int                                            *handleBuffer,
-               const SessionPool::SessionStateCallback&  callback,
+               const SessionPool::SessionStateCallback&        callback,
                bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
                                                               *streamSocket,
-               SessionFactory                           *sessionFactory,
+               SessionFactory                                 *sessionFactory,
                void                                           *userData = 0);
         // Asynchronously import the specified 'streamSocket' into this session
         // pool.  Load into the specified 'handleBuffer' the handle to the
@@ -1042,8 +993,8 @@ class SessionPool {
         // Return a non-modifiable reference to the configuration used
         // during the construction of this session pool.
 
-    void getChannelHandleStatistics(bsl::vector<ChannelPool::HandleInfo>
-                                                            *handleInfo) const;
+    void getChannelHandleStatistics(
+                       bsl::vector<ChannelPool::HandleInfo> *handleInfo) const;
         // Load into the specified 'handleInfo' array a snapshot of the
         // information per socket handle currently in use by this channel pool.
 
@@ -1062,9 +1013,9 @@ class SessionPool {
 //                      INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
-                   // --------------------------------------
+                   // --------------------------------
                    // class SessionPoolSessionIterator
-                   // --------------------------------------
+                   // --------------------------------
 
 // CREATORS
 inline
@@ -1088,9 +1039,9 @@ SessionPoolSessionIterator::operator*() const
     return *d_current_p;
 }
 
-                           // -----------------------
+                           // -----------------
                            // class SessionPool
-                           // -----------------------
+                           // -----------------
 
 // ACCESSORS
 inline
@@ -1101,7 +1052,7 @@ const ChannelPoolConfiguration& SessionPool::config() const
 
 inline
 void SessionPool::getChannelHandleStatistics(
-                bsl::vector<ChannelPool::HandleInfo> *handleInfo) const
+                        bsl::vector<ChannelPool::HandleInfo> *handleInfo) const
 {
     if (d_channelPool_p) {
         d_channelPool_p->getHandleStatistics(handleInfo);
@@ -1117,19 +1068,19 @@ int SessionPool::numSessions() const
 // MANIPULATORS
 inline
 int SessionPool::import(
-               int                                            *handleBuffer,
-               const SessionPool::SessionStateCallback&  callback,
-               btlso::StreamSocket<btlso::IPv4Address>          *streamSocket,
-               btlso::StreamSocketFactory<btlso::IPv4Address>   *socketFactory,
-               SessionFactory                           *sessionFactory,
-               void                                           *userData)
+               int                                             *handleBuffer,
+               const SessionPool::SessionStateCallback&         callback,
+               btlso::StreamSocket<btlso::IPv4Address>         *streamSocket,
+               btlso::StreamSocketFactory<btlso::IPv4Address>  *socketFactory,
+               SessionFactory                                  *sessionFactory,
+               void                                            *userData)
 {
     typedef btlso::StreamSocketFactoryDeleter Deleter;
 
     bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> > socket(
-                                    streamSocket,
-                                    socketFactory,
-                                    &Deleter::deleteObject<btlso::IPv4Address>);
+                                   streamSocket,
+                                   socketFactory,
+                                   &Deleter::deleteObject<btlso::IPv4Address>);
     const int rc = import(handleBuffer,
                           callback,
                           &socket,
@@ -1147,7 +1098,7 @@ int SessionPool::import(
 #endif
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

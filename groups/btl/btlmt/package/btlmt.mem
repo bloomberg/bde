@@ -1,12 +1,9 @@
 btlmt_asyncchannel
-btlmt_channeloutstreambuf
 btlmt_channelpool
 btlmt_channelpoolchannel
 btlmt_channelpoolconfiguration
-btlmt_channelqueuepool
 btlmt_channelstatus
 btlmt_channeltype
-btlmt_message
 btlmt_session
 btlmt_sessionpool
 btlmt_tcptimereventmanager

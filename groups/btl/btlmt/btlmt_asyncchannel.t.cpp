@@ -1,7 +1,6 @@
-// btlmt_asyncchannel.t.cpp   -*-C++-*-
+// btlmt_asyncchannel.t.cpp                                           -*-C++-*-
 
 #include <btlmt_asyncchannel.h>
-#include <btlmt_message.h>
 
 #include <bdlmca_blob.h>
 #include <bsls_timeinterval.h>
@@ -16,17 +15,27 @@ using namespace bsl;  // automatically added by script
 
 //=============================================================================
 //                             TEST PLAN
-// Create a concrete implementation of the btlmt::AsyncChannel protocol and
-// instantiate it.
-//
-//-----------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver simply verifies that a concrete instance of
-// btlmt::AsyncChannel can be implemented and instantiated.
+// We are testing a pure protocol class.  We need to verify that a concrete
+// derived class compiles and links.  We create a sample derived class that
+// provides a dummy implementation of the base class virtual methods.  We then
+// verify that when a method is called through a base class instance pointer
+// the appropriate method in the derived class instance is invoked.
 //-----------------------------------------------------------------------------
+// [ 1] ~btlmt::AsyncChannel(...);
+// [ 1] int read(...);
+// [ 1] int timedRead(...);
+// [ 1] int write(const bdlmca::Blob&, int);
+// [ 1] void cancelRead()
+// [ 1] void close()
+// [ 1] btlso::IPv4Address localAddress() const;
+// [ 1] btlso::IPv4Address peerAddress() const;
 //-----------------------------------------------------------------------------
-// [1 ] BREATHING TEST
+// [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
+//=============================================================================
+
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -121,57 +130,27 @@ class TestAsyncChannel : public btlmt::AsyncChannel {
     }
 
     // MANIPULATORS
-    int read(int numBytes, const ReadCallback& readCallback)
-    {
-        *d_funcCode_p = 2;
-        return 0;
-    }
-
-    int read(int numBytes, const BlobBasedReadCallback& callback)
+    int read(int, const BlobBasedReadCallback&)
     {
         *d_funcCode_p = 3;
         return 0;
     }
 
-    int timedRead(int numBytes, const bsls::TimeInterval& timeout,
-                  const ReadCallback& readCallback)
-    {
-        *d_funcCode_p = 4;
-        return 0;
-    }
-
-    int timedRead(int numBytes, const bsls::TimeInterval& timeout,
-                  const BlobBasedReadCallback& callback)
+    int timedRead(int,
+                  const bsls::TimeInterval&,
+                  const BlobBasedReadCallback&)
     {
         *d_funcCode_p = 5;
         return 0;
     }
 
-    int write(const bdlmca::Blob& data, int highWaterMark)
+    int write(const bdlmca::Blob&, int)
     {
         *d_funcCode_p = 6;
         return 0;
     }
 
-    int write(const btlmt::BlobMsg& data, int highWaterMark)
-    {
-        *d_funcCode_p = 7;
-        return 0;
-    }
-
-    int write(const btlmt::DataMsg& data, btlmt::BlobMsg *msg)
-    {
-        *d_funcCode_p = 8;
-        return 0;
-    }
-
-    int write(const btlmt::DataMsg& data, int highWaterMark, btlmt::BlobMsg *msg)
-    {
-        *d_funcCode_p = 9;
-        return 0;
-    }
-
-    int setSocketOption(int option, int level, int value)
+    int setSocketOption(int, int, int)
     {
         *d_funcCode_p = 10;
         return 0;
@@ -200,37 +179,12 @@ class TestAsyncChannel : public btlmt::AsyncChannel {
     }
 };
 
-void myReadCallback(int result, int *numConsumed, int *numNeeded,
-                    const btlmt::DataMsg& dataMessage)
+void myBlobBasedReadCallback(int,
+                             int *,
+                             bdlmca::Blob *,
+                             int)
 {
 }
-
-void myBlobBasedReadCallback(int result, int *numNeeded, bdlmca::Blob *blob,
-                             int channelId)
-{
-}
-
-//=============================================================================
-//                              MAIN PROGRAM
-// We are testing a pure protocol class.  We need to verify that a concrete
-// derived class compiles and links.  We create a sample derived class that
-// provides a dummy implementation of the base class virtual methods.  We then
-// verify that when a method is called through a base class instance pointer
-// the appropriate method in the derived class instance is invoked.
-//-----------------------------------------------------------------------------
-// [ 1] ~btlmt::AsyncChannel(...);
-// [ 1] int read(...);
-// [ 1] int timedRead(...);
-// [ 1] int write(const bdlmca::Blob&, int);
-// [ 1] int write(const btlmt::BlobMsg&, int);
-// [ 1] int write(const btlmt::DataMsg&, int);
-// [ 1] void cancelRead()
-// [ 1] void close()
-// [ 1] btlso::IPv4Address localAddress() const;
-// [ 1] btlso::IPv4Address peerAddress() const;
-//-----------------------------------------------------------------------------
-// [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
-//=============================================================================
 
 int main(int argc, char *argv[])
 {
@@ -254,8 +208,6 @@ int main(int argc, char *argv[])
        //   ~btlmt::AsyncChannel(...);
        //   int read(...);
        //   int timedRead(...);
-       //   int write(const btlmt::BlobMsg&, int);
-       //   int write(const btlmt::DataMsg&, int);
        //   void cancelRead()
        //   void close()
        //   btlso::IPv4Address localAddress() const;
@@ -268,7 +220,7 @@ int main(int argc, char *argv[])
                               << "===============" << bsl::endl;
 
        if (veryVerbose) bsl::cout <<
-                 "\tTesting 'btlmt::AsyncChannel': protocol test." << bsl::endl;
+                "\tTesting 'btlmt::AsyncChannel': protocol test." << bsl::endl;
        {
            int opCode   = -1;
            int numBytes = 1;
@@ -279,36 +231,18 @@ int main(int argc, char *argv[])
 
            btlmt::AsyncChannel& asyncChannel = mX;
 
-           btlmt::AsyncChannel::ReadCallback readCallback = &myReadCallback;
-           asyncChannel.read(numBytes, readCallback);
-           ASSERT(2 == opCode);
-
            btlmt::AsyncChannel::BlobBasedReadCallback blobCallback =
                                                       &myBlobBasedReadCallback;
            asyncChannel.read(numBytes, blobCallback);
            ASSERT(3 == opCode);
 
-           asyncChannel.timedRead(numBytes, bsls::TimeInterval(timeout),
-                                  readCallback);
-           ASSERT(4 == opCode);
-
-           asyncChannel.timedRead(numBytes, bsls::TimeInterval(timeout),
+           asyncChannel.timedRead(numBytes,
+                                  bsls::TimeInterval(timeout),
                                   blobCallback);
            ASSERT(5 == opCode);
 
            asyncChannel.write(bdlmca::Blob());
            ASSERT(6 == opCode);
-
-           btlmt::BlobMsg blobMessage;
-           asyncChannel.write(blobMessage);
-           ASSERT(7 == opCode);
-
-           btlmt::DataMsg testMessage;
-           asyncChannel.write(testMessage);
-           ASSERT(8 == opCode);
-
-           asyncChannel.write(testMessage, 8);
-           ASSERT(9 == opCode);
 
            asyncChannel.setSocketOption(1, 2, 3);
            ASSERT(10 == opCode);
@@ -354,7 +288,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

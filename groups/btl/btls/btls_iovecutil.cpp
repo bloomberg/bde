@@ -1,13 +1,13 @@
-// btls_iovecutil.cpp            -*-C++-*-
+// btls_iovecutil.cpp                                                 -*-C++-*-
 #include <btls_iovecutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btls_iovecutil_cpp,"$Id$ $CSID$")
 
-#include <bdlmca_xxxpooledbufferchain.h>
 #include <bdlmca_blob.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_allocator.h>
+#include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
@@ -16,6 +16,8 @@ BSLS_IDENT_RCSID(btls_iovecutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace btls {
+
 namespace {
 
                          // ------------------------
@@ -23,15 +25,13 @@ namespace {
                          // ------------------------
 
 template <class IOVEC>
-inline
-void genericAppendToBlob(bdlmca::Blob  *blob,
-                         const IOVEC *vecs,
-                         int          numVecs,
-                         int          offset)
+void genericAppendToBlob(bdlmca::Blob *blob,
+                         const IOVEC  *vecs,
+                         int           numVecs,
+                         int           offset)
 {
-    BSLS_ASSERT(offset >= 0);
-    BSLS_ASSERT(numVecs > 0);
-
+    BSLS_ASSERT(0 <= offset);
+    BSLS_ASSERT(0 <  numVecs);
 
     // Set up loop invariant stated below.  Note that if blobLength is 0,
     // or if last data buffer is complete, the call 'blob->setLength(...)'
@@ -42,7 +42,9 @@ void genericAppendToBlob(bdlmca::Blob  *blob,
     int currentBufOffset = blob->lastDataBufferLength();
     if (currentBufIndex < 0 ||
         currentBufOffset == blob->buffer(currentBufIndex).size()) {
+
         // Blob is empty or last data buffer is complete: skip to next buffer.
+
         ++currentBufIndex;
         currentBufOffset = 0;
     }
@@ -108,7 +110,7 @@ void genericAppendToBlob(bdlmca::Blob  *blob,
         if (currentVecAvailable == numBytesCopied) {
             currentVecOffset = 0;
             if (++currentVecIndex == numVecs) {
-                return;
+                return;                                               // RETURN
             }
             currentVecAvailable = vecs[currentVecIndex].length();
         } else {
@@ -126,57 +128,21 @@ void genericAppendToBlob(bdlmca::Blob  *blob,
 }
 
 template <class IOVEC>
-inline
-bdlmca::PooledBufferChain *genericChain(const IOVEC                    *vecs,
-                                      int                             numVecs,
-                                      int                             offset,
-                                      bdlmca::PooledBufferChainFactory *factory)
-{
-    BSLS_ASSERT(offset >= 0);
-    BSLS_ASSERT(numVecs > 0);
-
-    bsls::Types::Int64 totalLength = 0;
-    bdlmca::PooledBufferChain *chain = factory->allocate(0);
-    const IOVEC *cur = &vecs[0];
-
-    for (int i = 0; i < numVecs; ++i, ++cur) {
-        bsls::Types::Int64 newLength  = totalLength + cur->length();
-        if (totalLength <= offset && offset < newLength) {
-            BSLS_ASSERT(0 == chain->length());
-
-            int offsetInMsg = static_cast<int>(offset - totalLength);
-            chain->append(static_cast<char *>(cur->buffer()) + offsetInMsg,
-                                              cur->length()  - offsetInMsg);
-        }
-        else if (totalLength > offset) {
-            BSLS_ASSERT(0 < chain->length());
-            chain->append(static_cast<char *>(cur->buffer()), cur->length());
-        }
-        totalLength = newLength;
-    }
-
-    BSLS_ASSERT(offset < totalLength);
-    BSLS_ASSERT(chain->length() == (totalLength - offset));
-    return chain;
-}
-
-template <class IOVEC>
-inline
 int genericGather(char        *buffer,
                   int          length,
                   const IOVEC *buffers,
                   int          numBuffers)
 {
-    BSLS_ASSERT(buffers);
-    BSLS_ASSERT(0 <= numBuffers);
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(buffers);
+    BSLS_ASSERT(0 <= numBuffers);
 
     int numCopied = 0;
-    while(numBuffers-- && 0 < length) {
+    while(numBuffers && 0 < length) {
         if (buffers->length() < length) {
             bsl::memcpy(buffer,
-                        (const char*)buffers->buffer(),
+                        static_cast<const char *>(buffers->buffer()),
                         buffers->length());
             numCopied += buffers->length();
             length -= buffers->length();
@@ -184,49 +150,52 @@ int genericGather(char        *buffer,
             ++buffers;
         }
         else {
-            bsl::memcpy(buffer, (const char*)buffers->buffer(), length);
+            bsl::memcpy(buffer,
+                        static_cast<const char *>(buffers->buffer()),
+                        length);
             numCopied += length;
             length = 0;
         }
+        --numBuffers;
     }
     return numCopied;
 }
 
 template <class IOVEC>
-inline
 int genericLength(const IOVEC *buffers, int numBuffers)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 <= numBuffers);
 
     int length = 0;
-    while (numBuffers--) {
-        length += buffers++->length();
+    while (numBuffers) {
+        length += buffers->length();
+        ++buffers;
+        --numBuffers;
     }
     return length;
 }
 
 template <class IOVEC>
-inline
 void genericPivot(int         *bufferIdx,
                   int         *offset,
                   const IOVEC *buffers,
                   int          numBuffers,
-                  int          length)
+                  int          position)
 {
     BSLS_ASSERT(bufferIdx);
     BSLS_ASSERT(offset);
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 <= numBuffers);
-    BSLS_ASSERT(0 <= length);
+    BSLS_ASSERT(0 <= position);
 
-    for (int idx = 0; idx < numBuffers; ++idx) {
-        if (length < buffers[idx].length()) {
-            *bufferIdx = idx;
-            *offset = length;
-            return;
+    for (int i = 0; i < numBuffers; ++i) {
+        if (position < buffers[i].length()) {
+            *bufferIdx = i;
+            *offset    = position;
+            return;                                                   // RETURN
         }
-        length -= buffers[idx].length();
+        position -= buffers[i].length();
     }
 
     *bufferIdx = numBuffers;
@@ -234,7 +203,6 @@ void genericPivot(int         *bufferIdx,
 }
 
 template <class IOVEC>
-inline
 int genericScatter(const IOVEC *buffers,
                    int          numBuffers,
                    const char  *buffer,
@@ -246,156 +214,132 @@ int genericScatter(const IOVEC *buffers,
     BSLS_ASSERT(0 <= length);
 
     int numCopied = 0;
-    while(numBuffers-- && 0 < length) {
+    while(numBuffers && 0 < length) {
         if (buffers->length() < length) {
-            bsl::memcpy((char*) const_cast<void *>(buffers->buffer()),
+            bsl::memcpy(static_cast<char *>(
+                                        const_cast<void *>(buffers->buffer())),
                         buffer,
                         buffers->length());
             numCopied += buffers->length();
-            length -= buffers->length();
-            buffer += buffers->length();
+            length    -= buffers->length();
+            buffer    += buffers->length();
             ++buffers;
         }
         else {
-            bsl::memcpy((char*) const_cast<void *>(buffers->buffer()),
+            bsl::memcpy(static_cast<char *>(
+                                        const_cast<void *>(buffers->buffer())),
                         buffer,
                         length);
             numCopied += length;
             length = 0;
         }
+        --numBuffers;
     }
     return numCopied;
 }
 
 }  // close unnamed namespace
 
-namespace btls {
-                         // --------------------
+                         // ---------------
                          // class IovecUtil
-                         // --------------------
+                         // ---------------
 
-void IovecUtil::appendToBlob(bdlmca::Blob       *blob,
-                                  const Iovec *vecs,
-                                  int               numVecs,
-                                  int               offset)
+void IovecUtil::appendToBlob(bdlmca::Blob *blob,
+                             const Iovec  *vecs,
+                             int           numVecs,
+                             int           offset)
 {
     genericAppendToBlob(blob, vecs, numVecs, offset);
 }
 
-void IovecUtil::appendToBlob(bdlmca::Blob      *blob,
-                                  const Ovec *vecs,
-                                  int              numVecs,
-                                  int              offset)
+void IovecUtil::appendToBlob(bdlmca::Blob *blob,
+                             const Ovec   *vecs,
+                             int           numVecs,
+                             int           offset)
 {
     genericAppendToBlob(blob, vecs, numVecs, offset);
 }
 
-bdlmca::Blob *IovecUtil::blob(const Iovec        *vecs,
-                                 int                      numVecs,
-                                 int                      offset,
-                                 bdlmca::BlobBufferFactory *factory,
-                                 bslma::Allocator        *allocator)
+bdlmca::Blob *IovecUtil::blob(const Iovec               *vecs,
+                              int                        numVecs,
+                              int                        offset,
+                              bdlmca::BlobBufferFactory *factory,
+                              bslma::Allocator          *basicAllocator)
 {
-    bdlmca::Blob *blob = new(*allocator) bdlmca::Blob(factory, allocator);
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
+    bdlmca::Blob     *blob = new (*allocator) bdlmca::Blob(factory, allocator);
+
     appendToBlob(blob, vecs, numVecs, offset);
     return blob;
 }
 
-bdlmca::Blob *IovecUtil::blob(const Iovec        *vecs,
-                                 int                      numVecs,
-                                 bdlmca::BlobBufferFactory *factory,
-                                 bslma::Allocator        *allocator)
-{
-    bdlmca::Blob *blob = new(*allocator) bdlmca::Blob(factory, allocator);
-    appendToBlob(blob, vecs, numVecs, 0);
-    return blob;
-}
-
-bdlmca::PooledBufferChain *IovecUtil::chain(const Iovec *vecs,
-                                               int               numVecs,
-                                               int               offset,
-                                 //------------^
-                                 bdlmca::PooledBufferChainFactory *factory)
-{
-    return genericChain(vecs, numVecs, offset, factory);
-}
-
-bdlmca::PooledBufferChain *IovecUtil::chain(const Iovec *vecs,
-                                               int               numVecs,
-                                 //------------^
-                                 bdlmca::PooledBufferChainFactory *factory)
-{
-    return genericChain(vecs, numVecs, 0, factory);
-}
-
-int IovecUtil::gather(char             *buffer,
-                           int               length,
-                           const Iovec *buffers,
-                           int               numBuffers)
+int IovecUtil::gather(char        *buffer,
+                      int          length,
+                      const Iovec *buffers,
+                      int          numBuffers)
 {
     return genericGather(buffer, length, buffers, numBuffers);
 }
 
-int IovecUtil::gather(char            *buffer,
-                           int              length,
-                           const Ovec *buffers,
-                           int              numBuffers)
+int IovecUtil::gather(char       *buffer,
+                      int         length,
+                      const Ovec *buffers,
+                      int         numBuffers)
 {
     return genericGather(buffer, length, buffers, numBuffers);
 }
 
-int IovecUtil::length(const Iovec *buffers,
-                           int               numBuffers)
+int IovecUtil::length(const Iovec *buffers, int numBuffers)
 {
     return genericLength(buffers, numBuffers);
 }
 
-int IovecUtil::length(const Ovec *buffers,
-                           int              numBuffers)
+int IovecUtil::length(const Ovec *buffers, int numBuffers)
 {
     return genericLength(buffers, numBuffers);
 }
 
-void IovecUtil::pivot(int              *bufferIdx,
-                           int              *offset,
-                           const Iovec *buffers,
-                           int               numBuffers,
-                           int               length)
+void IovecUtil::pivot(int         *bufferIdx,
+                      int         *offset,
+                      const Iovec *buffers,
+                      int          numBuffers,
+                      int          length)
 {
     genericPivot(bufferIdx, offset, buffers, numBuffers, length);
 }
 
-void IovecUtil::pivot(int             *bufferIdx,
-                           int             *offset,
-                           const Ovec *buffers,
-                           int              numBuffers,
-                           int              length)
+void IovecUtil::pivot(int        *bufferIdx,
+                      int        *offset,
+                      const Ovec *buffers,
+                      int         numBuffers,
+                      int         length)
 {
     genericPivot(bufferIdx, offset, buffers, numBuffers, length);
 }
 
 int IovecUtil::scatter(const Iovec *buffers,
-                            int               numBuffers,
-                            const char       *buffer,
-                            int               length)
+                       int          numBuffers,
+                       const char  *buffer,
+                       int          length)
 {
     return genericScatter(buffers, numBuffers, buffer, length);
 }
 
 int IovecUtil::scatter(const Ovec *buffers,
-                            int              numBuffers,
-                            const char      *buffer,
-                            int              length)
+                       int         numBuffers,
+                       const char *buffer,
+                       int         length)
 {
     return genericScatter(buffers, numBuffers, buffer, length);
 }
+
 }  // close package namespace
 
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

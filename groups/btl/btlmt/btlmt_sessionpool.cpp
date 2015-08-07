@@ -32,9 +32,9 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlmt {
-                      // ===============================
+                      // ========================
                       // class SessionPool_Handle
-                      // ===============================
+                      // ========================
 
 struct SessionPool_Handle {
     // This opaque handle is used privately in this implementation.
@@ -50,15 +50,15 @@ struct SessionPool_Handle {
     };
 
     // DATA
-    bdlqq::Mutex                             d_mutex;
-    SessionPool::SessionStateCallback d_sessionStateCB;
-    int                                     d_numAttemptsRemaining;
-    int                                     d_handleId;
-    int                                     d_type;
-    void                                   *d_userData_p;
-    ChannelPoolChannel               *d_channel_p;
-    Session                          *d_session_p;
-    SessionFactory                   *d_sessionFactory_p;
+    bdlqq::Mutex                       d_mutex;
+    SessionPool::SessionStateCallback  d_sessionStateCB;
+    int                                d_numAttemptsRemaining;
+    int                                d_handleId;
+    int                                d_type;
+    void                              *d_userData_p;
+    ChannelPoolChannel                *d_channel_p;
+    Session                           *d_session_p;
+    SessionFactory                    *d_sessionFactory_p;
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(SessionPool_Handle,
@@ -71,12 +71,12 @@ struct SessionPool_Handle {
     }
 };
 
-                   // --------------------------------------
+                   // --------------------------------
                    // class SessionPoolSessionIterator
-                   // --------------------------------------
+                   // --------------------------------
 
 SessionPoolSessionIterator::SessionPoolSessionIterator(
-                                                SessionPool *sessionPool)
+                                                      SessionPool *sessionPool)
 : d_iterator(sessionPool->d_handles)
 {
     if(d_iterator) {
@@ -114,7 +114,6 @@ void SessionPoolSessionIterator::operator++()
         }
     }
 }
-}  // close package namespace
 
 typedef bsl::shared_ptr<btlmt::SessionPool_Handle> HandlePtr;
 
@@ -122,23 +121,22 @@ static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
                                btlmt::SessionPool::ConnectResolutionMode mode)
 {
     if (mode == btlmt::SessionPool::RESOLVE_AT_EACH_ATTEMPT) {
-        return btlmt::ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT;
+        return btlmt::ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT;     // RETURN
     }
 
     BSLS_ASSERT(mode == btlmt::SessionPool::RESOLVE_ONCE);
     return btlmt::ChannelPool::BTEMT_RESOLVE_ONCE;
 }
 
-namespace btlmt {
-                          // -----------------------
+                          // -----------------
                           // class SessionPool
-                          // -----------------------
+                          // -----------------
 
 // PRIVATE MANIPULATORS
 void SessionPool::channelStateCb(int   channelId,
-                                       int   sourceId,
-                                       int   state,
-                                       void *userData)
+                                 int   sourceId,
+                                 int   state,
+                                 void *userData)
 {
     using namespace bdlf::PlaceHolders;
 
@@ -148,8 +146,7 @@ void SessionPool::channelStateCb(int   channelId,
               break;
           }
 
-          SessionPool_Handle *handlePtr =
-                                         (SessionPool_Handle*) userData;
+          SessionPool_Handle *handlePtr = (SessionPool_Handle*) userData;
           HandlePtr handle;
 
           if (d_handles.find(handlePtr->d_handleId, &handle)) {
@@ -191,12 +188,11 @@ void SessionPool::channelStateCb(int   channelId,
               // This connection originate from a listener socket,
               // create a new handle for the new channel
 
-              HandlePtr newHandle(
-                              new (*d_allocator_p) SessionPool_Handle(),
-                              bdlf::MemFnUtil::memFn(
-                                             &SessionPool::handleDeleter,
-                                             this),
-                              d_allocator_p);
+              HandlePtr newHandle(new (*d_allocator_p) SessionPool_Handle(),
+                                  bdlf::MemFnUtil::memFn(
+                                      &SessionPool::handleDeleter,
+                                      this),
+                                  d_allocator_p);
 
               newHandle->d_type = SessionPool_Handle::REGULAR_SESSION;
               newHandle->d_sessionStateCB = handle->d_sessionStateCB;
@@ -216,8 +212,7 @@ void SessionPool::channelStateCb(int   channelId,
           // ignored.
 
           bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
-          if (SessionPool_Handle::ABORTED_CONNECT_SESSION ==
-                                                              handle->d_type) {
+          if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
               // We raced against 'closeHandle()'.
 
               d_channelPool_p->shutdown(channelId,
@@ -228,14 +223,11 @@ void SessionPool::channelStateCb(int   channelId,
           d_channelPool_p->setChannelContext(channelId, handle.get());
 
           handle->d_channel_p = new (*d_allocator_p)
-                                ChannelPoolChannel(
-                                                   channelId,
+                                ChannelPoolChannel(channelId,
                                                    d_channelPool_p,
-                                                   &d_bufferChainFactory,
                                                    d_blobBufferFactory.ptr(),
                                                    &d_spAllocator,
-                                                   d_allocator_p,
-                                                   d_useBlobForDataReads);
+                                                   d_allocator_p);
 
           lock.release()->unlock();
 
@@ -246,7 +238,7 @@ void SessionPool::channelStateCb(int   channelId,
           // to have a specific event for this.
 
           bsl::shared_ptr<AsyncChannel> channel_sp(handle,
-                                                         handle->d_channel_p);
+                                                   handle->d_channel_p);
           handle->d_sessionFactory_p->allocate(
                    channel_sp,
                    bdlf::BindUtil::bind(&SessionPool::sessionAllocationCb,
@@ -256,8 +248,7 @@ void SessionPool::channelStateCb(int   channelId,
           if (0 == userData) {
               break;
           }
-          SessionPool_Handle *handle =
-                                         (SessionPool_Handle*) userData;
+          SessionPool_Handle *handle = (SessionPool_Handle*) userData;
           if (handle->d_session_p) {
               handle->d_sessionStateCB(WRITE_CACHE_LOWWAT, handle->d_handleId,
                                        handle->d_session_p,
@@ -281,8 +272,8 @@ void SessionPool::channelStateCb(int   channelId,
 }
 
 void SessionPool::connectAbortTimerCb(
-                      const bsl::shared_ptr<SessionPool_Handle>& handle,
-                      int                                              clockId)
+                            const bsl::shared_ptr<SessionPool_Handle>& handle,
+                            int                                        clockId)
 {
     d_channelPool_p->deregisterClock(clockId);
     do {
@@ -290,39 +281,10 @@ void SessionPool::connectAbortTimerCb(
     } while (1 != handle.use_count());
 }
 
-void SessionPool::pooledBufferChainBasedReadCb(
-                                             int                  *numConsumed,
-                                             int                  *numNeeded,
-                                             const DataMsg&  data,
-                                             void                 *userData)
-{
-    HandlePtr spHandle; // Make sure that we hold a shared pointer
-                        // until the callback is complete
-
-
-    SessionPool_Handle *handle = (SessionPool_Handle*) userData;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle)
-        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!handle->d_channel_p)
-        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                 d_handles.find(handle->d_handleId, &spHandle))
-        || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                       handle->d_channel_p->channelId() != data.channelId())) {
-
-        d_channelPool_p->shutdown(data.channelId(),
-                                  ChannelPool::BTEMT_IMMEDIATE);
-        *numConsumed = 0;
-        *numNeeded   = 1;
-        return;
-    }
-
-    handle->d_channel_p->dataCb(numConsumed, numNeeded, data);
-}
-
-void SessionPool::blobBasedReadCb(int        *numNeeded,
-                                        bdlmca::Blob *data,
-                                        int         channelId,
-                                        void       *userData)
+void SessionPool::blobBasedReadCb(int          *numNeeded,
+                                  bdlmca::Blob *data,
+                                  int           channelId,
+                                  void         *userData)
 {
     HandlePtr spHandle; // Make sure that we hold a shared pointer
                         // until the callback is complete
@@ -368,8 +330,7 @@ void SessionPool::handleDeleter(SessionPool_Handle *handle)
         else if (handle->d_session_p) {
             terminateSession(handle);
         }
-        else if (SessionPool_Handle::CONNECT_SESSION ==
-                                                              handle->d_type
+        else if (SessionPool_Handle::CONNECT_SESSION == handle->d_type
               || SessionPool_Handle::ABORTED_CONNECT_SESSION ==
                                                               handle->d_type) {
             handle->d_sessionStateCB(CONNECT_ABORTED, handle->d_handleId, 0,
@@ -401,7 +362,7 @@ void SessionPool::handleDeleter(SessionPool_Handle *handle)
 void SessionPool::poolStateCb(int state, int source, int)
 {
     switch(state) {
-      case PoolMsg::BTEMT_ERROR_ACCEPTING: {
+      case ChannelPool::BTEMT_ERROR_ACCEPTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
             return;
@@ -417,23 +378,24 @@ void SessionPool::poolStateCb(int state, int source, int)
         d_poolStateCB(ACCEPT_FAILED, source, handle->d_userData_p);
       } break;
 
-      case PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
-      case PoolMsg::BTEMT_ERROR_SETTING_OPTIONS:          // FALL THROUGH
-      case PoolMsg::BTEMT_ERROR_CONNECTING: {
+      case ChannelPool::BTEMT_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
+      case ChannelPool::BTEMT_ERROR_SETTING_OPTIONS:          // FALL THROUGH
+      case ChannelPool::BTEMT_ERROR_CONNECTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
             return;
         }
         bdlqq::LockGuard<bdlqq::Mutex> lock(&handle->d_mutex);
-        if (SessionPool_Handle::ABORTED_CONNECT_SESSION ==
-                                                              handle->d_type) {
-            return;
+        if (SessionPool_Handle::ABORTED_CONNECT_SESSION == handle->d_type) {
+            return;                                                   // RETURN
         }
 
         if (!--handle->d_numAttemptsRemaining) {
             handle->d_type = SessionPool_Handle::INVALID_SESSION;
             lock.release()->unlock();
-            handle->d_sessionStateCB(CONNECT_FAILED, handle->d_handleId, 0,
+            handle->d_sessionStateCB(CONNECT_FAILED,
+                                     handle->d_handleId,
+                                     0,
                                      handle->d_userData_p);
 
             d_poolStateCB(CONNECT_FAILED, source, handle->d_userData_p);
@@ -449,18 +411,19 @@ void SessionPool::poolStateCb(int state, int source, int)
             handle->d_sessionStateCB(CONNECT_ATTEMPT_FAILED,
                                      handle->d_handleId, 0,
                                      handle->d_userData_p);
-            d_poolStateCB(CONNECT_ATTEMPT_FAILED, source,
+            d_poolStateCB(CONNECT_ATTEMPT_FAILED,
+                          source,
                           handle->d_userData_p);
         }
       } break;
 
-      case PoolMsg::BTEMT_CHANNEL_LIMIT: {
+      case ChannelPool::BTEMT_CHANNEL_LIMIT: {
         d_poolStateCB(SESSION_LIMIT_REACHED, 0, 0);
       } break;
     }
 }
 
-void SessionPool::init() 
+void SessionPool::init()
 {
     ChannelPoolConfiguration defaultValues;
     if (d_config.readTimeout() == defaultValues.readTimeout()) {
@@ -477,17 +440,17 @@ void SessionPool::init()
         d_blobBufferFactory.load(
                      new (*d_allocator_p) bdlmca::PooledBlobBufferFactory(
                                              d_config.maxIncomingMessageSize(),
-                                             d_allocator_p), 
+                                             d_allocator_p),
                      d_allocator_p);
     }
-
 }
 
 int SessionPool::makeConnectHandle(
-               const SessionPool::SessionStateCallback&  cb,
-               int                                             numAttempts,
-               void                                           *userData,
-               SessionFactory                           *factory) {
+                         const SessionPool::SessionStateCallback&  cb,
+                         int                                       numAttempts,
+                         void                                     *userData,
+                         SessionFactory                           *factory)
+{
     HandlePtr handle(new (*d_allocator_p) SessionPool_Handle(),
                      bdlf::MemFnUtil::memFn(&SessionPool::handleDeleter,
                                            this),
@@ -503,9 +466,9 @@ int SessionPool::makeConnectHandle(
     return (handle->d_handleId = d_handles.add(handle));
 }
 
-void SessionPool::sessionAllocationCb(int             result,
-                                            Session  *session,
-                                            int             handleId)
+void SessionPool::sessionAllocationCb(int       result,
+                                      Session  *session,
+                                      int       handleId)
 {
     HandlePtr handle;
     if (d_handles.find(handleId, &handle)) {
@@ -513,12 +476,11 @@ void SessionPool::sessionAllocationCb(int             result,
         // received before the call to this callback and the call to
         // 'allocate'.
 
-        return;
+        return;                                                       // RETURN
     }
 
     if (result) {
-        handle->d_sessionStateCB(
-                                 SESSION_ALLOC_FAILED,
+        handle->d_sessionStateCB(SESSION_ALLOC_FAILED,
                                  handle->d_handleId,
                                  0,
                                  handle->d_userData_p);
@@ -526,14 +488,16 @@ void SessionPool::sessionAllocationCb(int             result,
         // Failed to allocate session
 
         handle->d_channel_p->close();
-        return;
+        return;                                                       // RETURN
     }
 
     // Start the session
 
     if (session->start()) {
-        handle->d_sessionStateCB(SESSION_STARTUP_FAILED, handle->d_handleId,
-                                 session, handle->d_userData_p);
+        handle->d_sessionStateCB(SESSION_STARTUP_FAILED,
+                                 handle->d_handleId,
+                                 session,
+                                 handle->d_userData_p);
         handle->d_sessionFactory_p->deallocate(session);
 
         // Session failed to start, shutdown the channel.
@@ -541,68 +505,45 @@ void SessionPool::sessionAllocationCb(int             result,
         if (handle->d_channel_p) {
             handle->d_channel_p->close();
         }
-        return;
+        return;                                                       // RETURN
     }
 
     ++d_numSessions;
     handle->d_session_p = session;
-    handle->d_sessionStateCB(SESSION_UP, handle->d_handleId, session,
+    handle->d_sessionStateCB(SESSION_UP,
+                             handle->d_handleId,
+                             session,
                              handle->d_userData_p);
 }
 
 // CREATORS
-SessionPool::SessionPool(
-                      const ChannelPoolConfiguration&  config,
-                      SessionPoolStateCallback const&        poolStateCallback,
-                      bslma::Allocator                      *allocator)
+SessionPool::SessionPool(const ChannelPoolConfiguration&  config,
+                         const SessionPoolStateCallback&  poolStateCallback,
+                         bslma::Allocator                *allocator)
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
 , d_poolStateCB(poolStateCallback, allocator)
 , d_spAllocator(allocator)
-, d_bufferChainFactory(config.maxIncomingMessageSize(), allocator)
 , d_blobBufferFactory()
-, d_useBlobForDataReads(false)
 , d_numSessions(0)
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
     init();
 }
 
-SessionPool::SessionPool(
-                    const ChannelPoolConfiguration&  config,
-                    SessionPoolStateCallback const&        poolStateCallback,
-                    bool                                   useBlobForDataReads,
-                    bslma::Allocator                      *allocator)
+SessionPool::SessionPool(bdlmca::BlobBufferFactory       *blobBufferFactory,
+                         const ChannelPoolConfiguration&  config,
+                         const SessionPoolStateCallback&  poolStateCallback,
+                         bslma::Allocator                *allocator)
 : d_handles(allocator)
 , d_config(config)
 , d_channelPool_p(0)
 , d_poolStateCB(poolStateCallback, allocator)
 , d_spAllocator(allocator)
-, d_bufferChainFactory(config.maxIncomingMessageSize(), allocator)
-, d_blobBufferFactory()
-, d_useBlobForDataReads(useBlobForDataReads)
-, d_numSessions(0)
-, d_allocator_p(bslma::Default::allocator(allocator))
-{
-    init();
-}
-
-SessionPool::SessionPool(
-              bdlmca::BlobBufferFactory                   *blobBufferFactory, 
-              const ChannelPoolConfiguration&      config,
-              const SessionPoolStateCallback&            poolStateCallback,
-              bslma::Allocator                          *allocator)
-: d_handles(allocator)
-, d_config(config)
-, d_channelPool_p(0)
-, d_poolStateCB(poolStateCallback, allocator)
-, d_spAllocator(allocator)
-, d_bufferChainFactory(config.maxIncomingMessageSize(), allocator) //unused
 , d_blobBufferFactory(blobBufferFactory,
                       0,
                       &bslma::ManagedPtrUtil::noOpDeleter)
-, d_useBlobForDataReads(true)
 , d_numSessions(0)
 , d_allocator_p(bslma::Default::allocator(allocator))
 {
@@ -635,34 +576,18 @@ int SessionPool::start()
     ChannelPool::PoolStateChangeCallback poolStateFunctor(
         bdlf::MemFnUtil::memFn(&SessionPool::poolStateCb, this),
         d_allocator_p);
-    
-    if (d_useBlobForDataReads) {
-        ChannelPool::BlobBasedReadCallback dataFunctor =
+
+    ChannelPool::BlobBasedReadCallback dataFunctor =
             bdlf::MemFnUtil::memFn(&SessionPool::blobBasedReadCb,
                                   this);
-        
-        d_channelPool_p = new (*d_allocator_p)
-            ChannelPool(d_blobBufferFactory.ptr(),
-                              channelStateFunctor,
-                              dataFunctor,
-                              poolStateFunctor,
-                              d_config,
-                              d_allocator_p);
-    }
-    else {
-        bdlf::Function<void (*)(int *, int*, const DataMsg&, void*)>
-            dataFunctor(bdlf::MemFnUtil::memFn(
-                              &SessionPool::pooledBufferChainBasedReadCb,
-                              this),
-                        d_allocator_p);
-        
-        d_channelPool_p = new (*d_allocator_p)
-            ChannelPool(channelStateFunctor,
-                              dataFunctor,
-                              poolStateFunctor,
-                              d_config,
-                              d_allocator_p);
-    }
+
+    d_channelPool_p = new (*d_allocator_p)
+                                         ChannelPool(d_blobBufferFactory.ptr(),
+                                                     channelStateFunctor,
+                                                     dataFunctor,
+                                                     poolStateFunctor,
+                                                     d_config,
+                                                     d_allocator_p);
     return d_channelPool_p->start();
 }
 
@@ -770,8 +695,7 @@ int SessionPool::closeHandle(int handleId)
 
             if (handle->d_type == SessionPool_Handle::CONNECT_SESSION) {
 
-                handle->d_type =
-                            SessionPool_Handle::ABORTED_CONNECT_SESSION;
+                handle->d_type = SessionPool_Handle::ABORTED_CONNECT_SESSION;
             }
 
             // The handle needs to be destroyed in a channel pool thread.  We
@@ -820,24 +744,24 @@ int SessionPool::closeHandle(int handleId)
 }
 
 int SessionPool::connect(
-                int                                            *handleBuffer,
-                const SessionPool::SessionStateCallback&  cb,
-                const char                                     *hostname,
-                int                                             port,
-                int                                             numAttempts,
-                const bsls::TimeInterval&                        interval,
-                SessionFactory                           *factory,
-                void                                           *userData,
-                ConnectResolutionMode                           resolutionMode,
-                const btlso::SocketOptions                      *socketOptions,
-                const btlso::IPv4Address                        *localAddress)
+                      int                                      *handleBuffer,
+                      const SessionPool::SessionStateCallback&  cb,
+                      const char                               *hostname,
+                      int                                       port,
+                      int                                       numAttempts,
+                      const bsls::TimeInterval&                 interval,
+                      SessionFactory                           *factory,
+                      void                                     *userData,
+                      ConnectResolutionMode                     resolutionMode,
+                      const btlso::SocketOptions               *socketOptions,
+                      const btlso::IPv4Address                 *localAddress)
 {
     BSLS_ASSERT(d_channelPool_p);
 
     if (0 == d_channelPool_p->numThreads()) {
         // Going down.
 
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
@@ -858,28 +782,28 @@ int SessionPool::connect(
         int rc = d_handles.remove(handleId, &handle);
         BSLS_ASSERT(0 == rc);
         handle->d_handleId = 0; // Do not call back anybody
-        return ret;
+        return ret;                                                   // RETURN
     }
     return 0;
 }
 
 int SessionPool::connect(
-                 int                                            *handleBuffer,
-                 const SessionPool::SessionStateCallback&  cb,
-                 btlso::IPv4Address const&                        endpoint,
-                 int                                             numAttempts,
-                 const bsls::TimeInterval&                        interval,
-                 SessionFactory                           *factory,
-                 void                                           *userData,
-                 const btlso::SocketOptions                      *socketOptions,
-                 const btlso::IPv4Address                        *localAddress)
+                       int                                      *handleBuffer,
+                       const SessionPool::SessionStateCallback&  cb,
+                       btlso::IPv4Address const&                 endpoint,
+                       int                                       numAttempts,
+                       const bsls::TimeInterval&                 interval,
+                       SessionFactory                           *factory,
+                       void                                     *userData,
+                       const btlso::SocketOptions               *socketOptions,
+                       const btlso::IPv4Address                 *localAddress)
 {
     BSLS_ASSERT(d_channelPool_p);
 
     if (0 == d_channelPool_p->numThreads()) {
         // Going down.
 
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
@@ -897,30 +821,30 @@ int SessionPool::connect(
         HandlePtr handle;
         d_handles.remove(handleId, &handle);
         handle->d_handleId = 0; // Do not call back anybody
-        return ret;
+        return ret;                                                   // RETURN
     }
     return 0;
 }
 
 int SessionPool::connect(
-                int                                            *handleBuffer,
-                const SessionPool::SessionStateCallback&  cb,
-                const char                                     *hostname,
-                int                                             port,
-                int                                             numAttempts,
-                const bsls::TimeInterval&                        interval,
-                bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                               *socket,
-                SessionFactory                           *factory,
-                void                                           *userData,
-                ConnectResolutionMode                           resolutionMode)
+                    int                                      *handleBuffer,
+                    const SessionPool::SessionStateCallback&  cb,
+                    const char                               *hostname,
+                    int                                       port,
+                    int                                       numAttempts,
+                    const bsls::TimeInterval&                 interval,
+                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                             *socket,
+                    SessionFactory                           *factory,
+                    void                                     *userData,
+                    ConnectResolutionMode                     resolutionMode)
 {
     BSLS_ASSERT(d_channelPool_p);
 
     if (0 == d_channelPool_p->numThreads()) {
         // Going down.
 
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
@@ -940,28 +864,28 @@ int SessionPool::connect(
         int rc = d_handles.remove(handleId, &handle);
         BSLS_ASSERT(0 == rc);
         handle->d_handleId = 0; // Do not call back anybody
-        return ret;
+        return ret;                                                   // RETURN
     }
     return 0;
 }
 
 int SessionPool::connect(
-                 int                                            *handleBuffer,
-                 const SessionPool::SessionStateCallback&  cb,
-                 btlso::IPv4Address const&                        endpoint,
-                 int                                             numAttempts,
-                 const bsls::TimeInterval&                        interval,
-                 bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                                *socket,
-                 SessionFactory                           *factory,
-                 void                                           *userData)
+                    int                                      *handleBuffer,
+                    const SessionPool::SessionStateCallback&  cb,
+                    btlso::IPv4Address const&                 endpoint,
+                    int                                       numAttempts,
+                    const bsls::TimeInterval&                 interval,
+                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                             *socket,
+                    SessionFactory                           *factory,
+                    void                                     *userData)
 {
     BSLS_ASSERT(d_channelPool_p);
 
     if (0 == d_channelPool_p->numThreads()) {
         // Going down.
 
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     int handleId = makeConnectHandle(cb, numAttempts, userData, factory);
@@ -978,17 +902,18 @@ int SessionPool::connect(
         HandlePtr handle;
         d_handles.remove(handleId, &handle);
         handle->d_handleId = 0; // Do not call back anybody
-        return ret;
+        return ret;                                                   // RETURN
     }
     return 0;
 }
 
-int SessionPool::import(int *handleBuffer,
-                  const SessionPool::SessionStateCallback& cb,
-                  bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                               *streamSocket,
-                  SessionFactory                         *sessionFactory,
-                  void                                         *userData)
+int SessionPool::import(
+                    int                                      *handleBuffer,
+                    const SessionPool::SessionStateCallback&  cb,
+                    bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                             *streamSocket,
+                    SessionFactory                           *sessionFactory,
+                    void                                     *userData)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -1011,19 +936,19 @@ int SessionPool::import(int *handleBuffer,
                                       false);
     if (ret) {
         d_handles.remove(handle->d_handleId);
-        return ret;
+        return ret;                                                   // RETURN
     }
     return 0;
 }
 
 int SessionPool::listen(
-                 int                                            *handleBuffer,
-                 const SessionPool::SessionStateCallback&  cb,
-                 int                                             portNumber,
-                 int                                             backlog,
-                 SessionFactory                           *factory,
-                 void                                           *userData,
-                 const btlso::SocketOptions                      *socketOptions)
+                       int                                      *handleBuffer,
+                       const SessionPool::SessionStateCallback&  cb,
+                       int                                       portNumber,
+                       int                                       backlog,
+                       SessionFactory                           *factory,
+                       void                                     *userData,
+                       const btlso::SocketOptions               *socketOptions)
 {
     btlso::IPv4Address endpoint;
     endpoint.setPortNumber(portNumber);
@@ -1038,14 +963,14 @@ int SessionPool::listen(
 }
 
 int SessionPool::listen(
-                 int                                            *handleBuffer,
-                 const SessionPool::SessionStateCallback&  cb,
-                 int                                             portNumber,
-                 int                                             backlog,
-                 int                                             reuseAddress,
-                 SessionFactory                           *factory,
-                 void                                           *userData,
-                 const btlso::SocketOptions                      *socketOptions)
+                       int                                      *handleBuffer,
+                       const SessionPool::SessionStateCallback&  cb,
+                       int                                       portNumber,
+                       int                                       backlog,
+                       int                                       reuseAddress,
+                       SessionFactory                           *factory,
+                       void                                     *userData,
+                       const btlso::SocketOptions               *socketOptions)
 {
     btlso::IPv4Address endpoint;
     endpoint.setPortNumber(portNumber);
@@ -1060,13 +985,13 @@ int SessionPool::listen(
 }
 
 int SessionPool::listen(
-                 int                                            *handleBuffer,
-                 const SessionPool::SessionStateCallback&  cb,
-                 const btlso::IPv4Address&                        endpoint,
-                 int                                             backlog,
-                 SessionFactory                           *factory,
-                 void                                           *userData,
-                 const btlso::SocketOptions                      *socketOptions)
+                       int                                      *handleBuffer,
+                       const SessionPool::SessionStateCallback&  cb,
+                       const btlso::IPv4Address&                 endpoint,
+                       int                                       backlog,
+                       SessionFactory                           *factory,
+                       void                                     *userData,
+                       const btlso::SocketOptions               *socketOptions)
 {
     return listen(handleBuffer,
                   cb,
@@ -1079,14 +1004,14 @@ int SessionPool::listen(
 }
 
 int SessionPool::listen(
-                 int                                            *handleBuffer,
-                 const SessionPool::SessionStateCallback&  cb,
-                 const btlso::IPv4Address&                        endpoint,
-                 int                                             backlog,
-                 int                                             reuseAddress,
-                 SessionFactory                           *factory,
-                 void                                           *userData,
-                 const btlso::SocketOptions                      *socketOptions)
+                       int                                      *handleBuffer,
+                       const SessionPool::SessionStateCallback&  cb,
+                       const btlso::IPv4Address&                 endpoint,
+                       int                                       backlog,
+                       int                                       reuseAddress,
+                       SessionFactory                           *factory,
+                       void                                     *userData,
+                       const btlso::SocketOptions               *socketOptions)
 {
     BSLS_ASSERT(d_channelPool_p);
 
@@ -1113,33 +1038,33 @@ int SessionPool::listen(
 
     if (ret) {
         d_handles.remove(handle->d_handleId);
-        return ret;
+        return ret;                                                   // RETURN
     }
     return 0;
 }
 
 int SessionPool::setWriteCacheWatermarks(int handleId,
-                                               int lowWatermark,
-                                               int hiWatermark)
+                                         int lowWatermark,
+                                         int hiWatermark)
 {
     BSLS_ASSERT(0 <= lowWatermark);
     BSLS_ASSERT(lowWatermark <= hiWatermark);
 
     HandlePtr handle;
     if (d_handles.find(handleId, &handle)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     ChannelPoolChannel *channelPtr = handle->d_channel_p;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!channelPtr)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     else {
         return d_channelPool_p->setWriteCacheWatermarks(
                                                        channelPtr->channelId(),
                                                        lowWatermark,
-                                                       hiWatermark);
+                                                       hiWatermark);  // RETURN
     }
 }
 
@@ -1148,7 +1073,7 @@ int SessionPool::portNumber(int handle) const
 {
     const btlso::IPv4Address *address = d_channelPool_p->serverAddress(handle);
     if (address) {
-        return address->portNumber();
+        return address->portNumber();                                 // RETURN
     }
     return -1;
 }
@@ -1158,7 +1083,7 @@ int SessionPool::portNumber(int handle) const
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
