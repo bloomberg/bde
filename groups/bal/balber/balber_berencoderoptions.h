@@ -32,12 +32,12 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsls_objectbuffer.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include <bslx_instreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -125,11 +125,23 @@ class BerEncoderOptions {
 
   public:
     // CLASS METHODS
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that the 'versionSelector' is expected to be formatted
+        // as 'yyyymmdd', a date representation.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
     static int maxSupportedBdexVersion();
         // Return the most current 'bdex' streaming version number supported by
         // this class.  See the 'bdex' package-level documentation for more
         // information on 'bdex' streaming of value-semantic types and
         // containers.
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
@@ -161,14 +173,15 @@ class BerEncoderOptions {
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -242,12 +255,14 @@ class BerEncoderOptions {
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -333,10 +348,18 @@ namespace balber {
 
 // CLASS METHODS
 inline
-int BerEncoderOptions::maxSupportedBdexVersion()
+int BerEncoderOptions::maxSupportedBdexVersion(int versionSelector)
 {
     return 1;  // versions start at 1.
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+inline
+int BerEncoderOptions::maxSupportedBdexVersion()
+{
+    return maxSupportedBdexVersion(0);
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 // MANIPULATORS
 template <class STREAM>
@@ -345,10 +368,10 @@ STREAM& BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {
           case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_traceLevel, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_bdeVersionConformance, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_encodeEmptyArrays, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_encodeDateAndTimeTypesAsBinary, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_traceLevel, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_bdeVersionConformance, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeEmptyArrays, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_encodeDateAndTimeTypesAsBinary, 1);
           } break;
           default: {
             stream.invalidate();
@@ -456,10 +479,13 @@ STREAM& BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_traceLevel, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_bdeVersionConformance, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_encodeEmptyArrays, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_encodeDateAndTimeTypesAsBinary, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_traceLevel, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_bdeVersionConformance, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_encodeEmptyArrays, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_encodeDateAndTimeTypesAsBinary, 1);
+      } break;
+      default: {
+        stream.invalidate();
       } break;
     }
     return stream;
