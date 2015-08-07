@@ -25,13 +25,8 @@ BSLS_IDENT("$Id: $")
 // universal tag numbers used by the 'BER' encoder and decoder.  The universal
 // tag numbers are defined in the X.680 standard, in section 8.
 //
-// Templatized functions are provided to support the streaming in and out of
-// the enumerated values.  Input streams must be compatible with the
-// 'bdlxxxx::InStream' protocol, and output streams must be compatible with the
-// 'bdlxxxx::OutStream' protocol or else convertible to a standard 'ostream'; in
-// the latter case the value is written as its corresponding string
-// representation.  In addition, this component supports functions that
-// convert the 'Value' enumerations to a well-defined ASCII representation.
+// In addition, this component supports functions that convert the 'Value'
+// enumerations to a well-defined ASCII representation.
 //
 // This component also provides a function that returns the universal tag
 // number for an object with formatting mode, according to the following table:
@@ -136,18 +131,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typecategory.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_VERSIONFUNCTIONS
-#include <bdlxxxx_versionfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BDLB_VARIANT
 #include <bdlb_variant.h>
 #endif
@@ -207,12 +190,6 @@ struct BerUniversalTagNumber {
     };
 
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const char *toString(Value value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
@@ -230,20 +207,6 @@ struct BerUniversalTagNumber {
         // specified 'number'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' otherwise (i.e., 'number' does not match any
         // enumerator).
-
-    template <class STREAM>
-    static STREAM& bdexStreamIn(STREAM&  stream,
-                                Value&   value,
-                                int      version);
-        // Assign to the specified 'value' the value read from the specified
-        // input 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
 
     static bsl::ostream& print(bsl::ostream& stream, Value value);
         // Write to the specified 'stream' the string representation of
@@ -274,19 +237,6 @@ struct BerUniversalTagNumber {
         // 'formattingMode' do not permit a universal tag number (see
         // component-level documentation for allowed type categories and
         // formatting modes).
-
-    template <class STREAM>
-    static STREAM& bdexStreamOut(STREAM&  stream,
-                                 Value    value,
-                                 int      version);
-        // Write the specified 'value' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.  Optionally specify
-        // an explicit 'version' format; by default, the maximum supported
-        // version is written to 'stream' and used as the format.  If 'version'
-        // is specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
 };
 
 // FREE OPERATORS
@@ -472,14 +422,8 @@ namespace bdet {typedef ::BloombergLP::bdlt::TimeTz TimeTz;                // bd
 }  // close package namespace
 
 namespace balber {
+
 // CLASS METHODS
-
-inline
-int BerUniversalTagNumber::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 inline
 int BerUniversalTagNumber::fromInt(
                                      BerUniversalTagNumber::Value *result,
@@ -501,30 +445,6 @@ int BerUniversalTagNumber::fromInt(
       default:
         return BDEM_NOT_FOUND;
     }
-}
-
-template <class STREAM>
-inline
-STREAM& BerUniversalTagNumber::bdexStreamIn(
-                                    STREAM&                            stream,
-                                    BerUniversalTagNumber::Value& value,
-                                    int                                version)
-{
-    switch(version) {
-      case 1: {
-        int readValue;
-        stream.getInt32(readValue);
-        if (stream) {
-            if (fromInt(&value, readValue)) {
-               stream.invalidate();   // bad value in stream
-            }
-        }
-      } break;
-      default: {
-        stream.invalidate();          // unrecognized version number
-      } break;
-    }
-    return stream;
 }
 
 inline
@@ -566,20 +486,6 @@ BerUniversalTagNumber::select(const TYPE&  object,
     return (BerUniversalTagNumber::Value) retVal;
 }
 
-template <class STREAM>
-inline
-STREAM& BerUniversalTagNumber::bdexStreamOut(
-                                     STREAM&                           stream,
-                                     BerUniversalTagNumber::Value value,
-                                     int                               version)
-{
-    switch (version) {
-      case 1: {
-        stream.putInt32(value);  // Write the value as an int
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS
@@ -992,56 +898,8 @@ BerUniversalTagNumber_Imp::select(const TYPE&, ANY_CATEGORY)
     BSLS_ASSERT(0 && "invalid type category");
     return static_cast<TagVal>(-1);
 }
+
 }  // close package namespace
-
-// ============================================================================
-//                     namespace bdex_InStreamFunctions
-// ============================================================================
-
-namespace bdex_InStreamFunctions {
-
-template <typename STREAM>
-inline
-STREAM& streamIn(STREAM&                            stream,
-                 balber::BerUniversalTagNumber::Value& value,
-                 int                                version)
-{
-    return balber::BerUniversalTagNumber::bdexStreamIn(stream, value, version);
-}
-
-}  // close namespace bdex_InStreamFunctions;
-
-// ============================================================================
-//                      namespace bdex_VersionFunctions
-// ============================================================================
-
-namespace bdex_VersionFunctions {
-
-inline
-int maxSupportedVersion(balber::BerUniversalTagNumber::Value)
-{
-    return balber::BerUniversalTagNumber::maxSupportedBdexVersion();
-}
-
-}  // close namespace bdex_VersionFunctions;
-
-// ============================================================================
-//                     namespace bdex_OutStreamFunctions
-// ============================================================================
-
-namespace bdex_OutStreamFunctions {
-
-template <typename STREAM>
-inline
-STREAM& streamOut(STREAM&                                  stream,
-                  const balber::BerUniversalTagNumber::Value& value,
-                  int                                      version)
-{
-    return balber::BerUniversalTagNumber::bdexStreamOut(stream, value, version);
-}
-
-}  // close namespace bdex_OutStreamFunctions
-
 }  // close namespace BloombergLP
 
 #endif

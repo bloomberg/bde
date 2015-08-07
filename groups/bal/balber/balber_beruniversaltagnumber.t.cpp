@@ -2098,7 +2098,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //   This will test 'Usage 1'.
@@ -2129,7 +2129,7 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING SELECT FUNCTION
         //   This will test the 'Select<TYPE>::value()' function.
@@ -2427,7 +2427,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEnd of test." << endl;
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING SELECT FUNCTION
         //   This will test the 'Select<TYPE>::value()' function.
@@ -2760,29 +2760,6 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nEnd of test." << endl;
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING MAX-SUPPORTED-VERSION
-        // Concerns:
-        //   Our concern is that the correct value is returned.
-        //
-        // Plan:
-        //   Retrieve the version number and ensure that it is the correct
-        //   value.  Note that this version number is hard-coded into the .h,
-        //   and therefore this test case needs to be updated whenever that
-        //   number changes.
-        //
-        // Testing:
-        //   int maxSupportedBdexVersion();
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting maxSupportedBdexVersion"
-                          << "\n===========================" << endl;
-
-        const int EXPECTED_VERSION = 1;
-        int currentVersion = Class::maxSupportedBdexVersion();
-        ASSERT(currentVersion == EXPECTED_VERSION);
       } break;
       case 1: {
         // --------------------------------------------------------------------
