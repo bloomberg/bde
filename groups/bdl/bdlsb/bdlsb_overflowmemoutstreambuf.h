@@ -75,9 +75,14 @@ BSLS_IDENT("$Id: $")
 //      enum { k_STREAMBUF_CAPACITY = 10 };
 //
 //      // DATA
-//      char                    *d_buffer;       // initial buffer (owned)
-//      bdlsb::OverflowMemOutput *d_streamBuf;    // stream buffer (owned)
-//      bslma::Allocator        *d_allocator_p;  // allocator (held, not owned)
+//      char                           *d_buffer;       // initial buffer
+//                                                      // (owned)
+//
+//      bdlsb::OverflowMemOutStreamBuf *d_streamBuf;    // stream buffer
+//                                                      // (owned)
+//
+//      bslma::Allocator               *d_allocator_p;  // memory allocator
+//                                                      // (held, not owned)
 //
 //      // FRIENDS
 //      friend
@@ -85,10 +90,10 @@ BSLS_IDENT("$Id: $")
 //                                        const bsl::string&      data);
 //      friend
 //      my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                        const char            *data);
+//                                        const char             *data);
 //      friend
 //      my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                        char                   data);
+//                                        char                    data);
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(my_CapitalizingStream,
@@ -102,7 +107,7 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object.
 //
 //      // ACCESSORS
-//      const bdlsb::OverflowMemOutput *streamBuf();
+//      const bdlsb::OverflowMemOutStreamBuf *streamBuf();
 //          // Return the stream buffer used by this stream.  Note that this
 //          // function is for debugging only.
 //  };
@@ -114,16 +119,14 @@ BSLS_IDENT("$Id: $")
 //                                    const char             *data);
 //  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
 //                                    char                    data);
-//     // Write the specified 'data' in capitalized form to the
-//     // specified 'stream'.
+//      // Write the specified 'data' in capitalized form to the
+//      // specified 'stream'.
 //..
 // As is typical, the streaming operators are made friends of the class.  We
 // use the 'transform' algorithm to convert all string characters to upper-
 // case.
 //..
 //  // my_capitalizingstream.cpp
-//  #include <algorithm>  // bsl::transform
-//  #include <cctype>     // bsl::toupper
 //
 //  // CREATORS
 //  my_CapitalizingStream::my_CapitalizingStream(
@@ -133,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //      d_buffer = reinterpret_cast<char*>(
 //                              d_allocator_p->allocate(k_STREAMBUF_CAPACITY));
 //
-//      d_streamBuf = new(*d_allocator_p) bdlsb::OverflowMemOutput(
+//      d_streamBuf = new(*d_allocator_p) bdlsb::OverflowMemOutStreamBuf(
 //                                                        d_buffer,
 //                                                        k_STREAMBUF_CAPACITY,
 //                                                        d_allocator_p);
@@ -146,7 +149,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
-//  const bdlsb::OverflowMemOutput *streamBuf() {
+//  const bdlsb::OverflowMemOutStreamBuf *my_CapitalizingStream::streamBuf()
+//  {
 //      return d_streamBuf;
 //  }
 //
@@ -155,7 +159,10 @@ BSLS_IDENT("$Id: $")
 //                                    const bsl::string&     data)
 //  {
 //      bsl::string tmp(data);
-//      bsl::transform(tmp.begin(), tmp.end(), tmp.begin(), bsl::toupper);
+//      bsl::transform(tmp.begin(),
+//                     tmp.end(),
+//                     tmp.begin(),
+//                     (int(*)(int))bsl::toupper);
 //      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
 //      return stream;
 //  }
@@ -164,7 +171,10 @@ BSLS_IDENT("$Id: $")
 //                                    const char             *data)
 //  {
 //      bsl::string tmp(data);
-//      bsl::transform(tmp.begin(), tmp.end(), tmp.begin(), bsl::toupper);
+//      bsl::transform(tmp.begin(),
+//                     tmp.end(),
+//                     tmp.begin(),
+//                     (int(*)(int))bsl::toupper);
 //      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
 //      return stream;
 //  }
@@ -172,8 +182,7 @@ BSLS_IDENT("$Id: $")
 //  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
 //                                    char                   data)
 //  {
-//       stream.d_streamBuf->sputc(
-//                             bsl::toupper(static_cast<unsigned char>(data)));
+//       stream.d_streamBuf->sputc(bsl::toupper(data));
 //       stream.d_streamBuf->pubsync();
 //       return stream;
 //  }
@@ -182,22 +191,22 @@ BSLS_IDENT("$Id: $")
 //..
 //  // my_app.m.cpp
 //
-//  int main()
+//  bslma::TestAllocator allocator;
+//
 //  {
-//      my_CapitalizingStream cs;
+//      my_CapitalizingStream cs(&allocator);
 //      cs << "Hello" << ' ' << "world." << '\0';
 //
-//      // Visually verify that the streamed data has been capitalized.
-//      bsl::string iBuf(cs.streamBuf()->initialBuffer(),
-//                        cs.streamBuf()->dataLengthInInitialBuffer());
-//      bsl::string oBuf(cs.streamBuf()->overflowBuffer(),
-//                       cs.streamBuf()->dataLengthInOverflowBuffer());
-//      cout << iBuf << oBuf << endl;
+//      assert(10 == cs.streamBuf()->dataLengthInInitialBuffer());
+//      assert(0 == strncmp("HELLO WORLD", cs.streamBuf()->initialBuffer(),
+//                          cs.streamBuf()->dataLengthInInitialBuffer()));
+//      assert(3 == cs.streamBuf()->dataLengthInOverflowBuffer());
+//      assert(0 == strncmp("D.", cs.streamBuf()->overflowBuffer(),
+//                          cs.streamBuf()->dataLengthInOverflowBuffer()));
 //  }
-//..
-// The output from this program is:
-//..
-// HELLO WORLD.
+//
+//  ASSERT(0 <  allocator.numAllocations());
+//  ASSERT(0 == allocator.numBytesInUse());
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -228,8 +237,8 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
     // 'bsl::basic_streambuf' protocol, using client-supplied memory and
     // client-supplied allocator if additional memory is needed.  It does
     // derive from 'bsl::streambuf', thus it is suitable for use as template
-    // parameter to 'bdlxxxx::GenericByteOutStream' as well as
-    // 'bdlxxxx::ByteOutStream' or 'bdlxxxx::ByteOutStreamFormatter'.
+    // parameter to 'bslx::GenericOutStream' as well as
+    // 'bslx::StreamBufOutStream'.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;

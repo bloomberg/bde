@@ -27,8 +27,8 @@ BSLS_IDENT("$Id: $")
 // advantageous for performance reasons, as the overhead of the initialization
 // and virtual function calls of a 'bsl::streambuf' can be undesirable.  It is
 // especially designed for streaming a very small amount of information into a
-// fixed-length buffer using a 'bdlxxxx::GenericByteOutStream' when the output
-// is guaranteed not to exceed the length of the buffer.
+// fixed-length buffer using a 'bslx::GenericOutStream' when the output is
+// guaranteed not to exceed the length of the buffer.
 //
 ///Usage
 ///-----
@@ -93,9 +93,8 @@ class FixedMemOutput {
     // 'char *' memory.  It has an identical interface to
     // 'FixedMemOutStreamBuf' but does *not* inherit from 'bsl::streambuf'.
     // Thus, it is suitable for use as template parameter to
-    // 'bdlxxxx::GenericByteOutStream' (but not to 'bdlxxxx::ByteOutStream' or
-    // 'bdlxxxx::ByteOutStreamFormatter').  Note that this class is not
-    // designed to be derived from.
+    // 'bdlx::GenericOutStream' (but not to 'bslx::StreamBufOutStream').  Note
+    // that this class is not designed to be derived from.
 
   public:
     // TYPES

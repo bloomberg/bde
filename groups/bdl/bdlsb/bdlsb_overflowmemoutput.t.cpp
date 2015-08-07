@@ -1,6 +1,8 @@
 // bdlsb_overflowmemoutput.t.cpp                                      -*-C++-*-
 #include <bdlsb_overflowmemoutput.h>
 
+#include <bdls_testutil.h>
+
 #include <bslalg_typetraits.h>                  // for testing only
 
 #include <bslma_default.h>                      // for testing only
@@ -128,11 +130,14 @@ using namespace bsl;  // automatically added by script
 // [10] TESTING CONCERN: EOF IS STREAMED CORRECTLY
 
 //=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -141,47 +146,28 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << '\t' << flush;
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -240,8 +226,8 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
-// Usage
-// -----
+///Usage
+///-----
 // This example demonstrates use of a stream buffer by a stream, in this case a
 // stream with simple formatting requirements -- namely, capitalizing all
 // character data that passes through its management.  (To simplify the
@@ -256,9 +242,9 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
         enum { k_STREAMBUF_CAPACITY = 10 };
 
         // DATA
-        char                    *d_buffer;       // initial buffer (owned)
-        bdlsb::OverflowMemOutput *d_streamBuf;    // stream buffer (owned)
-        bslma::Allocator        *d_allocator_p;  // allocator (held, not owned)
+        char                     *d_buffer;      // initial buffer (owned)
+        bdlsb::OverflowMemOutput *d_streamBuf;   // stream buffer (owned)
+        bslma::Allocator         *d_allocator_p; // allocator (held, not owned)
 
         // FRIENDS
         friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
@@ -294,8 +280,8 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
                                       const char             *data);
     my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
                                       char                    data);
-// Write the specified 'data' in capitalized form to the
-// specified 'stream'....
+        // Write the specified 'data' in capitalized form to the
+        // specified 'stream'....
 //..
 // As is typical, the streaming operators are made friends of the class.  We
 // use the 'transform' algorithm to convert all string characters to upper-
@@ -328,7 +314,9 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
                                       const bsl::string&     data)
     {
         bsl::string tmp(data);
-        bsl::transform(tmp.begin(), tmp.end(), tmp.begin(),
+        bsl::transform(tmp.begin(),
+                       tmp.end(),
+                       tmp.begin(),
                        (int(*)(int))bsl::toupper);
         stream.d_streamBuf->sputn(tmp.data(), tmp.length());
         return stream;
@@ -338,7 +326,9 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
                                       const char             *data)
     {
         bsl::string tmp(data);
-        bsl::transform(tmp.begin(), tmp.end(), tmp.begin(),
+        bsl::transform(tmp.begin(),
+                       tmp.end(),
+                       tmp.begin(),
                        (int(*)(int))bsl::toupper);
         stream.d_streamBuf->sputn(tmp.data(), tmp.length());
         return stream;
@@ -351,36 +341,6 @@ bsl::ostream& operator<<(bsl::ostream&                  stream,
          stream.d_streamBuf->pubsync();
          return stream;
     }
-//..
-// Given the above two functions, we can now write 'main', as follows:
-//..
-    void usageExample(int verbose, bslma::Allocator *allocator)
-    {
-        my_CapitalizingStream cs(allocator);
-        cs << "Hello" << ' ' << "world." << '\0';
-
-        if (verbose) {
-            // Visually verify that the streamed data has been capitalized.
-            bsl::string iBuf(cs.streamBuf()->initialBuffer(),
-                             cs.streamBuf()->dataLengthInInitialBuffer());
-            bsl::string oBuf(cs.streamBuf()->overflowBuffer(),
-                             cs.streamBuf()->dataLengthInOverflowBuffer());
-            cout << iBuf << oBuf << endl;
-        }
-
-// ============================= CUT HERE ====================================
-        ASSERT(10 == cs.streamBuf()->dataLengthInInitialBuffer());
-        ASSERT(0 == strncmp("HELLO WORL", cs.streamBuf()->initialBuffer(),
-                            cs.streamBuf()->dataLengthInInitialBuffer()));
-        ASSERT(3 == cs.streamBuf()->dataLengthInOverflowBuffer());
-        ASSERT(0 == strncmp("D.", cs.streamBuf()->overflowBuffer(),
-                           cs.streamBuf()->dataLengthInOverflowBuffer()));
-// =========================== RESUME HERE ===================================
-    }
-//..
-// The output from this program is:
-//..
-// HELLO WORLD.
 //..
 
 //=============================================================================
@@ -917,12 +877,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-        {
-            usageExample(verbose, &ta);
-        }
-        ASSERT(0 <  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
+// Given the above two functions, we can now write 'main', as follows:
+//..
+    bslma::TestAllocator allocator;
 
+    {
+        my_CapitalizingStream cs(&allocator);
+        cs << "Hello" << ' ' << "world." << '\0';
+
+        ASSERT(10 == cs.streamBuf()->dataLengthInInitialBuffer());
+        ASSERT(0 == strncmp("HELLO WORL", cs.streamBuf()->initialBuffer(),
+                            cs.streamBuf()->dataLengthInInitialBuffer()));
+        ASSERT(3 == cs.streamBuf()->dataLengthInOverflowBuffer());
+        ASSERT(0 == strncmp("D.", cs.streamBuf()->overflowBuffer(),
+                            cs.streamBuf()->dataLengthInOverflowBuffer()));
+    }
+
+    ASSERT(0 <  allocator.numAllocations());
+    ASSERT(0 == allocator.numBytesInUse());
+//..
       } break;
       case 8: {
         // --------------------------------------------------------------------

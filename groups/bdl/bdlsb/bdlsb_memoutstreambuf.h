@@ -54,11 +54,10 @@ BSLS_IDENT("$Id: $")
 //      bdlsb::MemOutStreamBuf d_streamBuf;  // buffer to write to
 //
 //      friend
-//      my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                        char                    data);
+//      my_CapitalizingStream& operator<<(my_CapitalizingStream&, char);
 //      friend
-//      my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                        const char             *data);
+//      my_CapitalizingStream& operator<<(my_CapitalizingStream&,
+//                                        const char *);
 //
 //    public:
 //      // CREATORS
@@ -96,13 +95,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  // my_capitalizingstream.cpp
 //
-//  #include <algorithm>
-//
 //  // FREE OPERATORS
 //  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream, char data)
 //  {
-//      stream.d_streamBuf.sputc(
-//                             bsl::toupper(static_cast<unsigned char>(data)));
+//      stream.d_streamBuf.sputc(static_cast<char>(bsl::toupper(data)));
 //      return stream;
 //  }
 //
@@ -110,7 +106,10 @@ BSLS_IDENT("$Id: $")
 //                                    const char             *data)
 //  {
 //      bsl::string tmp(data);
-//      transform(tmp.begin(), tmp.end(), tmp.begin(), bsl::toupper);
+//      transform(tmp.begin(),
+//                tmp.end(),
+//                tmp.begin(),
+//                (int(*)(int))bsl::toupper);
 //      stream.d_streamBuf.sputn(tmp.data(), tmp.length());
 //      return stream;
 //  }

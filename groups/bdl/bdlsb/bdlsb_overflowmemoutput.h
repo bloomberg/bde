@@ -58,9 +58,139 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// See the 'bdlsb_overflowmemoutstreambuf' component for an identical usage
-// example, where every occurrence of 'bdlsb::OverflowMemOutStreamBuf' can be
-// substituted for 'bdlsb::OverflowMemOutput'.
+// This example demonstrates use of a stream buffer by a stream, in this case a
+// stream with simple formatting requirements -- namely, capitalizing all
+// character data that passes through its management.  (To simplify the
+// example, we do not include the functions for streaming non-character data.)
+//..
+//  // my_capitalizingstream.h
+//
+//  class my_CapitalizingStream {
+//      // This class capitalizes character data....
+//
+//      // PRIVATE TYPES
+//      enum { k_STREAMBUF_CAPACITY = 10 };
+//
+//      // DATA
+//      char                     *d_buffer;      // initial buffer (owned)
+//      bdlsb::OverflowMemOutput *d_streamBuf;   // stream buffer (owned)
+//      bslma::Allocator         *d_allocator_p; // allocator (held, not owned)
+//
+//      // FRIENDS
+//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                               const bsl::string&     data);
+//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                               const char            *data);
+//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                               char                   data);
+//    public:
+//      // TRAITS
+//      BSLALG_DECLARE_NESTED_TRAITS(my_CapitalizingStream,
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//
+//      // CREATORS
+//      my_CapitalizingStream(bslma::Allocator *allocator = 0);
+//          // Create a stream that capitalizes everything.
+//
+//      ~my_CapitalizingStream();
+//          // Destroy this object.
+//
+//      // ACCESSORS
+//      const bdlsb::OverflowMemOutput *streamBuf() {
+//          return d_streamBuf;
+//      }
+//          // Return the stream buffer used by this stream.  Note that this
+//          // function is for debugging only.
+//  };
+//
+//  // FREE OPERATORS
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    const bsl::string&      data);
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    const char             *data);
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    char                    data);
+//      // Write the specified 'data' in capitalized form to the
+//      // specified 'stream'....
+//..
+// As is typical, the streaming operators are made friends of the class.  We
+// use the 'transform' algorithm to convert all string characters to upper-
+// case.
+//..
+//  // my_capitalizingstream.cpp
+//  #include <bsl_algorithm.h>
+//
+//  my_CapitalizingStream::my_CapitalizingStream(
+//                                            bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      d_buffer = reinterpret_cast<char*>(
+//                              d_allocator_p->allocate(k_STREAMBUF_CAPACITY));
+//
+//      d_streamBuf = new(*d_allocator_p) bdlsb::OverflowMemOutput(
+//                                                        d_buffer,
+//                                                        k_STREAMBUF_CAPACITY,
+//                                                        d_allocator_p);
+//  }
+//
+//  my_CapitalizingStream::~my_CapitalizingStream()
+//  {
+//      d_allocator_p->deleteObjectRaw(d_streamBuf);
+//      d_allocator_p->deleteObjectRaw(d_buffer);
+//  }
+//
+//  // FREE OPERATORS
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                    const bsl::string&     data)
+//  {
+//      bsl::string tmp(data);
+//      bsl::transform(tmp.begin(),
+//                     tmp.end(),
+//                     tmp.begin(),
+//                     (int(*)(int))bsl::toupper);
+//      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
+//      return stream;
+//  }
+//
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
+//                                    const char             *data)
+//  {
+//      bsl::string tmp(data);
+//      bsl::transform(tmp.begin(),
+//                     tmp.end(),
+//                     tmp.begin(),
+//                     (int(*)(int))bsl::toupper);
+//      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
+//      return stream;
+//  }
+//
+//  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
+//                                    char                   data)
+//  {
+//       stream.d_streamBuf->sputc(bsl::toupper(data));
+//       stream.d_streamBuf->pubsync();
+//       return stream;
+//  }
+//..
+// Given the above two functions, we can now write 'main', as follows:
+//..
+//  bslma::TestAllocator allocator;
+//
+//  {
+//      my_CapitalizingStream cs(&allocator);
+//      cs << "Hello" << ' ' << "world." << '\0';
+//
+//      assert(10 == cs.streamBuf()->dataLengthInInitialBuffer());
+//      assert(0 == strncmp("HELLO WORL", cs.streamBuf()->initialBuffer(),
+//                          cs.streamBuf()->dataLengthInInitialBuffer()));
+//      assert(3 == cs.streamBuf()->dataLengthInOverflowBuffer());
+//      assert(0 == strncmp("D.", cs.streamBuf()->overflowBuffer(),
+//                          cs.streamBuf()->dataLengthInOverflowBuffer()));
+//  }
+//
+//  ASSERT(0 <  allocator.numAllocations());
+//  ASSERT(0 == allocator.numBytesInUse());
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -100,9 +230,8 @@ class OverflowMemOutput {
     // memory is needed.  It has an interface similar to
     // 'OverflowMemOutStreamBuf' but does *not* inherit from 'bsl::streambuf'.
     // Thus, it is suitable for use as template parameter to
-    // 'bdlxxxx::GenericByteOutStream' (but not to 'bdlxxxx::ByteOutStream' or
-    // 'bdlxxxx::ByteOutStreamFormatter').  Note that this class is not
-    // designed to be derived from.
+    // 'bslx::GenericOutStream' (but not to 'bslx::StreamBufOutStream').  Note
+    // that this class is not designed to be derived from.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;

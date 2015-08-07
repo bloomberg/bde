@@ -84,15 +84,14 @@ class FixedMemInput {
     // functionality of the 'basic_streambuf' interface, using client-supplied
     // 'char *' memory.  It has an interface identical to 'FixedMemInStreamBuf'
     // but does *not* inherit from 'bsl::streambuf'.  Thus, it is suitable for
-    // use as template parameter to 'bdlxxxx::GenericByteInStream' (but not to
-    // 'bdlxxxx::ByteInStreamFormatter').  This usage is advantageous for
-    // performance reasons, as the overhead of the initialization and virtual
-    // function calls of a 'bsl::streambuf' can be undesirable.  It is
-    // especially designed for streaming a very small amount of information
-    // from a fixed-length buffer using a 'bdlxxxx::GenericByteInStream' when
-    // the number of characters read from the input is guaranteed not to exceed
-    // the length of the buffer.  Note that this class is not designed to be
-    // derived from.
+    // use as template parameter to 'bslx::GenericInStream' (but not to
+    // 'bslx::StreamBufInStream').  This usage is advantageous for performance
+    // reasons, as the overhead of the initialization and virtual function
+    // calls of a 'bsl::streambuf' can be undesirable.  It is especially
+    // designed for streaming a very small amount of information from a
+    // fixed-length buffer using a 'bslx::GenericInStream' when the number of
+    // characters read from the input is guaranteed not to exceed the length of
+    // the buffer.  Note that this class is not designed to be derived from.
 
   public:
     // TYPES
