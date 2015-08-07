@@ -1506,8 +1506,8 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs nsecs expNumItems expItems
-                // ---- ----- --------- ----------- ----------------
+                //line  secs    nsecs   expNumItems expItems
+                //---- ------ --------- ----------- ----------------
                 {  L_ , 1    , 0       , 2         , "\x6\xd"          },
                 {  L_ , 1    , 0       , 0         , ""                },
             //  {  L_ , 1    , 9999998 , 2         , "\x4\xb"          },
@@ -1615,8 +1615,8 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs nsecs maxNum expNum expItems
-                // ---- ---- --------- ------ ------ ----------------
+                //line secs   nsecs   maxNum expNum expItems
+                //---- ---- --------- ------ ------ ----------------
                 {  L_ , 1   , 0       , 0   , 0    , ""                },
                 {  L_ , 1   , 0       , 1   , 1    , "\x6"             },
                 {  L_ , 1   , 0       , 1   , 1    , "\xd"             },
@@ -1891,8 +1891,8 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs nsecs expNumItems expItems
-                // ---- ----- --------- ----------- ----------------
+                //line secs   nsecs    expNumItems expItems
+                //---- ----- --------- ----------- ----------------
                 {  L_ , 1    , 0       , 2         , "\x6\xd"          },
                 {  L_ , 1    , 0       , 0         , ""                },
             //  {  L_ , 1    , 9999998 , 2         , "\x4\xb"          },
@@ -1999,8 +1999,8 @@ int main(int argc, char *argv[])
                 int          d_expNumItems;
                 const char  *d_expItems;
             } POP_DATA[] = {
-                // line secs nsecs maxNum expNum expItems
-                // ---- ---- --------- ------ ------ ----------------
+                //line secs nsecs     maxNum expNum expItems
+                //---- ---- --------- ------ ------ ----------------
                 {  L_ , 1   , 0       , 0   , 0    , ""                },
                 {  L_ , 1   , 0       , 1   , 1    , "\x6"             },
                 {  L_ , 1   , 0       , 1   , 1    , "\xd"             },
@@ -2229,8 +2229,8 @@ int main(int argc, char *argv[])
                 int          d_expMinSecs;
                 int          d_expMinNsecs;
             } POP_DATA[] = {
-                // expItem expMinSecs expMinNsecs
-                // ------- ---------- -----------
+                //expItem expMinSecs expMinNsecs
+                //------- ---------- -----------
                 {  6     , 1        , 9999998    },
                 {  4     , 1        , 9999999    },
                 {  5     , 2        , 1000000    },
