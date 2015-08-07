@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // baesu::StackTraceResolverImp<Windows> BREATHING TEST
+        // balst::StackTraceResolverImp<Windows> BREATHING TEST
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //

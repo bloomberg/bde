@@ -135,7 +135,7 @@ int StackTraceUtil::loadStackTraceFromStack(
 {
     enum {
         DEFAULT_MAX_FRAMES = 1024,
-        IGNORE_FRAMES      = StackAddressUtil::BAESU_IGNORE_FRAMES + 1
+        IGNORE_FRAMES      = StackAddressUtil::BALST_IGNORE_FRAMES + 1
     };
 
     if (maxFrames < 0) {
@@ -261,7 +261,7 @@ bsl::ostream& StackTraceUtil::printHexStackTrace(
     // be ignored because they contained function calls within the stack trace
     // facility.
 
-    const int ignoreFrames = StackAddressUtil::BAESU_IGNORE_FRAMES + 1 +
+    const int ignoreFrames = StackAddressUtil::BALST_IGNORE_FRAMES + 1 +
                                                        additionalIgnoreFrames;
     maxFrames += ignoreFrames;
 

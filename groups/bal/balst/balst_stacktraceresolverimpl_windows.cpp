@@ -58,7 +58,7 @@ void reportError(const char *string)
         firstTime = false;
 
         const char *nrString =
-              bsl::getenv("BAESU_STACKTRACERESOLVERIMPL_WINDOWS_REPORT_TIMES");
+              bsl::getenv("BALST_STACKTRACERESOLVERIMPL_WINDOWS_REPORT_TIMES");
         if (nrString) {
             reportTimes = bsl::atoi(nrString);
         }
@@ -74,6 +74,7 @@ void reportError(const char *string)
 namespace BloombergLP {
 
 namespace balst {
+
        // =============================================================
        // StackTraceResolverImpl<ObjectFileFormat::Windows>
        // =============================================================
@@ -91,13 +92,13 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
 
     bdlma::HeapBypassAllocator hbpAlloc;
 
-    bdlqq::QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
+    bdlqq::QLockGuard guard(&DbghelpDllImpl_Windows::qLock());
 
-    baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
-                                 | SYMOPT_LOAD_LINES
-                                 | SYMOPT_DEFERRED_LOADS);
+    DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+                                          | SYMOPT_LOAD_LINES
+                                          | SYMOPT_DEFERRED_LOADS);
 
-    //                           | SYMOPT_DEBUG);
+    //                                    | SYMOPT_DEBUG);
 
     int numFrames = stackTrace->length();
     LibNameMap libNameMap(&hbpAlloc);
@@ -124,10 +125,9 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
 
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
-        int rc = baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
-                                                               address,
-                                                               &offsetFromLine,
-                                                               &line);
+        int rc = DbghelpDllImpl_Windows::symGetLineFromAddr64(address,
+                                                              &offsetFromLine,
+                                                              &line);
         if (rc) {
             frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
@@ -141,16 +141,15 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
         sym->SizeOfStruct = sizeof(*sym);
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
-        rc = baesu_DbghelpDllImpl_Windows::symFromAddr(address,
-                                                       &offsetFromSymbol,
-                                                       sym);
+        rc = DbghelpDllImpl_Windows::symFromAddr(address,
+                                                 &offsetFromSymbol,
+                                                 sym);
 #else
         BSLMF_ASSERT(sizeof(void *) == 8);
         sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
-        rc = baesu_DbghelpDllImpl_Windows::symGetSymFromAddr64(
-                                                             address,
-                                                             &offsetFromSymbol,
-                                                             sym);
+        rc = DbghelpDllImpl_Windows::symGetSymFromAddr64(address,
+                                                         &offsetFromSymbol,
+                                                         sym);
 #endif
         if (rc) {
             // windows is always demangled

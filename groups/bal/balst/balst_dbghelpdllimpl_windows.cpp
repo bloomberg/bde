@@ -269,16 +269,17 @@ bool Dbghelp_Util::isLoaded() const
 // DATA
 static Dbghelp_Util dbghelp_util = {};    // all zeroes
 
-                              // -------------
-                              // balst::DbghelpDllImpl_Windows
-                              // -------------
-
 namespace BloombergLP {
+
+namespace balst {
+
+                           // ----------------------
+                           // DbghelpDllImpl_Windows
+                           // ----------------------
 
 // DATA
 bdlqq::QLock balst::DbghelpDllImpl_Windows::s_qLock = BDLQQ_QLOCK_INITIALIZER;
 
-namespace balst {
 // CLASS METHODS
 bool DbghelpDllImpl_Windows::isLoaded()
 {
@@ -292,11 +293,9 @@ DWORD DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
 
     return (*dbghelp_util.d_symSetOptions)(symOptions);
 }
-}  // close package namespace
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 
-namespace balst {
 BOOL DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
                                                PDWORD64     displacement,
                                                PSYMBOL_INFO symbol)
@@ -311,11 +310,9 @@ BOOL DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
                                          displacement,
                                          symbol);
 }
-}  // close package namespace
 
 #else
 
-namespace balst {
 BOOL DbghelpDllImpl_Windows::symGetSymFromAddr64(
                                                DWORD64            address,
                                                PDWORD64           displacement,
@@ -331,11 +328,9 @@ BOOL DbghelpDllImpl_Windows::symGetSymFromAddr64(
                                                  displacement,
                                                  symbol);
 }
-}  // close package namespace
 
 #endif
 
-namespace balst {
 BOOL DbghelpDllImpl_Windows::symGetLineFromAddr64(
                                               DWORD64          dwAddr,
                                               PDWORD           pdwDisplacement,

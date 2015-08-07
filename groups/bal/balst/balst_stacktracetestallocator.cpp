@@ -32,10 +32,10 @@ namespace {
 typedef BloombergLP::balst::StackAddressUtil AddressUtil;
 
 enum {
-    IGNORE_FRAMES = AddressUtil::BAESU_IGNORE_FRAMES,
+    IGNORE_FRAMES = AddressUtil::BALST_IGNORE_FRAMES,
         // On some platforms, gathering the stack pointers wastes one frame
         // gathering the address of 'AddressUtil::getStackAddresses', which is
-        // reflected in whether 'AddressUtil::BAESU_IGNORE_FRAMES' is 0 or 1.
+        // reflected in whether 'AddressUtil::BALST_IGNORE_FRAMES' is 0 or 1.
         // This constant allows us to adjust for this and not display that
         // frame as it is of no interest to the user.
 

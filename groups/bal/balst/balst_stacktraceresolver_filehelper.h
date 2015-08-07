@@ -12,8 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balst::StackTraceResolver_FileHelper: file input for stack trace resolvers
 //
-//@SEE_ALSO: baesu::StackTraceResolverImpl_Elf
-//           baesu::StackTraceResolverImpl_Xcoff
+//@SEE_ALSO: balst::StackTraceResolverImpl_Elf
+//           balst::StackTraceResolverImpl_Xcoff
 //
 //@AUTHOR: Bill Chapman
 //
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 //
 //  char fileNameBuffer[100];
 //  sprintf(fileNameBuffer,
-//          "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
+//          "/tmp/balst_StackTraceResolver_FileHelper.usage.%d.txt",
 //          getProcessId());
 //..
 // Make sure file does not already exist.

@@ -32,7 +32,7 @@ bsl::ostream& StackTracePrintUtil::printStackTrace(
 
     enum {
         DEFAULT_MAX_FRAMES = 1024,
-        IGNORE_FRAMES      = StackAddressUtil::BAESU_IGNORE_FRAMES
+        IGNORE_FRAMES      = StackAddressUtil::BALST_IGNORE_FRAMES
     };
 
     if (maxFrames < 0) {

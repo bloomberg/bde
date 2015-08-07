@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// 'baesu::StackTraceResolver<Dladdr>', that, given a vector of
+// 'balst::StackTraceResolver<Dladdr>', that, given a vector of
 // 'balst::StackTraceFrame' objects that have only their 'address' fields set,
 // resolves some of the other fields in those frames.  This resolver will work
 // for any platform that supports the 'dladdr' function (e.g., Darwin and
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

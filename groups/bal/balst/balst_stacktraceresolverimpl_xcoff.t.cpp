@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // baesu::StackTraceResolverImp<Xcoff> BREATHING TEST
+        // balst::StackTraceResolverImp<Xcoff> BREATHING TEST
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //
@@ -342,8 +342,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                        "balst::StackTraceResolverImpl<Xcoff> breathing test\n"
-                        "==================================================\n";
+                       "balst::StackTraceResolverImpl<Xcoff> breathing test\n"
+                       "===================================================\n";
 
         // There seems to be a problem with taking a pointer to an function in
         // a shared library.  We'll leave the testing of symbols in shared

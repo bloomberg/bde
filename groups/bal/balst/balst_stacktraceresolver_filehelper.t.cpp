@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
    || defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     const char *tmpDirName       = "/tmp";
     const char *fileNameTemplate =
-                          "/tmp/baesu_StackTraceResolver_FileHelper.%d.%d.txt";
+                          "/tmp/balst_StackTraceResolver_FileHelper.%d.%d.txt";
 
     ASSERT(FilesystemUtil::exists(tmpDirName) &&
                                       FilesystemUtil::isDirectory(tmpDirName));
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 
     char fileNameBuffer[100];
     sprintf(fileNameBuffer,
-            "/tmp/baesu_StackTraceResolver_FileHelper.usage.%d.txt",
+            "/tmp/balst_StackTraceResolver_FileHelper.usage.%d.txt",
             getProcessId());
 //..
 // Make sure file does not already exist.

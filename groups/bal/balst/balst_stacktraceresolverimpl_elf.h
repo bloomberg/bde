@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// 'baesu::StackTraceResolver<Elf>', that, given a vector of
+// 'balst::StackTraceResolver<Elf>', that, given a vector of
 // 'balst::StackTraceFrame's that have only their 'address' fields set,
 // resolves all other fields in those frames.  The Elf object file format is
 // used on Linux, Solaris, and HP-UX platforms.  The Elf format is described by
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

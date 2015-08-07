@@ -116,7 +116,7 @@ using bsl::ostream;
 // CREATORS
 // [ 2] StackTraceFrame(bslma::Allocator *bA = 0);
 // [ 3] StackTraceFrame(cvp, cSR, int, cSR, siz, cSR, cSR, *bA = 0);
-// [ 7] StackTraceFrame(const baesu::STF& o, *bA = 0);
+// [ 7] StackTraceFrame(const balst::STF& o, *bA = 0);
 // [ 2] ~StackTraceFrame();
 //
 // MANIPULATORS
@@ -153,7 +153,7 @@ using bsl::ostream;
 // FREE OPERATORS
 // [ 6] bool operator==(const balst::StackTraceFrame& lhs, rhs);
 // [ 6] bool operator!=(const balst::StackTraceFrame& lhs, rhs);
-// [ 5] operator<<(bsl::ostream& s, const baesu::STF& f);
+// [ 5] operator<<(bsl::ostream& s, const balst::STF& f);
 //
 // FREE FUNCTIONS
 // [ 8] void swap(balst::StackTraceFrame& a, b);

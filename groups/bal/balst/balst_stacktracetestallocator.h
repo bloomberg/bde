@@ -448,7 +448,7 @@ BSLS_IDENT("$Id: $")
 //  llocator<char> > const&)+0x31 at 0x804c3db in balst_stacktracetestallocator
 //  .t.dbg_exc_mt
 //  (3): ShipsCrew::setCook(bsl::basic_string<char, std::char_traits<char>, bsl
-//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in baesu_stacktracetestalloca
+//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in balst_stacktracetestalloca
 //  tor.t.dbg_exc_mt
 //  (4): ShipsCrew::ShipsCrew(char const*, BloombergLP::bslma::Allocator*)+0x23
 //  4 at 0x804c738 in balst_stacktracetestallocator.t.dbg_exc_mt

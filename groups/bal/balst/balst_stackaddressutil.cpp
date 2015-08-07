@@ -80,7 +80,7 @@ BSLS_IDENT_RCSID(balst_stackaddressutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
                               // ------------------
-                              // baesu::StackAddress
+                              // balst::StackAddress
                               // ------------------
 
 
@@ -88,8 +88,9 @@ namespace BloombergLP {
 #if defined(BSLS_PLATFORM_OS_AIX)
 
 namespace balst {
+
 int StackAddressUtil::getStackAddresses(void **buffer,
-                                              int    maxFrames)
+                                        int    maxFrames)
 {
     BSLS_ASSERT(0 <= maxFrames);
 
@@ -124,6 +125,7 @@ int StackAddressUtil::getStackAddresses(void **buffer,
 
     return frameIndex;
 }
+
 }  // close package namespace
 
 // AIX
@@ -161,6 +163,7 @@ void freeCallBack(void *allocator, void *segmentPtr)
 }  // extern "C"
 
 namespace balst {
+
 int StackAddressUtil::getStackAddresses(void **buffer,
                                               int    maxFrames)
 {
@@ -218,6 +221,7 @@ int StackAddressUtil::getStackAddresses(void **buffer,
 
     return maxFrames;
 }
+
 }  // close package namespace
 
 // HPUX
@@ -225,6 +229,7 @@ int StackAddressUtil::getStackAddresses(void **buffer,
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
 
 namespace balst {
+
 int StackAddressUtil::getStackAddresses(void    **buffer,
                                               int       maxFrames)
 {
@@ -246,6 +251,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 
     return backtrace(buffer, maxFrames);
 }
+
 }  // close package namespace
 
 // LINUX & DARWIN
@@ -268,9 +274,9 @@ extern char **_environ;
 
 #if defined(BSLS_PLATFORM_CPU_SPARC)
 
-void baesu_StackAddressUtil_SparcAsmDummy()
+void balst_StackAddressUtil_SparcAsmDummy()
     // This routine is never called.  It just provides a place to put the
-    // assembler routine 'baesu_StackAddressUtil_flushWinAndGetFP', which
+    // assembler routine 'balst_StackAddressUtil_flushWinAndGetFP', which
     // flushes the stack registers of the sparc processor to memory.  Note this
     // routine must be global to avoid the compiler issuing
     // 'static function never called' warnings.
@@ -284,9 +290,9 @@ void baesu_StackAddressUtil_SparcAsmDummy()
     // trick.  It was also found that recursing deeply also works, but that is
     // more brute force.
 
-    asm volatile(".global baesu_StackAddressUtil_flushAndGetFP\n"
-                 ".type baesu_StackAddressUtil_flushAndGetFP,#function\n"
-                 "baesu_StackAddressUtil_flushAndGetFP:\n"
+    asm volatile(".global balst_StackAddressUtil_flushAndGetFP\n"
+                 ".type balst_StackAddressUtil_flushAndGetFP,#function\n"
+                 "balst_StackAddressUtil_flushAndGetFP:\n"
                  "ta 0x03\n"
                  "mov %o6, %o0\n"
                  "retl\n"
@@ -294,7 +300,7 @@ void baesu_StackAddressUtil_SparcAsmDummy()
                  );
 }
 
-extern "C" char *baesu_StackAddressUtil_flushAndGetFP();
+extern "C" char *balst_StackAddressUtil_flushAndGetFP();
 
 #endif
 
@@ -311,7 +317,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 
 #if defined(BSLS_PLATFORM_CPU_SPARC)
     const frame *framePtr = (frame *) (void *)
-                         (baesu_StackAddressUtil_flushAndGetFP() + STACK_BIAS);
+                         (balst_StackAddressUtil_flushAndGetFP() + STACK_BIAS);
 
     // Calculate the base of the stack.  It is preferable to call
     // 'thr_stksegment', but it and 'thr_probe_getfunc_addr' may not be loaded.
@@ -366,6 +372,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 
     return frameIndex;
 }
+
 }  // close package namespace
 
 // SOLARIS
@@ -374,18 +381,19 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 
 namespace balst {
+
 int StackAddressUtil::getStackAddresses(void    **buffer,
-                                              int       maxFrames)
+                                        int       maxFrames)
 {
     BSLS_ASSERT(0 <= maxFrames);
 
-    bdlqq::QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
+    bdlqq::QLockGuard guard(&DbghelpDllImpl_Windows::qLock());
 
-    baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
-                                                | SYMOPT_LOAD_LINES
-                                                | SYMOPT_DEFERRED_LOADS);
+    DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+                                          | SYMOPT_LOAD_LINES
+                                          | SYMOPT_DEFERRED_LOADS);
 
-    //                                          | SYMOPT_DEBUG);
+    //                                    | SYMOPT_DEBUG);
 
     // See 'http://msdn.microsoft.com/en-us/library/ms680313(VS.85).aspx' for
     // details.
@@ -465,10 +473,10 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
     // stack frames at 0.
 
     for (stackFrameIndex = -1; stackFrameIndex < maxFrames; ++stackFrameIndex){
-        bool rc = baesu_DbghelpDllImpl_Windows::stackWalk64(MACHINE,
-                                                            currentThread,
-                                                            &stackFrame,
-                                                            &winContext);
+        bool rc = balst::DbghelpDllImpl_Windows::stackWalk64(MACHINE,
+                                                             currentThread,
+                                                             &stackFrame,
+                                                             &winContext);
         if (!rc) {
             break;
         }
@@ -479,6 +487,7 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 
     return stackFrameIndex < 0 ? 0 : stackFrameIndex;
 }
+
 }  // close package namespace
 
 // WINDOWS

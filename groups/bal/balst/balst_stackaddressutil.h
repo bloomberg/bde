@@ -208,12 +208,12 @@ BSLS_IDENT("$Id: $")
 //
 // Note that on some, but not all, platforms there is an extra 'narcissic'
 // frame describing 'getStackAddresses' itself at the beginning of 'buffer'.
-// By starting our iteration through 'buffer' at 'BAESU_IGNORE_FRAMES', we
+// By starting our iteration through 'buffer' at 'BALST_IGNORE_FRAMES', we
 // guarantee that the first address we examine will be in 'func1' on all
 // platforms.
 //..
 //      int funcIdx  = 1;
-//      int stackIdx = balst::StackAddressUtil::BAESU_IGNORE_FRAMES;
+//      int stackIdx = balst::StackAddressUtil::BALST_IGNORE_FRAMES;
 //      for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
 //          assert(stackIdx < numAddresses);
 //          assert(funcIdx == findIndex(buffer[stackIdx]));
@@ -257,13 +257,13 @@ struct StackAddressUtil {
 
     // On some platforms, 'getStackAddresses' finds a frame representing
     // 'getStackAddresses' itself.  This frame is usually unwanted.
-    // 'BAESU_IGNORE_FRAMES' instructs the caller as to whether the first frame
+    // 'BALST_IGNORE_FRAMES' instructs the caller as to whether the first frame
     // is such an unwanted frame.
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-    enum { BAESU_IGNORE_FRAMES = 1 };
+    enum { BALST_IGNORE_FRAMES = 1 };
 #else
-    enum { BAESU_IGNORE_FRAMES = 0 };
+    enum { BALST_IGNORE_FRAMES = 0 };
 #endif
 
     // CLASS METHODS

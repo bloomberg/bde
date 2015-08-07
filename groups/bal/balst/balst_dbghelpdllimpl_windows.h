@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single class,
 // 'balst::DbghelpDllImpl_Windows', that provides Windows platform-specific
-// facilities in support of the 'baesu' stack trace facility.  This component
+// facilities in support of the 'balst' stack trace facility.  This component
 // is *not* intended for public use.
 //
 // The 'balst::DbghelpDllImpl_Windows' class:
@@ -268,9 +268,9 @@ class DbghelpDllImpl_Windows {
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------------
+                        // ----------------------------
                         // class DbghelpDllImpl_Windows
-                        // ----------------------------------
+                        // ----------------------------
 
 // CLASS METHODS
 inline

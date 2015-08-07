@@ -18,14 +18,14 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// baesu::StackTraceResolver<Xcoff>, that, given a vector of
+// balst::StackTraceResolver<Xcoff>, that, given a vector of
 // 'balst::StackTraceFrame's that have only their 'address' fields set,
 // resolves all other fields in those frames.  Xcoff objects are used on AIX
 // platforms.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

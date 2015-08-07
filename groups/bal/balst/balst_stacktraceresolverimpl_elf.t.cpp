@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // baesu::StackTraceResolverImp<Elf> BREATHING TEST
+        // balst::StackTraceResolverImp<Elf> BREATHING TEST
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //

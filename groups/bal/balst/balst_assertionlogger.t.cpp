@@ -1,4 +1,4 @@
-// baesu_AssertionLogger.t.cpp                                        -*-C++-*-
+// balst_AssertionLogger.t.cpp                                        -*-C++-*-
 
 // Try to force assertion in string to trigger, for the usage example.
 #undef  BDE_BUILD_TARGET_SAFE_2
@@ -26,7 +26,7 @@ using namespace bsl;
 //--------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// We will use a 'baesu::TestObserver' to see whether the
+// We will use a 'balst::TestObserver' to see whether the
 // 'balst::AssertionLogger' system reports assertion failures at various
 // severity levels.
 //--------------------------------------------------------------------------

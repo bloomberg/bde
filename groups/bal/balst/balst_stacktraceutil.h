@@ -225,7 +225,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, the output appears as a collection of hex values streamed out
 // separated by spaces, which can be translated to symbol names using tools
-// outside of 'baesu':
+// outside of 'balst':
 //..
 // 0x804f806 0x804f7dc 0x804f7d5 0x804f7d5 0x804f7d5 0x804fbea 0x341e9c
 //..
