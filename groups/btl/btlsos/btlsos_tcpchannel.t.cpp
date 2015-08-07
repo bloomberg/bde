@@ -1,4 +1,4 @@
-// btlsos_tcpchannel.t.cpp      -*-C++-*-
+// btlsos_tcpchannel.t.cpp                                            -*-C++-*-
 
 #include <btlsos_tcpchannel.h>
 #include <btlsc_flag.h>
@@ -33,16 +33,15 @@ using namespace bsl;  // automatically added by script
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
-// The component under test provides concrete implementation of the
-// synchronous communication channel ('btlsc_channel') over TCP/IPv4 sockets.
-// The basic plan for the testing is to ensure that all methods in
-// the component work as expected.  By using the table-driven strategy, I/O
-// requests on a channel will be decoded from the set of test data.  Each test
-// data set is built based on both the 'black-box' concerns and code
-// investigation ('white-box').  The purpose of each test data set is to
-// resolve one or more concerns about that function.  For each test operation,
-// the result will be compared to the expected one which is calculated
-// beforehand.
+// The component under test provides concrete implementation of the synchronous
+// communication channel ('btlsc_channel') over TCP/IPv4 sockets.  The basic
+// plan for the testing is to ensure that all methods in the component work as
+// expected.  By using the table-driven strategy, I/O requests on a channel
+// will be decoded from the set of test data.  Each test data set is built
+// based on both the 'black-box' concerns and code investigation ('white-box').
+// The purpose of each test data set is to resolve one or more concerns about
+// that function.  For each test operation, the result will be compared to the
+// expected one which is calculated beforehand.
 //-----------------------------------------------------------------------------
 // [ 1] btlsos::TcpChannel()
 // [ 1] ~btlsos::TcpChannel()
@@ -184,14 +183,14 @@ enum {
     MAX_CMD       = 50,
     WRITE_OP      = 2,
     READ_OP       = 3,
-    HELPER_WRITE  = 100         // When an "AE" occurs during a 'read' which
-                                // is in 'non-interruptible' mode, some data
-                                // need to be written at the peer side for
-                                // the read to get data from the connection.
-                                // This means in THIS test driver, any read
-                                // request for "AE" interrupt test should be
-                                // waiting for less than "HELPER_WRITE" bytes
-                                // if it's in 'non-interruptible' mode.
+    HELPER_WRITE  = 100         // When an "AE" occurs during a 'read' which is
+                                // in 'non-interruptible' mode, some data need
+                                // to be written at the peer side for the read
+                                // to get data from the connection.  This means
+                                // in THIS test driver, any read request for
+                                // "AE" interrupt test should be waiting for
+                                // less than "HELPER_WRITE" bytes if it's in
+                                // 'non-interruptible' mode.
 };
 
 enum {
@@ -226,12 +225,12 @@ struct ConnectInfo {
 
      btlso::SocketHandle::Handle  d_socketHandle;
 
-     int                         d_signals;        // the number of signals
-                                                   // to be raised
+     int                         d_signals;        // the number of signals to
+                                                   // be raised
      int                         d_signalIoFlag;   // if this flag is set,
        // meaning some on-going I/O operation is in 'non-interruptible' mode,
-       // and so some data is needed to be writted at 'd_socketHandle' to
-       // "let" the channel's I/O operation go.
+       // and so some data is needed to be writted at 'd_socketHandle' to "let"
+       // the channel's I/O operation go.
 };
 
 // Test commands used to test 'btlsos::TcpChannel':
@@ -301,13 +300,13 @@ enum {
 };
 
 struct TestCommand {
-    // This struct includes needed information for each test operation,
-    // e.g., a request to "read", "writev" etc., along with it's corresponding
-    // test results.
+    // This struct includes needed information for each test operation, e.g., a
+    // request to "read", "writev" etc., along with it's corresponding test
+    // results.
     int d_lineNum;
 
-    int d_command;         // command to invoke a indicated
-                           // function specified above.
+    int d_command;         // command to invoke a indicated function specified
+                           // above.
     union {
       int d_numBytes;      // bytes to be read/written
       int d_numBuffers;    // buffers for readv/writev
@@ -317,8 +316,8 @@ struct TestCommand {
     union {
       int d_interruptFlags; // interruptible if it's set to positive
       int d_signalIoFlag;   // 1 == read from the peer side
-                            // 2 == write at the peer side
-                            // 0 == no read or write
+                            // 2 == write at the peer side 0 == no read or
+                            // write
     } flag;
     int d_expReturnValue;  // the return value from this command execution,
 
@@ -382,9 +381,9 @@ static void* threadSignalGenerator(void *arg)
     }
 
     bdlqq::ThreadUtil::microSleep(5 * SLEEP_TIME);
-                                    // The thread waits to make sure
-                                    // the main thread is hanging in the
-                                    // dispatch() call.
+                                    // The thread waits to make sure the main
+                                    // thread is hanging in the dispatch()
+                                    // call.
 
     for (int i = 0; i < threadInfo->d_signals; ++i) {
         pthread_kill(threadInfo->d_tid, SIGSYS);
@@ -494,8 +493,8 @@ static int buildChannelHelper(
                  btlso::SocketHandle::Handle                       *socketPair,
                  btlso::InetStreamSocketFactory<btlso::IPv4Address> *factory,
                  btlso::StreamSocket<btlso::IPv4Address>           **sSocket)
-    // Create a pair of sockets which are connected to each other and load
-    // them into the specified 'socketPair'.  Create a
+    // Create a pair of sockets which are connected to each other and load them
+    // into the specified 'socketPair'.  Create a
     // 'btlso::InetStreamSocketFactory' object and load it into 'sSocket'.
     // Return 0 on success, and nonzero otherwise.
 {
@@ -582,12 +581,12 @@ static int testExecutionHelper(
                       const btls::Ovec                       *oBuffer,
                       int                                   *idx)
     // Process the specified 'command' to invoke some operation of the
-    // specified 'channel', or the 'helperSocket' which is the control
-    // endpoint of the socket pair.  For a read operation, load either
-    // 'buffer' or 'ioBuffer' corresponding to the request.  For a write
-    // operation, write data from either 'buffer' or 'ioBuffer' or 'oBuffer'
-    // corresponding to the request.  Return the return value of the
-    // operation on success, and 0 if the called function returns nothing.
+    // specified 'channel', or the 'helperSocket' which is the control endpoint
+    // of the socket pair.  For a read operation, load either 'buffer' or
+    // 'ioBuffer' corresponding to the request.  For a write operation, write
+    // data from either 'buffer' or 'ioBuffer' or 'oBuffer' corresponding to
+    // the request.  Return the return value of the operation on success, and 0
+    // if the called function returns nothing.
 {
     int rCode = 0;
 
@@ -871,8 +870,8 @@ static int testExecutionHelper(
 #endif
     } break;
     case CLOSE_OBSERVE: {
-        // To close the channel socket to simulate "hard" errors.
-        // int ret = btlso::SocketImpUtil::close(socketPair[0]);
+        // To close the channel socket to simulate "hard" errors. int ret =
+        // btlso::SocketImpUtil::close(socketPair[0]);
         //  ASSERT(0 == ret);
 
         bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
@@ -915,23 +914,22 @@ static int testExecutionHelper(
 }
 
 static
-int processTest(btlsos::TcpChannel                *channel,
-                btlso::SocketHandle::Handle       *helperSocket,
-                TestCommand                      *commands,
-                char                             *buffer,
-                btls::Iovec                       *ioBuffer,
-                btls::Ovec                        *oBuffer)
+int processTest(btlsos::TcpChannel          *channel,
+                btlso::SocketHandle::Handle *helperSocket,
+                TestCommand                 *commands,
+                char                        *buffer,
+                btls::Iovec                 *ioBuffer,
+                btls::Ovec                  *oBuffer)
     // The specified 'numCommands' of test commands will be issued in the
-    // specified 'commands' to invoke functions in the specified 'channel',
-    // or the 'helperSocket' which is the control part of the socket pair.
-    // If the 'signals' is set, a thread taking the specified 'threadFunction'
-    // function will be generated to generate signals.  Results after each
-    // test will be compared against those expected which are also specified
-    // in the specified 'commands'.  For a read operation, load either
-    // 'buffer' or 'ioBuffer' corresponding to the request.  For a write
-    // operation, write data from either 'buffer' or 'ioBuffer' or 'oBuffer'
-    // corresponding to the request.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // specified 'commands' to invoke functions in the specified 'channel', or
+    // the 'helperSocket' which is the control part of the socket pair.  If the
+    // 'signals' is set, a thread taking the specified 'threadFunction'
+    // function will be generated to generate signals.  Results after each test
+    // will be compared against those expected which are also specified in the
+    // specified 'commands'.  For a read operation, load either 'buffer' or
+    // 'ioBuffer' corresponding to the request.  For a write operation, write
+    // data from either 'buffer' or 'ioBuffer' or 'oBuffer' corresponding to
+    // the request.  Return 0 on success, and a non-zero value otherwise.
 {
     bdlqq::ThreadUtil::Handle threadHandle[MAX_CMD];
     int ret = 0, idx = 0, numErrors = 0;
@@ -1040,8 +1038,8 @@ int main(int argc, char *argv[]) {
             QT("=============");
         }
         {
-            // First, a pair of sockets connecting each other on the local
-            // host are created for our example, which could be any connected
+            // First, a pair of sockets connecting each other on the local host
+            // are created for our example, which could be any connected
             // sockets on different hosts.  The channel only needs one of the
             // socket as its I/O request endpoint, while the other end of
             // connection will be used to write some data for the channel to
@@ -1075,11 +1073,11 @@ int main(int argc, char *argv[]) {
 
             {
                 // We should guarantee that the 'channel's destructor is
-                // invoked before the corresponding 'streamSocket'
-                // destructor, the behavior is undefined otherwise.
-                // We insure the required order by creating the 'channel'
-                // inside a block while the corresponding 'streamSocket'
-                // object outside the block as above.
+                // invoked before the corresponding 'streamSocket' destructor,
+                // the behavior is undefined otherwise.  We insure the required
+                // order by creating the 'channel' inside a block while the
+                // corresponding 'streamSocket' object outside the block as
+                // above.
 
                 Obj channel(sSocket);
                 ASSERT(0 == channel.isInvalid());
@@ -1240,9 +1238,8 @@ int main(int argc, char *argv[]) {
 //==========>
           {
             #if defined (BSLS_PLATFORM_OS_SOLARIS)
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the write method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the write method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVRO,          1,          0,           1,         0   },
@@ -1252,17 +1249,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,  WVRO,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_,  WVRO,           2,         0,        INVALID,      0   },
               {L_,  WVRI,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the write method w/o the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the write method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVRI,          1,          0,           1,         0   },
@@ -1272,16 +1268,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,  WVRI,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_,  WVRI,           2,         0,        INVALID,      0   },
               {L_,  WVRO,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
-            // Command set 3: Close the channel from the peer side to
-            // test the behavior of the write method w/o the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel from the peer side to test the
+            // behavior of the write method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, WVROA,          1,          0,           1,         0   },
@@ -1291,17 +1286,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,  WVRO,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent  write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_, WVROA,           2,         0,        INVALID,      0   },
               {L_, WVRIA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 4: Close the channel from the peer side to
-            // test the behavior of the write method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel from the peer side to test the
+            // behavior of the write method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, WVRIA,          1,          0,           1,         0   },
@@ -1311,17 +1305,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_, WVRIA,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_, WVRIA,           2,         0,        INVALID,      0   },
               {L_, WVROA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 5: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 5: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVRO,          1,          0,           1,         0   },
@@ -1331,17 +1324,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,  WVRO,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent  write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_,  WVRO,           2,         0,        INVALID,      0   },
               {L_,  WVRI,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 6: Close the channel at the channel side to
-            // test the behavior of the write method w/o the 'augStatus'
-            // parameter.
+            // Command set 6: Close the channel at the channel side to test the
+            // behavior of the write method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVRI,           1,         0,           1,         0   },
@@ -1351,17 +1343,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,  WVRI,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_,  WVRI,           2,         0,        INVALID,      0   },
               {L_,  WVRO,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 7: Close the channel at the channel side to
-            // test the behavior of the write method w/ the 'augStatus'
-            // parameter.
+            // Command set 7: Close the channel at the channel side to test the
+            // behavior of the write method w/ the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, WVROA,          1,          0,           1,         0   },
@@ -1371,17 +1362,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_, WVROA,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_, WVROA,           2,         0,        INVALID,      0   },
               {L_, WVRIA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 8: Close the channel at the channel side to
-            // test the behavior of the write method w/ the 'augStatus'
-            // parameter.
+            // Command set 8: Close the channel at the channel side to test the
+            // behavior of the write method w/ the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, WVRIA,           1,         0,           1,         0   },
@@ -1391,8 +1381,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_, WVRIA,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent write operations will not succeed any
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent write operations will not succeed any
                 // more.
               {L_, WVRIA,           2,         0,        INVALID,      0   },
               {L_, WVROA,           6,         0,        INVALID,      0   },
@@ -1675,8 +1665,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -1781,9 +1771,8 @@ int main(int argc, char *argv[]) {
 //==========>
           {
             #if defined (BSLS_PLATFORM_OS_UNIX)
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WVO,          1,          0,           1,         0   },
@@ -1792,17 +1781,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,   WVO,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,   WVO,           2,         0,        INVALID,      0   },
               {L_,   WVI,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WVI,           1,         0,           1,         0   },
@@ -1811,17 +1798,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,   WVI,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,   WVI,           2,         0,        INVALID,      0   },
               {L_,   WVO,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 3: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVOA,          1,          0,           1,         0   },
@@ -1830,17 +1815,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,  WVOA,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,  WVOA,           2,         0,        INVALID,      0   },
               {L_,  WVIA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 4: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVIA,           1,         0,           1,         0   },
@@ -1849,18 +1832,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,  WVIA,           7,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,  WVIA,           2,         0,        INVALID,      0   },
               {L_,  WVOA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
             #endif
             #if defined (BSLS_PLATFORM_OS_SOLARIS)
-            // Command set 5: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 5: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WVO,          1,          0,           1,         0   },
@@ -1869,17 +1850,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,   WVO,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,   WVO,           2,         0,        INVALID,      0   },
               {L_,   WVI,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 6: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 6: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WVI,           1,         0,           1,         0   },
@@ -1888,17 +1867,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,   WVI,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,   WVI,           2,         0,        INVALID,      0   },
               {L_,   WVO,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 7: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/ the 'augStatus'
-            // parameter.
+            // Command set 7: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/ the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVOA,          1,          0,           1,         0   },
@@ -1907,17 +1884,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,  WVOA,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,  WVOA,           2,         0,        INVALID,      0   },
               {L_,  WVIA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 8: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/ the 'augStatus'
-            // parameter.
+            // Command set 8: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/ the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,  WVIA,           1,         0,           1,         0   },
@@ -1926,9 +1901,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,  WVIA,           7,         0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,  WVIA,           2,         0,        INVALID,      0   },
               {L_,  WVOA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -2228,8 +2202,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -2325,9 +2299,8 @@ int main(int argc, char *argv[]) {
             //----   -------    --------   --------------   ------   ----------
 //==========>
           {
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,    WR,          1,          0,           1,         0   },
@@ -2340,18 +2313,17 @@ int main(int argc, char *argv[]) {
               {L_,   SLEEP,       200,         0,           0,         0   },
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    WR,   SYS_DEPENDENT_LEN, 0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    WR,         100,         0,        INVALID,      0   },
               {L_,   WRA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the write operation w/ the 'augStatus'
-            // parameter.  The first write operation is just to help the
-            // second write 'hanging' there waiting to write.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the write operation w/ the 'augStatus' parameter.
+            // The first write operation is just to help the second write
+            // 'hanging' there waiting to write.
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WRA,          1,          0,           1,         0   },
@@ -2362,17 +2334,15 @@ int main(int argc, char *argv[]) {
               {L_,   SLEEP,       200,         0,           0,         0   },
               {L_, CLOSE_CONTROL,  0,          0,           0,         0   },
               {L_,   WRA,   SYS_DEPENDENT_LEN, 0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,   WRA,         100,         0,        INVALID,      0   },
               {L_,    WR,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
             #if defined (BSLS_PLATFORM_OS_SOLARIS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,    WR,          1,          0,           1,         0   },
@@ -2381,18 +2351,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,  0,          0,           0,         0   },
               {L_,     W,   SYS_DEPENDENT_LEN, 0,         ERR,         0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    WR,         100,         0,        INVALID,      0   },
               {L_,   WRA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
 
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WRA,          1,          0,           1,         0   },
@@ -2402,9 +2370,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,  0,          0,           0,         0   },
               {L_,   WRA,   SYS_DEPENDENT_LEN, 0,         ERR,         0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_, SLEEP,         200,         0,           0,         0   },
               {L_,    WR,         100,         0,        INVALID,      0   },
               {L_,   WRA,          60,         0,        INVALID,      0   },
@@ -2428,9 +2395,8 @@ int main(int argc, char *argv[]) {
 
             #else                                  // unix test data
             #ifdef BSLS_PLATFORM_OS_SOLARIS
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,    WR,          1,          0,           1,         0   },
@@ -2440,18 +2406,16 @@ int main(int argc, char *argv[]) {
               {L_,   WRA,   SYS_DEPENDENT_LEN, 0,         8192,        0   },
               {L_, CLOSE_OBSERVE,  0,          0,           0,         0   },
               {L_,     W,   SYS_DEPENDENT_LEN, 0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    WR,         100,         0,        INVALID,      0   },
               {L_,   WRA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
 
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,   WRA,          1,          0,           1,         0   },
@@ -2461,9 +2425,8 @@ int main(int argc, char *argv[]) {
               {L_,   WRA,   SYS_DEPENDENT_LEN, 0,         8192,        0   },
               {L_, CLOSE_OBSERVE,  0,          0,           0,         0   },
               {L_,   WRA,   SYS_DEPENDENT_LEN, 0,         ERR,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    WR,         100,         0,        INVALID,      0   },
               {L_,   WRA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -2590,8 +2553,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -2690,9 +2653,8 @@ int main(int argc, char *argv[]) {
 //==========>
           {
             #if defined (BSLS_PLATFORM_OS_UNIX)
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,     W,          1,          0,           1,         0   },
@@ -2701,17 +2663,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,     W,   SYS_DEPENDENT_LEN, 0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     W,         100,         0,        INVALID,      0   },
               {L_,    WA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method w the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,    WA,          1,          0,           1,         0   },
@@ -2720,18 +2680,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    WA,   SYS_DEPENDENT_LEN, 0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    WA,         100,         0,        INVALID,      0   },
               {L_,     W,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
             #endif
             #if defined (BSLS_PLATFORM_OS_SOLARIS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,     W,          1,          0,           1,         0   },
@@ -2740,18 +2698,16 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,  0,          0,           0,         0   },
               {L_,     W,   SYS_DEPENDENT_LEN, 0,         ERR,         0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     W,         100,         0,        INVALID,      0   },
               {L_,    WA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
 
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_,    WA,          1,          0,           1,         0   },
@@ -2760,9 +2716,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_OBSERVE,  0,          0,           0,         0   },
               {L_,   WA,   SYS_DEPENDENT_LEN,    0,       ERR,         0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     W,         100,         0,        INVALID,      0   },
               {L_,    WA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -2955,8 +2910,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -3067,9 +3022,8 @@ int main(int argc, char *argv[]) {
             //----   -------    --------   --------------   ------   ----------
 //==========>
           {
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3080,17 +3034,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,     RBR,       100,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     RBR,       100,         0,        INVALID,      0   },
               {L_,    RBRA,        60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method w the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3100,9 +3052,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    RBRA,       100,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     RBR,        100,         0,        INVALID,      0   },
               {L_,    RBRA,         60,         0,        INVALID,      0   },
               {L_,    -1,            0,         0,           0,         0   },
@@ -3110,16 +3061,15 @@ int main(int argc, char *argv[]) {
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,      50,         0,          50,         0   },
               {L_,     RBR,         16,         0,          16,         0   },
               {L_,     RBR,         60,         0,          34,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,    0,         0,           0,         0   },
               {L_,    RBRA,         20,         0,         ERR,       0   },
               {L_,     RBR,         80,         0,        INVALID,      0   },
@@ -3127,16 +3077,15 @@ int main(int argc, char *argv[]) {
               {L_,    -1,            0,         0,           0,         0   },
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,      50,         0,          50,         0   },
               {L_,    RBRA,         16,         0,          16,         0   },
               {L_,    RBRA,         60,         0,          34,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,    0,         0,           0,         0   },
               {L_,    RBRA,         20,         1,         ERR,       0   },
               {L_,     RBR,         80,         1,        INVALID,      0   },
@@ -3167,10 +3116,10 @@ int main(int argc, char *argv[]) {
 
             #else
 
-            // Commands set 5: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'readRaw' method w/o the
-            // 'augStatus' parameter (concern 4 - 5).
+            // Commands set 5: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'readRaw' method w/o the 'augStatus'
+            // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,      50,         0,          50,         0   },
@@ -3188,18 +3137,18 @@ int main(int argc, char *argv[]) {
               {L_,    RBR,           3,         0,           3,         0   },
               {L_,   SIGNAL,         0,    WRITE_OP,         0,         0   },
                 // Now there's no data in the internal buffer, any new "read"
-                // request has to read directly from the channel.
-                // the last one is a "raw" operation.
+                // request has to read directly from the channel. the last one
+                // is a "raw" operation.
               {L_,   RBRA,          50,         0,           1,         0  },
               {L_, HELP_WRITE,      20,         0,          20,         0  },
               {L_,   RBRA,          50,         0,          20,         0  },
               {L_,   -1,             0,         0,           0,         0  },
             },
 
-            // Commands set 6: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the "read" method under test with
-            // the 'augStatus' parameter (concern 4 - 5).
+            // Commands set 6: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the "read" method under test with the
+            // 'augStatus' parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3220,8 +3169,8 @@ int main(int argc, char *argv[]) {
               {L_,   SIGNAL,       0,    WRITE_OP,          0,         0   },
               {L_,    RBRA,       90,          0,           1,         0   },
                 // Now there's no data in the internal buffer, any new "read"
-                // request has to read directly from the channel.
-                // the last one is a "raw" operation.
+                // request has to read directly from the channel. the last one
+                // is a "raw" operation.
               {L_,   RBRA,        50,         0,          50,         0   },
               {L_,   -1,           0,         0,           0,         0   },
 
@@ -3234,16 +3183,15 @@ int main(int argc, char *argv[]) {
               {L_,    RBA,         10,         0,          10,         0   },
               {L_,     RB,         15,         0,          15,         0   },
               {L_,    RBA,         20,         0,          20,         0   },
-                // When there is no enough data (but some data is available),
-                // a 'readRaw' will return the number of bytes it read.
+                // When there is no enough data (but some data is available), a
+                // 'readRaw' will return the number of bytes it read.
               {L_,    RBR,         25,         0,           4,         0   },
               {L_, HELP_WRITE,     10,         0,          10,         0   },
               {L_,   RRA,          35,         0,          10,         0   },
-                // There is no data left in the TCP buffer for next
-                // request, so even though an "asynchronous event" happens
-                // and the 'readRaw' will keep waiting for some data to come,
-                // no matter if it's in 'non-interruptible' or 'interruptible'
-                // mode.
+                // There is no data left in the TCP buffer for next request, so
+                // even though an "asynchronous event" happens and the
+                // 'readRaw' will keep waiting for some data to come, no matter
+                // if it's in 'non-interruptible' or 'interruptible' mode.
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
               {L_,    RBR,        105,         1,         100,         0   },
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
@@ -3270,8 +3218,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -3380,9 +3328,8 @@ int main(int argc, char *argv[]) {
             //----   -------    --------   --------------   ------   ----------
 //==========>
           {
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3392,17 +3339,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,     RB,        100,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     RB,        100,         0,        INVALID,      0   },
               {L_,    RBA,         60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method w the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3412,9 +3357,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    RBA,        100,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     RB,        100,         0,        INVALID,      0   },
               {L_,    RBA,         60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -3422,16 +3366,15 @@ int main(int argc, char *argv[]) {
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,     RB,          1,         0,           1,         0   },
               {L_,     RB,         30,         0,          30,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,    RBA,         20,         0,         ERR,         0   },
               {L_,     RB,         80,         0,        INVALID,      0   },
@@ -3439,9 +3382,8 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3449,8 +3391,8 @@ int main(int argc, char *argv[]) {
               {L_,    RBA,         10,         0,          10,         0   },
               {L_,     RB,         15,         0,          15,         0   },
               {L_,    RBA,         20,         0,          20,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,    RBA,         20,         1,         ERR,         0   },
               {L_,     RB,         80,         1,        INVALID,      0   },
@@ -3481,10 +3423,10 @@ int main(int argc, char *argv[]) {
             },
 
             #else
-            // Commands set 5: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'readRaw' method w/o the
-            // 'augStatus' parameter (concern 4 - 5).
+            // Commands set 5: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'readRaw' method w/o the 'augStatus'
+            // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3505,14 +3447,14 @@ int main(int argc, char *argv[]) {
               {L_,   SIGNAL,        0,  WRITE_OP,           0,         0   },
               {L_,    RB,          90,         0,          90,         0   },
                 // Now there's no data in the internal buffer, any new "read"
-                // request has to read directly from the channel.
-                // the last one is a "raw" operation.
+                // request has to read directly from the channel. the last one
+                // is a "raw" operation.
               {L_,   RBRA,         50,         0,          11,         0   },
             },
-            // Commands set 6: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the "read" method under test with
-            // the 'augStatus' parameter (concern 4 - 5).
+            // Commands set 6: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the "read" method under test with the
+            // 'augStatus' parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3533,8 +3475,8 @@ int main(int argc, char *argv[]) {
               {L_,   SIGNAL,        0,  WRITE_OP,           0,         0   },
               {L_,    RBA,         90,         0,          90,         0   },
                 // Now there's no data in the internal buffer, any new "read"
-                // request has to read directly from the channel.
-                // the last one is a "raw" operation.
+                // request has to read directly from the channel. the last one
+                // is a "raw" operation.
               {L_,   RBRA,         50,         0,          11,         0   },
             },
             // commands set 7: to resolve concern 6 - 8.
@@ -3549,9 +3491,9 @@ int main(int argc, char *argv[]) {
                 // request, now we'll generate signals to interrupt it.
               {L_,  SIGNAL,         1,         0,           0,         0   },
               {L_,    RBA,          5,         1,           4, INTERRUPTED },
-                // This request is to remove data in the internal buffer due
-                // to the previous partial read, and so some other tests can
-                // be done.
+                // This request is to remove data in the internal buffer due to
+                // the previous partial read, and so some other tests can be
+                // done.
               {L_,    RBA,          4,         1,           4,         0   },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
@@ -3569,9 +3511,9 @@ int main(int argc, char *argv[]) {
               {L_, HELP_WRITE,     20,         0,          20,         0   },
               {L_,   SIGNAL,        1,  WRITE_OP,           0,         0   },
               {L_,     RBA,        25,         0,          25,         0   },
-                // The same situation for the 'read' operation, without
-                // the 'augStatus' as the parameter.  The behavior should be
-                // the same as above.
+                // The same situation for the 'read' operation, without the
+                // 'augStatus' as the parameter.  The behavior should be the
+                // same as above.
               {L_,   SIGNAL,        1,  WRITE_OP,           0,         0   },
               {L_,     RB,        150,         0,         150,         0   },
             },
@@ -3590,8 +3532,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -3698,9 +3640,8 @@ int main(int argc, char *argv[]) {
             //----   -------    --------   --------------   ------   ----------
 //==========>
           {
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3710,17 +3651,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    RVR,          6,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    RVR,          7,         0,        INVALID,      0   },
               {L_,   RVRA,          6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3730,9 +3669,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,   RVRA,          6,         0,        CLOSED,       0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    RVR,          7,         0,       INVALID,       0   },
               {L_,   RVRA,          6,         0,       INVALID,       0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -3740,16 +3678,15 @@ int main(int argc, char *argv[]) {
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,    RVR,          1,         0,           1,         0   },
               {L_,    RVR,          7,         0,          49,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,   RVRA,          6,         1,         ERR,         0   },
               {L_,    RVR,          4,         1,       INVALID,       0   },
@@ -3757,16 +3694,15 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,   RVRA,          2,         0,           4,         0   },
               {L_,   RVRA,          7,         0,          46,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,    RVR,          6,         1,         ERR,         0   },
               {L_,    RVR,          4,         1,        INVALID,      0   },
@@ -3797,10 +3733,10 @@ int main(int argc, char *argv[]) {
             },
 
             #else
-            // Commands set 5: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'read' method w/o the
-            // 'augStatus' parameter (concern 4).
+            // Commands set 5: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'read' method w/o the 'augStatus'
+            // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3810,25 +3746,25 @@ int main(int argc, char *argv[]) {
                 // try.
               {L_,   SIGNAL,        1,         0,           0,         0   },
               {L_,    RB,          80,         1,          50,         0   },
-                // Now a "read" will return right away because there's
-                // data in the internal buffer at this moment.
+                // Now a "read" will return right away because there's data in
+                // the internal buffer at this moment.
               {L_,    RVR,          2,         0,           4,         0   },
               {L_,    RVR,          3,         0,           9,         0   },
               {L_,    RVR,          6,         0,          35,         0   },
-                // The next 'read' keep reading data it needs until no data
-                // in the internal buffer.
+                // The next 'read' keep reading data it needs until no data in
+                // the internal buffer.
               {L_,    RVR,          4,         0,           2,         0   },
                 // Now there's no data in the internal buffer, any new "read"
-                // request has to read directly from the channel.
-                // the last one is a "raw" operation.
+                // request has to read directly from the channel. the last one
+                // is a "raw" operation.
               {L_, HELP_WRITE,     25,         0,          25,         0   },
               {L_,    RVR,          6,         0,          25,         0   },
             },
 
-            // Commands set 6: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'read' method with the
-            // 'augStatus' parameter (concern 4).
+            // Commands set 6: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'read' method with the 'augStatus'
+            // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -3838,15 +3774,15 @@ int main(int argc, char *argv[]) {
                 // try.
               {L_,   SIGNAL,        1,         0,           0,         0   },
               {L_,    RB,          80,         1,          50,         0   },
-                // Now a "read" will return right away because there's
-                // enough data in the internal buffer at this moment.
+                // Now a "read" will return right away because there's enough
+                // data in the internal buffer at this moment.
               {L_,   RVRA,          2,         0,           4,         0   },
               {L_,   RVRA,          3,         0,           9,         0   },
               {L_,   RVRA,          6,         0,          35,         0   },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
-                // which is at last available from the control endpoint
-                // through a thread.
+                // which is at last available from the control endpoint through
+                // a thread.
               {L_,   SIGNAL,        0,   WRITE_OP,          0,         0   },
               {L_,   RVRA,          4,         0,           2,         0   },
                 // There is enough data in the channel's TCP buffer, the
@@ -3869,16 +3805,15 @@ int main(int argc, char *argv[]) {
               {L_,    RVR,          3,         0,           4,         0   },
               {L_, HELP_WRITE,     10,         0,          10,         0   },
               {L_,   RVRA,          4,         1,          10,         0   },
-                // There is no data left in the TCP buffer for next
-                // request, so even though an "asynchronous event" happens
-                // and the 'readRaw' will keep waiting for some data to come,
-                // no matter if it's in 'non-interruptible' or 'interruptible'
-                // mode.
+                // There is no data left in the TCP buffer for next request, so
+                // even though an "asynchronous event" happens and the
+                // 'readRaw' will keep waiting for some data to come, no matter
+                // if it's in 'non-interruptible' or 'interruptible' mode.
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
               {L_,    RVR,          8,         1,         100,         0   },
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
               {L_,    RVR,          8,         0,         100,         0   },
-                // The same as above except  w/ 'augStatus' parameter
+                // The same as above except w/ 'augStatus' parameter
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
               {L_,   RVRA,          8,         1,         100,         0   },
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
@@ -3915,8 +3850,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -4027,9 +3962,8 @@ int main(int argc, char *argv[]) {
             //----   -------    --------   --------------   ------   ----------
 //==========>
           {
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4039,17 +3973,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    RV,           6,         0,      CLOSED,         0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    RV,           7,         0,        INVALID,      0   },
               {L_,   RVA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4059,9 +3991,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,   RVA,           6,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    RV,           7,         0,        INVALID,      0   },
               {L_,   RVA,           6,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -4069,16 +4000,15 @@ int main(int argc, char *argv[]) {
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,    RV,           1,         0,           1,         0   },
               {L_,    RV,           5,         0,          25,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,   RVA,           6,         1,         ERR,         0   },
               {L_,    RV,           4,         1,        INVALID,      0   },
@@ -4086,16 +4016,15 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,   RVA,           2,         0,           4,         0   },
               {L_,   RVA,           6,         0,          35,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,    RV,           6,         1,         ERR,         0   },
               {L_,    RV,           4,         1,        INVALID,      0   },
@@ -4126,10 +4055,10 @@ int main(int argc, char *argv[]) {
             },
 
             #else
-            // Commands set 5: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'read' method w/o the
-            // 'augStatus' parameter (concern 4 - 5).
+            // Commands set 5: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'read' method w/o the 'augStatus'
+            // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4139,15 +4068,15 @@ int main(int argc, char *argv[]) {
                 // try.
               {L_,   SIGNAL,        1,         0,           0,         0   },
               {L_,    RB,          80,         1,          50,         0   },
-                // Now a "read" will return right away because there's
-                // enough data in the internal buffer at this moment.
+                // Now a "read" will return right away because there's enough
+                // data in the internal buffer at this moment.
               {L_,    RV,           2,         0,           4,         0   },
               {L_,    RV,           3,         0,           9,         0   },
               {L_,    RV,           6,         0,          35,         0   },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
-                // which is at last available from the control endpoint
-                // through a thread.
+                // which is at last available from the control endpoint through
+                // a thread.
               {L_,   SIGNAL,        0,  WRITE_OP,           0,         0   },
               {L_,    RV,           4,         0,          16,         0   },
                 // There is enough data in the channel's TCP buffer, the
@@ -4157,10 +4086,10 @@ int main(int argc, char *argv[]) {
               {L_,   RBR,         150,         0,          51,         0   },
             },
 
-            // Commands set 6: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'read' method with the
-            // 'augStatus' parameter (concern 4 - 5).
+            // Commands set 6: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'read' method with the 'augStatus'
+            // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4170,15 +4099,15 @@ int main(int argc, char *argv[]) {
                 // try.
               {L_,   SIGNAL,        1,         0,           0,         0   },
               {L_,    RB,          80,         1,          50,         0   },
-                // Now a "read" will return right away because there's
-                // enough data in the internal buffer at this moment.
+                // Now a "read" will return right away because there's enough
+                // data in the internal buffer at this moment.
               {L_,   RVA,           2,         0,           4,         0   },
               {L_,   RVA,           3,         0,           9,         0   },
               {L_,   RVA,           6,         0,          35,         0   },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
-                // which is at last available from the control endpoint
-                // through a thread.
+                // which is at last available from the control endpoint through
+                // a thread.
               {L_,   SIGNAL,        0,  WRITE_OP,           0,         0   },
               {L_,   RVA,           4,         0,          16,         0   },
                 // There is enough data in the channel's TCP buffer, the
@@ -4216,9 +4145,9 @@ int main(int argc, char *argv[]) {
               {L_, HELP_WRITE,     20,         0,          20,         0   },
               {L_,   SIGNAL,        1,  WRITE_OP,           0,         0   },
               {L_,    RVA,          6,         0,          35,         0   },
-                // The same situation for the 'read' operation, without
-                // the 'augStatus' as the parameter.  The behavior should be
-                // the same as above.
+                // The same situation for the 'read' operation, without the
+                // 'augStatus' as the parameter.  The behavior should be the
+                // same as above.
               {L_,   SIGNAL,        1,  WRITE_OP,           0,         0   },
               {L_,    RV,           7,         0,          85,         0   },
             },
@@ -4253,8 +4182,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -4362,9 +4291,8 @@ int main(int argc, char *argv[]) {
             //----   -------    --------   --------------   ------   ----------
 //==========>
           {
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4375,17 +4303,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    RR,         100,         0,      CLOSED,         0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    RR,         100,         0,        INVALID,      0   },
               {L_,   RRA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4395,9 +4321,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,   RRA,         100,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,    RR,         100,         0,        INVALID,      0   },
               {L_,   RRA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -4405,16 +4330,15 @@ int main(int argc, char *argv[]) {
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,    RR,          16,         0,          16,         0   },
               {L_,    RR,          60,         0,          34,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,    RR,          20,         1,         ERR,         0   },
               {L_,    RR,          80,         1,        INVALID,      0   },
@@ -4422,16 +4346,15 @@ int main(int argc, char *argv[]) {
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,   RRA,          16,         0,          16,         0   },
               {L_,   RRA,          60,         0,          34,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,   RRA,          20,         0,         ERR,         0   },
               {L_,    RR,          80,         0,        INVALID,      0   },
@@ -4456,10 +4379,10 @@ int main(int argc, char *argv[]) {
             },
 
             #else
-            // Commands set 5: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'readRaw' method w/o the
-            // 'augStatus' parameter (concern 4).
+            // Commands set 5: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'readRaw' method w/o the 'augStatus'
+            // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4477,15 +4400,15 @@ int main(int argc, char *argv[]) {
                 // return data it can read.
               {L_,    RR,          15,         0,           6,         10  },
                 // Now there's no data in the internal buffer, any new "read"
-                // request has to read directly from the channel.
-                // the last one is a "raw" operation.
+                // request has to read directly from the channel. the last one
+                // is a "raw" operation.
               {L_, HELP_WRITE,     25,         0,          25,         0   },
               {L_,   RRA,          50,         0,          25,         0   },
             },
-            // Commands set 6: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'readRaw' method with the
-            // 'augStatus' parameter (concern 4).
+            // Commands set 6: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'readRaw' method with the 'augStatus'
+            // parameter (concern 4).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4503,8 +4426,8 @@ int main(int argc, char *argv[]) {
                 // return data it can read.
               {L_,    RRA,         15,          0,           6,         0  },
                 // Now there's no data in the internal buffer, any new "read"
-                // request has to read directly from the channel.
-                // the last one is a "raw" operation.
+                // request has to read directly from the channel. the last one
+                // is a "raw" operation.
               {L_, HELP_WRITE,      25,         0,          25,         0  },
               {L_,   RRA,           50,         0,          25,         0  },
             },
@@ -4521,11 +4444,10 @@ int main(int argc, char *argv[]) {
               {L_,    RR,          25,         0,           4,         0   },
               {L_, HELP_WRITE,     10,         0,          10,         0   },
               {L_,   RRA,          35,         0,          10,         0   },
-                // There is no data left in the TCP buffer for next
-                // request, so even though an "asynchronous event" happens
-                // and the 'readRaw' will keep waiting for some data to come,
-                // no matter if it's in 'non-interruptible' or 'interruptible'
-                // mode.
+                // There is no data left in the TCP buffer for next request, so
+                // even though an "asynchronous event" happens and the
+                // 'readRaw' will keep waiting for some data to come, no matter
+                // if it's in 'non-interruptible' or 'interruptible' mode.
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
               {L_,    RR,         105,         1,         100,         0   },
               {L_,  SIGNAL,         1,  WRITE_OP,           0,         0   },
@@ -4551,8 +4473,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -4663,9 +4585,8 @@ int main(int argc, char *argv[]) {
             //----   -------    --------   --------------   ------   ----------
 //==========>
           {
-            // Command set 1: Close the channel from the peer side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 1: Close the channel from the peer side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4675,17 +4596,15 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,     R,         100,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     R,         100,         0,        INVALID,      0   },
               {L_,    RA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
 
-            // Command set 2: Close the channel from the peer side to
-            // test the behavior of the 'read' method w the 'augStatus'
-            // parameter.
+            // Command set 2: Close the channel from the peer side to test the
+            // behavior of the 'read' method w the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4695,9 +4614,8 @@ int main(int argc, char *argv[]) {
                 // request is on going, so it'll return 'CLOSED'.
               {L_, CLOSE_CONTROL,   0,         0,           0,         0   },
               {L_,    RA,         100,         0,         CLOSED,      0   },
-                // The channel now is invalid due to the operation failure,
-                // and so the subsequent read operations will not succeed any
-                // more.
+                // The channel now is invalid due to the operation failure, and
+                // so the subsequent read operations will not succeed any more.
               {L_,     R,         100,         0,        INVALID,      0   },
               {L_,    RA,          60,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
@@ -4705,25 +4623,23 @@ int main(int argc, char *argv[]) {
 
             #if defined (BSLS_PLATFORM_OS_SOLARIS) || \
                 defined (BSLS_PLATFORM_OS_WINDOWS)
-            // Command set 3: Close the channel at the channel side to
-            // test the behavior of the 'read' method with the 'augStatus'
-            // parameter.
+            // Command set 3: Close the channel at the channel side to test the
+            // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
               {L_,     R,           1,         0,           1,         0   },
               {L_,     R,          30,         0,          30,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,    RA,          20,         0,         ERR,         0   },
               {L_,     R,          80,         0,        INVALID,      0   },
               {L_,    RA,          40,         0,        INVALID,      0   },
               {L_,    -1,           0,         0,           0,         0   },
             },
-            // Command set 4: Close the channel at the channel side to
-            // test the behavior of the 'read' method w/o the 'augStatus'
-            // parameter.
+            // Command set 4: Close the channel at the channel side to test the
+            // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4731,8 +4647,8 @@ int main(int argc, char *argv[]) {
               {L_,    RA,          10,         0,          10,         0   },
               {L_,     R,          15,         0,          15,         0   },
               {L_,    RA,          20,         0,          20,         0   },
-                // Now close the channel, and try some 'read' operations,
-                // each of which should return a "ERROR".
+                // Now close the channel, and try some 'read' operations, each
+                // of which should return a "ERROR".
               {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,    RA,          20,         1,         ERR,         0   },
               {L_,     R,          80,         1,        INVALID,      0   },
@@ -4757,10 +4673,10 @@ int main(int argc, char *argv[]) {
             },
 
             #else
-            // Commands set 5: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'read' method w/o the
-            // 'augStatus' parameter (concern 4 - 5).
+            // Commands set 5: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'read' method w/o the 'augStatus'
+            // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4775,8 +4691,8 @@ int main(int argc, char *argv[]) {
               {L_,     R,          40,         0,          40,         0   },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
-                // which is at last available from the control endpoint
-                // through a thread.
+                // which is at last available from the control endpoint through
+                // a thread.
               {L_,   SIGNAL,        0,  WRITE_OP,           0,         0   },
               {L_,     R,          15,         0,          15,         0   },
                 // There are 95 bytes in the channel's TCP buffer, the
@@ -4786,10 +4702,10 @@ int main(int argc, char *argv[]) {
               {L_,   RBR,          50,         0,          45,         0   },
             },
 
-            // Commands set 6: Establish a channel and make the expected
-            // number of bytes of data available in the channel's internal
-            // buffer, test the behavior of the 'read' method with the
-            // 'augStatus' parameter (concern 4 - 5).
+            // Commands set 6: Establish a channel and make the expected number
+            // of bytes of data available in the channel's internal buffer,
+            // test the behavior of the 'read' method with the 'augStatus'
+            // parameter (concern 4 - 5).
             {
                 // The control socket write 50 bytes to the channel for read.
               {L_, HELP_WRITE,     50,         0,          50,         0   },
@@ -4804,8 +4720,8 @@ int main(int argc, char *argv[]) {
               {L_,    RA,          40,         0,          40,         0   },
                 // The next 'read' can't find all data it needs, and so it'll
                 // try reading the remaining data from the channel directly,
-                // which is at last available from the control endpoint
-                // through a thread.
+                // which is at last available from the control endpoint through
+                // a thread.
               {L_,   SIGNAL,        0,  WRITE_OP,           0,         0   },
               {L_,    RA,          15,         0,          15,         0   },
                 // There are 95 bytes in the channel's TCP buffer, the
@@ -4842,9 +4758,9 @@ int main(int argc, char *argv[]) {
               {L_, HELP_WRITE,     20,         0,          20,         0   },
               {L_,   SIGNAL,        1,  WRITE_OP,           0,         0   },
               {L_,     RA,         25,         0,          25,         0   },
-                // The same situation for the 'read' operation, without
-                // the 'augStatus' as the parameter.  The behavior should be
-                // the same as above.
+                // The same situation for the 'read' operation, without the
+                // 'augStatus' as the parameter.  The behavior should be the
+                // same as above.
               {L_,   SIGNAL,        1,  WRITE_OP,           0,         0   },
               {L_,     R,         150,         0,         150,         0   },
             },
@@ -4863,8 +4779,8 @@ int main(int argc, char *argv[]) {
                 {
                     // We should guarantee that the 'channel's destructor is
                     // invoked before the corresponding 'streamSocket'
-                    // destructor and the behavior is undefined otherwise.
-                    // We insure the required order by creating the 'channel'
+                    // destructor and the behavior is undefined otherwise.  We
+                    // insure the required order by creating the 'channel'
                     // inside a block while the corresponding 'streamSocket'
                     // object outside the block as above.
 
@@ -4927,11 +4843,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

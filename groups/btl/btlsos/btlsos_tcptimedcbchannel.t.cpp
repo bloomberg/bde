@@ -17,13 +17,13 @@
 #include <bslma_testallocatorexception.h>     // for testing only
 #include <bsls_platform.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_c_signal.h>
 #include <bsl_iostream.h>
-#include <bsl_c_ctype.h>      // isdigit()
+#include <bsl_c_ctype.h>      // 'isdigit'
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-#include <winbase.h>    // sleep().
+#include <winbase.h>    // 'sleep'.
 #include <windows.h>
 #endif
 
@@ -36,19 +36,18 @@ using namespace bdlf::PlaceHolders;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test consists of a set of member functions that are
-// used to provides a non-blocking communication channel over TCP/IPv4 sockets
-// that adheres to 'btlsc::CbChannel' protocol.  The basic plan for the
-// testing is to ensure that all methods in the component work as expected.
-// By using the table-driven strategy, I/O requests on a channel will
-// be decoded from the request script, which is based on a specified
-// "SCRIPT" language.  To see how a script sentence looks and works, please
-// refer to the "SCRIPT" definition and document in the "GENERATOR FUNCTION
-// 'gg' FOR TESTING" section below.  Combining the complete set of test
-// cases in the test script, each single command parsed from the script
-// will be used to call a function to be tested.  The result can then
-// be compared against manually calculated values in a table to check if the
-// function being tested generates the correct results.
+// The component under test consists of a set of member functions that are used
+// to provides a non-blocking communication channel over TCP/IPv4 sockets that
+// adheres to 'btlsc::CbChannel' protocol.  The basic plan for the testing is
+// to ensure that all methods in the component work as expected.  By using the
+// table-driven strategy, I/O requests on a channel will be decoded from the
+// request script, which is based on a specified "SCRIPT" language.  To see how
+// a script sentence looks and works, please refer to the "SCRIPT" definition
+// and document in the "GENERATOR FUNCTION 'gg' FOR TESTING" section below.
+// Combining the complete set of test cases in the test script, each single
+// command parsed from the script will be used to call a function to be tested.
+// The result can then be compared against manually calculated values in a
+// table to check if the function being tested generates the correct results.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] btlsos::TcpTimedCbChannel(..., *manager, ...);
@@ -274,10 +273,9 @@ static void mySignal(int signo, void (*handler)(int) )
 
 static const char *get1stCbCommand(const char *commandSeq)
     // Get the first callback command to be executed in the user-installed
-    // callback function, which is enclosed in '{' and '}'.
-    // Return a pointer to the command sequence string, on success.
-    // Return 0 when there's no this kind of command or reaches the end of
-    // the command sequence.
+    // callback function, which is enclosed in '{' and '}'.  Return a pointer
+    // to the command sequence string, on success.  Return 0 when there's no
+    // this kind of command or reaches the end of the command sequence.
 {
     ASSERT("command shouldn't be null" && commandSeq);
 
@@ -291,9 +289,9 @@ static const char *get1stCbCommand(const char *commandSeq)
 
 static const char *getNextCbCommand(const char *cbCmd)
     // Return the next callback command in the command list if there's any;
-    // e.g., in callback command list "{W1;r3,3,0,{r2,2,0,{cr}};r2,3,0}",
-    // there are 3 commands to be executed in the user-installed callback,
-    // this function is to return the next callback command (but not the first
+    // e.g., in callback command list "{W1;r3,3,0,{r2,2,0,{cr}};r2,3,0}", there
+    // are 3 commands to be executed in the user-installed callback, this
+    // function is to return the next callback command (but not the first
     // callback command, which should be returned by get1stCbCommand() above.
     // return 0 if not any more.
 {
@@ -323,7 +321,7 @@ static const char *getNextCbCommand(const char *cbCmd)
 static int helpWrite(btlso::SocketHandle::Handle client, const char *buf,
                      int bufLen)
     // Write data into the channel, by which different read function can be
-    // tested.  return 0 on success, non-zero otherwise.
+    // tested. return 0 on success, non-zero otherwise.
 {
   if (0 == buf || 0 == bufLen)
       return 0;
@@ -436,8 +434,8 @@ static void bufferedReadCallback(const char                 *buf,
     else if (0 <= status) {
         if (0 == status) {
             ASSERT(augStatus < 0);
-            // Handle read operation being dequeued due to a partial
-            // result in some preceding enqueued "read" operation.
+            // Handle read operation being dequeued due to a partial result in
+            // some preceding enqueued "read" operation.
             if (veryVerbose) {
                 cout << "This request is dequeued!" << endl;
             }
@@ -512,8 +510,8 @@ static void readCallback(int                         status,
                 }
             }
             else {
-            // Handle read operation being dequeued due to a partial
-            // result in some preceding enqueued "read" operation.
+            // Handle read operation being dequeued due to a partial result in
+            // some preceding enqueued "read" operation.
                 if (veryVerbose) {
                     cout << "This request is dequeued!" << endl;
                 }
@@ -559,8 +557,8 @@ static void readCallback(int                         status,
     }
 }
 
-// The following callback function is used in the "Usage Example" test,
-// it was intentionally simplified so it's easy to read and understand.
+// The following callback function is used in the "Usage Example" test, it was
+// intentionally simplified so it's easy to read and understand.
 static void myReadCallback(int status,
                            int augStatus,
                            int expStatus,
@@ -580,8 +578,8 @@ static void myReadCallback(int status,
     if (0 <= status) {
         if (0 == status) {
             ASSERT(augStatus < 0);
-            // Handle read operation being dequeued due to a partial
-            // result in some preceding enqueued "read" operation.
+            // Handle read operation being dequeued due to a partial result in
+            // some preceding enqueued "read" operation.
             cout << "This request is dequeued!" << endl;
         }
         else if (augStatus > 0) {
@@ -635,8 +633,8 @@ static void readvCallback(int                         status,
     else if (0 <= status) {
         if (0 == status) {
             ASSERT(augStatus < 0);
-            // Handle read operation being dequeued due to a partial
-            // result in some preceding enqueued "read" operation.
+            // Handle read operation being dequeued due to a partial result in
+            // some preceding enqueued "read" operation.
             if (veryVerbose) {
                 cout << "This request is dequeued!" << endl;
             }
@@ -754,6 +752,7 @@ static void writeCallback(int                         status,
 //============================================================================
 //              GENERATOR FUNCTION 'gg' FOR TESTING
 //----------------------------------------------------------------------------
+//..
 // LANGUAGE SPECIFICATION:
 // -----------------------
 // <SCRIPT>   - the script string, which includes a list of "commands" to be
@@ -771,29 +770,30 @@ static void writeCallback(int                         status,
 //
 // LANGUAGE DEFINITION:
 // --------------------
-// <SCRIPT>  := <commands>
+// <SCRIPT>   := <commands>
 //
-// <commands>:= <cmd> | <cmd>;<commands> | EMPTY
+// <commands> := <cmd> | <cmd>;<commands> | EMPTY
 //
-// <cmd>     := <cmdCode>[<auxList>][<n1>[,'('<n2>,<n3>')'][,<n4>,<n5>]]
-//                       ['{'<commands>'}']
+// <cmd>      := <cmdCode>[<auxList>][<n1>[,'('<n2>,<n3>')'][,<n4>,<n5>]]
+//                        ['{'<commands>'}']
 //
-// <auxList> := <auxCmd> | <auxCmd> <auxList>
+// <auxList>  := <auxCmd> | <auxCmd> <auxList>
 //
-// <cmdCode> := 'r' | 'w' | 'd' | 'c'
+// <cmdCode>  := 'r' | 'w' | 'd' | 'c'
 //
-// <auxCmd>  := 'b' | 't' | 'r' | 'v' | 'a' | 'w' | EMPTY
+// <auxCmd>   := 'b' | 't' | 'r' | 'v' | 'a' | 'w' | EMPTY
 //
-// EMPTY     :=
+// EMPTY      :=
+//..
 //
 //----------------------------------------------------------------------------
-// The following interprets a given 'script' in the order from left to
-// right to configure a list of I/O request commands for a channel according
-// to the custom language defined above.  By parsing a request script that is
-// based on this language, each I/O request command, which is separated with
-// a ';' from other commands, will be executed and the result can then be
-// verified.  Commands enclosed in a pair of '{', '}' can be executed only in
-// the user-installed callback function.
+// The following interprets a given 'script' in the order from left to right to
+// configure a list of I/O request commands for a channel according to the
+// custom language defined above.  By parsing a request script that is based on
+// this language, each I/O request command, which is separated with a ';' from
+// other commands, will be executed and the result can then be verified.
+// Commands enclosed in a pair of '{', '}' can be executed only in the
+// user-installed callback function.
 //   s     - sleep the specified amount of time, to test timed I/O requests.
 //   d     - dispatch,
 //   dr    - read dispatch,
@@ -927,7 +927,7 @@ gg(btlsos::TcpTimedCbChannel   *channel,
 {
     // Decode the script based on the above language, execute one
     //   command in the script at a time.
-    // Parameter:  buffer  : should be big enough for reading or writing.
+    // Parameter: buffer : should be big enough for reading or writing.
     //                       the specific type for buffer is different for
     //                       different commands.
     //             rManager: a read event manager to dispatch readCallbacks.
@@ -1791,8 +1791,8 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         // Firstly, create a socket handle.  It's a pair of socket in our
-        // example to implement the test in one process, but the channel
-        // only needs one of the socket as its I/O requests' endpoint.
+        // example to implement the test in one process, but the channel only
+        // needs one of the socket as its I/O requests' endpoint.
 
         btlso::SocketHandle::Handle handles[2];
         int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
@@ -1811,26 +1811,26 @@ int main(int argc, char *argv[])
                       btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
         ASSERT(0 == ret);
 
-        // Next, create a 'btlso::StreamSocket' object, which is a part of
-        // the channel.  The 'btlso::StreamSocket' object has a field of type
-        // 'btlso::SocketHandle::Handle', whose value is set to the
-        // socket created above.
+        // Next, create a 'btlso::StreamSocket' object, which is a part of the
+        // channel.  The 'btlso::StreamSocket' object has a field of type
+        // 'btlso::SocketHandle::Handle', whose value is set to the socket
+        // created above.
         btlso::InetStreamSocketFactory<btlso::IPv4Address>
                                                     factory(&testAllocator);
         btlso::StreamSocket<btlso::IPv4Address> *sSocket =
                                             factory.allocate(handles[0]);
         ASSERT(sSocket);
 
-        // Client stream socket: it's not a part of the channel, only for
-        // the convenience of data reading in a test.
+        // Client stream socket: it's not a part of the channel, only for the
+        // convenience of data reading in a test.
          btlso::StreamSocket<btlso::IPv4Address> *cSocket =
                                             factory.allocate(handles[1]);
         ASSERT(cSocket);
 
         // Then the read and write event managers should be created, by which
-        // the channel can dispatch different I/O requests.  The read and
-        // write requests can share the same event manager, in that case read
-        // and write events will be registered in the same event queue.
+        // the channel can dispatch different I/O requests.  The read and write
+        // requests can share the same event manager, in that case read and
+        // write events will be registered in the same event queue.
         btlso::TcpTimerEventManager rEventManager(
                                      btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
@@ -1838,16 +1838,15 @@ int main(int argc, char *argv[])
                                      btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
         {
-            // We should guarantee that the 'channel's destructor is
-            // invoked before the corresponding 'streamSocket' destructor
-            // or the behavior is undefined.  We insure the required
-            // order by creating the 'channel' inside a block while
-            // the corresponding 'streamSocket' object outside the
-            // block as above.
+            // We should guarantee that the 'channel's destructor is invoked
+            // before the corresponding 'streamSocket' destructor or the
+            // behavior is undefined.  We insure the required order by creating
+            // the 'channel' inside a block while the corresponding
+            // 'streamSocket' object outside the block as above.
 
-            // At last, a channel object is created with the previously
-            // created 'btlso::StreamSocket' object, the
-            // 'btlso::TcpTimerEventManager' object.
+            // At last, a channel object is created with the previously created
+            // 'btlso::StreamSocket' object, the 'btlso::TcpTimerEventManager'
+            // object.
 
             btlsos::TcpTimedCbChannel channel(sSocket, &rEventManager,
                                              &wEventManager, &testAllocator);
@@ -1864,9 +1863,9 @@ int main(int argc, char *argv[])
 
             // We also need creating a functor object corresponding to the
             // specific I/O request to submit the request.  Associate this
-            // functor object with the expected bytest for this I/O request,
-            // a function pointer to a user-installed callback function which
-            // is usually to report this I/O request's execution status after
+            // functor object with the expected bytest for this I/O request, a
+            // function pointer to a user-installed callback function which is
+            // usually to report this I/O request's execution status after
             // being dispatched.
             int readLen1 = 5;
             int optFlag1 = 0;
@@ -1915,8 +1914,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == channel.numPendingWriteOperations());
             ASSERT(0 == channel.writeEventManager()->numEvents());
             ASSERT(0 == channel.writeEventManager()->numTimers());
-            // The client now writes data into its socket for the channel
-            // to read.
+            // The client now writes data into its socket for the channel to
+            // read.
             char writeBuf[21] = "abcdefghij1234567890";
             int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
                                                  strlen(writeBuf));
@@ -2169,8 +2168,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "wbvit7,(255,20),1,1540,0",0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "wbvit7,(665,30),1,1540,0",0,   2,    2,    2,    1, NVEC,   ""  },
    {L_, "R729",                    0,   2,    2,    2,    1, NVEC,   ""  },
@@ -2269,8 +2268,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "wbvit7,(5,20),1,74720,0", 0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "wbvit7,(5,30),1,74720,0", 0,   2,    2,    2,    1, NVEC,   ""  },
    {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
@@ -2368,8 +2367,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "wbvit7,(5,20),1,74720,0", 0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "wbvit7,(5,30),1,74720,0", 0,   2,    2,    2,    1, NVEC,   ""  },
    {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
@@ -2470,9 +2469,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -2490,15 +2489,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -2731,8 +2730,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -2741,8 +2740,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },/* 5 of 1000
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "w500,1,500,0",            0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -2820,8 +2819,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -2830,8 +2829,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "w500,1,500,0",            0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -2911,8 +2910,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, NVEC,   ""  },
@@ -2991,8 +2990,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },/*
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -3001,8 +3000,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },  */
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during the first dispatch.
    {L_, "w63728,1,63728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -3088,9 +3087,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -3108,15 +3107,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -3261,8 +3260,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wbt27728,(20,100),1,27728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "cw",                           0,   0,    0,    0,    0, NVEC,  ""  },
@@ -3295,25 +3294,24 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wbt27728,(250,100),1,27728,0", 0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt27728,(250,100),1,27728,0", 0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "R22379",                       0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.
    {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "w18,1,18,0",                   0,   1,    1,    1,    0, NVEC,  ""  },
    {L_, "R35000",                       0,   1,    1,    1,    0, NVEC,  ""  },
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt40,(250,100),1,40,0",       0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "R25000",                       0,   2,    1,    2,    1, NVEC,  ""  },
@@ -3373,8 +3371,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wbt1024,(20,100),1,1024,0",    0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt300,(20,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "cw",                           0,   0,    0,    0,    0, NVEC,  ""  },
@@ -3401,16 +3399,16 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt1120,(565,100),1,0,-1",     0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "R729",                         0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, /* 1 of 1000 fail
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.
    {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
    {L_, "R500",                         0,   2,    2,    2,    1, NVEC,  ""  },
@@ -3418,9 +3416,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, */
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "wbt40,(265,100),1,40,0",       0,   2,    2,    2,    1, NVEC,  ""  },
    {L_, "R500",                         0,   2,    2,    2,    1, NVEC,  ""  },
@@ -3438,8 +3435,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },  /* 1 of 1000 fail
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during first dispatch.
    {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt1120,(465,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "R729",                         0,   2,    1,    2,    1, NVEC,  ""  },
@@ -3491,8 +3488,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, NVEC,  ""  },
@@ -3528,8 +3525,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt30000,(500,100),1,0,-1",    0,   2,    1,    2,    1, NVEC,  ""  },
@@ -3537,11 +3534,11 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, /*
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
-   // The first requested must fill the buffers and be enqueued.
-   // The second request shall be enqueued.  Then we read the data
-   // thus making space available in the system buffers.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.  The first
+   // requested must fill the buffers and be enqueued.  The second request
+   // shall be enqueued.  Then we read the data thus making space available in
+   // the system buffers.
    {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
    {L_, "R40960",                       0,   2,    2,    2,    1, NVEC,  ""  },
@@ -3549,9 +3546,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, */
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wbt30000,(20,100),1,30000,0",  0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "wbt40,(20,100),1,40,0",        0,   2,    2,    2,    1, NVEC,  ""  },
    {L_, "R35000",                       0,   2,    2,    2,    1, NVEC,  ""  },
@@ -3569,8 +3565,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, */
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during first dispatch.
    {L_, "wbt16383,(10,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt16383,(10,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt30000,(650, 100),1,30000,0",0,   2,    1,    2,    1, NVEC,  ""  },
@@ -3623,8 +3619,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "cw",                           0,   0,    0,    0,    0, NVEC,  ""  },
@@ -3657,19 +3653,19 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt73728,(20,100),1,0,-1",     0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "R52379",                       0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, /*
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
-   // The first requested must fill the buffers and be enqueued.
-   // The second request shall be enqueued.  Then we read the data
-   // thus making space available in the system buffers.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.  The first
+   // requested must fill the buffers and be enqueued.  The second request
+   // shall be enqueued.  Then we read the data thus making space available in
+   // the system buffers.
    {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
    {L_, "R40960",                       0,   2,    2,    2,    1, NVEC,  ""  },
@@ -3677,9 +3673,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, */
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "wbt40,(20,100),1,40,0",        0,   2,    2,    2,    1, NVEC,  ""  },
    {L_, "R35000",                       0,   2,    2,    2,    1, NVEC,  ""  },
@@ -3697,8 +3692,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
    {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
  }, */
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during first dispatch.
    {L_, "wbt40960,(10,100),1,40960,0",  0,   0,    0,    0,    0, NVEC,  ""  },
    {L_, "wbt81920,(650, 100),1,81920,0",0,   2,    1,    2,    1, NVEC,  ""  },
    {L_, "R32786",                       0,   2,    1,    2,    1, NVEC,  ""  },
@@ -3786,9 +3781,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -3806,15 +3801,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -3958,8 +3953,7 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it.
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it. and dispatch.
    {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -3986,25 +3980,24 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb27728,1,27728,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R8379",                   0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.
    {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w18,1,18,0",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R25000",                  0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R25000",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -4050,8 +4043,7 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it.
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it. and dispatch.
    {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb30,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4078,16 +4070,16 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb1120,1,0,-1",           0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.
    {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
@@ -4095,9 +4087,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
    {L_, "R50 0",                   0,   1,    2,    1,    0, NVEC,   ""  },
@@ -4114,8 +4105,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  }, /* 2 of 1000 fail:
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during the first dispatch.
    {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -4154,8 +4145,7 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it.
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it. and dispatch.
    {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
@@ -4185,8 +4175,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb30000,1,0,-1",          0,   1,    1,    1,    0, NVEC,   ""  },
@@ -4194,8 +4184,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.
    {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
    {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
@@ -4203,9 +4193,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
    {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
@@ -4222,8 +4211,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during the first dispatch.
    {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
@@ -4263,8 +4252,7 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it.
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it. and dispatch.
    {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4291,16 +4279,16 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if the channel's buffer will be extended properly if a
-   // big chunk of data is to be written from a request.
+ { // Test if the channel's buffer will be extended properly if a big chunk of
+   // data is to be written from a request.
    {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb73728,1,0,-1",          0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a different kind of write request on the request queue
-   // can be finished after the previous buffered requests before it.
+ { // Test if a different kind of write request on the request queue can be
+   // finished after the previous buffered requests before it.
    {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
    {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
@@ -4308,9 +4296,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Test if a write request on the request queue which can't be
-   // finished once can be kept on the request queue and finished by
-   // following dispatches.
+ { // Test if a write request on the request queue which can't be finished once
+   // can be kept on the request queue and finished by following dispatches.
    {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
    {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
@@ -4327,8 +4314,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during the first dispatch.
    {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wb73680,1,73680,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -4394,9 +4381,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -4414,15 +4401,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -4556,8 +4543,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd                PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
@@ -4591,8 +4578,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvit7,(250,10),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit3,(250,10),1,0,-1",   0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4601,8 +4588,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during dispatch.
    {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit7,(250,100),1,29760,0",0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "R22379",                  0,   2,    1,    2,    1, NVEC,   ""  },
@@ -4684,8 +4671,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit3,(265,100),1,0,-1",  0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4694,8 +4681,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during dispatch.
    {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit7,(465,100),1,1024,0",0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "R729",                    0,   2,    1,    2,    1, NVEC,   ""  },
@@ -4777,8 +4764,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvit7,(20,10),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit7,(20,10),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit3,(20,10),1,0,-1",    0,   2,    1,    2,    1, NVEC,   ""  },
@@ -4788,8 +4775,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during dispatch.
    {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit8,(250,10),1,16383,0",0,   2,    1,    2,    1, NVEC,   ""  },
@@ -4874,8 +4861,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvit7,(20,10),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit3,(20,10),1,0,-1",    0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -4884,8 +4871,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during dispatch.
    {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvit7,(250,10),1,57344,0",0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
@@ -4994,9 +4981,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -5014,15 +5001,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -5157,8 +5144,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd                PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
   { // Issue 1 request, which should be finished without being enqueued.
@@ -5186,8 +5173,8 @@ int main(int argc, char *argv[])
    {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -5262,8 +5249,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -5272,8 +5259,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during dispatch.
    {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvi7,1,1024,0",           0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -5347,8 +5334,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
@@ -5358,8 +5345,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during dispatch.
    {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvi8,1,16384,0",          0,   1,    1,    1,    0, NVEC,   ""  },
@@ -5434,8 +5421,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -5444,8 +5431,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't send the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't send the specified
+   // length of data during dispatch.
    {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wvi7,1,57344,0",          0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -5527,9 +5514,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -5547,15 +5534,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -5691,8 +5678,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd                     PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----                     ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd                      PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                      ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
@@ -5735,8 +5722,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, NVEC,  "" },
    {L_, "wt3,(255,150),1,0,-1",          0,   2,    1,    2,    1, NVEC,  "" },
    {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
@@ -5824,8 +5811,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
    {L_, "wt30,(265,150),1,0,-1",         0,   2,    1,    2,    1, NVEC,  "" },
    {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
@@ -5843,8 +5830,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  },
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during dispatch the first time.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during dispatch the first time.
    {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
    {L_, "wt1120,(565,150),1,1120,0",     0,   2,    1,    2,    1, NVEC,  "" },
    {L_, "R829",                          0,   2,    1,    2,    1, NVEC,  "" },
@@ -5921,8 +5908,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
    {L_, "wt3,(20,150),1,0,-1",           0,   2,    1,    2,    1, NVEC,  "" },
    {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
@@ -5941,8 +5928,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  }, /*
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during dispatch the first time.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during dispatch the first time.
    {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
    {L_, "wt73680,(90,150),1,73680,0",    0,   2,    1,    2,    1, NVEC,  "" },
    {L_, "R65536",                        0,   2,    1,    2,    1, NVEC,  "" },
@@ -6017,8 +6004,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
    {L_, "wt3,(20,150),1,0,-1",           0,   2,    1,    2,    1, NVEC,  "" },
    {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
@@ -6036,8 +6023,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
    {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
  }, /*
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during dispatch the first time.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during dispatch the first time.
    {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
    {L_, "wt73680,(90,150),1,73680,0",    0,   2,    1,    2,    1, NVEC,  "" },
    {L_, "R65536",                        0,   2,    1,    2,    1, NVEC,  "" },
@@ -6125,9 +6112,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -6145,15 +6132,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -6288,8 +6275,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd                PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
@@ -6327,8 +6314,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6405,8 +6392,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },/*
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w30,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6424,8 +6411,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  }, /*
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during the first dispatch.
    {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w1120,1,1120,0",          0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -6496,8 +6483,8 @@ int main(int argc, char *argv[])
    {L_, "R52379",                  0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
@@ -6518,8 +6505,8 @@ int main(int argc, char *argv[])
    {L_, "R32000",                  0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during the first dispatch.
    {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w20000,1,20000,0",        0,   1,    1,    1,    0, NVEC,   ""  },
@@ -6588,8 +6575,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6607,8 +6594,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't finish the
-   // specified length of data during the first dispatch.
+ { // Enqueue 2 requests, make the second one couldn't finish the specified
+   // length of data during the first dispatch.
    {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "w73680,1,73680,0",        0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -6674,9 +6661,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -6694,15 +6681,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -6837,8 +6824,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd                PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
@@ -6866,8 +6853,8 @@ int main(int argc, char *argv[])
    {L_, "R22379",                      0,   2,    1,    2,    1, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request, try dispatching when non-writeable, so timeout
-   // will work.
+ { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
+   // work.
    {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt3,(20,100),1,0,0",         0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6882,8 +6869,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt3,(20,100),1,0,-1",        0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "cw",                          0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6901,8 +6888,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wrt28720,(15,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt29720,(5,10),1,29720,0",   0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "R22379",                      0,   2,    1,    2,    1, NVEC,   ""  },
@@ -6957,8 +6944,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request, try dispatching when non-writeable, so timeout
-   // will work.
+ { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
+   // work.
    {L_, "wrt1024,(20,100),1,1024,0",   0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt30,(20,100),1,0,0",        0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6973,8 +6960,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wrt1020,(265,100),1,1020,0",  0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt32,(250,100),1,0,-1",      0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "cw",                          0,   0,    0,    0,    0, NVEC,   ""  },
@@ -6992,8 +6979,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wrt1020,(255,100),1,1020,0",  0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt1120,(265,10),1,1024,0",   0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "R500",                        0,   2,    1,    2,    1, NVEC,   ""  },
@@ -7050,8 +7037,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request, try dispatching when non-writeable, so timeout
-   // will work.
+ { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
+   // work.
    {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt3,(200,100),1,0,0",        0,   2,    1,    2,    1, NVEC,   ""  },
@@ -7071,8 +7058,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt3,(250,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,   ""  },
@@ -7094,8 +7081,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wrt16383,(250,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt16383,(250,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt33000,(250,10),1,16383,0", 0,   2,    1,    2,    1, NVEC,   ""  },
@@ -7151,8 +7138,8 @@ int main(int argc, char *argv[])
    {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request, try dispatching when non-writeable, so timeout
-   // will work.
+ { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
+   // work.
    {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt3,(200,100),1,0,0",        0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7167,8 +7154,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt3,(250,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "cw",                          0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7186,8 +7173,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wrt73728,(250,100),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wrt73680,(250,10),1,57344,0", 0,   2,    1,    2,    1, NVEC,   ""  },
    {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
@@ -7286,9 +7273,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -7306,15 +7293,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -7449,8 +7436,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
+ //d_line d_cmd                PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
@@ -7487,8 +7474,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7506,8 +7493,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr29720,1,29720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -7571,8 +7558,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  }, /* 2 of 1000 fail: dw1
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr30,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7590,8 +7577,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },/*
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr1120,1,1024,0",         0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
@@ -7659,8 +7646,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
@@ -7680,8 +7667,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr33000,1,16384,0",       0,   1,    1,    1,    0, NVEC,   ""  },
@@ -7747,8 +7734,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 1 request and later cancel it, then enqueue a new request
-   // and dispatch.
+ { // Enqueue 1 request and later cancel it, then enqueue a new request and
+   // dispatch.
    {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
@@ -7766,8 +7753,8 @@ int main(int argc, char *argv[])
    {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
    {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
  },
- { // Enqueue 2 requests, make the second one couldn't extract the
-   // specified length of data during dispatch.
+ { // Enqueue 2 requests, make the second one couldn't extract the specified
+   // length of data during dispatch.
    {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
    {L_, "wr73680,1,57344,0",       0,   1,    1,    1,    0, NVEC,   ""  },
    {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
@@ -7831,9 +7818,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                                  &testAllocator);
@@ -7851,15 +7838,15 @@ int main(int argc, char *argv[])
                                     &eveManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -7998,10 +7985,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type   d_expD
- // ------  -----              ----- ----- ----- ------ ----- ----   ------
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type   d_expD
+ //------  -----               ----- ----- ----- ------ ----- ----   ------
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "ir",                     0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvrt6,(200,100),0,-1,0", 0,    0,    0,   0,    0,  NVEC,  ""       },
@@ -8035,17 +8022,17 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Enqueue 1 request, then dispatch: test if a read request can be
-   // finished properly when it can't be done once and so this request need
-   // to be dispatched again.
+ { // Enqueue 1 request, then dispatch: test if a read request can be finished
+   // properly when it can't be done once and so this request need to be
+   // dispatched again.
    {L_, "W20",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvrt4,(200,100),0,13,0", 1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
                                                           "1234567890abcd"   },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Test if a channel can still work correctly for new read request.after
-   // the previous reads are canceled.
+ { // Test if a channel can still work correctly for new read request.after the
+   // previous reads are canceled.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvrt4,(200,100),0,0,-1", 1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "cr",                     0,    0,    0,   0,    0,  NVEC,  ""       },
@@ -8053,8 +8040,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right
-   // away when there is enough data in the channel's read buffer.
+ { // Issue 2 requests, then dispatch: test if a request can be done right away
+   // when there is enough data in the channel's read buffer.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rb2,0,2,0",              1,    1,    0,   1,    0,  NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
@@ -8071,8 +8058,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "890"    },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Enqueue 2 requests, then dispatch when no enough data in the
-   // channel's read buffer.
+ { // Enqueue 2 requests, then dispatch when no enough data in the channel's
+   // read buffer.
    {L_, "W5",                     0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvrt2,(255,20),0,3,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "rvrt3,(255,10),0,2,0",   2,    2,    0,   2,    1,  NVEC,  ""       },
@@ -8093,8 +8080,8 @@ int main(int argc, char *argv[])
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
 #ifndef BSLS_PLATFORM_OS_LINUX
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_, "W10",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvrt2,(250,100),0,3,0,{rvrt3,(250,100),1,7,0}",
                                   1,    2,    0,   2,    1,  NVEC,  ""       },
@@ -8141,9 +8128,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -8173,15 +8160,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -8315,10 +8302,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type   d_expD
- // ------  -----              ----- ----- ----- ------ ----- ----   ------
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type   d_expD
+ //------  -----               ----- ----- ----- ------ ----- ----   ------
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "ir",                     0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvr6,0,-1,0",            0,    0,    0,   0,    0,  NVEC,  ""       },
@@ -8346,16 +8333,16 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Enqueue 1 request, then dispatch: test if a read request can be
-   // finished properly when enough data in the pipe.
+ { // Enqueue 1 request, then dispatch: test if a read request can be finished
+   // properly when enough data in the pipe.
    {L_, "W20",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvr4,0,13,0",            1,    1,    0,   1,    0,  NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
                                                           "1234567890abcd"   },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Test if a channel can still work correctly for new read request after
-   // the previous reads are canceled.
+ { // Test if a channel can still work correctly for new read request after the
+   // previous reads are canceled.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvr4,0,0,-1",            1,    1,    0,   1,    0,  NVEC,  ""       },
    {L_, "cr",                     0,    0,    0,   0,    0,  NVEC,  ""       },
@@ -8363,8 +8350,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right
-   // away when there is enough data in the channel's read buffer.
+ { // Issue 2 requests, then dispatch: test if a request can be done right away
+   // when there is enough data in the channel's read buffer.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rb2,0,2,0",              1,    1,    0,   1,    0,  NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
@@ -8380,8 +8367,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "890"    },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Enqueue 2 requests, then dispatch when no enough data in the
-   // channel's read buffer.
+ { // Enqueue 2 requests, then dispatch when no enough data in the channel's
+   // read buffer.
    {L_, "W5",                     0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
    {L_, "rvr3,0,2,0",             2,    1,    0,   1,    0,  NVEC,  ""       },
@@ -8400,8 +8387,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "12345"  },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_, "W10",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rvr2,0,3,0,{rvr3,1,7,0}",
                                   1,    1,    0,   1,    0,  NVEC,  ""       },
@@ -8444,9 +8431,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -8476,15 +8463,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -8611,10 +8598,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type   d_expD
- // ------  -----              ----- ----- ----- ------ ----- ----   ------
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type   d_expD
+ //------  -----               ----- ----- ----- ------ ----- ----   ------
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "ir",                     0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rbrt6,(20,100),0,-1,0",  0,    0,    0,   0,    0,  NVEC,  ""       },
@@ -8642,15 +8629,15 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j1"     },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Enqueue 1 request, then dispatch: test if a read request can be
-   // finished properly when no enough data in the pipe.
+ { // Enqueue 1 request, then dispatch: test if a read request can be finished
+   // properly when no enough data in the pipe.
    {L_, "W4",                     0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rbrt5,(20,100),0,4,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j123"   },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Test if a channel can still work correctly for new read request after
-   // the previous reads are canceled.
+ { // Test if a channel can still work correctly for new read request after the
+   // previous reads are canceled.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rbrt4,(20,100),0,0,-1",  1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "cr",                     0,    0,    0,   0,    0,  NVEC,  ""       },
@@ -8658,8 +8645,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j12"    },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right
-   // away when there is enough data in the channel's read buffer.
+ { // Issue 2 requests, then dispatch: test if a request can be done right away
+   // when there is enough data in the channel's read buffer.
    {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rbrt2,(20,100),0,2,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j1"     },
@@ -8667,8 +8654,8 @@ int main(int argc, char *argv[])
    {L_, "dr0",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right
-   // away when there is enough data in the channel's read buffer.
+ { // Issue 2 requests, then dispatch: test if a request can be done right away
+   // when there is enough data in the channel's read buffer.
    {L_, "rbrt2,(20,100),0,0,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rbrt5,(20,100),0,0,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
@@ -8682,8 +8669,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "456"    },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Enqueue 2 requests, then dispatch when no enough data in the
-   // channel's read buffer.
+ { // Enqueue 2 requests, then dispatch when no enough data in the channel's
+   // read buffer.
    {L_, "W5",                     0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rbt2,(5,200),0,2,0",     1,    2,    0,   2,    1,  NVEC,  ""       },
    {L_, "rbt5,(5,200),0,5,0",     2,    2,    0,   2,    1,  NVEC,  ""       },
@@ -8704,8 +8691,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j1234"  },
    {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_, "W10",                    0,    0,    0,   0,    0,  NVEC,  ""       },
    {L_, "rbrt3,(20,100),0,3,0,{rbrt2,(200,200),1,2,0}",
                                   1,    2,    0,   2,    1,  NVEC,  ""       },
@@ -8747,9 +8734,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -8765,15 +8752,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -8899,8 +8886,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type   d_expD
- // ------  -----              ----- ----- ----- ------ ----- ----   ------
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type   d_expD
+ //------  -----               ----- ----- ----- ------ ----- ----   ------
   // Try reading 0 bytes.
  { // Invalidate the channel, enter 1 request, then try dispatching: test
    // if any read request can be issued after the invalidation.
@@ -8931,15 +8918,15 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,   "j1"     },
    {L_,  0,                       0,   0,    0,   0,    0,  NVEC,    ""      }
  },
- { // Enqueue 1 request, then dispatch: test if a read request can be
-   // finished properly when no enough data in the pipe.
+ { // Enqueue 1 request, then dispatch: test if a read request can be finished
+   // properly when no enough data in the pipe.
    {L_, "W4",                     0,   0,    0,   0,    0,  NVEC,   ""       },
    {L_, "rbr5,0,4,0",             1,   1,    0,   1,    0,  NVEC,   ""       },
    {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,   "j123"   },
    {L_,  0,                       0,   0,    0,   0,    0,  NVEC,   ""       }
  },
- { // Test if a channel can still work correctly for new read request.after
-   // the previous reads are canceled.
+ { // Test if a channel can still work correctly for new read request.after the
+   // previous reads are canceled.
    {L_, "W11",                    0,   0,    0,   0,    0,  NVEC,   ""       },
    {L_, "rbr4,0,0,-1",            1,   1,    0,   1,    0,  NVEC,   ""       },
    {L_, "cr",                     0,   0,    0,   0,    0,  NVEC,   ""       },
@@ -8947,8 +8934,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,   "j12"    },
    {L_,  0,                       0,   0,    0,   0,    0,  NVEC,   ""       }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right
-   // away when there is enough data in the channel's read buffer.
+ { // Issue 2 requests, then dispatch: test if a request can be done right away
+   // when there is enough data in the channel's read buffer.
    {L_, "W11",                    0,   0,    0,   0,    0,  NVEC,  ""        },
    {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  NVEC,  ""        },
    {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "j1"      },
@@ -8963,8 +8950,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "456"     },
    {L_,  0,                       0,   0,    0,   0,    0,  NVEC,  ""        }
  },
- { // Enqueue 2 requests, then dispatch when no enough data in the
-   // channel's read buffer.
+ { // Enqueue 2 requests, then dispatch when no enough data in the channel's
+   // read buffer.
    {L_, "W5",                     0,   0,    0,   0,    0,  NVEC,  ""        },
    {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  NVEC,  ""        },
    {L_, "rbr5,0,3,0",             2,   1,    0,   1,    0,  NVEC,  ""        },
@@ -8981,8 +8968,8 @@ int main(int argc, char *argv[])
    {L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC,  "j1234"   },
    {L_,   0,                      0,   0,    0,   0,    0,  NVEC,  ""        }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_, "W10",                    0,   0,    0,   0,    0,  NVEC,  ""        },
    {L_, "rbr3,0,3,0,{rbr2,1,2,0}",
                                   1,   1,    0,   1,    0,  NVEC,  ""        },
@@ -9024,9 +9011,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -9042,15 +9029,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -9176,10 +9163,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type   d_expD
- // ------  -----              ----- ----- ----- ------ ----- ----   ------
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type   d_expD
+ //------  -----               ----- ----- ----- ------ ----- ----   ------
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "ir",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rbt6,(20,100),0,-1,0",  0,   0,    0,   0,    0,  NVEC, ""        },
@@ -9207,9 +9194,9 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Enqueue 1 request, then dispatch: test if a read request can be
-   // finished properly when it can't be done once and so this request need
-   // to be dispatched again.
+ { // Enqueue 1 request, then dispatch: test if a read request can be finished
+   // properly when it can't be done once and so this request need to be
+   // dispatched again.
    { L_,  "W4",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rbt5,(20,100),0,5,0",   1,   2,    0,   2,    1,  NVEC, ""        },
    { L_,  "dr1",                   1,   2,    0,   2,    1,  NVEC, ""        },
@@ -9217,8 +9204,8 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j123j"   },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Test if a channel can still work correctly for new read request.after
-   // the previous reads are canceled.
+ { // Test if a channel can still work correctly for new read request.after the
+   // previous reads are canceled.
    {L_,  "W11",                    0,   0,    0,   0,    0,  NVEC, ""        },
    {L_,  "rbt4,(20,100),0,0,-1",   1,   2,    0,   2,    1,  NVEC, ""        },
    {L_,  "cr",                     0,   0,    0,   0,    0,  NVEC, ""        },
@@ -9226,8 +9213,8 @@ int main(int argc, char *argv[])
    {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "j12"     },
    {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right
-   // away when there is enough data in the channel's read buffer.
+ { // Issue 2 requests, then dispatch: test if a request can be done right away
+   // when there is enough data in the channel's read buffer.
    { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rbt2,(20,100),0,2,0",   1,   2,    0,   2,    1,  NVEC, ""        },
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
@@ -9235,8 +9222,8 @@ int main(int argc, char *argv[])
    { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Issue 2 requests, then dispatch: test if a request can be dispatched
-   // only due to timeout, without retrieving any data.
+ { // Issue 2 requests, then dispatch: test if a request can be dispatched only
+   // due to timeout, without retrieving any data.
    { L_,  "rbt2,(200,10),0,0,0",   1,   2,    0,   2,    1,  NVEC, ""        },
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rbt5,(200,10),0,0,0",   1,   2,    0,   2,    1,  NVEC, ""        },
@@ -9250,8 +9237,8 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "456"     },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Enqueue 2 requests, then dispatch when no enough data in the
-   // channel's read buffer.
+ { // Enqueue 2 requests, then dispatch when no enough data in the channel's
+   // read buffer.
    { L_,  "W5",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rbt2,(5,200),0,2,0",    1,   2,    0,   2,    1,  NVEC, ""        },
    { L_,  "rbt5,(5,200),0,5,0",    2,   2,    0,   2,    1,  NVEC, ""        },
@@ -9261,9 +9248,9 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "234j1"   },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Fill readBuffer in the channel but not enough data, then issue 1
-   // request and try dispatching.  This request need to be dequeued and
-   // the timer should be deregistered subsequentially.
+ { // Fill readBuffer in the channel but not enough data, then issue 1 request
+   // and try dispatching.  This request need to be dequeued and the timer
+   // should be deregistered subsequentially.
    { L_, "W7",                     0,   0,    0,   0,    0,  NVEC, ""        },
    { L_, "rbt6,(50,200),0,6,0",    1,   2,    0,   2,    1,  NVEC, ""        },
    { L_, "rb2,0,2,0",              2,   2,    0,   2,    1,  NVEC, ""        },
@@ -9282,8 +9269,8 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1234"   },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    { L_,  "W10",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rbt3,(250,100),0,3,0,{rbt2,(200,200),1,2,0}",
                                    1,   2,    0,   2,    1,  NVEC, ""        },
@@ -9328,9 +9315,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -9346,15 +9333,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -9480,10 +9467,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type   d_expD
- // ------  -----              ----- ----- ----- ------ ----- ----   ------
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type   d_expD
+ //------  -----               ----- ----- ----- ------ ----- ----   ------
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "ir",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rb6,0,-1,0",            0,   0,    0,   0,    0,  NVEC, ""        },
@@ -9512,9 +9499,9 @@ int main(int argc, char *argv[])
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
 
- { // Enqueue 1 request, then dispatch: test if a read request can be
-   // finished properly when it can't be done once and so this request need
-   // to be dispatched again.
+ { // Enqueue 1 request, then dispatch: test if a read request can be finished
+   // properly when it can't be done once and so this request need to be
+   // dispatched again.
    { L_,  "W4",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rb5,0,5,0",             1,   1,    0,   1,    0,  NVEC, ""        },
    { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, ""        },
@@ -9531,8 +9518,8 @@ int main(int argc, char *argv[])
    {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "j12"     },
    {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right
-   // away when there is enough data in the channel's read buffer.
+ { // Issue 2 requests, then dispatch: test if a request can be done right away
+   // when there is enough data in the channel's read buffer.
    { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  NVEC, ""        },
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
@@ -9547,8 +9534,8 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "456"     },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  }, */
- { // Enqueue 2 requests, then dispatch when no enough data in the
-   // channel's read buffer.
+ { // Enqueue 2 requests, then dispatch when no enough data in the channel's
+   // read buffer.
    { L_,  "W5",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  NVEC, ""        },
    { L_,  "rb5,0,5,0",             2,   1,    0,   1,    0,  NVEC, ""        },
@@ -9559,9 +9546,9 @@ int main(int argc, char *argv[])
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
 
- { // Fill readBuffer in the channel but not enough data, then issue 1
-   // request and try dispatching.  This request need to be dequeued and
-   // the timer should be registered at the same time.
+ { // Fill readBuffer in the channel but not enough data, then issue 1 request
+   // and try dispatching.  This request need to be dequeued and the timer
+   // should be registered at the same time.
    { L_, "W7",                     0,   0,    0,   0,    0,  NVEC, ""        },
    { L_, "rb6,0,6,0",              1,   1,    0,   1,    0,  NVEC, ""        },
    { L_, "rb2,0,2,0",              2,   1,    0,   1,    0,  NVEC, ""        },
@@ -9580,8 +9567,8 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1234"   },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_,  "W10",                    0,   0,    0,   0,    0,  NVEC, ""        },
    {L_,  "rb3,0,3,0,{rb2,1,2,0}",
                                    1,   1,    0,   1,    0,  NVEC, ""        },
@@ -9626,9 +9613,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -9644,15 +9631,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -9781,8 +9768,8 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type d_expD
- // ------  -----              ----- ----- ----- ------ ------ ---- ------
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
+ //------  -----               ----- ----- ----- ------ ------ ---- ------
    // Try reading 0 bytes.
  { // Invalidate the channel, enter 1 request, then try dispatching: test
    // if any read request can be issued after the invalidation.
@@ -9813,8 +9800,8 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
-   // properly when no enough data in the pipe.  The request should be
-   // finished successfully after more data is available.
+   // properly when no enough data in the pipe.  The request should be finished
+   // successfully after more data is available.
    {L_, "W5",                      0,    0,   0,    0,     0, NVEC,  ""      },
    {L_, "rrt6,(300,200),0,5,0",    1,    2,   0,    2,     1, NVEC,  ""      },
    {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "j1234" },
@@ -9829,8 +9816,8 @@ int main(int argc, char *argv[])
    {L_, "dr0",                     0,    0,   0,    0,     0, NVEC,  ""      },
    {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
  },
- { // Fill readBuffer in the channel but not enough data, then issue 1
-   // request and try dispatching properly.
+ { // Fill readBuffer in the channel but not enough data, then issue 1 request
+   // and try dispatching properly.
    { L_, "W5",                     0,    0,   0,    0,     0, NVEC,  ""      },
    { L_, "rb2,0,2,0",              1,    1,   0,    1,     0, NVEC,  ""      },
    { L_, "dr1",                    0,    0,   0,    0,     0, NVEC,  "j1"    },
@@ -9847,8 +9834,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "3456"  },
    {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
  },
- { // Enqueue 2 requests, then dispatch: test if the timer can be
-   // deregistered properly while other requests exist on the queue.
+ { // Enqueue 2 requests, then dispatch: test if the timer can be deregistered
+   // properly while other requests exist on the queue.
    {L_, "W7",                      0,    0,   0,    0,     0, NVEC,  ""      },
    {L_, "rrt4,(221,200),0,4,0",    1,    2,   0,    2,     1, NVEC,  ""      },
    {L_, "r3,0,3,0",                2,    2,   0,    2,     1, NVEC,  ""      },
@@ -9856,9 +9843,9 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "456"   },
    {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
  },
- { // Enqueue 2 requests, then dispatch: test if the request can be
-   // dispatched properly after dispatching other request which consumed
-   // all data in the pipe.
+ { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
+   // properly after dispatching other request which consumed all data in the
+   // pipe.
    {L_, "W3",                      0,    0,   0,    0,     0, NVEC,  ""      },
    {L_, "r3,0,3,0",                1,    1,   0,    1,     0, NVEC,  ""      },
    {L_, "rrt4,(600,200),0,0,0",    2,    1,   0,    1,     0, NVEC,  ""      },
@@ -9897,8 +9884,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "90"    },
    {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_, "W11",                     0,    0,   0,    0,     0, NVEC,  ""      },
    {L_, "rrt3,(300,2),0,3,0,{rrt2,(40,2),1,2,0}",
                                    1,    2,   0,    2,     1, NVEC,  ""      },
@@ -9942,9 +9929,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -9960,15 +9947,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -10098,10 +10085,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------ -----               ----- ----- ----- ------ ----- ---- ------
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ //d_line d_cmd                PendR ReadE PendW WriteE Timer Type d_expD
+ //------ -----                ----- ----- ----- ------ ----- ---- ------
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    {L_, "W11",                     0,   0,    0,   0,    0,  NVEC,  ""      },
    {L_, "ir",                      0,   0,    0,   0,    0,  NVEC,  ""      },
    {L_, "rr6,0,-1,0",              0,   0,    0,   0,    0,  NVEC,  ""      },
@@ -10138,8 +10125,8 @@ int main(int argc, char *argv[])
    {L_, "dr0",                     0,   0,    0,   0,     0, NVEC,   ""      },
    {L_,  0,                        0,   0,    0,   0,     0, NVEC,   ""      }
  },
- { // Fill readBuffer in the channel but not enough data, then issue 1
-   // request and try dispatching properly.
+ { // Fill readBuffer in the channel but not enough data, then issue 1 request
+   // and try dispatching properly.
    {L_, "W5",                      0,   0,    0,   0,     0, NVEC,   ""      },
    {L_, "rb2,0,2,0",               1,   1,    0,   1,     0, NVEC,   ""      },
    {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,   "j1"    },
@@ -10148,8 +10135,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,   "234j"  },
    {L_,  0,                        0,   0,    0,   0,     0, NVEC,   ""      }
  },
- { // Enqueue 2 requests, then dispatch: test if the timer can be
-   // deregistered properly while other requests exist on the queue.
+ { // Enqueue 2 requests, then dispatch: test if the timer can be deregistered
+   // properly while other requests exist on the queue.
    {L_, "W7",                      0,   0,    0,   0,     0, NVEC,  ""       },
    {L_, "rr4,0,4,0",               1,   1,    0,   1,     0, NVEC,  ""       },
    {L_, "rb3,0,3,0",               2,   1,    0,   1,     0, NVEC,  ""       },
@@ -10157,9 +10144,9 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,  "456"    },
    {L_,  0,                        0,   0,    0,   0,     0, NVEC,  ""       }
  },
- { // Enqueue 2 requests, then dispatch: test if the request can be
-   // dispatched properly after dispatching other request which consumed
-   // all data in the pipe.
+ { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
+   // properly after dispatching other request which consumed all data in the
+   // pipe.
    {L_, "W3",                      0,   0,    0,   0,     0, NVEC,  ""       },
    {L_, "r3,0,3,0",                1,   1,    0,   1,     0, NVEC,  ""       },
    {L_, "rr4,0,4,0",               2,   1,    0,   1,     0, NVEC,  ""       },
@@ -10168,9 +10155,9 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,  ""       },
    {L_,  0,                        0,   0,    0,   0,     0, NVEC,  "j123"   }
  },
- { // Enqueue 2 requests, then dispatch: test if the request can be
-   // dispatched properly after dispatching other request which consumed
-   // all data in the pipe.
+ { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
+   // properly after dispatching other request which consumed all data in the
+   // pipe.
    {L_, "W7",                      0,   0,    0,   0,     0, NVEC,  ""       },
    {L_, "r3,0,3,0",                1,   1,    0,   1,     0, NVEC,  ""       },
    {L_, "rt4,(50,1),0,4,0",        2,   1,    0,   1,     0, NVEC,  ""       },
@@ -10199,8 +10186,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0, NVEC, "90"      },
    {L_,  0,                        0,   0,    0,   0,     0, NVEC,  ""       }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_, "W11",                     0,   0,    0,    0,     0, NVEC,  ""      },
    {L_, "rr3,0,3,0,{rt2,(40,2),1,2,0}",
                                    1,   1,    0,    1,     0, NVEC,  ""      },
@@ -10248,9 +10235,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -10266,15 +10253,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -10404,10 +10391,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd               PendR ReadE PendW WriteE Timer Type d_expD
- // ------  -----               ----- ----- ----- ------ ----- ---- ------
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ //d_line  d_cmd                PendR ReadE PendW WriteE Timer Type d_expD
+ //------  -----                ----- ----- ----- ------ ----- ---- ------
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    {L_,  "W11",                    0,   0,    0,   0,    0,   NVEC,  ""      },
    {L_,  "ir",                     0,   0,    0,   0,    0,   NVEC,  ""      },
    {L_,  "rt6,(20,2000),0,-1,0",   0,   0,    0,   0,    0,   NVEC,  ""      },
@@ -10435,8 +10422,8 @@ int main(int argc, char *argv[])
    {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
-   // properly when no enough data in the pipe.  The request should be
-   // finished successfully after more data is available.
+   // properly when no enough data in the pipe.  The request should be finished
+   // successfully after more data is available.
    {L_, "W4",                      0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_, "rt6,(100,200),0,6,0",     1,   2,    0,   2,     1,  NVEC,  ""      },
    {L_, "dr1",                     1,   2,    0,   2,     1,  NVEC,  "j123"  },
@@ -10461,8 +10448,8 @@ int main(int argc, char *argv[])
    {L_, "dr0",                     0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
  },
- { // Fill readBuffer in the channel but not enough data, then issue 1
-   // request and try dispatching properly.
+ { // Fill readBuffer in the channel but not enough data, then issue 1 request
+   // and try dispatching properly.
    {L_, "W5",                      0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_, "rb2,0,2,0",               1,   1,    0,   1,     0,  NVEC,  ""      },
    {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "j1"    },
@@ -10489,8 +10476,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "3456"  },
    {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
  },
- { // Enqueue 2 requests, then dispatch: test if the timer can be
-   // deregistered properly while other requests exist on the queue.
+ { // Enqueue 2 requests, then dispatch: test if the timer can be deregistered
+   // properly while other requests exist on the queue.
    {L_, "W7",                      0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_, "rt4,(250,20),0,4,0",      1,   2,    0,   2,     1,  NVEC,  ""      },
    {L_, "r3,0,3,0",                2,   2,    0,   2,     1,  NVEC,  ""      },
@@ -10498,9 +10485,9 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "456"   },
    {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
  },
- { // Enqueue 2 requests, then dispatch: test if the request can be
-   // dispatched properly after dispatching other request which consumed
-   // all data in the pipe.
+ { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
+   // properly after dispatching other request which consumed all data in the
+   // pipe.
    {L_, "W3",                      0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_, "r3,0,3,0",                1,   1,    0,   1,     0,  NVEC,  ""      },
    {L_, "rt4,(0,2000),0,0,0",      2,   1,    0,   1,     0,  NVEC,  ""      },
@@ -10508,9 +10495,9 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
  },
- { // Enqueue 2 requests, then dispatch: test if the request can be
-   // dispatched properly after dispatching other request which consumed
-   // all data in the pipe.
+ { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
+   // properly after dispatching other request which consumed all data in the
+   // pipe.
    {L_, "W11",                     0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_, "rt6,(50,2000),0,6,0",     1,   2,    0,   2,     1,  NVEC,  ""      },
    {L_, "rb3,0,3,0",               2,   2,    0,   2,     1,  NVEC,  ""      },
@@ -10539,8 +10526,8 @@ int main(int argc, char *argv[])
    {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "90"    },
    {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
  },
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_,  "W11",                    0,   0,    0,   0,     0,  NVEC,  ""      },
    {L_,  "rt3,(30,2),0,3,0,{rt2,(40,2),1,2,0}",
                                    1,   2,    0,   2,     1,  NVEC,  ""      },
@@ -10587,9 +10574,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -10605,15 +10592,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -10743,11 +10730,10 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line  d_cmd              PendR ReadE PendW WriteE Timer Type   d_expD
- // ------  -----              ----- ----- ----- ------ ----- ----   ------
- { // Enqueue 1 request, then dispatch: test if the request can be queued
-   // Try reading 0 bytes.
-   // properly.
+ //d_line  d_cmd               PendR ReadE PendW WriteE Timer Type   d_expD
+ //------  -----               ----- ----- ----- ------ ----- ----   ------
+ { // Enqueue 1 request, then dispatch: test if the request can be queued Try
+   // reading 0 bytes. properly.
    { L_,   "W5",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,   "r4,0,4,0",             1,   1,    0,   1,    0,  NVEC, ""        },
    { L_,   "dr1",                  0,   0,    0,   0,    0,  NVEC, ""        },
@@ -10767,17 +10753,17 @@ int main(int argc, char *argv[])
    { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Invalidate the channel, enter 1 request, then try dispatching: test
-   // if any read request can be issued after the invalidation.
+ { // Invalidate the channel, enter 1 request, then try dispatching: test if
+   // any read request can be issued after the invalidation.
    { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "ir",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "r6,0,-1,0",             0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Enqueue 1 request, then dispatch: test if a read request can be
-   // finished properly when it can't be done once and so this request need
-   // to be dispatched again.
+ { // Enqueue 1 request, then dispatch: test if a read request can be finished
+   // properly when it can't be done once and so this request need to be
+   // dispatched again.
    { L_,  "W4",                    0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,  "r5,0,5,0",              1,   1,    0,   1,    0,  NVEC, ""        },
    { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, "j123"    },
@@ -10794,8 +10780,8 @@ int main(int argc, char *argv[])
    { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  },
- { // Fill readBuffer in the channel but not enough data, then issue 1
-   // request and try dispatching properly.
+ { // Fill readBuffer in the channel but not enough data, then issue 1 request
+   // and try dispatching properly.
    { L_, "W5",                     0,   0,    0,   0,    0,  NVEC, ""        },
    { L_, "rb2,0,2,0",              1,   1,    0,   1,    0,  NVEC, ""        },
    { L_, "dr1",                    0,   0,    0,   0,    0,  NVEC, "j1"      },
@@ -10834,8 +10820,8 @@ int main(int argc, char *argv[])
    { L_,  "r4,0,4,0",              0,   0,    0,   0,    0,  NVEC, "7890"    },
    { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
  }, /* 1 of 1000 got error for strncmp ("j12"....)
- { // Test if a channel can still work correctly for new read request.after
-   // the previous reads are canceled.
+ { // Test if a channel can still work correctly for new read request.after the
+   // previous reads are canceled.
    {L_,  "W11",                    0,   0,    0,   0,    0,  NVEC, ""        },
    {L_,  "r4,0,0,-1",              1,   1,    0,   1,    0,  NVEC, ""        },
    {L_,  "cr",                     0,   0,    0,   0,    0,  NVEC, ""        },
@@ -10843,8 +10829,8 @@ int main(int argc, char *argv[])
    {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "j12"     },
    {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
  }, */
- { // Concern: if this channel can work correctly for new read
-   // requests from the user-installed callback function.
+ { // Concern: if this channel can work correctly for new read requests from
+   // the user-installed callback function.
    {L_,  "W11",                    0,   0,    0,   0,    0,  NVEC, ""        },
    {L_,  "r3,0,3,0,{r2,1,2,0}",
                                    1,   1,    0,   1,    0,  NVEC, ""        },
@@ -10891,9 +10877,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket, &eveManager,
                                         &testAllocator);
@@ -10909,15 +10895,15 @@ int main(int argc, char *argv[])
                                     &eveManager, 0, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         LOOP_ASSERT(LINE, 'W' == *command);
@@ -11068,8 +11054,8 @@ int main(int argc, char *argv[])
                                             // manager
         } SCRIPTS[MAX_CMDS] =
 {
- // d_line d_cmd             PendR ReadE PendW WriteE rTimer wTimer
- // ------ -----             ----- ----- ----- ------ ------ ------
+ //d_line d_cmd              PendR ReadE PendW WriteE rTimer wTimer
+ //------ -----              ----- ----- ----- ------ ------ ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
    {L_, "rbt1,(6,8),0,0,-1",     1,    2,    0,    0,    1,    0},
@@ -11223,16 +11209,15 @@ int main(int argc, char *argv[])
                                         OBJECTS[i].d_rManager, 0, command);
 
                         // There are 9 parameters in the bufferedReadCallback()
-                        // function.  This is the maximum number of
-                        // parameters to call makeF() for a functor object.
-                        // If we have the following commands executed in gg(),
-                        // the socket handle needs to be passed to gg() and
-                        // the bufferedReadCallback().  To do so, we need to
-                        // use a struct to wrap some of the parameters to
-                        // reduce the number of function parameters, but doing
-                        // so will make the function call less
-                        // straightforward.  That's why we execute the
-                        // following commands outside gg().
+                        // function.  This is the maximum number of parameters
+                        // to call makeF() for a functor object.  If we have
+                        // the following commands executed in gg(), the socket
+                        // handle needs to be passed to gg() and the
+                        // bufferedReadCallback().  To do so, we need to use a
+                        // struct to wrap some of the parameters to reduce the
+                        // number of function parameters, but doing so will
+                        // make the function call less straightforward.  That's
+                        // why we execute the following commands outside gg().
 
                         if (length > 0) {
                             LOOP_ASSERT(LINE, 'W' == *command);
@@ -11330,8 +11315,8 @@ int main(int argc, char *argv[])
                                             // manager
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd                PendR ReadE PendW WriteE rTimer wTimer
- // ------ -----                ----- ----- ----- ------ ------ ------
+ //d_line d_cmd                 PendR ReadE PendW WriteE rTimer wTimer
+ //------ -----                 ----- ----- ----- ------ ------ ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
   {
@@ -11340,8 +11325,8 @@ int main(int argc, char *argv[])
    { L_, "w28720,0,28720,0",        2,    2,    0,    2,    1,    1},
    { L_, "wt23720,(6,7),0,23720,0", 2,    4,    1,    4,    2,    2},
    { L_, "wt220,(4,8),0,0,-1",      2,    4,    2,    4,    2,    2},
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request.
    { L_, "cr",                      0,    2,    2,    2,    1,    1},
    { L_, "R22729",                  0,    2,    2,    2,    1,    1},
    { L_, "R12729",                  0,    2,    2,    2,    1,    1},
@@ -11381,8 +11366,8 @@ int main(int argc, char *argv[])
    { L_, "wt23720,(5,9),0,0,-1",    2,    2,    1,    2,    1,    1},
    { L_, "wt20,(3,5),0,0,-1",       2,    2,    2,    2,    1,    1},
 
-     // Verify that the read is not affected by cancelWrite() by
-     // dispatching a write request.
+     // Verify that the read is not affected by cancelWrite() by dispatching a
+     // write request.
    { L_, "cw",                      2,    2,    0,    0,    1,    0},
    { L_, "W8",                      2,    2,    0,    0,    1,    0},
    { L_, "dr1",                     1,    2,    0,    0,    1,    0},
@@ -11400,8 +11385,8 @@ int main(int argc, char *argv[])
    { L_, "w25720,0,25720,0",        2,    1,    0,    1,    0,    0},
    { L_, "wt13720,(5,6),0,13720,0", 2,    3,    1,    3,    1,    1},
    { L_, "wt720,(0,0),0,0,0",       2,    3,    2,    3,    1,    1},
-     // Verify that the read is not affected by cancelWrite() by
-     // dispatching a write request.
+     // Verify that the read is not affected by cancelWrite() by dispatching a
+     // write request.
    { L_, "cr",                      0,    2,    2,    2,    1,    1},
    { L_, "R32729",                  0,    2,    2,    2,    1,    1},
    { L_, "dw1",                     0,    2,    1,    2,    1,    1},
@@ -11421,8 +11406,8 @@ int main(int argc, char *argv[])
    { L_, "w1020,0,1020,0",          2,    2,    0,    2,    1,    1},
    { L_, "wt23,(266,7),0,23,0",     2,    4,    1,    4,    2,    2},
    { L_, "wt220,(270,8),0,0,-1",    2,    4,    2,    4,    2,    2},
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request.
    { L_, "cr",                      0,    2,    2,    2,    1,    1},
    { L_, "R729",                    0,    2,    2,    2,    1,    1},
    { L_, "R729",                    0,    2,    2,    2,    1,    1},
@@ -11497,8 +11482,8 @@ int main(int argc, char *argv[])
    { L_, "w16383,0,16383,0",        2,    2,    0,    2,    1,    1},
    { L_, "wt18000,(900,7),0,18000,0", 2,    4,    1,    4,    2,    2},
    { L_, "wt200,(250,8),0,0,-1",    2,    4,    2,    4,    2,    2},
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request.
    { L_, "cr",                      0,    2,    2,    2,    1,    1},
    { L_, "R16383",                  0,    2,    2,    2,    1,    1},
    { L_, "R16383",                  0,    2,    2,    2,    1,    1},
@@ -11579,8 +11564,8 @@ int main(int argc, char *argv[])
    { L_, "w73720,0,73720,0",        2,    2,    0,    2,    1,    1},
    { L_, "wt33720,(6,7),0,33720,0", 2,    4,    1,    4,    2,    2},
    { L_, "wt220,(4,8),0,0,-1",      2,    4,    2,    4,    2,    2},
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request.
    { L_, "cr",                      0,    2,    2,    2,    1,    1},
    { L_, "R32729",                  0,    2,    2,    2,    1,    1},
    { L_, "R22729",                  0,    2,    2,    2,    1,    1},
@@ -11721,11 +11706,10 @@ int main(int argc, char *argv[])
                                 factory.allocate(socket[1]);
             {
                 // We should guarantee that the 'channel's destructor is
-                // invoked before the corresponding 'streamSocket'
-                // destructor.  We insure the required order by creating
-                // the 'channel' inside a block while the corresponding
-                // 'streamSocket' object is created outside the block as
-                // above.
+                // invoked before the corresponding 'streamSocket' destructor.
+                // We insure the required order by creating the 'channel'
+                // inside a block while the corresponding 'streamSocket' object
+                // is created outside the block as above.
                 btlsos::TcpTimedCbChannel channel(sSocket,
                                             &rManager0,
                                             &testAllocator);
@@ -11775,16 +11759,15 @@ int main(int argc, char *argv[])
                                         command);
 
                         // There are 9 parameters in the bufferedReadCallback()
-                        // function.  This is the maximum number of
-                        // parameters to call makeF() for a functor object.
-                        // If we have the following commands executed in gg(),
-                        // the socket handle needs to be passed to gg() and
-                        // the bufferedReadCallback().  To do so, we need to
-                        // use a struct to wrap some of the parameters to
-                        // reduce the number of function parameters, but doing
-                        // so will make the function call less
-                        // straightforward.  That's why we execute the
-                        // following commands outside gg().
+                        // function.  This is the maximum number of parameters
+                        // to call makeF() for a functor object.  If we have
+                        // the following commands executed in gg(), the socket
+                        // handle needs to be passed to gg() and the
+                        // bufferedReadCallback().  To do so, we need to use a
+                        // struct to wrap some of the parameters to reduce the
+                        // number of function parameters, but doing so will
+                        // make the function call less straightforward.  That's
+                        // why we execute the following commands outside gg().
 
                         if (length > 0) {
                             if ('W' == *command) {
@@ -11920,8 +11903,8 @@ int main(int argc, char *argv[])
                                             // manager
         } SCRIPTS[][MAX_CMDS] =
 {
- // d_line d_cmd          PendR ReadE PendW WriteE validR validW rTimer wTimer
- // ------ -----          ----- ----- ----- ------ ------ ------ ------ ------
+ //d_line d_cmd           PendR ReadE PendW WriteE validR validW rTimer wTimer
+ //------ -----           ----- ----- ----- ------ ------ ------ ------ ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  {
@@ -12175,8 +12158,8 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor.
                 // We insure the required order by creating the 'channel'
-                // inside a block while the corresponding 'streamSocket'
-                // object is created outside the block as above.
+                // inside a block while the corresponding 'streamSocket' object
+                // is created outside the block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket,
                                             &rManager0,
@@ -12213,24 +12196,23 @@ int main(int argc, char *argv[])
 
                     // Buffer is a struct type where declares different
                     // pointers pointing to different I/O buffers, e.g.,
-                    // readBuffer, writeBuffer, iovecBuffer, ovecBuffer.
-                    // This struct is declared at the beginning of this test
-                    // driver.
+                    // readBuffer, writeBuffer, iovecBuffer, ovecBuffer.  This
+                    // struct is declared at the beginning of this test driver.
 
                     int length = gg(&channel, &buffer,
                                     OBJECTS[i].d_exprManager,
                                     OBJECTS[i].d_expwManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle needs to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // needs to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
                     // number of function parameters, but doing so will make
-                    // the function call less straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // the function call less straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -12386,21 +12368,21 @@ int main(int argc, char *argv[])
                                             // channel
         } SCRIPTS[MAX_CMDS] =
 {
- // d_line d_cmd                       PendR ReadE PendW WriteE Timer Type expD
- // ------ -----                       ----- ----- ----- ------ ----- ---- ----
+ //d_line d_cmd                        PendR ReadE PendW WriteE Timer Type expD
+ //------ -----                        ----- ----- ----- ------ ----- ---- ----
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
-   // Issue 1 request, which should be finished without being enqueued.
-   // Issue 1 request, which should be finished without being enqueued.
+   // Issue 1 request, which should be finished without being enqueued.  Issue
+   // 1 request, which should be finished without being enqueued.
    {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  NVEC, "" },
    {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
    {L_, "w28720,0,28720,0",               2,   2,   0,    2,    1,  NVEC, "" },
    {L_, "rt4,(50,200),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
    {L_, "wt23720,(50,100),0,0,0",         3,   4,   1,    4,    2,  NVEC, "" },
 
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
-         // test cancel when the current request pointer is null.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request. test cancel when the current request pointer is
+         // null.
    {L_, "wt23720,(20,100),0,0,-1",        3,   4,   2,    4,    2,  NVEC, "" },
    {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
    {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
@@ -12427,9 +12409,9 @@ int main(int argc, char *argv[])
    {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
    {L_, "wt720,(360,100),0,720,0",        3,   4,   1,    4,    2,  NVEC, "" },
 
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
-         // test cancel when the current request pointer is null.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request. test cancel when the current request pointer is
+         // null.
    {L_, "wt2000,(20,100),0,0,-1",         3,   4,   2,    4,    2,  NVEC, "" },
    {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
    {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
@@ -12460,9 +12442,9 @@ int main(int argc, char *argv[])
    {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
    {L_, "wt2000,(2000,100),0,2000,0",     3,   4,   1,    4,    2,  NVEC, "" },
 
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
-         // test cancel when the current request pointer is null.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request. test cancel when the current request pointer is
+         // null.
    {L_, "wt12000,(31,100),0,0,-1",        3,   4,   2,    4,    2,  NVEC, "" },
    {L_, "w200,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
    {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
@@ -12513,9 +12495,9 @@ int main(int argc, char *argv[])
    {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
    {L_, "wt33720,(455,100),0,33720,0",    3,   4,   1,    4,    2,  NVEC, "" },
 
-         // Make sure the write is not affected by cancelRead() by
-         // dispatching a write request.
-         // test cancel when the current request pointer is null.
+         // Make sure the write is not affected by cancelRead() by dispatching
+         // a write request. test cancel when the current request pointer is
+         // null.
    {L_, "wt23720,(31,100),0,0,-1",        3,   4,   2,    4,    2,  NVEC, "" },
    {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
    {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
@@ -12590,9 +12572,9 @@ int main(int argc, char *argv[])
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor
                 // and the behavior is undefined otherwise.  We insure the
-                // required order by creating the 'channel' inside a
-                // block while the corresponding 'streamSocket' object
-                // outside the block as above.
+                // required order by creating the 'channel' inside a block
+                // while the corresponding 'streamSocket' object outside the
+                // block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket,
                                                  OBJECTS[i].d_rManager,
@@ -12632,15 +12614,15 @@ int main(int argc, char *argv[])
                                      OBJECTS[i].d_rManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle need to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // need to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
-                    // number of function parameters.  But that will make
-                    // the function call not straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // number of function parameters.  But that will make the
+                    // function call not straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -12791,13 +12773,12 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
             const char *d_expData;          // expected data read from the
                                             // channel
         } SCRIPTS[][MAX_CMDS] =
-        // First test channel read and write buffer (entry 1);
-        // then test cancelRead() while some write requests on the queue;
-        // next test cancelWrite() while some read requests on the queue;
-        // lastly test invalidateRead() and invalidateWrite().
-        // Note that it's important to make sure read and write event will not
-        // interfere with each other, e.g., cancelRead() shouldn't affect any
-        // write request.
+        // First test channel read and write buffer (entry 1); then test
+        // cancelRead() while some write requests on the queue; next test
+        // cancelWrite() while some read requests on the queue; lastly test
+        // invalidateRead() and invalidateWrite().  Note that it's important to
+        // make sure read and write event will not interfere with each other,
+        // e.g., cancelRead() shouldn't affect any write request.
    // line      cmd         PendR ReadE PendW WriteE rT  wT Type d_expData
    // ----      ---         ----- ----- ----- ------ --  -- ---- ---------
  {
@@ -12822,8 +12803,8 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
 
      { L_, "W8",                6,   1,   0,    0,   0,  0, NVEC, ""        },
      // the data will be mixed b/w "rb5,1,5,0" (should be "51234") and
-     // "rr7,1,7,0" if the same readBuf is used, the first "5678" is read
-     // for "rr7,1,7,0"......
+     // "rr7,1,7,0" if the same readBuf is used, the first "5678" is read for
+     // "rr7,1,7,0"......
      { L_, "dr1",               5,   2,   0,    0,   1,  0, NVEC, "56784"   },
      { L_, "W7",                5,   2,   0,    0,   1,  0, NVEC, ""        },
      { L_, "dr1",               4,   1,   0,    0,   0,  0, NVEC, "5678123" },
@@ -12867,8 +12848,8 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
                 // We should guarantee that the 'channel's destructor is
                 // invoked before the corresponding 'streamSocket' destructor.
                 // We insure the required order by creating the 'channel'
-                // inside a block while the corresponding 'streamSocket'
-                // object is created outside the block as above.
+                // inside a block while the corresponding 'streamSocket' object
+                // is created outside the block as above.
 
                 btlsos::TcpTimedCbChannel channel(sSocket,
                                             CHANNELS[i].d_rManager,
@@ -12913,23 +12894,22 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
 
                     // Buffer is a struct type where declares different
                     // pointers pointing to different I/O buffers, e.g.,
-                    // readBuffer, writeBuffer, iovecBuffer, ovecBuffer.
-                    // This struct is declared at the beginning of this test
-                    // driver.
+                    // readBuffer, writeBuffer, iovecBuffer, ovecBuffer.  This
+                    // struct is declared at the beginning of this test driver.
 
                     int length = gg(&channel, &buffer, CHANNELS[i].d_rManager,
                                               CHANNELS[i].d_rManager, command);
 
                     // There are 9 parameters in the bufferedReadCallback()
-                    // function.  This is the maximum number of
-                    // parameters to call makeF() for a functor object.
-                    // If we have the following commands executed in gg(),
-                    // the socket handle needs to be passed to gg() and the
+                    // function.  This is the maximum number of parameters to
+                    // call makeF() for a functor object.  If we have the
+                    // following commands executed in gg(), the socket handle
+                    // needs to be passed to gg() and the
                     // bufferedReadCallback().  To do so, we need to use a
                     // struct to wrap some of the parameters to reduce the
                     // number of function parameters, but doing so will make
-                    // the function call less straightforward.  That's why
-                    // we execute the following commands outside gg().
+                    // the function call less straightforward.  That's why we
+                    // execute the following commands outside gg().
 
                     if (length > 0) {
                         if ('W' == *command) {
@@ -13013,11 +12993,18 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

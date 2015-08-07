@@ -1,4 +1,4 @@
-// btlsos_tcpcbconnector.t.cpp       -*-C++-*-
+// btlsos_tcpcbconnector.t.cpp                                        -*-C++-*-
 #include <btlsos_tcpcbconnector.h>
 #include <btlsos_tcptimedcbchannel.h>
 #include <btlsos_tcpcbchannel.h>
@@ -26,8 +26,8 @@
 #include <bsls_platform.h>
 #include <bdlt_currenttime.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strcmp()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'strcmp'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -131,8 +131,8 @@ struct ConnectionInfo {
 };
 
 struct TestCommand {
-  // This struct includes needed information for each test operation,
-  // e.g., a request to "CONNECT" or a request to "dispatch",  along with it's
+  // This struct includes needed information for each test operation, e.g., a
+  // request to "CONNECT" or a request to "dispatch", along with it's
   // corresponding test results.
 
     int  d_lineNum;
@@ -141,9 +141,8 @@ struct TestCommand {
                             // e.g., 'D' -- invoke the event manager's
                             // dispatch(); 'R' -- an "ACCEPT" request etc.
     int d_channelType;      // a request for a 'btlsos::TcpCbChannel'
-                            // or 'btlsos::TcpTimedCbChannel', i.e.,
-                            // 1 for a timed channel and 0 for
-                            // a 'btlsos::TcpCbChannel'
+                            // or 'btlsos::TcpTimedCbChannel', i.e., 1 for a
+                            // timed channel and 0 for a 'btlsos::TcpCbChannel'
     int d_timedRequestFlag; // a request with/without timeout request
 
     int d_timeoutFlag;      // a flag to indicate if the request will timeout
@@ -152,8 +151,8 @@ struct TestCommand {
                             // or not
     int d_expStatus;        // a expected status value from a "CONNECT" request
 
-    int d_expNumEvents;     // the number of events after the
-                            // execution of this command
+    int d_expNumEvents;     // the number of events after the execution of this
+                            // command
     int d_expNumTimers;     // the number of timers after the execution of
                             // this command
     int d_expNumChannels;
@@ -187,8 +186,7 @@ class my_EchoClient {
     bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> d_allocateFunctor;
 
     void allocateCb(btlsc::TimedCbChannel *channel, int status);
-         // Invoked by the socket event manager when a connection is
-         // accepted.
+         // Invoked by the socket event manager when a connection is accepted.
 
     void bufferedReadCb(const char *buffer, int status, int asyncStatus,
                         btlsc::TimedCbChannel *channel, int sequence);
@@ -210,8 +208,8 @@ class my_EchoClient {
 
     //  MANIPULATORS
     int setPeer(const btlso::IPv4Address& address);
-        // Set the address of the echo server to the specified 'address',
-        // and start sending messages to the server.
+        // Set the address of the echo server to the specified 'address', and
+        // start sending messages to the server.
 };
 
 // CREATORS
@@ -280,8 +278,8 @@ void my_EchoClient::allocateCb(btlsc::TimedCbChannel *channel, int status) {
         d_allocator.invalidate();
         return;
     }
-    // In any case, except for hard error on allocator, enqueue another
-    // connect request
+    // In any case, except for hard error on allocator, enqueue another connect
+    // request
     if (d_maxConnections > ++d_numConnections) {
         int s = d_allocator.allocateTimed(d_allocateFunctor);
         ASSERT(0 == s);
@@ -417,10 +415,8 @@ class my_DataStream {
     // Callbacks
     void allocateCb(btlsc::TimedCbChannel *channel, int status,
                         btlsc::TimedCbChannel **cachedChannel);
-        // Invoked from the socket event manager when a connection is
-        // allocated (i.e., established) or an error occurs when
-        // allocating.
-        // ...
+        // Invoked from the socket event manager when a connection is allocated
+        // (i.e., established) or an error occurs when allocating.  ...
 
     private:
       my_DataStream(const my_DataStream&);    // Not implemented.
@@ -433,10 +429,9 @@ class my_DataStream {
                       const btlso::IPv4Address&                   peerAddress);
           // Create a controlled data stream that uses the specified stream
           // socket 'factory' for system sockets, uses the specified socket
-          // event 'manager' to multiplex events on these sockets, and
-          // attempts to connect to the server at the specified
-          // 'peerAddress'.   The behavior is undefined if either 'factory'
-          // or 'manager' is 0.
+          // event 'manager' to multiplex events on these sockets, and attempts
+          // to connect to the server at the specified 'peerAddress'.  The
+          // behavior is undefined if either 'factory' or 'manager' is 0.
 
       ~my_DataStream();
           // Destroy this server.
@@ -444,9 +439,9 @@ class my_DataStream {
       // MANIPULATORS
       int setUpCallbacks();
           // Register callbacks as required for establishing communication
-          // channels.  Return 0 on success, and a non-zero value otherwise,
-          // in which case all further registration attempts will fail
-          // (and the object can be only destroyed).
+          // channels.  Return 0 on success, and a non-zero value otherwise, in
+          // which case all further registration attempts will fail (and the
+          // object can be only destroyed).
 };
 
 my_DataStream::my_DataStream(
@@ -503,8 +498,7 @@ void my_DataStream::allocateCb(btlsc::TimedCbChannel *channel, int status,
          }
          *cachedChannel = channel;
          if (d_controlChannel && d_dataChannel) {
-             // Ready to do data processing
-             // ...
+             // Ready to do data processing ...
              if (globalVerbose) {
                  cout << "both channels are established." << endl;
              }
@@ -523,11 +517,10 @@ static void connectCb(btlsc::CbChannel            *channel,
                       int                         expStatus,
                       int                         cancelFlag)
     // Verify the result of an "ACCEPT" request by comparing against the
-    // expected values:  If the specified 'validChannel' is nonzero, a new
-    // channel should be established; the return 'status' should be the same
-    // as the specified 'expStatus'.  If the specified 'cancelFlag' is
-    // nonzero, invoke the 'cancelAll()' on the specified 'acceptor'
-    // for test.
+    // expected values: If the specified 'validChannel' is nonzero, a new
+    // channel should be established; the return 'status' should be the same as
+    // the specified 'expStatus'.  If the specified 'cancelFlag' is nonzero,
+    // invoke the 'cancelAll()' on the specified 'acceptor' for test.
 {
     if (validChannel) {
         ASSERT (channel);
@@ -561,14 +554,14 @@ static void connectCb(btlsc::CbChannel            *channel,
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 void *threadToAcceptConnection(void *arg)
-    // Create a server socket which is ready for accept connections.
-    // The following information will be pass in through the specified 'arg':
-    // a pointer to a 'btlso::StreamSocket' to create the server socket;
-    // the port number the server will use.
+    // Create a server socket which is ready for accept connections.  The
+    // following information will be pass in through the specified 'arg':
+    // a pointer to a 'btlso::StreamSocket' to create the server socket; the
+    // port number the server will use.
 {
     ASSERT(arg);
 
@@ -796,8 +789,8 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\nTesting Usage Example"
                               << "\n=====================" << endl;
             {
-                // Arguments provided to the test driver are
-                // <case#> <numConnections> <portNumber> <host>
+                // Arguments provided to the test driver are <case#>
+                // <numConnections> <portNumber> <host>
                 enum {
                     DEFAULT_PORT_NUMBER = 1234,
                     DEFAULT_NUM_CONNECTIONS =  10,
@@ -894,8 +887,8 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\nTesting Usage Example"
                               << "\n=====================" << endl;
             {
-                // Arguments provided to the test driver are
-                // <case#> <numConnections> <portNumber> <host> <numMessages>
+                // Arguments provided to the test driver are <case#>
+                // <numConnections> <portNumber> <host> <numMessages>
                 enum {
                     DEFAULT_PORT_NUMBER = 1635,
                     DEFAULT_NUM_CONNECTIONS =  10,
@@ -1098,8 +1091,8 @@ int main(int argc, char *argv[])
 
             {
                 // Because there are many items listed in the table for each
-                // test command, the following document specify which column
-                // in the table specifies which item.
+                // test command, the following document specify which column in
+                // the table specifies which item.
                 //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
@@ -1177,8 +1170,7 @@ int main(int argc, char *argv[])
                     { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
                     { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
                   },
-                  { // One channel is established before calling
-                    // invalidate().
+                  { // One channel is established before calling invalidate().
                     { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  0,  0,   VALID },
                     { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
                     { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
@@ -1188,8 +1180,8 @@ int main(int argc, char *argv[])
                     { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
                     { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
                   },
-                  { // One channel is established and another request has
-                    // been submitted before calling invalidate().
+                  { // One channel is established and another request has been
+                    // submitted before calling invalidate().
                     { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  0,  0,   VALID },
                     { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
                     { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  1,  0,   VALID },
@@ -1284,8 +1276,8 @@ int main(int argc, char *argv[])
 
             {
                 // Because there are many items listed in the table for each
-                // test command, the following document specify which column
-                // in the table specifies which item.
+                // test command, the following document specify which column in
+                // the table specifies which item.
                 //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
@@ -1302,7 +1294,7 @@ int main(int argc, char *argv[])
                   // On Solaris, non-blocking connects to the loopback succeed
                   // right away so we do not need a dispatch call.  This is
                   // absolutely not guaranteed by POSIX though.
-                  // 
+                  //
                   //A     B    C   D   E   F   G   H   I   J   K   L
                   //-     -    -   -   -   -   -   -   -   -   -   -
                 {
@@ -1341,8 +1333,8 @@ int main(int argc, char *argv[])
                   { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  1,  0, VALID },
                   { L_,  'C',  0,  0,  0,  0,   0,  0,  0,  1,  0, VALID },
 
-                  // One channel is established before calling cancelAll(),
-                  // and a request is submitted before dispatch() can also be
+                  // One channel is established before calling cancelAll(), and
+                  // a request is submitted before dispatch() can also be
                   // cancelled.
                   { L_,  'R',  1,  0,  0,  1,   0,  1,  0,  1,  0, VALID },
                   { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  1,  0, VALID },
@@ -1362,8 +1354,8 @@ int main(int argc, char *argv[])
                   { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  4,  0, VALID },
 
                   // The cancelAll() is called in the user-installed callback
-                  // function, different requests from the above test data
-                  // are submitted.
+                  // function, different requests from the above test data are
+                  // submitted.
                   { L_,  'R',  0,  1,  0,  1,   0,  1,  0,  4,  1, VALID },
                   { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  4,  0, VALID },
                   { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  4,  0, VALID },
@@ -1448,8 +1440,8 @@ int main(int argc, char *argv[])
 
             {
                 // Because there are many items listed in the table for each
-                // test command, the following document specify which column
-                // in the table specifies which item.
+                // test command, the following document specify which column in
+                // the table specifies which item.
                 //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
@@ -1613,8 +1605,8 @@ int main(int argc, char *argv[])
             }
             {
                 // Because there are many items listed in the table for each
-                // test command, the following document specify which column
-                // in the table specifies which item.
+                // test command, the following document specify which column in
+                // the table specifies which item.
                 //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
@@ -1781,8 +1773,8 @@ int main(int argc, char *argv[])
 
             {
                 // Because there are many items listed in the table for each
-                // test command, the following document specify which column
-                // in the table specifies which item.
+                // test command, the following document specify which column in
+                // the table specifies which item.
                 //..
                 // Column      Item                Column       Item
                 // ------      ----                ------       ----
@@ -2021,11 +2013,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

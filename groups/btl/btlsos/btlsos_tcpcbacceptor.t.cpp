@@ -1,4 +1,4 @@
-// btlsos_tcpcbacceptor.t.cpp       -*-C++-*-
+// btlsos_tcpcbacceptor.t.cpp                                         -*-C++-*-
 
 #include <btlsos_tcpcbacceptor.h>
 
@@ -19,8 +19,8 @@
 #include <bsls_timeinterval.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strcmp()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'strcmp'
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
@@ -163,8 +163,7 @@ class my_EchoServer {
     char                        d_buffer[READ_SIZE];
 
     void allocateCb(btlsc::TimedCbChannel *channel, int status);
-         // Invoked by the socket event manager when a connection is
-         // accepted.
+         // Invoked by the socket event manager when a connection is accepted.
 
     void bufferedReadCb(const char *buffer, int status, int asyncStatus,
                         btlsc::TimedCbChannel *channel);
@@ -432,20 +431,20 @@ STREAM& my_Tick::streamOut(STREAM& stream, int version) const
 }
 
 static void myPrintTick(bsl::ostream& stream, const char *buffer)
-    // Print the value of the specified 'buffer' interpreted as a
-    // 'bdex' byte-stream representation of a 'my_Tick' value, to the
-    // specified 'stream' or report an error to 'stream' if 'buffer' is
-    // determined *not* to hold an encoding of a valid 'my_Tick' value.
+    // Print the value of the specified 'buffer' interpreted as a 'bdex'
+    // byte-stream representation of a 'my_Tick' value, to the specified
+    // 'stream' or report an error to 'stream' if 'buffer' is determined *not*
+    // to hold an encoding of a valid 'my_Tick' value.
 {
     const my_Tick *tick = (const my_Tick*) buffer;
     stream << *tick;
 }
 
 class my_TickReporter {
-    // This class implements a server that accepts connections, extracts
-    // from each connection a single 'my_Tick' value, and reports that
-    // value to a console stream; both the acceptor and console stream
-    // are supplied at construction.
+    // This class implements a server that accepts connections, extracts from
+    // each connection a single 'my_Tick' value, and reports that value to a
+    // console stream; both the acceptor and console stream are supplied at
+    // construction.
 
     btlsc::CbChannelAllocator      *d_acceptor_p; // incoming connections
     bsl::ostream&                  d_console;    // where to put tick info
@@ -457,15 +456,13 @@ class my_TickReporter {
     void acceptCb(btlsc::TimedCbChannel     *clientChannel,
                   int                       status,
                   const bsls::TimeInterval&  timeout);
-        // Called when a new client channel has been accepted.
-        // ...
+        // Called when a new client channel has been accepted.  ...
 
     void readCb(const char           *buffer,
                 int                   status,
                 int                   asyncStatus,
                 btlsc::TimedCbChannel *clientChannel);
-        // Called when a 'my_Tick' value has been read from the channel.
-        // ...
+        // Called when a 'my_Tick' value has been read from the channel.  ...
 
   private:
     my_TickReporter(const my_TickReporter&);             // not impl.
@@ -474,14 +471,14 @@ class my_TickReporter {
   public:
     my_TickReporter(bsl::ostream&                  console,
                     btlsc::CbChannelAllocator *acceptor);
-        // Create a non-blocking tick-reporter using the specified
-        // 'acceptor' to establish incoming client connections, each
-        // transmitting a single 'my_Tick' value; write these values
-        // to the specified 'console' stream.  If the acceptor is idle
-        // for more than five minutes, print a message to the 'console'
-        // stream supplied at construction and continue.  To guard
-        // against malicious clients, a connection that does not produce
-        // a tick value within one minute will be summarily dropped.
+        // Create a non-blocking tick-reporter using the specified 'acceptor'
+        // to establish incoming client connections, each transmitting a single
+        // 'my_Tick' value; write these values to the specified 'console'
+        // stream.  If the acceptor is idle for more than five minutes, print a
+        // message to the 'console' stream supplied at construction and
+        // continue.  To guard against malicious clients, a connection that
+        // does not produce a tick value within one minute will be summarily
+        // dropped.
 
     ~my_TickReporter();
         // Destroy this server object.
@@ -491,16 +488,16 @@ const double ACCEPT_TIME_LIMIT = 300;               // 5 minutes
 const double   READ_TIME_LIMIT =  60;               // 1 minutes
 
 static int calculateMyTickMessageSize()
-    // Calculate and return the number of bytes encoding of a
-    // 'my_Tick' value (called just once, see below).
+    // Calculate and return the number of bytes encoding of a 'my_Tick' value
+    // (called just once, see below).
 {
     return sizeof (my_Tick);
 }
 
 static int myTickMessageSize()
-    // Return the number of bytes in a 'bdex' byte-stream encoding
-    // of a 'my_Tick' value without creating a runtime-initialized
-    // file-scope static variable (which is link-order dependent).
+    // Return the number of bytes in a 'bdex' byte-stream encoding of a
+    // 'my_Tick' value without creating a runtime-initialized file-scope static
+    // variable (which is link-order dependent).
 {
     static const int MESSAGE_SIZE = calculateMyTickMessageSize();
     return MESSAGE_SIZE;
@@ -547,8 +544,8 @@ void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
         d_console << "Error: The channel allocator is not working now."
                   << bsl::endl;
 
-        // Note that attempting to re-register an allocate operation below
-        // will fail only if the channel allocator is permanently disabled.
+        // Note that attempting to re-register an allocate operation below will
+        // fail only if the channel allocator is permanently disabled.
     }
 
     // In all cases, attempt to reinstall the (reusable) accept callback.
@@ -575,11 +572,11 @@ void my_TickReporter::readCb(const char           *buffer,
     }
     else if (0 <= status) {   // Tick message was interrupted.
 
-        ASSERT(buffer); // Data in buffer is available for inspection
-                        // (but remains in the channel's buffer).
+        ASSERT(buffer); // Data in buffer is available for inspection (but
+                        // remains in the channel's buffer).
 
-        // Must be a timeout event since neither raw (partial) reads
-        // nor (external) asynchronous interrupts were authorized.
+        // Must be a timeout event since neither raw (partial) reads nor
+        // (external) asynchronous interrupts were authorized.
 
         ASSERT(0 == asyncStatus);   // must be timeout event!
 
@@ -637,12 +634,12 @@ static void acceptCb(btlsc::CbChannel           *channel,
                      int                        cancelFlag,
                      int                        closeFlag)
     // Verify the result of an "ACCEPT" request by comparing against the
-    // expected values:  If the specified 'channelFlag' is nonzero, a new
-    // channel should be established; the return 'status' should be the same
-    // as the specified 'expStatus'.  If the specified 'cancelFlag' is
-    // nonzero, invoke the 'cancelAll()' on the specified 'acceptor'
-    // to help the test.  Similarly, if the specified 'closeFlag' is nonzero,
-    // invoke the 'close()' on the specified 'acceptor'.
+    // expected values: If the specified 'channelFlag' is nonzero, a new
+    // channel should be established; the return 'status' should be the same as
+    // the specified 'expStatus'.  If the specified 'cancelFlag' is nonzero,
+    // invoke the 'cancelAll()' on the specified 'acceptor' to help the test.
+    // Similarly, if the specified 'closeFlag' is nonzero, invoke the 'close()'
+    // on the specified 'acceptor'.
 {
     if (validChannel) {
         ASSERT (channel);
@@ -679,22 +676,20 @@ static void acceptCb(btlsc::CbChannel           *channel,
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 void *threadToConnect(void *arg)
     // Create the specified number of client sockets, connect each client
-    // socket with the server created with a 'btlsos::TcpCbAcceptor'
-    // object.
+    // socket with the server created with a 'btlsos::TcpCbAcceptor' object.
     // The following information will be pass in through the specified 'arg':
-    // the btlso::IPv4Address object of the server to be connected; the
-    // number of connections to be established.
+    // the btlso::IPv4Address object of the server to be connected; the number
+    // of connections to be established.
 {
     ASSERT(arg);
-    // Since 'bslma::TestAllocator' is not thread-safe, the helper thread
-    // can't share the 'factory' (which uses a 'bslma::TestAllocator' object)
-    // and so we have to instantiate another factory object for the helper
-    // thread.
+    // Since 'bslma::TestAllocator' is not thread-safe, the helper thread can't
+    // share the 'factory' (which uses a 'bslma::TestAllocator' object) and so
+    // we have to instantiate another factory object for the helper thread.
     btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
 
     ConnectionInfo info = *(ConnectionInfo*) arg;
@@ -1019,8 +1014,8 @@ int main(int argc, char *argv[])
                                           manager.numEvents());
 
                     // We now make sure the acceptor can establish new
-                    // connections for suspending requests but can not
-                    // receive any new request.
+                    // connections for suspending requests but can not receive
+                    // any new request.
                     connections = 0;
                     while (connections < VALUES[i].d_initRequests) {
                         LOOP_ASSERT(i,
@@ -1239,8 +1234,8 @@ int main(int argc, char *argv[])
                                               acceptor.numChannels());
                     LOOP_ASSERT(i, 0 == manager.numEvents());
 
-                    // We now make sure the acceptor is invalid and
-                    // can not receive any new request.
+                    // We now make sure the acceptor is invalid and can not
+                    // receive any new request.
                     int newRequests = 0;
                     for (int k = 0; k < VALUES[i].d_numConnections; ++k) {
                         if (!timeoutChannel) {
@@ -1453,18 +1448,18 @@ int main(int argc, char *argv[])
                                               acceptor.numChannels());
                     LOOP_ASSERT(i, 0 == manager.numEvents());
 
-                    // We now make sure the acceptor is still valid and
-                    // can establish new connection upon request.
-                    // Besides, we also test call cancelAll() from the user
-                    // callback function by set the 'closeFlag' to 1 to invoke
-                    // cancelAll() inside the callback function.
+                    // We now make sure the acceptor is still valid and can
+                    // establish new connection upon request.  Besides, we also
+                    // test call cancelAll() from the user callback function by
+                    // set the 'closeFlag' to 1 to invoke cancelAll() inside
+                    // the callback function.
 
                     for (int j = 0; j < VALUES[i].d_newRequests; ++j) {
 
                         int channelFlag = 0, expStatus = -1,
                                cancelFlag = 0, closeFlag = 0;
-                        // Only make the first request invoke cancelAll()
-                        // in the user callback.
+                        // Only make the first request invoke cancelAll() in
+                        // the user callback.
                         if (0 == j) {
                             channelFlag = 1;
                             expStatus = 0;
@@ -1914,11 +1909,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

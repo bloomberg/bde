@@ -1,4 +1,4 @@
-// btlsos_tcptimedconnector.t.cpp      -*-C++-*-
+// btlsos_tcptimedconnector.t.cpp                                     -*-C++-*-
 
 #include <btlsos_tcptimedconnector.h>
 #include <btlsos_tcpchannel.h>
@@ -174,21 +174,20 @@ struct ConnectionInfo {
 };
 
 struct TestCommand {
-    // This struct includes needed information for each test operation,
-    // e.g., a request to "ACCEPT",  along with it's corresponding
-    // test results.
+    // This struct includes needed information for each test operation, e.g., a
+    // request to "ACCEPT", along with it's corresponding test results.
 
     int                d_lineNum;
 
     char               d_commandCode;   // command to invoke a corresponding
                                         // function, e.g., 'C' -- invoke the
-                                        // acceptor's close(); 'A' --
-                                        // an "allocate" function etc.
+                                        // acceptor's close(); 'A' -- an
+                                        // "allocate" function etc.
 
     int                d_channelType;   // a request for a 'btlsos::TcpChannel'
                                         // or 'btlsos::TcpTimedChannel', i.e.,
-                                        // 0 for a 'btlsos::TcpChannel'
-                                        // and 1 for a 'btlsos::TcpTimedChannel'
+                                        // 0 for a 'btlsos::TcpChannel' and 1
+                                        // for a 'btlsos::TcpTimedChannel'
     int                d_interruptFlags;// interruptible or not
 
     const bsls::TimeInterval *d_timeout; // a flag to indicate if it'll timeout
@@ -211,14 +210,14 @@ bslma::TestAllocator testAllocator;
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 void* threadAsServer(void *arg)
     // Taking information passed from the specified 'arg', wait to accept the
-    // expected number of connections, and/or generate signal 'SIGSYS'
-    // and deliver it to the thread specified in 'arg'.  Note the test can
-    // only work on UNIX platforms since the windows doesn't support signal
+    // expected number of connections, and/or generate signal 'SIGSYS' and
+    // deliver it to the thread specified in 'arg'.  Note the test can only
+    // work on UNIX platforms since the windows doesn't support signal
     // operations.
 {
     ConnectionInfo info = *(ConnectionInfo*) arg;
@@ -228,8 +227,8 @@ void* threadAsServer(void *arg)
     }
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    int signals = info.d_signals;    // This flag also indicates the number
-                                     // of signals to be generated.
+    int signals = info.d_signals;    // This flag also indicates the number of
+                                     // signals to be generated.
     while (signals-- > 0) {
         bdlqq::ThreadUtil::microSleep(2 * SLEEP_TIME);
         pthread_kill(info.d_tid, SIGSYS);
@@ -311,8 +310,7 @@ static void registerSignal(int signo, void (*handler)(int) )
 
 static int numChannelToBeEstablished(const TestCommand *commands,
                                      int                numCommands)
-    // Return the number of expected channels to be established
-    // for a test set.
+    // Return the number of expected channels to be established for a test set.
 {
     int total = 0;
     for (int i = 0; i < numCommands; ++i) {
@@ -320,8 +318,8 @@ static int numChannelToBeEstablished(const TestCommand *commands,
             ++total;
         }
     }
-    // The total expected number of channels are those deallocated during
-    // the test and those existing right after the test.
+    // The total expected number of channels are those deallocated during the
+    // test and those existing right after the test.
     total += commands[numCommands - 1].d_expNumChannels;
     return total;
 }
@@ -331,13 +329,13 @@ static int testExecutionHelper(btlsos::TcpTimedConnector   *connector,
                                const TestCommand          *command,
                                bsl::vector<btlsc::Channel*> *channels,
                                btlsc::Channel             **newChannel)
-    // Process the specified 'command' to invoke some function of the
-    // specified 'acceptor'.  If the 'command' is to "allocate" a new channel,
-    // the specified 'status' will be passed to the "allocate" function and
-    // the specified 'newChannel' will be store the value returned.  If the
-    // 'command' is to deallocate a channel, the first channel in the
-    // array of 'channels' will be deallocated.  Return 0 on success, and
-    // a non-zero value otherwise.
+    // Process the specified 'command' to invoke some function of the specified
+    // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
+    // specified 'status' will be passed to the "allocate" function and the
+    // specified 'newChannel' will be store the value returned.  If the
+    // 'command' is to deallocate a channel, the first channel in the array of
+    // 'channels' will be deallocated.  Return 0 on success, and a non-zero
+    // value otherwise.
 {
     int rCode = 0;
 
@@ -386,26 +384,27 @@ static int testExecutionHelper(btlsos::TcpTimedConnector   *connector,
 }
 
 static
-int processTest(btlsos::TcpTimedConnector                      *connector,
-          bdlqq::ThreadUtil::ThreadFunction                     threadFunction,
-          btlso::StreamSocket<btlso::IPv4Address>               *serverSocket,
-          bsl::vector<btlsc::Channel*>                          *channels,
-          bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> *connList,
-          const TestCommand                                   *commands,
-          int                                                  numCommands,
-          int                                                  signals,
-          int                                                  expNumChannels,
-          int                                                  equeueSize)
+int processTest(
+        btlsos::TcpTimedConnector                              *connector,
+        bdlqq::ThreadUtil::ThreadFunction                       threadFunction,
+        btlso::StreamSocket<btlso::IPv4Address>                *serverSocket,
+        bsl::vector<btlsc::Channel*>                           *channels,
+        bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> *connList,
+        const TestCommand                                      *commands,
+        int                                                     numCommands,
+        int                                                     signals,
+        int                                                     expNumChannels,
+        int                                                     equeueSize)
     // The specified 'numCommands' of test commands will be issued in the
     // specified 'commands' to invoke some function in the specified
     // 'acceptor'.  Each new channel will be added to the array of channels
     // specified as 'channels'.  Create a thread taking the specified
     // 'threadFunction' as the thread function.  The thread will work as a
     // client to submit the expected number of connection requests and/or
-    // generate signals if the 'signals' is set.  Results after each
-    // test will be compared against those expected which are also specified
-    // in the specified 'commands'.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // generate signals if the 'signals' is set.  Results after each test will
+    // be compared against those expected which are also specified in the
+    // specified 'commands'.  Return 0 on success, and a non-zero value
+    // otherwise.
 {
     bdlqq::ThreadUtil::Handle threadHandle;
 
@@ -1897,9 +1896,9 @@ int main(int argc, char *argv[]) {
   {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
 #if defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
     defined(BSLS_PLATFORM_OS_AIX)
-  // Solaris and AIX will incorrectly return very quickly from this
-  // call to connect.  The other platforms would timeout at some point but
-  // it would have taken a very long time.
+  // Solaris and AIX will incorrectly return very quickly from this call to
+  // connect.  The other platforms would timeout at some point but it would
+  // have taken a very long time.
   {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 #endif
 };
@@ -2208,8 +2207,8 @@ int main(int argc, char *argv[]) {
               {
                 {  L_,            0,          0,           16 },
               };
-              // Register a signal handler for "SIGSYS".
-              // registerSignal(SIGSYS, signalHandler);
+              // Register a signal handler for "SIGSYS". registerSignal(SIGSYS,
+              // signalHandler);
 
               bsls::TimeInterval time(60, 10000000);
               time += bdlt::CurrentTime::now();
@@ -2324,9 +2323,9 @@ int main(int argc, char *argv[]) {
   {L_, 'A',  CHANNEL,  interruptible, INFINITED,  1,         0,     existing},
 #if defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
     defined(BSLS_PLATFORM_OS_AIX)
-  // Solaris and AIX will incorrectly return very quickly from this
-  // call to connect.  The other platforms would timeout at some point but
-  // it would have taken a very long time.
+  // Solaris and AIX will incorrectly return very quickly from this call to
+  // connect.  The other platforms would timeout at some point but it would
+  // have taken a very long time.
   {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 #endif
 };
@@ -2845,11 +2844,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// btlsos_tcptimedacceptor.t.cpp      -*-C++-*-
+// btlsos_tcptimedacceptor.t.cpp                                      -*-C++-*-
 
 #include <btlsos_tcptimedacceptor.h>
 
@@ -162,21 +162,20 @@ struct ConnectionInfo {
 };
 
 struct TestCommand {
-    // This struct includes needed information for each test operation,
-    // e.g., a request to "ACCEPT",  along with it's corresponding
-    // test results.
+    // This struct includes needed information for each test operation, e.g., a
+    // request to "ACCEPT", along with it's corresponding test results.
 
     int                d_lineNum;
 
     char               d_commandCode;   // command to invoke a corresponding
                                         // function, e.g., 'C' -- invoke the
-                                        // acceptor's close(); 'A' --
-                                        // an "allocate" function etc.
+                                        // acceptor's close(); 'A' -- an
+                                        // "allocate" function etc.
 
     int                d_channelType;   // a request for a 'btlsos::TcpChannel'
                                         // or 'btlsos::TcpTimedChannel', i.e.,
-                                        // 0 for a 'btlsos::TcpChannel'
-                                        // and 1 for a 'btlsos::TcpTimedChannel'
+                                        // 0 for a 'btlsos::TcpChannel' and 1
+                                        // for a 'btlsos::TcpTimedChannel'
 
     int                d_interruptFlags;// interruptible or not
 
@@ -188,8 +187,8 @@ struct TestCommand {
     int                d_validChannel; // It's 1 if a valid channel is
                                        // returned, and 0 otherwise.
     int                d_expNumChannels;
-    int                d_signal; // 1 if we need to signal before trying
-                                 // to connect
+    int                d_signal; // 1 if we need to signal before trying to
+                                 // connect
 };
 
 bslma::TestAllocator testAllocator;
@@ -204,8 +203,7 @@ volatile sig_atomic_t syncWithSigHandler = 0;
 static void signalHandler(int sig)
     // The signal handler does nothing.
 {
-     // this is NOT SIGNAL SAFE, but it should not matter if the asser is
-     // true
+     // this is NOT SIGNAL SAFE, but it should not matter if the asser is true
      ASSERT(syncWithSigHandler == 0);
 
      if (veryVerbose) {
@@ -233,32 +231,29 @@ static void registerSignal(int signo, void (*handler)(int) )
 //}
 #endif
 
-// Flag to indicate we're past the accept in the helper function
-// If it is 0, the client thread will try to connect
-// We need that flag since the socket is always in LISTEN state
-// so any attempt to connect to it will succeed even if we are
-// not in accept().  So the connection will be backlogged and
-// no channels will be allocated (since we're past the allocate())
-// leading to false results.
-// This part is still racy, but there is no fix (FIXME) at the moment.
-// You may need to adjust the sleep times in threadAsClient
-// even if it is *very* unlikely
+// Flag to indicate we're past the accept in the helper function If it is 0,
+// the client thread will try to connect We need that flag since the socket is
+// always in LISTEN state so any attempt to connect to it will succeed even if
+// we are not in accept().  So the connection will be backlogged and no
+// channels will be allocated (since we're past the allocate()) leading to
+// false results.  This part is still racy, but there is no fix (FIXME) at the
+// moment.  You may need to adjust the sleep times in threadAsClient even if it
+// is *very* unlikely
 int helperAfterAccept;
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
 extern "C"
     // This is a thread function and, thus, it must have extern "C" linkage.
     // Sun Workshop compilers, however, have a bug in that an extern "C"
-    // function can't access template functions.
-    // This was fixed in Sun Studio 8 compiler.
+    // function can't access template functions.  This was fixed in Sun Studio
+    // 8 compiler.
 #endif
 
 void* threadAsClient(void *arg)
-    // Taking information passed from the specified 'arg', submit the
-    // expected number of connection requests and/or generate signal 'SIGSYS'
-    // and deliver it to a thread specified in 'arg'.  Note the test can
-    // only work on UNIX platforms since the windows doesn't support signal
-    // operations.
+    // Taking information passed from the specified 'arg', submit the expected
+    // number of connection requests and/or generate signal 'SIGSYS' and
+    // deliver it to a thread specified in 'arg'.  Note the test can only work
+    // on UNIX platforms since the windows doesn't support signal operations.
 {
     const ConnectionInfo & info = *(ConnectionInfo*) arg;
     if (verbose) {
@@ -272,10 +267,8 @@ void* threadAsClient(void *arg)
 
     for (int i = 0 ; i < info.d_numCommands ; ++i) {
 
-        // XXX This is still slighly racy ..
-        // we'd like to be sure that the helper thread
-        // is in the accept() call, hence the yield
-        // and sleep.
+        // XXX This is still slighly racy .. we'd like to be sure that the
+        // helper thread is in the accept() call, hence the yield and sleep.
         info.d_barrier->wait();
         bdlqq::ThreadUtil::yield();
         bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
@@ -299,9 +292,9 @@ void* threadAsClient(void *arg)
             bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
         }
 
-        // XXX at this point if the helper thread has left accept
-        // BUT has not set helperAfterAccept to 1, we will get
-        // false results... You may need to adjust the sleeping time above
+        // XXX at this point if the helper thread has left accept BUT has not
+        // set helperAfterAccept to 1, we will get false results... You may
+        // need to adjust the sleeping time above
         if (info.d_commands[i].d_commandCode == 'A'
          && 0 == helperAfterAccept) {
 
@@ -370,8 +363,7 @@ static void* threadToCloseServer(void *arg)
 
 static int numChannelToBeEstablished(const TestCommand *commands,
                                      int                numCommands)
-    // Return the number of expected channels to be established
-    // for a test set.
+    // Return the number of expected channels to be established for a test set.
 {
     int total = 0;
     for (int i = 0; i < numCommands; ++i) {
@@ -379,8 +371,8 @@ static int numChannelToBeEstablished(const TestCommand *commands,
             ++total;
         }
     }
-    // The total expected number of channels are those deallocated during
-    // the test and those existing right after the test.
+    // The total expected number of channels are those deallocated during the
+    // test and those existing right after the test.
     total += commands[numCommands - 1].d_expNumChannels;
     return total;
 }
@@ -391,13 +383,13 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor     *acceptor,
                                bsl::vector<btlsc::Channel*> *channels,
                                btlsc::Channel              **newChannel,
                                bdlqq::Barrier               * syncBarrier)
-    // Process the specified 'command' to invoke some function of the
-    // specified 'acceptor'.  If the 'command' is to "allocate" a new channel,
-    // the specified 'status' will be passed to the "allocate" function and
-    // the specified 'newChannel' will be store the value returned.  If the
-    // 'command' is to deallocate a channel, the first channel in the
-    // array of 'channels' will be deallocated.  Return 0 on success, and
-    // a non-zero value otherwise.
+    // Process the specified 'command' to invoke some function of the specified
+    // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
+    // specified 'status' will be passed to the "allocate" function and the
+    // specified 'newChannel' will be store the value returned.  If the
+    // 'command' is to deallocate a channel, the first channel in the array of
+    // 'channels' will be deallocated.  Return 0 on success, and a non-zero
+    // value otherwise.
 {
     int rCode = 0;
 
@@ -405,9 +397,9 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor     *acceptor,
             QT("Synchronizing before accept");
     }
     helperAfterAccept = 0;
-    // XXX attempts to synchronize with the client thread
-    // we want to be the accept() call when/if a signal
-    // is launched to get an interrupted system call
+    // XXX attempts to synchronize with the client thread we want to be the
+    // accept() call when/if a signal is launched to get an interrupted system
+    // call
     syncBarrier->wait();
     switch (command->d_commandCode) {
     case 'A': {  // an "ACCEPTOR" request
@@ -474,19 +466,19 @@ static
 int processTest(btlsos::TcpTimedAcceptor          *acceptor,
                 bdlqq::ThreadUtil::ThreadFunction  threadFunction,
                 bsl::vector<btlsc::Channel*>      *channels,
-                const TestCommand                *commands,
-                int                               numCommands,
-                int                               expNumChannels)
+                const TestCommand                 *commands,
+                int                                numCommands,
+                int                                expNumChannels)
     // The specified 'numCommands' of test commands will be issued in the
     // specified 'commands' to invoke some function in the specified
     // 'acceptor'.  Each new channel will be added to the array of channels
     // specified as 'channels'.  Create a thread taking the specified
     // 'threadFunction' as the thread function.  The thread will work as a
     // client to submit the expected number of connection requests and/or
-    // generate signals if d_signal is set.  Results after each
-    // test will be compared against those expected which are also specified
-    // in the specified 'commands'.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // generate signals if d_signal is set.  Results after each test will be
+    // compared against those expected which are also specified in the
+    // specified 'commands'.  Return 0 on success, and a non-zero value
+    // otherwise.
 {
     btlso::IPv4Address serverAddr(acceptor->address());
 
@@ -1010,8 +1002,8 @@ int main(int argc, char *argv[]) {
                   }
 
                   // If the 'd_reuseAddressFlag' is on, re-bind the previous
-                  // closed server socket and connection try should be able
-                  // to succeed.
+                  // closed server socket and connection try should be able to
+                  // succeed.
                   if (VALUES[i].d_reuseAddressFlag) {
                       TestCommand DATA[] =
 // ===================>
@@ -1235,7 +1227,7 @@ int main(int argc, char *argv[]) {
   // The "timeout" is reached for "allocate" operation: no channel is built.
   {L_, 'A', T_CHANNEL, interruptible,  &timeout,   0,        0,          0,
    0    },
-  // a channel is established  before "time" is reached: concern (4).
+  // a channel is established before "time" is reached: concern (4).
   {L_, 'A', T_CHANNEL,  interruptible, &time,      0,        1,          1,
    0    },
 
@@ -1304,8 +1296,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // The 'acceptor' is closed in step 1, now reopen it
-                      // to establish a listening server socket.
+                      // The 'acceptor' is closed in step 1, now reopen it to
+                      // establish a listening server socket.
 
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
@@ -1359,9 +1351,9 @@ int main(int argc, char *argv[]) {
                       StreamSocket *server =
                           const_cast <StreamSocket *> (serverSocket);
 
-                      // If multiple test data is added, be sure the
-                      // 'acceptor' should be opened every time, then create
-                      // a thread to close its server socket.
+                      // If multiple test data is added, be sure the 'acceptor'
+                      // should be opened every time, then create a thread to
+                      // close its server socket.
                       TestCommand DATA =
 // ===================>
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
@@ -1409,8 +1401,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // Reopen the 'acceptor' establish a new listening
-                      // server socket.
+                      // Reopen the 'acceptor' establish a new listening server
+                      // socket.
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
                       ASSERT(0 == acceptor.isInvalid());
@@ -1671,8 +1663,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // The 'acceptor' is closed in step 1, now reopen it
-                      // to establish a listening server socket.
+                      // The 'acceptor' is closed in step 1, now reopen it to
+                      // establish a listening server socket.
 
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
@@ -1724,9 +1716,9 @@ int main(int argc, char *argv[]) {
                       StreamSocket *server =
                           const_cast <StreamSocket *> (serverSocket);
 
-                      // If multiple test data is added, be sure the
-                      // 'acceptor' should be opened every time, then create
-                      // a thread to close its server socket.
+                      // If multiple test data is added, be sure the 'acceptor'
+                      // should be opened every time, then create a thread to
+                      // close its server socket.
                       TestCommand DATA =
 // ===================>
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
@@ -1774,8 +1766,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // Reopen the 'acceptor' establish a new listening
-                      // server socket.
+                      // Reopen the 'acceptor' establish a new listening server
+                      // socket.
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
                       ASSERT(0 == acceptor.isInvalid());
@@ -2085,8 +2077,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // The 'acceptor' is closed in step 1, now reopen it
-                      // to establish a listening server socket.
+                      // The 'acceptor' is closed in step 1, now reopen it to
+                      // establish a listening server socket.
 
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
@@ -2146,9 +2138,9 @@ int main(int argc, char *argv[]) {
                       StreamSocket *server =
                           const_cast <StreamSocket *> (serverSocket);
 
-                      // If multiple test data is added, be sure the
-                      // 'acceptor' should be opened every time, then create
-                      // a thread to close its server socket.
+                      // If multiple test data is added, be sure the 'acceptor'
+                      // should be opened every time, then create a thread to
+                      // close its server socket.
                       TestCommand DATA =
 // ===================>
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
@@ -2192,8 +2184,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // Reopen the 'acceptor' establish a new listening
-                      // server socket.
+                      // Reopen the 'acceptor' establish a new listening server
+                      // socket.
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
                       ASSERT(0 == acceptor.isInvalid());
@@ -2514,8 +2506,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // The 'acceptor' is closed in step 1, now reopen it
-                      // to establish a listening server socket.
+                      // The 'acceptor' is closed in step 1, now reopen it to
+                      // establish a listening server socket.
 
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
@@ -2573,9 +2565,9 @@ int main(int argc, char *argv[]) {
                       StreamSocket *server =
                           const_cast <StreamSocket *> (serverSocket);
 
-                      // If multiple test data is added, be sure the
-                      // 'acceptor' should be opened every time, then create
-                      // a thread to close its server socket.
+                      // If multiple test data is added, be sure the 'acceptor'
+                      // should be opened every time, then create a thread to
+                      // close its server socket.
                       TestCommand DATA =
 // ===================>
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
@@ -2620,8 +2612,8 @@ int main(int argc, char *argv[]) {
                       serverAddress.setIpAddress(HOST_NAME);
                       serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      // Reopen the 'acceptor' establish a new listening
-                      // server socket.
+                      // Reopen the 'acceptor' establish a new listening server
+                      // socket.
                       ASSERT(0 == acceptor.open(serverAddress,
                                             VALUES[i].d_queueSize));
                       ASSERT(0 == acceptor.isInvalid());
@@ -2945,11 +2937,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
