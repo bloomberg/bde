@@ -72,19 +72,20 @@ BSLS_IDENT("$Id: $")
 //..
 //  class my_EchoClient {
 //      enum {
-//          BUFFER_SIZE = 100
+//          k_BUFFER_SIZE = 100
 //      };
 //
 //      btlsos::TcpTimedCbConnector  d_allocator;
 //      bsls::TimeInterval           d_connectTimeout;
 //      bsls::TimeInterval           d_readTimeout;
 //      bsls::TimeInterval           d_writeTimeout;
-//      char                        d_controlBuffer[BUFFER_SIZE];
+//      char                        d_controlBuffer[k_BUFFER_SIZE];
 //      int                         d_numConnections;
 //      int                         d_maxConnections;
 //      int                         d_numMessages;
 //
-//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> d_allocateFunctor;
+//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+//                                                           d_allocateFunctor;
 //
 //      void allocateCb(btlsc::TimedCbChannel *channel,
 //                      int                   status);
@@ -139,7 +140,7 @@ BSLS_IDENT("$Id: $")
 //      assert(factory); assert(manager);
 //      d_allocateFunctor = bdlf::MemFnUtil::memFn(&my_EchoClient::allocateCb,
 //                                                this);
-//      memset(d_controlBuffer, 'A', BUFFER_SIZE);
+//      memset(d_controlBuffer, 'A', k_BUFFER_SIZE);
 //  }
 //
 //  my_EchoClient::~my_EchoClient()
@@ -156,7 +157,8 @@ BSLS_IDENT("$Id: $")
 // performance:
 //..
 //  // MANIPULATORS
-//  void my_EchoClient::allocateCb(btlsc::TimedCbChannel *channel, int status) {
+//  void my_EchoClient::allocateCb(btlsc::TimedCbChannel *channel,
+//                                 int                    status) {
 //      if (channel) {
 //          // Connected to a server.  Issue a buffered write request.
 //          if (globalVeryVerbose) {
@@ -170,10 +172,10 @@ BSLS_IDENT("$Id: $")
 //                                      channel,
 //                                      0));
 //          if (channel->timedBufferedWrite(
-//                                    d_controlBuffer,
-//                                    BUFFER_SIZE,
-//                                    bdlt::CurrentTime::now() + d_writeTimeout,
-//                                    callback))
+//                                   d_controlBuffer,
+//                                   k_BUFFER_SIZE,
+//                                   bdlt::CurrentTime::now() + d_writeTimeout,
+//                                   callback))
 //          {
 //              cout << "Failed to enqueue write request." << endl;
 //              assert(channel->isInvalidWrite());
@@ -182,8 +184,8 @@ BSLS_IDENT("$Id: $")
 //
 //          if (d_maxConnections > ++d_numConnections) {
 //              int s = d_allocator.timedAllocateTimed(
-//.                                d_allocateFunctor,
-//                                 bdlt::CurrentTime::now() + d_connectTimeout);
+//                                d_allocateFunctor,
+//                                bdlt::CurrentTime::now() + d_connectTimeout);
 //              assert(0 == s);
 //          }
 //          return;
@@ -204,8 +206,8 @@ BSLS_IDENT("$Id: $")
 //      // connect request
 //      if (d_maxConnections > ++d_numConnections) {
 //          int s = d_allocator.timedAllocateTimed(
-//                                 d_allocateFunctor,
-//                                 bdlt::CurrentTime::now() + d_connectTimeout);
+//                                d_allocateFunctor,
+//                                bdlt::CurrentTime::now() + d_connectTimeout);
 //          assert(0 == s);
 //      }
 //  }
@@ -222,8 +224,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //      assert(channel);
 //      if (0 < status) {
-//          assert(BUFFER_SIZE == status);
-//          assert(0 == memcmp(buffer, d_controlBuffer, BUFFER_SIZE));
+//          assert(k_BUFFER_SIZE == status);
+//          assert(0 == memcmp(buffer, d_controlBuffer, k_BUFFER_SIZE));
 //
 //          // If we're not done -- enqueue another request
 //          if (sequence < d_numMessages) {
@@ -234,9 +236,9 @@ BSLS_IDENT("$Id: $")
 //                                          channel,
 //                                          sequence + 1));
 //              if (channel->timedBufferedWrite(
-//                         d_controlBuffer,
-//                         BUFFER_SIZE,
-//                         bdlt::CurrentTime::now() + d_writeTimeout, callback))
+//                        d_controlBuffer,
+//                        k_BUFFER_SIZE,
+//                        bdlt::CurrentTime::now() + d_writeTimeout, callback))
 //              {
 //                  cout << "Failed to enqueue write request." << endl;
 //                  assert(channel->isInvalidWrite());
@@ -274,7 +276,7 @@ BSLS_IDENT("$Id: $")
 //               << " bytes to server." << endl;
 //      }
 //      if (0 < status) {
-//          if (status != BUFFER_SIZE) {
+//          if (status != k_BUFFER_SIZE) {
 //              d_allocator.deallocate(channel);
 //              assert("Failed to send data to the server" && 0);
 //
@@ -287,9 +289,9 @@ BSLS_IDENT("$Id: $")
 //                                          channel,
 //                                          sequence));
 //              if (channel->timedBufferedRead(
-//                                     BUFFER_SIZE,
-//                                     bdlt::CurrentTime::now() + d_readTimeout,
-//                                     callback))
+//                                    k_BUFFER_SIZE,
+//                                    bdlt::CurrentTime::now() + d_readTimeout,
+//                                    callback))
 //              {
 //                  assert(channel->isInvalidRead());
 //                  d_allocator.deallocate(channel);
@@ -316,8 +318,8 @@ BSLS_IDENT("$Id: $")
 //  int my_EchoClient::setPeer(const btlso::IPv4Address& address) {
 //      d_allocator.setPeer(address);
 //      return d_allocator.timedAllocateTimed(
-//                                 d_allocateFunctor,
-//                                 bdlt::CurrentTime::now() + d_connectTimeout);
+//                                d_allocateFunctor,
+//                                bdlt::CurrentTime::now() + d_connectTimeout);
 //  }
 //..
 ///Dual control and data channels
@@ -331,10 +333,6 @@ BSLS_IDENT("$Id: $")
 // queue size, and input buffer size are constants within this class.
 //..
 //  class my_DataStream {
-//      enum {
-//         DEFAULT_PORT_NUMBER = 1234,  // arbitrary port number
-//         QUEUE_SIZE = 16              // listen queue size
-//      };
 //      btlsos::TcpTimedCbConnector  d_allocator;
 //      bsls::TimeInterval           d_connectTimeout;
 //
@@ -409,8 +407,8 @@ BSLS_IDENT("$Id: $")
 //                                  _1, _2,
 //                                  &d_controlChannel));
 //      if (d_allocator.timedAllocateTimed(
-//                               callback,
-//                               bdlt::CurrentTime::now() + d_connectTimeout)) {
+//                              callback,
+//                              bdlt::CurrentTime::now() + d_connectTimeout)) {
 //          return -1;
 //      }
 //      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> callback(
@@ -419,8 +417,8 @@ BSLS_IDENT("$Id: $")
 //                                  _1, _2,
 //                                  &d_dataChannel));
 //      return d_allocator.timedAllocateTimed(
-//                                 callback,
-//                                 bdlt::CurrentTime::now() + d_connectTimeout);
+//                                callback,
+//                                bdlt::CurrentTime::now() + d_connectTimeout);
 //  }
 //
 //..
@@ -476,18 +474,9 @@ namespace BloombergLP {
 namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
+namespace btlsos {
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-
-}  // close package namespace
-
-namespace btlsos {class TcpTimedCbConnector_Reg; // component-local class
-
-                                                 // declaration
+class TcpTimedCbConnector_Reg; // component-local class declaration
 
                         // =========================
                         // class TcpTimedCbConnector
