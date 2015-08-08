@@ -272,7 +272,7 @@ class BerDecoder {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEM_BER_SUCCESS = e_BER_SUCCESS
-      , BDEM_BER_ERROR   = e_BER_ERROR  
+      , BDEM_BER_ERROR   = e_BER_ERROR
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

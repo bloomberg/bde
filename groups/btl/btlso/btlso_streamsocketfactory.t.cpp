@@ -330,7 +330,7 @@ int main(int argc, char *argv[]) {
 // user allocates a stream socket and wants to pass it to a higher level pool
 // for management.  This component provides,
 // 'btlso::StreamSocketFactoryDeleter', that contains a 'deleter' method,
-// 'deleteObject', that can safely deallocate the stream socket on its 
+// 'deleteObject', that can safely deallocate the stream socket on its
 // destruction.
 //
 // The example below shows the syntax for constructing managed and shared

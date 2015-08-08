@@ -65,7 +65,7 @@ typedef socklen_t ADDRLEN_T;
 //-----------------------------------------------------------------------------
 typedef bsl::pair<const btlso::IPv4Address, const char *> ClientData;
 
-void serverFunction(const btlso::IPv4Address& IP_ADDR, 
+void serverFunction(const btlso::IPv4Address& IP_ADDR,
                     bdlqq::Barrier *barrier)
 {
      btlso::SocketHandle::Handle serverSocket, sessionSocket;
@@ -88,7 +88,7 @@ void serverFunction(const btlso::IPv4Address& IP_ADDR,
                                       BACKLOG,
                                       &errCode);       ASSERT(0 == rc);
 
-     barrier->wait();                                                       
+     barrier->wait();
 
      rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&sessionSocket,
                                                          serverSocket,
@@ -301,8 +301,8 @@ int main(int argc, char *argv[])
      bdlqq::ThreadUtil::Handle stid, ctid;
 
      bdlqq::Barrier barrier(2);
-     bdlqq::ThreadUtil::create(&stid, 
-                              bdlf::BindUtil::bind(&serverFunction, 
+     bdlqq::ThreadUtil::create(&stid,
+                              bdlf::BindUtil::bind(&serverFunction,
                                                   IP_ADDR,
                                                   &barrier));
      barrier.wait();

@@ -20,9 +20,9 @@ BSLS_IDENT_RCSID(balber_berencoderoptions_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                     // ----------------------------------                     
-                     // class balber::BerEncoderOptions                     
-                     // ----------------------------------                     
+                     // ----------------------------------
+                     // class balber::BerEncoderOptions
+                     // ----------------------------------
 
 // CONSTANTS
 

@@ -269,12 +269,12 @@ class BerEncoder {
   public:
     // PUBLIC TYPES
     enum ErrorSeverity {
-        e_BER_SUCCESS = 0x00 
+        e_BER_SUCCESS = 0x00
       , e_BER_ERROR   = 0x02
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEM_BER_SUCCESS = e_BER_SUCCESS 
-      , BDEM_BER_ERROR   = e_BER_ERROR   
+      , BDEM_BER_SUCCESS = e_BER_SUCCESS
+      , BDEM_BER_ERROR   = e_BER_ERROR
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

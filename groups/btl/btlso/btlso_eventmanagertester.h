@@ -558,11 +558,11 @@ struct EventManagerTester {
                                  // test script to the standard output.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BTESO_VERBOSE           = k_VERBOSE           
-      , BTESO_VERY_VERBOSE      = k_VERY_VERBOSE      
-      , BTESO_VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE 
-      , BTESO_ABORT             = k_ABORT             
-      , BTESO_DRY_RUN           = k_DRY_RUN           
+      , BTESO_VERBOSE           = k_VERBOSE
+      , BTESO_VERY_VERBOSE      = k_VERY_VERBOSE
+      , BTESO_VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
+      , BTESO_ABORT             = k_ABORT
+      , BTESO_DRY_RUN           = k_DRY_RUN
       , VERBOSE           = k_VERBOSE
       , VERY_VERBOSE      = k_VERY_VERBOSE
       , VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
