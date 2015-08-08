@@ -1523,8 +1523,7 @@ int main(int argc, char *argv[]) {
            const bteso_Flag::IOWaitType RD = bteso_Flag::e_IO_READ;
            const bteso_Flag::IOWaitType WR = bteso_Flag::e_IO_WRITE;
            const bteso_Flag::IOWaitType RW = bteso_Flag::e_IO_RW;
-           const int                    TO = btlso::SocketHandle::
-                                                          BTESO_ERROR_TIMEDOUT;
+           const int                    TO = btlso::SocketHandle::e_ERROR_TIMEDOUT;
 
            typedef bteso_Flag S;
            static const struct {

@@ -10,7 +10,7 @@ namespace BloombergLP {
 
 const char *btesc_Flag::toAscii(Flag value)
 {
-#define CASE(X) case(BTESC_ ## X): return #X
+#define CASE(X) case(k_ ## X): return #X
 
     switch (value) {
       CASE(ASYNC_INTERRUPT);

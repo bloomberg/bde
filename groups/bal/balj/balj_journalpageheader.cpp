@@ -198,7 +198,7 @@ void JournalPageHeader::init(unsigned                  numBlocks,
     d_lastReleasedBlock = k_INDEX_NONE;
     d_numReleasedBlocks = 0;
     d_isOnFillList = false;
-    d_nextPage = BAECS_INVALID_RECORD_HANDLE;
+    d_nextPage = k_INVALID_RECORD_HANDLE;
 
     for(unsigned i=0; i<d_numBlocks; i++) {
         d_blocks[i].init();
@@ -259,8 +259,8 @@ int JournalPageHeader::release(unsigned first)
         return numBlocks;
     }
 
-    d_blocks[first].setNextRecord(BAECS_INVALID_RECORD_HANDLE); // TBD: ????
-    d_blocks[first].setPrevRecord(BAECS_INVALID_RECORD_HANDLE);
+    d_blocks[first].setNextRecord(k_INVALID_RECORD_HANDLE); // TBD: ????
+    d_blocks[first].setPrevRecord(k_INVALID_RECORD_HANDLE);
 
     d_numReleasedBlocks = d_numReleasedBlocks + numBlocks;
 
@@ -284,8 +284,8 @@ int JournalPageHeader::deallocate(unsigned first) {
     if (numFreeBlocks() + numBlocks > d_numBlocks) {
         return numBlocks;
     }
-    d_blocks[first].setNextRecord(BAECS_INVALID_RECORD_HANDLE); // TBD: ???
-    d_blocks[first].setPrevRecord(BAECS_INVALID_RECORD_HANDLE);
+    d_blocks[first].setNextRecord(k_INVALID_RECORD_HANDLE); // TBD: ???
+    d_blocks[first].setPrevRecord(k_INVALID_RECORD_HANDLE);
     d_numAvailableBlocks = d_numAvailableBlocks + numBlocks;
     d_blocks[last].setNextBlock(d_firstAvailableBlock);
     d_firstAvailableBlock = first;
