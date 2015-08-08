@@ -213,7 +213,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
         if (verbose)
             bsl::cout << "Error writing request header to server: "
                       << rc << bsl::endl;
-        client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
         return;
     }
     rc = client->write(word, sizeof word);
@@ -221,7 +221,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
         if (verbose)
             bsl::cout << "Error writing request body to server: "
                       << rc << bsl::endl;
-        client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
         return;
     }
 
@@ -229,7 +229,7 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
     if (rc != sizeof length) {
         if (verbose)
             bsl::cout << "Error reading from server: " << rc << bsl::endl;
-        client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
         return;
     }
 
@@ -240,12 +240,12 @@ void dictionary_client(btlso::StreamSocket<btlso::IPv4Address> *client)
     if (rc != length) {
         if (verbose)
             bsl::cout << "Error reading from server: " << rc << bsl::endl;
-        client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
         return;
     }
     if (verbose)
         bsl::cout << definition << bsl::endl;
-    client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+    client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 }
 
 // Example 2
@@ -263,7 +263,7 @@ void dictionary_server(btlso::StreamSocket<btlso::IPv4Address> *server)
         SERVER_PORT            = 2698  // arbitrary port number
     };
 
-    btlso::IPv4Address addr(btlso::IPv4Address::BTESO_ANY_ADDRESS, SERVER_PORT);
+    btlso::IPv4Address addr(btlso::IPv4Address::k_ANY_ADDRESS, SERVER_PORT);
     int rc;
     rc = server->bind(addr);
     if (rc != 0) {
@@ -291,7 +291,7 @@ void dictionary_server(btlso::StreamSocket<btlso::IPv4Address> *server)
         if (rc != sizeof length) {
             if (verbose)
                 bsl::cout << "Error reading from client: " << rc << bsl::endl;
-            client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             continue;
         }
 
@@ -299,7 +299,7 @@ void dictionary_server(btlso::StreamSocket<btlso::IPv4Address> *server)
         if (length < 0 || length > (int)sizeof word) {
             if (verbose)
                 bsl::cout << "Invalid request length: " << length << bsl::endl;
-            client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             continue;
         }
 
@@ -307,7 +307,7 @@ void dictionary_server(btlso::StreamSocket<btlso::IPv4Address> *server)
         if (length != rc) {
             if (verbose)
                 bsl::cout << "Error reading from client: " << rc << bsl::endl;
-            client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             continue;
         }
         const char *definition = lookupWord(word);
@@ -320,18 +320,18 @@ void dictionary_server(btlso::StreamSocket<btlso::IPv4Address> *server)
         if (sizeof tmp != rc) {
             if (verbose)
                 bsl::cout << "Error writing to client: " << rc << bsl::endl;
-            client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             continue;
         }
         rc = client->write(definition, length);
         if (rc != length) {
             if (verbose)
                 bsl::cout << "Error writing to client: " << rc << bsl::endl;
-            client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             continue;
         }
 
-        client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
     } while(1);
 }
 
@@ -435,10 +435,10 @@ int main(int argc, char *argv[]) {
          t.writev(ov, 1);
          ASSERT(11 == c);
 
-         t.setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+         t.setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
          ASSERT(12 == c);
 
-         t.shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+         t.shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
          ASSERT(13 == c);
 
          t.waitForConnect(to);
@@ -447,10 +447,10 @@ int main(int argc, char *argv[]) {
          t.waitForAccept(to);
          ASSERT(15 == c);
 
-         t.waitForIO(bteso_Flag::BTESO_IO_RW, to);
+         t.waitForIO(bteso_Flag::e_IO_RW, to);
          ASSERT(16 == c);
 
-         t.waitForIO(bteso_Flag::BTESO_IO_WRITE);
+         t.waitForIO(bteso_Flag::e_IO_WRITE);
          ASSERT(17 == c);
 
          t.setLingerOption(ld);
@@ -492,7 +492,7 @@ int main(int argc, char *argv[]) {
          m = new my_StreamSocket(&c, &f);
          {
              btlso::StreamSocketAutoClose<TestAddress>
-                                     guard(m, bteso_Flag::BTESO_SHUTDOWN_BOTH);
+                                     guard(m, bteso_Flag::e_SHUTDOWN_BOTH);
 
              guard.release();
          }
@@ -500,24 +500,24 @@ int main(int argc, char *argv[]) {
 
          {
              btlso::StreamSocketAutoClose<TestAddress>
-                                     guard(m, bteso_Flag::BTESO_SHUTDOWN_BOTH);
+                                     guard(m, bteso_Flag::e_SHUTDOWN_BOTH);
          }
          ASSERT(13 == c);
-         ASSERT(bteso_Flag::BTESO_SHUTDOWN_BOTH == f);
+         ASSERT(bteso_Flag::e_SHUTDOWN_BOTH == f);
 
          {
              btlso::StreamSocketAutoClose<TestAddress>
-                                     guard(m, bteso_Flag::BTESO_SHUTDOWN_SEND);
+                                     guard(m, bteso_Flag::e_SHUTDOWN_SEND);
          }
          ASSERT(13 == c);
-         ASSERT(bteso_Flag::BTESO_SHUTDOWN_SEND == f);
+         ASSERT(bteso_Flag::e_SHUTDOWN_SEND == f);
 
          {
              btlso::StreamSocketAutoClose<TestAddress>
-                                  guard(m, bteso_Flag::BTESO_SHUTDOWN_RECEIVE);
+                                  guard(m, bteso_Flag::e_SHUTDOWN_RECEIVE);
          }
          ASSERT(13 == c);
-         ASSERT(bteso_Flag::BTESO_SHUTDOWN_RECEIVE == f);
+         ASSERT(bteso_Flag::e_SHUTDOWN_RECEIVE == f);
 
          delete m;
          ASSERT(1 == c);

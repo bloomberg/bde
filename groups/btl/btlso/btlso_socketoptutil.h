@@ -29,15 +29,15 @@ BSLS_IDENT("$Id: $")
 ///-----
 ///Usage 1
 ///- - - -
-// The following snippets of code illustrate how to set 'BTESO_REUSEADDRESS'
+// The following snippets of code illustrate how to set 'k_REUSEADDRESS'
 // flag on a socket.  Note that we assume that a socket of type 'SOCK_STREAM'
 // is already created and socket allocation 'btlso_socketimputil' can be used.
 //..
 //      int result;
 //      int addropt = 1;
 //      result = btlso::SocketOptUtil::setOption(sockethandle,
-//                   btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                   btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+//                   btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                   btlso::SocketOptUtil::k_REUSEADDRESS,
 //                   addropt);
 //
 //      assert(0 == result);
@@ -46,8 +46,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      addropt = 0;
 //      result = btlso::SocketOptUtil::getOption(&addropt, sockethandle,
-//                   btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                   btlso::SocketOptUtil::BTESO_REUSEADDRESS);
+//                   btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                   btlso::SocketOptUtil::k_REUSEADDRESS);
 //
 //      assert(0 == result);
 //      assert(0 != addropt);
@@ -56,8 +56,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      int sockettype = 0;
 //      result = btlso::SocketOptUtil::getOption(&sockettype,
-//                   sockethandle, btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                   btlso::SocketOptUtil::BTESO_TYPE);
+//                   sockethandle, btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                   btlso::SocketOptUtil::k_TYPE);
 //
 //      assert(0 == result);
 //      assert(SOCK_STREAM == sockettype);
@@ -73,8 +73,8 @@ BSLS_IDENT("$Id: $")
 //      ld.l_onoff  = 1;   // Enable lingering for
 //      ld.l_linger = 2;   // 2 seconds
 //      result = btlso::SocketOptUtil::setOption(sockethandle,
-//                   btlso::SocketOptUtil::BTESO_SOCKETLEVEL
-//                   btlso::SocketOptUtil::BTESO_LINGER,
+//                   btlso::SocketOptUtil::k_SOCKETLEVEL
+//                   btlso::SocketOptUtil::k_LINGER,
 //                   ld, &errorcode);
 //      assert(0 == result);
 //      assert(0 == errorcode);
@@ -83,8 +83,8 @@ BSLS_IDENT("$Id: $")
 //..
 //      btlso::SocketOptUtil::LingerData ld2
 //      result = btlso::SocketOptUtil::getOption(&ld2, sockethandle,
-//                   btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                   btlso::SocketOptUtil::BTESO_LINGER, &errorcode);
+//                   btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                   btlso::SocketOptUtil::k_LINGER, &errorcode);
 //
 //      assert(0 == result);
 //      assert(0 == errorcode);
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 //      WSAPROTOCOL_INFO protoInfo;
 //      memset(&ProtoInfo,0,sizeof(ProtoInfo));
 //      result = btlso::SocketOptUtil::getOption(&protoInfo, sockethandle,
-//                   btlso::SocketOptUtil::BTESO_SOCKETLEVEL, SO_PROTOCOL_INFO,
+//                   btlso::SocketOptUtil::k_SOCKETLEVEL, SO_PROTOCOL_INFO,
 //                   &errorcode);
 //
 //      assert(0 == result);
@@ -226,12 +226,12 @@ struct SocketOptUtil {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_SOCKETLEVEL    = k_SOCKETLEVEL
       , BTESO_TCPLEVEL       = k_TCPLEVEL
-      , SOCKETLEVEL = BTESO_SOCKETLEVEL
-      , TCPLEVEL    = BTESO_TCPLEVEL
+      , SOCKETLEVEL = k_SOCKETLEVEL
+      , TCPLEVEL    = k_TCPLEVEL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    // For level = BTESO_SOCKETLEVEL
+    // For level = k_SOCKETLEVEL
     // The socket options map directly onto the native option values.
     enum {
         k_DEBUGINFO      = SO_DEBUG       // enable/disable recording of
@@ -286,25 +286,25 @@ struct SocketOptUtil {
       , BTESO_RECEIVETIMEOUT = k_RECEIVETIMEOUT
       , BTESO_TYPE           = k_TYPE
       , BTESO_SOCKETERROR    = k_SOCKETERROR
-      , DEBUGINFO      = BTESO_DEBUGINFO
-      , REUSEADDRESS   = BTESO_REUSEADDRESS
-      , KEEPALIVE      = BTESO_KEEPALIVE
-      , DONTROUTE      = BTESO_DONTROUTE
-      , LINGER         = BTESO_LINGER
-      , BROADCAST      = BTESO_BROADCAST
-      , OOBINLINE      = BTESO_OOBINLINE
-      , SENDBUFFER     = BTESO_SENDBUFFER
-      , RECEIVEBUFFER  = BTESO_RECEIVEBUFFER
-      , SENDLOWATER    = BTESO_SENDLOWATER
-      , RECEIVELOWATER = BTESO_RECEIVELOWATER
-      , SENDTIMEOUT    = BTESO_SENDTIMEOUT
-      , RECEIVETIMEOUT = BTESO_RECEIVETIMEOUT
-      , TYPE           = BTESO_TYPE
-      , SOCKETERROR    = BTESO_SOCKETERROR
+      , DEBUGINFO      = k_DEBUGINFO
+      , REUSEADDRESS   = k_REUSEADDRESS
+      , KEEPALIVE      = k_KEEPALIVE
+      , DONTROUTE      = k_DONTROUTE
+      , LINGER         = k_LINGER
+      , BROADCAST      = k_BROADCAST
+      , OOBINLINE      = k_OOBINLINE
+      , SENDBUFFER     = k_SENDBUFFER
+      , RECEIVEBUFFER  = k_RECEIVEBUFFER
+      , SENDLOWATER    = k_SENDLOWATER
+      , RECEIVELOWATER = k_RECEIVELOWATER
+      , SENDTIMEOUT    = k_SENDTIMEOUT
+      , RECEIVETIMEOUT = k_RECEIVETIMEOUT
+      , TYPE           = k_TYPE
+      , SOCKETERROR    = k_SOCKETERROR
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    // For level = BTESO_TCPLEVEL
+    // For level = k_TCPLEVEL
     enum {
         k_TCPNODELAY = TCP_NODELAY  // Specifies whether TCP should follow the
                                     // Nagle algorithm for deciding when to
@@ -315,7 +315,7 @@ struct SocketOptUtil {
                                     // data immediately.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_TCPNODELAY     = k_TCPNODELAY
-      , TCPNODELAY = BTESO_TCPNODELAY
+      , TCPNODELAY = k_TCPNODELAY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

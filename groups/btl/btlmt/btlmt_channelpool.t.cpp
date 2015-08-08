@@ -748,7 +748,7 @@ void *readData(void *data)
     int numRemaining = NUM_BYTES;
     do {
         int rc = socket->read(buffer.data(), numRemaining);
-        if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+        if (rc != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
         bdlqq::ThreadUtil::microSleep(1000, 0);
@@ -1080,7 +1080,7 @@ void *connectFunction(void *args)
     int numRemaining = NUM_BYTES;
     do {
         int rc = clientSockets[INDEX]->read(buffer.data(), numRemaining);
-        if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+        if (rc != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
 
@@ -1111,14 +1111,14 @@ void *listenFunction(void *args)
 
     btlso::StreamSocket<btlso::IPv4Address> *client;
     ASSERT(!serverSockets[INDEX]->accept(&client));
-    ASSERT(0 == client->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE));
+    ASSERT(0 == client->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE));
 
     bsl::vector<char> buffer(NUM_BYTES);
 
     int numRemaining = NUM_BYTES;
     do {
         int rc = client->read(buffer.data(), numRemaining);
-        if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+        if (rc != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
 
@@ -1210,7 +1210,7 @@ void *readData(void *data)
     int numRemaining = NUM_BYTES;
     do {
         int rc = socket->read(buffer.data(), numRemaining);
-        if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+        if (rc != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
         bdlqq::ThreadUtil::microSleep(1000, 0);
@@ -1302,7 +1302,7 @@ void *readData(void *data)
     bsls::Types::Uint64 br = 0;
     while (1) {
         int rc = socket->read(buffer, BUF_SIZE);
-        if (rc != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+        if (rc != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
             br += rc;
         }
         bdlqq::LockGuard<bdlqq::Mutex> lock(&mutex);
@@ -2051,8 +2051,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_DEBUGINFO,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_DEBUGINFO,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2065,8 +2065,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_BROADCAST,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_BROADCAST,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2079,8 +2079,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                       &result,
-                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS,
-                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::k_REUSEADDRESS,
+                                      btlso::SocketOptUtil::k_SOCKETLEVEL,
                                       channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2096,8 +2096,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_KEEPALIVE,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_KEEPALIVE,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2110,8 +2110,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_DONTROUTE,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_DONTROUTE,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2138,8 +2138,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_OOBINLINE,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_OOBINLINE,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2152,8 +2152,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2166,8 +2166,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                      &result,
-                                     btlso::SocketOptUtil::BTESO_RECEIVEBUFFER,
-                                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_RECEIVEBUFFER,
+                                     btlso::SocketOptUtil::k_SOCKETLEVEL,
                                      channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2180,8 +2180,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_SENDLOWATER,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDLOWATER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2194,8 +2194,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                     &result,
-                                    btlso::SocketOptUtil::BTESO_RECEIVELOWATER,
-                                    btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                    btlso::SocketOptUtil::k_RECEIVELOWATER,
+                                    btlso::SocketOptUtil::k_SOCKETLEVEL,
                                     channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2208,8 +2208,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                        &result,
-                                       btlso::SocketOptUtil::BTESO_SENDTIMEOUT,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDTIMEOUT,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        channelId);
         if (rc) {
             return rc;                                                // RETURN
@@ -2222,8 +2222,8 @@ int verify(const Obj&                 pool,
         int result;
         const int rc = pool.getSocketOption(
                                     &result,
-                                    btlso::SocketOptUtil::BTESO_RECEIVETIMEOUT,
-                                    btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                    btlso::SocketOptUtil::k_RECEIVETIMEOUT,
+                                    btlso::SocketOptUtil::k_SOCKETLEVEL,
                                     channelId);
 
         if (rc) {
@@ -3554,7 +3554,7 @@ void *case23ClientThread3(void *arg)
 
     ASSERT(0 == info->d_channelPool_p->shutdown(
                                              info->d_channelId,
-                                             bteso_Flag::BTESO_SHUTDOWN_SEND));
+                                             bteso_Flag::e_SHUTDOWN_SEND));
     info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN_WRITE
     MTASSERT(1 == info->d_channelDownWriteFlag);
 
@@ -3591,7 +3591,7 @@ void *case23ServerThread3(void *arg)
 
     MTASSERT(0 == info->d_channelPool_p->shutdown(
                                              info->d_channelId,
-                                             bteso_Flag::BTESO_SHUTDOWN_SEND));
+                                             bteso_Flag::e_SHUTDOWN_SEND));
 
     info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN_WRITE
     MTASSERT(1 == info->d_channelDownReadFlag);
@@ -3871,8 +3871,8 @@ void case22ChannelStateCallback(int                 channelId,
       } break;
       case btlmt::ChannelPool::e_CHANNEL_UP: {
         MTASSERT(0 == mXp->setSocketOption(
-                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        32768,
                                        channelId));
         if (verbose) {
@@ -4157,12 +4157,12 @@ void runTestCase22(char                                           *,
         info.d_serverAddress = PEER;
 
         ASSERT(0 == mX.setServerSocketOption(
-                            btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                            btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                            btlso::SocketOptUtil::k_SENDBUFFER,
+                            btlso::SocketOptUtil::k_SOCKETLEVEL,
                             RECEIVE_ALLOC, SERVER_ID));
         ASSERT(0 == mX.setServerSocketOption(
-                            btlso::SocketOptUtil::BTESO_RECEIVEBUFFER,
-                            btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                            btlso::SocketOptUtil::k_RECEIVEBUFFER,
+                            btlso::SocketOptUtil::k_SOCKETLEVEL,
                             RECEIVE_ALLOC, SERVER_ID));
 
         bdlqq::ThreadUtil::Handle  *threads = (bdlqq::ThreadUtil::Handle*)
@@ -4653,7 +4653,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::read(char *buffer, int length)
         return length;                                                // RETURN
     }
 
-    return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+    return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 }
 
 template <class ADDRESS>
@@ -4685,7 +4685,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::readv(const btls::Iovec *buffers,
         return length;                                                // RETURN
     }
 
-    return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+    return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 }
 
 template <class ADDRESS>
@@ -4714,7 +4714,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::write(const char *buffer, int length)
         return length;                                                // RETURN
     }
 
-    return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+    return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 }
 
 template <class ADDRESS>
@@ -4745,7 +4745,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writev(const btls::Iovec *buffers,
         return length;                                                // RETURN
     }
 
-    return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+    return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 }
 
 template <class ADDRESS>
@@ -4776,7 +4776,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::writev(const btls::Ovec *buffers,
         return length;                                                // RETURN
     }
 
-    return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+    return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 }
 
 template <class ADDRESS>
@@ -6415,13 +6415,13 @@ void runTestCase9(char                                           *,
         }
 
         ASSERT(0 == mX.setServerSocketOption(
-                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        1024, SERVER_ID));
 
         ASSERT(0 == mX.setServerSocketOption(
-                                       btlso::SocketOptUtil::BTESO_TCPNODELAY,
-                                       btlso::SocketOptUtil::BTESO_TCPLEVEL,
+                                       btlso::SocketOptUtil::k_TCPNODELAY,
+                                       btlso::SocketOptUtil::k_TCPLEVEL,
                                        1, SERVER_ID));
 
         ASSERT(-5 == mX.write(31312313, (btls::Iovec*)NULL, 0));
@@ -8409,7 +8409,7 @@ void TestDriver::testCase44()
 
             ASSERT(0 == socket->connect(address));
             ASSERT(0 == socket->setBlockingMode(
-                                          bteso_Flag::BTESO_BLOCKING_MODE));
+                                          bteso_Flag::e_BLOCKING_MODE));
 
             char data[SIZE];
             bsl::memset(data, FILL, SIZE);
@@ -8663,7 +8663,7 @@ void TestDriver::testCase42()
         rc = socket->accept(&client);
         ASSERT(!rc);
         ASSERT(0 == client->setBlockingMode(
-                                          bteso_Flag::BTESO_NONBLOCKING_MODE));
+                                          bteso_Flag::e_NONBLOCKING_MODE));
 
         channelCbBarrier.wait();
 
@@ -8777,7 +8777,7 @@ void TestDriver::testCase41()
         rc = socket->accept(&client);
         ASSERT(!rc);
         ASSERT(0 == client->setBlockingMode(
-                                          bteso_Flag::BTESO_NONBLOCKING_MODE));
+                                          bteso_Flag::e_NONBLOCKING_MODE));
 
         const int SIZE = 1000;
         bdlmca::PooledBlobBufferFactory f(SIZE);
@@ -8919,7 +8919,7 @@ void TestDriver::testCase39()
         ASSERT(!rc);
         LOOP2_ASSERT(EXP, PEER, EXP == PEER);
 
-        rc = socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        rc = socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
         ASSERT(!rc);
 
         btlso::IPv4Address other;
@@ -8995,7 +8995,7 @@ void TestDriver::testCase38()
 
         const int NUM_TIMES = 100;
 
-        socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+        socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
         for (int i = 0; i < NUM_TIMES; ++i) {
             int rc = socket->write(TEXT, LEN);
             if (rc < 0) {
@@ -10623,14 +10623,14 @@ void TestDriver::testCase29()
                 btlso::SocketHandle::Handle handles[2];
 
                 ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM);
 
                 ASSERT(0 == ret);
 
                 // The following socket options are set only if necessary.
                 ret = btlso::SocketOptUtil::setOption(handles[1],
-                                                     SockOpt::BTESO_TCPLEVEL,
-                                                     SockOpt::BTESO_TCPNODELAY,
+                                                     SockOpt::k_TCPLEVEL,
+                                                     SockOpt::k_TCPNODELAY,
                                                      1);
                 ASSERT(0 == ret);
                 btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
@@ -10741,14 +10741,14 @@ void TestDriver::testCase29()
                 btlso::SocketHandle::Handle handles[2];
                 ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                            handles,
-                           btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           btlso::SocketImpUtil::k_SOCKET_STREAM);
 
                 ASSERT(0 == ret);
 
                 // The following socket options are set only if necessary.
                 ret = btlso::SocketOptUtil::setOption(handles[1],
-                                                     SockOpt::BTESO_TCPLEVEL,
-                                                     SockOpt::BTESO_TCPNODELAY,
+                                                     SockOpt::k_TCPLEVEL,
+                                                     SockOpt::k_TCPNODELAY,
                                                      1);
                 ASSERT(0 == ret);
                 btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
@@ -10805,14 +10805,14 @@ void TestDriver::testCase29()
             btlso::SocketHandle::Handle handles[2];
             ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                            handles,
-                           btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           btlso::SocketImpUtil::k_SOCKET_STREAM);
 
             ASSERT(0 == ret);
 
             // The following socket options are set only if necessary.
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                                                 SockOpt::BTESO_TCPLEVEL,
-                                                 SockOpt::BTESO_TCPNODELAY, 1);
+                                                 SockOpt::k_TCPLEVEL,
+                                                 SockOpt::k_TCPNODELAY, 1);
             ASSERT(0 == ret);
             btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
                                                  factory.allocate(handles[0]);
@@ -10956,15 +10956,15 @@ void TestDriver::testCase28()
                 btlso::SocketHandle::Handle handles[2];
 
                 ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                    handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                    handles, btlso::SocketImpUtil::k_SOCKET_STREAM);
 
                 ASSERT(0 == ret);
                 ASSERT(0 == code);
 
                 // The following socket options are set only if necessary.
                 ret = btlso::SocketOptUtil::setOption(handles[1],
-                                                     SockOpt::BTESO_TCPLEVEL,
-                                                     SockOpt::BTESO_TCPNODELAY,
+                                                     SockOpt::k_TCPLEVEL,
+                                                     SockOpt::k_TCPNODELAY,
                                                      1);
 
                 ASSERT(0 == ret);
@@ -11090,15 +11090,15 @@ void TestDriver::testCase27()
 
             ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                            handles,
-                           btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           btlso::SocketImpUtil::k_SOCKET_STREAM);
 
             ASSERT(0 == ret);
             ASSERT(0 == code);
 
             // The following socket options are set only if necessary.
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                                                 SockOpt::BTESO_TCPLEVEL,
-                                                 SockOpt::BTESO_TCPNODELAY, 1);
+                                                 SockOpt::k_TCPLEVEL,
+                                                 SockOpt::k_TCPNODELAY, 1);
 
             ASSERT(0 == ret);
             btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
@@ -11435,15 +11435,15 @@ void TestDriver::testCase26()
                 btlso::InetStreamSocketFactory<btlso::IPv4Address>
                                                                   factory(&ta);
                 int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM);
 
                 ASSERT(0 == ret);
 
                 // The following socket options are set only if necessary.
                 ret = btlso::SocketOptUtil::setOption(
                                                  handles[1],
-                                                 SockOpt::BTESO_TCPLEVEL,
-                                                 SockOpt::BTESO_TCPNODELAY, 1);
+                                                 SockOpt::k_TCPLEVEL,
+                                                 SockOpt::k_TCPNODELAY, 1);
 
                 ASSERT(0 == ret);
                 btlso::StreamSocket<btlso::IPv4Address> *sndSocket =
@@ -11469,8 +11469,8 @@ void TestDriver::testCase26()
                     LENGTHY = btls::IovecUtil::length(vY, numBufY);
                 }
 
-                sndSocket->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
-                rcvSocket->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+                sndSocket->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
+                rcvSocket->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
 
                 bsl::vector<char> rcvBufferX(2 * LENGTH, 0, &ta);
                 bsl::vector<char> rcvBufferY(2 * LENGTH, 0, &ta);
@@ -11599,15 +11599,15 @@ void TestDriver::testCase25()
             btlso::SocketHandle::Handle handles[2];
 
             ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM);
 
             ASSERT(0 == ret);
             ASSERT(0 == code);
 
             // The following socket options are set only if necessary.
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                                                 SockOpt::BTESO_TCPLEVEL,
-                                                 SockOpt::BTESO_TCPNODELAY, 1);
+                                                 SockOpt::k_TCPLEVEL,
+                                                 SockOpt::k_TCPNODELAY, 1);
 
             ASSERT(0 == ret);
             btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
@@ -12667,7 +12667,7 @@ void TestDriver::testCase19()
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                           bteso_Flag::BTESO_NONBLOCKING_MODE);
+                                           bteso_Flag::e_NONBLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
@@ -12714,7 +12714,7 @@ void TestDriver::testCase19()
                 sockets[i] = factory.allocate();
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                              bteso_Flag::BTESO_BLOCKING_MODE);
+                                              bteso_Flag::e_BLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
@@ -13345,7 +13345,7 @@ void TestDriver::testCase15()
                 ASSERT(0 ==
                        btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                    socketHandles,
-                                   btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                                   btlso::SocketImpUtil::k_SOCKET_STREAM));
 
                 btlso::StreamSocket<btlso::IPv4Address> *socket =
                                             factory.allocate(socketHandles[0]);
@@ -13591,8 +13591,8 @@ void TestDriver::testCase14()
             }
 
             ASSERT(0 == mX.setSocketOption(
-                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        512, channelId));
 
             char buffer[1024];
@@ -13719,8 +13719,8 @@ void TestDriver::testCase14()
             }
 
             ASSERT(0 == mX.setSocketOption(
-                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        512, channelId));
             clientBytesWritten = 0;
             fail = 0;
@@ -13864,8 +13864,8 @@ void TestDriver::testCase14()
             }
 
             ASSERT(0 == mX.setSocketOption(
-                                       btlso::SocketOptUtil::BTESO_SENDBUFFER,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
                                        512, channelId));
             clientBytesWritten = 0;
             fail = 0;
@@ -14237,13 +14237,13 @@ void TestDriver::testCase12()
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                     handles,
-                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::k_SOCKET_STREAM);
             ASSERT(0 == ret);
 
             // The following socket options are set only if necessary.
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                                    btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                    btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                                    btlso::SocketOptUtil::k_TCPLEVEL,
+                                    btlso::SocketOptUtil::k_TCPNODELAY, 1);
             ASSERT(0 == ret);
 
             btlso::StreamSocket<btlso::IPv4Address> *serverSocket =
@@ -15048,7 +15048,7 @@ void TestDriver::testCase8()
                 ASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_RECEIVE));
+                                        bteso_Flag::e_SHUTDOWN_RECEIVE));
                 barrier.wait(); // for CHANNEL_DOWN
 
                 MTASSERT(0 == info.d_channelDownReadFlag);
@@ -15068,7 +15068,7 @@ void TestDriver::testCase8()
                 ASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_SEND));
+                                        bteso_Flag::e_SHUTDOWN_SEND));
                 barrier.wait(); // for CHANNEL_DOWN
 
                 MTASSERT(0 == info.d_channelDownReadFlag);
@@ -15091,17 +15091,17 @@ void TestDriver::testCase8()
                 MTASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_RECEIVE));
+                                        bteso_Flag::e_SHUTDOWN_RECEIVE));
                 barrier.wait(); // for CHANNEL_DOWN_READ
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_RECEIVE));
+                                        bteso_Flag::e_SHUTDOWN_RECEIVE));
                 bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_SEND));
+                                        bteso_Flag::e_SHUTDOWN_SEND));
                 barrier.wait(); // for CHANNEL_DOWN_WRITE
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
@@ -15127,17 +15127,17 @@ void TestDriver::testCase8()
                 MTASSERT(-1 != info.d_channelId);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_SEND));
+                                        bteso_Flag::e_SHUTDOWN_SEND));
                 barrier.wait(); // for CHANNEL_DOWN_WRITE
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_SEND));
+                                        bteso_Flag::e_SHUTDOWN_SEND));
                 bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
-                                        bteso_Flag::BTESO_SHUTDOWN_RECEIVE));
+                                        bteso_Flag::e_SHUTDOWN_RECEIVE));
                 barrier.wait(); // for CHANNEL_DOWN_READ
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
@@ -15227,12 +15227,12 @@ void TestDriver::testCase7()
                 btlso::SocketHandle::Handle handles[2];
                 LOOP_ASSERT(i, 0 ==
                     btlso::SocketImpUtil::socketPair<btlso::IPv4Address>
-                         (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                         (handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
 
                 socketA = factory.allocate(handles[0]);
                 socketB = factory.allocate(handles[1]);
                 LOOP_ASSERT(i,
-                      0 == socketB->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH));
+                      0 == socketB->shutdown(bteso_Flag::e_SHUTDOWN_BOTH));
                 LOOP_ASSERT(i, 0 == pool.numChannels());
 
                 pool.import(socketA, &factory, SERVER_ID);
@@ -15328,7 +15328,7 @@ void TestDriver::testCase6()
                 btlso::SocketHandle::Handle handles[2];
                 LOOP_ASSERT(i, 0 ==
                     btlso::SocketImpUtil::socketPair<btlso::IPv4Address>
-                         (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                         (handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
 
                 socketA = factory.allocate(handles[0]);
                 socketB = factory.allocate(handles[1]);

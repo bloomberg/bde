@@ -939,13 +939,13 @@ gg(btlsos::TcpCbChannel *channel, Buffer *buffer,
           case 'R': {
                                // close receive
               ret = channel->socket()->shutdown(
-                     bteso_Flag::BTESO_SHUTDOWN_RECEIVE);
+                     bteso_Flag::e_SHUTDOWN_RECEIVE);
               ASSERT(0 == ret);
           } break;
           case 'S':
                                // close receive
               ret = channel->socket()->shutdown(
-                     bteso_Flag::BTESO_SHUTDOWN_SEND);
+                     bteso_Flag::e_SHUTDOWN_SEND);
               ASSERT(0 == ret);
 
               break;
@@ -1408,18 +1408,18 @@ int main(int argc, char *argv[])
         btlso::SocketHandle::Handle handles[2];
         int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == ret);
         // The following socket options are set only if necessary.
 
         ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
         ASSERT(0 == ret);
 
         ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
         ASSERT(0 == ret);
 
         // Next, create a 'btlso::StreamSocket' object, which is a part of
@@ -1444,10 +1444,10 @@ int main(int argc, char *argv[])
         // and write events will be registered in the same event queue in
         // order.
         btlso::TcpTimerEventManager rEventManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                     btlso::TcpTimerEventManager::e_NO_HINT,
                                      &testAllocator);
         btlso::TcpTimerEventManager wEventManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                     btlso::TcpTimerEventManager::e_NO_HINT,
                                      &testAllocator);
         {
             // We should guarantee that the 'channel's destructor is
@@ -2370,7 +2370,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -2380,13 +2380,13 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, sSocket);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             // client stream socket
@@ -2394,7 +2394,7 @@ int main(int argc, char *argv[])
                                             factory.allocate(handles[1]);
 
             btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::BTESO_NO_HINT,
+               btlso::TcpTimerEventManager::e_NO_HINT,
                &testAllocator);
             char readBuf[MAX_BUF];
             memset(readBuf, '\0', sizeof readBuf);
@@ -2950,7 +2950,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -2960,13 +2960,13 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, sSocket);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             // client stream socket
@@ -2974,7 +2974,7 @@ int main(int argc, char *argv[])
                                             factory.allocate(handles[1]);
 
             btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::BTESO_NO_HINT,
+               btlso::TcpTimerEventManager::e_NO_HINT,
                &testAllocator);
             char readBuf[MAX_BUF];
             memset(readBuf, '\0', sizeof readBuf);
@@ -3808,23 +3808,23 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 #ifdef BSLS_PLATFORM_OS_LINUX
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVEBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_RECEIVEBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 #endif
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -3837,7 +3837,7 @@ int main(int argc, char *argv[])
                                             factory.allocate(handles[1]);
 
             btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::BTESO_NO_HINT,
+               btlso::TcpTimerEventManager::e_NO_HINT,
                &testAllocator);
 
             {
@@ -4659,24 +4659,24 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
 #ifdef BSLS_PLATFORM_OS_LINUX
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVEBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_RECEIVEBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 #endif
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -4689,7 +4689,7 @@ int main(int argc, char *argv[])
                                             factory.allocate(handles[1]);
 
             btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::BTESO_NO_HINT,
+               btlso::TcpTimerEventManager::e_NO_HINT,
                &testAllocator);
 
             {
@@ -4987,17 +4987,17 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -5439,17 +5439,17 @@ int main(int argc, char *argv[])
                 btlso::SocketHandle::Handle handles[2];
                 int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
                 LOOP_ASSERT(i, 0 == ret);
 
                 ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
                 LOOP_ASSERT(i, 0 == ret);
 
                 ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
                 LOOP_ASSERT(i, 0 == ret);
 
                 btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -5807,17 +5807,17 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -6106,12 +6106,12 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -6668,17 +6668,17 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -6691,7 +6691,7 @@ int main(int argc, char *argv[])
                                             factory.allocate(handles[1]);
 
             btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::BTESO_NO_HINT,
+               btlso::TcpTimerEventManager::e_NO_HINT,
                &testAllocator);
 
             {
@@ -7185,17 +7185,17 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -7208,7 +7208,7 @@ int main(int argc, char *argv[])
                                             factory.allocate(handles[1]);
 
             btlso::TcpTimerEventManager eventManager(
-               btlso::TcpTimerEventManager::BTESO_NO_HINT,
+               btlso::TcpTimerEventManager::e_NO_HINT,
                &testAllocator);
 
             {
@@ -7463,12 +7463,12 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -7744,17 +7744,17 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_OBJS; ++i) {
                 int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      OBJECTS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
                 LOOP_ASSERT(i, 0 == ret);
 
                 ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
                 LOOP_ASSERT(i, 0 == ret);
 
                 ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
                 LOOP_ASSERT(i, 0 == ret);
 
                 btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -8235,18 +8235,18 @@ int main(int argc, char *argv[])
 
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      socket,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             ASSERT(0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(socket[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             ASSERT(0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(
                                      socket[1],
-                                     btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                     btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                                     btlso::SocketOptUtil::k_TCPLEVEL,
+                                     btlso::SocketOptUtil::k_TCPNODELAY, 1);
             ASSERT(0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -8342,7 +8342,7 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(LINE, 0 == sSocket->
                                         blockingMode(&bm));
                                 cSocket->setBlockingMode(
-                                        bteso_Flag::BTESO_NONBLOCKING_MODE);
+                                        bteso_Flag::e_NONBLOCKING_MODE);
                                 int toRead = length;
                                 while (toRead > 0) {
                                     ret = cSocket->read(readBuf, toRead);
@@ -8676,17 +8676,17 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_OBJS; ++i) {
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      OBJECTS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -8774,7 +8774,7 @@ int main(int argc, char *argv[])
                             bteso_Flag::BlockingMode bm;
                             LOOP_ASSERT(LINE, 0 == sSocket->blockingMode(&bm));
                             cSocket->setBlockingMode(
-                                    bteso_Flag::BTESO_NONBLOCKING_MODE);
+                                    bteso_Flag::e_NONBLOCKING_MODE);
                             int toRead = length;
                             while (toRead > 0) {
                                 ret = cSocket->read(readBuf, toRead);
@@ -9040,16 +9040,16 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_OBJS; ++i) {
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      OBJECTS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
 
             ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -9281,17 +9281,17 @@ int main(int argc, char *argv[])
 
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      CHANNELS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
 
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(CHANNELS[i].d_handle[0],
-                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_SENDBUFFER, BUF_LIMIT);
+                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      btlso::SocketOptUtil::k_SENDBUFFER, BUF_LIMIT);
 
             ret = btlso::SocketOptUtil::setOption(CHANNELS[i].d_handle[1],
-                      btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      btlso::SocketOptUtil::k_TCPLEVEL,
+                      btlso::SocketOptUtil::k_TCPNODELAY, 1);
             LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>

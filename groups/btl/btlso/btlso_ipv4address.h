@@ -184,8 +184,8 @@ class IPv4Address {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_ANY_ADDRESS = k_ANY_ADDRESS
       , BTESO_ANY_PORT    = k_ANY_PORT
-      , ANY_ADDRESS = BTESO_ANY_ADDRESS
-      , ANY_PORT    = BTESO_ANY_PORT
+      , ANY_ADDRESS = k_ANY_ADDRESS
+      , ANY_PORT    = k_ANY_PORT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -223,7 +223,7 @@ class IPv4Address {
     // CREATORS
     IPv4Address();
         // Create a 'IPv4Address' object having an IP of
-        // 'BTESO_ANY_ADDRESS' value and a port number of 'BTESO_ANY_PORT'
+        // 'k_ANY_ADDRESS' value and a port number of 'k_ANY_PORT'
         // value.
 
     IPv4Address(const char *address, int portNumber);
@@ -390,8 +390,8 @@ bool IPv4Address::isValidAddress(const char *address)
 // CREATORS
 inline
 IPv4Address::IPv4Address()
-: d_address(BTESO_ANY_ADDRESS)
-, d_portNumber(BTESO_ANY_PORT)
+: d_address(k_ANY_ADDRESS)
+, d_portNumber(k_ANY_PORT)
 {
 }
 

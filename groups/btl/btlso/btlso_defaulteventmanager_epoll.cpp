@@ -46,10 +46,10 @@ int sleep(int                     *resultErrno,
         int savedErrno;
         int rc;
         if (metrics) {
-            metrics->switchTo(btlso::TimeMetrics::BTESO_IO_BOUND);
+            metrics->switchTo(btlso::TimeMetrics::e_IO_BOUND);
             rc = nanosleep(&ts, 0);
             savedErrno = errno;
-            metrics->switchTo(btlso::TimeMetrics::BTESO_CPU_BOUND);
+            metrics->switchTo(btlso::TimeMetrics::e_CPU_BOUND);
         }
         else {
             rc = nanosleep(&ts, 0);
@@ -60,7 +60,7 @@ int sleep(int                     *resultErrno,
         *resultErrno = savedErrno;
         if (0 > rc) {
             BSLS_ASSERT(savedErrno == EINTR);
-            if (flags & bteso_Flag::BTESO_ASYNC_INTERRUPT) {
+            if (flags & bteso_Flag::k_ASYNC_INTERRUPT) {
                 // We're allowing async interrupts.
 
                 return -1;
@@ -74,11 +74,11 @@ int sleep(int                     *resultErrno,
 int translateEventToMask(btlso::EventType::Type event)
 {
     switch (event) {
-      case btlso::EventType::BTESO_ACCEPT:
-      case btlso::EventType::BTESO_READ:
+      case btlso::EventType::e_ACCEPT:
+      case btlso::EventType::e_READ:
         return EPOLLIN;
-      case btlso::EventType::BTESO_CONNECT:
-      case btlso::EventType::BTESO_WRITE:
+      case btlso::EventType::e_CONNECT:
+      case btlso::EventType::e_WRITE:
         return EPOLLOUT;
       default:
         BSLS_ASSERT("Invalid event (must be unreachable)" && 0);
@@ -178,7 +178,7 @@ int EventManagerName::dispatchImp(int                      flags,
     }
     int numCallbacks = 0;                    // number of callbacks dispatched
     const bool allowAsyncInterrupts =
-                            (0 != (bteso_Flag::BTESO_ASYNC_INTERRUPT & flags));
+                            (0 != (bteso_Flag::k_ASYNC_INTERRUPT & flags));
     do {
         int numReady;                    // number of returned sockets
         int savedErrno = 0;          // saved errno value set by poll
@@ -217,7 +217,7 @@ int EventManagerName::dispatchImp(int                      flags,
             else {
                 if (d_timeMetric_p) {
                     d_timeMetric_p->switchTo(
-                                            btlso::TimeMetrics::BTESO_IO_BOUND);
+                                            btlso::TimeMetrics::e_IO_BOUND);
                 }
                 numReady = epoll_wait(d_epollFd, &d_signaled.front(),
                                       d_signaled.size(), epollTimeout);
@@ -225,7 +225,7 @@ int EventManagerName::dispatchImp(int                      flags,
                 savedErrno = errno;
                 if (d_timeMetric_p) {
                     d_timeMetric_p->switchTo(
-                                           btlso::TimeMetrics::BTESO_CPU_BOUND);
+                                           btlso::TimeMetrics::e_CPU_BOUND);
                 }
             }
             errno = 0;
@@ -359,8 +359,8 @@ void EventManagerName::deregisterSocketEvent(
 
     // Reset callbacks.
 
-    if (btlso::EventType::BTESO_READ == event
-     || btlso::EventType::BTESO_ACCEPT == event) {
+    if (btlso::EventType::e_READ == event
+     || btlso::EventType::e_ACCEPT == event) {
         //BSLS_ASSERT(regEvents->d_readCallback
         //            && event == regEvents->d_readEventType);
 
@@ -510,8 +510,8 @@ int EventManagerName::registerSocketEvent(
 
     HandleEvents *regEvents = &it->second;
     btlso::EventManager::Callback *modifiedCallback = 0;
-    if (btlso::EventType::BTESO_READ == event
-     || btlso::EventType::BTESO_ACCEPT == event) {
+    if (btlso::EventType::e_READ == event
+     || btlso::EventType::e_ACCEPT == event) {
         BSLS_ASSERT(!it->second.d_isValid
                     || !regEvents->d_readCallback
                     || event == regEvents->d_readEventType);
@@ -553,8 +553,8 @@ int EventManagerName::registerSocketEvent(
     // only READ and WRITE.
 
     BSLS_ASSERT(0 == (newMask & (newMask - 1)) // only 1 bit set
-             || (btlso::EventType::BTESO_READ == regEvents->d_readEventType
-              && btlso::EventType::BTESO_WRITE == regEvents->d_writeEventType));
+             || (btlso::EventType::e_READ == regEvents->d_readEventType
+              && btlso::EventType::e_WRITE == regEvents->d_writeEventType));
 
     struct epoll_event epollEvent = {0,{0}};
     epollEvent.events = newMask;

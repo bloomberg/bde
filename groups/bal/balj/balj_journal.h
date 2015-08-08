@@ -34,16 +34,16 @@ BSLS_IDENT("$Id: $")
 // mode flags, passed to 'open' and 'create' as the second argument.  The
 // following mode flags are supported:
 //
-// 'BAECS_READWRITE': allow write access to the journal.  Note that the
-// 'create' method requires the 'BAECS_READWRITE' mode flag to be set.
-// 'BAECS_READWRITE' is the only mode flag which is enabled by default when no
+// 'k_READWRITE': allow write access to the journal.  Note that the
+// 'create' method requires the 'k_READWRITE' mode flag to be set.
+// 'k_READWRITE' is the only mode flag which is enabled by default when no
 // mode argument is passed to 'open' or 'create'.
 //
-// 'BAECS_READONLY' (default unless 'BAECS_READWRITE' is set): disallow write
+// 'k_READONLY' (default unless 'k_READWRITE' is set): disallow write
 // access to the journal.  The journal file is opened read-only and cannot be
 // modified.
 //
-// 'BAECS_SAFE' (ignored unless 'BAECS_READWRITE' is set): enable transactional
+// 'k_SAFE' (ignored unless 'k_READWRITE' is set): enable transactional
 // mode providing atomicity, consistency, and durability guarantees (isolation
 // does not apply because access to the journal file is always exclusive).  If
 // this mode is enabled, updates to the on-disk journal state are performed in
@@ -58,14 +58,14 @@ BSLS_IDENT("$Id: $")
 // synchronize the journal state with the disk media which is a relatively slow
 // operation.
 //
-// 'BAECS_FAST' (default unless 'BAECS_SAFE' is set): do not enable
+// 'k_FAST' (default unless 'k_SAFE' is set): do not enable
 // transactional mode and rely on the operating system to synchronize the
 // journal file with in-memory journal state.  In case of a hardware crash,
 // or, in rare cases, in case of a process crash, some updates made to the
 // journal may be lost, or the journal file may be left in an inconsistent
 // state.
 //
-// 'BAECS_AUTO_COMMIT' (ignored unless 'BAECS_SAFE' is set): make every update
+// 'k_AUTO_COMMIT' (ignored unless 'k_SAFE' is set): make every update
 // to the journal (i.e., every invocation of 'addRecord', 'confirmRecord',
 // 'removeRecord', 'setRecordAttributes', and 'alterRecordAttributes') a
 // separate automatically-committed transaction.  Note that depending on a
@@ -73,18 +73,18 @@ BSLS_IDENT("$Id: $")
 // the underlying disk media committing every journal update to disk might be
 // prohibitively expensive.
 //
-// 'BAECS_MANUAL_COMMIT' (default unless 'BAECS_AUTO_COMMIT' is set): do not
+// 'k_MANUAL_COMMIT' (default unless 'k_AUTO_COMMIT' is set): do not
 // perform any automatic commit operations.  In this mode the user has to
 // manually invoke the 'commit' method or close the journal to update the
 // on-disk journal state.
 //
-// 'BAECS_PARANOID': perform extra consistency checks.  This method is for
+// 'k_PARANOID': perform extra consistency checks.  This method is for
 // testing only.
 //
-// 'BAECS_RESERVE': this mode flag is deprecated.  Currently, it is always
+// 'k_RESERVE': this mode flag is deprecated.  Currently, it is always
 // enabled.
 //
-// 'BAECS_READWRITE' is used when no mode flags are passed to the 'open' or
+// 'k_READWRITE' is used when no mode flags are passed to the 'open' or
 // 'create' methods.
 //
 // Each record in the journal has a mutable 16-bit attribute value (while
@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  enum { MAPPING_LIMIT = (1 << 20) * 100 };  // 100 MB
 //  balj::MappingManager mappingManager(MAPPING_LIMIT,
-//                                      balj_Journal::BAECS_NUM_PRIORITIES);
+//                                      balj_Journal::e_NUM_PRIORITIES);
 //..
 // Secondly, create a journal object:
 //..
@@ -162,9 +162,9 @@ BSLS_IDENT("$Id: $")
 //  char filename[64];
 //  bsl::tmpnam_r(filename);
 //
-//  if (mX.create(filename, balj_Journal::BAECS_READWRITE |
-//                          balj_Journal::BAECS_SAFE |
-//                          balj_Journal::BAECS_AUTO_COMMIT)) {
+//  if (mX.create(filename, balj_Journal::k_READWRITE |
+//                          balj_Journal::k_SAFE |
+//                          balj_Journal::k_AUTO_COMMIT)) {
 //      bsl::printf("Can't open journal %s: %d\n", filename, errno);
 //      exit(-1);
 //  }
@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //     balj_Journal::RecordHandle handle;
 //     int rc = mX.addRecord(&handle, record, MAX_RECORD_SIZE - 1);
 //     assert(0 == rc);
-//     assert(balj_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
+//     assert(balj_Journal::k_INVALID_RECORD_HANDLE != handle);
 //  }
 //..
 // Verify the number of unconfirmed records in the journal:
@@ -191,7 +191,7 @@ BSLS_IDENT("$Id: $")
 //  balj_Journal::RecordHandle handle;
 //
 //  balj_Journal::RecordHandle handle = mX.firstUnconfirmedRecord();
-//  while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE) {
+//  while (handle != balj_Journal::k_INVALID_RECORD_HANDLE) {
 //     int size = mX.getRecordLength(handle);
 //     ASSERT(MAX_RECORD_SIZE - 1 == size);
 //     handle = mX.nextUnconfirmedRecord(handle);
@@ -200,7 +200,7 @@ BSLS_IDENT("$Id: $")
 // Confirm every record in the journal:
 //..
 //  handle = mX.firstUnconfirmedRecord();
-//  while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE) {
+//  while (handle != balj_Journal::k_INVALID_RECORD_HANDLE) {
 //     balj_Journal::RecordHandle next = mX.nextUnconfirmedRecord(handle);
 //     mX.confirmRecord(handle);
 //     handle = next;
@@ -323,7 +323,7 @@ class balj_Journal {
         k_INVALID_RECORD_HANDLE = 0xFFFFFFFF
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAECS_INVALID_RECORD_HANDLE = k_INVALID_RECORD_HANDLE
-      , INVALID_RECORD_HANDLE = BAECS_INVALID_RECORD_HANDLE
+      , INVALID_RECORD_HANDLE = k_INVALID_RECORD_HANDLE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -332,7 +332,7 @@ class balj_Journal {
       , k_READWRITE          = 1   // write access
       , k_FAST               = 0   // no transactions
       , k_SAFE               = 2   // transaction support;
-                                   // needs BAECS_READWRITE
+                                   // needs k_READWRITE
       , k_MANUAL_COMMIT      = 0   // user calls commit manually
       , k_AUTO_COMMIT        = 4   // every add/remove/confirm commits
       , k_PARANOID           = 8   // extra checks (for testing only)
@@ -348,29 +348,29 @@ class balj_Journal {
       , BAECS_PARANOID           = k_PARANOID           
       , BAECS_RESERVE            = k_RESERVE            
 
-      , MODE_READONLY      = BAECS_READONLY
-      , MODE_READWRITE     = BAECS_READWRITE
-      , MODE_FAST          = BAECS_FAST
-      , MODE_SAFE          = BAECS_SAFE
-      , MODE_MANUAL_COMMIT = BAECS_MANUAL_COMMIT
-      , MODE_AUTO_COMMIT   = BAECS_AUTO_COMMIT
-      , MODE_PARANOID      = BAECS_PARANOID
-      , MODE_RESERVE       = BAECS_RESERVE
+      , MODE_READONLY      = k_READONLY
+      , MODE_READWRITE     = k_READWRITE
+      , MODE_FAST          = k_FAST
+      , MODE_SAFE          = k_SAFE
+      , MODE_MANUAL_COMMIT = k_MANUAL_COMMIT
+      , MODE_AUTO_COMMIT   = k_AUTO_COMMIT
+      , MODE_PARANOID      = k_PARANOID
+      , MODE_RESERVE       = k_RESERVE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
         e_PRIORITY_DATA     = 0
       , e_PRIORITY_METADATA = 1
-      , e_NUM_PRIORITIES    = BAECS_PRIORITY_METADATA + 1
+      , e_NUM_PRIORITIES    = e_PRIORITY_METADATA + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAECS_PRIORITY_DATA     = e_PRIORITY_DATA     
       , BAECS_PRIORITY_METADATA = e_PRIORITY_METADATA 
       , BAECS_NUM_PRIORITIES    = e_NUM_PRIORITIES    
 
-      , PRIORITY_DATA     = BAECS_PRIORITY_DATA
-      , PRIORITY_METADATA = BAECS_PRIORITY_METADATA
-      , NUM_PRIORITIES    = BAECS_NUM_PRIORITIES
+      , PRIORITY_DATA     = e_PRIORITY_DATA
+      , PRIORITY_METADATA = e_PRIORITY_METADATA
+      , NUM_PRIORITIES    = e_NUM_PRIORITIES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -411,19 +411,19 @@ class balj_Journal {
       , BAECS_VALIDATION_ERROR                = e_VALIDATION_ERROR                
       , BAECS_UNABLE_TO_LOCK_ERROR            = e_UNABLE_TO_LOCK_ERROR            
 
-      , WRITE_ACCESS_REQUIRED_ERROR = BAECS_WRITE_ACCESS_REQUIRED_ERROR
-      , IO_ERROR                    = BAECS_IO_ERROR
-      , MMAP_ERROR                  = BAECS_MMAP_ERROR
-      , UNABLE_TO_ROLLBACK_ERROR    = BAECS_UNABLE_TO_ROLLBACK_ERROR
-      , FILE_NOT_FOUND_ERROR        = BAECS_FILE_NOT_FOUND_ERROR
-      , FORMAT_ERROR                = BAECS_FORMAT_ERROR
-      , ALIGNMENT_ERROR             = BAECS_ALIGNMENT_ERROR
-      , UNSUPPORTED_VERSION_ERROR   = BAECS_UNSUPPORTED_VERSION_ERROR
-      , INVALID_STATE_ERROR         = BAECS_INVALID_STATE_ERROR
-      , INVALID_PARAMETERS_ERROR    = BAECS_INVALID_PARAMETERS_ERROR
-      , INVALID_HANDLE_ERROR        = BAECS_INVALID_HANDLE_ERROR
-      , VALIDATION_ERROR            = BAECS_VALIDATION_ERROR
-      , UNABLE_TO_LOCK_ERROR        = BAECS_UNABLE_TO_LOCK_ERROR
+      , WRITE_ACCESS_REQUIRED_ERROR = e_WRITE_ACCESS_REQUIRED_ERROR
+      , IO_ERROR                    = e_IO_ERROR
+      , MMAP_ERROR                  = e_MMAP_ERROR
+      , UNABLE_TO_ROLLBACK_ERROR    = e_UNABLE_TO_ROLLBACK_ERROR
+      , FILE_NOT_FOUND_ERROR        = e_FILE_NOT_FOUND_ERROR
+      , FORMAT_ERROR                = e_FORMAT_ERROR
+      , ALIGNMENT_ERROR             = e_ALIGNMENT_ERROR
+      , UNSUPPORTED_VERSION_ERROR   = e_UNSUPPORTED_VERSION_ERROR
+      , INVALID_STATE_ERROR         = e_INVALID_STATE_ERROR
+      , INVALID_PARAMETERS_ERROR    = e_INVALID_PARAMETERS_ERROR
+      , INVALID_HANDLE_ERROR        = e_INVALID_HANDLE_ERROR
+      , VALIDATION_ERROR            = e_VALIDATION_ERROR
+      , UNABLE_TO_LOCK_ERROR        = e_UNABLE_TO_LOCK_ERROR
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -518,7 +518,7 @@ class balj_Journal {
     void handle2PageBlock(unsigned *page, unsigned *block,
                           RecordHandle handle) const
     {
-        BSLS_ASSERT_SAFE(BAECS_INVALID_RECORD_HANDLE != handle);
+        BSLS_ASSERT_SAFE(k_INVALID_RECORD_HANDLE != handle);
         *page = handle / d_header.blocksPerPage();
         *block = handle % d_header.blocksPerPage();
 
@@ -637,14 +637,14 @@ class balj_Journal {
         // journal.
 
     int open(const char                   *filename,
-             unsigned                      mode = BAECS_READWRITE);
+             unsigned                      mode = k_READWRITE);
         // Open the journal backed by the specified 'filename' in the
         // optionally-specified 'mode'.  If 'mode' is not specified,
-        // 'BAECS_READWRITE' is assumed.  Return 0 on success and a non-zero
+        // 'k_READWRITE' is assumed.  Return 0 on success and a non-zero
         // error code otherwise.
 
     int create(const char                       *filename,
-               unsigned                          mode = BAECS_READWRITE,
+               unsigned                          mode = k_READWRITE,
                unsigned                          userDataSize = 0,
                const balj::JournalParameters&    parameters =
                                       balj::JournalParameters());
@@ -653,7 +653,7 @@ class balj_Journal {
         // 'mode' and with a reserved user data area of the specified
         // 'userDataSize'.  If the file does not exist, create a new journal
         // backed by the specified 'filename' using the specified 'parameters'.
-        // If 'mode' is not specified, 'BAECS_READWRITE' is assumed.  Return 0
+        // If 'mode' is not specified, 'k_READWRITE' is assumed.  Return 0
         // on success and a non-zero error code otherwise.  Note that if
         // the file exists, 'parameters' and 'userDataSize' are ignored.
 
@@ -766,28 +766,28 @@ class balj_Journal {
 
     RecordHandle firstConfirmedRecord() const;
         // Return the record handle for the first confirmed record in this
-        // journal or 'BAECS_INVALID_RECORD_HANDLE', if there are no
+        // journal or 'k_INVALID_RECORD_HANDLE', if there are no
         // confirmed records.
 
     RecordHandle firstUnconfirmedRecord() const;
         // Return the record handle for the first unconfirmed record in this
-        // journal or 'BAECS_INVALID_RECORD_HANDLE', if there are no
+        // journal or 'k_INVALID_RECORD_HANDLE', if there are no
         // confirmed records.
 
     RecordHandle nextConfirmedRecord(RecordHandle handle) const;
         // Return the record handle of the confirmed record following the
         // confirmed record with the specified 'handle' in this journal.
-        // Return 'BAECS_INVALID_RECORD_HANDLE' if there is no such record
-        // or if 'handle' is 'BAECS_INVALID_RECORD_HANDLE'.  The behavior is
-        // undefined unless 'handle' is 'BAECS_INVALID_RECORD_HANDLE' or the
+        // Return 'k_INVALID_RECORD_HANDLE' if there is no such record
+        // or if 'handle' is 'k_INVALID_RECORD_HANDLE'.  The behavior is
+        // undefined unless 'handle' is 'k_INVALID_RECORD_HANDLE' or the
         // handle of a confirmed record currently in the journal.
 
     RecordHandle nextUnconfirmedRecord(RecordHandle handle) const;
         // Return the record handle of the unconfirmed record following an
         // unconfirmed record with the specified 'handle' in this journal.
-        // Return 'BAECS_INVALID_RECORD_HANDLE' if there is no such record
-        // or if 'handle' is 'BAECS_INVALID_RECORD_HANDLE'.  The behavior is
-        // undefined unless 'handle' is 'BAECS_INVALID_RECORD_HANDLE' or the
+        // Return 'k_INVALID_RECORD_HANDLE' if there is no such record
+        // or if 'handle' is 'k_INVALID_RECORD_HANDLE'.  The behavior is
+        // undefined unless 'handle' is 'k_INVALID_RECORD_HANDLE' or the
         // handle of an unconfirmed record currently in the journal.  In
         // particular, the behavior is undefined if 'handle' was returned
         // from 'firstUnconfirmedRecord' or 'nextUnconfirmedRecord' and

@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
             bsls::TimeInterval myTimeout;
 
             // Flags to indicate that async interrupts are allowed.
-            int myFlags = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+            int myFlags = btesc_Flag::k_ASYNC_INTERRUPT;
 
             a.allocate(myCb);
             ASSERT(1 == myA.fun()); ASSERT(0 == myA.flags());

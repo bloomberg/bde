@@ -131,11 +131,11 @@ BSLS_IDENT("$Id: $")
 // parameter 'errorCode' which returns the platform-specific error code.
 // Platform specific error codes map onto the error classifications.  When
 // a mapping does not exist, the classification is
-// 'btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED'.
-// This component does not use the 'btlso::SocketHandle::BTESO_ERROR_EOF' or the
-// 'btlso::SocketHandle::BTESO_ERROR_TIMEDOUT' classifications.
+// 'btlso::SocketHandle::e_ERROR_UNCLASSIFIED'.
+// This component does not use the 'btlso::SocketHandle::e_ERROR_EOF' or the
+// 'btlso::SocketHandle::e_ERROR_TIMEDOUT' classifications.
 //
-///Interrupted system calls 'btlso::SocketHandle::BTESO_ERROR_INTERRUPTED'
+///Interrupted system calls 'btlso::SocketHandle::e_ERROR_INTERRUPTED'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // On some platforms, calls can be interrupted without completing the requested
 // operation.  For read or write calls, when some data was transferred the
@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // undefined and should be closed.  The platform specific error code on UNIX is
 // EINTR.
 //
-///Would Block 'btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK'
+///Would Block 'btlso::SocketHandle::e_ERROR_WOULDBLOCK'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When a socket is in non-blocking mode and the call cannot complete without
 // blocking,  the error classification 'BTESO_ERROR_WOULDBLOCK' is returned.
@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 // 'EWOULDBLOCK'.  On Windows, the platform specified error codes are
 // 'WSAEINPROGRESS' or 'WSAEWOULDBLOCK'.
 //
-///Connection Dead 'btlso::SocketHandle::BTESO_ERROR_CONNDEAD'
+///Connection Dead 'btlso::SocketHandle::e_ERROR_CONNDEAD'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This error is returned when an attempt to setup a connection has failed or
 // an operation was attempted on an existing connection that has been
@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
 //      rc = btlso::SocketImpUtil::startup(&errCode);      assert(0 == rc);
 //      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
 //                                    &serverSocket,
-//                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+//                                    btlso::SocketImpUtil::k_SOCKET_STREAM,
 //                                    &errCode);
 //                                                        assert(0 == rc);
 //      rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
@@ -278,7 +278,7 @@ BSLS_IDENT("$Id: $")
 //      } while (rc > 0);
 //      rc = btlso::SocketImpUtil::shutDown(
 //                                    sessionSocket,
-//                                    btlso::SocketImpUtil::BTESO_SHUTDOWN_BOTH,
+//                                    btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
 //                                    &errCode);          assert(0 == rc);
 //      rc = btlso::SocketImpUtil::close(sessionSocket,
 //                                      &errCode);        assert(0 == rc);
@@ -302,7 +302,7 @@ BSLS_IDENT("$Id: $")
 //      rc = btlso::SocketImpUtil::startup(&errorCode);       assert(0 == rc);
 //      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
 //                                    &sendSocket,
-//                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+//                                    btlso::SocketImpUtil::k_SOCKET_STREAM,
 //                                    &errorCode);
 //                                                           assert(0 == rc);
 //      rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
@@ -322,7 +322,7 @@ BSLS_IDENT("$Id: $")
 //
 //      rc = btlso::SocketImpUtil::shutDown(
 //                                    sendSocket,
-//                                    btlso::SocketImpUtil::BTESO_SHUTDOWN_BOTH,
+//                                    btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
 //                                    &errorCode);          assert(0 == rc);
 //      rc = btlso::SocketImpUtil::close(sendSocket,
 //                                      &errorCode);         assert(0 == rc);
@@ -435,9 +435,9 @@ struct SocketImpUtil {
       , BTESO_SOCKET_STREAM   = k_SOCKET_STREAM
       , BTESO_SOCKET_DATAGRAM = k_SOCKET_DATAGRAM
       , BTESO_SOCKET_RAW      = k_SOCKET_RAW
-      , SOCKET_STREAM   = BTESO_SOCKET_STREAM
-      , SOCKET_DATAGRAM = BTESO_SOCKET_DATAGRAM
-      , SOCKET_RAW      = BTESO_SOCKET_RAW
+      , SOCKET_STREAM   = k_SOCKET_STREAM
+      , SOCKET_DATAGRAM = k_SOCKET_DATAGRAM
+      , SOCKET_RAW      = k_SOCKET_RAW
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -459,9 +459,9 @@ struct SocketImpUtil {
       , BTESO_SHUTDOWN_RECEIVE = e_SHUTDOWN_RECEIVE
       , BTESO_SHUTDOWN_SEND    = e_SHUTDOWN_SEND
       , BTESO_SHUTDOWN_BOTH    = e_SHUTDOWN_BOTH
-      , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
-      , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
-      , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
+      , SHUTDOWN_RECEIVE = e_SHUTDOWN_RECEIVE
+      , SHUTDOWN_SEND    = e_SHUTDOWN_SEND
+      , SHUTDOWN_BOTH    = e_SHUTDOWN_BOTH
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -507,7 +507,7 @@ struct SocketImpUtil {
         // when created, 'newSocket' has exactly the same socket options as
         // 'socket'.  If a connection has been closed before the accept call is
         // made, the call may fail and
-        // 'SocketHandle::BTESO_ERROR_CONNDEAD' will be returned.
+        // 'SocketHandle::e_ERROR_CONNDEAD' will be returned.
 
     template <class ADDRESS>
     static int bind(const SocketHandle::Handle& socket,
@@ -564,7 +564,7 @@ struct SocketImpUtil {
         // blocking mode, the call will block until the connection is
         // established or an error occurs.  If the socket is in non-blocking
         // mode, the call may complete immediately returning
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK' indicating that the
+        // 'SocketHandle::e_ERROR_WOULDBLOCK' indicating that the
         // operation has been initiated but may not have
         // completed.  In this case the 'select' function can be used to
         // determine when the connection has completed.  For a datagram socket,
@@ -824,10 +824,10 @@ struct SocketImpUtil {
         // Shutdown the specified send and/or receive direction of the
         // full-duplexed connection associated with this socket.  Return 0 on
         // success, and a non-zero value otherwise representing an error
-        // classification.  A 'value' of 'BTESO_SHUTDOWN_RECEIVE' or
-        // 'BTESO_SHUTDOWN_SEND' will close the receive or send stream,
+        // classification.  A 'value' of 'e_SHUTDOWN_RECEIVE' or
+        // 'e_SHUTDOWN_SEND' will close the receive or send stream,
         // respectively, leaving the other stream unaffected.  A 'value' of
-        // 'BTESO_SHUTDOWN_BOTH' will close both.  Once the receive(send)
+        // 'e_SHUTDOWN_BOTH' will close both.  Once the receive(send)
         // stream has been closed, any attempted read(write) operations will
         // fail.  Any data received after successfully shutting down the
         // receive stream will be acknowledged but silently discarded.  Note
@@ -869,7 +869,7 @@ struct SocketImpUtil_Util {
 #endif
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_INVALID_SOCKET_HANDLE = k_INVALID_SOCKET_HANDLE
-      , INVALID_SOCKET_HANDLE = BTESO_INVALID_SOCKET_HANDLE
+      , INVALID_SOCKET_HANDLE = k_INVALID_SOCKET_HANDLE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // The platform-specific value returned by a socket call that creates
@@ -892,7 +892,7 @@ struct SocketImpUtil_Util {
 inline bool SocketImpUtil_Util::isValid(
       const SocketHandle::Handle& socket)
 {
-    return socket != BTESO_INVALID_SOCKET_HANDLE;
+    return socket != k_INVALID_SOCKET_HANDLE;
 }
 
                           // ==================================
@@ -927,8 +927,8 @@ struct SocketImpUtil_Address<class IPv4Address> {
         // Obtain the ip address.  The address is already in network
         // byte order.
         int ipAddr = addr.ipAddress();
-        if (IPv4Address::BTESO_ANY_ADDRESS != INADDR_ANY) {
-            if (ipAddr == IPv4Address::BTESO_ANY_ADDRESS) {
+        if (IPv4Address::k_ANY_ADDRESS != INADDR_ANY) {
+            if (ipAddr == IPv4Address::k_ANY_ADDRESS) {
                 ipAddr = INADDR_ANY;
             }
         }
@@ -952,7 +952,7 @@ struct SocketImpUtil_Address<class IPv4Address> {
     {
         // No need to change network/host byte order.
         if (d_address.sin_addr.s_addr == INADDR_ANY) {
-            addr->setIpAddress(IPv4Address::BTESO_ANY_ADDRESS);
+            addr->setIpAddress(IPv4Address::k_ANY_ADDRESS);
         }
         else {
             addr->setIpAddress(d_address.sin_addr.s_addr);

@@ -186,20 +186,20 @@ my_CommandMediator::my_CommandMediator(btlso::TcpTimerEventManager *manager,
 {
     btlso::SocketHandle::Handle handles[2];
     ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>
-           (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+           (handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
 
     d_client = handles[0];
     d_server = handles[1];
 
     bdlf::Function<void (*)()> functor(
      bdlf::MemFnUtil::memFn(&my_CommandMediator::readCb, this), basicAllocator);
-    d_manager_p->registerSocketEvent(d_server, btlso::EventType::BTESO_READ,
+    d_manager_p->registerSocketEvent(d_server, btlso::EventType::e_READ,
                                      functor);
 }
 
 inline
 my_CommandMediator::~my_CommandMediator() {
-    d_manager_p->deregisterSocketEvent(d_server, btlso::EventType::BTESO_READ);
+    d_manager_p->deregisterSocketEvent(d_server, btlso::EventType::e_READ);
     ASSERT(0 == d_manager_p->numSocketEvents(d_server));
     btlso::SocketImpUtil::close(d_client);
     btlso::SocketImpUtil::close(d_server);
@@ -264,7 +264,7 @@ TestSocketPair::TestSocketPair(btlso::TcpTimerEventManager *manager)
 {
     btlso::SocketHandle::Handle handles[2];
     ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>
-           (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+           (handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
 
     d_client = handles[0];
     d_server = handles[1];
@@ -275,7 +275,7 @@ TestSocketPair::TestSocketPair(btlso::TcpTimerEventManager *manager)
                                            functor);
 
     functor = bdlf::MemFnUtil::memFn(&TestSocketPair::readCb, this);
-    d_manager_p->registerSocketEvent(d_server, btlso::EventType::BTESO_READ,
+    d_manager_p->registerSocketEvent(d_server, btlso::EventType::e_READ,
                                      functor);
 }
 
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
             int d_expIsInvoked;
         } DATA[] = {
             { 1.5, 0,                                  1, 1 },
-            { 1.5, bteso_Flag::BTESO_ASYNC_INTERRUPT, -1, 0 }
+            { 1.5, bteso_Flag::k_ASYNC_INTERRUPT, -1, 0 }
         };
         signal(SIGUSR1, signalHandler);
 
@@ -970,10 +970,10 @@ int main(int argc, char *argv[])
             sizeof TEST_HANDLES / sizeof *TEST_HANDLES ;
 
         btlso::EventType::Type TEST_EVENTS[] = {
-            btlso::EventType::BTESO_READ,
-            btlso::EventType::BTESO_WRITE,
-            btlso::EventType::BTESO_ACCEPT,
-            btlso::EventType::BTESO_CONNECT,
+            btlso::EventType::e_READ,
+            btlso::EventType::e_WRITE,
+            btlso::EventType::e_ACCEPT,
+            btlso::EventType::e_CONNECT,
         };
         const int NUM_EVENTS =
             sizeof TEST_EVENTS / sizeof *TEST_EVENTS ;
@@ -1153,9 +1153,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numEvents()); ASSERT(0 == X.numTimers());
             btlso::TimeMetrics *metrics = mX.timeMetrics();
             ASSERT(metrics);
-            ASSERT(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES
+            ASSERT(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES
                    == metrics->numCategories());
-            ASSERT(btlso::TimeMetrics::BTESO_CPU_BOUND ==
+            ASSERT(btlso::TimeMetrics::e_CPU_BOUND ==
                    metrics->currentCategory());
         }
 
@@ -1165,7 +1165,7 @@ int main(int argc, char *argv[])
         {
             {
             bslma::TestAllocator testAllocator;
-            Obj mX(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+            Obj mX(btlso::TcpTimerEventManager::e_NO_HINT,
                    &testAllocator); const Obj& X = mX;
 
             ASSERT(0 != testAllocator.numAllocations());
@@ -1174,14 +1174,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numEvents()); ASSERT(0 == X.numTimers());
             btlso::TimeMetrics *metrics = mX.timeMetrics();
             ASSERT(metrics);
-            ASSERT(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES
+            ASSERT(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES
                    == metrics->numCategories());
-            ASSERT(btlso::TimeMetrics::BTESO_CPU_BOUND ==
+            ASSERT(btlso::TimeMetrics::e_CPU_BOUND ==
                    metrics->currentCategory());
             }
 
             {
-            Obj mX(btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION,
+            Obj mX(btlso::TcpTimerEventManager::e_INFREQUENT_REGISTRATION,
                    &testAllocator); const Obj& X = mX;
 
             ASSERT(0 != testAllocator.numAllocations());
@@ -1190,9 +1190,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numEvents()); ASSERT(0 == X.numTimers());
             btlso::TimeMetrics *metrics = mX.timeMetrics();
             ASSERT(metrics);
-            ASSERT(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES
+            ASSERT(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES
                    == metrics->numCategories());
-            ASSERT(btlso::TimeMetrics::BTESO_CPU_BOUND ==
+            ASSERT(btlso::TimeMetrics::e_CPU_BOUND ==
                    metrics->currentCategory());
             }
         }
@@ -1213,9 +1213,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numTimers());
             btlso::TimeMetrics *metrics = mX.timeMetrics();
             ASSERT(metrics);
-            ASSERT(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES
+            ASSERT(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES
                    == metrics->numCategories());
-            ASSERT(btlso::TimeMetrics::BTESO_CPU_BOUND ==
+            ASSERT(btlso::TimeMetrics::e_CPU_BOUND ==
                    metrics->currentCategory());
         }
       } break;

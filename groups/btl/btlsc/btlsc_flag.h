@@ -68,8 +68,8 @@ struct btesc_Flag {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESC_ASYNC_INTERRUPT = k_ASYNC_INTERRUPT
       , BTESC_RAW             = k_RAW
-      , ASYNC_INTERRUPT = BTESC_ASYNC_INTERRUPT
-      , RAW             = BTESC_RAW
+      , ASYNC_INTERRUPT = k_ASYNC_INTERRUPT
+      , RAW             = k_RAW
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

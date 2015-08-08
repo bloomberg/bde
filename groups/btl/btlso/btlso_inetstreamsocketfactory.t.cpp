@@ -335,7 +335,7 @@ int main(int argc, char *argv[]) {
     int nativeErrNo = 0;
     btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &fd,
-                                      btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &nativeErrNo);
     ASSERT(0 == nativeErrNo);
 //..
@@ -472,8 +472,8 @@ int main(int argc, char *argv[]) {
 
                int resp = testSocket->socketOption(
                      &result,
-                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                     btlso::SocketOptUtil::BTESO_SENDBUFFER);
+                     btlso::SocketOptUtil::k_SOCKETLEVEL,
+                     btlso::SocketOptUtil::k_SENDBUFFER);
 
                ASSERT(resp == 0);
                ASSERT(result > 0);
@@ -481,16 +481,16 @@ int main(int argc, char *argv[]) {
 
                resp = testSocket->socketOption(
                      &result,
-                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                     btlso::SocketOptUtil::BTESO_RECEIVEBUFFER);
+                     btlso::SocketOptUtil::k_SOCKETLEVEL,
+                     btlso::SocketOptUtil::k_RECEIVEBUFFER);
 
                ASSERT(resp == 0);
                ASSERT(result > 0);
                if (veryVerbose) cout << "RECEIVEBUFFER " << result << endl;
 
                resp = testSocket->setOption(
-                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                     btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                     btlso::SocketOptUtil::k_SOCKETLEVEL,
+                     btlso::SocketOptUtil::k_SENDBUFFER,
                                                 32768);
 
                ASSERT(resp == 0);
@@ -498,8 +498,8 @@ int main(int argc, char *argv[]) {
                result = -1;
                resp = testSocket->socketOption(
                      &result,
-                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                     btlso::SocketOptUtil::BTESO_SENDBUFFER);
+                     btlso::SocketOptUtil::k_SOCKETLEVEL,
+                     btlso::SocketOptUtil::k_SENDBUFFER);
 
                ASSERT(resp == 0);
                ASSERT(result > 0);
@@ -543,17 +543,17 @@ int main(int argc, char *argv[]) {
                ASSERT(clientSocket);
 
                clientSocket->setBlockingMode(
-                                           bteso_Flag::BTESO_NONBLOCKING_MODE);
+                                           bteso_Flag::e_NONBLOCKING_MODE);
 
                int resp = clientSocket->connect(serverAddress);
-               ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+               ASSERT(resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
                int status = 0;
 
                // Poll status
                bsls::TimeInterval negtwoseconds = bdlt::CurrentTime::now() - 2;
                resp = clientSocket->waitForConnect(negtwoseconds);
                ASSERT(resp == 0
-                   || resp == btlso::SocketHandle::BTESO_ERROR_TIMEDOUT);
+                   || resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
                enum { WAITS = 200 };
@@ -576,7 +576,7 @@ int main(int argc, char *argv[]) {
                    }
                    else {
                        ASSERT(resp ==
-                                     btlso::SocketHandle::BTESO_ERROR_TIMEDOUT);
+                                     btlso::SocketHandle::e_ERROR_TIMEDOUT);
                    }
                }
 
@@ -623,11 +623,11 @@ int main(int argc, char *argv[]) {
                ASSERT(clientSocket);
 
                clientSocket->setBlockingMode(
-                                           bteso_Flag::BTESO_NONBLOCKING_MODE);
+                                           bteso_Flag::e_NONBLOCKING_MODE);
 
                resp = clientSocket->connect(serverAddress);
                ASSERT(resp == 0 ||
-                      resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+                      resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
 
                int status = -1;
 
@@ -647,7 +647,7 @@ int main(int argc, char *argv[]) {
                    }
                    else {
                        ASSERT(resp ==
-                                     btlso::SocketHandle::BTESO_ERROR_TIMEDOUT);
+                                     btlso::SocketHandle::e_ERROR_TIMEDOUT);
                    }
                }
 
@@ -660,7 +660,7 @@ int main(int argc, char *argv[]) {
                resp = serverSocket->accept(&serviceSocket, &clientAddress);
 
                // shutdown service socket
-               resp = serviceSocket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+               resp = serviceSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 
                status = clientSocket->connectionStatus();
                ASSERT(status == 0);
@@ -731,7 +731,7 @@ int main(int argc, char *argv[]) {
 
                // There is no pending incoming connection.  Expect timeout.
                resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_TIMEDOUT);
+               ASSERT(resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
                if (veryVerbose) { P(resp); };
 
                resp = clientSocket->connect(serverAddress);
@@ -768,7 +768,7 @@ int main(int argc, char *argv[]) {
 
                // There is no pending incoming connection.  Expect timeout.
                resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_TIMEDOUT);
+               ASSERT(resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
 
                // If a timeout occurred, time must be > (timeout - 10ms)
                // and within 5 seconds
@@ -782,7 +782,7 @@ int main(int argc, char *argv[]) {
                // status.
 
                resp = serverSocket->waitForAccept(timeout);
-               ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_TIMEDOUT);
+               ASSERT(resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
 
                // If a timeout occurred, time must be > (timeout - 10ms)
                // and within 5 seconds
@@ -910,7 +910,7 @@ int main(int argc, char *argv[]) {
                ASSERT(memcmp(buf1 + 6, rcvbuf3, 2) == 0);
 
                // shutdown A
-               resp = streamSocketA->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+               resp = streamSocketA->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 
                // First receive what has been sent.
                vec[0].setBuffer(rcvbuf1, 10);
@@ -925,7 +925,7 @@ int main(int argc, char *argv[]) {
                vec[1].setBuffer(rcvbuf2, 5);
 
                resp = streamSocketB->readv(vec, 2);
-               ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_EOF);
+               ASSERT(resp == btlso::SocketHandle::e_ERROR_EOF);
 
              testFactory.deallocate(streamSocketA);
              testFactory.deallocate(streamSocketB);
@@ -938,10 +938,10 @@ int main(int argc, char *argv[]) {
         // Plan:
         //    test write
         //    test writev
-        //    test response btlso::SocketHandle::BTESO_ERROR_INTERRUPTED (UNIX
+        //    test response btlso::SocketHandle::e_ERROR_INTERRUPTED (UNIX
         //                                                               only)
-        //    test response btlso::SocketHandle::BTESO_ERROR_CONNDEAD
-        //    test response btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK
+        //    test response btlso::SocketHandle::e_ERROR_CONNDEAD
+        //    test response btlso::SocketHandle::e_ERROR_WOULDBLOCK
         //
         // Testing:
         //   write()
@@ -1105,7 +1105,7 @@ int main(int argc, char *argv[]) {
 
            ASSERT(globalAlarmCount > 0);
 
-           ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_INTERRUPTED);
+           ASSERT(resp == btlso::SocketHandle::e_ERROR_INTERRUPTED);
 
            testFactory.deallocate(streamSocketA);
            testFactory.deallocate(streamSocketB);
@@ -1178,7 +1178,7 @@ int main(int argc, char *argv[]) {
 
            ASSERT(globalAlarmCount > 0);
 
-           ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_INTERRUPTED);
+           ASSERT(resp == btlso::SocketHandle::e_ERROR_INTERRUPTED);
 
            testFactory.deallocate(streamSocketA);
            testFactory.deallocate(streamSocketB);
@@ -1197,7 +1197,7 @@ int main(int argc, char *argv[]) {
          }
 
          if (veryVerbose) cout
-         << "\n   test write response btlso::SocketHandle::BTESO_ERROR_CONNDEAD"
+         << "\n   test write response btlso::SocketHandle::e_ERROR_CONNDEAD"
          << endl;
 
          // Verify error response when remote socket closed.
@@ -1233,13 +1233,13 @@ int main(int argc, char *argv[]) {
 
            if (veryVerbose) { P_(resp); P(tolerance); }
            if (resp > 0 && tolerance-- <= 0) {
-               ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_CONNDEAD);
+               ASSERT(resp == btlso::SocketHandle::e_ERROR_CONNDEAD);
            }
            testFactory.deallocate(streamSocketA);
          }
 
          if (veryVerbose) cout
-        << "\n   test writev response btlso::SocketHandle::BTESO_ERROR_CONNDEAD"
+        << "\n   test writev response btlso::SocketHandle::e_ERROR_CONNDEAD"
         << endl;
 
          // Verify error response when remote socket closed.
@@ -1277,14 +1277,14 @@ int main(int argc, char *argv[]) {
 
            if (veryVerbose) { P_(resp); P(tolerance); }
            if (resp > 0 && tolerance-- <= 0) {
-               ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_CONNDEAD);
+               ASSERT(resp == btlso::SocketHandle::e_ERROR_CONNDEAD);
            }
            testFactory.deallocate(streamSocketA);
          }
 
          {
          if (veryVerbose) cout
-       << "\n   test write response btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK"
+       << "\n   test write response btlso::SocketHandle::e_ERROR_WOULDBLOCK"
        << endl;
 
          int packetSize;
@@ -1301,9 +1301,9 @@ int main(int argc, char *argv[]) {
 
            ASSERT(resp);
 
-           streamSocketA->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+           streamSocketA->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
-           streamSocketB->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+           streamSocketB->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
            // Fill the outgoing socket buffer for socket A
            char zerobuf[1024*64];
@@ -1333,7 +1333,7 @@ int main(int argc, char *argv[]) {
            }
 
            LOOP_ASSERT(packetSize,
-                       resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+                       resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
 
            // Verify that when receiver takes all the data, sender
            // can send again.
@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[]) {
 
            LOOP_ASSERT(packetSize, totalReceived == totalSent);
            LOOP_ASSERT(packetSize,
-                       resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+                       resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
 
            // Latency
 
@@ -1383,7 +1383,7 @@ int main(int argc, char *argv[]) {
 
          {
          if (veryVerbose) cout
-      << "\n   test writev response btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK"
+      << "\n   test writev response btlso::SocketHandle::e_ERROR_WOULDBLOCK"
       << endl;
 
          int packetSize;
@@ -1400,9 +1400,9 @@ int main(int argc, char *argv[]) {
 
            ASSERT(resp);
 
-           streamSocketA->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+           streamSocketA->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
-           streamSocketB->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+           streamSocketB->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
            // Fill the outgoing socket buffer for socket A
            char zerobuf[1024*64];
@@ -1433,7 +1433,7 @@ int main(int argc, char *argv[]) {
            if (veryVerbose) P(i);
            if (veryVerbose) cout << "Total Sent " << totalSent << endl;
 
-           ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+           ASSERT(resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
 
            // Verify that when receiver takes all the data, sender
            // can send again.
@@ -1462,7 +1462,7 @@ int main(int argc, char *argv[]) {
 
            LOOP_ASSERT(packetSize, totalReceived == totalSent);
            LOOP_ASSERT(packetSize,
-                       resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+                       resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
 
            // Latency
 
@@ -1520,9 +1520,9 @@ int main(int argc, char *argv[]) {
         {
 // TBD FIX ME
 #ifndef BSLS_PLATFORM_OS_AIX
-           const bteso_Flag::IOWaitType RD = bteso_Flag::BTESO_IO_READ;
-           const bteso_Flag::IOWaitType WR = bteso_Flag::BTESO_IO_WRITE;
-           const bteso_Flag::IOWaitType RW = bteso_Flag::BTESO_IO_RW;
+           const bteso_Flag::IOWaitType RD = bteso_Flag::e_IO_READ;
+           const bteso_Flag::IOWaitType WR = bteso_Flag::e_IO_WRITE;
+           const bteso_Flag::IOWaitType RW = bteso_Flag::e_IO_RW;
            const int                    TO = btlso::SocketHandle::
                                                           BTESO_ERROR_TIMEDOUT;
 
@@ -1612,11 +1612,11 @@ int main(int argc, char *argv[]) {
            }
 
            // Turn off Nagle for sending side (A) if specified
-           streamSocketA->setOption(btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                    btlso::SocketOptUtil::BTESO_TCPNODELAY,
+           streamSocketA->setOption(btlso::SocketOptUtil::k_TCPLEVEL,
+                                    btlso::SocketOptUtil::k_TCPNODELAY,
                                     DATA[ti].d_tcpndelay);
 
-           streamSocketA->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+           streamSocketA->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
            // Fill the output buffer for socket A.
            char zerobuf[DATASIZE] = {0};
@@ -1643,7 +1643,7 @@ int main(int argc, char *argv[]) {
                }
 
                LOOP_ASSERT(ti, resp ==
-                                   btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+                                   btlso::SocketHandle::e_ERROR_WOULDBLOCK);
            }
 
            // Read input on B, PACKETSIZE bytes at a time, until all input is
@@ -1708,7 +1708,7 @@ int main(int argc, char *argv[]) {
            // Assuming the latency and system responsiveness is
            // never worse than 5 seconds.
 
-           if (resp == btlso::SocketHandle::BTESO_ERROR_TIMEDOUT)
+           if (resp == btlso::SocketHandle::e_ERROR_TIMEDOUT)
            {
                // If a timeout occurred, time must be > (timeout - 10ms)
                // and within 5 seconds
@@ -1939,14 +1939,14 @@ int main(int argc, char *argv[]) {
             // ignored.  'both' is always supported but the implementation
             // may not shutdown receive.
 
-            resp = serviceSocket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            resp = serviceSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             ASSERT(resp == 0);
 
             resp = serviceSocket->write(buf1, sizeof(buf1));
 
             resp = clientSocket->read(bufrcv, sizeof(buf1));
 
-            ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_EOF);
+            ASSERT(resp == btlso::SocketHandle::e_ERROR_EOF);
 
             testFactory.deallocate(serviceSocket);
             testFactory.deallocate(serverSocket);
@@ -1997,29 +1997,29 @@ int main(int argc, char *argv[]) {
             ASSERT(clientSocket);
 
             bteso_Flag::BlockingMode result =
-                                            bteso_Flag::BTESO_NONBLOCKING_MODE;
+                                            bteso_Flag::e_NONBLOCKING_MODE;
 
             resp = clientSocket->blockingMode(&result);
             if (resp == 0) {
                 // If this platform supports this feature, verify result.
-                ASSERT(result == bteso_Flag::BTESO_BLOCKING_MODE);
+                ASSERT(result == bteso_Flag::e_BLOCKING_MODE);
             }
 
-            clientSocket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+            clientSocket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
             resp = clientSocket->blockingMode(&result);
             if (resp == 0) {
                 // If this platform supports this feature, verify result.
-                ASSERT(result == bteso_Flag::BTESO_NONBLOCKING_MODE);
+                ASSERT(result == bteso_Flag::e_NONBLOCKING_MODE);
             }
 
             // In non-blocking mode, some platforms will return 0
-            // and others return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK
+            // and others return btlso::SocketHandle::e_ERROR_WOULDBLOCK
             if (verbose)
                 cout << "\tNon-blocking connect to " << serverAddress << endl;
             resp = clientSocket->connect(serverAddress);
             ASSERT(resp == 0 ||
-                   resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+                   resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
 
             // Accept the connection
             btlso::StreamSocket<btlso::IPv4Address> *serviceSocket;
@@ -2059,7 +2059,7 @@ int main(int argc, char *argv[]) {
             char bufrcv[10];
 
             resp = clientSocket->read(bufrcv, sizeof(bufrcv));
-            ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK);
+            ASSERT(resp == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
 
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp == sizeof(buf1));
@@ -2097,7 +2097,7 @@ int main(int argc, char *argv[]) {
 
             // Verify shutdown()
 
-            resp = serviceSocket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            resp = serviceSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             ASSERT(resp == 0);
 
             resp = serviceSocket->write(buf1, sizeof(buf1));
@@ -2111,8 +2111,8 @@ int main(int argc, char *argv[]) {
 #endif
 
             resp = clientSocket->read(bufrcv, sizeof(buf1));
-            ASSERT(btlso::SocketHandle::BTESO_ERROR_EOF == resp ||
-                   btlso::SocketHandle::BTESO_ERROR_CONNDEAD == resp);
+            ASSERT(btlso::SocketHandle::e_ERROR_EOF == resp ||
+                   btlso::SocketHandle::e_ERROR_CONNDEAD == resp);
 
             testFactory.deallocate(serviceSocket);
             testFactory.deallocate(serverSocket);
@@ -2169,7 +2169,7 @@ int main(int argc, char *argv[]) {
                    (streamSocketA)->setLingerOption(ling);
 
                    // kill the connection before accept
-                   (streamSocketA)->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+                   (streamSocketA)->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 
                    // close connection  after rst
                    testFactory.deallocate(streamSocketA);
@@ -2203,19 +2203,19 @@ int main(int argc, char *argv[]) {
 
                    if (resp != 0) {
 #if defined(BSLS_PLATFORM_OS_HPUX)
-                       LOOP_ASSERT(resp,SH::BTESO_ERROR_UNCLASSIFIED == resp ||
-                                        SH::BTESO_ERROR_CONNDEAD     == resp ||
-                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
+                       LOOP_ASSERT(resp,SH::e_ERROR_UNCLASSIFIED == resp ||
+                                        SH::e_ERROR_CONNDEAD     == resp ||
+                                        SH::e_ERROR_INTERRUPTED  == resp);
 #else
-                       LOOP_ASSERT(resp,SH::BTESO_ERROR_CONNDEAD     == resp ||
-                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
+                       LOOP_ASSERT(resp,SH::e_ERROR_CONNDEAD     == resp ||
+                                        SH::e_ERROR_INTERRUPTED  == resp);
 #endif
                    }
                    else {
                        char buf[1];
                        resp = streamSocketB->read(buf,1 );
-                       ASSERT(SH::BTESO_ERROR_CONNDEAD == resp ||
-                              SH::BTESO_ERROR_EOF      == resp);
+                       ASSERT(SH::e_ERROR_CONNDEAD == resp ||
+                              SH::e_ERROR_EOF      == resp);
                    }
                    testFactory.deallocate(streamSocketB);
                } else {
@@ -2252,7 +2252,7 @@ int main(int argc, char *argv[]) {
            btlso::SocketHandle::Handle handles[2];
 
            int resp = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                  handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                  handles, btlso::SocketImpUtil::k_SOCKET_STREAM);
            ASSERT(resp == 0);
            btlso::StreamSocket<btlso::IPv4Address> *newSocketA =
                  testFactory.allocate(handles[0]);
@@ -2288,7 +2288,7 @@ int main(int argc, char *argv[]) {
            resp = newSocketB->read(bufrcv, sizeof(bufrcv));
 
            // socket A is closed so expect EOF
-           ASSERT(resp == btlso::SocketHandle::BTESO_ERROR_EOF);
+           ASSERT(resp == btlso::SocketHandle::e_ERROR_EOF);
 
            testFactory.deallocate(newSocketB);
 

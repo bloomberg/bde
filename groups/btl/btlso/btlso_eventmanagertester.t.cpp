@@ -676,19 +676,19 @@ int buildOpDetails(
           }
           switch (d) {
             case 'r':
-              info.d_event = btlso::EventType::BTESO_READ;
+              info.d_event = btlso::EventType::e_READ;
               break;
 
             case 'w':
-              info.d_event = btlso::EventType::BTESO_WRITE;
+              info.d_event = btlso::EventType::e_WRITE;
               break;
 
             case 'a':
-              info.d_event = btlso::EventType::BTESO_ACCEPT;
+              info.d_event = btlso::EventType::e_ACCEPT;
               break;
 
             case 'c':
-              info.d_event = btlso::EventType::BTESO_CONNECT;
+              info.d_event = btlso::EventType::e_CONNECT;
               break;
             default:
               return FAIL;
@@ -723,16 +723,16 @@ int buildOpDetails(
           info.d_handle = fds[fd].observedFd();
           switch (c[0]) {
             case 'r': {
-                info.d_event = btlso::EventType::BTESO_READ;
+                info.d_event = btlso::EventType::e_READ;
             } break;
             case 'w': {
-                info.d_event = btlso::EventType::BTESO_WRITE;
+                info.d_event = btlso::EventType::e_WRITE;
             } break;
             case 'a': {
-                info.d_event = btlso::EventType::BTESO_ACCEPT;
+                info.d_event = btlso::EventType::e_ACCEPT;
             } break;
             case 'c': {
-                info.d_event = btlso::EventType::BTESO_CONNECT;
+                info.d_event = btlso::EventType::e_CONNECT;
             } break;
             default:
                 return FAIL;
@@ -799,7 +799,7 @@ int buildOpDetails(
                   HelperEventManager::OperationDetails info;
                   info.d_functionCode = HelperEventManager::ISREGISTERED;
                   info.d_handle = fds[fd].observedFd();
-                  info.d_event = btlso::EventType::BTESO_ACCEPT;
+                  info.d_event = btlso::EventType::e_ACCEPT;
                   info.d_timeout = HelperEventManager::UNSET;
                   opDetails->push_back(info);
               }
@@ -807,7 +807,7 @@ int buildOpDetails(
                   HelperEventManager::OperationDetails info;
                   info.d_functionCode = HelperEventManager::ISREGISTERED;
                   info.d_handle = fds[fd].observedFd();
-                  info.d_event = btlso::EventType::BTESO_CONNECT;
+                  info.d_event = btlso::EventType::e_CONNECT;
                   info.d_timeout = HelperEventManager::UNSET;
                   opDetails->push_back(info);
               }
@@ -815,7 +815,7 @@ int buildOpDetails(
                   HelperEventManager::OperationDetails info;
                   info.d_functionCode = HelperEventManager::ISREGISTERED;
                   info.d_handle = fds[fd].observedFd();
-                  info.d_event = btlso::EventType::BTESO_READ;
+                  info.d_event = btlso::EventType::e_READ;
                   info.d_timeout = HelperEventManager::UNSET;
                   opDetails->push_back(info);
               }
@@ -823,7 +823,7 @@ int buildOpDetails(
                   HelperEventManager::OperationDetails info;
                   info.d_functionCode = HelperEventManager::ISREGISTERED;
                   info.d_handle = fds[fd].observedFd();
-                  info.d_event = btlso::EventType::BTESO_WRITE;
+                  info.d_event = btlso::EventType::e_WRITE;
                   info.d_timeout = HelperEventManager::UNSET;
                   opDetails->push_back(info);
               }
@@ -897,7 +897,7 @@ int main(int argc, char *argv[])
 
         btlso::EventManagerTestPair mX(veryVerbose);
         int rc = btlso::IoUtil::setBlockingMode(mX.observedFd(),
-                                               btlso::IoUtil::BTESO_BLOCKING);
+                                               btlso::IoUtil::e_BLOCKING);
         ASSERT(0 == rc);
 
         rc = btlso::SocketImpUtil::write(mX.controlFd(), testData, testLen);
@@ -1043,13 +1043,13 @@ int main(int argc, char *argv[])
 
         // int ctrlFlag = 0;
         // if (veryVeryVerbose) {
-        //    ctrlFlag |= btlso::EventManagerTester::BTESO_VERY_VERY_VERBOSE;
+        //    ctrlFlag |= btlso::EventManagerTester::k_VERY_VERY_VERBOSE;
         //}
         //else if (veryVerbose) {
-        //    ctrlFlag |= btlso::EventManagerTester::BTESO_VERY_VERBOSE;
+        //    ctrlFlag |= btlso::EventManagerTester::k_VERY_VERBOSE;
         //}
         //else if (verbose) {
-        //    ctrlFlag |= btlso::EventManagerTester::BTESO_VERBOSE;
+        //    ctrlFlag |= btlso::EventManagerTester::k_VERBOSE;
         //}
         //btlso::EventManagerTester::testRegisterSocketEvent(&mX, ctrlFlag);
         // The following snippets of code illustrate how to use this utility
@@ -1081,13 +1081,13 @@ int main(int argc, char *argv[])
         // created above.
         int ctrlFlag = 0;
         if (veryVeryVerbose) {
-                ctrlFlag |= btlso::EventManagerTester::BTESO_VERY_VERY_VERBOSE;
+                ctrlFlag |= btlso::EventManagerTester::k_VERY_VERY_VERBOSE;
         }
         else if (veryVerbose) {
-            ctrlFlag |= btlso::EventManagerTester::BTESO_VERY_VERBOSE;
+            ctrlFlag |= btlso::EventManagerTester::k_VERY_VERBOSE;
         }
         else if (verbose) {
-            ctrlFlag |= btlso::EventManagerTester::BTESO_VERBOSE;
+            ctrlFlag |= btlso::EventManagerTester::k_VERBOSE;
         }
         int fails = btlso::EventManagerTester::gg(&mX2, socketPairs,
                                                  script, ctrlFlag);

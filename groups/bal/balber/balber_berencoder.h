@@ -673,7 +673,7 @@ int BerEncoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
     BSLS_ASSERT(!d_streamBuf);
 
     d_streamBuf = streamBuf;
-    d_severity  = BDEM_BER_SUCCESS;
+    d_severity  = e_BER_SUCCESS;
 
     if (d_logStream != 0) {
         d_logStream->reset();
@@ -730,7 +730,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
     enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     const BerConstants::TagType tagType =
-                                           BerConstants::BDEM_CONSTRUCTED;
+                                           BerConstants::e_BDEM_CONSTRUCTED;
 
     int rc = BerUtil::putIdentifierOctets(d_streamBuf,
                                                tagClass,
@@ -749,7 +749,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 
         rc = BerUtil::putIdentifierOctets(
                                       d_streamBuf,
-                                      BerConstants::BDEM_CONTEXT_SPECIFIC,
+                                      BerConstants::e_CONTEXT_SPECIFIC,
                                       tagType,
                                       0);
         if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
@@ -799,7 +799,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
         int rc = BerUtil::putIdentifierOctets(
                                            d_streamBuf,
                                            tagClass,
-                                           BerConstants::BDEM_CONSTRUCTED,
+                                           BerConstants::e_BDEM_CONSTRUCTED,
                                            tagNumber);
         if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
             return k_BDEM_FAILURE;
@@ -809,7 +809,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 
             BerEncoder_encodeProxy proxy1 = {
                 this,
-                BerConstants::BDEM_CONTEXT_SPECIFIC, // tagClass
+                BerConstants::e_CONTEXT_SPECIFIC, // tagClass
                 0,                                   // tagNumber
                 formattingMode
             };
@@ -872,7 +872,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
     int rc = BerUtil::putIdentifierOctets(
                                              d_streamBuf,
                                              tagClass,
-                                             BerConstants::BDEM_PRIMITIVE,
+                                             BerConstants::e_BDEM_PRIMITIVE,
                                              tagNumber);
 
     int intValue;
@@ -895,7 +895,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
     int rc = BerUtil::putIdentifierOctets(
                                            d_streamBuf,
                                            tagClass,
-                                           BerConstants::BDEM_CONSTRUCTED,
+                                           BerConstants::e_BDEM_CONSTRUCTED,
                                            tagNumber);
     rc |= BerUtil::putIndefiniteLengthOctet(d_streamBuf);
     if (rc) {
@@ -918,7 +918,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
     int rc = BerUtil::putIdentifierOctets(
                                              d_streamBuf,
                                              tagClass,
-                                             BerConstants::BDEM_PRIMITIVE,
+                                             BerConstants::e_BDEM_PRIMITIVE,
                                              tagNumber);
     rc |= BerUtil::putValue(d_streamBuf, value, d_options);
 
@@ -935,7 +935,7 @@ int BerEncoder::encodeImpl(const TYPE& value,
 {
     enum { k_BDEM_SUCCESS = 0,  k_BDEM_FAILURE = -1 };
 
-    if (d_currentDepth <= 1 || tagClass == BerConstants::BDEM_UNIVERSAL) {
+    if (d_currentDepth <= 1 || tagClass == BerConstants::e_UNIVERSAL) {
         return k_BDEM_FAILURE;
     }
     // Note: bsl::vector<char> is handled as a special case in the CPP file.
@@ -961,7 +961,7 @@ BerEncoder::encodeArrayImpl(const TYPE&                  value,
     }
 
     const BerConstants::TagType tagType =
-                                           BerConstants::BDEM_CONSTRUCTED;
+                                           BerConstants::e_BDEM_CONSTRUCTED;
 
     int rc = BerUtil::putIdentifierOctets(d_streamBuf,
                                                tagClass,
@@ -1035,13 +1035,13 @@ int BerEncoder_Visitor::operator()(const TYPE& value, const INFO& info)
 
     int rc = d_encoder->encodeImpl(
                               value,
-                              BerConstants::BDEM_CONTEXT_SPECIFIC,
+                              BerConstants::e_CONTEXT_SPECIFIC,
                               info.id(),
                               info.formattingMode(),
                               TypeCategory());
 
     if (rc) {
-        d_encoder->logError(BerConstants::BDEM_CONTEXT_SPECIFIC,
+        d_encoder->logError(BerConstants::e_CONTEXT_SPECIFIC,
                             info.id(),
                             info.name());
     }
@@ -1085,11 +1085,11 @@ int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
                                                 d_encoder->options());
 
     if (d_encoder->encodeImpl(value,
-                              BerConstants::BDEM_UNIVERSAL,
+                              BerConstants::e_UNIVERSAL,
                               static_cast<int>(tagNumber),
                               d_formattingMode,
                               TypeCategory())) {
-        d_encoder->logError(BerConstants::BDEM_UNIVERSAL,
+        d_encoder->logError(BerConstants::e_UNIVERSAL,
                             tagNumber,
                             0  // bdeat_TypeName::name(value)
                            );

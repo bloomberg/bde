@@ -71,7 +71,7 @@ int IoUtil::setBlockingMode(SocketHandle::Handle handle,
             }
             return -1;
         }
-        if (BTESO_NONBLOCKING == value) {
+        if (e_NONBLOCKING == value) {
             if (fcntl(handle, F_SETFL, flags | O_NONBLOCK) == -1) {
                 if (errorCode) {
                     *errorCode = errno;
@@ -121,9 +121,9 @@ int IoUtil::setAsync(SocketHandle::Handle handle,
     #elif defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
         // HPUX does not support setting ASYNC flag through 'fcntl'.
         // Therefore, we must 'ioctl' with 'FIOASYNC' flag.
-        int flag = (BTESO_ASYNCHRONOUS == value) ? 1 : 0;
+        int flag = (e_ASYNCHRONOUS == value) ? 1 : 0;
 
-        if ( BTESO_ASYNCHRONOUS == value &&
+        if ( e_ASYNCHRONOUS == value &&
              fcntl(handle, F_SETOWN, getpid()) == -1) {
               if (errorCode) {
                 *errorCode = errno;
@@ -145,7 +145,7 @@ int IoUtil::setAsync(SocketHandle::Handle handle,
             }
             return -1;
         }
-        if (BTESO_ASYNCHRONOUS == value) {
+        if (e_ASYNCHRONOUS == value) {
             if (fcntl(handle, F_SETOWN, getpid()) == -1) {
                 if (errorCode) {
                     *errorCode = errno;
@@ -189,8 +189,8 @@ int IoUtil::getBlockingMode(IoUtil::BlockingMode  *result,
             return -1;
         }
         *result = (flags & O_NONBLOCK) == 0
-                  ? BTESO_BLOCKING
-                  : BTESO_NONBLOCKING;
+                  ? e_BLOCKING
+                  : e_NONBLOCKING;
         return 0;
     #endif
 }
@@ -243,7 +243,7 @@ int IoUtil::getAsync(IoUtil::AsyncMode   *result,
         }
 
         *result = (s_info.pst_state & PS_SS_ASYNC) == 0 ?
-             BTESO_SYNCHRONOUS : BTESO_ASYNCHRONOUS;
+             e_SYNCHRONOUS : e_ASYNCHRONOUS;
         return 0;
     #else
         int flags;
@@ -254,8 +254,8 @@ int IoUtil::getAsync(IoUtil::AsyncMode   *result,
             return -1;
         }
         *result = (flags & FASYNC) == 0
-                  ? BTESO_SYNCHRONOUS
-                  : BTESO_ASYNCHRONOUS;
+                  ? e_SYNCHRONOUS
+                  : e_ASYNCHRONOUS;
         return 0;
     #endif
 }

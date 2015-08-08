@@ -17,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a clock that measures time and
-// accumulates it into one of two categories: 'BTESO_IO_BOUND' or
-// 'BTESO_CPU_BOUND'.
+// accumulates it into one of two categories: 'e_IO_BOUND' or
+// 'e_CPU_BOUND'.
 //
 ///Thread-safety
 ///-------------
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 // The usage is very simple.  First create a metrics object, keeping two
 // categories, and initially measuring time in the 'CPU' category:
 //..
-//  btlso::TimeMetrics metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+//  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
 //                            btlso::TimeMetrics::BTESO_CPU_CATEGORY);
 //..
 // In order to measure time spent in I/O, e.g., doing 'select' calls:
@@ -93,7 +93,7 @@ namespace btlso {
 
 class TimeMetrics {
     // This class provides a set of metrics data and a mechanism to accumulate
-    // time into one of two categories: 'BTESO_IO_BOUND' or 'BTESO_CPU_BOUND'.
+    // time into one of two categories: 'e_IO_BOUND' or 'e_CPU_BOUND'.
     // Use the method 'switchTo' to switch back and forth between these
     // categories.
 
@@ -126,9 +126,9 @@ class TimeMetrics {
       , BTESO_IO_BOUND           = e_IO_BOUND
       , BTESO_CPU_BOUND          = e_CPU_BOUND
       , BTESO_MIN_NUM_CATEGORIES = e_MIN_NUM_CATEGORIES
-      , IO_BOUND           = BTESO_IO_BOUND
-      , CPU_BOUND          = BTESO_CPU_BOUND
-      , MIN_NUM_CATEGORIES = BTESO_MIN_NUM_CATEGORIES
+      , IO_BOUND           = e_IO_BOUND
+      , CPU_BOUND          = e_CPU_BOUND
+      , MIN_NUM_CATEGORIES = e_MIN_NUM_CATEGORIES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -141,7 +141,7 @@ class TimeMetrics {
         // 'initialCategory'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless
-        // 'BTESO_MIN_NUM_CATEGORIES <= numCategories' and
+        // 'e_MIN_NUM_CATEGORIES <= numCategories' and
         // '0 <= initialCategory < numCategories'.
 
     ~TimeMetrics();

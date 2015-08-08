@@ -122,8 +122,8 @@ BSLS_IDENT("$Id: $")
 //  rc = btlso::SocketOptUtil::getOption(
 //                                    &addropt,
 //                                    socketHandle,
-//                                    btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                                    btlso::SocketOptUtil::BTESO_REUSEADDRESS);
+//                                    btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                                    btlso::SocketOptUtil::k_REUSEADDRESS);
 //
 //  assert(0 == rc);
 //  assert(0 != addropt);

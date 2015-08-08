@@ -200,7 +200,7 @@ struct BerUtil {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEM_INDEFINITE_LENGTH = e_INDEFINITE_LENGTH
-      , INDEFINITE_LENGTH = BDEM_INDEFINITE_LENGTH
+      , INDEFINITE_LENGTH = e_INDEFINITE_LENGTH
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -230,7 +230,7 @@ struct BerUtil {
         // Decode the length octets from the specified 'streamBuf' and load the
         // result into the specified 'length'.  If the length is indefinite
         // (i.e., contents will be terminated by "end-of-content" octets) then
-        // 'result' will be set to 'BDEM_INDEFINITE_LENGTH'.  Add the number of
+        // 'result' will be set to 'e_INDEFINITE_LENGTH'.  Add the number of
         // bytes consumed to the specified 'accumNumBytesConsumed'.  Return 0
         // on success, and a non-zero value otherwise.
 
@@ -709,9 +709,9 @@ int BerUtil::putIndefiniteLengthOctet(bsl::streambuf *streamBuf)
 
     // "extra" unsigned char cast needed to suppress warning on Windows.
 
-    return BerUtil_Imp::INDEFINITE_LENGTH_OCTET
+    return BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET
                == streamBuf->sputc(static_cast<char>(
-                  (unsigned char)(BerUtil_Imp::INDEFINITE_LENGTH_OCTET)))
+                  (unsigned char)(BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET)))
                ? k_BDEM_SUCCESS
                : k_BDEM_FAILURE;
 }
@@ -776,7 +776,7 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
             return k_BDEM_FAILURE;                                      // RETURN
         }
 
-        *value = (TYPE)(*value << BITS_PER_OCTET);
+        *value = (TYPE)(*value << e_BITS_PER_OCTET);
         *value = (TYPE)(*value | (unsigned char)nextOctet);
     }
 
@@ -928,13 +928,13 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
     // narrower than 'int'.
 
     static const TYPE NEG_MASK = static_cast<TYPE>(
-             static_cast<TYPE>(0xff80) << ((sizeof(TYPE)-2) * BITS_PER_OCTET));
+             static_cast<TYPE>(0xff80) << ((sizeof(TYPE)-2) * e_BITS_PER_OCTET));
     if (0 == value) {
         numBytes = 1;
     }
     else if (value > 0) {
         static const TYPE SGN_BIT = static_cast<TYPE>(
-                  static_cast<TYPE>(1) << (sizeof(TYPE) * BITS_PER_OCTET - 1));
+                  static_cast<TYPE>(1) << (sizeof(TYPE) * e_BITS_PER_OCTET - 1));
         if (value & SGN_BIT) {
             // If value is > 0 but the high bit (sign bit) is set, then this
             // is an unsigned value and a leading zero byte must be emitted to
@@ -980,7 +980,7 @@ int BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
 
     if (isUnsigned && (unsigned) length == sizeof(TYPE) + 1) {
         static const TYPE SGN_BIT =
-            TYPE(TYPE(1) << (sizeof(TYPE) * BITS_PER_OCTET - 1));
+            TYPE(TYPE(1) << (sizeof(TYPE) * e_BITS_PER_OCTET - 1));
         // Length may be one greater than sizeof(TYPE) only if type is
         // unsigned and the high bit (normally the sign bit) is set.  In this
         // case, a leading zero octet is emitted.

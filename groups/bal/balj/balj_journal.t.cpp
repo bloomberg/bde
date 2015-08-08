@@ -122,15 +122,15 @@ static void aSsErT(int c, const char *s, int i)
 namespace {
 
 enum {
-    MODE_RW = balj_Journal::BAECS_READWRITE,
-    MODE_RW_P = MODE_RW | balj_Journal::BAECS_PARANOID,
-    MODE_RO = balj_Journal::BAECS_READONLY,
-    MODE_RW_SAFE = MODE_RW | balj_Journal::BAECS_SAFE,
-    MODE_RW_AUTOCOMMIT = MODE_RW_SAFE | balj_Journal::BAECS_AUTO_COMMIT
+    MODE_RW = balj_Journal::k_READWRITE,
+    MODE_RW_P = MODE_RW | balj_Journal::k_PARANOID,
+    MODE_RO = balj_Journal::k_READONLY,
+    MODE_RW_SAFE = MODE_RW | balj_Journal::k_SAFE,
+    MODE_RW_AUTOCOMMIT = MODE_RW_SAFE | balj_Journal::k_AUTO_COMMIT
 };
 
 enum {
-    NUM_PRIO = balj_Journal::BAECS_NUM_PRIORITIES
+    NUM_PRIO = balj_Journal::e_NUM_PRIORITIES
 };
 
 void commitJournal(balj_Journal* journal) {
@@ -669,7 +669,7 @@ class NewJournalWrapper : public BaseJournal {
     bsl::string                                  d_filename;
     int                                          d_mode;
     enum {
-        MODE = balj_Journal::BAECS_READWRITE | balj_Journal::BAECS_SAFE
+        MODE = balj_Journal::k_READWRITE | balj_Journal::k_SAFE
     };
 public:
     NewJournalWrapper(const char* filename, int mode = -1);
@@ -749,7 +749,7 @@ void caseNeg10Test(balj_Journal *mX, int numRecords, int recordSize)
     {
         balj_Journal::RecordHandle h;
         ASSERT(0 == mX->addRecord(&h, buffer, recordSize * mX->blockSize()));
-        ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE != h);
+        ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE != h);
         handles.push_back(h);
     }
     bslma::Default::allocator()->deallocate(buffer);
@@ -1206,7 +1206,7 @@ void Case16::addBlob(const bdlmca::Blob &blob) {
     {
         P(w.elapsedTime());
     }
-    if (newHandle != balj_Journal::BAECS_INVALID_RECORD_HANDLE)
+    if (newHandle != balj_Journal::k_INVALID_RECORD_HANDLE)
     {
         Case16_Record newRec;
         newRec.d_journal_p = newJournal;
@@ -1258,7 +1258,7 @@ void Case16::consumerThread()
         if (!rec.d_journal_p) {
             return;
         }
-        ASSERT(rec.d_handle != Obj::BAECS_INVALID_RECORD_HANDLE);
+        ASSERT(rec.d_handle != Obj::k_INVALID_RECORD_HANDLE);
         // get the data
         bdlmca::Blob blob;
         if (d_haltFlag) {
@@ -1443,7 +1443,7 @@ int main(int argc, char *argv[]) {
                 balj_Journal::RecordHandle handle;
                 int rc = mX.addRecord(&handle, record, MAX_RECORD_SIZE - 1);
                 ASSERT(0 == rc);
-                ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
+                ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE != handle);
              }
              if (verbose) {
                 bsl::cout << "-> Wrote " << NUM_RECORDS
@@ -1455,7 +1455,7 @@ int main(int argc, char *argv[]) {
              ASSERT(0 == mX.numConfirmedRecords());
 
              balj_Journal::RecordHandle handle = mX.firstUnconfirmedRecord();
-             while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE)
+             while (handle != balj_Journal::k_INVALID_RECORD_HANDLE)
              {
                 int size = mX.getRecordLength(handle);
                 ASSERT(MAX_RECORD_SIZE - 1 == size);
@@ -1463,7 +1463,7 @@ int main(int argc, char *argv[]) {
              }
 
              handle = mX.firstUnconfirmedRecord();
-             while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE)
+             while (handle != balj_Journal::k_INVALID_RECORD_HANDLE)
              {
                 balj_Journal::RecordHandle next =
                    mX.nextUnconfirmedRecord(handle);
@@ -1654,7 +1654,7 @@ int main(int argc, char *argv[]) {
              ASSERT(p.d_numKept == mX.numUnconfirmedRecords());
 
              handle = mX.firstUnconfirmedRecord();
-             for (int i = 0; handle != Obj::BAECS_INVALID_RECORD_HANDLE; ++i) {
+             for (int i = 0; handle != Obj::k_INVALID_RECORD_HANDLE; ++i) {
                 H next = mX.nextUnconfirmedRecord(handle);
                 mX.confirmRecord(handle);
                 handle = next;
@@ -1677,7 +1677,7 @@ int main(int argc, char *argv[]) {
 
              ASSERT(0 == mX.numConfirmedRecords());
              ASSERT(p.d_numKept == mX.numUnconfirmedRecords());
-             ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE ==
+             ASSERT(Obj::k_INVALID_RECORD_HANDLE ==
                                                     mX.firstConfirmedRecord());
 
              for (int i = 0; i < p.d_numKept; ++i) {
@@ -1707,7 +1707,7 @@ int main(int argc, char *argv[]) {
 
              ASSERT(2 * p.d_numKept == mY.numUnconfirmedRecords());
              ASSERT(0 == mY.numConfirmedRecords());
-             ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE ==
+             ASSERT(Obj::k_INVALID_RECORD_HANDLE ==
                                                     mY.firstConfirmedRecord());
 
              if (initTestStatus != testStatus) {
@@ -1720,7 +1720,7 @@ int main(int argc, char *argv[]) {
                 cout << "Verifying first block..." << endl;
              }
              for (int i = 0; i < p.d_numKept; ++i) {
-                ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE != handle);
+                ASSERT(Obj::k_INVALID_RECORD_HANDLE != handle);
                 ASSERT(keptRecordBytes == mY.copyRecordData(
                                                 (char*)kBuffer,
                                                 keptRecordBytes,
@@ -1732,7 +1732,7 @@ int main(int argc, char *argv[]) {
                 cout << "Verifying last block..." << endl;
              }
              for (int i = 0; i < p.d_numKept; ++i) {
-                ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE != handle);
+                ASSERT(Obj::k_INVALID_RECORD_HANDLE != handle);
                 ASSERT(keptRecordBytes == mY.copyRecordData(
                                                 (char*)kBuffer,
                                                 keptRecordBytes,
@@ -2117,7 +2117,7 @@ int main(int argc, char *argv[]) {
              }
 
              ASSERT(0 == mX.open(filename,
-                                 balj_Journal::BAECS_READWRITE));
+                                 balj_Journal::k_READWRITE));
              ASSERT(mX.userDataSize() == p.d_userDataSize);
 
              for (int i = 0; i < p.d_userDataSize; ++i) {
@@ -2126,7 +2126,7 @@ int main(int argc, char *argv[]) {
 
              ASSERT(NUM_INIT == mX.numUnconfirmedRecords());
              handle = mX.firstUnconfirmedRecord();
-             for (int i = 0; handle != Obj::BAECS_INVALID_RECORD_HANDLE; ++i) {
+             for (int i = 0; handle != Obj::k_INVALID_RECORD_HANDLE; ++i) {
                 H next = mX.nextUnconfirmedRecord(handle);
                 if (i < NUM_INIT/2) {
                    mX.removeRecord(handle);
@@ -2153,7 +2153,7 @@ int main(int argc, char *argv[]) {
 
              Obj mY(&mappingManager, &ta);
              ASSERT(0 == mY.open(filename,
-                                        balj_Journal::BAECS_READONLY));
+                                        balj_Journal::k_READONLY));
              ASSERT(mY.userDataSize() == p.d_userDataSize);
 
              if (veryVerbose) {
@@ -2348,7 +2348,7 @@ int main(int argc, char *argv[]) {
              int compareNumber = 0;
              bdlmca::Blob* blob = new bdlmca::Blob;
              for (H h = mX.firstUnconfirmedRecord();
-                  h != Obj::BAECS_INVALID_RECORD_HANDLE;
+                  h != Obj::k_INVALID_RECORD_HANDLE;
                   h = mX.nextUnconfirmedRecord(h)) {
                 ASSERT(RECORD_SIZE_BYTES == mX.getRecordData(blob, h));
                 ASSERT(*((int*)(blob->buffer(0).data())) == compareNumber++);
@@ -2422,7 +2422,7 @@ int main(int argc, char *argv[]) {
                    MICROSECS_PER_SEC;
 
                 while ((handle = mX.firstUnconfirmedRecord()) !=
-                       Obj::BAECS_INVALID_RECORD_HANDLE) {
+                       Obj::k_INVALID_RECORD_HANDLE) {
                    mX.removeRecord(handle);
                 }
 
@@ -2607,7 +2607,7 @@ int main(int argc, char *argv[]) {
              char record[RECORD_SIZE];
              int recordCount = 0;
              for (H handle = mX.firstUnconfirmedRecord();
-                  handle != Obj::BAECS_INVALID_RECORD_HANDLE;
+                  handle != Obj::k_INVALID_RECORD_HANDLE;
                   handle = mX.nextUnconfirmedRecord(handle)) {
                 memset(record, 99, RECORD_SIZE);
                 mX.copyRecordData(record, RECORD_SIZE, handle);
@@ -2746,15 +2746,15 @@ int main(int argc, char *argv[]) {
 
                 H handle = mX.firstConfirmedRecord();
                 bdlmca::Blob* blob = new bdlmca::Blob;
-                ASSERT(handle != Obj::BAECS_INVALID_RECORD_HANDLE);
+                ASSERT(handle != Obj::k_INVALID_RECORD_HANDLE);
                 ASSERT(10 == mX.getRecordData(blob, handle));
                 ASSERT(0 == verifyBlob(blob, "abcdefghi"));
 
-                ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE ==
+                ASSERT(Obj::k_INVALID_RECORD_HANDLE ==
                        mX.nextConfirmedRecord(handle));
 
                 handle = mX.firstUnconfirmedRecord();
-                ASSERT(handle != Obj::BAECS_INVALID_RECORD_HANDLE);
+                ASSERT(handle != Obj::k_INVALID_RECORD_HANDLE);
                 mX.getRecordData(blob, handle);
                 if (0 == verifyBlob(blob, "j")) {
                    stringFound[0] = true;
@@ -2764,7 +2764,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 handle = mX.nextUnconfirmedRecord(handle);
-                ASSERT(handle != Obj::BAECS_INVALID_RECORD_HANDLE);
+                ASSERT(handle != Obj::k_INVALID_RECORD_HANDLE);
                 mX.getRecordData(blob, handle);
                 if (0 == verifyBlob(blob, "j")) {
                    stringFound[0] = true;
@@ -2773,7 +2773,7 @@ int main(int argc, char *argv[]) {
                    stringFound[1] = true;
                 }
 
-                ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE ==
+                ASSERT(Obj::k_INVALID_RECORD_HANDLE ==
                        mX.nextUnconfirmedRecord(handle));
 
                 ASSERT(stringFound[0] && stringFound[1]);
@@ -2912,15 +2912,15 @@ int main(int argc, char *argv[]) {
 
                 Obj::RecordHandle handle = mX.firstConfirmedRecord();
                 bdlmca::Blob* blob = new bdlmca::Blob;
-                LOOP_ASSERT(i, handle != Obj::BAECS_INVALID_RECORD_HANDLE);
+                LOOP_ASSERT(i, handle != Obj::k_INVALID_RECORD_HANDLE);
                 LOOP_ASSERT(i, 10 == mX.getRecordData(blob, handle));
                 LOOP_ASSERT(i, 0 == verifyBlob(blob, "abcdefghi"));
 
-                ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE ==
+                ASSERT(Obj::k_INVALID_RECORD_HANDLE ==
                        mX.nextConfirmedRecord(handle));
 
                 handle = mX.firstUnconfirmedRecord();
-                ASSERT(handle != Obj::BAECS_INVALID_RECORD_HANDLE);
+                ASSERT(handle != Obj::k_INVALID_RECORD_HANDLE);
                 mX.getRecordData(blob, handle);
                 if (0 == verifyBlob(blob, "j")) {
                    stringFound[0] = true;
@@ -2930,7 +2930,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 handle = mX.nextUnconfirmedRecord(handle);
-                ASSERT(handle != Obj::BAECS_INVALID_RECORD_HANDLE);
+                ASSERT(handle != Obj::k_INVALID_RECORD_HANDLE);
                 mX.getRecordData(blob, handle);
                 if (0 == verifyBlob(blob, "j")) {
                    stringFound[0] = true;
@@ -2939,7 +2939,7 @@ int main(int argc, char *argv[]) {
                    stringFound[1] = true;
                 }
 
-                ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE ==
+                ASSERT(Obj::k_INVALID_RECORD_HANDLE ==
                        mX.nextUnconfirmedRecord(handle));
 
                 ASSERT(stringFound[0] && stringFound[1]);
@@ -2957,7 +2957,7 @@ int main(int argc, char *argv[]) {
 //             ASSERT(0 != mX.addRecord(&handle, (void*)rec,
 //                                      (int)strlen(rec)+1));
              handle = mX.firstUnconfirmedRecord();
-             ASSERT(Obj::BAECS_INVALID_RECORD_HANDLE != handle);
+             ASSERT(Obj::k_INVALID_RECORD_HANDLE != handle);
 //             ASSERT(0 != mX.confirmRecord(handle));
 //             ASSERT(0 != mX.removeRecord(handle));
 
@@ -3165,14 +3165,14 @@ int main(int argc, char *argv[]) {
                 //unconfirmed records matches what's found by iteration
                 int countedConfirmed = 0, countedUnconfirmed = 0;
                 for (H iter = mX.firstUnconfirmedRecord();
-                     iter != Obj::BAECS_INVALID_RECORD_HANDLE;
+                     iter != Obj::k_INVALID_RECORD_HANDLE;
                      iter = mX.nextUnconfirmedRecord(iter)) {
                    ++countedUnconfirmed;
                 }
                 ASSERT(countedUnconfirmed == mX.numUnconfirmedRecords());
 
                 for (H iter = mX.firstConfirmedRecord();
-                     iter != Obj::BAECS_INVALID_RECORD_HANDLE;
+                     iter != Obj::k_INVALID_RECORD_HANDLE;
                      iter = mX.nextConfirmedRecord(iter)) {
                    ++countedConfirmed;
                 }
@@ -3315,16 +3315,16 @@ int main(int argc, char *argv[]) {
 
                 ASSERT(0 == mX.numUnconfirmedRecords());
 
-                ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE ==
+                ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE ==
                        mX.firstConfirmedRecord());
 
-                ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE ==
+                ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE ==
                        mX.firstUnconfirmedRecord());
 
                 ASSERT(0 == mX.addRecord(&h1, (void*)buf1[1],
                                          (int)(strlen(buf1[1])+1)));
 
-                ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE ==
+                ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE ==
                        mX.firstConfirmedRecord());
 
                 LOOP2_ASSERT(h1, p.d_mult, p.d_mult * 2 == h1);
@@ -3373,7 +3373,7 @@ int main(int argc, char *argv[]) {
           }; // 100 MB
           balj::MappingManager mappingManager(
                   MAPPING_LIMIT,
-                  balj_Journal::BAECS_NUM_PRIORITIES);
+                  balj_Journal::e_NUM_PRIORITIES);
 
           bslma::TestAllocator ta; // must use thread-safe allocator
           {
@@ -3381,8 +3381,8 @@ int main(int argc, char *argv[]) {
              char filename[MAX_TMPFILENAME];
              getTmpFileName(filename, 2);
 
-             if (mX.create(filename, balj_Journal::BAECS_READWRITE |
-                                     balj_Journal::BAECS_SAFE))
+             if (mX.create(filename, balj_Journal::k_READWRITE |
+                                     balj_Journal::k_SAFE))
              {
                 bsl::printf("Can't open journal %s: %d\n", filename, errno);
                 exit(-1);
@@ -3404,7 +3404,7 @@ int main(int argc, char *argv[]) {
                 balj_Journal::RecordHandle handle;
                 int rc = mX.addRecord(&handle, record, MAX_RECORD_SIZE - 1);
                 ASSERT(0 == rc);
-                ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
+                ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE != handle);
              }
              if (verbose) {
                 bsl::cout << "-> Wrote "
@@ -3416,7 +3416,7 @@ int main(int argc, char *argv[]) {
              ASSERT(0 == mX.numConfirmedRecords());
 
              balj_Journal::RecordHandle handle = mX.firstUnconfirmedRecord();
-             while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE)
+             while (handle != balj_Journal::k_INVALID_RECORD_HANDLE)
              {
                 int size = mX.getRecordLength(handle);
                 ASSERT(MAX_RECORD_SIZE - 1 == size);
@@ -3424,7 +3424,7 @@ int main(int argc, char *argv[]) {
              }
 
              handle = mX.firstUnconfirmedRecord();
-             while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE)
+             while (handle != balj_Journal::k_INVALID_RECORD_HANDLE)
              {
                 balj_Journal::RecordHandle next =
                    mX.nextUnconfirmedRecord(handle);
@@ -3466,7 +3466,7 @@ int main(int argc, char *argv[]) {
            char record[10000];
            balj_Journal::RecordHandle handle;
            ASSERT(0 == mX.addRecord(&handle, record, 10000));
-           ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
+           ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE != handle);
         }
         bdlsu::FilesystemUtil::remove(filename);
         ASSERT(0 < ta.numAllocations());
@@ -3840,7 +3840,7 @@ int main(int argc, char *argv[]) {
               balj_Journal::RecordHandle handle;
               char foo[] = "foo";
               mX.addRecord(&handle, foo, (unsigned)3);
-              ASSERT(balj_Journal::BAECS_INVALID_RECORD_HANDLE != handle);
+              ASSERT(balj_Journal::k_INVALID_RECORD_HANDLE != handle);
               mX.commit();
           }
           mX.validate(true);
@@ -3894,7 +3894,7 @@ int main(int argc, char *argv[]) {
                     numUnconfirmed);
              balj_Journal::RecordHandle handle = mX.firstUnconfirmedRecord();
              int count = 0;
-             while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE)
+             while (handle != balj_Journal::k_INVALID_RECORD_HANDLE)
              {
                 printf("%d ", handle);
                 int size = mX.getRecordLength(handle);
@@ -3909,7 +3909,7 @@ int main(int argc, char *argv[]) {
                     numConfirmed);
              handle = mX.firstConfirmedRecord();
              count = 0;
-             while (handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE)
+             while (handle != balj_Journal::k_INVALID_RECORD_HANDLE)
              {
                 printf("%d ", handle);
                 int size = mX.getRecordLength(handle);

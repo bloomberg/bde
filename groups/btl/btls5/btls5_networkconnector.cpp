@@ -596,8 +596,8 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
     // more than one process to bind to the same port simultaneously, which is
     // not what we want.
 
-    rc = socket->setOption(btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                           btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+    rc = socket->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
+                           btlso::SocketOptUtil::k_REUSEADDRESS,
                            0);
     if (rc) {
         error->setDescription("Unable to set REUSEADDR option.");
@@ -609,7 +609,7 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
         int port = minSourcePort;
         for (; port <= maxSourcePort; ++port) {
             btlso::IPv4Address
-                srcAddress(btlso::IPv4Address::BTESO_ANY_ADDRESS, port);
+                srcAddress(btlso::IPv4Address::k_ANY_ADDRESS, port);
             rc = socket->bind(srcAddress);
             if (!rc) {
                 break;  // bound successfully
@@ -623,7 +623,7 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
             return 0;                                                 // RETURN
         }
     }
-    rc = socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     if (rc) {
         error->setDescription("Unable to set socket mode to non-blocking.");
         return 0;                                                     // RETURN
@@ -638,16 +638,16 @@ static btlso::StreamSocket<btlso::IPv4Address> *makeSocket(
         return 0;                                                     // RETURN
     }
 
-    rc = socket->setOption(btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                           btlso::SocketOptUtil::BTESO_KEEPALIVE,
+    rc = socket->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
+                           btlso::SocketOptUtil::k_KEEPALIVE,
                            1);
     if (rc) {
         error->setDescription("Unable to set KEEPALIVE option.");
         return 0;                                                     // RETURN
     }
 
-    rc = socket->setOption(btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                           btlso::SocketOptUtil::BTESO_TCPNODELAY,
+    rc = socket->setOption(btlso::SocketOptUtil::k_TCPLEVEL,
+                           btlso::SocketOptUtil::k_TCPNODELAY,
                            1);
     if (rc) {
         error->setDescription("Unable to set TCPNODELAY option.");
@@ -718,13 +718,13 @@ static void tcpConnect(
             attempt->d_connector->d_eventManager_p->execute(
                       bdlf::BindUtil::bind(tcpConnectCb, attempt, hasTimedOut));
             break;
-        } else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
+        } else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
             btlso::EventManager::Callback
                 cb = bdlf::BindUtil::bind(tcpConnectCb, attempt, false);
             if (attempt->d_socket_p) {
                 rc = attempt->d_connector->d_eventManager_p
                     ->registerSocketEvent(attempt->d_socket_p->handle(),
-                                          btlso::EventType::BTESO_CONNECT,
+                                          btlso::EventType::e_CONNECT,
                                           cb);
             }
 

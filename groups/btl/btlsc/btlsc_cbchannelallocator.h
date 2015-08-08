@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 // to return, if possible, with an "interrupted" status (leaving the factory
 // unaffected) upon the occurrence of an AE.  Such authorizations are made
 // explicitly by incorporating into the optional (trailing) integer 'flags'
-// argument to a method call the 'btesc_Flag::BTESC_ASYNC_INTERRUPT' value.
+// argument to a method call the 'btesc_Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Usage
 ///-----
@@ -786,7 +786,7 @@ class CbChannelAllocator
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'callback' will not be
@@ -810,7 +810,7 @@ class CbChannelAllocator
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt the allocation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case

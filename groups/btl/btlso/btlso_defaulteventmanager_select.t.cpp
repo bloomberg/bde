@@ -195,21 +195,21 @@ int main(int argc, char *argv[])
 
     int controlFlag = 0;
     if (veryVeryVerbose) {
-        controlFlag |= btlso::EventManagerTester::BTESO_VERY_VERY_VERBOSE;
+        controlFlag |= btlso::EventManagerTester::k_VERY_VERY_VERBOSE;
     }
     if (veryVerbose) {
-        controlFlag |= btlso::EventManagerTester::BTESO_VERY_VERBOSE;
+        controlFlag |= btlso::EventManagerTester::k_VERY_VERBOSE;
     }
     if (verbose) {
-        controlFlag |= btlso::EventManagerTester::BTESO_VERBOSE;
+        controlFlag |= btlso::EventManagerTester::k_VERBOSE;
     }
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     ASSERT(0 == btlso::SocketImpUtil::startup());
     bslma::TestAllocator testAllocator(veryVeryVerbose);
-    btlso::TimeMetrics timeMetric(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                 btlso::TimeMetrics::BTESO_CPU_BOUND);
+    btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                 btlso::TimeMetrics::e_CPU_BOUND);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 19: {
@@ -262,23 +262,23 @@ int main(int argc, char *argv[])
         btlso::SocketHandle::Handle socket[2];
 
         int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                             socket, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                             socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
         bdlf::Function<void (*)()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
-                                           btlso::EventType::BTESO_READ,
+                                           btlso::EventType::e_READ,
                                            deregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[0],
-                                           btlso::EventType::BTESO_WRITE,
+                                           btlso::EventType::e_WRITE,
                                            deregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[1],
-                                           btlso::EventType::BTESO_READ,
+                                           btlso::EventType::e_READ,
                                            deregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[1],
-                                           btlso::EventType::BTESO_WRITE,
+                                           btlso::EventType::e_WRITE,
                                            deregisterCallback));
 
         char wBuffer[NUM_BYTES];
@@ -330,10 +330,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
         {
             Obj mX;
-            if (veryVerbose) { P(Obj::BTESO_MAX_NUM_HANDLES); }
+            if (veryVerbose) { P(Obj::k_MAX_NUM_HANDLES); }
 
             btlso::SocketHandle::Handle handle = 0;
-            for (; handle < Obj::BTESO_MAX_NUM_HANDLES; ++handle) {
+            for (; handle < Obj::k_MAX_NUM_HANDLES; ++handle) {
 
                 if (veryVerbose) { P(handle) }
 
@@ -342,18 +342,18 @@ int main(int argc, char *argv[])
                 bdlf::Function<void (*)()> cb1, cb2;
                 int rc = mX.registerSocketEvent(
                                            (btlso::SocketHandle::Handle) handle,
-                                           btlso::EventType::BTESO_READ,
+                                           btlso::EventType::e_READ,
                                            cb1);
                 ASSERT(!rc);
 
                 rc = mX.registerSocketEvent(
                                            (btlso::SocketHandle::Handle) handle,
-                                           btlso::EventType::BTESO_WRITE,
+                                           btlso::EventType::e_WRITE,
                                            cb2);
                 ASSERT(!rc);
             }
 
-            ASSERT(handle == Obj::BTESO_MAX_NUM_HANDLES);
+            ASSERT(handle == Obj::k_MAX_NUM_HANDLES);
 
             if (verbose) cout << "Negative Testing." << endl;
             {
@@ -367,12 +367,12 @@ int main(int argc, char *argv[])
                 bdlf::Function<void (*)()> cb1, cb2;
                 ASSERT_FAIL(mX.registerSocketEvent(
                                            (btlso::SocketHandle::Handle) handle,
-                                           btlso::EventType::BTESO_READ,
+                                           btlso::EventType::e_READ,
                                            cb1));
 
                 ASSERT_FAIL(mX.registerSocketEvent(
                                            (btlso::SocketHandle::Handle) handle,
-                                           btlso::EventType::BTESO_WRITE,
+                                           btlso::EventType::e_WRITE,
                                            cb2));
 
                 ASSERT(!mX.canRegisterSockets());
@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
                 errorCode = 0;
                 btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &sendSocket,
-                                      btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &errorCode);
                 ASSERT(0 == errorCode);
 
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(sendSocket,
-                                       btlso::EventType::BTESO_CONNECT,
+                                       btlso::EventType::e_CONNECT,
                                        connectCallback);
 
                 if (0 == btlso::SocketImpUtil::connect(sendSocket,
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == errorCode);
                     LOOP_ASSERT(i, 1 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                                           bteso_Flag::k_ASYNC_INTERRUPT));
                     LOOP_ASSERT(i, hasExecutedCallback);
                 } else {
                     if (veryVerbose)
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                                           bteso_Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -583,7 +583,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
-                                       btlso::EventType::BTESO_READ,
+                                       btlso::EventType::e_READ,
                                        nullFunctor);
 
                 bsls::TimeInterval deadline = bdlt::CurrentTime::now();
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
                 deadline.addNanoseconds(i % 1000);
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(deadline,
-                     bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                     bteso_Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -948,7 +948,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                                           bteso_Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -968,7 +968,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
-                                       btlso::EventType::BTESO_READ,
+                                       btlso::EventType::e_READ,
                                        nullFunctor);
 
                 bsls::TimeInterval deadline = bdlt::CurrentTime::now();
@@ -978,7 +978,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                                           bteso_Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);

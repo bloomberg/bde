@@ -38,28 +38,28 @@ const bool balber::BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_T
 
 const bdeat_AttributeInfo balber::BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_TRACE_LEVEL,
+        e_ATTRIBUTE_ID_TRACE_LEVEL,
         "TraceLevel",
         sizeof("TraceLevel") - 1,
         "",
         bdeat_FormattingMode::BDEAT_DEC
     },
     {
-        ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE,
+        e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE,
         "BdeVersionConformance",
         sizeof("BdeVersionConformance") - 1,
         "",
         bdeat_FormattingMode::BDEAT_DEC
     },
     {
-        ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS,
+        e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS,
         "EncodeEmptyArrays",
         sizeof("EncodeEmptyArrays") - 1,
         "",
         bdeat_FormattingMode::BDEAT_TEXT
     },
     {
-        ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY,
+        e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY,
         "EncodeDateAndTimeTypesAsBinary",
         sizeof("EncodeDateAndTimeTypesAsBinary") - 1,
         "",
@@ -87,7 +87,7 @@ const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
              && name[8]=='e'
              && name[9]=='l')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL];
             }
         } break;
         case 17: {
@@ -109,7 +109,7 @@ const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
              && name[15]=='y'
              && name[16]=='s')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
             }
         } break;
         case 21: {
@@ -135,7 +135,7 @@ const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
              && name[19]=='c'
              && name[20]=='e')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
             }
         } break;
         case 30: {
@@ -170,7 +170,7 @@ const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
              && name[28]=='r'
              && name[29]=='y')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
             }
         } break;
     }
@@ -180,14 +180,14 @@ const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
 const bdeat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_TRACE_LEVEL:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL];
-      case ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
-      case ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
-      case ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
+      case e_ATTRIBUTE_ID_TRACE_LEVEL:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL];
+      case e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
+      case e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
+      case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
       default:
         return 0;
     }

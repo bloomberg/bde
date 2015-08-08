@@ -254,7 +254,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // from this channel into the specified 'buffer'; execute the specified
         // 'readCallback' functor after this read operation terminates.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'readCallback' will not be invoked).
@@ -288,7 +288,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // specified absolute 'timeout' time is reached; execute the specified
         // 'readCallback' functor after this read operation terminates.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'readCallback' will not be invoked).
@@ -326,7 +326,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // 'd_length' fields of each 'Iovec' structure; execute the specified
         // 'readCallback' functor after this read operation terminates.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'readCallback' will not be invoked).
@@ -361,7 +361,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // specified absolute 'timeout' time is reached; execute the specified
         // 'readCallback' functor after this read operation terminates.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'readCallback' will not be invoked).
@@ -398,7 +398,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // specified 'numBytes' from this channel into the specified 'buffer';
         // execute the specified 'readCallback' functor after this read
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'readCallback' will not be
@@ -434,7 +434,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // or interrupt after the specified absolute 'timeout' time is reached;
         // execute the specified 'readCallback' functor after this read
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'readCallback' will not be
@@ -474,7 +474,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // bytes as defined by the 'd_length' fields of each 'Iovec' structure;
         // execute the specified 'readCallback' functor after this read
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'readCallback' will not be
@@ -512,7 +512,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // or interrupt after the specified absolute 'timeout' time is reached;
         // execute the specified 'readCallback' functor after this read
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'readCallback' will not be
@@ -551,7 +551,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // from this channel into a channel-supplied buffer; execute the
         // specified 'bufferedReadCallback' functor after this read operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'bufferedReadCallback' will not be
@@ -586,7 +586,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // the specified absolute 'timeout' time is reached; execute the
         // specified 'bufferedReadCallback' functor after this read operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'bufferedReadCallback' will not be
@@ -623,7 +623,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // specified 'numBytes' from this channel into a channel-supplied
         // buffer; execute the specified 'bufferedReadCallback' functor after
         // this read operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'bufferedReadCallback' will
@@ -660,7 +660,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // buffer or interrupt after the specified absolute 'timeout' time is
         // reached; execute the specified 'bufferedReadCallback' functor after
         // this read operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'bufferedReadCallback' will
@@ -701,7 +701,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // from the specified 'buffer' to this channel; execute the specified
         // 'writeCallback' functor after this write operation terminates.  If
         // the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).
@@ -734,7 +734,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // specified absolute 'timeout' time is reached; execute the specified
         // 'writeCallback' functor after this write operation terminates.  If
         // the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).
@@ -768,7 +768,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // specified 'numBytes' from the specified 'buffer' to this channel;
         // execute the specified writeCallback' functor after this write
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'writeCallback' will not be
@@ -803,7 +803,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // interrupt after the specified absolute 'timeout' time is reached;
         // execute the specified writeCallback' functor after this write
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'writeCallback' will not be
@@ -848,7 +848,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // 'd_length' fields of each 'Ovec' (or 'Iovec') structure; execute the
         // specified 'writeCallback' functor after this write operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).
@@ -890,7 +890,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // after the specified absolute 'timeout' time is reached; execute the
         // specified 'writeCallback' functor after this write operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).
@@ -933,7 +933,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // numbers of bytes as defined by the 'd_length' fields of each 'Ovec'
         // (or 'Iovec') structure; execute the specified 'writeCallback'
         // functor after this write operation terminates.  If the optionally
-        // specified 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case
@@ -977,7 +977,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // (or 'Iovec') structure or interrupt after the specified absolute
         // 'timeout' time is reached; execute the specified 'writeCallback'
         // functor after this write operation terminates.  If the optionally
-        // specified 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case
@@ -1018,7 +1018,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // from the specified 'buffer' to this channel; execute the specified
         // 'writeCallback' functor after this write operation terminates.  If
         // the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).  Note
@@ -1054,7 +1054,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // specified absolute 'timeout' time is reached; execute the specified
         // 'writeCallback' functor after this write operation terminates.  If
         // the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).  Note
@@ -1098,7 +1098,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // 'd_length' fields of each 'Ovec' (or 'Iovec') structure; execute the
         // specified 'writeCallback' functor after this write operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).  Note
@@ -1145,7 +1145,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // after the specified absolute 'timeout' time is reached; execute the
         // specified 'writeCallback' functor after this write operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 0 on successful initiation, and a non-zero value
         // otherwise (in which case 'writeCallback' will not be invoked).  Note

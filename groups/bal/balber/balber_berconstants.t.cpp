@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting TagClass." << bsl::endl;
         {
             const balber::BerConstants::TagClass X
-                                           = balber::BerConstants::BDEM_UNIVERSAL;
+                                           = balber::BerConstants::e_UNIVERSAL;
 
             bsl::stringstream ss;
 
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
         }
         {
             const balber::BerConstants::TagClass X
-                                         = balber::BerConstants::BDEM_APPLICATION;
+                                         = balber::BerConstants::e_APPLICATION;
 
             bsl::stringstream ss;
 
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         }
         {
             const balber::BerConstants::TagClass X
-                                    = balber::BerConstants::BDEM_CONTEXT_SPECIFIC;
+                                    = balber::BerConstants::e_CONTEXT_SPECIFIC;
 
             bsl::stringstream ss;
 
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         }
         {
             const balber::BerConstants::TagClass X
-                                             = balber::BerConstants::BDEM_PRIVATE;
+                                             = balber::BerConstants::e_PRIVATE;
 
             bsl::stringstream ss;
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting TagType." << bsl::endl;
         {
             const balber::BerConstants::TagType X
-                                           = balber::BerConstants::BDEM_PRIMITIVE;
+                                           = balber::BerConstants::e_BDEM_PRIMITIVE;
 
             bsl::stringstream ss;
 
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
         }
         {
             const balber::BerConstants::TagType X
-                                         = balber::BerConstants::BDEM_CONSTRUCTED;
+                                         = balber::BerConstants::e_BDEM_CONSTRUCTED;
 
             bsl::stringstream ss;
 

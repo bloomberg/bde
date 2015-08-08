@@ -117,8 +117,8 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { Class::BTESC_ASYNC_INTERRUPT,     "ASYNC_INTERRUPT"      },
-            { Class::BTESC_RAW,                 "RAW"                  },
+            { Class::k_ASYNC_INTERRUPT,     "ASYNC_INTERRUPT"      },
+            { Class::k_RAW,                 "RAW"                  },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nVerify table length is correct." << endl;
 
-        ASSERT(DATA_LENGTH == Class::BTESC_LENGTH);
+        ASSERT(DATA_LENGTH == Class::k_LENGTH);
 
         if (verbose)
             cout << "\nVerify enumerator values are sequential "

@@ -99,7 +99,7 @@ BSLS_IDENT("$Id: $")
 // authorized to return, if such occurrence is detected, a "partial result"
 // upon occurrence of an AE.  Such authorizations are made explicitly by
 // incorporating into the optional (trailing) integer 'flags' argument to
-// a method call the 'btesc_Flag::BTESC_ASYNC_INTERRUPT' value.
+// a method call the 'btesc_Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Raw Transmissions
 ///- - - - - - - - -
@@ -192,7 +192,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Each of these methods supports the specification of a flag
 //..
-//                  btesc_Flag::BTESC_ASYNC_INTERRUPT
+//                  btesc_Flag::k_ASYNC_INTERRUPT
 //..
 // supplied in an optional trailing integer to enable "asynchronous events" to
 // cause partial results; by default, such events are ignored.
@@ -387,7 +387,7 @@ class Channel {
                      int   flags = 0) = 0;
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -416,7 +416,7 @@ class Channel {
         // Read from this channel into the specified sequence of 'buffers' of
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each 'btls::Iovec' buffer.  If the optionally
-        // specified 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this
         // operation; by default, such events are ignored.   Optionally
         // specify (as a *leading* argument) 'augStatus' to receive
@@ -447,7 +447,7 @@ class Channel {
                         int   flags = 0) = 0;
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -479,7 +479,7 @@ class Channel {
         // 'buffers' of specified sequence length 'numBuffers' *at* *most* the
         // numbers of bytes as the sum of length in each 'bteso::Iovec' buffer.
         // If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such
         // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
@@ -510,7 +510,7 @@ class Channel {
         // Read from this channel into a channel-supplied buffer, identified
         // via the specified 'buffer', the specified 'numBytes'.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events
         // are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
@@ -541,7 +541,7 @@ class Channel {
         // *Atomically* read from this channel into a channel-supplied buffer,
         // identified via the specified 'buffer', *at* *most* the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events
         // are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
@@ -573,7 +573,7 @@ class Channel {
                       int         flags = 0) = 0;
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events
         // are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
@@ -599,7 +599,7 @@ class Channel {
                          int         flags = 0) = 0;
         // *Atomically* write to this channel from the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -639,7 +639,7 @@ class Channel {
         // specified sequence length 'numBuffers' the respective numbers of
         // bytes as specified in each 'btls::Ovec' (or 'btls::Iovec') buffer.
         // If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such
         // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a partial result.  Return
@@ -676,7 +676,7 @@ class Channel {
         // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
         // numbers of bytes as the sum of the specified length in each
         // 'btls::Ovec' (or 'btls::Iovec') buffer.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a

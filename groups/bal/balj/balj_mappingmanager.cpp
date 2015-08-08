@@ -46,8 +46,8 @@ MappingManager::MappingManager(size_t mappingLimit,
                                            bslma::Allocator *allocator)
 : d_totalMapped(0)
 , d_mappingLimit(mappingLimit)
-, d_usedPages(PageList::BAECS_PAGE_LIST_CLEAN)
-, d_unusedPages(numPriorityLevels, PageList(PageList::BAECS_PAGE_LIST_CLEAN),
+, d_usedPages(PageList::e_PAGE_LIST_CLEAN)
+, d_unusedPages(numPriorityLevels, PageList(PageList::e_PAGE_LIST_CLEAN),
                 allocator)
 , d_mapCount(0)
 , d_pagesPool(sizeof(Page), allocator)
@@ -245,9 +245,9 @@ MappingManager::usePage(Handle pageHandle, bool isDirty)
     if (makeDirty) {
         // was not dirty, we've just set the dirty flag
         BSLS_ASSERT(0 ==
-                        page->d_links[PageList::BAECS_PAGE_LIST_DIRTY].d_next);
+                        page->d_links[PageList::e_PAGE_LIST_DIRTY].d_next);
         BSLS_ASSERT(0 ==
-                        page->d_links[PageList::BAECS_PAGE_LIST_DIRTY].d_prev);
+                        page->d_links[PageList::e_PAGE_LIST_DIRTY].d_prev);
         page->d_dirtyList->pushPage(page);
     }
     d_mapLock.unlock();
@@ -278,7 +278,7 @@ void MappingManager::releasePage(Handle pageHandle)
 
 MappingManager::PageListHandle MappingManager::createDirtyList() {
     return new (d_pageListPool)
-        MappingManager_PageList(PageList::BAECS_PAGE_LIST_DIRTY);
+        MappingManager_PageList(PageList::e_PAGE_LIST_DIRTY);
 }
 
 int MappingManager::clearDirtyList(PageListHandle  pageListHandle)
@@ -357,10 +357,10 @@ MappingManager::addPage(
     page->d_address = 0;
     page->d_priority = priority;
     page->d_dirtyList = reinterpret_cast<PageList*>(pageListHandle);
-    page->d_links[PageList::BAECS_PAGE_LIST_CLEAN].d_next = 0;
-    page->d_links[PageList::BAECS_PAGE_LIST_CLEAN].d_prev = 0;
-    page->d_links[PageList::BAECS_PAGE_LIST_DIRTY].d_next = 0;
-    page->d_links[PageList::BAECS_PAGE_LIST_DIRTY].d_prev = 0;
+    page->d_links[PageList::e_PAGE_LIST_CLEAN].d_next = 0;
+    page->d_links[PageList::e_PAGE_LIST_CLEAN].d_prev = 0;
+    page->d_links[PageList::e_PAGE_LIST_DIRTY].d_next = 0;
+    page->d_links[PageList::e_PAGE_LIST_DIRTY].d_prev = 0;
     return page;
 }
 

@@ -248,8 +248,8 @@ void usageExample()
     bdlsb::MemOutStreamBuf osb;
 
     balber::BerConstants::TagClass tagClass =
-                                    balber::BerConstants::BDEM_CONTEXT_SPECIFIC;
-    balber::BerConstants::TagType  tagType  = balber::BerConstants::BDEM_PRIMITIVE;
+                                    balber::BerConstants::e_CONTEXT_SPECIFIC;
+    balber::BerConstants::TagType  tagType  = balber::BerConstants::e_BDEM_PRIMITIVE;
     int                         tagNumber= 31;
 
     int retCode = balber::BerUtil::putIdentifierOctets(&osb,
@@ -3836,12 +3836,12 @@ int main(int argc, char *argv[])
             enum { SUCCESS = 0, FAILURE = -1 };
 
             enum {
-                UNIVERSAL        = balber::BerConstants::BDEM_UNIVERSAL,
-                APPLICATION      = balber::BerConstants::BDEM_APPLICATION,
-                CONTEXT_SPECIFIC = balber::BerConstants::BDEM_CONTEXT_SPECIFIC,
-                PRIVATE          = balber::BerConstants::BDEM_PRIVATE,
-                PRIMITIVE        = balber::BerConstants::BDEM_PRIMITIVE,
-                CONSTRUCTED      = balber::BerConstants::BDEM_CONSTRUCTED
+                UNIVERSAL        = balber::BerConstants::e_UNIVERSAL,
+                APPLICATION      = balber::BerConstants::e_APPLICATION,
+                CONTEXT_SPECIFIC = balber::BerConstants::e_CONTEXT_SPECIFIC,
+                PRIVATE          = balber::BerConstants::e_PRIVATE,
+                PRIMITIVE        = balber::BerConstants::e_BDEM_PRIMITIVE,
+                CONSTRUCTED      = balber::BerConstants::e_BDEM_CONSTRUCTED
             };
 
             static const struct {
@@ -4014,7 +4014,7 @@ int main(int argc, char *argv[])
             bdlsb::MemOutStreamBuf osb;
             ASSERT(SUCCESS == Util::putIndefiniteLengthOctet(&osb));
             ASSERT(1       == osb.length());
-            ASSERT(balber::BerUtil_Imp::INDEFINITE_LENGTH_OCTET
+            ASSERT(balber::BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET
                            == (unsigned char)osb.data()[0]);
         }
 

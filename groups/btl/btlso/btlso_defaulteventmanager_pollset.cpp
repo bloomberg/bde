@@ -74,7 +74,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                      cbEnd != (cbIt = d_callbacks.find(
                                  Event(currData.fd,
-                                             EventType::BTESO_READ))))) {
+                                             EventType::e_READ))))) {
                 (cbIt->second)();
                 ++numCallbacks;
             }
@@ -83,7 +83,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
 
                 if (cbEnd != (cbIt = d_callbacks.find(
                                 Event(currData.fd,
-                                            EventType::BTESO_ACCEPT)))) {
+                                            EventType::e_ACCEPT)))) {
                     (cbIt->second)();
                     ++numCallbacks;
                 }
@@ -96,7 +96,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                      cbEnd != (cbIt = d_callbacks.find(
                                 Event(currData.fd,
-                                            EventType::BTESO_WRITE))))) {
+                                            EventType::e_WRITE))))) {
                 (cbIt->second)();
                 ++numCallbacks;
             }
@@ -105,7 +105,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatchCallbacks(
 
                 if (cbEnd != (cbIt = d_callbacks.find(
                                Event(currData.fd,
-                                           EventType::BTESO_CONNECT)))) {
+                                           EventType::e_CONNECT)))) {
                     (cbIt->second)();
                     ++numCallbacks;
                 }
@@ -161,9 +161,9 @@ int DefaultEventManager<Platform::POLLSET>::
             // Sleep till it's time.
 
             if (d_timeMetric_p) {
-                d_timeMetric_p->switchTo(TimeMetrics::BTESO_IO_BOUND);
+                d_timeMetric_p->switchTo(TimeMetrics::e_IO_BOUND);
                 bdlqq::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
-                d_timeMetric_p->switchTo(TimeMetrics::BTESO_CPU_BOUND);
+                d_timeMetric_p->switchTo(TimeMetrics::e_CPU_BOUND);
             }
             else {
                 bdlqq::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
@@ -197,14 +197,14 @@ int DefaultEventManager<Platform::POLLSET>::
             }
 
             if (d_timeMetric_p) {
-                d_timeMetric_p->switchTo(TimeMetrics::BTESO_IO_BOUND);
+                d_timeMetric_p->switchTo(TimeMetrics::e_IO_BOUND);
                 // rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
                 //               relativeTimeout);
 
                 rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
                                       relativeTimeout);
                 savedErrno = errno;
-                d_timeMetric_p->switchTo(TimeMetrics::BTESO_CPU_BOUND);
+                d_timeMetric_p->switchTo(TimeMetrics::e_CPU_BOUND);
             }
             else {
                 // rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
@@ -217,7 +217,7 @@ int DefaultEventManager<Platform::POLLSET>::
             errno = 0;
             now = bdlt::CurrentTime::now();
         } while ((0 > rfds && EINTR == savedErrno)
-                && !(bteso_Flag::BTESO_ASYNC_INTERRUPT & flags)
+                && !(bteso_Flag::k_ASYNC_INTERRUPT & flags)
                 && now < timeout);
 
         if (0 >= rfds) {
@@ -264,11 +264,11 @@ int DefaultEventManager<Platform::POLLSET>::dispatch(int flags)
                                      // in case 'now()' writes over errno later
         do {
             if (d_timeMetric_p) {
-                d_timeMetric_p->switchTo(TimeMetrics::BTESO_IO_BOUND);
+                d_timeMetric_p->switchTo(TimeMetrics::e_IO_BOUND);
                 rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
                                        BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT);
                 savedErrno = errno;
-                d_timeMetric_p->switchTo(TimeMetrics::BTESO_CPU_BOUND);
+                d_timeMetric_p->switchTo(TimeMetrics::e_CPU_BOUND);
             }
             else {
                 rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
@@ -278,7 +278,7 @@ int DefaultEventManager<Platform::POLLSET>::dispatch(int flags)
             errno = 0;
         } while (
             (0 > rfds && EINTR == savedErrno)
-                 && !(bteso_Flag::BTESO_ASYNC_INTERRUPT & flags));
+                 && !(bteso_Flag::k_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
             if (0 == rfds) {
@@ -360,32 +360,32 @@ int DefaultEventManager<Platform::POLLSET>::registerSocketEvent(
     }
 
     switch (eventType) {
-      case EventType::BTESO_ACCEPT: {
+      case EventType::e_ACCEPT: {
         // No other event type can be registered simultaneously with ACCEPT.
 
         BSLS_ASSERT(0 == eventMask);
         eventMask |= POLLIN;
       } break;
-      case EventType::BTESO_READ: {
+      case EventType::e_READ: {
         // Only WRITE can be registered simultaneously with READ.
 
         BSLS_ASSERT(0 == (eventMask & ~POLLOUT));
         BSLS_ASSERT_SAFE(!eventMask || !d_callbacks.count(
-                   Event(socketHandle, EventType::BTESO_CONNECT)));
+                   Event(socketHandle, EventType::e_CONNECT)));
         eventMask |= POLLIN;
       } break;
-      case EventType::BTESO_CONNECT: {
+      case EventType::e_CONNECT: {
         // No other event type can be registered simultaneously with CONNECT.
 
         BSLS_ASSERT(0 == eventMask);
         eventMask |= POLLOUT;
       } break;
-      case EventType::BTESO_WRITE: {
+      case EventType::e_WRITE: {
         // Only READ can be registered simultaneously with WRITE.
 
         BSLS_ASSERT(0 == (eventMask & ~POLLIN));
         BSLS_ASSERT_SAFE(!eventMask || !d_callbacks.count(
-                    Event(socketHandle, EventType::BTESO_ACCEPT)));
+                    Event(socketHandle, EventType::e_ACCEPT)));
         eventMask |= POLLOUT;
       } break;
       default: {
@@ -428,12 +428,12 @@ void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
     // Translate the type of event.
 
     switch (eventType) {
-      case EventType::BTESO_ACCEPT:
-      case EventType::BTESO_READ: {
+      case EventType::e_ACCEPT:
+      case EventType::e_READ: {
         queryPollfd.events &= ~POLLIN;
       } break;
-      case EventType::BTESO_CONNECT:
-      case EventType::BTESO_WRITE: {
+      case EventType::e_CONNECT:
+      case EventType::e_WRITE: {
         queryPollfd.events &= ~POLLOUT;
       } break;
       default: {
@@ -480,13 +480,13 @@ int DefaultEventManager<Platform::POLLSET>::
 {
     int numCallbacks = 0;
 
-    Event event(socketHandle, EventType::BTESO_ACCEPT);
+    Event event(socketHandle, EventType::e_ACCEPT);
     numCallbacks += d_callbacks.erase(event);
-    event.setType(                  EventType::BTESO_CONNECT);
+    event.setType(                  EventType::e_CONNECT);
     numCallbacks += d_callbacks.erase(event);
-    event.setType(                  EventType::BTESO_READ);
+    event.setType(                  EventType::e_READ);
     numCallbacks += d_callbacks.erase(event);
-    event.setType(                  EventType::BTESO_WRITE);
+    event.setType(                  EventType::e_WRITE);
     numCallbacks += d_callbacks.erase(event);
 
     BSLS_ASSERT((unsigned) numCallbacks <= 2);

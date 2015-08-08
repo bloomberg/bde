@@ -246,28 +246,28 @@ extern "C" void * case100EntryPoint(void *arg)
         }
 
         em.registerSocketEvent(
-            chnl.serverFd(), btlso::EventType::BTESO_READ, socketFunctor);
+            chnl.serverFd(), btlso::EventType::e_READ, socketFunctor);
         ASSERT(1 == em.isRegistered(chnl.serverFd(),
-                                    btlso::EventType::BTESO_READ));
+                                    btlso::EventType::e_READ));
         ASSERT(1 == em.numSocketEvents(chnl.serverFd()));
 
         em.deregisterSocket(chnl.serverFd());
         ASSERT(0 == em.isRegistered(chnl.serverFd(),
-                                    btlso::EventType::BTESO_READ));
+                                    btlso::EventType::e_READ));
         ASSERT(0 == em.numSocketEvents(chnl.serverFd()));
 
         em.registerSocketEvent(
-            chnl.serverFd(), btlso::EventType::BTESO_READ, socketFunctor);
+            chnl.serverFd(), btlso::EventType::e_READ, socketFunctor);
         ASSERT(1 == em.isRegistered(chnl.serverFd(),
-                                    btlso::EventType::BTESO_READ));
+                                    btlso::EventType::e_READ));
         ASSERT(1 == em.numSocketEvents(chnl.serverFd()));
 
         ASSERT(1 == chnl.clientWrite());
 
         em.deregisterSocketEvent(
-            chnl.serverFd(), btlso::EventType::BTESO_READ);
+            chnl.serverFd(), btlso::EventType::e_READ);
         ASSERT(0 == em.isRegistered(chnl.serverFd(),
-                                    btlso::EventType::BTESO_READ));
+                                    btlso::EventType::e_READ));
         ASSERT(0 == em.numSocketEvents(chnl.serverFd()));
     }
     printf("Thread %d is exiting\n", j);
@@ -358,9 +358,9 @@ void *registerThread(void *arg)
                    i);
         }
         mX->registerSocketEvent(fd,
-                                btlso::EventType::BTESO_READ, callback);
+                                btlso::EventType::e_READ, callback);
         LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
     }
 
     globalBarrier->wait();
@@ -372,14 +372,14 @@ void *registerThread(void *arg)
         bslma::TestAllocator ta;
         const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
         mX->registerSocketEvent(fd,
-                                btlso::EventType::BTESO_READ, callback);
+                                btlso::EventType::e_READ, callback);
         if (veryVerbose) {
             printf("Thread %d: Iteration (C)%d\n",
                    bdlqq::ThreadUtil::self(),
                    i);
         }
         LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
     }
 
     globalBarrier->wait();
@@ -432,26 +432,26 @@ void *deregisterThread(void *arg)
         btlso::SocketHandle::Handle fd = testPairs[i].observedFd();
         const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
         mX->registerSocketEvent(fd,
-                                btlso::EventType::BTESO_READ, callback);
+                                btlso::EventType::e_READ, callback);
         LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
         mX->deregisterSocketEvent(fd,
-                                btlso::EventType::BTESO_READ);
+                                btlso::EventType::e_READ);
         LOOP_ASSERT(i, 0 == mX->isRegistered(fd,
-                                             btlso::EventType::BTESO_READ));
+                                             btlso::EventType::e_READ));
     }
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
         bdlf::Function<void (*)()> callback(&dummyFunction);
         mX->registerSocketEvent(fd,
-                                btlso::EventType::BTESO_READ, callback);
+                                btlso::EventType::e_READ, callback);
         LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
 
         mX->deregisterSocketEvent(fd,
-                                btlso::EventType::BTESO_READ);
+                                btlso::EventType::e_READ);
         LOOP_ASSERT(i, 0 == mX->isRegistered(fd,
-                                             btlso::EventType::BTESO_READ));
+                                             btlso::EventType::e_READ));
     }
 
     globalBarrier->wait();
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
                 btlso::SocketHandle::Handle fds[2];
                 rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      fds,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
 
                 ASSERT(0 == rc);
 
@@ -871,7 +871,7 @@ int main(int argc, char *argv[])
                                                   &readDataArgs[j]);
                 do {
                     rc = mX.registerSocketEvent(fds[0],
-                                                btlso::EventType::BTESO_READ,
+                                                btlso::EventType::e_READ,
                                                 readFunctor);
                 } while (0 != rc);
 
@@ -881,7 +881,7 @@ int main(int argc, char *argv[])
                                                    &writeDataArgs[j]);
                 do {
                     rc = mX.registerSocketEvent(fds[1],
-                                                btlso::EventType::BTESO_WRITE,
+                                                btlso::EventType::e_WRITE,
                                                 writeFunctor);
                 } while (0 != rc);
 
@@ -931,7 +931,7 @@ int main(int argc, char *argv[])
                 do {
                     rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      fds,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
                 } while (0 != rc);
 
                 LOOP2_ASSERT(j, rc, 0 == rc);
@@ -950,7 +950,7 @@ int main(int argc, char *argv[])
                                                   &readDataArgs[j]);
                 do {
                     rc = mX.registerSocketEvent(fds[0],
-                                                btlso::EventType::BTESO_READ,
+                                                btlso::EventType::e_READ,
                                                 readFunctor);
                 } while (0 != rc);
 
@@ -961,7 +961,7 @@ int main(int argc, char *argv[])
 
                 do {
                     rc = mX.registerSocketEvent(fds[1],
-                                                btlso::EventType::BTESO_WRITE,
+                                                btlso::EventType::e_WRITE,
                                                 writeFunctor);
                 } while (0 != rc);
 
@@ -1237,21 +1237,21 @@ int main(int argc, char *argv[])
 
               btlso::SocketHandle::Handle handles[2];
               ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
               ASSERT(0 !=
                   btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
               Obj mX(&testAllocator); const Obj& X = mX;
               bdlf::Function<void (*)()> callback(&waitForASec);
               ASSERT(0 == mX.registerSocketEvent(handles[1],
-                                                 btlso::EventType::BTESO_READ,
+                                                 btlso::EventType::e_READ,
                                                  callback));
               ASSERT(0 == mX.enable());
 
               bdlqq::ThreadUtil::microSleep(10000); // 10 ms
               ASSERT(0 == mX.disable());
               int percent = mX.timeMetrics()->percentage(
-                                           btlso::TimeMetrics::BTESO_CPU_BOUND);
+                                           btlso::TimeMetrics::e_CPU_BOUND);
               LOOP_ASSERT(percent, percent > 80);
 
               if (veryVerbose) {
@@ -1272,7 +1272,7 @@ int main(int argc, char *argv[])
 
               btlso::SocketHandle::Handle handles[2];
               ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
               ASSERT(0 !=
                   btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
@@ -1280,14 +1280,14 @@ int main(int argc, char *argv[])
               const Obj& X = mX;
               bdlf::Function<void (*)()> callback(&waitForASec);
               ASSERT(0 == mX.registerSocketEvent(handles[1],
-                                                 btlso::EventType::BTESO_READ,
+                                                 btlso::EventType::e_READ,
                                                  callback));
               ASSERT(0 == mX.enable());
 
               bdlqq::ThreadUtil::microSleep(10000); // 10 ms
               ASSERT(0 == mX.disable());
               int percent = mX.timeMetrics()->percentage(
-                                           btlso::TimeMetrics::BTESO_CPU_BOUND);
+                                           btlso::TimeMetrics::e_CPU_BOUND);
               LOOP_ASSERT(percent, percent <= 1);
 
               if (veryVerbose) {
@@ -1333,7 +1333,7 @@ int main(int argc, char *argv[])
 
           btlso::SocketHandle::Handle handles[2];
           ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
 
           ASSERT(0 !=
                  btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
@@ -1345,10 +1345,10 @@ int main(int argc, char *argv[])
           bdlf::Function<void (*)()> callback(
                   bdlf::BindUtil::bind(&testIsEnabled, &manager, &complete));
           ASSERT(0 == manager.registerSocketEvent(handles[0],
-                                                  btlso::EventType::BTESO_READ,
+                                                  btlso::EventType::e_READ,
                                                   callback));
           ASSERT(0 == manager.registerSocketEvent(handles[1],
-                                                  btlso::EventType::BTESO_READ,
+                                                  btlso::EventType::e_READ,
                                                   callback));
           manager.enable();
           manager.disable();
@@ -1426,7 +1426,7 @@ int main(int argc, char *argv[])
                         bdlf::BindUtil::bindA(&testAllocator, &disableCb, &mX));
 
                 mX.registerSocketEvent(testPair.observedFd(),
-                                       btlso::EventType::BTESO_WRITE, callback);
+                                       btlso::EventType::e_WRITE, callback);
 
                 bdlqq::ThreadUtil::microSleep(10000); // 10 ms
             }
@@ -1708,7 +1708,7 @@ int main(int argc, char *argv[])
             // will allow all pending deregistration events to complete, which
             // will give us the right result from numTotalSocketEvents()
             btlso::SocketHandle::Handle nilHandle = 0;
-            mX.isRegistered(nilHandle, btlso::EventType::BTESO_READ);
+            mX.isRegistered(nilHandle, btlso::EventType::e_READ);
             int numTotalSocketEvents = mX.numTotalSocketEvents();
             LOOP_ASSERT(numTotalSocketEvents, 0 == numTotalSocketEvents);
         }
@@ -2147,7 +2147,7 @@ int main(int argc, char *argv[])
                 "| numTotalSocketEvents = %d\n"
                 "| numTimers = %d\n"
                 "=========================================================\n",
-                metrics->percentage(btlso::TimeMetrics::BTESO_CPU_BOUND),
+                metrics->percentage(btlso::TimeMetrics::e_CPU_BOUND),
                 pEventManager->numEvents(),
                 pEventManager->numTotalSocketEvents(),
                 pEventManager->numTimers()

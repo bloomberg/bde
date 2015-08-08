@@ -432,25 +432,25 @@ int BerDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
     int ret;
 
     ret = manipulator(&d_maxDepth,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_traceLevel,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -466,24 +466,24 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
     enum { k_BDEM_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
         return manipulator(&d_maxDepth,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
         return manipulator(&d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TRACE_LEVEL: {
+      case e_ATTRIBUTE_ID_TRACE_LEVEL: {
         return manipulator(&d_traceLevel,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
+      case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
         return manipulator(&d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
                                                                       // RETURN
       } break;
       default:
@@ -560,25 +560,25 @@ int BerDecoderOptions::accessAttributes(ACCESSOR& accessor) const
     int ret;
 
     ret = accessor(d_maxDepth,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_traceLevel,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxSequenceSize,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -593,24 +593,24 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
     enum { k_BDEM_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
         return accessor(d_maxDepth,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
         return accessor(d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TRACE_LEVEL: {
+      case e_ATTRIBUTE_ID_TRACE_LEVEL: {
         return accessor(d_traceLevel,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
+      case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
         return accessor(d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
                                                                       // RETURN
       } break;
       default:

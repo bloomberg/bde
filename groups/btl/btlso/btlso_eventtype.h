@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Daniel Glaser (dglaser)
 //
 //@DESCRIPTION: This component provides a namespace, 'btlso::EventType', for
-// enumerating socket event types, namely, 'BTESO_ACCEPT', 'BTESO_CONNECT',
-// 'BTESO_READ', and 'BTESO_WRITE'.
+// enumerating socket event types, namely, 'e_ACCEPT', 'e_CONNECT',
+// 'e_READ', and 'e_WRITE'.
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
@@ -43,10 +43,10 @@ struct EventType {
       , BTESO_CONNECT = e_CONNECT
       , BTESO_READ    = e_READ
       , BTESO_WRITE   = e_WRITE
-      , ACCEPT  = BTESO_ACCEPT
-      , CONNECT = BTESO_CONNECT
-      , READ    = BTESO_READ
-      , WRITE   = BTESO_WRITE
+      , ACCEPT  = e_ACCEPT
+      , CONNECT = e_CONNECT
+      , READ    = e_READ
+      , WRITE   = e_WRITE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

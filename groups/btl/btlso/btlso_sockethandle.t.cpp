@@ -67,8 +67,8 @@ int main(int argc, char *argv[]) {
 
         // Verify that the error codes are accessible.
 
-        ASSERT(btlso::SocketHandle::BTESO_ERROR_EOF !=
-               btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED);
+        ASSERT(btlso::SocketHandle::e_ERROR_EOF !=
+               btlso::SocketHandle::e_ERROR_UNCLASSIFIED);
 
         // Verify that the invalid is correctly set.
 

@@ -765,8 +765,8 @@ static int createServerThread(bdlqq::ThreadUtil::Handle           *threadHandle,
     serverAddress.setIpAddress(hostName);
     serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-    int ret = serverSocket->setOption(btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+    int ret = serverSocket->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::k_REUSEADDRESS,
                                       1);
     ASSERT(0 == ret);
     ASSERT(0 == serverSocket->bind(serverAddress));
@@ -778,7 +778,7 @@ static int createServerThread(bdlqq::ThreadUtil::Handle           *threadHandle,
     // blockingmode will force subsequent 'accept' calls to return
     // WSAEWOULDBLOCK *even when connection is present*.
 
-    ret = serverSocket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    ret = serverSocket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
     ASSERT(0 == ret);
 
@@ -1334,10 +1334,10 @@ int main(int argc, char *argv[])
         }
 
         state.d_hint
-            = btlso::TcpTimerEventManager::BTESO_NO_HINT;
+            = btlso::TcpTimerEventManager::e_NO_HINT;
         if (argc > 7) {
             state.d_hint =
-                btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                btlso::TcpTimerEventManager::e_INFREQUENT_REGISTRATION;
         }
 
         Q("Configuration:");
@@ -1402,7 +1402,7 @@ int main(int argc, char *argv[])
 
                 btlso::InetStreamSocketFactory<btlso::IPv4Address> sf;
                 btlso::TcpTimerEventManager::Hint infrequentRegistrationHint =
-                     btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                     btlso::TcpTimerEventManager::e_INFREQUENT_REGISTRATION;
                 btlso::TcpTimerEventManager sem(infrequentRegistrationHint);
 
                 btlsos::TcpTimedCbConnector connector(&sf, &sem);
@@ -1481,10 +1481,10 @@ int main(int argc, char *argv[])
                 }
 
                 btlso::TcpTimerEventManager::Hint hint
-                     = btlso::TcpTimerEventManager::BTESO_NO_HINT;
+                     = btlso::TcpTimerEventManager::e_NO_HINT;
                 if (argc > 6) {
                      hint =
-                     btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                     btlso::TcpTimerEventManager::e_INFREQUENT_REGISTRATION;
                 }
                 if (verbose) {
                     P(numConnections);
@@ -1587,10 +1587,10 @@ int main(int argc, char *argv[])
                     numMessages = DEFAULT_NUM_MESSAGES;
                 }
                 btlso::TcpTimerEventManager::Hint hint
-                     = btlso::TcpTimerEventManager::BTESO_NO_HINT;
+                     = btlso::TcpTimerEventManager::e_NO_HINT;
                 if (argc > 6) {
                     hint =
-                     btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                     btlso::TcpTimerEventManager::e_INFREQUENT_REGISTRATION;
                 }
                 if (verbose) {
                     P(numConnections);
@@ -1655,8 +1655,8 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 != d_serverSocket_p);
                 int ret = d_serverSocket_p->setOption(
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_REUSEADDRESS,
                                        1);
                 ASSERT(0 == ret);
                 ASSERT(0 == d_serverSocket_p->bind(serverAddress));
@@ -2893,8 +2893,8 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 != d_serverSocket_p);
                 int ret = d_serverSocket_p->setOption(
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_REUSEADDRESS,
                                        1);
                 ASSERT(0 == ret);
                 ASSERT(0 == d_serverSocket_p->bind(serverAddress));

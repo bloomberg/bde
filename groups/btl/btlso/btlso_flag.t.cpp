@@ -254,9 +254,9 @@ int main(int argc, char *argv[])
         ValueTest<bteso_Flag::IOWaitType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::BTESO_IO_READ,              "IO_READ" },
-            { bteso_Flag::BTESO_IO_WRITE,             "IO_WRITE" },
-            { bteso_Flag::BTESO_IO_RW,                "IO_RW" },
+            { bteso_Flag::e_IO_READ,              "IO_READ" },
+            { bteso_Flag::e_IO_WRITE,             "IO_WRITE" },
+            { bteso_Flag::e_IO_RW,                "IO_RW" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
@@ -273,9 +273,9 @@ int main(int argc, char *argv[])
         ValueTest<bteso_Flag::ShutdownType>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::BTESO_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
-            { bteso_Flag::BTESO_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
-            { bteso_Flag::BTESO_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
+            { bteso_Flag::e_SHUTDOWN_RECEIVE,     "SHUTDOWN_RECEIVE" },
+            { bteso_Flag::e_SHUTDOWN_SEND,        "SHUTDOWN_SEND" },
+            { bteso_Flag::e_SHUTDOWN_BOTH,        "SHUTDOWN_BOTH" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
@@ -292,8 +292,8 @@ int main(int argc, char *argv[])
         ValueTest<bteso_Flag::BlockingMode>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::BTESO_BLOCKING_MODE,        "BLOCKING_MODE" },
-            { bteso_Flag::BTESO_NONBLOCKING_MODE,     "NONBLOCKING_MODE" },
+            { bteso_Flag::e_BLOCKING_MODE,        "BLOCKING_MODE" },
+            { bteso_Flag::e_NONBLOCKING_MODE,     "NONBLOCKING_MODE" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
         ValueTest<bteso_Flag::Flag>::Data DATA[] = {
             // Enumerated Value                 String Representation
             // --------------------------       --------------------------
-            { bteso_Flag::BTESO_ASYNC_INTERRUPT,      "ASYNC_INTERRUPT" },
+            { bteso_Flag::k_ASYNC_INTERRUPT,      "ASYNC_INTERRUPT" },
         };
 
         const int DATA_LENGTH = sizeof DATA / sizeof *DATA;
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
                                               Util::twoToTheN);
         if (verbose)
             cout << "\nVerify table length is correct." << endl;
-        ASSERT(DATA_LENGTH == bteso_Flag::BTESO_NFLAGS);
+        ASSERT(DATA_LENGTH == bteso_Flag::k_NFLAGS);
         valueTest(DATA);
       } break;
       default: {

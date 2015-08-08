@@ -84,7 +84,7 @@ int monitorSet(btlso::SocketHandle::Handle      *sockets,
         bdlf::Function<void (*)()> callback(
                 bdlf::BindUtil::bind(function, sockets[i]));
         if (manager->registerSocketEvent(sockets[i],
-                                         btlso::EventType::BTESO_READ,
+                                         btlso::EventType::e_READ,
                                          callback))
         {
             // For cleanliness, when a registration fails, we will all

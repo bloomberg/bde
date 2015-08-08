@@ -103,8 +103,8 @@ int main(int argc, char *argv[]) {
         if (veryVerbose) cout << "\tCreating another dflt instance." << endl;
         {
             btlso::TimeMetrics metrics(
-                                   btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                   btlso::TimeMetrics::BTESO_CPU_BOUND,
+                                   btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                   btlso::TimeMetrics::e_CPU_BOUND,
                                    &testAllocator);
             btlso::DefaultEventManager<> mX(&metrics, &testAllocator);
         }
@@ -112,8 +112,8 @@ int main(int argc, char *argv[]) {
         if (veryVerbose) cout << "\tCreating a default instance." << endl;
         {
             btlso::TimeMetrics metrics(
-                                   btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                   btlso::TimeMetrics::BTESO_CPU_BOUND,
+                                   btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                   btlso::TimeMetrics::e_CPU_BOUND,
                                    &testAllocator);
             btlso::EventMgr::TYPE mX(&metrics, &testAllocator);
         }
@@ -121,8 +121,8 @@ int main(int argc, char *argv[]) {
         if (veryVerbose) cout << "\tYet another dflt instance." << endl;
         {
             btlso::TimeMetrics metrics(
-                                   btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                   btlso::TimeMetrics::BTESO_CPU_BOUND,
+                                   btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                   btlso::TimeMetrics::e_CPU_BOUND,
                                    &testAllocator);
             typedef btlso::Platform::DEFAULT_POLLING_MECHANISM PollMech;
             btlso::DefaultEventManager<PollMech> mX(&metrics, &testAllocator);

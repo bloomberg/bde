@@ -170,7 +170,7 @@ class JournalHeader {
         bdlb::BigEndianInt64  d_creationTime;
         bdlb::BigEndianUint32 d_userDataSize;
         bdlb::BigEndianUint32 d_reserve;
-        HeaderState           d_state[BAECS_NUM_STATES];
+        HeaderState           d_state[k_NUM_STATES];
         char                  d_userData[8];
     };
 
@@ -259,8 +259,8 @@ bsl::ostream& operator<<(bsl::ostream&        stream,
 inline
 void JournalHeaderPageList::init()
 {
-    d_firstPage   = BAECS_INVALID_PAGE;
-    d_last        = BAECS_INVALID_PAGE;
+    d_firstPage   = k_INVALID_PAGE;
+    d_last        = k_INVALID_PAGE;
     d_numElements = 0;
 }
 
@@ -272,8 +272,8 @@ void JournalHeaderPageList::init()
 inline
 void JournalHeaderRecordList::init()
 {
-    d_first       = JournalHeader::BAECS_INVALID_RECORD_HANDLE;
-    d_last        = JournalHeader::BAECS_INVALID_RECORD_HANDLE;
+    d_first       = JournalHeader::k_INVALID_RECORD_HANDLE;
+    d_last        = JournalHeader::k_INVALID_RECORD_HANDLE;
     d_numElements = 0;
 }
 

@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 //         int rc;
 //         btlso::SocketImpUtil::open<btlso::IPv4Address>(
 //                                    &socketHandle,
-//                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+//                                    btlso::SocketImpUtil::k_SOCKET_STREAM,
 //                                    &rc);
 //         ASSERT(0 == rc);
 
@@ -146,8 +146,8 @@ int main(int argc, char *argv[])
 //  rc = btlso::SocketOptUtil::getOption(
 //                                    &addropt,
 //                                    socketHandle,
-//                                    btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                                    btlso::SocketOptUtil::BTESO_REUSEADDRESS);
+//                                    btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                                    btlso::SocketOptUtil::k_REUSEADDRESS);
 //
 //  ASSERT(0 == rc);
 //  ASSERT(0 != addropt);

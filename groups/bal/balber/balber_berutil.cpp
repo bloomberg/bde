@@ -159,7 +159,7 @@ enum {
     NUM_BITS_IN_ONE_TAG_OCTET          = 7,
 
     MAX_TAG_NUMBER_OCTETS              = (sizeof(int) *
-                                              balber::BerUtil_Imp::BITS_PER_OCTET)
+                                              balber::BerUtil_Imp::e_BITS_PER_OCTET)
                                              / NUM_VALUE_BITS_IN_TAG_OCTET + 1,
 
     REAL_BINARY_ENCODING               = 0x80,  // value that indicates that
@@ -176,7 +176,7 @@ enum {
 
     CHAR_MSB_MASK                      = 0x80,
     INT_MSB_MASK                       = 1 << (sizeof(int) *
-                                         balber::BerUtil_Imp::BITS_PER_OCTET - 1),
+                                         balber::BerUtil_Imp::e_BITS_PER_OCTET - 1),
     SEVEN_BITS_MASK                    = 0x7f,
 
     POSITIVE_INFINITY_ID               = 0x40,
@@ -359,8 +359,8 @@ void putChars(bsl::streambuf *streamBuf, char value, int numChars)
 //     BSLS_ASSERT(0 == padChar || ((char) -1) == padChar);
     BSLS_ASSERT(0 <= numChars);
 
-    const int MIN_BINARY_DATETIMETZ_LENGTH = 7;
-    char buffer[MIN_BINARY_DATETIMETZ_LENGTH];
+    const int k_MIN_BINARY_DATETIMETZ_LENGTH = 7;
+    char buffer[k_MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(buffer, value, numChars);
 
     streamBuf->sputn(buffer, numChars);
@@ -498,7 +498,7 @@ int BerUtil::putIdentifierOctets(bsl::streambuf              *streamBuf,
 
     {
         enum {
-            INT_NUM_BITS = sizeof(int) * BerUtil_Imp::BITS_PER_OCTET
+            INT_NUM_BITS = sizeof(int) * BerUtil_Imp::e_BITS_PER_OCTET
         };
 
         int          shift = 0;
@@ -589,7 +589,7 @@ int BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
                                              bdlt::Datetime  *value,
                                              int             length)
 {
-    if (length > MIN_BINARY_DATETIMETZ_LENGTH) {
+    if (length > k_MIN_BINARY_DATETIMETZ_LENGTH) {
         short offset;
         getTimezoneOffset(streamBuf, &offset);
 
@@ -649,7 +649,7 @@ int BerUtil_Imp::getBinaryDateTzValue(bsl::streambuf *streamBuf,
                                            int             length)
 {
     short offset = 0;
-    if (length >= MIN_BINARY_DATETZ_LENGTH) {
+    if (length >= k_MIN_BINARY_DATETZ_LENGTH) {
         getTimezoneOffset(streamBuf, &offset);
 
         if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
@@ -671,7 +671,7 @@ int BerUtil_Imp::getBinaryTimeTzValue(bsl::streambuf *streamBuf,
                                            int             length)
 {
     short offset = 0;
-    if (length >= MIN_BINARY_TIMETZ_LENGTH) {
+    if (length >= k_MIN_BINARY_TIMETZ_LENGTH) {
         getTimezoneOffset(streamBuf, &offset);
 
         if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
@@ -693,7 +693,7 @@ int BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
                                                int              length)
 {
     short offset = 0;
-    if (length >= MIN_BINARY_DATETIMETZ_LENGTH) {
+    if (length >= k_MIN_BINARY_DATETIMETZ_LENGTH) {
         getTimezoneOffset(streamBuf, &offset);
 
         if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
@@ -715,7 +715,7 @@ int BerUtil_Imp::putBinaryDateValue(bsl::streambuf   *streamBuf,
     const bsls::Types::Int64 serialDate = getSerialDateValue(value);
     const int               length     = numBytesToStream(serialDate);
 
-    BSLS_ASSERT(length <= MAX_BINARY_DATE_LENGTH);
+    BSLS_ASSERT(length <= k_MAX_BINARY_DATE_LENGTH);
 
     putLength(streamBuf, length);
     return putIntegerGivenLength(streamBuf, serialDate, length);
@@ -727,7 +727,7 @@ int BerUtil_Imp::putBinaryTimeValue(bsl::streambuf   *streamBuf,
     const bsls::Types::Int64 serialTime = getSerialTimeValue(value);
     const int               length     = numBytesToStream(serialTime);
 
-    BSLS_ASSERT(length <= MAX_BINARY_TIME_LENGTH);
+    BSLS_ASSERT(length <= k_MAX_BINARY_TIME_LENGTH);
 
     putLength(streamBuf, length);
     return putIntegerGivenLength(streamBuf, serialTime, length);
@@ -739,7 +739,7 @@ int BerUtil_Imp::putBinaryDatetimeValue(bsl::streambuf       *streamBuf,
     const bsls::Types::Int64 serialDatetime = getSerialDatetimeValue(value);
     int                     length         = numBytesToStream(serialDatetime);
 
-    if (length >= MIN_BINARY_DATETIMETZ_LENGTH) {
+    if (length >= k_MIN_BINARY_DATETIMETZ_LENGTH) {
         putLength(streamBuf, length + TIMEZONE_LENGTH);
         putTimezoneOffset(streamBuf, 0);
     }
@@ -763,11 +763,11 @@ int BerUtil_Imp::putBinaryDateTzValue(bsl::streambuf     *streamBuf,
     int                     length     = numBytesToStream(serialDate)
                                        + TIMEZONE_LENGTH;
 
-    if (length < MIN_BINARY_DATETZ_LENGTH) {
+    if (length < k_MIN_BINARY_DATETZ_LENGTH) {
         const char padChar      = serialDate < 0 ? char(-1) : char(0);
-        const int  numPadOctets = MIN_BINARY_DATETZ_LENGTH - length;
+        const int  numPadOctets = k_MIN_BINARY_DATETZ_LENGTH - length;
 
-        putLength(streamBuf, MIN_BINARY_DATETZ_LENGTH);
+        putLength(streamBuf, k_MIN_BINARY_DATETZ_LENGTH);
         putTimezoneOffset(streamBuf, offset);
         putChars(streamBuf, padChar, numPadOctets);
     }
@@ -794,10 +794,10 @@ int BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
     const int               length     = numBytesToStream(serialTime)
                                        + TIMEZONE_LENGTH;
 
-    if (length < MIN_BINARY_TIMETZ_LENGTH) {
-        const int  numPadOctets = MIN_BINARY_TIMETZ_LENGTH - length;
+    if (length < k_MIN_BINARY_TIMETZ_LENGTH) {
+        const int  numPadOctets = k_MIN_BINARY_TIMETZ_LENGTH - length;
 
-        putLength(streamBuf, MIN_BINARY_TIMETZ_LENGTH);
+        putLength(streamBuf, k_MIN_BINARY_TIMETZ_LENGTH);
         putTimezoneOffset(streamBuf, offset);
         putChars(streamBuf, 0, numPadOctets);
     }
@@ -825,11 +825,11 @@ int BerUtil_Imp::putBinaryDatetimeTzValue(
     const int               length         = numBytesToStream(serialDatetime)
                                            + TIMEZONE_LENGTH;
 
-    if (length < MIN_BINARY_DATETIMETZ_LENGTH) {
+    if (length < k_MIN_BINARY_DATETIMETZ_LENGTH) {
         const char padChar      = serialDatetime < 0 ? char(-1) : char(0);
-        const int  numPadOctets = MIN_BINARY_DATETIMETZ_LENGTH - length;
+        const int  numPadOctets = k_MIN_BINARY_DATETIMETZ_LENGTH - length;
 
-        putLength(streamBuf, MIN_BINARY_DATETIMETZ_LENGTH);
+        putLength(streamBuf, k_MIN_BINARY_DATETIMETZ_LENGTH);
         putTimezoneOffset(streamBuf, offset);
         putChars(streamBuf, padChar, numPadOctets);
     }
@@ -991,7 +991,7 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
             return FAILURE;                                           // RETURN
         }
 
-        valueHi <<= BITS_PER_OCTET;
+        valueHi <<= e_BITS_PER_OCTET;
         valueHi |= (unsigned char) nextOctet;
     }
 
@@ -1003,7 +1003,7 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
             return FAILURE;                                           // RETURN
         }
 
-        valueLo <<= BITS_PER_OCTET;
+        valueLo <<= e_BITS_PER_OCTET;
         valueLo |= (unsigned char) nextOctet;
     }
 
@@ -1031,8 +1031,8 @@ int BerUtil_Imp::getLength(bsl::streambuf *streamBuf,
 
     ++*accumNumBytesConsumed;
 
-    if (nextOctet == BerUtil_Imp::INDEFINITE_LENGTH_OCTET) {
-        *result = BerUtil_Imp::INDEFINITE_LENGTH;
+    if (nextOctet == BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET) {
+        *result = BerUtil_Imp::e_INDEFINITE_LENGTH;
 
         return SUCCESS;                                               // RETURN
     }
@@ -1061,7 +1061,7 @@ int BerUtil_Imp::getLength(bsl::streambuf *streamBuf,
             return FAILURE;                                           // RETURN
         }
 
-        *result <<= BerUtil_Imp::BITS_PER_OCTET;
+        *result <<= BerUtil_Imp::e_BITS_PER_OCTET;
         *result |=  nextOctet;
     }
 
@@ -1100,7 +1100,7 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdlt::Date      *value,
                                int             length)
 {
-    return length > MAX_BINARY_DATE_LENGTH
+    return length > k_MAX_BINARY_DATE_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDateValue(streamBuf, value, length);
 }
@@ -1109,7 +1109,7 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdlt::Datetime  *value,
                                int             length)
 {
-    return length > MAX_BINARY_DATETIMETZ_LENGTH
+    return length > k_MAX_BINARY_DATETIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDatetimeValue(streamBuf, value, length);
 }
@@ -1118,7 +1118,7 @@ int BerUtil_Imp::getValue(bsl::streambuf  *streamBuf,
                                bdlt::DatetimeTz *value,
                                int              length)
 {
-    return length > MAX_BINARY_DATETIMETZ_LENGTH
+    return length > k_MAX_BINARY_DATETIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDatetimeTzValue(streamBuf, value, length);
 }
@@ -1127,7 +1127,7 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdlt::DateTz    *value,
                                int             length)
 {
-    return length > MAX_BINARY_DATETZ_LENGTH
+    return length > k_MAX_BINARY_DATETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDateTzValue(streamBuf, value, length);
 }
@@ -1136,7 +1136,7 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdlt::Time      *value,
                                int             length)
 {
-    return length > MAX_BINARY_TIME_LENGTH
+    return length > k_MAX_BINARY_TIME_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryTimeValue(streamBuf, value, length);
 }
@@ -1145,7 +1145,7 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdlt::TimeTz    *value,
                                int             length)
 {
-    return length > MAX_BINARY_TIMETZ_LENGTH
+    return length > k_MAX_BINARY_TIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryTimeTzValue(streamBuf, value, length);
 }
@@ -1178,7 +1178,7 @@ int BerUtil_Imp::numBytesToStream(short value)
 
     // Round up to correct number of bytes:
 
-    return (numBits + BITS_PER_OCTET - 1) / BITS_PER_OCTET;
+    return (numBits + e_BITS_PER_OCTET - 1) / e_BITS_PER_OCTET;
 }
 
 int BerUtil_Imp::numBytesToStream(int value)
@@ -1209,7 +1209,7 @@ int BerUtil_Imp::numBytesToStream(int value)
 
     // Round up to correct number of bytes:
 
-    return (numBits + BITS_PER_OCTET - 1) / BITS_PER_OCTET;
+    return (numBits + e_BITS_PER_OCTET - 1) / e_BITS_PER_OCTET;
 }
 
 int BerUtil_Imp::numBytesToStream(long long value)
@@ -1240,7 +1240,7 @@ int BerUtil_Imp::numBytesToStream(long long value)
 
     // Round up to correct number of bytes:
 
-    return (numBits + BITS_PER_OCTET - 1) / BITS_PER_OCTET;
+    return (numBits + e_BITS_PER_OCTET - 1) / e_BITS_PER_OCTET;
 }
 
 int BerUtil_Imp::putDoubleValue(bsl::streambuf *stream, double value)
@@ -1341,9 +1341,9 @@ int BerUtil_Imp::putLength(bsl::streambuf *streamBuf, int length)
     // length > 127.
 
     int numOctets = sizeof(int);
-    for (unsigned int mask = ~((unsigned int) -1 >> BITS_PER_OCTET);
+    for (unsigned int mask = ~((unsigned int) -1 >> e_BITS_PER_OCTET);
          !(length & mask);
-         mask >>= BITS_PER_OCTET) {
+         mask >>= e_BITS_PER_OCTET) {
         --numOctets;
     }
 

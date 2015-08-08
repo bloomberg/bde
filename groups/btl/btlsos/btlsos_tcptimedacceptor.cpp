@@ -30,8 +30,8 @@ namespace BloombergLP {
                        // ========================
 
 enum {
-    BLOCKING_MODE    = bteso_Flag::BTESO_BLOCKING_MODE,
-    NONBLOCKING_MODE = bteso_Flag::BTESO_NONBLOCKING_MODE
+    BLOCKING_MODE    = bteso_Flag::e_BLOCKING_MODE,
+    NONBLOCKING_MODE = bteso_Flag::e_NONBLOCKING_MODE
 };
 
 enum {
@@ -60,7 +60,7 @@ RESULT *allocate(int                                   *status,
     BSLS_ASSERT(status);
 
     // Bring the listening socket into blocking mode
-    int rc = socket->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+    int rc = socket->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     btlso::IPv4Address peer;
@@ -70,21 +70,21 @@ RESULT *allocate(int                                   *status,
 
         if (acceptedConnection) { break; }
 
-        if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != s) {
+        if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = FAILED;
-            socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+            socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
             return NULL;
         }
 
-        if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {
+        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
-            socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+            socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
             return NULL;
         }
     }
 
-    socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
     RESULT *channel =
         new (*pool) RESULT(acceptedConnection);
@@ -111,7 +111,7 @@ RESULT *timedAllocate(int                    *status, int flags,
     BSLS_ASSERT(0 != rc);
     #else
     BSLS_ASSERT(0 == rc);
-    BSLS_ASSERT(bteso_Flag::BTESO_NONBLOCKING_MODE == result);
+    BSLS_ASSERT(bteso_Flag::e_NONBLOCKING_MODE == result);
     #endif
 
     btlso::IPv4Address peer;
@@ -122,14 +122,14 @@ RESULT *timedAllocate(int                    *status, int flags,
         int s = socket->accept(&acceptedConnection, &peer);
         if (acceptedConnection) break;
 
-        if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == s) {
+        if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == s) {
             continue;
         }
-        if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != s) {
+        if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = -3; // Any negative number satisfies the contract.
             return NULL;
         }
-        if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {
+        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             return NULL;
         }
@@ -390,8 +390,8 @@ int TcpTimedAcceptor::open(const btlso::IPv4Address& endpoint,
 
     if (reuseAddressFlag) {
         if (0 != d_serverSocket_p->setOption(
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_REUSEADDRESS,
                                        reuseAddressFlag)) {
             d_factory_p->deallocate(d_serverSocket_p);
             d_serverSocket_p = NULL;
@@ -419,7 +419,7 @@ int TcpTimedAcceptor::open(const btlso::IPv4Address& endpoint,
     }
 
     if (0 != d_serverSocket_p->setBlockingMode(
-                                         bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+                                         bteso_Flag::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
         return BLOCKMODE_FAILED;

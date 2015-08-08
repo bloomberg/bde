@@ -51,23 +51,23 @@ BSLS_IDENT("$Id: $")
 //    btlso::SocketHandle::Handle handles[2];
 //    int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
 //                                   handles,
-//                                   btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+//                                   btlso::SocketImpUtil::k_SOCKET_STREAM);
 //    assert(0 == ret);
 //    // The following socket options are set only if necessary.
 //
 //    ret = btlso::SocketOptUtil::setOption(handles[0],
-//                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                      btlso::SocketOptUtil::BTESO_SENDBUFFER, 8192);
+//                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                      btlso::SocketOptUtil::k_SENDBUFFER, 8192);
 //    assert(0 == ret);
 //
 //    ret = btlso::SocketOptUtil::setOption(handles[1],
-//                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-//                      btlso::SocketOptUtil::BTESO_RECEIVEBUFFER, 8192);
+//                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                      btlso::SocketOptUtil::k_RECEIVEBUFFER, 8192);
 //    assert(0 == ret);
 //
 //    ret = btlso::SocketOptUtil::setOption(handles[1],
-//                          btlso::SocketOptUtil::BTESO_TCPLEVEL,
-//                          btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+//                          btlso::SocketOptUtil::k_TCPLEVEL,
+//                          btlso::SocketOptUtil::k_TCPNODELAY, 1);
 //    assert(0 == ret);
 //..
 // Next, create a 'btlso::StreamSocket' object, which is a part of the channel.

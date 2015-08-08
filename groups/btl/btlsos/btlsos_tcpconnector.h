@@ -235,7 +235,7 @@ class TcpConnector : public btlsc::ChannelAllocator {
     // MANIPULATORS
     btlsc::Channel *allocate(int *status, int flags = 0);
         // Allocate a stream-based channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a channel
         // on success, and 0 otherwise.  On an unsuccessful allocation, load
@@ -252,7 +252,7 @@ class TcpConnector : public btlsc::ChannelAllocator {
 
     btlsc::TimedChannel *allocateTimed(int *status, int flags = 0);
         // Allocate a stream-based timed channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a timed
         // channel on success, and 0 otherwise.  On an unsuccessful allocation,

@@ -72,7 +72,7 @@ int JournalPageHeader::markBlockListForValidation(unsigned index,
 {
     int result = 0;
 
-    unsigned firstBlock = BAECS_INDEX_NONE, lastBlock = BAECS_INDEX_NONE;
+    unsigned firstBlock = k_INDEX_NONE, lastBlock = k_INDEX_NONE;
     for(unsigned i=0; i<numBlocks; ++i) {
         J_ASSERT1(index < d_numBlocks, index);
         unsigned globalIndex = index + offset;
@@ -85,7 +85,7 @@ int JournalPageHeader::markBlockListForValidation(unsigned index,
                   globalIndex);
 
         if (verbose) {
-            if (firstBlock == BAECS_INDEX_NONE) {
+            if (firstBlock == k_INDEX_NONE) {
                 firstBlock = globalIndex;
                 lastBlock = globalIndex - 1;
             }
@@ -115,7 +115,7 @@ int JournalPageHeader::markBlockListForValidation(unsigned index,
         index = d_blocks[index].nextBlock();
     }
 
-    if (verbose && firstBlock != BAECS_INDEX_NONE) {
+    if (verbose && firstBlock != k_INDEX_NONE) {
         if (firstBlock != lastBlock) {
             bsl::printf(" [%u/%u, %u/%u] ",
                         firstBlock,
@@ -130,7 +130,7 @@ int JournalPageHeader::markBlockListForValidation(unsigned index,
         }
         bsl::putchar('\n');
     }
-    J_ASSERT1(index == BAECS_INDEX_NONE, index);
+    J_ASSERT1(index == k_INDEX_NONE, index);
     return result;
 }
 
@@ -194,8 +194,8 @@ void JournalPageHeader::init(unsigned                  numBlocks,
     d_firstAvailableBlock = 0;
     d_numAvailableBlocks  = numBlocks;
     d_numBlocks = numBlocks;
-    d_firstReleasedBlock = BAECS_INDEX_NONE;
-    d_lastReleasedBlock = BAECS_INDEX_NONE;
+    d_firstReleasedBlock = k_INDEX_NONE;
+    d_lastReleasedBlock = k_INDEX_NONE;
     d_numReleasedBlocks = 0;
     d_isOnFillList = false;
     d_nextPage = BAECS_INVALID_RECORD_HANDLE;
@@ -204,7 +204,7 @@ void JournalPageHeader::init(unsigned                  numBlocks,
         d_blocks[i].init();
         d_blocks[i].setNextBlock(i+1);
     }
-    d_blocks[d_numBlocks-1].setNextBlock(BAECS_INDEX_NONE);
+    d_blocks[d_numBlocks-1].setNextBlock(k_INDEX_NONE);
 }
 
 unsigned JournalPageHeader::getSize(unsigned numBlocks)
@@ -236,11 +236,11 @@ unsigned JournalPageHeader::allocate(unsigned numBlocks,
     d_blocks[first].setAttributes(attributes);
     // chop off the blocks from the beginning of free block list
     d_firstAvailableBlock = d_blocks[last].nextBlock();
-    d_blocks[last].setNextBlock(BAECS_INDEX_NONE);
+    d_blocks[last].setNextBlock(k_INDEX_NONE);
     // decrement the free block counter
     BSLS_ASSERT(d_numAvailableBlocks >= numBlocks);
     d_numAvailableBlocks = d_numAvailableBlocks - numBlocks;
-    if (!d_numAvailableBlocks) d_firstAvailableBlock = BAECS_INDEX_NONE;
+    if (!d_numAvailableBlocks) d_firstAvailableBlock = k_INDEX_NONE;
     return first;
 }
 
@@ -250,7 +250,7 @@ int JournalPageHeader::release(unsigned first)
 
     unsigned last = first;
     unsigned numBlocks = 1;
-    while(d_blocks[last].nextBlock() != BAECS_INDEX_NONE) {
+    while(d_blocks[last].nextBlock() != k_INDEX_NONE) {
         ++numBlocks;
         last = d_blocks[last].nextBlock();
     }
@@ -267,7 +267,7 @@ int JournalPageHeader::release(unsigned first)
     BALL_LOG_TRACE << "Release @" << this << " nrb="
         << d_numReleasedBlocks << BALL_LOG_END;
 
-    if (d_lastReleasedBlock == BAECS_INDEX_NONE) d_lastReleasedBlock = last;
+    if (d_lastReleasedBlock == k_INDEX_NONE) d_lastReleasedBlock = last;
     d_blocks[last].setNextBlock(d_firstReleasedBlock);
     d_firstReleasedBlock = first;
     return 0;
@@ -276,7 +276,7 @@ int JournalPageHeader::release(unsigned first)
 int JournalPageHeader::deallocate(unsigned first) {
     unsigned last = first;
     unsigned numBlocks = 1;
-    while(d_blocks[last].nextBlock() != BAECS_INDEX_NONE) {
+    while(d_blocks[last].nextBlock() != k_INDEX_NONE) {
         ++numBlocks;
         last = d_blocks[last].nextBlock();
     }
@@ -298,16 +298,16 @@ int JournalPageHeader::purge() {
     BALL_LOG_TRACE << "Purge @" << this << " nrb="
         << d_numReleasedBlocks <<  BALL_LOG_END;
 
-    if (d_firstReleasedBlock == BAECS_INDEX_NONE) {
+    if (d_firstReleasedBlock == k_INDEX_NONE) {
         BSLS_ASSERT(d_numReleasedBlocks == 0);
-        BSLS_ASSERT(d_lastReleasedBlock == BAECS_INDEX_NONE);
+        BSLS_ASSERT(d_lastReleasedBlock == k_INDEX_NONE);
     } else {
-        BSLS_ASSERT(d_lastReleasedBlock != BAECS_INDEX_NONE);
+        BSLS_ASSERT(d_lastReleasedBlock != k_INDEX_NONE);
         BSLS_ASSERT(d_numReleasedBlocks > 0);
         d_blocks[d_lastReleasedBlock].setNextBlock(d_firstAvailableBlock);
         d_firstAvailableBlock = d_firstReleasedBlock;
-        d_firstReleasedBlock = BAECS_INDEX_NONE;
-        d_lastReleasedBlock = BAECS_INDEX_NONE;
+        d_firstReleasedBlock = k_INDEX_NONE;
+        d_lastReleasedBlock = k_INDEX_NONE;
         d_numAvailableBlocks = (unsigned)d_numAvailableBlocks
                              + d_numReleasedBlocks;
         d_numReleasedBlocks = 0;
