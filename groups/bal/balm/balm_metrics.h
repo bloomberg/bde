@@ -537,8 +537,8 @@ BSLS_IDENT("$Id: $")
    static balm::CategoryHolder holder = { false, 0, 0 };                       \
    static balm::Collector *collector1 = 0;                                     \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
@@ -554,9 +554,9 @@ BSLS_IDENT("$Id: $")
    static balm::Collector *collector1 = 0;                                     \
    static balm::Collector *collector2 = 0;                                     \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
@@ -581,10 +581,10 @@ BSLS_IDENT("$Id: $")
    static balm::Collector *collector2 = 0;                                     \
    static balm::Collector *collector3 = 0;                                     \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -614,11 +614,11 @@ BSLS_IDENT("$Id: $")
    static balm::Collector *collector3 = 0;                                     \
    static balm::Collector *collector4 = 0;                                     \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -653,12 +653,12 @@ BSLS_IDENT("$Id: $")
    static balm::Collector *collector4 = 0;                                     \
    static balm::Collector *collector5 = 0;                                     \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -698,14 +698,14 @@ BSLS_IDENT("$Id: $")
    static balm::Collector *collector5 = 0;                                     \
    static balm::Collector *collector6 = 0;                                     \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY, Helper::TYPE_CATEGORY,                  \
+       Helper::logEmptyName(CATEGORY, Helper::e_TYPE_CATEGORY,                  \
                             __FILE__, __LINE__);                              \
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC6, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC6, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
@@ -731,8 +731,8 @@ BSLS_IDENT("$Id: $")
    static balm::CategoryHolder holder = { false, 0, 0 };                       \
    static balm::Collector *collector1 = 0;                                     \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC, Helper::TYPE_METRIC, __FILE__, __LINE__); \
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC, Helper::e_TYPE_METRIC, __FILE__, __LINE__); \
        collector1 = Helper::getCollector(CATEGORY, METRIC);                   \
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
@@ -765,8 +765,8 @@ BSLS_IDENT("$Id: $")
    static balm::CategoryHolder holder = { false, 0, 0 };                       \
    static balm::IntegerCollector *collector1 = 0;                              \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
@@ -786,9 +786,9 @@ BSLS_IDENT("$Id: $")
    static balm::IntegerCollector *collector1 = 0;                              \
    static balm::IntegerCollector *collector2 = 0;                              \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
@@ -813,10 +813,10 @@ BSLS_IDENT("$Id: $")
    static balm::IntegerCollector *collector2 = 0;                              \
    static balm::IntegerCollector *collector3 = 0;                              \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -846,11 +846,11 @@ BSLS_IDENT("$Id: $")
    static balm::IntegerCollector *collector3 = 0;                              \
    static balm::IntegerCollector *collector4 = 0;                              \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -885,12 +885,12 @@ BSLS_IDENT("$Id: $")
    static balm::IntegerCollector *collector4 = 0;                              \
    static balm::IntegerCollector *collector5 = 0;                              \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -930,13 +930,13 @@ BSLS_IDENT("$Id: $")
    static balm::IntegerCollector *collector5 = 0;                              \
    static balm::IntegerCollector *collector6 = 0;                              \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC1, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC2, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC3, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC4, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC5, Helper::TYPE_METRIC, __FILE__, __LINE__);\
-       Helper::logEmptyName(METRIC6, Helper::TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC3, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC4, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC5, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
+       Helper::logEmptyName(METRIC6, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
@@ -965,8 +965,8 @@ do {                                                                          \
    static balm::CategoryHolder holder = { false, 0, 0 };                       \
    static balm::IntegerCollector *collector1 = 0;                              \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {    \
-       Helper::logEmptyName(CATEGORY,Helper::TYPE_CATEGORY,__FILE__,__LINE__);\
-       Helper::logEmptyName(METRIC, Helper::TYPE_METRIC, __FILE__, __LINE__); \
+       Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
+       Helper::logEmptyName(METRIC, Helper::e_TYPE_METRIC, __FILE__, __LINE__); \
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC);            \
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \

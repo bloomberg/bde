@@ -790,8 +790,8 @@ void StandardIntMacroConcurrencyTest::execute()
         BALM_METRICS_INT_UPDATE6("A",
                                  "A", 6, "B", 6, "C", 6, "D", 6,
                                  "E", 6, "F", 6);
-        BALM_METRICS_TYPED_INT_UPDATE("A", "A", 7, Type::BAEM_TOTAL);
-        BALM_METRICS_TYPED_INCREMENT("A", "A", Type::BAEM_TOTAL);
+        BALM_METRICS_TYPED_INT_UPDATE("A", "A", 7, Type::e_BALM_TOTAL);
+        BALM_METRICS_TYPED_INCREMENT("A", "A", Type::e_BALM_TOTAL);
 
         bool enabled = 0 == i % 2;
 
@@ -812,8 +812,8 @@ void StandardIntMacroConcurrencyTest::execute()
         BALM_METRICS_INT_UPDATE6("B",
                                  "A", 6, "B", 6, "C", 6, "D", 6,
                                  "E", 6, "F", 6);
-        BALM_METRICS_TYPED_INT_UPDATE("B", "A", 7, Type::BAEM_TOTAL);
-        BALM_METRICS_TYPED_INCREMENT("B", "A", Type::BAEM_TOTAL);
+        BALM_METRICS_TYPED_INT_UPDATE("B", "A", 7, Type::e_BALM_TOTAL);
+        BALM_METRICS_TYPED_INCREMENT("B", "A", Type::e_BALM_TOTAL);
     }
     d_barrier.wait();
 
@@ -1559,10 +1559,10 @@ int main(int argc, char *argv[])
             const balm::Metrics_Helper::NameType  d_type;
             const bool                           d_expect_warning;
         } NAME_TEST[] = {
-            {"",   balm::Metrics_Helper::TYPE_CATEGORY, true},
-            {" ",  balm::Metrics_Helper::TYPE_METRIC,   true},
-            {"  ", balm::Metrics_Helper::TYPE_METRIC,   true},
-            {"A",  balm::Metrics_Helper::TYPE_METRIC,   false}
+            {"",   balm::Metrics_Helper::e_TYPE_CATEGORY, true},
+            {" ",  balm::Metrics_Helper::e_TYPE_METRIC,   true},
+            {"  ", balm::Metrics_Helper::e_TYPE_METRIC,   true},
+            {"A",  balm::Metrics_Helper::e_TYPE_METRIC,   false}
         };
 
         const int NUM_NAME = sizeof(NAME_TEST)/sizeof(*NAME_TEST);
@@ -1925,10 +1925,10 @@ int main(int argc, char *argv[])
                 BALM_METRICS_TIME_BLOCK_MICROSECONDS("B", "Us");
                 BALM_METRICS_TIME_BLOCK_NANOSECONDS("B", "Ns");
 
-                BALM_METRICS_TIME_BLOCK("C", "S", TU::BAEM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "Ms", TU::BAEM_MILLISECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "Us", TU::BAEM_MICROSECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "Ns", TU::BAEM_NANOSECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "S", TU::e_BALM_SECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "Ms", TU::e_BALM_MILLISECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "Us", TU::e_BALM_MICROSECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "Ns", TU::e_BALM_NANOSECONDS);
 
                 bdlqq::ThreadUtil::sleep(bsls::TimeInterval(50 * .001));
 
@@ -1950,26 +1950,26 @@ int main(int argc, char *argv[])
             balm::MetricRecord rC_Us = recordVal(c_Us);
             balm::MetricRecord rC_Ns = recordVal(c_Ns);
 
-            ASSERT(within(rA_S.total(),  TU::BAEM_SECONDS,     expected, 1.0));
-            ASSERT(within(rA_Ms.total(), TU::BAEM_MILLISECONDS,
+            ASSERT(within(rA_S.total(),  TU::e_BALM_SECONDS,     expected, 1.0));
+            ASSERT(within(rA_Ms.total(), TU::e_BALM_MILLISECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rA_Us.total(), TU::BAEM_MICROSECONDS,
+            ASSERT(within(rA_Us.total(), TU::e_BALM_MICROSECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rA_Ns.total(), TU::BAEM_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rA_Ns.total(), TU::e_BALM_NANOSECONDS, expected, 1.0));
 
-            ASSERT(within(rB_S.total(),  TU::BAEM_SECONDS,     expected, 1.0));
-            ASSERT(within(rB_Ms.total(), TU::BAEM_MILLISECONDS,
+            ASSERT(within(rB_S.total(),  TU::e_BALM_SECONDS,     expected, 1.0));
+            ASSERT(within(rB_Ms.total(), TU::e_BALM_MILLISECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rB_Us.total(), TU::BAEM_MICROSECONDS,
+            ASSERT(within(rB_Us.total(), TU::e_BALM_MICROSECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rB_Ns.total(), TU::BAEM_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rB_Ns.total(), TU::e_BALM_NANOSECONDS, expected, 1.0));
 
-            ASSERT(within(rC_S.total(),  TU::BAEM_SECONDS,     expected, 1.0));
-            ASSERT(within(rC_Ms.total(), TU::BAEM_MILLISECONDS,
+            ASSERT(within(rC_S.total(),  TU::e_BALM_SECONDS,     expected, 1.0));
+            ASSERT(within(rC_Ms.total(), TU::e_BALM_MILLISECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rC_Us.total(), TU::BAEM_MICROSECONDS,
+            ASSERT(within(rC_Us.total(), TU::e_BALM_MICROSECONDS,
                                                                expected, 1.0));
-            ASSERT(within(rC_Ns.total(), TU::BAEM_NANOSECONDS, expected, 1.0));
+            ASSERT(within(rC_Ns.total(), TU::e_BALM_NANOSECONDS, expected, 1.0));
         }
       };
       case 8: {
@@ -1997,8 +1997,8 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) cout << "\tTest without default metrics manager"
                                   << endl;
-            BALM_METRICS_TIME_BLOCK("A", "A", TU::BAEM_SECONDS);
-            BALM_METRICS_DYNAMIC_TIME_BLOCK("A", "A", TU::BAEM_SECONDS);
+            BALM_METRICS_TIME_BLOCK("A", "A", TU::e_BALM_SECONDS);
+            BALM_METRICS_DYNAMIC_TIME_BLOCK("A", "A", TU::e_BALM_SECONDS);
         }
 
         {
@@ -2018,7 +2018,7 @@ int main(int argc, char *argv[])
             {
                 timer.start();
 
-                BALM_METRICS_TIME_BLOCK("A", "1", TU::BAEM_SECONDS);
+                BALM_METRICS_TIME_BLOCK("A", "1", TU::e_BALM_SECONDS);
                 ASSERT(balm::MetricRecord(idA) == recordVal(cA));
 
                 bdlqq::ThreadUtil::microSleep(50000, 0);
@@ -2028,14 +2028,14 @@ int main(int argc, char *argv[])
             double expected = timer.elapsedTime();
             balm::MetricRecord record = recordVal(cA);
             ASSERT(1 == record.count());
-            ASSERT(within(record.total(), TU::BAEM_SECONDS, expected, 1.0))
-            ASSERT(within(record.min(), TU::BAEM_SECONDS, expected, 1.0));
-            ASSERT(within(record.max(), TU::BAEM_SECONDS, expected, 1.0));
+            ASSERT(within(record.total(), TU::e_BALM_SECONDS, expected, 1.0))
+            ASSERT(within(record.min(), TU::e_BALM_SECONDS, expected, 1.0));
+            ASSERT(within(record.max(), TU::e_BALM_SECONDS, expected, 1.0));
 
             {
                 timer.start();
 
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("B", "2", TU::BAEM_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("B", "2", TU::e_BALM_SECONDS);
                 ASSERT(balm::MetricRecord(idB) == recordVal(cB));
                 bdlqq::ThreadUtil::microSleep(500, 0);
 
@@ -2046,9 +2046,9 @@ int main(int argc, char *argv[])
             expected = timer.elapsedTime();
             record = recordVal(cB);
             ASSERT(1 == record.count());
-            ASSERT(within(record.total(), TU::BAEM_SECONDS, expected, 1.0))
-            ASSERT(within(record.min(), TU::BAEM_SECONDS, expected, 1.0));
-            ASSERT(within(record.max(), TU::BAEM_SECONDS, expected, 1.0));
+            ASSERT(within(record.total(), TU::e_BALM_SECONDS, expected, 1.0))
+            ASSERT(within(record.min(), TU::e_BALM_SECONDS, expected, 1.0));
+            ASSERT(within(record.max(), TU::e_BALM_SECONDS, expected, 1.0));
         }
         {
             if (veryVerbose) cout << "\tTest with multiple macros in a block"
@@ -2059,15 +2059,15 @@ int main(int argc, char *argv[])
             Repository&     rep     = manager.collectorRepository();
 
             {
-                BALM_METRICS_TIME_BLOCK("A", "1", TU::BAEM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("B", "2", TU::BAEM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("C", "3", TU::BAEM_SECONDS);
-                BALM_METRICS_TIME_BLOCK("D", "4", TU::BAEM_SECONDS);
+                BALM_METRICS_TIME_BLOCK("A", "1", TU::e_BALM_SECONDS);
+                BALM_METRICS_TIME_BLOCK("B", "2", TU::e_BALM_SECONDS);
+                BALM_METRICS_TIME_BLOCK("C", "3", TU::e_BALM_SECONDS);
+                BALM_METRICS_TIME_BLOCK("D", "4", TU::e_BALM_SECONDS);
 
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("E", "5", TU::BAEM_SECONDS);
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("F", "6", TU::BAEM_SECONDS);
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("G", "7", TU::BAEM_SECONDS);
-                BALM_METRICS_DYNAMIC_TIME_BLOCK("H", "8", TU::BAEM_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("E", "5", TU::e_BALM_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("F", "6", TU::e_BALM_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("G", "7", TU::e_BALM_SECONDS);
+                BALM_METRICS_DYNAMIC_TIME_BLOCK("H", "8", TU::e_BALM_SECONDS);
 
                 ASSERT(0 ==
                        recordVal(rep.getDefaultCollector("A", "1")).count());
@@ -2116,9 +2116,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
                 BALM_METRICS_TIME_BLOCK(CATEGORIES[i], "static",
-                                        TU::BAEM_SECONDS);
+                                        TU::e_BALM_SECONDS);
                 BALM_METRICS_DYNAMIC_TIME_BLOCK(CATEGORIES[i], "dynamic",
-                                                TU::BAEM_SECONDS);
+                                                TU::e_BALM_SECONDS);
             }
 
             // Verify static values
@@ -2494,8 +2494,8 @@ int main(int argc, char *argv[])
                 BALM_METRICS_INCREMENT(IDS[i], "increment");
                 BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[i]);
                 BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "t-up", UPDATES[i],
-                                              Type::BAEM_TOTAL);
-                BALM_METRICS_TYPED_INCREMENT(IDS[i], "t-inc", Type::BAEM_MIN);
+                                              Type::e_BALM_TOTAL);
+                BALM_METRICS_TYPED_INCREMENT(IDS[i], "t-inc", Type::e_BALM_MIN);
             }
         }
 
@@ -2523,18 +2523,18 @@ int main(int argc, char *argv[])
                     BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "Tupdate",
                                                   UPDATES[j],
-                                                  Type::BAEM_TOTAL);
+                                                  Type::e_BALM_TOTAL);
                     BALM_METRICS_TYPED_INCREMENT(IDS[i], "Tincrement",
-                                                 Type::BAEM_MIN);
+                                                 Type::e_BALM_MIN);
                     expIncrement.update(1);
                     expUpdate.update(UPDATES[j]);
                     expTUpdate.update(UPDATES[j]);
                     expTIncrement.update(1);
                 }
             }
-            ASSERT(Type::BAEM_TOTAL ==
+            ASSERT(Type::e_BALM_TOTAL ==
                    tupdateId.description()->preferredPublicationType());
-            ASSERT(Type::BAEM_MIN   ==
+            ASSERT(Type::e_BALM_MIN   ==
                    tincId.description()->preferredPublicationType());
 
             balm::IntegerCollector *upCol  =
@@ -2601,9 +2601,9 @@ int main(int argc, char *argv[])
                     BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "Tupdate",
                                                   UPDATES[j],
-                                                  Type::BAEM_TOTAL);
+                                                  Type::e_BALM_TOTAL);
                     BALM_METRICS_TYPED_INCREMENT(IDS[i], "Tincrement",
-                                                 Type::BAEM_MIN);
+                                                 Type::e_BALM_MIN);
                     if (enabled) {
                         expIncrement.update(1);
                         expUpdate.update(UPDATES[j]);
@@ -2613,9 +2613,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            ASSERT(Type::BAEM_TOTAL ==
+            ASSERT(Type::e_BALM_TOTAL ==
                    tupdateId.description()->preferredPublicationType());
-            ASSERT(Type::BAEM_MIN   ==
+            ASSERT(Type::e_BALM_MIN   ==
                    tincId.description()->preferredPublicationType());
 
             balm::IntegerCollector *upCol  =
@@ -2691,9 +2691,9 @@ int main(int argc, char *argv[])
                         BALM_METRICS_INT_UPDATE(IDS[i], "update", UPDATES[j]);
                         BALM_METRICS_TYPED_INT_UPDATE(IDS[i], "Tupdate",
                                                      UPDATES[j],
-                                                     Type::BAEM_TOTAL);
+                                                     Type::e_BALM_TOTAL);
                         BALM_METRICS_TYPED_INCREMENT(IDS[i], "Tincrement",
-                                                     Type::BAEM_MIN);
+                                                     Type::e_BALM_MIN);
                         expIncrement.update(1);
                         expUpdate.update(UPDATES[j]);
                         expTUpdate.update(UPDATES[j]);
@@ -3101,7 +3101,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_IDS; ++i) {
                 BALM_METRICS_UPDATE(IDS[i], "update", UPDATES[i]);
                 BALM_METRICS_TYPED_UPDATE(IDS[i], "t-up", UPDATES[i],
-                                         Type::BAEM_TOTAL);
+                                         Type::e_BALM_TOTAL);
             }
         }
 
@@ -3123,12 +3123,12 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_UPDATES; ++j) {
                     BALM_METRICS_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_UPDATE(IDS[i], "Tupdate", UPDATES[j],
-                                             Type::BAEM_TOTAL);
+                                             Type::e_BALM_TOTAL);
                     expUpdate.update(UPDATES[j]);
                     expTUpdate.update(UPDATES[j]);
                 }
             }
-            ASSERT(Type::BAEM_TOTAL ==
+            ASSERT(Type::e_BALM_TOTAL ==
                    tupdateId.description()->preferredPublicationType());
 
             balm::Collector *upCol  = repository.getDefaultCollector(updateId);
@@ -3173,7 +3173,7 @@ int main(int argc, char *argv[])
                     registry.setCategoryEnabled(updateId.category(), enabled);
                     BALM_METRICS_UPDATE(IDS[i], "update", UPDATES[j]);
                     BALM_METRICS_TYPED_UPDATE(IDS[i], "Tupdate", UPDATES[j],
-                                             Type::BAEM_MIN);
+                                             Type::e_BALM_MIN);
                     if (enabled) {
                         expUpdate.update(UPDATES[j]);
                         expTUpdate.update(UPDATES[j]);
@@ -3181,7 +3181,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            ASSERT(Type::BAEM_MIN ==
+            ASSERT(Type::e_BALM_MIN ==
                    tupdateId.description()->preferredPublicationType());
 
             balm::Collector *upCol  = repository.getDefaultCollector(updateId);
@@ -3237,7 +3237,7 @@ int main(int argc, char *argv[])
                         BALM_METRICS_TYPED_UPDATE(IDS[i],
                                                   "Tupdate",
                                                   UPDATES[j],
-                                                  Type::BAEM_TOTAL);
+                                                  Type::e_BALM_TOTAL);
                         expUpdate.update(UPDATES[j]);
                         expTUpdate.update(UPDATES[j]);
                     }
@@ -3413,24 +3413,24 @@ int main(int argc, char *argv[])
 
             A_COL->reset(); B_COL->reset();
 
-            ASSERT(Type::BAEM_UNSPECIFIED ==
+            ASSERT(Type::e_BALM_UNSPECIFIED ==
                    A_ID.description()->preferredPublicationType());
-            ASSERT(Type::BAEM_UNSPECIFIED ==
+            ASSERT(Type::e_BALM_UNSPECIFIED ==
                    B_ID.description()->preferredPublicationType());
 
             if (veryVerbose)
                 cout << "\tTesting TYPED MACROS" << endl;
 
             for (int i = 0; i < 10; ++i) {
-                BALM_METRICS_TYPED_UPDATE("A", "A", 5.0, Type::BAEM_RATE);
-                BALM_METRICS_TYPED_UPDATE("B", "B", 1.0, Type::BAEM_MIN);
+                BALM_METRICS_TYPED_UPDATE("A", "A", 5.0, Type::e_BALM_RATE);
+                BALM_METRICS_TYPED_UPDATE("B", "B", 1.0, Type::e_BALM_MIN);
             }
             ASSERT(balm::MetricRecord(A_ID, 10, 50, 5, 5) == recordVal(A_COL));
             ASSERT(balm::MetricRecord(B_ID, 10, 10, 1, 1) == recordVal(B_COL));
 
-            ASSERT(Type::BAEM_RATE ==
+            ASSERT(Type::e_BALM_RATE ==
                    A_ID.description()->preferredPublicationType());
-            ASSERT(Type::BAEM_MIN  ==
+            ASSERT(Type::e_BALM_MIN  ==
                    B_ID.description()->preferredPublicationType());
         }
 

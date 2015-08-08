@@ -505,7 +505,7 @@ class ChannelPoolStateCbTester {
                                       state,
                                       bdlqq::ThreadUtil::selfIdAsUint64()));
         switch (state) {
-          case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+          case btlmt::ChannelPool::e_CHANNEL_DOWN: {
               if (veryVerbose) {
                   MTCOUT << "Connection terminated:"
                          << " serverId="  << bsl::hex << sourceId << bsl::dec
@@ -513,10 +513,10 @@ class ChannelPoolStateCbTester {
                          << MTENDL;
               }
               d_channelPool_p->shutdown(channelId,
-                                        btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                        btlmt::ChannelPool::e_IMMEDIATE);
 
           } break;
-          case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+          case btlmt::ChannelPool::e_CHANNEL_UP: {
               if (veryVerbose) {
                   MTCOUT << "Connection established:"
                          << " serverId="  << bsl::hex << sourceId << bsl::dec
@@ -526,17 +526,17 @@ class ChannelPoolStateCbTester {
               d_lastChannelId = channelId;
 
           } break;
-          case btlmt::ChannelPool::BTEMT_READ_TIMEOUT: {
+          case btlmt::ChannelPool::e_READ_TIMEOUT: {
               if (veryVerbose) {
                   MTCOUT << "READ TIMEOUT " << MTENDL;
               }
           } break;
-          case btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT: {
+          case btlmt::ChannelPool::e_WRITE_CACHE_HIWAT: {
               if (veryVerbose) {
                   MTCOUT << "HIWAT " << MTENDL;
               }
           } break;
-          case btlmt::ChannelPool::BTEMT_WRITE_CACHE_LOWWAT: {
+          case btlmt::ChannelPool::e_WRITE_CACHE_LOWWAT: {
               if (veryVerbose) {
                   MTCOUT << "LOWWAT " << MTENDL;
               }
@@ -704,7 +704,7 @@ void channelStateCb(int             channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         barrier->wait();
     }
@@ -886,8 +886,8 @@ void ReadServer::poolCB(int, int, int)
 void ReadServer::chanCB(int channelId, int, int state, void *)
 {
     switch (state) {
-    case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
-        d_cp_p->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
+    case btlmt::ChannelPool::e_CHANNEL_DOWN: {
+        d_cp_p->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
     } break;
     }
 }
@@ -956,12 +956,12 @@ void channelStateCb(int             channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         d_pool_p->getPeerAddress(&d_peerAddress, channelId);
         barrier->wait();
     }
-    else if (btlmt::ChannelPool::BTEMT_CHANNEL_DOWN == state) {
+    else if (btlmt::ChannelPool::e_CHANNEL_DOWN == state) {
         btlso::IPv4Address peer;
         d_pool_p->getPeerAddress(&peer, channelId);
         ASSERT(d_peerAddress != peer);
@@ -1027,7 +1027,7 @@ void channelStateCb(int             channelId,
                   << " State: " << state << bsl::endl;
     }
 
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         {
             bdlqq::LockGuard<bdlqq::Mutex> guard(&mapMutex);
@@ -1164,11 +1164,11 @@ void channelStateCb(int             channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         barrier->wait();
     }
-    if (btlmt::ChannelPool::BTEMT_WRITE_CACHE_LOWWAT == state) {
+    if (btlmt::ChannelPool::e_WRITE_CACHE_LOWWAT == state) {
         ++*numTimesLowWatCalled;
         barrier->wait();
     }
@@ -1252,7 +1252,7 @@ void channelStateCb(int             channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         barrier->wait();
     }
@@ -1452,7 +1452,7 @@ void channelStateCb(int             channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         s_channelId = channelId;
         barrier->wait();
@@ -1646,7 +1646,7 @@ void channelStateCb(int   channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
     }
 }
@@ -1723,7 +1723,7 @@ void channelStateCb(int              channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         barrier->wait();
     }
@@ -1793,7 +1793,7 @@ public:
         }
         else {
             rc = pool->connect(serverAddr, 1, bsls::TimeInterval(1),
-                               sourceId, true, Obj::BTEMT_CLOSE_BOTH, opt);
+                               sourceId, true, Obj::e_CLOSE_BOTH, opt);
         }
         ASSERT(0 == rc);
         return 0;
@@ -1825,8 +1825,8 @@ public:
         }
         else {
             rc = pool->connect(host, port, 1, bsls::TimeInterval(1),
-                               sourceId, Obj::BTEMT_RESOLVE_ONCE, true,
-                               Obj::BTEMT_CLOSE_BOTH, opt);
+                               sourceId, Obj::e_RESOLVE_ONCE, true,
+                               Obj::e_CLOSE_BOTH, opt);
         }
         ASSERT(0 == rc);
         return 0;
@@ -1862,7 +1862,7 @@ void channelStateCb(int              channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
         barrier->wait();
     }
@@ -2375,10 +2375,10 @@ void ReadServer::chanCB(int channelId, int serverId, int state, void *)
     }
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
-        d_cp_p->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
+        d_cp_p->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
       } break;
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
       } break;
     }
 }
@@ -2644,10 +2644,10 @@ void ReadServer::chanCB(int channelId, int serverId, int state, void *)
     }
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
-        d_cp_p->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
+        d_cp_p->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
       } break;
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         DataReader *r = reader(channelId, true);
         ASSERT(r);
       } break;
@@ -3494,7 +3494,7 @@ void caseN2ChannelStateCallback(int                  channelId,
     btlmt::ChannelPool *pool = *poolAddr;
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << serverId
@@ -3504,7 +3504,7 @@ void caseN2ChannelStateCallback(int                  channelId,
         }
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << serverId
@@ -3705,7 +3705,7 @@ void * case22Thread(void * arg)
                            << ", numChannels=" << mXp->numChannels() << MTENDL;
                 }
                 retCode = mXp->shutdown(channelId,
-                                        btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                        btlmt::ChannelPool::e_IMMEDIATE);
                 if (verbose) {
                     MTCOUT << "\tAfter shutting down: channelId=" << channelId
                            << ", numChannels=" << mXp->numChannels()
@@ -3831,7 +3831,7 @@ void case22ChannelStateCallback(int                 channelId,
     const int                 oldChannelId2 = *info->d_oldChannelId2;
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (oldChannelId1 == channelId) {
             int retCode = mXp->connect(ADDRESS,
                                        10, bsls::TimeInterval(0.010), // 10ms
@@ -3869,7 +3869,7 @@ void case22ChannelStateCallback(int                 channelId,
                    << MTENDL;
         }
       } break;
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         MTASSERT(0 == mXp->setSocketOption(
                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
@@ -4036,7 +4036,7 @@ void case22DataCallback(int                *numNeeded,
         }
         else {
             int retCode = mXp->shutdown(channelId,
-                                        btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                        btlmt::ChannelPool::e_IMMEDIATE);
             MTLOOP_ASSERT(retCode, 0 == retCode || -1 == retCode);
             if (verbose) {
                 MTCOUT << "\tServer connection closed:"
@@ -5029,7 +5029,7 @@ void case20ChannelStateCallback(int                  channelId,
     btlmt::ChannelPool *pool = *poolAddr;
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << serverId
@@ -5038,7 +5038,7 @@ void case20ChannelStateCallback(int                  channelId,
                    << MTENDL;
         }
       } break;
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << serverId
@@ -5104,7 +5104,7 @@ void case18ChannelStateCallback(int                  channelId,
     btlmt::ChannelPool *pool = *poolAddr;
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << serverId
@@ -5112,12 +5112,12 @@ void case18ChannelStateCallback(int                  channelId,
                    << " numChannels=" << pool->numChannels()
                    << MTENDL;
         }
-        pool->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
+        pool->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
         **eventAddr = -1;
         barrier->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << serverId
@@ -5199,7 +5199,7 @@ void case17ChannelStateCallback(int             channelId,
     ASSERT(barrier);
 
     switch(state){
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         ASSERT(channelId == *value);
         ASSERT(0x701d50da == (unsigned)serverId);
         if (veryVerbose) {
@@ -5211,7 +5211,7 @@ void case17ChannelStateCallback(int             channelId,
         barrier->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         ASSERT(0 == *value);
         ASSERT(0x701d50da == (unsigned)serverId);
         if (veryVerbose) {
@@ -5248,7 +5248,7 @@ void case16ChannelStateCallback(int                  channelId,
 
     ASSERT(expServerId == serverId);
     switch(state){
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         ASSERT(channelId == *value);
         ASSERT(0x701d50da == (unsigned)serverId);
         if (veryVerbose) {
@@ -5260,7 +5260,7 @@ void case16ChannelStateCallback(int                  channelId,
         barrier->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         ASSERT(0 == *value);
         ASSERT(0x701d50da == (unsigned)serverId);
         if (veryVerbose) {
@@ -5270,7 +5270,7 @@ void case16ChannelStateCallback(int                  channelId,
                    << MTENDL;
         }
         *value = channelId;
-        (*poolAddr)->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
+        (*poolAddr)->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
       } break;
     }
 }
@@ -5334,7 +5334,7 @@ void case15ChannelStateCallback(int   channelId,
     ASSERT(channelId2);
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << sourceId
@@ -5355,7 +5355,7 @@ void case15ChannelStateCallback(int   channelId,
         }
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << sourceId
@@ -5422,7 +5422,7 @@ void case14ChannelStateCallback(int                  channelId,
     btlmt::ChannelPool *pool = *poolAddr;
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << serverId
@@ -5433,7 +5433,7 @@ void case14ChannelStateCallback(int                  channelId,
         barrier->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << serverId
@@ -5470,7 +5470,7 @@ void case13ChannelStateCallback(int                  channelId,
     btlmt::ChannelPool *pool = *poolAddr;
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << serverId
@@ -5481,7 +5481,7 @@ void case13ChannelStateCallback(int                  channelId,
         barrier->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << serverId
@@ -5519,17 +5519,17 @@ void case12FlowControlChannelCallback(
     ASSERT(instance);
 
     switch(state){
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << bsl::hex << sourceId << bsl::dec
                    << " channelId=" << channelId
                    << MTENDL;
         }
-        (*instance)->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
+        (*instance)->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="  << bsl::hex << sourceId << bsl::dec
@@ -5550,12 +5550,12 @@ void case12FlowControlChannelCallback(
         }
         barrier->wait();
       } break;
-      case btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT: {
+      case btlmt::ChannelPool::e_WRITE_CACHE_HIWAT: {
         if (verbose) {
             MTCOUT << "HIWAT " << MTENDL;
         }
       } break;
-      case btlmt::ChannelPool::BTEMT_WRITE_CACHE_LOWWAT: {
+      case btlmt::ChannelPool::e_WRITE_CACHE_LOWWAT: {
         if (verbose) {
             MTCOUT << "LOWWAT " << MTENDL;
         }
@@ -5771,7 +5771,7 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
 
     for (int i = 0; i < (int)backup.size(); ++i) {
         mX.shutdown(backup[i].d_channelId,
-                    btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                    btlmt::ChannelPool::e_IMMEDIATE);
     }
     mX.stop();
 
@@ -5851,7 +5851,7 @@ void case10ChannelStateCallback(int                  channelId,
     ASSERT(channelId2 && threadId2);
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << sourceId
@@ -5860,7 +5860,7 @@ void case10ChannelStateCallback(int                  channelId,
         }
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << sourceId
@@ -6191,7 +6191,7 @@ void case9ChannelStateCallback(int                  channelId,
     btlmt::ChannelPool *pool = *poolAddr;
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << serverId
@@ -6202,7 +6202,7 @@ void case9ChannelStateCallback(int                  channelId,
         barrier->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="    << serverId
@@ -6744,7 +6744,7 @@ void case8ChannelStateCallback(int                channelId,
     ASSERT(info);
 
     switch(state){
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN_READ: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN_READ: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated (read only):"
                    << " serverId="  << bsl::hex << serverId << bsl::dec
@@ -6755,7 +6755,7 @@ void case8ChannelStateCallback(int                channelId,
         info->d_barrier_p->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN_WRITE: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN_WRITE: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated (write only):"
                    << " serverId="  << bsl::hex << serverId << bsl::dec
@@ -6766,7 +6766,7 @@ void case8ChannelStateCallback(int                channelId,
         info->d_barrier_p->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << bsl::hex << serverId << bsl::dec
@@ -6776,7 +6776,7 @@ void case8ChannelStateCallback(int                channelId,
         info->d_barrier_p->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="  << bsl::hex << serverId << bsl::dec
@@ -6806,7 +6806,7 @@ void case7ChannelStateCallback(int              channelId,
     ASSERT(barrier);
 
     switch(state){
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (veryVerbose) {
             MTCOUT << "Connection terminated:"
                    << " serverId="  << bsl::hex << serverId << bsl::dec
@@ -6816,7 +6816,7 @@ void case7ChannelStateCallback(int              channelId,
         barrier->wait();
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (veryVerbose) {
             MTCOUT << "Connection established:"
                    << " serverId="  << bsl::hex << serverId << bsl::dec
@@ -6938,7 +6938,7 @@ static void case4PoolStateCb(int              poolState,
     }
 
     if (PoolState::BTEMT_CHANNEL_LIMIT == poolState) {
-        ASSERT(btlmt::ChannelPool::BTEMT_ALERT == severity);  // ALERT
+        ASSERT(btlmt::ChannelPool::e_ALERT == severity);  // ALERT
         return;                                                       // RETURN
     }
 
@@ -6972,15 +6972,15 @@ static void case4ChannelCb(int                  channelId,
                << bdlt::CurrentTime::now() << endl;
         switch(state) {
 #define CASE(X) case X: cout << "\tstate = " << #X << endl; break;
-            CASE(btlmt::ChannelPool::BTEMT_CHANNEL_UP);
-            CASE(btlmt::ChannelPool::BTEMT_CHANNEL_DOWN);
-            CASE(btlmt::ChannelPool::BTEMT_READ_TIMEOUT);
-            CASE(btlmt::ChannelPool::BTEMT_WRITE_BUFFER_FULL);
-            CASE(btlmt::ChannelPool::BTEMT_AUTO_READ_ENABLED);
-            CASE(btlmt::ChannelPool::BTEMT_AUTO_READ_DISABLED);
-            CASE(btlmt::ChannelPool::BTEMT_WRITE_CACHE_LOWWAT);
-            CASE(btlmt::ChannelPool::BTEMT_CHANNEL_DOWN_READ);
-            CASE(btlmt::ChannelPool::BTEMT_CHANNEL_DOWN_WRITE);
+            CASE(btlmt::ChannelPool::e_CHANNEL_UP);
+            CASE(btlmt::ChannelPool::e_CHANNEL_DOWN);
+            CASE(btlmt::ChannelPool::e_READ_TIMEOUT);
+            CASE(btlmt::ChannelPool::e_WRITE_BUFFER_FULL);
+            CASE(btlmt::ChannelPool::e_AUTO_READ_ENABLED);
+            CASE(btlmt::ChannelPool::e_AUTO_READ_DISABLED);
+            CASE(btlmt::ChannelPool::e_WRITE_CACHE_LOWWAT);
+            CASE(btlmt::ChannelPool::e_CHANNEL_DOWN_READ);
+            CASE(btlmt::ChannelPool::e_CHANNEL_DOWN_WRITE);
 #undef CASE
             default: cout << "Unknown channel state: "; P(state); break;
         }
@@ -6993,7 +6993,7 @@ static void case4ChannelCb(int                  channelId,
     ASSERT(info->d_expUserId == sourceId);
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP:
+      case btlmt::ChannelPool::e_CHANNEL_UP:
         ASSERT(*isInvokedFlag == 0);
         ASSERT(*numFailures <= info->d_expNumFailures);
 
@@ -7004,11 +7004,11 @@ static void case4ChannelCb(int                  channelId,
         *isInvokedFlag += 1;
         break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN:
+      case btlmt::ChannelPool::e_CHANNEL_DOWN:
         (*pool)->close(channelId);
         break;
 
-      case btlmt::ChannelPool::BTEMT_AUTO_READ_ENABLED:
+      case btlmt::ChannelPool::e_AUTO_READ_ENABLED:
         *isInvokedFlag += 2;
         break;
 
@@ -7106,7 +7106,7 @@ int usageExample1(bslma::Allocator *allocator) {
     btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
 
     testCb.d_id = 5;
-    testCb.d_status = btlmt::ChannelPool::BTEMT_CHANNEL_UP;
+    testCb.d_status = btlmt::ChannelPool::e_CHANNEL_UP;
     testCb.d_channelExpected = 1;
     btlmt::ChannelPool pool(channelCb, dataCb, poolCb, config, allocator);
     btlso::IPv4Address peer("127.0.0.1", 7); // echo server
@@ -7278,8 +7278,8 @@ void vlm_EchoServer::poolCB(int, int, int)
 
 void vlm_EchoServer::chanCB(int channelId, int, int state, void *)
 {
-    if (btlmt::ChannelPool::BTEMT_CHANNEL_DOWN == state) {
-        d_cp_p->shutdown(channelId, btlmt::ChannelPool::BTEMT_IMMEDIATE);
+    if (btlmt::ChannelPool::e_CHANNEL_DOWN == state) {
+        d_cp_p->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
     }
 }
 
@@ -7494,7 +7494,7 @@ int my_QueueProcessor::processOutgoingQueue() {
                     d_coutLock_p->unlock();
                 }
                 d_channelPool_p->shutdown(msg.first,
-                                          btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                          btlmt::ChannelPool::e_IMMEDIATE);
             }
         }
     }
@@ -7535,7 +7535,7 @@ void my_QueueProcessor::channelStateCb(int   channelId,
     ASSERT(SERVER_ID == sourceId);
 
     switch(state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
           btlso::IPv4Address peer;
           d_channelPool_p->getPeerAddress(&peer, channelId);
           if (veryVerbose) {
@@ -7544,9 +7544,9 @@ void my_QueueProcessor::channelStateCb(int   channelId,
                      << "." << MTENDL;
           }
           d_channelPool_p->shutdown(channelId,
-                                    btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                    btlmt::ChannelPool::e_IMMEDIATE);
       } break;
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
           btlso::IPv4Address peer;
           d_channelPool_p->getPeerAddress(&peer, channelId);
           if (veryVerbose) {
@@ -7632,7 +7632,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         void channelStateCb(int channelId, int sourceId, int state, void *ctx);
             // Output a message to 'stdout' indicating the specified 'state',
             // associated with the specified 'channelId' and 'sourceId', has
-            // occured.  If 'state' is 'btlmt::ChannelPool::BTEMT_CHANNEL_DOWN'
+            // occured.  If 'state' is 'btlmt::ChannelPool::e_CHANNEL_DOWN'
             // then shutdown the channel.  Note that the 'channelId' is a
             // unique identifier chosen by the channel pool for each connection
             // channel, 'sourceId' identifies the channel pool operation
@@ -7754,7 +7754,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         ASSERT(SERVER_ID == sourceId);
 
         switch(state) {
-          case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+          case btlmt::ChannelPool::e_CHANNEL_DOWN: {
               btlso::IPv4Address peer;
               d_channelPool_p->getPeerAddress(&peer, channelId);
               d_coutLock_p->lock();
@@ -7762,9 +7762,9 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
                      << MTENDL;
               d_coutLock_p->unlock();
               d_channelPool_p->shutdown(channelId,
-                                        btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                        btlmt::ChannelPool::e_IMMEDIATE);
           } break;
-          case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+          case btlmt::ChannelPool::e_CHANNEL_UP: {
               btlso::IPv4Address peer;
               d_channelPool_p->getPeerAddress(&peer, channelId);
               d_coutLock_p->lock();
@@ -7788,7 +7788,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         *numNeeded   = 1;
         MTCOUT << "Shutdown " << channelId << MTENDL;
         d_channelPool_p->shutdown(channelId,
-                                  btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                  btlmt::ChannelPool::e_IMMEDIATE);
     }
 //..
 // The implementation of an echo server is now complete.  Let's create
@@ -7887,7 +7887,7 @@ class my_QueueClient {
 
     int shutdown(int channelId) {
         return d_channelPool_p->shutdown(channelId,
-                                         btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                         btlmt::ChannelPool::e_IMMEDIATE);
     }
 
     int startProcessor();
@@ -8009,7 +8009,7 @@ void my_QueueClient::channelStateCb(int   channelId,
            sourceId < CLIENT_BASE_ID + d_numConnections);
 
     switch(state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
           // btlso::IPv4Address peer;
           // d_channelPool_p->getPeerAddress(&peer, channelId);
           if (veryVerbose) {
@@ -8024,7 +8024,7 @@ void my_QueueClient::channelStateCb(int   channelId,
               MTCOUT << "Re-establishing connection." << MTENDL;
           }
       } break;
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
           btlso::IPv4Address peer;
           d_channelPool_p->getPeerAddress(&peer, channelId);
           if (veryVerbose) {
@@ -8033,7 +8033,7 @@ void my_QueueClient::channelStateCb(int   channelId,
           }
           if (0 != d_channelPool_p->write(channelId, d_initialMessage)) {
               d_channelPool_p->shutdown(channelId,
-                                        btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                        btlmt::ChannelPool::e_IMMEDIATE);
           }
       } break;
     }
@@ -9891,7 +9891,7 @@ void TestDriver::testCase32()
                                   bsls::TimeInterval(1),
                                   SOURCE_ID,
                                   true,
-                                  Obj::BTEMT_CLOSE_BOTH,
+                                  Obj::e_CLOSE_BOTH,
                                   0,
                                   &exp_ca);
 
@@ -9955,9 +9955,9 @@ void TestDriver::testCase32()
                                   1,
                                   bsls::TimeInterval(1),
                                   SOURCE_ID,
-                                  Obj::BTEMT_RESOLVE_ONCE,
+                                  Obj::e_RESOLVE_ONCE,
                                   true,
-                                  Obj::BTEMT_CLOSE_BOTH,
+                                  Obj::e_CLOSE_BOTH,
                                   0,
                                   &exp_ca);
 
@@ -10028,7 +10028,7 @@ void TestDriver::testCase32()
                                      bsls::TimeInterval(1),
                                      true,
                                      true,
-                                     Obj::BTEMT_CLOSE_BOTH,
+                                     Obj::e_CLOSE_BOTH,
                                      &OPT);
 
                 if (!OPT.reuseAddress().isNull()
@@ -10122,7 +10122,7 @@ void TestDriver::testCase32()
                                      bsls::TimeInterval(1),
                                      true,
                                      true,
-                                     Obj::BTEMT_CLOSE_BOTH,
+                                     Obj::e_CLOSE_BOTH,
                                      &OPT);
 
                 if (!OPT.reuseAddress().isNull()
@@ -10305,7 +10305,7 @@ void TestDriver::testCase32()
                                      bsls::TimeInterval(1),
                                      true,
                                      true,
-                                     Obj::BTEMT_CLOSE_BOTH,
+                                     Obj::e_CLOSE_BOTH,
                                      &OPT);
 
                 if (!OPT.reuseAddress().isNull()
@@ -10647,7 +10647,7 @@ void TestDriver::testCase29()
                                                                    states(&ta);
                 ASSERT(0 == mX.waitForState(
                                           &states,
-                                          btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                          btlmt::ChannelPool::e_CHANNEL_UP,
                                           bsls::TimeInterval(1.0)));
 
                 // For any CHANNEL_UP message, record the thread to which the
@@ -10658,7 +10658,7 @@ void TestDriver::testCase29()
                         P_(states[k].d_state); P(states[k].d_threadId);
                     }
                     if (states[k].d_state ==
-                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
+                                        btlmt::ChannelPool::e_CHANNEL_UP) {
                         threadIdCount[states[k].d_threadId]++;
                     }
                 }
@@ -10765,7 +10765,7 @@ void TestDriver::testCase29()
                                                                    states(&ta);
                 ASSERT(0 == mX.waitForState(
                                           &states,
-                                          btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                          btlmt::ChannelPool::e_CHANNEL_UP,
                                           bsls::TimeInterval(1.0)));
 
                 // For any CHANNEL_UP message, record the thread to which the
@@ -10776,7 +10776,7 @@ void TestDriver::testCase29()
                         P_(states[k].d_state); P(states[k].d_threadId);
                     }
                     if (states[k].d_state ==
-                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
+                                        btlmt::ChannelPool::e_CHANNEL_UP) {
                         threadIdCount[states[k].d_threadId]++;
                         if (j == MAX_THREADS - 1) {
                             lastClientSocketThreadId = states[k].d_threadId;
@@ -10825,7 +10825,7 @@ void TestDriver::testCase29()
             // Wait for the channel to come up.
             bsl::vector<ChannelPoolStateCbTester::ChannelState> states(&ta);
             ASSERT(0 == mX.waitForState(&states,
-                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                        btlmt::ChannelPool::e_CHANNEL_UP,
                                         bsls::TimeInterval(1.0)));
 
 #if  defined(BSLS_PLATFORM_OS_LINUX)           \
@@ -10843,7 +10843,7 @@ void TestDriver::testCase29()
             // simulating processing (i.e., the last channel).
             for (int k = 0; k < (int) states.size(); ++k) {
                 if (states[k].d_state ==
-                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP) {
+                                        btlmt::ChannelPool::e_CHANNEL_UP) {
                     LOOP2_ASSERT(lastClientSocketThreadId,
                                  states[k].d_threadId,
                                  lastClientSocketThreadId ==
@@ -10984,7 +10984,7 @@ void TestDriver::testCase28()
                                                                  states(&ta);
                 ASSERT(0 == mX.waitForState(
                                           &states,
-                                          btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                          btlmt::ChannelPool::e_CHANNEL_UP,
                                           bsls::TimeInterval(1.0)));
 
                 int channelId = mX.lastOpenedChannelId();
@@ -11118,7 +11118,7 @@ void TestDriver::testCase27()
             bsl::vector<ChannelPoolStateCbTester::ChannelState> states(&ta);
 
             ASSERT(0 == mX.waitForState(&states,
-                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                        btlmt::ChannelPool::e_CHANNEL_UP,
                                         bsls::TimeInterval(1.0)));
 
             int channelId = mX.lastOpenedChannelId();
@@ -11137,7 +11137,7 @@ void TestDriver::testCase27()
                         timeoutShouldOccur ==
                         (0 == mX.waitForState(
                                         &states,
-                                        btlmt::ChannelPool::BTEMT_READ_TIMEOUT,
+                                        btlmt::ChannelPool::e_READ_TIMEOUT,
                                         bsls::TimeInterval(2.0))));
 
             timer.stop();
@@ -11160,7 +11160,7 @@ void TestDriver::testCase27()
                           timeoutShouldOccur ==
                           (0 == mX.waitForState(
                                         &states,
-                                        btlmt::ChannelPool::BTEMT_READ_TIMEOUT,
+                                        btlmt::ChannelPool::e_READ_TIMEOUT,
                                         bsls::TimeInterval(2.0))));
 
             timer.stop();
@@ -11265,11 +11265,11 @@ void TestDriver::testCase26()
                 cout << "Testing IovecArray constants" << bsl::endl;
 
 #if defined(BSLS_PLATFORM_OS_UNIX) && defined(IOV_MAX) && IOV_MAX > 32
-            ASSERT(Helper::BTEMT_MAX_IOVEC_SIZE == 32);
+            ASSERT(Helper::e_MAX_IOVEC_SIZE == 32);
 #elif defined(BSLS_PLATFORM_OS_UNIX) && defined(IOV_MAX)
-            ASSERT(Helper::BTEMT_MAX_IOVEC_SIZE == IOV_MAX);
+            ASSERT(Helper::e_MAX_IOVEC_SIZE == IOV_MAX);
 #else
-            ASSERT(Helper::BTEMT_MAX_IOVEC_SIZE == 16);
+            ASSERT(Helper::e_MAX_IOVEC_SIZE == 16);
 #endif
         }
 
@@ -11407,13 +11407,13 @@ void TestDriver::testCase26()
 
             // ------------- Test MessageHelper::loadIovec() --------------
             {
-                const int NUM_IOVECS = 2 * Helper::BTEMT_MAX_IOVEC_SIZE;
+                const int NUM_IOVECS = 2 * Helper::e_MAX_IOVEC_SIZE;
                 btls::Iovec dY[NUM_IOVECS];
 
                 int rY = Helper::loadIovec(dY, MY);
 
                 ASSERT(bsl::min(MY.numBuffers(),
-                                (int)Helper::BTEMT_MAX_IOVEC_SIZE) == rY);
+                                (int)Helper::e_MAX_IOVEC_SIZE) == rY);
 
                 // To utilize the existing comparison operation, load the data
                 // into a blob
@@ -11426,7 +11426,7 @@ void TestDriver::testCase26()
 
             // ------------- Test MessageHelper::write() ----------------------
             {
-                const int NUM_IOVECS = 2 * Helper::BTEMT_MAX_IOVEC_SIZE;
+                const int NUM_IOVECS = 2 * Helper::e_MAX_IOVEC_SIZE;
                 btls::Iovec temp[NUM_IOVECS];
 
                 // Create two sockets, one to receive the message and the
@@ -11462,7 +11462,7 @@ void TestDriver::testCase26()
                     btls::Iovec vY[NUM_IOVECS];
 
                     int numBufX = bsl::min(MX.numIovecs(),
-                                           (int)Helper::BTEMT_MAX_IOVEC_SIZE);
+                                           (int)Helper::e_MAX_IOVEC_SIZE);
                     int numBufY = Helper::loadIovec(vY, MY);
 
                     LENGTHX = btls::IovecUtil::length(MX.iovecs(), numBufX);
@@ -11626,7 +11626,7 @@ void TestDriver::testCase25()
             // Wait for the channel to come up and obtain the channel id.
             bsl::vector<ChannelPoolStateCbTester::ChannelState> states(&ta);
             ASSERT(0 == mX.waitForState(&states,
-                                        btlmt::ChannelPool::BTEMT_CHANNEL_UP,
+                                        btlmt::ChannelPool::e_CHANNEL_UP,
                                         bsls::TimeInterval(1.0)));
 
             int channelId = mX.lastOpenedChannelId();
@@ -11744,7 +11744,7 @@ void TestDriver::testCase25()
             LOOP_ASSERT(sts, 0 != sts);
             ASSERT(0 == mX.waitForState(
                                    &states,
-                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   btlmt::ChannelPool::e_WRITE_CACHE_HIWAT,
                                    bsls::TimeInterval(0.25)));
 
             // 3. Double the write cache size, verify that the 'HIWAT' alert
@@ -11758,7 +11758,7 @@ void TestDriver::testCase25()
                    pool.setWriteCacheHiWatermark(channelId, 2 * HI_WATERMARK));
             ASSERT(0 != mX.waitForState(
                                    &states,
-                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   btlmt::ChannelPool::e_WRITE_CACHE_HIWAT,
                                    bsls::TimeInterval(0.25)));
 
             numBytesWritten = 0;
@@ -11774,7 +11774,7 @@ void TestDriver::testCase25()
             ASSERT(0 != pool.write(channelId, oneByteMsg));
             ASSERT(0 == mX.waitForState(
                                    &states,
-                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   btlmt::ChannelPool::e_WRITE_CACHE_HIWAT,
                                    bsls::TimeInterval(0.25)));
 
             // 4. Double the write cache size again, add one byte (to verify
@@ -11791,14 +11791,14 @@ void TestDriver::testCase25()
             totalBytesWritten += oneByteMsg.length();
             ASSERT(0 != mX.waitForState(
                                    &states,
-                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   btlmt::ChannelPool::e_WRITE_CACHE_HIWAT,
                                    bsls::TimeInterval(0.25)));
 
             ASSERT(0 ==
                    pool.setWriteCacheHiWatermark(channelId, HI_WATERMARK));
             ASSERT(0 == mX.waitForState(
                                    &states,
-                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   btlmt::ChannelPool::e_WRITE_CACHE_HIWAT,
                                    bsls::TimeInterval(0.25)));
             ASSERT(0 != pool.write(channelId, oneByteMsg));
 
@@ -11815,7 +11815,7 @@ void TestDriver::testCase25()
                    pool.setWriteCacheHiWatermark(channelId, 2 * HI_WATERMARK));
             ASSERT(0 != mX.waitForState(
                                    &states,
-                                   btlmt::ChannelPool::BTEMT_WRITE_CACHE_HIWAT,
+                                   btlmt::ChannelPool::e_WRITE_CACHE_HIWAT,
                                    bsls::TimeInterval(0.25)));
             ASSERT(0 != pool.write(channelId, oneByteMsg));
 
@@ -12094,7 +12094,7 @@ void TestDriver::testCase23()
                                     bsls::TimeInterval(TIMEOUT),
                                     USER_ID,
                                     false,
-                                    btlmt::ChannelPool::BTEMT_KEEP_HALF_OPEN));
+                                    btlmt::ChannelPool::e_KEEP_HALF_OPEN));
 
                 bdlqq::ThreadUtil::Handle serverHandle;
                 ASSERT(0 == bdlqq::ThreadUtil::create(&serverHandle,
@@ -13068,7 +13068,7 @@ void TestDriver::testCase17()
             ASSERT(1 == pool.numChannels());
             ASSERT(0 != channelId);
             ASSERT(0 == pool.shutdown(channelId,
-                                      btlmt::ChannelPool::BTEMT_IMMEDIATE));
+                                      btlmt::ChannelPool::e_IMMEDIATE));
             barrier.wait();
 
             channel.invalidate();
@@ -13167,7 +13167,7 @@ void TestDriver::testCase16()
 
             barrier.wait();
             ASSERT(0 != pool.shutdown(channelId,
-                                      btlmt::ChannelPool::BTEMT_IMMEDIATE));
+                                      btlmt::ChannelPool::e_IMMEDIATE));
 
             channel.invalidate();
             factory.deallocate(socket);
@@ -15086,7 +15086,7 @@ void TestDriver::testCase8()
                                     bsls::TimeInterval(TIMEOUT),
                                     USER_ID,
                                     false,
-                                    btlmt::ChannelPool::BTEMT_KEEP_HALF_OPEN));
+                                    btlmt::ChannelPool::e_KEEP_HALF_OPEN));
                 barrier.wait(); // for CHANNEL_UP
                 MTASSERT(-1 != info.d_channelId);
 
@@ -15122,7 +15122,7 @@ void TestDriver::testCase8()
                                     bsls::TimeInterval(TIMEOUT),
                                     USER_ID,
                                     false,
-                                    btlmt::ChannelPool::BTEMT_KEEP_HALF_OPEN));
+                                    btlmt::ChannelPool::e_KEEP_HALF_OPEN));
                 barrier.wait(); // for CHANNEL_UP
                 MTASSERT(-1 != info.d_channelId);
 
@@ -15413,7 +15413,7 @@ void TestDriver::testCase6()
                     P(backup[i].d_channelId);
                 }
                 mX.shutdown(backup[i].d_channelId,
-                            btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                            btlmt::ChannelPool::e_IMMEDIATE);
             }
             bdlqq::ThreadUtil::microSleep(0, 2);
 
@@ -15870,8 +15870,8 @@ void TestDriver::testCase4()
                           bsls::TimeInterval(TIMEOUT),
                           info.d_expUserId,
                           (i % 2)
-                         ? btlmt::ChannelPool::BTEMT_RESOLVE_ONCE
-                         : btlmt::ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT));
+                         ? btlmt::ChannelPool::e_RESOLVE_ONCE
+                         : btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT));
 
                 bdlqq::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
                 if (0 == info.d_portNumber)

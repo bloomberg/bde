@@ -376,7 +376,7 @@ void Socks5Session::readMessageCb(int           result,
                                                         int        length,
                                                         int       *numNeeded))
 {
-    if (btlmt::AsyncChannel::BTEMT_SUCCESS == result) {
+    if (btlmt::AsyncChannel::e_SUCCESS == result) {
         const int length = msg->length();
         bsl::string buf(length, '\0');
         bdlmca::BlobUtil::copy(&buf[0], *msg, 0, length);
@@ -662,7 +662,7 @@ void Socks5Session::readProxy(int           result,
                               bdlmca::Blob *msg,
                               int           channelId)
 {
-    if (btlmt::AsyncChannel::BTEMT_SUCCESS == result) {
+    if (btlmt::AsyncChannel::e_SUCCESS == result) {
         const int length = msg->length();
         int rc = -1;
         if (d_opposite_p) {
