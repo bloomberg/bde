@@ -279,18 +279,29 @@ typedef bsls::Platform::OsHpUx OsType;
         // Enumerates the set of performance measures this class is capable of
         // monitoring.
 
-        BAEA_CPU_TIME,          // CPU time (seconds)
-        BAEA_CPU_TIME_USER,     // user CPU time (seconds)
-        BAEA_CPU_TIME_SYSTEM,   // system CPU time (seconds)
-        BAEA_CPU_UTIL,          // weighted CPU % (user + system)
-        BAEA_CPU_UTIL_USER,     // weighted user CPU %
-        BAEA_CPU_UTIL_SYSTEM,   // weighted system CPU %
-        BAEA_RESIDENT_SIZE,     // number of MBs of physical memory
-        BAEA_NUM_THREADS,       // number of threads
-        BAEA_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
-        BAEA_VIRTUAL_SIZE,      // number of MBs in the heap
-        BAEA_NUM_MEASURES
+        e_CPU_TIME,          // CPU time (seconds)
+        e_CPU_TIME_USER,     // user CPU time (seconds)
+        e_CPU_TIME_SYSTEM,   // system CPU time (seconds)
+        e_CPU_UTIL,          // weighted CPU % (user + system)
+        e_CPU_UTIL_USER,     // weighted user CPU %
+        e_CPU_UTIL_SYSTEM,   // weighted system CPU %
+        e_RESIDENT_SIZE,     // number of MBs of physical memory
+        e_NUM_THREADS,       // number of threads
+        e_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
+        e_VIRTUAL_SIZE,      // number of MBs in the heap
+        e_NUM_MEASURES
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEA_CPU_TIME        = e_CPU_TIME
+      , BAEA_CPU_TIME_USER   = e_CPU_TIME_USER
+      , BAEA_CPU_TIME_SYSTEM = e_CPU_TIME_SYSTEM
+      , BAEA_CPU_UTIL        = e_CPU_UTIL
+      , BAEA_CPU_UTIL_USER   = e_CPU_UTIL_USER
+      , BAEA_CPU_UTIL_SYSTEM = e_CPU_UTIL_SYSTEM
+      , BAEA_RESIDENT_SIZE   = e_RESIDENT_SIZE
+      , BAEA_NUM_THREADS     = e_NUM_THREADS
+      , BAEA_NUM_PAGEFAULTS  = e_NUM_PAGEFAULTS
+      , BAEA_VIRTUAL_SIZE    = e_VIRTUAL_SIZE
+      , BAEA_NUM_MEASURES    = e_NUM_MEASURES
       , CPU_TIME        = BAEA_CPU_TIME
       , CPU_TIME_USER   = BAEA_CPU_TIME_USER
       , CPU_TIME_SYSTEM = BAEA_CPU_TIME_SYSTEM

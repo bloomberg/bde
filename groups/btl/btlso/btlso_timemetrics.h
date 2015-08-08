@@ -114,14 +114,18 @@ class TimeMetrics {
   public:
     // PUBLIC TYPES
     enum {
-        BTESO_IO_BOUND  = 0,  // the processing unit (i.e., thread or process)
-                              // is blocked in an IO operation
+        e_IO_BOUND           = 0  // the processing unit (i.e., thread or
+                                  // process) is blocked in an IO operation
 
-        BTESO_CPU_BOUND = 1,  // the processing unit (i.e., thread or process)
-                              // is executing CPU-bound block of code
+      , e_CPU_BOUND          = 1  // the processing unit (i.e., thread or
+                                  // process) is executing CPU-bound block of
+                                  // code
 
-        BTESO_MIN_NUM_CATEGORIES = BTESO_CPU_BOUND + 1
+      , e_MIN_NUM_CATEGORIES = e_CPU_BOUND + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_IO_BOUND           = e_IO_BOUND
+      , BTESO_CPU_BOUND          = e_CPU_BOUND
+      , BTESO_MIN_NUM_CATEGORIES = e_MIN_NUM_CATEGORIES
       , IO_BOUND           = BTESO_IO_BOUND
       , CPU_BOUND          = BTESO_CPU_BOUND
       , MIN_NUM_CATEGORIES = BTESO_MIN_NUM_CATEGORIES

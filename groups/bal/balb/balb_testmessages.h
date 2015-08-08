@@ -5223,7 +5223,7 @@ int SimpleRequest::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int SimpleRequest::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_DATA: {
@@ -5233,7 +5233,7 @@ int SimpleRequest::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_responseLength, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5243,12 +5243,12 @@ int SimpleRequest::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5288,7 +5288,7 @@ int SimpleRequest::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int SimpleRequest::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_DATA: {
@@ -5298,7 +5298,7 @@ int SimpleRequest::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_responseLength, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_RESPONSE_LENGTH]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5308,12 +5308,12 @@ int SimpleRequest::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5364,7 +5364,7 @@ int UnsignedSequence::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int UnsignedSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -5377,7 +5377,7 @@ int UnsignedSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5387,12 +5387,12 @@ int UnsignedSequence::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5443,7 +5443,7 @@ int UnsignedSequence::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int UnsignedSequence::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -5456,7 +5456,7 @@ int UnsignedSequence::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5466,12 +5466,12 @@ int UnsignedSequence::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5513,11 +5513,11 @@ int VoidSequence::manipulateAttributes(MANIPULATOR& /*manipulator*/)
 template <class MANIPULATOR>
 int VoidSequence::manipulateAttribute(MANIPULATOR& /*manipulator*/, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5527,12 +5527,12 @@ int VoidSequence::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5550,11 +5550,11 @@ int VoidSequence::accessAttributes(ACCESSOR& /*accessor*/) const
 template <class ACCESSOR>
 int VoidSequence::accessAttribute(ACCESSOR& /*accessor*/, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5564,12 +5564,12 @@ int VoidSequence::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5623,7 +5623,7 @@ int Sequence3::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int Sequence3::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -5645,7 +5645,7 @@ int Sequence3::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5655,12 +5655,12 @@ int Sequence3::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -5744,7 +5744,7 @@ int Sequence3::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int Sequence3::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -5766,7 +5766,7 @@ int Sequence3::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5776,12 +5776,12 @@ int Sequence3::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -5876,7 +5876,7 @@ int Sequence5::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int Sequence5::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -5901,7 +5901,7 @@ int Sequence5::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -5911,12 +5911,12 @@ int Sequence5::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -6011,7 +6011,7 @@ int Sequence5::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int Sequence5::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -6036,7 +6036,7 @@ int Sequence5::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -6046,12 +6046,12 @@ int Sequence5::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -6192,7 +6192,7 @@ int Sequence6::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int Sequence6::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -6241,7 +6241,7 @@ int Sequence6::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -6251,12 +6251,12 @@ int Sequence6::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -6439,7 +6439,7 @@ int Sequence6::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int Sequence6::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -6488,7 +6488,7 @@ int Sequence6::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -6498,12 +6498,12 @@ int Sequence6::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -7340,7 +7340,7 @@ int Sequence4::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int Sequence4::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -7401,7 +7401,7 @@ int Sequence4::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -7411,12 +7411,12 @@ int Sequence4::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -7643,7 +7643,7 @@ int Sequence4::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int Sequence4::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -7704,7 +7704,7 @@ int Sequence4::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -7714,12 +7714,12 @@ int Sequence4::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -7882,7 +7882,7 @@ int Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -7901,7 +7901,7 @@ int Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -7911,12 +7911,12 @@ int Sequence1::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -7989,7 +7989,7 @@ int Sequence1::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -8008,7 +8008,7 @@ int Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -8018,12 +8018,12 @@ int Sequence1::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -8102,7 +8102,7 @@ int Sequence2::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int Sequence2::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -8121,7 +8121,7 @@ int Sequence2::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -8131,12 +8131,12 @@ int Sequence2::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -8209,7 +8209,7 @@ int Sequence2::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int Sequence2::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_ELEMENT1: {
@@ -8228,7 +8228,7 @@ int Sequence2::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -8238,12 +8238,12 @@ int Sequence2::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);
@@ -8422,7 +8422,7 @@ int SequenceWithAnonymity::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int SequenceWithAnonymity::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_CHOICE: {
@@ -8438,7 +8438,7 @@ int SequenceWithAnonymity::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -8448,12 +8448,12 @@ int SequenceWithAnonymity::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -8515,7 +8515,7 @@ int SequenceWithAnonymity::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int SequenceWithAnonymity::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_CHOICE: {
@@ -8531,7 +8531,7 @@ int SequenceWithAnonymity::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -8541,12 +8541,12 @@ int SequenceWithAnonymity::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

@@ -164,27 +164,40 @@ struct BerUniversalTagNumber {
 
     // TYPES
     enum Value {
-        BDEM_BER_INVALID        = -1,
+        e_BER_INVALID        = -1
 
-        // Universal tag numbers as per X.680, section 8
+        // Universal tag numbers as per X.680 section 8
 
-        BDEM_BER_BOOL           = 0x01,  // ( 1) Boolean type
-        BDEM_BER_INT            = 0x02,  // ( 2) Integer type
-        BDEM_BER_OCTET_STRING   = 0x04,  // ( 4) Octet string type
-        BDEM_BER_REAL           = 0x09,  // ( 9) Real type
-        BDEM_BER_ENUMERATION    = 0x0A,  // (10) Enumerated type
-        BDEM_BER_UTF8_STRING    = 0x0C,  // (12) UTF8 string type
-        BDEM_BER_SEQUENCE       = 0x10,  // (16) Sequence and Sequence-of types
-        BDEM_BER_VISIBLE_STRING = 0x1A   // (26) VisibleString type (7-bit
-                                         //      ASCII)
+      , e_BER_BOOL           = 0x01  // ( 1) Boolean type
+      , e_BER_INT            = 0x02  // ( 2) Integer type
+      , e_BER_OCTET_STRING   = 0x04  // ( 4) Octet string type
+      , e_BER_REAL           = 0x09  // ( 9) Real type
+      , e_BER_ENUMERATION    = 0x0A  // (10) Enumerated type
+      , e_BER_UTF8_STRING    = 0x0C  // (12) UTF8 string type
+      , e_BER_SEQUENCE       = 0x10  // (16) Sequence and Sequence-of types
+      , e_BER_VISIBLE_STRING = 0x1A  // (26) VisibleString type (7-bit
+                                        //      ASCII)
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEM_BER_INVALID        = e_BER_INVALID
+      , BDEM_BER_BOOL           = e_BER_BOOL
+      , BDEM_BER_INT            = e_BER_INT
+      , BDEM_BER_OCTET_STRING   = e_BER_OCTET_STRING
+      , BDEM_BER_REAL           = e_BER_REAL
+      , BDEM_BER_ENUMERATION    = e_BER_ENUMERATION
+      , BDEM_BER_UTF8_STRING    = e_BER_UTF8_STRING
+      , BDEM_BER_SEQUENCE       = e_BER_SEQUENCE
+      , BDEM_BER_VISIBLE_STRING = e_BER_VISIBLE_STRING
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS
     enum {
-        BDEM_LENGTH = 8  // the number of enumerations in the 'Value'
+        k_LENGTH = 8  // the number of enumerations in the 'Value'
                          // enumeration
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEM_LENGTH = k_LENGTH
       , NUM_ENUMERATORS = BDEM_LENGTH
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };

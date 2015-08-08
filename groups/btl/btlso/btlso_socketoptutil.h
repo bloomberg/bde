@@ -220,9 +220,12 @@ struct SocketOptUtil {
     enum {
         // When manipulating options, the level at which the option resides
         // and the name of the option must be specified.
-        BTESO_SOCKETLEVEL    = SOL_SOCKET,    // System socket level
-        BTESO_TCPLEVEL       = IPPROTO_TCP    // Protocol level (TCP)
+
+        k_SOCKETLEVEL    = SOL_SOCKET     // System socket level
+      , k_TCPLEVEL       = IPPROTO_TCP    // Protocol level (TCP)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_SOCKETLEVEL    = k_SOCKETLEVEL
+      , BTESO_TCPLEVEL       = k_TCPLEVEL
       , SOCKETLEVEL = BTESO_SOCKETLEVEL
       , TCPLEVEL    = BTESO_TCPLEVEL
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -231,37 +234,58 @@ struct SocketOptUtil {
     // For level = BTESO_SOCKETLEVEL
     // The socket options map directly onto the native option values.
     enum {
-        BTESO_DEBUGINFO      = SO_DEBUG,
-            // enable/disable recording of debugging information
-        BTESO_REUSEADDRESS   = SO_REUSEADDR,
-            // enable/disable local address reuse
-        BTESO_KEEPALIVE      = SO_KEEPALIVE,
-            // enable/disable keep connections alive
-        BTESO_DONTROUTE      = SO_DONTROUTE,
-            // enable/disable routing bypass for outgoing messages
-        BTESO_LINGER         = SO_LINGER,
-            // linger on close if data is present
-        BTESO_BROADCAST      = SO_BROADCAST,
-            // enable/disable permission to transmit broadcast messages
-        BTESO_OOBINLINE      = SO_OOBINLINE,
-            // enable/disable reception of out-of-band data in band
-        BTESO_SENDBUFFER     = SO_SNDBUF,
-            // set buffer size for output
-        BTESO_RECEIVEBUFFER  = SO_RCVBUF,
-            // set buffer size for input
-        BTESO_SENDLOWATER    = SO_SNDLOWAT,
-            // set minimum count for output
-        BTESO_RECEIVELOWATER = SO_RCVLOWAT,
-            // set minimum count for input
-        BTESO_SENDTIMEOUT    = SO_SNDTIMEO,
-            // set timeout value for output
-        BTESO_RECEIVETIMEOUT = SO_RCVTIMEO,
-            // set timeout value for output
-        BTESO_TYPE           = SO_TYPE,
-            // get the type of the socket (get only)
-        BTESO_SOCKETERROR    = SO_ERROR
-            // get and clear error on the socket (get only)
+        k_DEBUGINFO      = SO_DEBUG       // enable/disable recording of
+                                          // debugging information
+
+      , k_REUSEADDRESS   = SO_REUSEADDR   // enable/disable local address reuse
+
+      , k_KEEPALIVE      = SO_KEEPALIVE   // enable/disable keep connections
+                                          // alive
+
+      , k_DONTROUTE      = SO_DONTROUTE   // enable/disable routing bypass for
+                                          // outgoing messages
+
+      , k_LINGER         = SO_LINGER      // linger on close if data is present
+
+      , k_BROADCAST      = SO_BROADCAST   // enable/disable permission to
+                                          // transmit broadcast messages
+
+      , k_OOBINLINE      = SO_OOBINLINE   // enable/disable reception of
+                                          // out-of-band data in band
+
+      , k_SENDBUFFER     = SO_SNDBUF      // set buffer size for output
+
+      , k_RECEIVEBUFFER  = SO_RCVBUF      // set buffer size for input
+
+      , k_SENDLOWATER    = SO_SNDLOWAT    // set minimum count for output
+
+      , k_RECEIVELOWATER = SO_RCVLOWAT    // set minimum count for input
+
+      , k_SENDTIMEOUT    = SO_SNDTIMEO    // set timeout value for output
+
+      , k_RECEIVETIMEOUT = SO_RCVTIMEO    // set timeout value for output
+
+      , k_TYPE           = SO_TYPE        // get the type of the socket (get
+                                          // only)
+
+      , k_SOCKETERROR    = SO_ERROR       // get and clear error on the socket
+                                          // (get only)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_DEBUGINFO      = k_DEBUGINFO
+      , BTESO_REUSEADDRESS   = k_REUSEADDRESS
+      , BTESO_KEEPALIVE      = k_KEEPALIVE
+      , BTESO_DONTROUTE      = k_DONTROUTE
+      , BTESO_LINGER         = k_LINGER
+      , BTESO_BROADCAST      = k_BROADCAST
+      , BTESO_OOBINLINE      = k_OOBINLINE
+      , BTESO_SENDBUFFER     = k_SENDBUFFER
+      , BTESO_RECEIVEBUFFER  = k_RECEIVEBUFFER
+      , BTESO_SENDLOWATER    = k_SENDLOWATER
+      , BTESO_RECEIVELOWATER = k_RECEIVELOWATER
+      , BTESO_SENDTIMEOUT    = k_SENDTIMEOUT
+      , BTESO_RECEIVETIMEOUT = k_RECEIVETIMEOUT
+      , BTESO_TYPE           = k_TYPE
+      , BTESO_SOCKETERROR    = k_SOCKETERROR
       , DEBUGINFO      = BTESO_DEBUGINFO
       , REUSEADDRESS   = BTESO_REUSEADDRESS
       , KEEPALIVE      = BTESO_KEEPALIVE
@@ -282,13 +306,15 @@ struct SocketOptUtil {
 
     // For level = BTESO_TCPLEVEL
     enum {
-        BTESO_TCPNODELAY     = TCP_NODELAY
-        // Specifies whether TCP should follow the Nagle algorithm
-        // for deciding when to send data.  By default, TCP will follow
-        // the Nagle algorithm.  To disable this behavior, applications
-        // can enable TCP_NODELAY to force TCP to always send data
-        // immediately.
+        k_TCPNODELAY = TCP_NODELAY  // Specifies whether TCP should follow the
+                                    // Nagle algorithm for deciding when to
+                                    // send data.  By default, TCP will follow
+                                    // the Nagle algorithm.  To disable this
+                                    // behavior, applications can enable
+                                    // TCP_NODELAY to force TCP to always send
+                                    // data immediately.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_TCPNODELAY     = k_TCPNODELAY
       , TCPNODELAY = BTESO_TCPNODELAY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };

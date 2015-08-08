@@ -61,25 +61,37 @@ struct SocketHandle {
         // More than one platform specific code may map onto a single error
         // classification.
 
-        BTESO_ERROR_EOF          = -1,
-            // The peer closed its send side of the connection.  This includes
-            // the normal closure of a connection but does not include when
-            // connection is terminated by the peer without a normal closure.
-        BTESO_ERROR_UNCLASSIFIED = -2,
-            // The platform specific error code could not be mapped onto any
-            // error classification.
-        BTESO_ERROR_CONNDEAD     = -3,
-            // The connection does not represent a connected socket.
-        BTESO_ERROR_WOULDBLOCK   = -4,
-            // The socket is a non blocking socket and the call would block.
-        BTESO_ERROR_NORESOURCES  = -5,
-            // Resources were not available to complete the call.
-        BTESO_ERROR_INTERRUPTED  = -6,
-            // The call was interrupted.  For receive and send calls no data
-            // was transferred.
-        BTESO_ERROR_TIMEDOUT      = -7
-            // A system call timed out.
+        e_ERROR_EOF          = -1  // The peer closed its send side of the
+                                   // connection.  This includes the normal
+                                   // closure of a connection but does not
+                                   // include when connection is terminated by
+                                   // the peer without a normal closure.
+
+      , e_ERROR_UNCLASSIFIED = -2  // The platform specific error code could
+                                   // not be mapped onto any error
+                                   // classification.
+
+      , e_ERROR_CONNDEAD     = -3  // The connection does not represent a
+                                   // connected socket.
+
+      , e_ERROR_WOULDBLOCK   = -4  // The socket is a non blocking socket and
+                                   // the call would block.
+
+      , e_ERROR_NORESOURCES  = -5  // Resources were not available to complete
+                                   // the call.
+
+      , e_ERROR_INTERRUPTED  = -6  // The call was interrupted.  For receive
+                                   // and send calls no data was transferred.
+
+      , e_ERROR_TIMEDOUT     = -7  // A system call timed out.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_ERROR_EOF          = e_ERROR_EOF
+      , BTESO_ERROR_UNCLASSIFIED = e_ERROR_UNCLASSIFIED
+      , BTESO_ERROR_CONNDEAD     = e_ERROR_CONNDEAD
+      , BTESO_ERROR_WOULDBLOCK   = e_ERROR_WOULDBLOCK
+      , BTESO_ERROR_NORESOURCES  = e_ERROR_NORESOURCES
+      , BTESO_ERROR_INTERRUPTED  = e_ERROR_INTERRUPTED
+      , BTESO_ERROR_TIMEDOUT     = e_ERROR_TIMEDOUT
       , ERROR_EOF          = BTESO_ERROR_EOF
       , ERROR_UNCLASSIFIED = BTESO_ERROR_UNCLASSIFIED
       , ERROR_CONNDEAD     = BTESO_ERROR_CONNDEAD

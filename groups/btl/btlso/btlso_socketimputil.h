@@ -418,16 +418,23 @@ struct SocketImpUtil {
     enum Type {
         // When creating a socket with the 'open' or 'socketPair' operations,
         // this indicates the type of socket(s) to be created.
-        BTESO_SOCKET_STREAM = SOCK_STREAM,
-            // Provides sequenced, reliable, two-way, connection-based byte
-            // streams.  An out-of-band data transmission mechanism may be
-            // supported.
-        BTESO_SOCKET_DATAGRAM = SOCK_DGRAM,
-            // Supports datagrams (connectionless, unreliable messages of a
-            // fixed maximum length).
-        BTESO_SOCKET_RAW = SOCK_RAW
-            // Provides raw network protocol access.
+
+        k_SOCKET_STREAM   = SOCK_STREAM  // Provides sequenced, reliable,
+                                         // two-way, connection-based byte
+                                         // streams.  An out-of-band data
+                                         // transmission mechanism may be
+                                         // supported.
+
+      , k_SOCKET_DATAGRAM = SOCK_DGRAM   // Supports datagrams (connectionless,
+                                         // unreliable messages of a fixed
+                                         // maximum length).
+
+      , k_SOCKET_RAW      = SOCK_RAW     // Provides raw network protocol
+                                         // access.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_SOCKET_STREAM   = k_SOCKET_STREAM
+      , BTESO_SOCKET_DATAGRAM = k_SOCKET_DATAGRAM
+      , BTESO_SOCKET_RAW      = k_SOCKET_RAW
       , SOCKET_STREAM   = BTESO_SOCKET_STREAM
       , SOCKET_DATAGRAM = BTESO_SOCKET_DATAGRAM
       , SOCKET_RAW      = BTESO_SOCKET_RAW
@@ -436,18 +443,22 @@ struct SocketImpUtil {
 
     enum ShutDownType {
         // Indicates how to shut down the socket with 'shutDown' operation.
-        BTESO_SHUTDOWN_RECEIVE,
-            // shut down the receive half of the full-duplex connection
-            // associated with the specified 'socket', leaving its send half
-            // unaffected.
-        BTESO_SHUTDOWN_SEND,
-            // shut down the send half of the full-duplex connection associated
-            // with the specified 'socket', leaving its receive half
-            // unaffected.
-        BTESO_SHUTDOWN_BOTH
-            // shut down both halves of the full-duplex connection associated
-            // with the specified 'socket'.
+
+        e_SHUTDOWN_RECEIVE  // shut down the receive half of the full-duplex
+                            // connection associated with the specified
+                            // 'socket', leaving its send half unaffected.
+
+      , e_SHUTDOWN_SEND     // shut down the send half of the full-duplex
+                            // connection associated with the specified
+                            // 'socket', leaving its receive half unaffected.
+
+      , e_SHUTDOWN_BOTH     // shut down both halves of the full-duplex
+                            // connection associated with the specified
+                            // 'socket'.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_SHUTDOWN_RECEIVE = e_SHUTDOWN_RECEIVE
+      , BTESO_SHUTDOWN_SEND    = e_SHUTDOWN_SEND
+      , BTESO_SHUTDOWN_BOTH    = e_SHUTDOWN_BOTH
       , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
       , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
       , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
@@ -851,12 +862,13 @@ struct SocketImpUtil_Util {
 
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
     enum {
-        BTESO_INVALID_SOCKET_HANDLE = INVALID_SOCKET
+        k_INVALID_SOCKET_HANDLE = INVALID_SOCKET
 #else
     enum {
-        BTESO_INVALID_SOCKET_HANDLE = -1
+        k_INVALID_SOCKET_HANDLE = -1
 #endif
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_INVALID_SOCKET_HANDLE = k_INVALID_SOCKET_HANDLE
       , INVALID_SOCKET_HANDLE = BTESO_INVALID_SOCKET_HANDLE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };

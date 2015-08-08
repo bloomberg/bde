@@ -539,27 +539,30 @@ struct EventManagerTester {
     // interpreting function, gg(), every function in an event manager can be
     // tested.
 
-    enum { BTESO_VERBOSE           = 1, // If this flag is on, print the name
-                                        // of functions under test.
+    enum {
+        k_VERBOSE           = 1  // If this flag is on, print the name of
+                                 // functions under test.
 
-           BTESO_VERY_VERBOSE      = 2, // If this flag is on, print the test
-                                        // script to be executed and execution
-                                        // results after executing each command
-                                        // of the test script.
+      , k_VERY_VERBOSE      = 2  // If this flag is on, print the test script
+                                 // to be executed and execution results after
+                                 // executing each command of the test script.
 
-           BTESO_VERY_VERY_VERBOSE = 4, // If this flag is on, print all values
-                                        // after executing each command of a
-                                        // test script.
+      , k_VERY_VERY_VERBOSE = 4  // If this flag is on, print all values after
+                                 // executing each command of a test script.
 
-           BTESO_ABORT             = 8, // If this flag is on, the test will be
-                                        // aborted upon an error.
+      , k_ABORT             = 8  // If this flag is on, the test will be
+                                 // aborted upon an error.
 
-           BTESO_DRY_RUN           = 16 // If this flag is on, the test will
-                                        // not execute the test script, but
-                                        // only parse the test script to the
-                                        // standard output.
+      , k_DRY_RUN           = 16 // If this flag is on, the test will not
+                                 // execute the test script, but only parse the
+                                 // test script to the standard output.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_VERBOSE           = k_VERBOSE           
+      , BTESO_VERY_VERBOSE      = k_VERY_VERBOSE      
+      , BTESO_VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE 
+      , BTESO_ABORT             = k_ABORT             
+      , BTESO_DRY_RUN           = k_DRY_RUN           
       , VERBOSE           = BTESO_VERBOSE
       , VERY_VERBOSE      = BTESO_VERY_VERBOSE
       , VERY_VERY_VERBOSE = BTESO_VERY_VERY_VERBOSE

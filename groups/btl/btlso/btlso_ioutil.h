@@ -87,18 +87,22 @@ struct IoUtil {
         // an error occurs during the operation.
 
     enum BlockingMode {
-        BTESO_BLOCKING           =  0,   // blocking mode
-        BTESO_NONBLOCKING        =  1    // non-blocking mode
+        e_BLOCKING    = 0    // blocking mode
+      , e_NONBLOCKING = 1    // non-blocking mode
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_BLOCKING    = e_BLOCKING
+      , BTESO_NONBLOCKING = e_NONBLOCKING
       , BLOCKING    = BTESO_BLOCKING
       , NONBLOCKING = BTESO_NONBLOCKING
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum AsyncMode {
-        BTESO_SYNCHRONOUS      =  0,     // synchronous mode turned on
-        BTESO_ASYNCHRONOUS     =  1      // synchronous mode turned off
+        e_SYNCHRONOUS  = 0      // synchronous mode turned on
+      , e_ASYNCHRONOUS = 1      // synchronous mode turned off
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_SYNCHRONOUS  = e_SYNCHRONOUS
+      , BTESO_ASYNCHRONOUS = e_ASYNCHRONOUS
       , SYNCHRONOUS  = BTESO_SYNCHRONOUS
       , ASYNCHRONOUS = BTESO_ASYNCHRONOUS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED

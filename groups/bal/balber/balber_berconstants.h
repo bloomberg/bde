@@ -54,12 +54,17 @@ struct BerConstants {
     enum TagClass {
         // Enumeration of the four possible BER tag classes.
 
-        BDEM_UNIVERSAL         = 0x00,  // the universal tag class
-        BDEM_APPLICATION       = 0x40,  // the application tag class
-        BDEM_CONTEXT_SPECIFIC  = 0x80,  // the context-specific tag class
-        BDEM_PRIVATE           = 0xC0   // the private tag class
+        e_UNIVERSAL         = 0x00  // the universal tag class
+      , e_APPLICATION       = 0x40  // the application tag class
+      , e_CONTEXT_SPECIFIC  = 0x80  // the context-specific tag class
+      , e_PRIVATE           = 0xC0  // the private tag class
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEM_UNIVERSAL         = e_UNIVERSAL
+      , BDEM_APPLICATION       = e_APPLICATION
+      , BDEM_CONTEXT_SPECIFIC  = e_CONTEXT_SPECIFIC
+      , BDEM_PRIVATE           = e_PRIVATE
+
       , UNIVERSAL        = BDEM_UNIVERSAL
       , APPLICATION      = BDEM_APPLICATION
       , CONTEXT_SPECIFIC = BDEM_CONTEXT_SPECIFIC
@@ -70,10 +75,13 @@ struct BerConstants {
     enum TagType {
         // Enumeration of the two possible BER tag types.
 
-        BDEM_PRIMITIVE   = 0x00,  // the primitive tag type
-        BDEM_CONSTRUCTED = 0x20   // the constructed tag type
+        e_BDEM_PRIMITIVE   = 0x00  // the primitive tag type
+      , e_BDEM_CONSTRUCTED = 0x20  // the constructed tag type
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEM_PRIMITIVE   = e_BDEM_PRIMITIVE
+      , BDEM_CONSTRUCTED = e_BDEM_CONSTRUCTED
+
       , PRIMITIVE   = BDEM_PRIMITIVE
       , CONSTRUCTED = BDEM_CONSTRUCTED
 #endif // BDE_OMIT_INTERNAL_DEPRECATED

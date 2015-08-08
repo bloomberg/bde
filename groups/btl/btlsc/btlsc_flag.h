@@ -46,35 +46,41 @@ struct btesc_Flag {
 
     // TYPES
     enum Flag {
-        BTESC_ASYNC_INTERRUPT = 0x01,  // If set, this flag permits an
-                                       // operation to be interrupted by an
-                                       // unspecified asynchronous event.  By
-                                       // default, the implementation will
-                                       // ignore such events if possible, or
-                                       // fail otherwise.
+        k_ASYNC_INTERRUPT = 0x01  // If set, this flag permits an
+                                  // operation to be interrupted by an
+                                  // unspecified asynchronous event.  By
+                                  // default, the implementation will
+                                  // ignore such events if possible, or
+                                  // fail otherwise.
 
-        BTESC_RAW             = 0x02   // If set, this flag permits a
-                                       // transmission method to suspend itself
-                                       // between OS-level atomic operations
-                                       // provided (1) at least one additional
-                                       // byte was transmitted and (2) no
-                                       // additional bytes can be transmitted
-                                       // immediately -- e.g., without
-                                       // (potentially) blocking.  By default,
-                                       // the implementation will continue
-                                       // until it either succeeds, fails, or
-                                       // returns a partial result for some
-                                       // other, authorized reason.
+      , k_RAW             = 0x02  // If set, this flag permits a
+                                  // transmission method to suspend itself
+                                  // between OS-level atomic operations
+                                  // provided (1) at least one additional
+                                  // byte was transmitted and (2) no
+                                  // additional bytes can be transmitted
+                                  // immediately -- e.g., without
+                                  // (potentially) blocking.  By default,
+                                  // the implementation will continue
+                                  // until it either succeeds, fails, or
+                                  // returns a partial result for some
+                                  // other, authorized reason.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESC_ASYNC_INTERRUPT = k_ASYNC_INTERRUPT
+      , BTESC_RAW             = k_RAW
       , ASYNC_INTERRUPT = BTESC_ASYNC_INTERRUPT
       , RAW             = BTESC_RAW
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum { BTESC_LENGTH = 2 };
-        // Define LENGTH to be the number of enumerators; they are flags and
-        // *not* consecutive, and so the length must be kept consistent with
-        // the 'enum' "by hand".
+    enum {
+        k_LENGTH = 2 // Define LENGTH to be the number of enumerators; they are
+                     // flags and *not* consecutive, and so the length must be
+                     // kept consistent with the 'enum' "by hand".
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESC_LENGTH = k_LENGTH
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 
     // CLASS METHODS
     static const char *toAscii(Flag value);

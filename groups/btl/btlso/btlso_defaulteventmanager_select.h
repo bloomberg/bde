@@ -171,10 +171,11 @@ class DefaultEventManager<Platform::SELECT>
 
   public:
     enum {
-        BTESO_MAX_NUM_HANDLES = FD_SETSIZE  // maximum number of socket handles
-                                            // that can be registered with an
-                                            // event manager (of this type)
+        k_MAX_NUM_HANDLES = FD_SETSIZE  // maximum number of socket handles
+                                        // that can be registered with an
+                                        // event manager (of this type)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_MAX_NUM_HANDLES = k_MAX_NUM_HANDLES
       , MAX_NUM_HANDLES = BTESO_MAX_NUM_HANDLES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };

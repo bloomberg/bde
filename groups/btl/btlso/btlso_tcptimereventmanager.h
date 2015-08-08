@@ -277,11 +277,11 @@ class TcpTimerEventManager : public TimerEventManager
 
   public:
     enum Hint {
-        BTESO_NO_HINT,                 // the registrations may be frequent
-
-        BTESO_INFREQUENT_REGISTRATION  // the (de)registrations will be
-                                       // infrequent
+        e_NO_HINT                  // the registrations may be frequent
+      , e_INFREQUENT_REGISTRATION  // the (de)registrations will be infrequent
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_NO_HINT                 = e_NO_HINT
+      , BTESO_INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
       , NO_HINT                 = BTESO_NO_HINT
       , INFREQUENT_REGISTRATION = BTESO_INFREQUENT_REGISTRATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED

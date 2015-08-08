@@ -116,23 +116,39 @@ class JournalPageHeader {
   public:
     // TYPES
     enum {
-        BAECS_INVALID_RECORD_HANDLE = 0xFFFFFFFF
+        k_INVALID_RECORD_HANDLE = 0xFFFFFFFF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_INVALID_RECORD_HANDLE = k_INVALID_RECORD_HANDLE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        BAECS_ATTRIBUTES_SHIFT    = 16,
-        BAECS_ATTRIBUTES_MASK     = 0xFFFF0000,
-        BAECS_NEXT_BLOCK_SHIFT    = 3,
-        BAECS_NEXT_BLOCK_MASK     = 0x0000FFF8,
-        BAECS_CONFIRMED_SHIFT     = 2,
-        BAECS_CONFIRMED_MASK      = 0x00000004,
-        BAECS_EXTENDED_SHIFT      = 1,
-        BAECS_EXTENDED_MASK       = 0x00000002,
-        BAECS_HEAD_SHIFT          = 0,
-        BAECS_HEAD_MASK           = 0x00000001,
-        BAECS_INDEX_NONE          =
-                               BAECS_NEXT_BLOCK_MASK >> BAECS_NEXT_BLOCK_SHIFT,
-        BAECS_MAX_BLOCKS_PER_PAGE = BAECS_INDEX_NONE
+        k_ATTRIBUTES_SHIFT    = 16
+      , k_ATTRIBUTES_MASK     = 0xFFFF0000
+      , k_NEXT_BLOCK_SHIFT    = 3
+      , k_NEXT_BLOCK_MASK     = 0x0000FFF8
+      , k_CONFIRMED_SHIFT     = 2
+      , k_CONFIRMED_MASK      = 0x00000004
+      , k_EXTENDED_SHIFT      = 1
+      , k_EXTENDED_MASK       = 0x00000002
+      , k_HEAD_SHIFT          = 0
+      , k_HEAD_MASK           = 0x00000001
+      , k_INDEX_NONE          = k_NEXT_BLOCK_MASK >> k_NEXT_BLOCK_SHIFT
+      , k_MAX_BLOCKS_PER_PAGE = k_INDEX_NONE
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_ATTRIBUTES_SHIFT    = k_ATTRIBUTES_SHIFT   
+      , BAECS_ATTRIBUTES_MASK     = k_ATTRIBUTES_MASK    
+      , BAECS_NEXT_BLOCK_SHIFT    = k_NEXT_BLOCK_SHIFT   
+      , BAECS_NEXT_BLOCK_MASK     = k_NEXT_BLOCK_MASK    
+      , BAECS_CONFIRMED_SHIFT     = k_CONFIRMED_SHIFT    
+      , BAECS_CONFIRMED_MASK      = k_CONFIRMED_MASK     
+      , BAECS_EXTENDED_SHIFT      = k_EXTENDED_SHIFT     
+      , BAECS_EXTENDED_MASK       = k_EXTENDED_MASK      
+      , BAECS_HEAD_SHIFT          = k_HEAD_SHIFT         
+      , BAECS_HEAD_MASK           = k_HEAD_MASK          
+      , BAECS_INDEX_NONE          = k_INDEX_NONE         
+      , BAECS_MAX_BLOCKS_PER_PAGE = k_MAX_BLOCKS_PER_PAGE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     class BlockHeader {

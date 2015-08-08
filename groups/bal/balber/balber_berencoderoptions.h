@@ -93,21 +93,36 @@ class BerEncoderOptions {
   public:
     // TYPES
     enum {
-        ATTRIBUTE_ID_TRACE_LEVEL                          = 0
-      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = 1
-      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
-      , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+        e_ATTRIBUTE_ID_TRACE_LEVEL                          = 0
+      , e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = 1
+      , e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
+      , e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_TRACE_LEVEL                          = e_ATTRIBUTE_ID_TRACE_LEVEL
+      , ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE              = e_ATTRIBUTE_ID_BDE_VERSION_CONFORMANCE
+      , ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS
+      , ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        NUM_ATTRIBUTES = 4
+        k_NUM_ATTRIBUTES = 4
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_TRACE_LEVEL                          = 0
-      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = 1
-      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
-      , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+        e_ATTRIBUTE_INDEX_TRACE_LEVEL                          = 0
+      , e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = 1
+      , e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
+      , e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_TRACE_LEVEL                          = e_ATTRIBUTE_INDEX_TRACE_LEVEL
+      , ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE              = e_ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE
+      , ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS
+      , ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CONSTANTS
@@ -412,7 +427,7 @@ int BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_TRACE_LEVEL: {
@@ -428,7 +443,7 @@ int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(&d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -438,12 +453,12 @@ int BerEncoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -522,7 +537,7 @@ int BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_TRACE_LEVEL: {
@@ -538,7 +553,7 @@ int BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_encodeDateAndTimeTypesAsBinary, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
       } break;
       default:
-        return NOT_FOUND;
+        return k_NOT_FOUND;
     }
 }
 
@@ -548,12 +563,12 @@ int BerEncoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return NOT_FOUND;
+       return k_NOT_FOUND;
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

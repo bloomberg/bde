@@ -80,29 +80,47 @@ class BerDecoderOptions {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 4  // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 4  // the number of attributes in this class
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_MAX_DEPTH = 0,
+        e_ATTRIBUTE_INDEX_MAX_DEPTH             = 0
             // index for "MaxDepth" attribute
-        ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 1,
+      , e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 1
             // index for "SkipUnknownElements" attribute
-        ATTRIBUTE_INDEX_TRACE_LEVEL = 2,
+      , e_ATTRIBUTE_INDEX_TRACE_LEVEL           = 2
             // index for "TraceLevel" attribute
-        ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE = 3
+      , e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     = 3
             // index for "MaxSequenceSize" attribute
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_MAX_DEPTH             = e_ATTRIBUTE_INDEX_MAX_DEPTH                      
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS          
+      , ATTRIBUTE_INDEX_TRACE_LEVEL           = e_ATTRIBUTE_INDEX_TRACE_LEVEL                    
+      , ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE              
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_ID_MAX_DEPTH = 0,
+        e_ATTRIBUTE_ID_MAX_DEPTH             = 0
             // id for "MaxDepth" attribute
-        ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 1,
+      , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 1
             // id for "SkipUnknownElements" attribute
-        ATTRIBUTE_ID_TRACE_LEVEL = 2,
+      , e_ATTRIBUTE_ID_TRACE_LEVEL           = 2
             // id for "TraceLevel" attribute
-        ATTRIBUTE_ID_MAX_SEQUENCE_SIZE = 3
+      , e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = 3
             // id for "MaxSequenceSize" attribute
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_MAX_DEPTH             = e_ATTRIBUTE_ID_MAX_DEPTH                      
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS          
+      , ATTRIBUTE_ID_TRACE_LEVEL           = e_ATTRIBUTE_ID_TRACE_LEVEL                    
+      , ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE              
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:
@@ -445,7 +463,7 @@ inline
 int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
                                                 int          id)
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_DEPTH: {
@@ -469,7 +487,7 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
                                                                       // RETURN
       } break;
       default:
-        return BDEM_NOT_FOUND;
+        return k_BDEM_NOT_FOUND;
     }
 }
 
@@ -480,12 +498,12 @@ int BerDecoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return BDEM_NOT_FOUND;                                        // RETURN
+        return k_BDEM_NOT_FOUND;                                        // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -572,7 +590,7 @@ template <class ACCESSOR>
 inline
 int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_DEPTH: {
@@ -596,7 +614,7 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
                                                                       // RETURN
       } break;
       default:
-        return BDEM_NOT_FOUND;
+        return k_BDEM_NOT_FOUND;
     }
 }
 
@@ -607,12 +625,12 @@ int BerDecoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return BDEM_NOT_FOUND;                                         // RETURN
+       return k_BDEM_NOT_FOUND;                                         // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

@@ -43,17 +43,18 @@ struct bteso_Flag {
 
     // TYPES
     enum Flag {
-        BTESO_ASYNC_INTERRUPT = 0x01,  // If set, this flag permits an
-                                       // operation to be interrupted by an
-                                       // unspecified asynchronous event.  By
-                                       // default, the implementation will
-                                       // ignore such events if possible, or
-                                       // fail otherwise.
+        k_ASYNC_INTERRUPT = 0x01  // If set, this flag permits an operation to
+                                  // be interrupted by an unspecified
+                                  // asynchronous event.  By default, the
+                                  // implementation will ignore such events if
+                                  // possible, or fail otherwise.
 
-        BTESO_NFLAGS = 1               // The number of Flag enumerators.  This
-                                       // must be maintained "by hand" since
-                                       // flags are not consecutive.
+      , k_NFLAGS          = 1     // The number of Flag enumerators.  This
+                                  // must be maintained "by hand" since flags
+                                  // are not consecutive.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_ASYNC_INTERRUPT = k_ASYNC_INTERRUPT
+      , BTESO_NFLAGS          = k_NFLAGS
       , ASYNC_INTERRUPT = BTESO_ASYNC_INTERRUPT
       , NFLAGS          = BTESO_NFLAGS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -62,9 +63,12 @@ struct bteso_Flag {
     enum BlockingMode {
         // Values used to set/determine the blocking mode of a
         // 'btlso::StreamSocket' object.
-        BTESO_BLOCKING_MODE,     // Indicates blocking mode
-        BTESO_NONBLOCKING_MODE   // Indicates non-blocking mode
+
+        e_BLOCKING_MODE     // Indicates blocking mode
+      , e_NONBLOCKING_MODE  // Indicates non-blocking mode
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_BLOCKING_MODE    = e_BLOCKING_MODE
+      , BTESO_NONBLOCKING_MODE = e_NONBLOCKING_MODE
       , BLOCKING_MODE    = BTESO_BLOCKING_MODE
       , NONBLOCKING_MODE = BTESO_NONBLOCKING_MODE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -72,16 +76,22 @@ struct bteso_Flag {
 
     enum ShutdownType {
         // Values for options used by 'btlso::StreamSocket<>::shutdown'.
-        BTESO_SHUTDOWN_RECEIVE,  // Shut down the input stream of the
-                                 // full-duplex connection associated with a
-                                 // 'btlso::StreamSocket' object.
-        BTESO_SHUTDOWN_SEND,     // Shut down the output stream of the
-                                 // full-duplex connection associated with a
-                                 // 'btlso::StreamSocket' object.
-        BTESO_SHUTDOWN_BOTH      // Shut down the input and output streams of
-                                 // the full-duplex connection associated a
-                                 // 'btlso::StreamSocket' object.
+
+        e_SHUTDOWN_RECEIVE  // Shut down the input stream of the full-duplex
+                            // connection associated with a
+                            // 'btlso::StreamSocket' object.
+
+      , e_SHUTDOWN_SEND     // Shut down the output stream of the full-duplex
+                            // connection associated with a
+                            // 'btlso::StreamSocket' object.
+
+      , e_SHUTDOWN_BOTH     // Shut down the input and output streams of the
+                            // full-duplex connection associated a
+                            // 'btlso::StreamSocket' object.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_SHUTDOWN_RECEIVE = e_SHUTDOWN_RECEIVE
+      , BTESO_SHUTDOWN_SEND    = e_SHUTDOWN_SEND
+      , BTESO_SHUTDOWN_BOTH    = e_SHUTDOWN_BOTH
       , SHUTDOWN_RECEIVE = BTESO_SHUTDOWN_RECEIVE
       , SHUTDOWN_SEND    = BTESO_SHUTDOWN_SEND
       , SHUTDOWN_BOTH    = BTESO_SHUTDOWN_BOTH
@@ -90,12 +100,17 @@ struct bteso_Flag {
 
     enum IOWaitType {
         // Values for options used by 'btlso::StreamSocket<>::waitForIO'
-        BTESO_IO_READ,   // Wait for data to arrive on a socket.
-        BTESO_IO_WRITE,  // Wait for buffer space to become available on a
-                         // socket.
-        BTESO_IO_RW      // Wait for data to arrive or space to become
-                         // available on a socket.
+
+        e_IO_READ   // Wait for data to arrive on a socket.
+
+      , e_IO_WRITE  // Wait for buffer space to become available on a socket.
+
+      , e_IO_RW     // Wait for data to arrive or space to become available on
+                    // a socket.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_IO_READ  = e_IO_READ
+      , BTESO_IO_WRITE = e_IO_WRITE
+      , BTESO_IO_RW    = e_IO_RW
       , IO_READ  = BTESO_IO_READ
       , IO_WRITE = BTESO_IO_WRITE
       , IO_RW    = BTESO_IO_RW

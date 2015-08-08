@@ -269,8 +269,13 @@ class BerEncoder {
   public:
     // PUBLIC TYPES
     enum ErrorSeverity {
-        BDEM_BER_SUCCESS = 0x00,
-        BDEM_BER_ERROR   = 0x02
+        e_BER_SUCCESS = 0x00 
+      , e_BER_ERROR   = 0x02
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEM_BER_SUCCESS = e_BER_SUCCESS 
+      , BDEM_BER_ERROR   = e_BER_ERROR   
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -722,7 +727,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
                                 int                          formattingMode,
                                 bdeat_TypeCategory::Choice)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     const BerConstants::TagType tagType =
                                            BerConstants::BDEM_CONSTRUCTED;
@@ -732,7 +737,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
                                                tagType,
                                                tagNumber);
     if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     const bool isUntagged =
@@ -748,7 +753,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
                                       tagType,
                                       0);
         if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
-            return BDEM_FAILURE;
+            return k_BDEM_FAILURE;
         }
     }
 
@@ -759,7 +764,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
         BerEncoder_Visitor visitor(this);
 
         if (0 != bdeat_ChoiceFunctions::accessSelection(value, visitor)) {
-            return BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -783,7 +788,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
                                 int                          formattingMode,
                                 bdeat_TypeCategory::NullableValue)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     bool isNillable = formattingMode & bdeat_FormattingMode::BDEAT_NILLABLE;
 
@@ -797,7 +802,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
                                            BerConstants::BDEM_CONSTRUCTED,
                                            tagNumber);
         if (rc | BerUtil::putIndefiniteLengthOctet(d_streamBuf)) {
-            return BDEM_FAILURE;
+            return k_BDEM_FAILURE;
         }
 
         if (!bdeat_NullableValueFunctions::isNull(value)) {
@@ -811,7 +816,7 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
 
             if (0 != bdeat_NullableValueFunctions::accessValue(value, proxy1))
             {
-                return BDEM_FAILURE;
+                return k_BDEM_FAILURE;
             }
         } // end of bdeat_NullableValueFunctions::isNull(...)
 
@@ -826,12 +831,12 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
                                               formattingMode };
 
         if (0 != bdeat_NullableValueFunctions::accessValue(value, proxy2)) {
-                return BDEM_FAILURE;
+                return k_BDEM_FAILURE;
         }
 
     }
 
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 
 template <typename TYPE>
@@ -928,10 +933,10 @@ int BerEncoder::encodeImpl(const TYPE& value,
                                 int                          formattingMode,
                                 bdeat_TypeCategory::Array)
 {
-    enum { BDEM_SUCCESS = 0,  BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0,  k_BDEM_FAILURE = -1 };
 
     if (d_currentDepth <= 1 || tagClass == BerConstants::BDEM_UNIVERSAL) {
-        return BDEM_FAILURE;
+        return k_BDEM_FAILURE;
     }
     // Note: bsl::vector<char> is handled as a special case in the CPP file.
     return this->encodeArrayImpl(value,
@@ -947,12 +952,12 @@ BerEncoder::encodeArrayImpl(const TYPE&                  value,
                                  int                          tagNumber,
                                  int                          formattingMode)
 {
-    enum { BDEM_FAILURE = -1, BDEM_SUCCESS = 0 };
+    enum { k_BDEM_FAILURE = -1, k_BDEM_SUCCESS = 0 };
 
     const int size = (int) bdeat_ArrayFunctions::size(value);
 
     if (0 == size && d_options && !d_options->encodeEmptyArrays()) {
-        return BDEM_SUCCESS;                                          // RETURN
+        return k_BDEM_SUCCESS;                                          // RETURN
     }
 
     const BerConstants::TagType tagType =
@@ -964,7 +969,7 @@ BerEncoder::encodeArrayImpl(const TYPE&                  value,
                                                tagNumber);
     rc |= BerUtil::putIndefiniteLengthOctet(d_streamBuf);
     if (rc) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     BerEncoder_UniversalElementVisitor visitor(this,
@@ -978,7 +983,7 @@ BerEncoder::encodeArrayImpl(const TYPE&                  value,
                            0,  // bdeat_TypeName::name(value),
                            i);
 
-            return BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                      // RETURN
         }
     }
 
@@ -1069,7 +1074,7 @@ BerEncoder_UniversalElementVisitor::
 template <typename TYPE>
 int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     typedef typename
     bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
@@ -1088,10 +1093,10 @@ int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
                             tagNumber,
                             0  // bdeat_TypeName::name(value)
                            );
-        return BDEM_FAILURE;
+        return k_BDEM_FAILURE;
     }
 
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 }  // close package namespace
 

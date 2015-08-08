@@ -174,14 +174,16 @@ class IPv4Address {
 
     // TYPES
     enum {
-        BTESO_ANY_ADDRESS = 0,      // Indicate that it is up to the service
-                                    // provider to assign an appropriate IP.
-                                    // Note that a local platform usually
-                                    // defines 'INADDR_ANY' to have value 0
-                                    // for the same implication.
-        BTESO_ANY_PORT    = 0       // Indicate that it is up to the service
-                                    // provider to assign an appropriate port.
+        k_ANY_ADDRESS = 0  // Indicate that it is up to the service provider to
+                           // assign an appropriate IP.  Note that a local
+                           // platform usually defines 'INADDR_ANY' to have
+                           // value 0 for the same implication.
+
+      , k_ANY_PORT    = 0  // Indicate that it is up to the service provider to
+                           // assign an appropriate port.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_ANY_ADDRESS = k_ANY_ADDRESS
+      , BTESO_ANY_PORT    = k_ANY_PORT
       , ANY_ADDRESS = BTESO_ANY_ADDRESS
       , ANY_PORT    = BTESO_ANY_PORT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED

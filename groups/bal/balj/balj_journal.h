@@ -320,24 +320,34 @@ class balj_Journal {
     typedef unsigned RecordHandle;  // typedef for the record handle
 
     enum {
-        BAECS_INVALID_RECORD_HANDLE = 0xFFFFFFFF
+        k_INVALID_RECORD_HANDLE = 0xFFFFFFFF
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_INVALID_RECORD_HANDLE = k_INVALID_RECORD_HANDLE
       , INVALID_RECORD_HANDLE = BAECS_INVALID_RECORD_HANDLE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        BAECS_READONLY           = 0,  // no write access
-        BAECS_READWRITE          = 1,  // write access
-        BAECS_FAST               = 0,  // no transactions
-        BAECS_SAFE               = 2,  // transaction support;
-                                       // needs BAECS_READWRITE
-        BAECS_MANUAL_COMMIT      = 0,  // user calls commit manually
-        BAECS_AUTO_COMMIT        = 4,  // every add/remove/confirm commits
-        BAECS_PARANOID           = 8,  // extra checks (for testing only)
-        BAECS_RESERVE            = 16  // preallocate disk space
-                                       // (deprecated, now always enabled)
+        k_READONLY           = 0   // no write access
+      , k_READWRITE          = 1   // write access
+      , k_FAST               = 0   // no transactions
+      , k_SAFE               = 2   // transaction support;
+                                   // needs BAECS_READWRITE
+      , k_MANUAL_COMMIT      = 0   // user calls commit manually
+      , k_AUTO_COMMIT        = 4   // every add/remove/confirm commits
+      , k_PARANOID           = 8   // extra checks (for testing only)
+      , k_RESERVE            = 16  // preallocate disk space
+                                   // (deprecated, now always enabled)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_READONLY           = k_READONLY           
+      , BAECS_READWRITE          = k_READWRITE          
+      , BAECS_FAST               = k_FAST               
+      , BAECS_SAFE               = k_SAFE               
+      , BAECS_MANUAL_COMMIT      = k_MANUAL_COMMIT      
+      , BAECS_AUTO_COMMIT        = k_AUTO_COMMIT        
+      , BAECS_PARANOID           = k_PARANOID           
+      , BAECS_RESERVE            = k_RESERVE            
+
       , MODE_READONLY      = BAECS_READONLY
       , MODE_READWRITE     = BAECS_READWRITE
       , MODE_FAST          = BAECS_FAST
@@ -350,10 +360,14 @@ class balj_Journal {
     };
 
     enum {
-        BAECS_PRIORITY_DATA     = 0,
-        BAECS_PRIORITY_METADATA = 1,
-        BAECS_NUM_PRIORITIES    = BAECS_PRIORITY_METADATA + 1
+        e_PRIORITY_DATA     = 0
+      , e_PRIORITY_METADATA = 1
+      , e_NUM_PRIORITIES    = BAECS_PRIORITY_METADATA + 1
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_PRIORITY_DATA     = e_PRIORITY_DATA     
+      , BAECS_PRIORITY_METADATA = e_PRIORITY_METADATA 
+      , BAECS_NUM_PRIORITIES    = e_NUM_PRIORITIES    
+
       , PRIORITY_DATA     = BAECS_PRIORITY_DATA
       , PRIORITY_METADATA = BAECS_PRIORITY_METADATA
       , NUM_PRIORITIES    = BAECS_NUM_PRIORITIES
@@ -369,20 +383,34 @@ class balj_Journal {
     */
 
     enum {
-        BAECS_WRITE_ACCESS_REQUIRED_ERROR     = -1,
-        BAECS_IO_ERROR                        = -2,
-        BAECS_MMAP_ERROR                      = -3,
-        BAECS_UNABLE_TO_ROLLBACK_ERROR        = -4,
-        BAECS_FILE_NOT_FOUND_ERROR            = -5,
-        BAECS_FORMAT_ERROR                    = -6,
-        BAECS_ALIGNMENT_ERROR                 = -7,
-        BAECS_UNSUPPORTED_VERSION_ERROR       = -8,
-        BAECS_INVALID_STATE_ERROR             = -9,
-        BAECS_INVALID_PARAMETERS_ERROR        = -10,
-        BAECS_INVALID_HANDLE_ERROR            = -11,
-        BAECS_VALIDATION_ERROR                = -12,
-        BAECS_UNABLE_TO_LOCK_ERROR            = -13
+        e_WRITE_ACCESS_REQUIRED_ERROR     = -1
+      , e_IO_ERROR                        = -2
+      , e_MMAP_ERROR                      = -3
+      , e_UNABLE_TO_ROLLBACK_ERROR        = -4
+      , e_FILE_NOT_FOUND_ERROR            = -5
+      , e_FORMAT_ERROR                    = -6
+      , e_ALIGNMENT_ERROR                 = -7
+      , e_UNSUPPORTED_VERSION_ERROR       = -8
+      , e_INVALID_STATE_ERROR             = -9
+      , e_INVALID_PARAMETERS_ERROR        = -10
+      , e_INVALID_HANDLE_ERROR            = -11
+      , e_VALIDATION_ERROR                = -12
+      , e_UNABLE_TO_LOCK_ERROR            = -13
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_WRITE_ACCESS_REQUIRED_ERROR     = e_WRITE_ACCESS_REQUIRED_ERROR     
+      , BAECS_IO_ERROR                        = e_IO_ERROR                        
+      , BAECS_MMAP_ERROR                      = e_MMAP_ERROR                      
+      , BAECS_UNABLE_TO_ROLLBACK_ERROR        = e_UNABLE_TO_ROLLBACK_ERROR        
+      , BAECS_FILE_NOT_FOUND_ERROR            = e_FILE_NOT_FOUND_ERROR            
+      , BAECS_FORMAT_ERROR                    = e_FORMAT_ERROR                    
+      , BAECS_ALIGNMENT_ERROR                 = e_ALIGNMENT_ERROR                 
+      , BAECS_UNSUPPORTED_VERSION_ERROR       = e_UNSUPPORTED_VERSION_ERROR       
+      , BAECS_INVALID_STATE_ERROR             = e_INVALID_STATE_ERROR             
+      , BAECS_INVALID_PARAMETERS_ERROR        = e_INVALID_PARAMETERS_ERROR        
+      , BAECS_INVALID_HANDLE_ERROR            = e_INVALID_HANDLE_ERROR            
+      , BAECS_VALIDATION_ERROR                = e_VALIDATION_ERROR                
+      , BAECS_UNABLE_TO_LOCK_ERROR            = e_UNABLE_TO_LOCK_ERROR            
+
       , WRITE_ACCESS_REQUIRED_ERROR = BAECS_WRITE_ACCESS_REQUIRED_ERROR
       , IO_ERROR                    = BAECS_IO_ERROR
       , MMAP_ERROR                  = BAECS_MMAP_ERROR
@@ -401,8 +429,12 @@ class balj_Journal {
 
   private:
     enum {
-        BAECS_RECORD_CONFIRMED = 0x01,
-        BAECS_RECORD_COMMITTED = 0x02
+        e_RECORD_CONFIRMED = 0x01
+      , e_RECORD_COMMITTED = 0x02
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_RECORD_CONFIRMED = e_RECORD_CONFIRMED
+      , BAECS_RECORD_COMMITTED = e_RECORD_COMMITTED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     typedef bdlsu::FilesystemUtil::FileDescriptor FileDescriptor;
