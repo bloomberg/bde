@@ -27,9 +27,6 @@
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 
-#include <bdlxxxx_byteoutstreamformatter.h>
-#include <bdlxxxx_byteinstreamformatter.h>
-
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 
@@ -511,14 +508,6 @@ void printBuffer(const char *buffer, int length)
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
 #endif
@@ -614,12 +603,6 @@ class MyChoice {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
@@ -651,18 +634,6 @@ class MyChoice {
     // MANIPULATORS
     MyChoice& operator=(const MyChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon default
@@ -724,15 +695,6 @@ class MyChoice {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     int selectionId() const;
         // Return the id of the current selection if the selection is defined,
@@ -835,12 +797,6 @@ class MySequenceWithNullable {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -872,18 +828,6 @@ class MySequenceWithNullable {
     // MANIPULATORS
     MySequenceWithNullable& operator=(const MySequenceWithNullable& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -941,15 +885,6 @@ class MySequenceWithNullable {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -1064,12 +999,6 @@ class Address {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -1101,18 +1030,6 @@ class Address {
     // MANIPULATORS
     Address& operator=(const Address& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -1174,15 +1091,6 @@ class Address {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -1293,12 +1201,6 @@ class MySequence {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -1330,18 +1232,6 @@ class MySequence {
     // MANIPULATORS
     MySequence& operator=(const MySequence& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -1399,15 +1289,6 @@ class MySequence {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -1519,12 +1400,6 @@ class MySequenceWithNillable {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -1556,18 +1431,6 @@ class MySequenceWithNillable {
     // MANIPULATORS
     MySequenceWithNillable& operator=(const MySequenceWithNillable& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -1629,15 +1492,6 @@ class MySequenceWithNillable {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -1737,12 +1591,6 @@ struct MyEnumeration {
         // enumerator information for each enumerator
 
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const char *toString(Value value);
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
@@ -1761,37 +1609,10 @@ struct MyEnumeration {
         // no effect on 'result' otherwise (i.e., 'number' does not match any
         // enumerator).
 
-    template <class STREAM>
-    static STREAM& bdexStreamIn(STREAM&  stream,
-                                Value&   value,
-                                int      version);
-        // Assign to the specified 'value' the value read from the specified
-        // input 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the specified 'version' is not supported, 'stream' is
-        // marked invalid, but 'value' is unaltered.  Note that no version is
-        // read from 'stream'.  (See the package-group-level documentation for
-        // more information on 'bdex' streaming of container types.)
-
     static bsl::ostream& print(bsl::ostream& stream, Value value);
         // Write to the specified 'stream' the string representation of
         // the specified enumeration 'value'.  Return a reference to
         // the modifiable 'stream'.
-
-    template <class STREAM>
-    static STREAM& bdexStreamOut(STREAM&  stream,
-                                 Value    value,
-                                 int      version);
-        // Write the specified 'value' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.  Optionally specify
-        // an explicit 'version' format; by default, the maximum supported
-        // version is written to 'stream' and used as the format.  If 'version'
-        // is specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
 };
 
 // FREE OPERATORS
@@ -1844,12 +1665,6 @@ class Sqrt {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -1875,18 +1690,6 @@ class Sqrt {
     // MANIPULATORS
     Sqrt& operator=(const Sqrt& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -1940,15 +1743,6 @@ class Sqrt {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -2069,18 +1863,6 @@ class CustomizedString {
     CustomizedString& operator=(const CustomizedString& rhs);
         // Assign to this object the value of the specified 'rhs' object.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
-
     void reset();
         // Reset this object to the default value (i.e., its value upon
         // default construction).
@@ -2090,21 +1872,6 @@ class CustomizedString {
         // successful and non-zero otherwise.
 
     // ACCESSORS
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
-
-    int maxSupportedBdexVersion() const;
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -2202,12 +1969,6 @@ class BasicRecord {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -2239,18 +2000,6 @@ class BasicRecord {
     // MANIPULATORS
     BasicRecord& operator=(const BasicRecord& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -2312,15 +2061,6 @@ class BasicRecord {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -2445,12 +2185,6 @@ class BasicRecordWithVariant {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -2482,18 +2216,6 @@ class BasicRecordWithVariant {
     // MANIPULATORS
     BasicRecordWithVariant& operator=(const BasicRecordWithVariant& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -2555,15 +2277,6 @@ class BasicRecordWithVariant {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -2681,12 +2394,6 @@ class MySequenceWithArray {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -2718,18 +2425,6 @@ class MySequenceWithArray {
     // MANIPULATORS
     MySequenceWithArray& operator=(const MySequenceWithArray& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -2787,15 +2482,6 @@ class MySequenceWithArray {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -2911,12 +2597,6 @@ class MySequenceWithAnonymousChoiceChoice {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
@@ -2952,18 +2632,6 @@ class MySequenceWithAnonymousChoiceChoice {
     MySequenceWithAnonymousChoiceChoice& operator=(
                                const MySequenceWithAnonymousChoiceChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon default
@@ -3025,15 +2693,6 @@ class MySequenceWithAnonymousChoiceChoice {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     int selectionId() const;
         // Return the id of the current selection if the selection is defined,
@@ -3145,12 +2804,6 @@ class Employee {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -3182,18 +2835,6 @@ class Employee {
     // MANIPULATORS
     Employee& operator=(const Employee& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -3254,15 +2895,6 @@ class Employee {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -3373,12 +3005,6 @@ class BigRecord {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -3410,18 +3036,6 @@ class BigRecord {
     // MANIPULATORS
     BigRecord& operator=(const BigRecord& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -3479,15 +3093,6 @@ class BigRecord {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -3599,12 +3204,6 @@ class MySequenceWithAnonymousChoice {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
         // specified 'id' if the attribute exists, and 0 otherwise.
@@ -3639,18 +3238,6 @@ class MySequenceWithAnonymousChoice {
     MySequenceWithAnonymousChoice& operator=(
                                      const MySequenceWithAnonymousChoice& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -3712,15 +3299,6 @@ class MySequenceWithAnonymousChoice {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -3846,12 +3424,6 @@ class TimingRequest {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
         // Return selection information for the selection indicated by the
         // specified 'id' if the selection exists, and 0 otherwise.
@@ -3883,18 +3455,6 @@ class TimingRequest {
     // MANIPULATORS
     TimingRequest& operator=(const TimingRequest& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon default
@@ -3967,15 +3527,6 @@ class TimingRequest {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
 
     int selectionId() const;
         // Return the id of the current selection if the selection is defined,
@@ -4068,13 +3619,6 @@ namespace test {
                                // class MyChoice
                                // --------------
 
-// CLASS METHODS
-inline
-int MyChoice::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 MyChoice::MyChoice(bslma::Allocator *basicAllocator)
@@ -4130,44 +3674,6 @@ MyChoice::operator=(const MyChoice& rhs)
         }
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& MyChoice::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            short selectionId;
-            stream.getInt16(selectionId);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            switch (selectionId) {
-              case SELECTION_ID_SELECTION1: {
-                makeSelection1();
-                bdex_InStreamFunctions::streamIn(
-                    stream, d_selection1.object(), 1);
-              } break;
-              case SELECTION_ID_SELECTION2: {
-                makeSelection2();
-                bdex_InStreamFunctions::streamIn(
-                    stream, d_selection2.object(), 1);
-              } break;
-              case SELECTION_ID_UNDEFINED: {
-                reset();
-              } break;
-              default:
-                stream.invalidate();
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -4323,30 +3829,6 @@ bsl::string& MyChoice::selection2()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& MyChoice::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-            stream.putInt16(d_selectionId);
-            switch (d_selectionId) {
-              case SELECTION_ID_SELECTION1: {
-                bdex_OutStreamFunctions::streamOut(
-                    stream, d_selection1.object(), 1);
-              } break;
-              case SELECTION_ID_SELECTION2: {
-                bdex_OutStreamFunctions::streamOut(
-                    stream, d_selection2.object(), 1);
-              } break;
-              default:
-                BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-            }
-      } break;
-    }
-    return stream;
-}
-
 inline
 int MyChoice::selectionId() const
 {
@@ -4410,13 +3892,6 @@ bool MyChoice::isUndefinedValue() const
                         // class MySequenceWithNullable
                         // ----------------------------
 
-// CLASS METHODS
-inline
-int MySequenceWithNullable::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 MySequenceWithNullable::MySequenceWithNullable(
@@ -4450,24 +3925,6 @@ MySequenceWithNullable::operator=(const MySequenceWithNullable& rhs)
         d_attribute2 = rhs.d_attribute2;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& MySequenceWithNullable::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_attribute1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute2, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -4552,20 +4009,6 @@ bdlb::NullableValue<bsl::string>& MySequenceWithNullable::attribute2()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM&
-MySequenceWithNullable::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute2, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int MySequenceWithNullable::accessAttributes(ACCESSOR& accessor) const
@@ -4644,13 +4087,6 @@ MySequenceWithNullable::attribute2() const
                                // class Address
                                // -------------
 
-// CLASS METHODS
-inline
-int Address::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 Address::Address(bslma::Allocator *basicAllocator)
@@ -4686,25 +4122,6 @@ Address::operator=(const Address& rhs)
         d_state = rhs.d_state;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& Address::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_street, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_city, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_state, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -4803,20 +4220,6 @@ bsl::string& Address::state()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& Address::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_street, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_city, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_state, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int Address::accessAttributes(ACCESSOR& accessor) const
@@ -4907,13 +4310,6 @@ const bsl::string& Address::state() const
                               // class MySequence
                               // ----------------
 
-// CLASS METHODS
-inline
-int MySequence::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 MySequence::MySequence(bslma::Allocator *basicAllocator)
@@ -4946,24 +4342,6 @@ MySequence::operator=(const MySequence& rhs)
         d_attribute2 = rhs.d_attribute2;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& MySequence::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_attribute1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute2, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -5047,19 +4425,6 @@ bsl::string& MySequence::attribute2()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& MySequence::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute2, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int MySequence::accessAttributes(ACCESSOR& accessor) const
@@ -5137,13 +4502,6 @@ const bsl::string& MySequence::attribute2() const
                         // class MySequenceWithNillable
                         // ----------------------------
 
-// CLASS METHODS
-inline
-int MySequenceWithNillable::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 MySequenceWithNillable::MySequenceWithNillable(
@@ -5180,25 +4538,6 @@ MySequenceWithNillable::operator=(const MySequenceWithNillable& rhs)
         d_attribute2 = rhs.d_attribute2;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& MySequenceWithNillable::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_attribute1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_myNillable, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute2, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -5301,21 +4640,6 @@ bsl::string& MySequenceWithNillable::attribute2()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM&
-MySequenceWithNillable::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_myNillable, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute2, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int MySequenceWithNillable::accessAttributes(ACCESSOR& accessor) const
@@ -5413,12 +4737,6 @@ const bsl::string& MySequenceWithNillable::attribute2() const
 
 // CLASS METHODS
 inline
-int MyEnumeration::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1
-}
-
-inline
 int MyEnumeration::fromInt(MyEnumeration::Value *result, int number)
 {
     enum { SUCCESS = 0, NOT_FOUND = 1 };
@@ -5457,53 +4775,9 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
     return 0;
 }
 
-template <class STREAM>
-inline
-STREAM& MyEnumeration::bdexStreamIn(STREAM&             stream,
-                                   MyEnumeration::Value& value,
-                                   int                 version)
-{
-    switch(version) {
-      case 1: {
-        int readValue;
-        stream.getInt32(readValue);
-        if (stream) {
-            if (fromInt(&value, readValue)) {
-               stream.invalidate();   // bad value in stream
-            }
-        }
-      } break;
-      default: {
-        stream.invalidate();          // unrecognized version number
-      } break;
-    }
-    return stream;
-}
-
-template <class STREAM>
-inline
-STREAM& MyEnumeration::bdexStreamOut(STREAM&              stream,
-                                    MyEnumeration::Value value,
-                                    int                version)
-{
-    switch (version) {
-      case 1: {
-        stream.putInt32(value);  // Write the value as an int
-      } break;
-    }
-    return stream;
-}
-
                                  // ----------
                                  // class Sqrt
                                  // ----------
-
-// CLASS METHODS
-inline
-int Sqrt::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
 
 // CREATORS
 inline
@@ -5532,23 +4806,6 @@ Sqrt::operator=(const Sqrt& rhs)
         d_value = rhs.d_value;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& Sqrt::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_value, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -5613,18 +4870,6 @@ double& Sqrt::value()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& Sqrt::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_value, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int Sqrt::accessAttributes(ACCESSOR& accessor) const
@@ -5730,24 +4975,6 @@ CustomizedString& CustomizedString::operator=(const CustomizedString& rhs)
     return *this;
 }
 
-template <class STREAM>
-STREAM& CustomizedString::bdexStreamIn(STREAM& stream, int version)
-{
-    bsl::string temp;
-
-    bdex_InStreamFunctions::streamIn(stream, temp, version);
-
-    if (!stream) {
-        return stream;
-    }
-
-    if (fromString(temp)!=0) {
-        stream.invalidate();
-    }
-
-    return stream;
-}
-
 inline
 void CustomizedString::reset()
 {
@@ -5766,18 +4993,6 @@ int CustomizedString::fromString(const bsl::string& value)
 }
 
 // ACCESSORS
-template <class STREAM>
-STREAM& CustomizedString::bdexStreamOut(STREAM& stream, int version) const
-{
-    return bdex_OutStreamFunctions::streamOut(stream, d_value, version);
-}
-
-inline
-int CustomizedString::maxSupportedBdexVersion() const
-{
-    return bdex_VersionFunctions::maxSupportedVersion(d_value);
-}
-
 inline
 bsl::ostream& CustomizedString::print(bsl::ostream& stream,
                                  int           level,
@@ -5795,13 +5010,6 @@ const bsl::string& CustomizedString::toString() const
                              // -----------------
                              // class BasicRecord
                              // -----------------
-
-// CLASS METHODS
-inline
-int BasicRecord::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
 
 // CREATORS
 inline
@@ -5841,26 +5049,6 @@ BasicRecord::operator=(const BasicRecord& rhs)
         d_s = rhs.d_s;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& BasicRecord::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_i1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_i2, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_dt, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_s, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -5972,21 +5160,6 @@ bsl::string& BasicRecord::s()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& BasicRecord::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_i1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_i2, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_dt, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_s, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int BasicRecord::accessAttributes(ACCESSOR& accessor) const
@@ -6090,13 +5263,6 @@ const bsl::string& BasicRecord::s() const
                              // class BasicRecordWithVariant
                              // ----------------------------
 
-// CLASS METHODS
-inline
-int BasicRecordWithVariant::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 BasicRecordWithVariant::BasicRecordWithVariant(
@@ -6136,26 +5302,6 @@ BasicRecordWithVariant::operator=(const BasicRecordWithVariant& rhs)
         d_s = rhs.d_s;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& BasicRecordWithVariant::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_i1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_i2, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_dt, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_s, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -6268,22 +5414,6 @@ bsl::string& BasicRecordWithVariant::s()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& BasicRecordWithVariant::bdexStreamOut(STREAM& stream,
-                                              int     version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_i1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_i2, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_dt, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_s, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int BasicRecordWithVariant::accessAttributes(ACCESSOR& accessor) const
@@ -6404,13 +5534,6 @@ const bsl::string& BasicRecordWithVariant::s() const
                          // class MySequenceWithArray
                          // -------------------------
 
-// CLASS METHODS
-inline
-int MySequenceWithArray::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 MySequenceWithArray::MySequenceWithArray(bslma::Allocator *basicAllocator)
@@ -6443,24 +5566,6 @@ MySequenceWithArray::operator=(const MySequenceWithArray& rhs)
         d_attribute2 = rhs.d_attribute2;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& MySequenceWithArray::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_attribute1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute2, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -6544,19 +5649,6 @@ bsl::vector<bsl::string>& MySequenceWithArray::attribute2()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& MySequenceWithArray::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute2, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int MySequenceWithArray::accessAttributes(ACCESSOR& accessor) const
@@ -6634,13 +5726,6 @@ const bsl::vector<bsl::string>& MySequenceWithArray::attribute2() const
                  // class MySequenceWithAnonymousChoiceChoice
                  // -----------------------------------------
 
-// CLASS METHODS
-inline
-int MySequenceWithAnonymousChoiceChoice::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
@@ -6698,45 +5783,6 @@ MySequenceWithAnonymousChoiceChoice::operator=(
         }
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& MySequenceWithAnonymousChoiceChoice::bdexStreamIn(STREAM& stream,
-                                                          int     version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            short selectionId;
-            stream.getInt16(selectionId);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            switch (selectionId) {
-              case SELECTION_ID_MY_CHOICE1: {
-                makeMyChoice1();
-                bdex_InStreamFunctions::streamIn(
-                    stream, d_myChoice1.object(), 1);
-              } break;
-              case SELECTION_ID_MY_CHOICE2: {
-                makeMyChoice2();
-                bdex_InStreamFunctions::streamIn(
-                    stream, d_myChoice2.object(), 1);
-              } break;
-              case SELECTION_ID_UNDEFINED: {
-                reset();
-              } break;
-              default:
-                stream.invalidate();
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -6898,32 +5944,6 @@ bsl::string& MySequenceWithAnonymousChoiceChoice::myChoice2()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM&
-MySequenceWithAnonymousChoiceChoice::bdexStreamOut(STREAM& stream,
-                                                   int     version) const
-{
-    switch (version) {
-      case 1: {
-            stream.putInt16(d_selectionId);
-            switch (d_selectionId) {
-              case SELECTION_ID_MY_CHOICE1: {
-                bdex_OutStreamFunctions::streamOut(
-                    stream, d_myChoice1.object(), 1);
-              } break;
-              case SELECTION_ID_MY_CHOICE2: {
-                bdex_OutStreamFunctions::streamOut(
-                    stream, d_myChoice2.object(), 1);
-              } break;
-              default:
-                BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-            }
-      } break;
-    }
-    return stream;
-}
-
 inline
 int MySequenceWithAnonymousChoiceChoice::selectionId() const
 {
@@ -6988,13 +6008,6 @@ bool MySequenceWithAnonymousChoiceChoice::isUndefinedValue() const
                                // class Employee
                                // --------------
 
-// CLASS METHODS
-inline
-int Employee::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 Employee::Employee(bslma::Allocator *basicAllocator)
@@ -7030,25 +6043,6 @@ Employee::operator=(const Employee& rhs)
         d_age = rhs.d_age;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_name, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_homeAddress, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_age, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -7147,20 +6141,6 @@ int& Employee::age()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& Employee::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_name, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_homeAddress, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_age, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int Employee::accessAttributes(ACCESSOR& accessor) const
@@ -7251,13 +6231,6 @@ const int& Employee::age() const
                               // class BigRecord
                               // ---------------
 
-// CLASS METHODS
-inline
-int BigRecord::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 BigRecord::BigRecord(bslma::Allocator *basicAllocator)
@@ -7290,24 +6263,6 @@ BigRecord::operator=(const BigRecord& rhs)
         d_array = rhs.d_array;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& BigRecord::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_name, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_array, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -7389,19 +6344,6 @@ bsl::vector<BasicRecord>& BigRecord::array()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& BigRecord::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_name, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_array, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int BigRecord::accessAttributes(ACCESSOR& accessor) const
@@ -7475,13 +6417,6 @@ const bsl::vector<BasicRecord>& BigRecord::array() const
                     // class MySequenceWithAnonymousChoice
                     // -----------------------------------
 
-// CLASS METHODS
-inline
-int MySequenceWithAnonymousChoice::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 MySequenceWithAnonymousChoice::MySequenceWithAnonymousChoice(
@@ -7519,26 +6454,6 @@ MySequenceWithAnonymousChoice::operator=(
         d_attribute2 = rhs.d_attribute2;
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM&
-MySequenceWithAnonymousChoice::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_attribute1, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_choice, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_attribute2, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -7642,21 +6557,6 @@ bsl::string& MySequenceWithAnonymousChoice::attribute2()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& MySequenceWithAnonymousChoice::bdexStreamOut(STREAM& stream,
-                                                     int     version) const
-{
-    switch (version) {
-      case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute1, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_choice, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_attribute2, 1);
-      } break;
-    }
-    return stream;
-}
-
 template <class ACCESSOR>
 inline
 int MySequenceWithAnonymousChoice::accessAttributes(ACCESSOR& accessor) const
@@ -7752,13 +6652,6 @@ const bsl::string& MySequenceWithAnonymousChoice::attribute2() const
                             // class TimingRequest
                             // -------------------
 
-// CLASS METHODS
-inline
-int TimingRequest::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 TimingRequest::TimingRequest(bslma::Allocator *basicAllocator)
@@ -7822,49 +6715,6 @@ TimingRequest::operator=(const TimingRequest& rhs)
         }
     }
     return *this;
-}
-
-template <class STREAM>
-inline
-STREAM& TimingRequest::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {  // Switch on the schema version (starting with 1).
-          case 1: {
-            short selectionId;
-            stream.getInt16(selectionId);
-            if (!stream) {
-                return stream;                                        // RETURN
-            }
-            switch (selectionId) {
-              case SELECTION_ID_SQRT: {
-                makeSqrt();
-                bdex_InStreamFunctions::streamIn(
-                    stream, d_sqrt.object(), 1);
-              } break;
-              case SELECTION_ID_BASIC: {
-                makeBasic();
-                bdex_InStreamFunctions::streamIn(
-                    stream, d_basic.object(), 1);
-              } break;
-              case SELECTION_ID_BIG: {
-                makeBig();
-                bdex_InStreamFunctions::streamIn(
-                    stream, d_big.object(), 1);
-              } break;
-              case SELECTION_ID_UNDEFINED: {
-                reset();
-              } break;
-              default:
-                stream.invalidate();
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
 }
 
 inline
@@ -8069,34 +6919,6 @@ BigRecord& TimingRequest::big()
 }
 
 // ACCESSORS
-template <class STREAM>
-inline
-STREAM& TimingRequest::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-            stream.putInt16(d_selectionId);
-            switch (d_selectionId) {
-              case SELECTION_ID_SQRT: {
-                bdex_OutStreamFunctions::streamOut(
-                    stream, d_sqrt.object(), 1);
-              } break;
-              case SELECTION_ID_BASIC: {
-                bdex_OutStreamFunctions::streamOut(
-                    stream, d_basic.object(), 1);
-              } break;
-              case SELECTION_ID_BIG: {
-                bdex_OutStreamFunctions::streamOut(
-                    stream, d_big.object(), 1);
-              } break;
-              default:
-                BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
-            }
-      } break;
-    }
-    return stream;
-}
-
 inline
 int TimingRequest::selectionId() const
 {
@@ -15065,66 +13887,7 @@ int main(int argc, char *argv[])
         bsl::cout << "    balber::BerDecoder: " << elapsed << " seconds, "
                   << (reps / elapsed) << " reps/sec" << bsl::endl;
 
-        // Measure bdex encoding and decoding time:
-        osb.reserveCapacity(MAX_BUF_SIZE);
-        bdlxxxx::ByteOutStreamFormatter bdexOutStream(&osb);
-
-        stopwatch.reset();
-        stopwatch.start();
-        for (int i = 0; i < reps; ++i) {
-            osb.pubseekpos(0);
-            bdex_OutStreamFunctions::streamOut(
-                                            bdexOutStream,
-                                            request,
-                                            request.maxSupportedBdexVersion());
-        }
-        stopwatch.stop();
-
-        ASSERT(minOutputSize <= osb.length());
-        ASSERT(osb.length() <= MAX_BUF_SIZE);
-        elapsed = stopwatch.elapsedTime();
-        ASSERT(elapsed > 0);
-
-        double bdexEncodeSpeed = reps / elapsed;
-        bsl::cout << "      bdex encoding: " << elapsed << " seconds, "
-                  << (reps / elapsed) << " reps/sec, "
-                  << osb.length() << " bytes" << bsl::endl;
-
-        isb.pubsetbuf(osb.data(), osb.length());
-        bdlxxxx::ByteInStreamFormatter bdexInStream(&isb);
-        inRequests = new test::TimingRequest[reps];
-        stopwatch.reset();
-        stopwatch.start();
-        for (int i = 0; i < reps; ++i) {
-            isb.pubseekpos(0);
-            bdex_InStreamFunctions::streamIn(
-                                      bdexInStream,
-                                      inRequests[i],
-                                      inRequests[i].maxSupportedBdexVersion());
-        }
-        stopwatch.stop();
-
-        ASSERT(*inRequests == request);
-        elapsed = stopwatch.elapsedTime();
-        ASSERT(elapsed > 0);
         delete[] inRequests;
-
-        double bdexDecodeSpeed = reps / elapsed;
-        bsl::cout << "      bdex decoding: " << elapsed << " seconds, "
-                  << (reps / elapsed) << " reps/sec" << bsl::endl;
-
-        double slowDown = 1.0 - berEncodeSpeed / bdexEncodeSpeed;
-        bsl::cout << "BerEncoder is " << (slowDown * 100.0)
-                  << "% slower than bdex" << bsl::endl;
-
-        slowDown = 1.0 - berDecodeSpeed / bdexDecodeSpeed;
-        bsl::cout << "BerDecoder is " << (slowDown * 100.0)
-                  << "% slower than bdex" << bsl::endl;
-
-        slowDown = 1.0 - ((berEncodeSpeed + berDecodeSpeed) /
-                          (bdexEncodeSpeed + bdexDecodeSpeed));
-        bsl::cout << "BerEn/Decoder is " << (slowDown * 100.0)
-                  << "% slower than bdex" << bsl::endl;
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

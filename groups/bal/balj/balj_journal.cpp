@@ -321,7 +321,7 @@ balj_Journal_LockGuard::balj_Journal_LockGuard(balj_Journal *journal,
 {
     BSLS_ASSERT(journal);
     BSLS_ASSERT(d_journal_p->d_fd != bdlsu::FilesystemUtil::k_INVALID_FD);
-    BSLS_ASSERT(d_journal_p->d_mode & balj_Journal::BAECS_READWRITE);
+    BSLS_ASSERT(d_journal_p->d_mode & balj_Journal::k_READWRITE);
 
     if (write) {
         d_journal_p->d_lock.lockWrite();
@@ -448,10 +448,10 @@ class balj_Journal_BlockRef {
           , d_page(0)
           , d_blockHeader(NULL)
     {
-        BSLS_ASSERT(handle != balj_Journal::BAECS_INVALID_RECORD_HANDLE);
+        BSLS_ASSERT(handle != balj_Journal::k_INVALID_RECORD_HANDLE);
         unsigned block;
         d_journal_p->handle2PageBlock(&d_page, &block, handle);
-        BSLS_ASSERT(block != balj::JournalPageHeader::BAECS_INDEX_NONE);
+        BSLS_ASSERT(block != balj::JournalPageHeader::k_INDEX_NONE);
 
         balj::JournalPageHeader *pageHeader =
                 journal->getPageHeader(d_page, markDirty);
@@ -500,7 +500,7 @@ balj_Journal::balj_Journal(balj::MappingManager *mappingManager,
 {
     BSLS_ASSERT(d_mappingManager_p != NULL);
     BSLS_ASSERT(d_dirtyListHandle);
-    BSLS_ASSERT(BAECS_NUM_PRIORITIES <=
+    BSLS_ASSERT(e_NUM_PRIORITIES <=
                                       d_mappingManager_p->numPriorityLevels());
 }
 
@@ -526,21 +526,21 @@ int balj_Journal::openImpl(const char                   *filename,
             << BALL_LOG_END;
         mode |= envmode;
     }
-    bool isReadWrite = (mode & BAECS_READWRITE) != 0;
+    bool isReadWrite = (mode & k_READWRITE) != 0;
     FileDescriptor fd = bdlsu::FilesystemUtil::open(
                              filename,
                              bdlsu::FilesystemUtil::e_OPEN,
                              isReadWrite ? bdlsu::FilesystemUtil::e_READ_WRITE
                                          : bdlsu::FilesystemUtil::e_READ_ONLY);
     if (fd == bdlsu::FilesystemUtil::k_INVALID_FD) {
-        return BAECS_FILE_NOT_FOUND_ERROR;
+        return e_FILE_NOT_FOUND_ERROR;
     }
     if (0 != bdlsu::FilesystemUtil::tryLock(fd, isReadWrite)) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": cannot lock the file"
             << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_UNABLE_TO_LOCK_ERROR;
+        return e_UNABLE_TO_LOCK_ERROR;
     }
     d_fileSize = bdlsu::FilesystemUtil::getFileSize(filename);
 
@@ -558,25 +558,25 @@ int balj_Journal::openImpl(const char                   *filename,
             << "bytes)"
             << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_IO_ERROR;
+        return e_IO_ERROR;
     }
-    if (data.d_magic != balj::JournalHeader::BAECS_JOURNAL_MAGIC_NUMBER) {
+    if (data.d_magic != balj::JournalHeader::k_JOURNAL_MAGIC_NUMBER) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": magic number mismatch (found:"
             << bsl::hex << data.d_magic << " expected:"
-            << bsl::hex << balj::JournalHeader::BAECS_JOURNAL_MAGIC_NUMBER
+            << bsl::hex << balj::JournalHeader::k_JOURNAL_MAGIC_NUMBER
             << ")"
             << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_FORMAT_ERROR;
+        return e_FORMAT_ERROR;
     }
-    if (data.d_version != balj::JournalHeader::BAECS_JOURNAL_VERSION_CURRENT) {
+    if (data.d_version != balj::JournalHeader::k_JOURNAL_VERSION_CURRENT) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": unsupported journal version found: "
             << bsl::hex << data.d_version
             << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_UNSUPPORTED_VERSION_ERROR;
+        return e_UNSUPPORTED_VERSION_ERROR;
     }
     unsigned headerSize = data.d_headerSize;
     unsigned alignment = (unsigned)bdlsu::MemoryUtil::pageSize();
@@ -586,14 +586,14 @@ int balj_Journal::openImpl(const char                   *filename,
                "on this platform, must be a multiple of " << alignment
             << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_ALIGNMENT_ERROR;
+        return e_ALIGNMENT_ERROR;
     }
 
     d_headerHandle = d_mappingManager_p->addPage(fd,
                                                  0,
                                                  headerSize,
                                                  isReadWrite,
-                                                 BAECS_PRIORITY_METADATA);
+                                                 e_PRIORITY_METADATA);
 
     d_headerPage = d_mappingManager_p->usePage(d_headerHandle);
 
@@ -602,10 +602,10 @@ int balj_Journal::openImpl(const char                   *filename,
         d_mappingManager_p->removePage(d_headerHandle);
         d_headerHandle = balj::MappingManager::INVALID_HANDLE;
         BALL_LOG_ERROR << "Cannot open " << filename
-                       << ": " << errorMessage(BAECS_MMAP_ERROR)
+                       << ": " << errorMessage(e_MMAP_ERROR)
                        << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_MMAP_ERROR;
+        return e_MMAP_ERROR;
     }
     d_header.setPersistentStore(d_headerPage);
 
@@ -618,19 +618,19 @@ int balj_Journal::openImpl(const char                   *filename,
         d_mappingManager_p->removePage(d_headerHandle);
         d_headerHandle = balj::MappingManager::INVALID_HANDLE;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_ALIGNMENT_ERROR;
+        return e_ALIGNMENT_ERROR;
     }
 
     BALL_LOG_TRACE << "Header = " << d_header << BALL_LOG_END;
 
-    if (d_header.recoverTransaction(mode & BAECS_SAFE)) { // TRT
+    if (d_header.recoverTransaction(mode & k_SAFE)) { // TRT
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": failed to recover transaction"
             << BALL_LOG_END;
         d_mappingManager_p->removePage(d_headerHandle);
         d_headerHandle = balj::MappingManager::INVALID_HANDLE;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_VALIDATION_ERROR;
+        return e_VALIDATION_ERROR;
     }
 
     d_fd       = fd;
@@ -645,23 +645,23 @@ int balj_Journal::openImpl(const char                   *filename,
         d_mappingManager_p->removePage(d_headerHandle);
         d_headerHandle = balj::MappingManager::INVALID_HANDLE;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_VALIDATION_ERROR;
+        return e_VALIDATION_ERROR;
     }
 
     // Validate the journal:
     // set the mode to read-only, revert after validation
     // validate the journal in non-verbose mode.
-    d_mode = BAECS_READONLY;
+    d_mode = k_READONLY;
     if (validateImpl(false)) {
         BALL_LOG_ERROR << "Validation of " << d_filename << " failed."
                        << BALL_LOG_END;
         // Close the journal so it can be properly reopened.
         closeImpl();
-        return BAECS_VALIDATION_ERROR;
+        return e_VALIDATION_ERROR;
     }
     d_mode = mode;
 
-    if (d_mode & BAECS_SAFE) {
+    if (d_mode & k_SAFE) {
         beginTransaction();
     }
     return 0;
@@ -675,13 +675,13 @@ int balj_Journal::open(const char *filename,
         BALL_LOG_ERROR << "Cannot open " << filename
                        << ": journal is already open"
                        << BALL_LOG_END;
-        return BAECS_INVALID_STATE_ERROR;
+        return e_INVALID_STATE_ERROR;
     }
 
     // 'openImpl' logs all errors except "file not found", so we must log
     // this error here.
     int rc = openImpl(filename, mode);
-    if (rc == BAECS_FILE_NOT_FOUND_ERROR) {
+    if (rc == e_FILE_NOT_FOUND_ERROR) {
         BALL_LOG_ERROR << "Cannot open " << filename
                        << ": file not found"
                        << BALL_LOG_END;
@@ -691,10 +691,10 @@ int balj_Journal::open(const char *filename,
         return rc;
     }
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         d_debugRecordMap.clear();
         for (RecordHandle h  = firstUnconfirmedRecord();
-                         h != BAECS_INVALID_RECORD_HANDLE;
+                         h != k_INVALID_RECORD_HANDLE;
                          h  = nextUnconfirmedRecord(h)) {
 
             bsl::pair<DebugRecordMap::iterator, bool> rc =
@@ -708,12 +708,12 @@ int balj_Journal::open(const char *filename,
         }
 
         for (RecordHandle h  = firstConfirmedRecord();
-                         h != BAECS_INVALID_RECORD_HANDLE;
+                         h != k_INVALID_RECORD_HANDLE;
                          h  = nextConfirmedRecord(h)) {
 
             bsl::pair<DebugRecordMap::iterator, bool> rc =
                 d_debugRecordMap.insert(
-                    bsl::make_pair(h, (int)BAECS_RECORD_CONFIRMED));
+                    bsl::make_pair(h, (int)e_RECORD_CONFIRMED));
             if (!rc.second) {
                 BALL_LOG_ERROR << "duplicate record " << h
                     << " when opening " << filename
@@ -742,7 +742,7 @@ balj_Journal::create(
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": journal is already open"
             << BALL_LOG_END;
-        return BAECS_INVALID_STATE_ERROR;
+        return e_INVALID_STATE_ERROR;
     }
 
     char* senvmode = getenv("BAECS_JOURNAL_FORCEMODE");
@@ -756,19 +756,19 @@ balj_Journal::create(
         mode |= envmode;
     }
 
-    bool isReadWrite = (mode & BAECS_READWRITE) != 0;
+    bool isReadWrite = (mode & k_READWRITE) != 0;
     int rc = openImpl(filename, mode);
-    if (rc != BAECS_FILE_NOT_FOUND_ERROR) {
+    if (rc != e_FILE_NOT_FOUND_ERROR) {
         // this condition includes all errors except file not found
         // AND SUCCESS.  errors were logged already.
         return rc;
     }
 
-    if (!(mode & BAECS_READWRITE)) {
+    if (!(mode & k_READWRITE)) {
         BALL_LOG_ERROR << "Cannot open " << filename
             << ": file not found"
             << BALL_LOG_END;
-        return BAECS_FILE_NOT_FOUND_ERROR;
+        return e_FILE_NOT_FOUND_ERROR;
     }
 
     if (param.blockSize() < (int) sizeof(balj::Journal_SegmentHeader)) {
@@ -776,7 +776,7 @@ balj_Journal::create(
             << ": invalid block size specified, must be at least "
             << sizeof(balj::Journal_SegmentHeader)
             << BALL_LOG_END;
-        return BAECS_INVALID_PARAMETERS_ERROR;
+        return e_INVALID_PARAMETERS_ERROR;
     }
 
     FileDescriptor fd = bdlsu::FilesystemUtil::open(
@@ -788,7 +788,7 @@ balj_Journal::create(
         BALL_LOG_ERROR << "Cannot open " << filename
                        << ": cannot create file"
                        << BALL_LOG_END;
-        return BAECS_IO_ERROR;
+        return e_IO_ERROR;
     }
 
     if (0 != bdlsu::FilesystemUtil::tryLock(fd, isReadWrite)) {
@@ -796,7 +796,7 @@ balj_Journal::create(
             << ": cannot lock the file"
             << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_UNABLE_TO_LOCK_ERROR;
+        return e_UNABLE_TO_LOCK_ERROR;
     }
 
     d_filename          = filename;
@@ -812,7 +812,7 @@ balj_Journal::create(
     unsigned pageDataSize =
             (param.blocksPerPage() * param.blockSize() + alignment - 1)
                                                             & ~(alignment - 1);
-    rc = growFile(fd, headerSize, (mode & BAECS_RESERVE) != 0);
+    rc = growFile(fd, headerSize, (mode & k_RESERVE) != 0);
 
     if (rc) {
         return rc; // errors are already logged
@@ -822,23 +822,23 @@ balj_Journal::create(
                                                  0,
                                                  headerSize,
                                                  true,
-                                                 BAECS_PRIORITY_METADATA);
+                                                 e_PRIORITY_METADATA);
     d_headerPage = d_mappingManager_p->usePage(d_headerHandle);
 
     if (!d_headerPage) {
         d_mappingManager_p->removePage(d_headerHandle);
         BALL_LOG_ERROR << "Cannot open " << filename
-                       << ": " << errorMessage(BAECS_MMAP_ERROR)
+                       << ": " << errorMessage(e_MMAP_ERROR)
                        << BALL_LOG_END;
         bdlsu::FilesystemUtil::close(fd);
-        return BAECS_MMAP_ERROR;
+        return e_MMAP_ERROR;
     }
     d_header.setPersistentStore(d_headerPage);
 
     d_header.init(headerSize, pageHeaderSize, pageDataSize, alignment,
                      userDataSize, param);
 
-    if (!(mode & BAECS_SAFE)) {
+    if (!(mode & k_SAFE)) {
         // If SAFE mode is not used, mark the current transaction as committed
         // in advance.
         d_header.commitCurrentTransaction();
@@ -879,7 +879,7 @@ int balj_Journal::close()
         return 0;
     }
 
-    if (d_mode & BAECS_SAFE) {
+    if (d_mode & k_SAFE) {
         commitImpl();
     }
 
@@ -925,7 +925,7 @@ int balj_Journal::growFile(FileDescriptor         fd,
             << ", avail space: " << PrintSize(availableSpace)
             << ")"
             << BALL_LOG_END;
-        return BAECS_IO_ERROR;
+        return e_IO_ERROR;
     }
 
     if (fileSizeLimit < size) {
@@ -936,7 +936,7 @@ int balj_Journal::growFile(FileDescriptor         fd,
             << ", ulimit: " << PrintSize(fileSizeLimit)
             << ")"
             << BALL_LOG_END;
-        return BAECS_IO_ERROR;
+        return e_IO_ERROR;
     }
 
     bdlsu::FilesystemUtil::Offset limit = availableSpace;
@@ -965,7 +965,7 @@ int balj_Journal::growFile(FileDescriptor         fd,
             << d_filename << " to "
             << size << " bytes: rc = " << rc
             << BALL_LOG_END;
-        return BAECS_IO_ERROR;
+        return e_IO_ERROR;
     }
     d_fileSize = size;
     return 0;
@@ -1004,8 +1004,8 @@ int balj_Journal::growJournal(bool init)
             d_mappingManager_p->addPage(d_fd,
                                         offset,
                                         size,
-                                        (d_mode & BAECS_READWRITE) != 0,
-                                        BAECS_PRIORITY_METADATA,
+                                        (d_mode & k_READWRITE) != 0,
+                                        e_PRIORITY_METADATA,
                                         d_dirtyListHandle);
         d_pageSetHeaderHandles.push_back(setHandle);
     }
@@ -1020,7 +1020,7 @@ int balj_Journal::growJournal(bool init)
         BSLS_ASSERT(pageSet < d_pageSetHeaderHandles.size());
 
         char *data = d_mappingManager_p->usePage(
-             d_pageSetHeaderHandles[pageSet], (d_mode & BAECS_READWRITE) != 0);
+             d_pageSetHeaderHandles[pageSet], (d_mode & k_READWRITE) != 0);
 
         balj::JournalPageHeader *ph[2];
         ph[0] = reinterpret_cast<balj::JournalPageHeader *>
@@ -1056,7 +1056,7 @@ int balj_Journal::growJournal(bool init)
                 // from being picked up in the next transaction.  This
                 // change will be synced in commitImpl before actual
                 // commit.
-                if ((d_mode & BAECS_READWRITE) && (d_mode & BAECS_SAFE)) {
+                if ((d_mode & k_READWRITE) && (d_mode & k_SAFE)) {
                         ph[index]->setTransactionId(0);
                 }
                 index = 1 - index;
@@ -1088,8 +1088,8 @@ int balj_Journal::growJournal(bool init)
                    d_mappingManager_p->addPage(d_fd,
                                                offset,
                                                d_header.pageDataSize(),
-                                               (d_mode & BAECS_READWRITE) != 0,
-                                               BAECS_PRIORITY_DATA,
+                                               (d_mode & k_READWRITE) != 0,
+                                               e_PRIORITY_DATA,
                                                d_dirtyListHandle);
         d_pageHandles.push_back(handle);
     }
@@ -1106,9 +1106,9 @@ balj::JournalPageHeader*
 balj_Journal::getPageHeader(unsigned page, bool makeDirty) const
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-    BSLS_ASSERT(!makeDirty || (d_mode & BAECS_READWRITE));
+    BSLS_ASSERT(!makeDirty || (d_mode & k_READWRITE));
 
-    if (!(d_mode & BAECS_SAFE)) {
+    if (!(d_mode & k_SAFE)) {
         makeDirty = false;
     }
 
@@ -1131,7 +1131,7 @@ balj_Journal::getPageHeader(unsigned page, bool makeDirty) const
     BSLS_ASSERT(page < d_pageWorkIndexes.size());
     int index = d_pageWorkIndexes[page];
 
-    if (d_mode & BAECS_SAFE) {
+    if (d_mode & k_SAFE) {
         // TBD: think of how we can get rid of this lock?
         bdlqq::LockGuard<bdlqq::Mutex> lGuard(&d_workIndexLock);
 
@@ -1193,8 +1193,8 @@ balj_Journal::getPageHeader(unsigned page, bool makeDirty) const
 char* balj_Journal::getPageData(unsigned page, bool makeDirty) const
 {
     BSLS_ASSERT(page < d_pageHandles.size());
-    BSLS_ASSERT(!makeDirty || (d_mode & BAECS_READWRITE));
-    if (!(d_mode & BAECS_SAFE)) makeDirty = false;
+    BSLS_ASSERT(!makeDirty || (d_mode & k_READWRITE));
+    if (!(d_mode & k_SAFE)) makeDirty = false;
     return d_mappingManager_p->usePage(d_pageHandles[page], makeDirty);
 }
 
@@ -1231,7 +1231,7 @@ balj_Journal::getAvailablePageHeader(unsigned *page, unsigned numBlocks)
     //
 
     balj::JournalHeaderPageList& fillPages = d_header.fillPages();
-    while (fillPages.d_firstPage != BAECS_INVALID_RECORD_HANDLE) {
+    while (fillPages.d_firstPage != k_INVALID_RECORD_HANDLE) {
 
        BSLS_ASSERT(0 != fillPages.d_numElements);
        *page = fillPages.d_firstPage;
@@ -1245,12 +1245,12 @@ balj_Journal::getAvailablePageHeader(unsigned *page, unsigned numBlocks)
            fillPages.d_firstPage = ph->nextPage();
            fillPages.d_numElements = fillPages.d_numElements - 1;;
 
-           ph->setNextPage(BAECS_INVALID_RECORD_HANDLE);
+           ph->setNextPage(k_INVALID_RECORD_HANDLE);
            ph->setIsOnFillList(false);
-           if (fillPages.d_firstPage == BAECS_INVALID_RECORD_HANDLE) {
+           if (fillPages.d_firstPage == k_INVALID_RECORD_HANDLE) {
                BSLS_ASSERT(fillPages.d_numElements == 0);
                BSLS_ASSERT(*page == fillPages.d_last);
-               fillPages.d_last = BAECS_INVALID_RECORD_HANDLE;
+               fillPages.d_last = k_INVALID_RECORD_HANDLE;
            }
        }
 
@@ -1268,7 +1268,7 @@ balj_Journal::getAvailablePageHeader(unsigned *page, unsigned numBlocks)
 
    *page = d_header.numPages();
    int rc = growFile(d_fd, d_header.calculateFileSize(*page+1),
-                     0 != (d_mode & BAECS_RESERVE));
+                     0 != (d_mode & k_RESERVE));
 
    if (0 != rc) {
        return 0;
@@ -1302,10 +1302,10 @@ void balj_Journal::beginTransaction()
     balj::JournalHeaderPageList &fillPages = d_header.fillPages();
     balj::JournalHeaderPageList &preFillPages = d_header.preFillPages();
 
-    if (preFillPages.d_firstPage != BAECS_INVALID_RECORD_HANDLE) {
-        if (fillPages.d_firstPage != BAECS_INVALID_RECORD_HANDLE) {
+    if (preFillPages.d_firstPage != k_INVALID_RECORD_HANDLE) {
+        if (fillPages.d_firstPage != k_INVALID_RECORD_HANDLE) {
             BSLS_ASSERT(fillPages.d_last !=
-                           BAECS_INVALID_RECORD_HANDLE);
+                           k_INVALID_RECORD_HANDLE);
 
             balj_Journal_PageHeaderWriteGuard lastFillPage(
                     this, fillPages.d_last);
@@ -1331,7 +1331,7 @@ void balj_Journal::beginTransaction()
 
         BAEL_STREAM << (tmpNext ?
                         tmpNext->nextPage() :
-                        BAECS_INVALID_RECORD_HANDLE) << ","
+                        k_INVALID_RECORD_HANDLE) << ","
                     << fillPages.d_last << ")" << BALL_LOG_END;
 
         preFillPages.init();
@@ -1365,11 +1365,11 @@ int balj_Journal::commitImpl()
             << ", " << d_header.headerSize() << ")." << BALL_LOG_END;
     }
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         for (DebugRecordMap::iterator p = d_debugRecordMap.begin();
             p != d_debugRecordMap.end(); ++p)
         {
-            p->second |= BAECS_RECORD_COMMITTED;
+            p->second |= e_RECORD_COMMITTED;
         }
     }
 
@@ -1396,12 +1396,12 @@ int balj_Journal::rollbackImpl()
     // same transaction.  This is guaranteed by the release/purge mechanism in
     // the page header.
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         DebugRecordMap::iterator p = d_debugRecordMap.begin();
         while (p != d_debugRecordMap.end()) {
             DebugRecordMap::iterator curr = p;
             ++p;
-            if (!(curr->second & BAECS_RECORD_COMMITTED)) {
+            if (!(curr->second & e_RECORD_COMMITTED)) {
                 d_debugRecordMap.erase(curr);
             }
         }
@@ -1415,9 +1415,9 @@ int balj_Journal::commit()
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     balj_Journal_LockGuard guard(this, true);
-    BSLS_ASSERT(d_mode & BAECS_SAFE);
+    BSLS_ASSERT(d_mode & k_SAFE);
 
-    if (d_mode & BAECS_AUTO_COMMIT) {
+    if (d_mode & k_AUTO_COMMIT) {
         return 0;
     }
     return commitImpl();
@@ -1427,12 +1427,12 @@ int balj_Journal::rollback()
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     balj_Journal_LockGuard guard(this, true);
-    BSLS_ASSERT(d_mode & BAECS_SAFE);
-    if (d_mode & BAECS_AUTO_COMMIT) {
+    BSLS_ASSERT(d_mode & k_SAFE);
+    if (d_mode & k_AUTO_COMMIT) {
         BALL_LOG_ERROR << "Unable to rollback in autocommit mode: "
                        << d_filename
                        << BALL_LOG_END;
-        return BAECS_UNABLE_TO_ROLLBACK_ERROR;
+        return e_UNABLE_TO_ROLLBACK_ERROR;
     }
     return rollbackImpl();
 }
@@ -1444,8 +1444,8 @@ void balj_Journal::addRecordToList(balj::JournalHeaderRecordList *list,
     balj_Journal_BlockRef current(this, handle, true);
 
     current->setPrevRecord(list->d_last);
-    current->setNextRecord(balj_Journal::BAECS_INVALID_RECORD_HANDLE);
-    if (list->d_last != balj_Journal::BAECS_INVALID_RECORD_HANDLE) {
+    current->setNextRecord(balj_Journal::k_INVALID_RECORD_HANDLE);
+    if (list->d_last != balj_Journal::k_INVALID_RECORD_HANDLE) {
         balj_Journal_BlockRef last(this, list->d_last, true);
         last->setNextRecord(handle);
     }
@@ -1473,12 +1473,12 @@ void balj_Journal::removeRecordFromList(balj::JournalHeaderRecordList *list,
         list->d_last = prevRecord;
     }
 
-    if (prevRecord != balj_Journal::BAECS_INVALID_RECORD_HANDLE) {
+    if (prevRecord != balj_Journal::k_INVALID_RECORD_HANDLE) {
         balj_Journal_BlockRef prev(this, prevRecord, true);
         prev->setNextRecord(nextRecord);
     }
 
-    if (nextRecord != balj_Journal::BAECS_INVALID_RECORD_HANDLE) {
+    if (nextRecord != balj_Journal::k_INVALID_RECORD_HANDLE) {
         balj_Journal_BlockRef next(this, nextRecord, true);
         next->setPrevRecord(prevRecord);
     }
@@ -1503,15 +1503,15 @@ int balj_Journal::addRecord(unsigned         *outHandle,
     unsigned currentBlobBuf = 0; // current buffer of the blob
     unsigned dataSize = blob ? blob->length() : size;
     unsigned dataRemaining = dataSize;   // total input data remaining
-    unsigned prevPage = BAECS_INVALID_RECORD_HANDLE;
-    unsigned headHandle = BAECS_INVALID_RECORD_HANDLE;
-    unsigned handle     = BAECS_INVALID_RECORD_HANDLE;
+    unsigned prevPage = k_INVALID_RECORD_HANDLE;
+    unsigned headHandle = k_INVALID_RECORD_HANDLE;
+    unsigned handle     = k_INVALID_RECORD_HANDLE;
     balj::Journal_SegmentHeader* prevSegmentHeader = 0;
 
     unsigned originalDataSize = dataSize;
 
     unsigned checksum = 0;
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         checksum = calculateChecksum(blob, data, size);
     }
 
@@ -1531,25 +1531,25 @@ int balj_Journal::addRecord(unsigned         *outHandle,
                 << BALL_LOG_END;
             // Probably we're out of disk space.  Remove the partially added
             // record and return an error.
-            if (headHandle != BAECS_INVALID_RECORD_HANDLE) {
+            if (headHandle != k_INVALID_RECORD_HANDLE) {
                 removeRecordImpl(headHandle);
             }
-            *outHandle = BAECS_INVALID_RECORD_HANDLE;
-            return BAECS_IO_ERROR;
+            *outHandle = k_INVALID_RECORD_HANDLE;
+            return e_IO_ERROR;
         }
 
         numBlocks = bsl::min(numBlocks,
                              thisPageHeader_p->numAvailableBlocks());
         BSLS_ASSERT(numBlocks > 0);
         unsigned block = thisPageHeader_p->allocate(numBlocks, attributes);
-        BSLS_ASSERT(block != balj::JournalPageHeader::BAECS_INDEX_NONE);
+        BSLS_ASSERT(block != balj::JournalPageHeader::k_INDEX_NONE);
 
         if (dataRemaining + sizeof(balj::Journal_SegmentHeader) >
             numBlocks * d_header.blockSize()) {
             thisPageHeader_p->block(block)->setExtended(true);
         }
 
-        if (headHandle == BAECS_INVALID_RECORD_HANDLE) {
+        if (headHandle == k_INVALID_RECORD_HANDLE) {
             thisPageHeader_p->block(block)->setHead(true);
         }
 
@@ -1559,9 +1559,9 @@ int balj_Journal::addRecord(unsigned         *outHandle,
             << ", head " << headHandle
             << BALL_LOG_END;
 
-        if (headHandle == BAECS_INVALID_RECORD_HANDLE) {
+        if (headHandle == k_INVALID_RECORD_HANDLE) {
             addRecordToList(&d_header.unconfirmedRecords(), handle);
-            if (d_mode & BAECS_PARANOID) {
+            if (d_mode & k_PARANOID) {
                 bsl::pair<DebugRecordMap::iterator, bool> rc =
                     d_debugRecordMap.insert(bsl::make_pair(handle, 0));
                 if (!rc.second) {
@@ -1574,12 +1574,12 @@ int balj_Journal::addRecord(unsigned         *outHandle,
 
         // Now fill the blocks with data.  This does not have to be under lock.
         guard.relock(false);
-        if (headHandle == BAECS_INVALID_RECORD_HANDLE) {
+        if (headHandle == k_INVALID_RECORD_HANDLE) {
             headHandle = handle;
         }
         else {
             BSLS_ASSERT(prevSegmentHeader);
-            BSLS_ASSERT(prevPage != BAECS_INVALID_RECORD_HANDLE);
+            BSLS_ASSERT(prevPage != k_INVALID_RECORD_HANDLE);
             prevSegmentHeader->d_nextSegment = handle;
             releasePageData(prevPage);
         }
@@ -1598,7 +1598,7 @@ int balj_Journal::addRecord(unsigned         *outHandle,
 
         segmentHeader->d_timestamp = nowAsInt64GMT(); // TBD
         segmentHeader->d_headSegment = headHandle;
-        segmentHeader->d_nextSegment = BAECS_INVALID_RECORD_HANDLE;
+        segmentHeader->d_nextSegment = k_INVALID_RECORD_HANDLE;
         segmentHeader->d_size = dataRemaining;
         segmentHeader->d_checksum = checksum;
         prevSegmentHeader = segmentHeader;
@@ -1618,7 +1618,7 @@ int balj_Journal::addRecord(unsigned         *outHandle,
                 --numBlocks;
                 block = thisPageHeader_p->block(block)->nextBlock();
                 BSLS_ASSERT(block !=
-                                    balj::JournalPageHeader::BAECS_INDEX_NONE);
+                                    balj::JournalPageHeader::k_INDEX_NONE);
                 // Logical: get offset for block
                 outP = pageData + block * d_header.blockSize();
                 outBufSize = d_header.blockSize();
@@ -1650,14 +1650,14 @@ int balj_Journal::addRecord(unsigned         *outHandle,
         guard.relock(true);
     } while (dataRemaining);
 
-    if (prevPage != BAECS_INVALID_RECORD_HANDLE) {
+    if (prevPage != k_INVALID_RECORD_HANDLE) {
         releasePageData(prevPage);
     }
 
     *outHandle = headHandle;
-    BSLS_ASSERT(*outHandle != BAECS_INVALID_RECORD_HANDLE);
+    BSLS_ASSERT(*outHandle != k_INVALID_RECORD_HANDLE);
 
-    if (d_mode & BAECS_AUTO_COMMIT) {
+    if (d_mode & k_AUTO_COMMIT) {
         int rc = commitImpl();
         BSLS_ASSERT(rc == 0); // TBD
     }
@@ -1666,7 +1666,7 @@ int balj_Journal::addRecord(unsigned         *outHandle,
         << originalDataSize << " bytes)"
         << BALL_LOG_END;
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         guard.relock(false);
         bdlmca::Blob tmpblob;
         // getRecordData verifies the checksum
@@ -1687,7 +1687,7 @@ void balj_Journal::removeRecordImpl(unsigned headHandle)
     // make a significant difference is the extended record
     // case, and extended records are rare.
 
-    while (handle != BAECS_INVALID_RECORD_HANDLE) {
+    while (handle != k_INVALID_RECORD_HANDLE) {
         unsigned page, block;
         handle2PageBlock(&page, &block, handle);
         BSLS_ASSERT(page < (unsigned) d_header.numPages());
@@ -1703,7 +1703,7 @@ void balj_Journal::removeRecordImpl(unsigned headHandle)
             releasePageData(page);
         }
         else {
-            nextHandle = BAECS_INVALID_RECORD_HANDLE;
+            nextHandle = k_INVALID_RECORD_HANDLE;
         }
 
         if (bh->isHead()) {
@@ -1715,7 +1715,7 @@ void balj_Journal::removeRecordImpl(unsigned headHandle)
         }
 
         int rc;
-        if (d_mode & BAECS_SAFE) {
+        if (d_mode & k_SAFE) {
             rc = pageHeader->release(block);
         }
         else {
@@ -1742,8 +1742,8 @@ void balj_Journal::removeRecordImpl(unsigned headHandle)
             pageHeader->numFreeBlocks()*100/pageHeader->numBlocks()
                                   > (unsigned) d_header.freeBlockThreshold()) {
 
-            BSLS_ASSERT(pageHeader->nextPage() == BAECS_INVALID_RECORD_HANDLE);
-            balj::JournalHeaderPageList* list = d_mode & BAECS_SAFE
+            BSLS_ASSERT(pageHeader->nextPage() == k_INVALID_RECORD_HANDLE);
+            balj::JournalHeaderPageList* list = d_mode & k_SAFE
                                             ? &(d_header.preFillPages())
                                             : &(d_header.fillPages());
 
@@ -1758,7 +1758,7 @@ void balj_Journal::removeRecordImpl(unsigned headHandle)
 int balj_Journal::removeRecord(unsigned headHandle)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         bdlmca::Blob tmpblob;
         // getRecordData verifies the checksum before removal
         getRecordData(&tmpblob, headHandle);
@@ -1766,7 +1766,7 @@ int balj_Journal::removeRecord(unsigned headHandle)
 
     balj_Journal_LockGuard guard(this, true);
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         DebugRecordMap::iterator p = d_debugRecordMap.find(headHandle);
         if (p == d_debugRecordMap.end()) {
             BALL_LOG_ERROR << "Removing a non-existent record: " << headHandle
@@ -1779,12 +1779,12 @@ int balj_Journal::removeRecord(unsigned headHandle)
 
     removeRecordImpl(headHandle);
 
-    if (d_mode & BAECS_AUTO_COMMIT) {
+    if (d_mode & k_AUTO_COMMIT) {
         int rc = commitImpl();
         BSLS_ASSERT(rc == 0); // TBD
     }
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         BALL_LOG_TRACE << "removed record" << headHandle << BALL_LOG_END;
     }
 
@@ -1797,7 +1797,7 @@ void balj_Journal::addPageToList(balj::JournalHeaderPageList *list,
     // WRITE LOCK REQUIRED
     BSLS_ASSERT(list);
     unsigned prev = list->addPage(page);
-    if (prev != balj::JournalHeaderPageList::BAECS_INVALID_PAGE) {
+    if (prev != balj::JournalHeaderPageList::k_INVALID_PAGE) {
         balj_Journal_PageHeaderWriteGuard last(this, prev);
         last->setNextPage(page);
     }
@@ -1813,7 +1813,7 @@ int balj_Journal::confirmRecord(unsigned handle)
 
     balj_Journal_PageHeaderWriteGuard pageHeader(this, page);
     bool isConfirmed = pageHeader->block(first)->isConfirmed();
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         DebugRecordMap::iterator p = d_debugRecordMap.find(handle);
         if (p == d_debugRecordMap.end()) {
             BALL_LOG_ERROR << "Confirming a non-existent record: " << handle
@@ -1821,7 +1821,7 @@ int balj_Journal::confirmRecord(unsigned handle)
             BSLS_ASSERT(0);
         }
         BSLS_ASSERT(p->first == handle);
-        if ((p->second & BAECS_RECORD_CONFIRMED) != isConfirmed) {
+        if ((p->second & e_RECORD_CONFIRMED) != isConfirmed) {
             BALL_LOG_ERROR << "Inconsistent CONFIRMED flag in record: "
                 << handle << BALL_LOG_END;
             BSLS_ASSERT(0);
@@ -1834,11 +1834,11 @@ int balj_Journal::confirmRecord(unsigned handle)
         addRecordToList(&d_header.confirmedRecords(), handle);
 
         pageHeader->block(first)->setConfirmed(true);
-        if (d_mode & BAECS_AUTO_COMMIT) {
+        if (d_mode & k_AUTO_COMMIT) {
             int rc = commitImpl();
             BSLS_ASSERT(rc == 0); // TBD
         }
-        if (d_mode & BAECS_PARANOID) {
+        if (d_mode & k_PARANOID) {
             BALL_LOG_TRACE << "Confirmed record" << handle << BALL_LOG_END;
         }
     }
@@ -1852,10 +1852,10 @@ int balj_Journal::getRecordData(bdlmca::Blob *blob,
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     unsigned handle = headHandle;
-    BSLS_ASSERT(handle != BAECS_INVALID_RECORD_HANDLE);
+    BSLS_ASSERT(handle != k_INVALID_RECORD_HANDLE);
     balj_Journal_ReadLockGuard guard(this);
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
        DebugRecordMap::const_iterator p = d_debugRecordMap.find(handle);
        BSLS_ASSERT(p != d_debugRecordMap.end());
        BSLS_ASSERT(p->first == handle);
@@ -1868,11 +1868,11 @@ int balj_Journal::getRecordData(bdlmca::Blob *blob,
     unsigned recordSize = 0;
     unsigned checksum = 0;
 
-    while (handle != BAECS_INVALID_RECORD_HANDLE && (blob || bufSize)) {
+    while (handle != k_INVALID_RECORD_HANDLE && (blob || bufSize)) {
         unsigned page, block;
         handle2PageBlock(&page, &block, handle);
         BSLS_ASSERT(page < (unsigned) d_header.numPages());
-        BSLS_ASSERT(block != balj::JournalPageHeader::BAECS_INDEX_NONE);
+        BSLS_ASSERT(block != balj::JournalPageHeader::k_INDEX_NONE);
         balj_Journal_PageHeaderReadGuard pageHeader(this, page);
 
         // TBD: Get a segment header for a block
@@ -1896,10 +1896,10 @@ int balj_Journal::getRecordData(bdlmca::Blob *blob,
             handle = segmentHeader->d_nextSegment;
         }
         else {
-            handle = BAECS_INVALID_RECORD_HANDLE;
+            handle = k_INVALID_RECORD_HANDLE;
         }
 
-        for (; block != balj::JournalPageHeader::BAECS_INDEX_NONE
+        for (; block != balj::JournalPageHeader::k_INDEX_NONE
                   && segmentSize
             && (blob || bufSize);
             // TBD: Move calculation to pageheader
@@ -1910,7 +1910,7 @@ int balj_Journal::getRecordData(bdlmca::Blob *blob,
             // BlobBuffer or one memcpy.
             unsigned firstBlock = block;
             while (pageHeader->block(block)->nextBlock()
-                   != balj::JournalPageHeader::BAECS_INDEX_NONE &&
+                   != balj::JournalPageHeader::k_INDEX_NONE &&
                    pageHeader->block(block)->nextBlock() == block + 1) {
 
                 dataSize += d_header.blockSize();
@@ -1962,7 +1962,7 @@ int balj_Journal::getRecordData(bdlmca::Blob *blob,
         blob->setLength(numBytesCopied);
     }
 
-    if (d_mode & BAECS_PARANOID) {
+    if (d_mode & k_PARANOID) {
         if (blob) {
             BALL_LOG_TRACE << "Got data for record " << headHandle << "("
             << blob->length() << " bytes)\n"
@@ -2006,7 +2006,7 @@ balj_Journal::getRecordCreationDatetime(RecordHandle handle) const
     unsigned page, block;
     handle2PageBlock(&page, &block, handle);
 
-    BSLS_ASSERT(handle != BAECS_INVALID_RECORD_HANDLE);
+    BSLS_ASSERT(handle != k_INVALID_RECORD_HANDLE);
     if (page >= (unsigned) d_header.numPages()) {
         BALL_LOG_ERROR << "Invalid handle "
                        << handle
@@ -2073,7 +2073,7 @@ balj_Journal::nextRecord(RecordHandle handle) const
         BALL_LOG_ERROR << "Invalid handle " << handle
                        << " in nextRecord()."
                        << BALL_LOG_END;
-        return BAECS_INVALID_RECORD_HANDLE;
+        return k_INVALID_RECORD_HANDLE;
     }
 
     balj_Journal_BlockRef current(this, handle, false);
@@ -2128,7 +2128,7 @@ int balj_Journal::alterRecordAttributes(unsigned              *outAttributes,
         *outAttributes = newAttributes;
     }
 
-    if (d_mode & BAECS_AUTO_COMMIT) {
+    if (d_mode & k_AUTO_COMMIT) {
         int rc = commitImpl();
         BSLS_ASSERT(rc == 0); // TBD
     }
@@ -2151,7 +2151,7 @@ int balj_Journal::recordFragmentation(int *numBlocks, int *numPages,
     *numPages = 0;
     RecordHandle h = handle;
     balj_Journal_ReadLockGuard guard(this);
-    while (h != BAECS_INVALID_RECORD_HANDLE)
+    while (h != k_INVALID_RECORD_HANDLE)
     {
         unsigned page, firstBlock;
         handle2PageBlock(&page, &firstBlock, h);
@@ -2166,11 +2166,11 @@ int balj_Journal::recordFragmentation(int *numBlocks, int *numPages,
         }
         else
         {
-            h = BAECS_INVALID_RECORD_HANDLE;
+            h = k_INVALID_RECORD_HANDLE;
         }
 
         for (unsigned block = firstBlock;
-             block != balj::JournalPageHeader::BAECS_INDEX_NONE;)
+             block != balj::JournalPageHeader::k_INDEX_NONE;)
         {
             unsigned next = pageHeader->block(block)->nextBlock();
             if (next != block + 1)
@@ -2191,18 +2191,18 @@ int balj_Journal::markRecordForValidation(RecordHandle  headHandle,
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     int result = 0;
     unsigned handle = headHandle;
-    J_ASSERT1(handle != BAECS_INVALID_RECORD_HANDLE, handle);
+    J_ASSERT1(handle != k_INVALID_RECORD_HANDLE, handle);
 
     if (verbose) {
         bsl::printf("Record %u: ", headHandle);
         bsl::fflush(stdout);
     }
 
-    while (handle != BAECS_INVALID_RECORD_HANDLE) {
+    while (handle != k_INVALID_RECORD_HANDLE) {
         unsigned page, block;
         handle2PageBlock(&page, &block, handle);
 
-        J_ASSERT1(block != balj::JournalPageHeader::BAECS_INDEX_NONE, block);
+        J_ASSERT1(block != balj::JournalPageHeader::k_INDEX_NONE, block);
 
         balj_Journal_PageHeaderReadGuard pageHeader(this, page);
         bool isHead = pageHeader->block(block)->isHead();
@@ -2224,7 +2224,7 @@ int balj_Journal::markRecordForValidation(RecordHandle  headHandle,
                 bsl::printf(" (next is %u)", handle);
             }
         } else {
-            handle = BAECS_INVALID_RECORD_HANDLE;
+            handle = k_INVALID_RECORD_HANDLE;
         }
 
         if (verbose) {
@@ -2232,15 +2232,15 @@ int balj_Journal::markRecordForValidation(RecordHandle  headHandle,
             bsl::fflush(stdout);
         }
 
-        int firstBlock = balj::JournalPageHeader::BAECS_INDEX_NONE,
-            lastBlock = balj::JournalPageHeader::BAECS_INDEX_NONE;
+        int firstBlock = balj::JournalPageHeader::k_INDEX_NONE,
+            lastBlock = balj::JournalPageHeader::k_INDEX_NONE;
 
-        while (block != balj::JournalPageHeader::BAECS_INDEX_NONE)
+        while (block != balj::JournalPageHeader::k_INDEX_NONE)
         {
             int globalIndex = page*d_header.blocksPerPage() + block;
 
             if (verbose) {
-                if (firstBlock == balj::JournalPageHeader::BAECS_INDEX_NONE)
+                if (firstBlock == balj::JournalPageHeader::k_INDEX_NONE)
                 {
                     // the beginning of consecutive list of blocks
                     firstBlock = globalIndex;
@@ -2293,20 +2293,20 @@ int balj_Journal::markPageListForValidation(
 
     int result = 0;
     if (0 == list->d_numElements) {
-        J_ASSERT1(list->d_firstPage == BAECS_INVALID_RECORD_HANDLE,
+        J_ASSERT1(list->d_firstPage == k_INVALID_RECORD_HANDLE,
                   list->d_firstPage);
-        J_ASSERT1(list->d_last == BAECS_INVALID_RECORD_HANDLE, list->d_last);
+        J_ASSERT1(list->d_last == k_INVALID_RECORD_HANDLE, list->d_last);
         return result;
     }
 
     unsigned page = list->d_firstPage;
     unsigned numPages = 0;
 
-    J_ASSERT1(list->d_last != balj::JournalHeaderPageList::BAECS_INVALID_PAGE,
+    J_ASSERT1(list->d_last != balj::JournalHeaderPageList::k_INVALID_PAGE,
               list->d_last);
 
     while (1) {
-        J_ASSERT1(page != balj::JournalHeaderPageList::BAECS_INVALID_PAGE,
+        J_ASSERT1(page != balj::JournalHeaderPageList::k_INVALID_PAGE,
                   page);
         J_ASSERT2(page < (unsigned) d_header.numPages(),
                   page,
@@ -2350,13 +2350,13 @@ int balj_Journal::validateImpl(bool verbose) const {
     }
 
     for (RecordHandle handle = firstUnconfirmedRecord();
-        handle != BAECS_INVALID_RECORD_HANDLE;
+        handle != k_INVALID_RECORD_HANDLE;
         handle = nextUnconfirmedRecord(handle)) {
         J_ASSERT(0 == markRecordForValidation(handle, map, verbose));
     }
 
     for (RecordHandle handle = firstConfirmedRecord();
-        handle != BAECS_INVALID_RECORD_HANDLE;
+        handle != k_INVALID_RECORD_HANDLE;
         handle = nextConfirmedRecord(handle)) {
         J_ASSERT(0 == markRecordForValidation(handle, map, verbose));
     }
@@ -2402,25 +2402,25 @@ const char* balj_Journal::errorMessage(int errorCode)
     switch(errorCode) {
         case 0:
             return "no error";
-        case BAECS_WRITE_ACCESS_REQUIRED_ERROR:
+        case e_WRITE_ACCESS_REQUIRED_ERROR:
             return "write access required";
-        case BAECS_IO_ERROR:
+        case e_IO_ERROR:
             return "I/O error";
-        case BAECS_MMAP_ERROR:
+        case e_MMAP_ERROR:
             return "mmap error";
-        case BAECS_UNABLE_TO_ROLLBACK_ERROR:
+        case e_UNABLE_TO_ROLLBACK_ERROR:
             return "unable to rollback in current mode";
-        case BAECS_FILE_NOT_FOUND_ERROR:
+        case e_FILE_NOT_FOUND_ERROR:
             return "file not found";
-        case BAECS_FORMAT_ERROR:
+        case e_FORMAT_ERROR:
             return "unrecoverable journal format error";
-        case BAECS_ALIGNMENT_ERROR:
+        case e_ALIGNMENT_ERROR:
             return "journal alignment is lower than this platform supports";
-        case BAECS_UNSUPPORTED_VERSION_ERROR:
+        case e_UNSUPPORTED_VERSION_ERROR:
             return "unsupported journal format version";
-        case BAECS_INVALID_STATE_ERROR:
+        case e_INVALID_STATE_ERROR:
             return "invalid state (journal was not opened or closed)";
-        case BAECS_INVALID_PARAMETERS_ERROR:
+        case e_INVALID_PARAMETERS_ERROR:
             return "unsupported journal parameters";
         default:
             return "unknown error";

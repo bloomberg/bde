@@ -92,8 +92,8 @@ void TcpChannel::initializeReadBuffer(int size)
         int result;
         int s = d_socket_p->socketOption(
                                      &result,
-                                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                     btlso::SocketOptUtil::BTESO_RECEIVEBUFFER);
+                                     btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_RECEIVEBUFFER);
         if (!s) {
             BSLS_ASSERT(0 < result);
             d_readBuffer.resize(result);
@@ -117,7 +117,7 @@ TcpChannel::TcpChannel(
 , d_allocator_p(basicAllocator)
 {
     BSLS_ASSERT(d_socket_p);
-    d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+    d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
 }
 
 TcpChannel::~TcpChannel()
@@ -176,13 +176,13 @@ int TcpChannel::read(char *buffer, int numBytes, int flags)
                 return numBytesRead;
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 return numBytesRead;        // Return the total bytes read.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {
+        else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
             return ERROR_EOF;
         }
@@ -244,14 +244,14 @@ int TcpChannel::read(int  *augStatus,
                 return numBytes;
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = ERROR_INTERRUPTED;
                 return numBytesRead; // Return the total bytes read.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {
+        else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
             return ERROR_EOF;
         }
@@ -334,13 +334,13 @@ int TcpChannel::readv(const btls::Iovec *buffers,
                 btls::IovecUtil::length(&readBuffers.front(), numBuffers);
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 return numBytesRead;  // Return the total bytes read.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {
+        else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
             return ERROR_EOF;
         }
@@ -424,14 +424,14 @@ int TcpChannel::readv(int              *augStatus,
                 btls::IovecUtil::length(&readBuffers.front(), numBuffers);
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = ERROR_INTERRUPTED;
                 return numBytesRead;  // Return the total bytes read.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {
+        else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
             return ERROR_EOF;
         }
@@ -480,7 +480,7 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
         return numBytesRead;
     }
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {
@@ -489,15 +489,15 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_READ);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_READ);
 
-            if (bteso_Flag::BTESO_IO_READ == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_READ == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {// EOF occurs.
+        if (btlso::SocketHandle::e_ERROR_EOF == rc) {// EOF occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -509,7 +509,7 @@ int TcpChannel::readRaw(char *buffer, int numBytes, int)
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -554,7 +554,7 @@ int TcpChannel::readRaw(int  *,
         return numBytesRead;
     }
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {
@@ -563,15 +563,15 @@ int TcpChannel::readRaw(int  *,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_READ);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_READ);
 
-            if (bteso_Flag::BTESO_IO_READ == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_READ == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {  // EOF occurs.
+        if (btlso::SocketHandle::e_ERROR_EOF == rc) {  // EOF occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -583,7 +583,7 @@ int TcpChannel::readRaw(int  *,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -631,7 +631,7 @@ int TcpChannel::readvRaw(const btls::Iovec *buffers,
         return numBytesRead;
     }
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {              // 'length' is expected to be read back.
@@ -640,15 +640,15 @@ int TcpChannel::readvRaw(const btls::Iovec *buffers,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_READ);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_READ);
 
-            if (bteso_Flag::BTESO_IO_READ == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_READ == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {  // EOF occurs.
+        if (btlso::SocketHandle::e_ERROR_EOF == rc) {  // EOF occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -660,7 +660,7 @@ int TcpChannel::readvRaw(const btls::Iovec *buffers,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -684,7 +684,7 @@ int TcpChannel::readvRaw(int              *,
         availableData = d_readBufferOffset - d_readBufferedStartPointer;
     const btls::Iovec *readBuffers = buffers;
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     if (availableData) {
@@ -719,15 +719,15 @@ int TcpChannel::readvRaw(int              *,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_READ);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_READ);
 
-            if (bteso_Flag::BTESO_IO_READ == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_READ == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {     // EOF occurs.
+        if (btlso::SocketHandle::e_ERROR_EOF == rc) {     // EOF occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -739,7 +739,7 @@ int TcpChannel::readvRaw(int              *,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -801,15 +801,15 @@ int TcpChannel::bufferedRead(const char **buffer,
                 return numBytes;
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {   // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {   // interruptible
                                                                // mode
                 *buffer = 0;       // not returned
                 d_readBufferOffset = numBytesRead;
                 return numBytesRead; // Return the total bytes read.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {
+        else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
             return ERROR_EOF;
         }
@@ -876,8 +876,8 @@ int TcpChannel::bufferedRead(int         *augStatus,
                 return numBytes;
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = ERROR_INTERRUPTED;
                 *buffer = 0;
@@ -885,7 +885,7 @@ int TcpChannel::bufferedRead(int         *augStatus,
                 return numBytesRead; // Return the total bytes read.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {
+        else if (btlso::SocketHandle::e_ERROR_EOF == rc) {
             d_isInvalidFlag = 1;
             return ERROR_EOF;
         }
@@ -915,7 +915,7 @@ int TcpChannel::bufferedReadRaw(const char **buffer,
     int retValue      = 0;
     int availableData = d_readBufferOffset - d_readBufferedStartPointer;
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     if (availableData) {
@@ -949,15 +949,15 @@ int TcpChannel::bufferedReadRaw(const char **buffer,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_READ);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_READ);
 
-            if (bteso_Flag::BTESO_IO_READ == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_READ == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {     // EOF occurs.
+        if (btlso::SocketHandle::e_ERROR_EOF == rc) {     // EOF occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -969,7 +969,7 @@ int TcpChannel::bufferedReadRaw(const char **buffer,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -994,7 +994,7 @@ int TcpChannel::bufferedReadRaw(int         *,
     int retValue      = 0;
     int availableData = d_readBufferOffset - d_readBufferedStartPointer;
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     if (availableData) {
@@ -1029,15 +1029,15 @@ int TcpChannel::bufferedReadRaw(int         *,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_READ);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_READ);
 
-            if (bteso_Flag::BTESO_IO_READ == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_READ == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_EOF == rc) {     // EOF occurs.
+        if (btlso::SocketHandle::e_ERROR_EOF == rc) {     // EOF occurs.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -1049,7 +1049,7 @@ int TcpChannel::bufferedReadRaw(int         *,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -1081,13 +1081,13 @@ int TcpChannel::write(const char *buffer,
                 return numBytesWritten;
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 return numBytesWritten; // Return the total bytes written.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             return ERROR_EOF;
@@ -1124,14 +1124,14 @@ int TcpChannel::write(int        *augStatus,
                 return numBytesWritten;
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = ERROR_INTERRUPTED;
                 return numBytesWritten; // Return the total bytes written.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             return ERROR_EOF;
@@ -1157,7 +1157,7 @@ int TcpChannel::writeRaw(const char *buffer,
     }
 
     int rc = 0, retValue = 0;
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {
@@ -1166,15 +1166,15 @@ int TcpChannel::writeRaw(const char *buffer,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_WRITE);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_WRITE);
 
-            if (bteso_Flag::BTESO_IO_WRITE == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_WRITE == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
@@ -1187,7 +1187,7 @@ int TcpChannel::writeRaw(const char *buffer,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -1206,7 +1206,7 @@ int TcpChannel::writeRaw(int        *,
     }
 
     int rc = 0, retValue = 0;
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {
@@ -1215,15 +1215,15 @@ int TcpChannel::writeRaw(int        *,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_WRITE);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_WRITE);
 
-            if (bteso_Flag::BTESO_IO_WRITE == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_WRITE == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
@@ -1236,7 +1236,7 @@ int TcpChannel::writeRaw(int        *,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -1282,13 +1282,13 @@ int TcpChannel::writev(const btls::Ovec  *buffers,
                 btls::IovecUtil::length(&writeBuffers.front(), numBuffers);
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 return numBytesWritten;  // Return the total bytes written.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             return ERROR_EOF;
@@ -1342,13 +1342,13 @@ int TcpChannel::writev(const btls::Iovec *buffers,
                 btls::IovecUtil::length(&writeBuffers.front(), numBuffers);
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 return numBytesWritten;  // Return the total bytes written.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             return ERROR_EOF;
@@ -1403,13 +1403,13 @@ int TcpChannel::writev(int              *augStatus,
                 btls::IovecUtil::length(&writeBuffers.front(), numBuffers);
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) { // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) { // interruptible
                 *augStatus = ERROR_INTERRUPTED;
                 return numBytesWritten;  // Return the total bytes written.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             return ERROR_EOF;
@@ -1464,14 +1464,14 @@ int TcpChannel::writev(int              *augStatus,
                 btls::IovecUtil::length(&writeBuffers.front(), numBuffers);
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {  // interruptible
+        else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = ERROR_INTERRUPTED;
                 return numBytesWritten;  // Return the total bytes written.
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        else if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             // The connection is down.
             d_isInvalidFlag = 1;
             return ERROR_EOF;
@@ -1498,7 +1498,7 @@ int TcpChannel::writevRaw(const btls::Ovec *buffers,
 
     int rc = 0, retValue = 0;
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {
@@ -1508,15 +1508,15 @@ int TcpChannel::writevRaw(const btls::Ovec *buffers,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_WRITE);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_WRITE);
 
-            if (bteso_Flag::BTESO_IO_WRITE == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_WRITE == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -1528,7 +1528,7 @@ int TcpChannel::writevRaw(const btls::Ovec *buffers,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -1547,7 +1547,7 @@ int TcpChannel::writevRaw(const btls::Iovec *buffers,
 
     int rc = 0, retValue = 0;
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {              // 'length' is expected to be written.
@@ -1557,15 +1557,15 @@ int TcpChannel::writevRaw(const btls::Iovec *buffers,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_WRITE);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_WRITE);
 
-            if (bteso_Flag::BTESO_IO_WRITE == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_WRITE == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -1577,7 +1577,7 @@ int TcpChannel::writevRaw(const btls::Iovec *buffers,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -1597,7 +1597,7 @@ int TcpChannel::writevRaw(int             *,
 
     int rc = 0, retValue = 0;
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {
@@ -1607,15 +1607,15 @@ int TcpChannel::writevRaw(int             *,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_WRITE);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_WRITE);
 
-            if (bteso_Flag::BTESO_IO_WRITE == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_WRITE == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -1627,7 +1627,7 @@ int TcpChannel::writevRaw(int             *,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;
@@ -1647,7 +1647,7 @@ int TcpChannel::writevRaw(int              *,
 
     int rc = 0, retValue = 0;
 
-    rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    rc = d_socket_p->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
 
     while (1) {
@@ -1657,15 +1657,15 @@ int TcpChannel::writevRaw(int              *,
             retValue = rc;
             break;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
-            rc = d_socket_p->waitForIO(bteso_Flag::BTESO_IO_WRITE);
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
+            rc = d_socket_p->waitForIO(bteso_Flag::e_IO_WRITE);
 
-            if (bteso_Flag::BTESO_IO_WRITE == rc ||
-                btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc) {
+            if (bteso_Flag::e_IO_WRITE == rc ||
+                btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
                 continue;
             }
         }
-        if (btlso::SocketHandle::BTESO_ERROR_CONNDEAD == rc) {
+        if (btlso::SocketHandle::e_ERROR_CONNDEAD == rc) {
             d_isInvalidFlag = 1;
             retValue = ERROR_EOF;
             break;
@@ -1677,7 +1677,7 @@ int TcpChannel::writevRaw(int              *,
         }
     }
     if (0 == d_isInvalidFlag) {
-        rc = d_socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+        rc = d_socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
         BSLS_ASSERT(0 == rc);
     }
     return retValue;

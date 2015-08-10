@@ -207,8 +207,12 @@ class MappingManager_PageList {
     int              d_index;
 
     enum PageListIndex {
-        BAECS_PAGE_LIST_CLEAN = 0,
-        BAECS_PAGE_LIST_DIRTY = 1
+        e_PAGE_LIST_CLEAN = 0
+      , e_PAGE_LIST_DIRTY = 1
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_PAGE_LIST_CLEAN = e_PAGE_LIST_CLEAN
+      , BAECS_PAGE_LIST_DIRTY = e_PAGE_LIST_DIRTY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:

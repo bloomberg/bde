@@ -97,8 +97,8 @@ static void aSsErT(int c, const char *s, int i)
                     << #L << ": " << L << "\t" << #M << ": " << M << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-#define SO_LEVEL  btlso::SocketOptUtil::BTESO_SOCKETLEVEL
-#define TCP_LEVEL btlso::SocketOptUtil::BTESO_TCPLEVEL
+#define SO_LEVEL  btlso::SocketOptUtil::k_SOCKETLEVEL
+#define TCP_LEVEL btlso::SocketOptUtil::k_TCPLEVEL
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -301,8 +301,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                         &result,
                                         handle,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_DEBUGINFO);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_DEBUGINFO);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -315,8 +315,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                         &result,
                                         handle,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_BROADCAST);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_BROADCAST);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -329,8 +329,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                       &result,
                                       handle,
-                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS);
+                                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::k_REUSEADDRESS);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -344,8 +344,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                         &result,
                                         handle,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_KEEPALIVE);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_KEEPALIVE);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -358,8 +358,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                         &result,
                                         handle,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_DONTROUTE);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_DONTROUTE);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -372,8 +372,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                         &lingerData,
                                         handle,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_LINGER);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_LINGER);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -391,8 +391,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                         &result,
                                         handle,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_OOBINLINE);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_OOBINLINE);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -405,8 +405,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                         &result,
                                         handle,
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SENDBUFFER);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -419,8 +419,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                      &result,
                                      handle,
-                                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                     btlso::SocketOptUtil::BTESO_RECEIVEBUFFER);
+                                     btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_RECEIVEBUFFER);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -433,8 +433,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                        &result,
                                        handle,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_SENDLOWATER);
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDLOWATER);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -447,8 +447,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                     &result,
                                     handle,
-                                    btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                    btlso::SocketOptUtil::BTESO_RECEIVELOWATER);
+                                    btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                    btlso::SocketOptUtil::k_RECEIVELOWATER);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -461,8 +461,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                        &result,
                                        handle,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_SENDTIMEOUT);
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SENDTIMEOUT);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -475,8 +475,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                     &result,
                                     handle,
-                                    btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                    btlso::SocketOptUtil::BTESO_RECEIVETIMEOUT);
+                                    btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                    btlso::SocketOptUtil::k_RECEIVETIMEOUT);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -489,8 +489,8 @@ int verify(btlso::SocketHandle::Handle handle,
         const int rc = SockOptUtil::getOption(
                                     &result,
                                     handle,
-                                    btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                    btlso::SocketOptUtil::BTESO_TCPNODELAY);
+                                    btlso::SocketOptUtil::k_TCPLEVEL,
+                                    btlso::SocketOptUtil::k_TCPNODELAY);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -540,14 +540,14 @@ int main(int argc, char *argv[])
 
             btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &sockethandle,
-                                      btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &errorcode);
             ASSERT(0 == errorcode);
 
             result = btlso::SocketOptUtil::setOption(
                                        sockethandle,
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_REUSEADDRESS,
                                        addropt);
 
             ASSERT(0 == result);
@@ -555,8 +555,8 @@ int main(int argc, char *argv[])
             addropt = 0;
             result = btlso::SocketOptUtil::getOption(
                                       &addropt, sockethandle,
-                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS);
+                                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::k_REUSEADDRESS);
 
             ASSERT(0 == result);
             ASSERT(0 != addropt);
@@ -564,8 +564,8 @@ int main(int argc, char *argv[])
             int sockettype = 0;
             result = btlso::SocketOptUtil::getOption(
                           &sockettype,
-                          sockethandle, btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                          btlso::SocketOptUtil::BTESO_TYPE);
+                          sockethandle, btlso::SocketOptUtil::k_SOCKETLEVEL,
+                          btlso::SocketOptUtil::k_TYPE);
 
             ASSERT(0 == result);
             ASSERT(SOCK_STREAM == sockettype);
@@ -575,8 +575,8 @@ int main(int argc, char *argv[])
             ld.l_onoff  = 1;   // Enable lingering for
             ld.l_linger = 2;   // 2 seconds
             result = btlso::SocketOptUtil::setOption(sockethandle,
-                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                      btlso::SocketOptUtil::BTESO_LINGER,
+                                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::k_LINGER,
                                       ld, &errorcode);
 
             ASSERT(0 == result);
@@ -587,7 +587,7 @@ int main(int argc, char *argv[])
             WSAPROTOCOL_INFO protoInfo;
             memset(&ProtoInfo,0,sizeof(ProtoInfo));
             result = btlso::SocketOptUtil::getOption(&protoInfo, sockethandle,
-                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL, SO_PROTOCOL_INFO,
+                     btlso::SocketOptUtil::k_SOCKETLEVEL, SO_PROTOCOL_INFO,
                      &errorcode);
 
             ASSERT(0 == result);
@@ -697,8 +697,8 @@ int main(int argc, char *argv[])
 
                         btlso::SocketImpUtil::Type type =
                             k
-                            ? btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM
-                            : btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
+                            ? btlso::SocketImpUtil::k_SOCKET_DATAGRAM
+                            : btlso::SocketImpUtil::k_SOCKET_STREAM;
 
                         if (veryVerbose) {
                             P_(LINE) P_(k) P_(SPEC) P(EXP)
@@ -820,8 +820,8 @@ int main(int argc, char *argv[])
 
                         btlso::SocketImpUtil::Type type =
                             k
-                            ? btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM
-                            : btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
+                            ? btlso::SocketImpUtil::k_SOCKET_DATAGRAM
+                            : btlso::SocketImpUtil::k_SOCKET_STREAM;
 
                         if (veryVerbose) {
                             P_(LINE) P_(k) P_(SPEC) P_(type) P(EXP)
@@ -878,7 +878,7 @@ int main(int argc, char *argv[])
 
             #ifdef BSLS_PLATFORM_OS_UNIX
             btlso::SocketImpUtil::Type udp;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             struct {
               int                       d_lineNum;
@@ -905,8 +905,8 @@ int main(int argc, char *argv[])
 
             #elif defined BSLS_PLATFORM_OS_WINDOWS
             btlso::SocketImpUtil::Type udp, tcp;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
 
             struct {
               int                       d_lineNum;
@@ -1043,8 +1043,8 @@ int main(int argc, char *argv[])
             static int result;
             int errorcode = 0;
             btlso::SocketImpUtil::Type tcp, udp;
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) cout << "\nTesting 'setOption' FUNCTION"
                               << "\n============================"
@@ -1221,8 +1221,8 @@ int main(int argc, char *argv[])
             static int result;
             int errorcode = 0, *errNull = 0;
             btlso::SocketImpUtil::Type tcp, udp;
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) cout << "\nTesting 'setOption' FUNCTION"
                               << "\n============================"
@@ -1252,14 +1252,14 @@ int main(int argc, char *argv[])
                 //----              ---              ---------   ----------
                 {
                   #ifdef BSLS_PLATFORM_OS_LINUX
-                  { L_,  btlso::SocketOptUtil::BTESO_BROADCAST,     1,  0 },
+                  { L_,  btlso::SocketOptUtil::k_BROADCAST,     1,  0 },
                   #else
-                  { L_,  btlso::SocketOptUtil::BTESO_DEBUGINFO,     1,  0 },
+                  { L_,  btlso::SocketOptUtil::k_DEBUGINFO,     1,  0 },
                   #endif
-                  { L_,  btlso::SocketOptUtil::BTESO_REUSEADDRESS,  1,  0 },
-                  { L_,  btlso::SocketOptUtil::BTESO_DONTROUTE,     1,  0 },
-                  { L_,  btlso::SocketOptUtil::BTESO_SENDBUFFER,   64,  32 },
-                  { L_,  btlso::SocketOptUtil::BTESO_RECEIVEBUFFER,64,  32 }
+                  { L_,  btlso::SocketOptUtil::k_REUSEADDRESS,  1,  0 },
+                  { L_,  btlso::SocketOptUtil::k_DONTROUTE,     1,  0 },
+                  { L_,  btlso::SocketOptUtil::k_SENDBUFFER,   64,  32 },
+                  { L_,  btlso::SocketOptUtil::k_RECEIVEBUFFER,64,  32 }
 
                 };
                 const int NUM_TYPES =
@@ -1281,7 +1281,7 @@ int main(int argc, char *argv[])
                         errorcode = 0;
                         result = btlso::SocketOptUtil::setOption(
                                      serverSocket[i],
-                                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_SOCKETLEVEL,
                         SOCK_OPTS[j].opt,
                         SOCK_OPTS[j].enableVal, &errorcode);
 
@@ -1296,7 +1296,7 @@ int main(int argc, char *argv[])
                             int optsize = sizeof(optResult);
                             result = getsockopt(
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                         SOCK_OPTS[j].opt,
                                         (char*)&optResult,
                                         &optsize);
@@ -1320,7 +1320,7 @@ int main(int argc, char *argv[])
                             #endif
                             result = getsockopt(
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                         SOCK_OPTS[j].opt,
                                         (void*)&optResult,
                                         &optsize);
@@ -1331,7 +1331,7 @@ int main(int argc, char *argv[])
                         }
                         result = btlso::SocketOptUtil::getOption(&optResult,
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                         SOCK_OPTS[j].opt,
                                         &errorcode);
                         LOOP2_ASSERT(i, j, 0 == result);
@@ -1341,7 +1341,7 @@ int main(int argc, char *argv[])
                         if(j != 3 && j != 4) {
                             result = btlso::SocketOptUtil::setOption(
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                         SOCK_OPTS[j].opt,
                                         SOCK_OPTS[j].disableVal,
                                         &errorcode);
@@ -1350,7 +1350,7 @@ int main(int argc, char *argv[])
                             result = btlso::SocketOptUtil::getOption(
                                         &optResult,
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                         SOCK_OPTS[j].opt,
                                         &errorcode);
                                         LOOP2_ASSERT(i, j, 0 == result);
@@ -1360,7 +1360,7 @@ int main(int argc, char *argv[])
                         // without passing 'errorcode'
                         result = btlso::SocketOptUtil::setOption(
                                      serverSocket[i],
-                                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_SOCKETLEVEL,
                                      SOCK_OPTS[j].opt,
                                      SOCK_OPTS[j].enableVal);
 
@@ -1369,7 +1369,7 @@ int main(int argc, char *argv[])
 
                         result = btlso::SocketOptUtil::getOption(&optResult,
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                         SOCK_OPTS[j].opt,
                                         &errorcode);
                         LOOP2_ASSERT(i, j, 0 == result);
@@ -1378,7 +1378,7 @@ int main(int argc, char *argv[])
                         // Pass 'errNull', a "NULL" pointer.
                         result = btlso::SocketOptUtil::setOption(
                                      serverSocket[i],
-                                     btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_SOCKETLEVEL,
                                      SOCK_OPTS[j].opt,
                                      SOCK_OPTS[j].enableVal,
                                      errNull);
@@ -1389,7 +1389,7 @@ int main(int argc, char *argv[])
                         result = btlso::SocketOptUtil::getOption(
                                         &optResult,
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
                                         SOCK_OPTS[j].opt,
                                         &errorcode);
                         LOOP2_ASSERT(i, j, 0 == result);
@@ -1409,8 +1409,8 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, 0 == errorcode);
                     result = btlso::SocketOptUtil::setOption(
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_LINGER,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_LINGER,
                                         ld, &errorcode);
 
                     LOOP3_ASSERT(i, result, errorcode, 0 == result);
@@ -1418,8 +1418,8 @@ int main(int argc, char *argv[])
 
                     result = btlso::SocketOptUtil::getOption(
                                 &ld2, serverSocket[i],
-                                btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                btlso::SocketOptUtil::BTESO_LINGER, &errorcode);
+                                btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                btlso::SocketOptUtil::k_LINGER, &errorcode);
 
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errorcode);
@@ -1430,16 +1430,16 @@ int main(int argc, char *argv[])
                     ld.l_onoff = 0;     ld.l_linger = 5;
                     result = btlso::SocketOptUtil::setOption(
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_LINGER,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_LINGER,
                                         ld);
                     LOOP_ASSERT(i, 0 == result);
                     ASSERT(0 == errorcode);
 
                     result = btlso::SocketOptUtil::getOption(
                                 &ld2, serverSocket[i],
-                                btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                btlso::SocketOptUtil::BTESO_LINGER, &errorcode);
+                                btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                btlso::SocketOptUtil::k_LINGER, &errorcode);
 
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errorcode);
@@ -1449,16 +1449,16 @@ int main(int argc, char *argv[])
                     ld.l_onoff = 2;     ld.l_linger = 5;
                     result = btlso::SocketOptUtil::setOption(
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_LINGER,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_LINGER,
                                         ld, errNull);
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errNull);
 
                     result = btlso::SocketOptUtil::getOption(
                                 &ld2, serverSocket[i],
-                                btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                btlso::SocketOptUtil::BTESO_LINGER, &errorcode);
+                                btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                btlso::SocketOptUtil::k_LINGER, &errorcode);
 
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errorcode);
@@ -1485,7 +1485,7 @@ int main(int argc, char *argv[])
                 //line     type                  opt
                 //----     ----                  ---
                 {
-                  { L_,     tcp,     btlso::SocketOptUtil::BTESO_TCPNODELAY },
+                  { L_,     tcp,     btlso::SocketOptUtil::k_TCPNODELAY },
                 };
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
                 btlso::SocketHandle::Handle serverSocket[NUM_VALUES];
@@ -1500,7 +1500,7 @@ int main(int argc, char *argv[])
                     int optValue=1, optResult=0;
                     result = btlso::SocketOptUtil::setOption(
                                      serverSocket[i],
-                                     btlso::SocketOptUtil::BTESO_TCPLEVEL,
+                                     btlso::SocketOptUtil::k_TCPLEVEL,
                                      VALUES[i].opt,
                                      optValue, &errorcode);
 
@@ -1509,7 +1509,7 @@ int main(int argc, char *argv[])
 
                     result = btlso::SocketOptUtil::getOption(&optResult,
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_TCPLEVEL,
+                                        btlso::SocketOptUtil::k_TCPLEVEL,
                                         VALUES[i].opt,
                                         &errorcode);
                     LOOP_ASSERT(i, 0 == result);
@@ -1519,7 +1519,7 @@ int main(int argc, char *argv[])
                     optValue=0;
                     result = btlso::SocketOptUtil::setOption(
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_TCPLEVEL,
+                                        btlso::SocketOptUtil::k_TCPLEVEL,
                                         VALUES[i].opt,
                                         optValue, &errorcode);
 
@@ -1528,7 +1528,7 @@ int main(int argc, char *argv[])
 
                     result = btlso::SocketOptUtil::getOption(&optResult,
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_TCPLEVEL,
+                                        btlso::SocketOptUtil::k_TCPLEVEL,
                                         VALUES[i].opt,
                                         &errorcode);
                     LOOP_ASSERT(i, 0 == result);
@@ -1567,8 +1567,8 @@ int main(int argc, char *argv[])
             int errorcode = 0, *errNull = 0;
             btlso::SocketImpUtil::Type tcp, udp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) cout << "\nTesting 'getOption' FUNCTION "
                               << "\n============================"
@@ -1606,8 +1606,8 @@ int main(int argc, char *argv[])
                     result = btlso::SocketOptUtil::getOption(
                                         &sockettype[i],
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_TYPE,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_TYPE,
                                         &errorcode);
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errorcode);
@@ -1616,8 +1616,8 @@ int main(int argc, char *argv[])
                     result = btlso::SocketOptUtil::getOption(
                                         &sockettype[i],
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_TYPE);
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_TYPE);
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, VALUES[i].expType == sockettype[i]);
 
@@ -1625,8 +1625,8 @@ int main(int argc, char *argv[])
                     result = btlso::SocketOptUtil::getOption(
                                         &sockettype[i],
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_TYPE,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_TYPE,
                                         errNull);
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errNull);
@@ -1635,8 +1635,8 @@ int main(int argc, char *argv[])
                     result = btlso::SocketOptUtil::getOption(
                                         &erroropt[i],
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_SOCKETERROR,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETERROR,
                                         &errorcode);
 
                     LOOP_ASSERT(i, 0 == result);
@@ -1646,8 +1646,8 @@ int main(int argc, char *argv[])
                     result = btlso::SocketOptUtil::getOption(
                                        &erroropt[i],
                                        serverSocket[i],
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_SOCKETERROR);
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                       btlso::SocketOptUtil::k_SOCKETERROR);
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == erroropt[i]);
 
@@ -1655,8 +1655,8 @@ int main(int argc, char *argv[])
                     result = btlso::SocketOptUtil::getOption(
                                         &erroropt[i],
                                         serverSocket[i],
-                                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_SOCKETERROR,
+                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SOCKETERROR,
                                         errNull);
                     LOOP_ASSERT(i, 0 == result);
                     LOOP_ASSERT(i, 0 == errNull);

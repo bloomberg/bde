@@ -80,8 +80,8 @@ typedef btlso::EventHash    Hash;
 const btlso::SocketHandle::Handle   H0 = 0;
 const btlso::SocketHandle::Handle   H1 = 1;
 
-const btlso::EventType::Type ACCEPT  = btlso::EventType::BTESO_ACCEPT;
-const btlso::EventType::Type READ    = btlso::EventType::BTESO_READ;
+const btlso::EventType::Type ACCEPT  = btlso::EventType::e_ACCEPT;
+const btlso::EventType::Type READ    = btlso::EventType::e_READ;
 
 //=============================================================================
 //                              MAIN PROGRAM

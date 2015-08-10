@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Daniel Glaser (dglaser)
 //
 //@DESCRIPTION: This component provides a namespace, 'btlso::EventType', for
-// enumerating socket event types, namely, 'BTESO_ACCEPT', 'BTESO_CONNECT',
-// 'BTESO_READ', and 'BTESO_WRITE'.
+// enumerating socket event types, namely, 'e_ACCEPT', 'e_CONNECT',
+// 'e_READ', and 'e_WRITE'.
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
@@ -34,21 +34,30 @@ struct EventType {
 
     // TYPES
     enum Type {
-        BTESO_ACCEPT  = 0,
-        BTESO_CONNECT = 1,
-        BTESO_READ    = 2,
-        BTESO_WRITE   = 3
+        e_ACCEPT  = 0
+      , e_CONNECT = 1
+      , e_READ    = 2
+      , e_WRITE   = 3
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ACCEPT  = BTESO_ACCEPT
-      , CONNECT = BTESO_CONNECT
-      , READ    = BTESO_READ
-      , WRITE   = BTESO_WRITE
+      , BTESO_ACCEPT  = e_ACCEPT
+      , BTESO_CONNECT = e_CONNECT
+      , BTESO_READ    = e_READ
+      , BTESO_WRITE   = e_WRITE
+      , ACCEPT  = e_ACCEPT
+      , CONNECT = e_CONNECT
+      , READ    = e_READ
+      , WRITE   = e_WRITE
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
-    enum { BTESO_LENGTH = BTESO_WRITE + 1 };
-        // Define 'BTESO_LENGTH' to be the number of consecutively-valued
-        // enumerators in 'Type', in the range '[0 .. BTESO_LENGTH - 1]'.
+    enum {
+        k_LENGTH = e_WRITE + 1  // Define 'k_LENGTH' to be the number of
+                                // consecutively-valued enumerators in 'Type',
+                                // in the range '[0 .. k_LENGTH - 1]'.
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BTESO_LENGTH = k_LENGTH
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+    };
 };
 }  // close package namespace
 

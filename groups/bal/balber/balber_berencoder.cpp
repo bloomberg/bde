@@ -29,7 +29,7 @@ BerEncoder::BerEncoder(const BerEncoderOptions *options,
 : d_options      (options)
 , d_allocator    (bslma::Default::allocator(basicAllocator))
 , d_logStream    (0)
-, d_severity     (BDEM_BER_SUCCESS)
+, d_severity     (e_BER_SUCCESS)
 , d_streamBuf    (0)
 , d_currentDepth (0)
 {
@@ -49,8 +49,8 @@ BerEncoder::logError(BerConstants::TagClass  tagClass,
                           const char                  *name,
                           int                          index)
 {
-    if ((int) d_severity < (int) BDEM_BER_ERROR) {
-        d_severity = BDEM_BER_ERROR;
+    if ((int) d_severity < (int) e_BER_ERROR) {
+        d_severity = e_BER_ERROR;
     }
 
     return logMsg("ERROR", tagClass, tagNumber, name, index);
@@ -71,19 +71,19 @@ BerEncoder::logMsg(const char                  *msg,
     const char                        *strTagNum = 0;
 
     switch (tagClass) {
-      case BerConstants::BDEM_UNIVERSAL: {
+      case BerConstants::e_UNIVERSAL: {
         out << "UNV-";
         if (0 == BerUniversalTagNumber::fromInt(&eTagNum, tagNumber)) {
             strTagNum = BerUniversalTagNumber::toString(eTagNum);
         }
       } break;
-      case BerConstants::BDEM_CONTEXT_SPECIFIC: {
+      case BerConstants::e_CONTEXT_SPECIFIC: {
         out << "CTX-";
       } break;
-      case BerConstants::BDEM_APPLICATION: {
+      case BerConstants::e_APPLICATION: {
         out << "APP-";
       } break;
-      case BerConstants::BDEM_PRIVATE: {
+      case BerConstants::e_PRIVATE: {
         out << "PRV-";
       } break;
       default: {
@@ -140,7 +140,7 @@ int BerEncoder::encodeImpl(const bsl::vector<char>&    value,
     int status = BerUtil::putIdentifierOctets(
                                              d_streamBuf,
                                              tagClass,
-                                             BerConstants::BDEM_PRIMITIVE,
+                                             BerConstants::e_BDEM_PRIMITIVE,
                                              tagNumber);
     status |= BerUtil::putLength(d_streamBuf, size);
 

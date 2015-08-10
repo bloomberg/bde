@@ -137,14 +137,14 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
     ThreadInfo socketInfo = *(ThreadInfo*) arg;
 
     pthread_kill(socketInfo.d_tid, SIGSYS);
-    if (socketInfo.d_ctrlFlag & btlso::EventManagerTester::BTESO_VERY_VERBOSE) {
+    if (socketInfo.d_ctrlFlag & btlso::EventManagerTester::k_VERY_VERBOSE) {
         bsl::printf("Thread %llu generated a SIGSYS signal.\n",
                     bdlqq::ThreadUtil::selfIdAsUint64());
         bsl::fflush(stdout);
     }
     bdlqq::ThreadUtil::microSleep(3 * BASE_TIME);
     pthread_kill(socketInfo.d_tid, SIGSYS);
-    if (socketInfo.d_ctrlFlag & btlso::EventManagerTester::BTESO_VERY_VERBOSE) {
+    if (socketInfo.d_ctrlFlag & btlso::EventManagerTester::k_VERY_VERBOSE) {
         bsl::printf("Thread %llu delivered another SIGSYS signal to %d.\n",
                     bdlqq::ThreadUtil::selfIdAsInt(),
                     bdlqq::ThreadUtil::idAsInt(
@@ -164,7 +164,7 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
                                              sizeof buf);
 
         if (socketInfo.d_ctrlFlag &
-                                btlso::EventManagerTester::BTESO_VERY_VERBOSE) {
+                                btlso::EventManagerTester::k_VERY_VERBOSE) {
             bsl::printf("Thread %llu writes %d bytes to socket %d.\n",
                         bdlqq::ThreadUtil::selfIdAsUint64(),
                         len,
@@ -173,7 +173,7 @@ void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
         }
         if (BUF_SIZE != len) {
             if (socketInfo.d_ctrlFlag &
-                                       btlso::EventManagerTester::BTESO_ABORT) {
+                                       btlso::EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
             else {
@@ -311,7 +311,7 @@ genericCb(btlso::EventType::Type event,
     // This generic callback function performs 'event' specific action.
 {
     if (0 > bytes) {
-        if (flags & btlso::EventManagerTester::BTESO_ABORT) {
+        if (flags & btlso::EventManagerTester::k_ABORT) {
             BSLS_ASSERT(0 < bytes);
         }
         else {
@@ -324,18 +324,18 @@ genericCb(btlso::EventType::Type event,
         }
     }
     switch (event) {
-      case btlso::EventType::BTESO_READ: {
+      case btlso::EventType::e_READ: {
           enum { BUF_SIZE = 8192 };
           char buffer[BUF_SIZE];
 
           int rc = btlso::SocketImpUtil::read(buffer, fds[fd].observedFd(),
                                              bytes, 0);
-          if (flags & btlso::EventManagerTester::BTESO_VERY_VERY_VERBOSE) {
+          if (flags & btlso::EventManagerTester::k_VERY_VERY_VERBOSE) {
               bsl::printf("Generic callback: read %d bytes.\n", rc);
               bsl::fflush(stdout);
           }
           if (bytes != rc) {
-              if (flags & btlso::EventManagerTester::BTESO_ABORT) {
+              if (flags & btlso::EventManagerTester::k_ABORT) {
                   BSLS_ASSERT("Read wrong number of bytes" && 0);
               }
               else {
@@ -347,7 +347,7 @@ genericCb(btlso::EventType::Type event,
           }
       } break;
 
-      case btlso::EventType::BTESO_WRITE: {
+      case btlso::EventType::e_WRITE: {
           char wBuffer[WRITE_SIZE + 1];        // data to write to the observed
                                                // file descriptor of a socket
                                                // pair
@@ -355,12 +355,12 @@ genericCb(btlso::EventType::Type event,
 
           int rc = btlso::SocketImpUtil::write(fds[fd].observedFd(),
                                               &wBuffer, bytes, 0);
-          if (flags & btlso::EventManagerTester::BTESO_VERY_VERY_VERBOSE) {
+          if (flags & btlso::EventManagerTester::k_VERY_VERY_VERBOSE) {
               bsl::printf("Generic callback: wrote %d bytes.\n", rc);
               bsl::fflush(stdout);
           }
           if (bytes != rc) {
-              if (flags & btlso::EventManagerTester::BTESO_ABORT) {
+              if (flags & btlso::EventManagerTester::k_ABORT) {
                   BSLS_ASSERT("Wrote wrong number of bytes" && 0);
               }
               else {
@@ -372,11 +372,11 @@ genericCb(btlso::EventType::Type event,
           }
       } break;
 
-      case btlso::EventType::BTESO_ACCEPT: {
+      case btlso::EventType::e_ACCEPT: {
 
       } break;
 
-      case btlso::EventType::BTESO_CONNECT: {
+      case btlso::EventType::e_CONNECT: {
 
       } break;
 
@@ -389,13 +389,13 @@ genericCb(btlso::EventType::Type event,
     while (cbScript) {
         int ret = ggHelper(mX, fds, cbScript, flags);
 
-        if (flags & btlso::EventManagerTester::BTESO_ABORT) {
+        if (flags & btlso::EventManagerTester::k_ABORT) {
             BSLS_ASSERT(SUCCESS == ret);
         }
         if (FAIL == ret) {
             bsl::puts("Callback command execution failed!");
             bsl::fflush(stdout);
-            if (flags & btlso::EventManagerTester::BTESO_ABORT) {
+            if (flags & btlso::EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
         }
@@ -406,7 +406,7 @@ genericCb(btlso::EventType::Type event,
             if (FAIL == errCode) {
                 bsl::puts("Script command is invalid in callback function.");
                 bsl::fflush(stdout);
-                if (flags & btlso::EventManagerTester::BTESO_ABORT) {
+                if (flags & btlso::EventManagerTester::k_ABORT) {
                     BSLS_ASSERT(0);
                 }
             }
@@ -483,33 +483,33 @@ static int ggHelper(btlso::EventManager         *mX,
         btlso::EventManager::Callback cb;
         switch (d) {
           case 'r':
-            cb = bdlf::BindUtil::bind(&genericCb, btlso::EventType::BTESO_READ,
+            cb = bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_READ,
                                           fd, bytes, mX, fds, cbScript, flags);
             mX->registerSocketEvent(fds[fd].observedFd(),
-                                    btlso::EventType::BTESO_READ, cb);
+                                    btlso::EventType::e_READ, cb);
             break;
 
           case 'w':
-            cb = bdlf::BindUtil::bind(&genericCb, btlso::EventType::BTESO_WRITE,
+            cb = bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
                                           fd, bytes, mX, fds, cbScript, flags);
             mX->registerSocketEvent(fds[fd].observedFd(),
-                                    btlso::EventType::BTESO_WRITE, cb);
+                                    btlso::EventType::e_WRITE, cb);
             break;
 
           case 'a':
             cb = bdlf::BindUtil::bind(&genericCb,
-                                     btlso::EventType::BTESO_ACCEPT,
+                                     btlso::EventType::e_ACCEPT,
                                      fd, bytes, mX, fds, cbScript, flags);
             mX->registerSocketEvent(fds[fd].observedFd(),
-                                    btlso::EventType::BTESO_ACCEPT, cb);
+                                    btlso::EventType::e_ACCEPT, cb);
             break;
 
           case 'c':
             cb = bdlf::BindUtil::bind(&genericCb,
-                                     btlso::EventType::BTESO_CONNECT,
+                                     btlso::EventType::e_CONNECT,
                                      fd, bytes, mX, fds, cbScript, flags);
             mX->registerSocketEvent(fds[fd].observedFd(),
-                                    btlso::EventType::BTESO_CONNECT, cb);
+                                    btlso::EventType::e_CONNECT, cb);
             break;
           default:
             return FAIL;
@@ -539,20 +539,20 @@ static int ggHelper(btlso::EventManager         *mX,
         switch (c[0]) {
           case 'r': {
             mX->deregisterSocketEvent(fds[fd].observedFd(),
-                                      btlso::EventType::BTESO_READ);
+                                      btlso::EventType::e_READ);
 
           } break;
           case 'w': {
             mX->deregisterSocketEvent(fds[fd].observedFd(),
-                                      btlso::EventType::BTESO_WRITE);
+                                      btlso::EventType::e_WRITE);
           } break;
           case 'a': {
             mX->deregisterSocketEvent(fds[fd].observedFd(),
-                                      btlso::EventType::BTESO_ACCEPT);
+                                      btlso::EventType::e_ACCEPT);
           } break;
           case 'c': {
             mX->deregisterSocketEvent(fds[fd].observedFd(),
-                                      btlso::EventType::BTESO_CONNECT);
+                                      btlso::EventType::e_CONNECT);
           } break;
           default:
                 return FAIL;
@@ -574,7 +574,7 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = 0;
               } break;
               case 'i': {
-                flags = bteso_Flag::BTESO_ASYNC_INTERRUPT;
+                flags = bteso_Flag::k_ASYNC_INTERRUPT;
               } break;
               default:
                 return FAIL;
@@ -596,7 +596,7 @@ static int ggHelper(btlso::EventManager         *mX,
                 flags = 0;
               } break;
               case 'i': {
-                flags = bteso_Flag::BTESO_ASYNC_INTERRUPT;
+                flags = bteso_Flag::k_ASYNC_INTERRUPT;
               } break;
               default:
                 return FAIL;
@@ -615,28 +615,28 @@ static int ggHelper(btlso::EventManager         *mX,
           if (rc == 2) {
               if (bsl::strchr(buf, 'a')) {
                   ret = mX->isRegistered(fds[fd].observedFd(),
-                                         btlso::EventType::BTESO_ACCEPT);
+                                         btlso::EventType::e_ACCEPT);
                   if (1 != ret) {
                         return FAIL;
                   }
               }
               if (bsl::strchr(buf, 'c')) {
                   ret = mX->isRegistered(fds[fd].observedFd(),
-                                         btlso::EventType::BTESO_CONNECT);
+                                         btlso::EventType::e_CONNECT);
                   if (1 != ret) {
                       return FAIL;
                   }
               }
               if (bsl::strchr(buf, 'r')) {
                   ret = mX->isRegistered(
-                         fds[fd].observedFd(), btlso::EventType::BTESO_READ);
+                         fds[fd].observedFd(), btlso::EventType::e_READ);
                   if (1 != ret) {
                       return FAIL;
                   }
               }
               if (bsl::strchr(buf, 'w')) {
                   ret = mX->isRegistered(fds[fd].observedFd(),
-                                         btlso::EventType::BTESO_WRITE);
+                                         btlso::EventType::e_WRITE);
                   if (1 != ret) {
                       return FAIL;
                   }
@@ -702,13 +702,13 @@ int EventManagerTester::gg(EventManager *mX,
     const char *originalScript = script;
 
     int fails = 0;
-    if ((flags & EventManagerTester::BTESO_DRY_RUN) |
-        (flags & EventManagerTester::BTESO_VERY_VERBOSE))
+    if ((flags & EventManagerTester::k_DRY_RUN) |
+        (flags & EventManagerTester::k_VERY_VERBOSE))
     {
         bsl::printf("Executing: %s\n", script);
         bsl::fflush(stdout);
     }
-    if (flags & EventManagerTester::BTESO_DRY_RUN) {
+    if (flags & EventManagerTester::k_DRY_RUN) {
         return 0;
     }
 
@@ -720,7 +720,7 @@ int EventManagerTester::gg(EventManager *mX,
                         static_cast<int>(script - originalScript + 1),
                         ' ');
             bsl::fflush(stdout);
-            if (flags & EventManagerTester::BTESO_ABORT) {
+            if (flags & EventManagerTester::k_ABORT) {
                 std::abort();
             }
             else {
@@ -737,7 +737,7 @@ EventManagerTester::testRegisterSocketEvent(EventManager *mX,
                                                   int                 flags)
 {
     int ret = 0, numFailures = 0;
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("Testing testRegisterSocketEvent() method\n"
                   "========================================");
     }
@@ -794,7 +794,7 @@ EventManagerTester::testRegisterSocketEvent(EventManager *mX,
         }
         ret = gg(mX, socketPairs, SCRIPTS[i].d_script,flags);
         if (SUCCESS != ret) {
-            if (flags & EventManagerTester::BTESO_ABORT) {
+            if (flags & EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
             else {
@@ -814,7 +814,7 @@ EventManagerTester::testDeregisterSocketEvent(EventManager *mX,
                                                     int                 flags)
 {
     int ret = 0, numFailures = 0;
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("Testing 'testDeregisterSocketEvent' method\n"
                   "==========================================");
     }
@@ -870,13 +870,13 @@ EventManagerTester::testDeregisterSocketEvent(EventManager *mX,
         }
         ret = gg (mX, socketPairs, SCRIPTS[i].d_script, flags);
         if (SUCCESS != ret) {
-            if (flags & EventManagerTester::BTESO_ABORT) {
+            if (flags & EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
             else {
                 numFailures += ret;
                 const int LINE =  SCRIPTS[i].d_line;
-                if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
+                if (flags & EventManagerTester::k_VERY_VERBOSE) {
                     bsl::printf("ERRORS detected while executing "
                                 "the script at line %d:\n", LINE);
                     bsl::fflush(stdout);
@@ -893,7 +893,7 @@ EventManagerTester::testDeregisterSocket(EventManager *mX,
 {
     int ret = 0, numFailures = 0;
 
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("Testing 'testDeregisterSocket' method\n"
                   "=====================================");
     }
@@ -952,13 +952,13 @@ EventManagerTester::testDeregisterSocket(EventManager *mX,
         }
         ret = gg(mX, socketPairs, SCRIPTS[i].d_script, flags);
         if (SUCCESS != ret) {
-            if (flags & EventManagerTester::BTESO_ABORT) {
+            if (flags & EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
             else {
                 numFailures += ret;
                 const int LINE =  SCRIPTS[i].d_line;
-                if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
+                if (flags & EventManagerTester::k_VERY_VERBOSE) {
                     bsl::printf("ERRORS detected while executing "
                                 "the script at line %d:\n", LINE);
                     bsl::fflush(stdout);
@@ -974,7 +974,7 @@ EventManagerTester::testDeregisterAll(EventManager *mX,
                                             int                 flags)
 {
     int ret = 0, numFailures = 0;
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("Testing 'testDeregisterAll' method\n"
                   "==================================");
     }
@@ -1031,12 +1031,12 @@ EventManagerTester::testDeregisterAll(EventManager *mX,
         }
         ret = gg(mX, socketPairs, SCRIPTS[i].d_script, flags);
         if (SUCCESS != ret) {
-            if (flags & EventManagerTester::BTESO_ABORT) {
+            if (flags & EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
             else {
                 numFailures += ret;
-                if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
+                if (flags & EventManagerTester::k_VERY_VERBOSE) {
                     const int LINE =  SCRIPTS[i].d_line;
                     bsl::printf("ERRORS detected while executing "
                                 "the script at line %d:\n", LINE);
@@ -1053,7 +1053,7 @@ EventManagerTester::testAccessors(EventManager *mX,
                                         int                 flags)
 {
     int ret = 0, numfailures = 0;
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("Testing 'testAccessors' method\n"
                   "==============================");
     }
@@ -1085,13 +1085,13 @@ EventManagerTester::testAccessors(EventManager *mX,
         }
         ret = gg(mX, socketPairs, SCRIPTS[i].d_script, flags);
         if (SUCCESS != ret) {
-            if (flags & EventManagerTester::BTESO_ABORT) {
+            if (flags & EventManagerTester::k_ABORT) {
                 BSLS_ASSERT(0);
             }
             else {
                 numfailures += ret;
                 const int LINE =  SCRIPTS[i].d_line;
-                if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
+                if (flags & EventManagerTester::k_VERY_VERBOSE) {
                     bsl::printf("ERRORS detected while executing "
                                 "the script at line %d:\n", LINE);
                     bsl::fflush(stdout);
@@ -1107,7 +1107,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
 {
     int ret = 0, numFailures = 0;
 
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("Testing 'testDispatch' method\n"
                   "=============================");
     }
@@ -1197,13 +1197,13 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
 
             ret = gg(mX, socketPairs, SCRIPTS[i].d_script, flags);
             if (SUCCESS != ret) {
-                if (flags & EventManagerTester::BTESO_ABORT) {
+                if (flags & EventManagerTester::k_ABORT) {
                     BSLS_ASSERT(0);
                 }
                 else {
                     ++numFailures;
                     const int LINE =  SCRIPTS[i].d_line;
-                    if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
+                    if (flags & EventManagerTester::k_VERY_VERBOSE) {
                         bsl::printf("Line: %d\n", LINE);
                         bsl::fflush(stdout);
                     }
@@ -1213,13 +1213,13 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
     }
 #ifdef BSLS_PLATFORM_OS_UNIX
 
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("Testing 'Interrupt options'\n"
                   "===========================");
     }
     {
         mX->deregisterAll();
-        if (flags & EventManagerTester::BTESO_ABORT) {
+        if (flags & EventManagerTester::k_ABORT) {
             BSLS_ASSERT(0 == mX->numEvents());
         }
 
@@ -1240,8 +1240,8 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
         //  ----   --------      ------                      ------
         {
            { L_,    INFINITE,      0,                           1  },
-           { L_,    INFINITE,   bteso_Flag::BTESO_ASYNC_INTERRUPT,   -1  },
-           { L_,     TIMEOUT,   bteso_Flag::BTESO_ASYNC_INTERRUPT,   -1  },
+           { L_,    INFINITE,   bteso_Flag::k_ASYNC_INTERRUPT,   -1  },
+           { L_,     TIMEOUT,   bteso_Flag::k_ASYNC_INTERRUPT,   -1  },
            { L_,     TIMEOUT,      0,                           0  },
         };
         const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
@@ -1268,7 +1268,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
                 return -1;
             }
 
-            if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
+            if (flags & EventManagerTester::k_VERY_VERBOSE) {
 #define LLU BSLS_BSLTESTUTIL_FORMAT_U64
                 bsl::printf("Created a thread " LLU "; socket: %u\n",
                             bdlqq::ThreadUtil::idAsUint64(threadHandle[i]),
@@ -1281,26 +1281,26 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             const char *cbScript = 0;  // dummy argument.
             EventManager::Callback readCb(
                     bdlf::BindUtil::bind(&genericCb,
-                                        EventType::BTESO_READ,
+                                        EventType::e_READ,
                                         i, bytes, mX,
                                         (SocketPair*)socketPairs, cbScript,
                                         flags));
 
             mX->registerSocketEvent(socketPairs[i].observedFd(),
-                                    EventType::BTESO_READ,
+                                    EventType::e_READ,
                                     readCb);
             if (TIMEOUT == VALUES[i].d_timeFlag) {
                 bsls::TimeInterval deadline(bdlt::CurrentTime::now());
                 bsls::TimeInterval period(5);
                 deadline += period;        // timeout 5 seconds from now
                 int ret = mX->dispatch(deadline, VALUES[i].d_flags);
-                if (flags & EventManagerTester::BTESO_VERY_VERBOSE) {
+                if (flags & EventManagerTester::k_VERY_VERBOSE) {
                     P_(VALUES[i].d_line); P_(VALUES[i].d_timeFlag);
                     P_(VALUES[i].d_flags);
                     P_(VALUES[i].d_expRet); P(ret);
                 }
 
-                if (flags & EventManagerTester::BTESO_ABORT) {
+                if (flags & EventManagerTester::k_ABORT) {
                     BSLS_ASSERT(VALUES[i].d_expRet == ret);
                 }
                 else {
@@ -1315,7 +1315,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
             else if (INFINITE == VALUES[i].d_timeFlag) {
                 int rcode = mX->dispatch(VALUES[i].d_flags);
                 if (VALUES[i].d_expRet != rcode) {
-                    if (flags & EventManagerTester::BTESO_ABORT) {
+                    if (flags & EventManagerTester::k_ABORT) {
                         BSLS_ASSERT(0);
                     }
                     else {
@@ -1327,7 +1327,7 @@ EventManagerTester::testDispatch(EventManager *mX, int flags)
                 bsl::printf("%d is not a valid dispatch type.\n",
                             VALUES[i].d_timeFlag);
                 bsl::fflush(stdout);
-                if (flags & EventManagerTester::BTESO_ABORT) {
+                if (flags & EventManagerTester::k_ABORT) {
                     BSLS_ASSERT(0);
                 }
                 else {
@@ -1356,7 +1356,7 @@ EventManagerTester::testDispatchPerformance(
     int fails = 0, i = 0;
     const char *cbScript = 0;  // dummy argument.
 
-    if (flags & EventManagerTester::BTESO_VERBOSE) {
+    if (flags & EventManagerTester::k_VERBOSE) {
         bsl::puts("TESTING BUSY 'dispatch()' capacity\n"
                   "==================================");
     }
@@ -1459,7 +1459,7 @@ EventManagerTester::testDispatchPerformance(
 
     {
         bslma::TestAllocator testAllocator(
-                    flags & EventManagerTester::BTESO_VERY_VERY_VERBOSE);
+                    flags & EventManagerTester::k_VERY_VERY_VERBOSE);
         SocketPair *socketPairs = (SocketPair *)
                   testAllocator.allocate(numSocketPairs * sizeof (SocketPair));
 
@@ -1501,7 +1501,7 @@ EventManagerTester::testDispatchPerformance(
             }
             else {
                 readCb[i] = bdlf::BindUtil::bind(&genericCb,
-                                                EventType::BTESO_READ,
+                                                EventType::e_READ,
                                                 i,
                                                 bytes,
                                                 mX,
@@ -1511,7 +1511,7 @@ EventManagerTester::testDispatchPerformance(
             }
 
             mX->registerSocketEvent(socketPairs[i].observedFd(),
-                                    EventType::BTESO_READ,
+                                    EventType::e_READ,
                                     readCb[i]);
             if (i + 1 != mX->numEvents()) {
                 bsl::cout << "Socket registration " << i << "failed\n";
@@ -1569,7 +1569,7 @@ EventManagerTester::testDispatchPerformance(
                               "Repeat on i:%d, %d events missing, errno: %d\n",
                               i, toWrite - ret, errno);
                         bsl::fflush(stdout);
-                        if (flags & EventManagerTester::BTESO_ABORT) {
+                        if (flags & EventManagerTester::k_ABORT) {
                             BSLS_ASSERT(0);
                         }
                     }
@@ -1599,7 +1599,7 @@ EventManagerTester::testDispatchPerformance(
 
                     for (int k = 0; k <= i; ++k) {
                         if (writtenFlags[k]) {
-                            genericCb(EventType::BTESO_READ,
+                            genericCb(EventType::e_READ,
                                       k,
                                       1,
                                       mX,
@@ -1673,7 +1673,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX,
                                          &bteso_eventmanagertester_nullFunctor;
 
     bslma::TestAllocator testAllocator(flags &
-                        EventManagerTester::BTESO_VERY_VERY_VERBOSE);
+                        EventManagerTester::k_VERY_VERY_VERBOSE);
     SocketHandle::Handle *socket = (SocketHandle::Handle *)
                          testAllocator.allocate(numSockets * sizeof (*socket));
 
@@ -1700,10 +1700,10 @@ EventManagerTester::testRegisterPerformance(EventManager *mX,
 #else
         int ret = SocketImpUtil::open<IPv4Address>(
                                      &socket[ii],
-                                     SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     SocketImpUtil::k_SOCKET_STREAM);
         ret    |= SocketImpUtil::open<IPv4Address>(
                                      &socket[ii + 1],
-                                     SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     SocketImpUtil::k_SOCKET_STREAM);
 #endif
         if (0 != ret) {
             bsl::cout << "Unable to open more than " << ii << " sockets\n";
@@ -1720,7 +1720,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX,
         t1 = bdlt::CurrentTime::now();
         for (int k = 0; k < numSockets; ++k) {
             mX->registerSocketEvent(socket[k],
-                                    EventType::BTESO_READ,
+                                    EventType::e_READ,
                                     nullCb);
         }
         t2 = bdlt::CurrentTime::now();
@@ -1769,7 +1769,7 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
     int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, d_fds);
 #else
     int rc = SocketImpUtil::socketPair<IPv4Address>(
-                              d_fds, SocketImpUtil::BTESO_SOCKET_STREAM);
+                              d_fds, SocketImpUtil::k_SOCKET_STREAM);
 #endif
 
     if (d_verboseFlag) {
@@ -1780,7 +1780,7 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
         d_validFlag = -1;
     }
     else {
-        IoUtil::BlockingMode option = IoUtil::BTESO_NONBLOCKING;
+        IoUtil::BlockingMode option = IoUtil::e_NONBLOCKING;
         rc |= IoUtil::setBlockingMode(d_fds[0], option);
         if (d_verboseFlag) {
             bsl::printf("T%llu: setBlockingMode (%d): %d\n",
@@ -1794,16 +1794,16 @@ EventManagerTestPair::EventManagerTestPair(int verboseFlag)
         }
 #if !BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
         rc |= SocketOptUtil::setOption(d_fds[0],
-                      SocketOptUtil::BTESO_TCPLEVEL,
-                      SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      SocketOptUtil::k_TCPLEVEL,
+                      SocketOptUtil::k_TCPNODELAY, 1);
         if (d_verboseFlag) {
             bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
                         bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[0], rc);
         }
 
         rc |= SocketOptUtil::setOption(d_fds[1],
-                      SocketOptUtil::BTESO_TCPLEVEL,
-                      SocketOptUtil::BTESO_TCPNODELAY, 1);
+                      SocketOptUtil::k_TCPLEVEL,
+                      SocketOptUtil::k_TCPNODELAY, 1);
         if (d_verboseFlag) {
             bsl::printf("T%llu: setOption (TCPNODELAY) (%d): %d\n",
                         bdlqq::ThreadUtil::selfIdAsUint64(), d_fds[1], rc);
@@ -1859,29 +1859,29 @@ EventManagerTestPair::setObservedBufferOptions(int bufferSize,
     // 'watermark' values respectively.
 {
     int ret = SocketOptUtil::setOption(d_fds[0],
-              SocketOptUtil::BTESO_SOCKETLEVEL,
-              SocketOptUtil::BTESO_SENDBUFFER, bufferSize);
+              SocketOptUtil::k_SOCKETLEVEL,
+              SocketOptUtil::k_SENDBUFFER, bufferSize);
     if (0 != ret) {
         return ret;
     }
 
     ret = SocketOptUtil::setOption(d_fds[0],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
-            SocketOptUtil::BTESO_RECEIVEBUFFER, bufferSize);
+            SocketOptUtil::k_SOCKETLEVEL,
+            SocketOptUtil::k_RECEIVEBUFFER, bufferSize);
     if (0 != ret) {
         return ret;
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
     ret = SocketOptUtil::setOption(d_fds[0],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_SNDLOWAT, watermark);
     if (0 != ret) {
         return ret;
     }
 
     ret = SocketOptUtil::setOption(d_fds[0],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_RCVLOWAT, watermark);
     if (0 != ret) {
         return ret;
@@ -1905,29 +1905,29 @@ EventManagerTestPair::setControlBufferOptions(int bufferSize,
     // 'watermark' values respectively.
 {
     int ret = SocketOptUtil::setOption(d_fds[1],
-              SocketOptUtil::BTESO_SOCKETLEVEL,
-              SocketOptUtil::BTESO_SENDBUFFER, bufferSize);
+              SocketOptUtil::k_SOCKETLEVEL,
+              SocketOptUtil::k_SENDBUFFER, bufferSize);
     if (0 != ret) {
         return ret;
     }
 
     ret = SocketOptUtil::setOption(d_fds[1],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
-            SocketOptUtil::BTESO_RECEIVEBUFFER, bufferSize);
+            SocketOptUtil::k_SOCKETLEVEL,
+            SocketOptUtil::k_RECEIVEBUFFER, bufferSize);
     if (0 != ret) {
         return ret;
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
     ret = SocketOptUtil::setOption(d_fds[1],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_SNDLOWAT, watermark);
     if (0 != ret) {
         return ret;
     }
 
     ret = SocketOptUtil::setOption(d_fds[1],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_RCVLOWAT, watermark);
     if (0 != ret) {
         return ret;
@@ -1952,28 +1952,28 @@ int EventManagerTestPair::getObservedBufferOptions(int *sndBufferSize,
 {
     int ret = -1;
     ret = SocketOptUtil::getOption(&sndBufferSize, d_fds[0],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
-            SocketOptUtil::BTESO_SENDBUFFER);
+            SocketOptUtil::k_SOCKETLEVEL,
+            SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
         return ret;
     }
     ret = SocketOptUtil::getOption(&rcvBufferSize, d_fds[0],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
-            SocketOptUtil::BTESO_RECEIVEBUFFER);
+            SocketOptUtil::k_SOCKETLEVEL,
+            SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
         return ret;
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
     ret = SocketOptUtil::getOption(&rcvLowat, d_fds[0],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_RCVLOWAT);
     if (0 != ret) {
         return ret;
     }
 
     ret = SocketOptUtil::getOption(&sndLowat, d_fds[0],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_SNDLOWAT);
     if (0 != ret) {
         return ret;
@@ -1997,28 +1997,28 @@ int EventManagerTestPair::getControlBufferOptions(int *sndBufferSize,
 {
     int ret = -1;
     ret = SocketOptUtil::getOption(&sndBufferSize, d_fds[1],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
-            SocketOptUtil::BTESO_SENDBUFFER);
+            SocketOptUtil::k_SOCKETLEVEL,
+            SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
         return ret;
     }
     ret = SocketOptUtil::getOption(&rcvBufferSize, d_fds[1],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
-            SocketOptUtil::BTESO_RECEIVEBUFFER);
+            SocketOptUtil::k_SOCKETLEVEL,
+            SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
         return ret;
     }
 
     #ifdef BSLS_PLATFORM_OS_AIX
     ret = SocketOptUtil::getOption(&rcvLowat, d_fds[1],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_RCVLOWAT);
     if (0 != ret) {
         return ret;
     }
 
     ret = SocketOptUtil::getOption(&sndLowat, d_fds[1],
-            SocketOptUtil::BTESO_SOCKETLEVEL,
+            SocketOptUtil::k_SOCKETLEVEL,
             SO_SNDLOWAT);
     if (0 != ret) {
         return ret;

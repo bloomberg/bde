@@ -195,11 +195,12 @@ struct BerUtil {
     // consumed within the scope of the function.
 
     enum {
-        BDEM_INDEFINITE_LENGTH = -1  // used to indicate that the length is
+        e_INDEFINITE_LENGTH = -1  // used to indicate that the length is
                                      // indefinite
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , INDEFINITE_LENGTH = BDEM_INDEFINITE_LENGTH
+      , BDEM_INDEFINITE_LENGTH = e_INDEFINITE_LENGTH
+      , INDEFINITE_LENGTH = e_INDEFINITE_LENGTH
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -229,7 +230,7 @@ struct BerUtil {
         // Decode the length octets from the specified 'streamBuf' and load the
         // result into the specified 'length'.  If the length is indefinite
         // (i.e., contents will be terminated by "end-of-content" octets) then
-        // 'result' will be set to 'BDEM_INDEFINITE_LENGTH'.  Add the number of
+        // 'result' will be set to 'e_INDEFINITE_LENGTH'.  Add the number of
         // bytes consumed to the specified 'accumNumBytesConsumed'.  Return 0
         // on success, and a non-zero value otherwise.
 
@@ -307,17 +308,31 @@ struct BerUtil_Imp {
         // This 'enum' lists constants that are used for encoding date and
         // time types in a binary encoding format.
 
-        MAX_BINARY_DATE_LENGTH             = 3,
-        MAX_BINARY_TIME_LENGTH             = 4,
-        MAX_BINARY_DATETIME_LENGTH         = 6,
+        k_MAX_BINARY_DATE_LENGTH             = 3
+      , k_MAX_BINARY_TIME_LENGTH             = 4
+      , k_MAX_BINARY_DATETIME_LENGTH         = 6
 
-        MIN_BINARY_DATETZ_LENGTH           = MAX_BINARY_DATE_LENGTH + 1,
-        MIN_BINARY_TIMETZ_LENGTH           = MAX_BINARY_TIME_LENGTH + 1,
-        MIN_BINARY_DATETIMETZ_LENGTH       = MAX_BINARY_DATETIME_LENGTH + 1,
+      , k_MIN_BINARY_DATETZ_LENGTH           = k_MAX_BINARY_DATE_LENGTH + 1
+      , k_MIN_BINARY_TIMETZ_LENGTH           = k_MAX_BINARY_TIME_LENGTH + 1
+      , k_MIN_BINARY_DATETIMETZ_LENGTH       = k_MAX_BINARY_DATETIME_LENGTH + 1
 
-        MAX_BINARY_DATETZ_LENGTH           = 5,
-        MAX_BINARY_TIMETZ_LENGTH           = 6,
-        MAX_BINARY_DATETIMETZ_LENGTH       = 9
+      , k_MAX_BINARY_DATETZ_LENGTH           = 5
+      , k_MAX_BINARY_TIMETZ_LENGTH           = 6
+      , k_MAX_BINARY_DATETIMETZ_LENGTH       = 9
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , MAX_BINARY_DATE_LENGTH             = k_MAX_BINARY_DATE_LENGTH
+      , MAX_BINARY_TIME_LENGTH             = k_MAX_BINARY_TIME_LENGTH
+      , MAX_BINARY_DATETIME_LENGTH         = k_MAX_BINARY_DATETIME_LENGTH
+
+      , MIN_BINARY_DATETZ_LENGTH           = k_MIN_BINARY_DATETZ_LENGTH
+      , MIN_BINARY_TIMETZ_LENGTH           = k_MIN_BINARY_TIMETZ_LENGTH
+      , MIN_BINARY_DATETIMETZ_LENGTH       = k_MIN_BINARY_DATETIMETZ_LENGTH
+
+      , MAX_BINARY_DATETZ_LENGTH           = k_MAX_BINARY_DATETZ_LENGTH
+      , MAX_BINARY_TIMETZ_LENGTH           = k_MAX_BINARY_TIMETZ_LENGTH
+      , MAX_BINARY_DATETIMETZ_LENGTH       = k_MAX_BINARY_DATETIMETZ_LENGTH
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     struct BinaryDateTimeFormat {
@@ -344,11 +359,18 @@ struct BerUtil_Imp {
 
   public:
     enum {
-        INDEFINITE_LENGTH       = BerUtil::BDEM_INDEFINITE_LENGTH,
-        BITS_PER_OCTET          = 8,
-        MAX_INTEGER_LENGTH      = 9,
-        INDEFINITE_LENGTH_OCTET = 0x80  // value that indicates an
-                                        // indefinite length
+        e_INDEFINITE_LENGTH       = BerUtil::e_INDEFINITE_LENGTH
+      , e_BITS_PER_OCTET          = 8
+      , e_MAX_INTEGER_LENGTH      = 9
+      , e_INDEFINITE_LENGTH_OCTET = 0x80  // value that indicates an
+                                          // indefinite length
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , INDEFINITE_LENGTH       = e_INDEFINITE_LENGTH
+      , BITS_PER_OCTET          = e_BITS_PER_OCTET
+      , MAX_INTEGER_LENGTH      = e_MAX_INTEGER_LENGTH
+      , INDEFINITE_LENGTH_OCTET = e_INDEFINITE_LENGTH_OCTET
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS
@@ -535,42 +557,42 @@ template <>
 inline
 int BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdlt::Date>()
 {
-    return MAX_BINARY_DATE_LENGTH;
+    return k_MAX_BINARY_DATE_LENGTH;
 }
 
 template <>
 inline
 int BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdlt::Time>()
 {
-    return MAX_BINARY_TIME_LENGTH;
+    return k_MAX_BINARY_TIME_LENGTH;
 }
 
 template <>
 inline
 int BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdlt::Datetime>()
 {
-    return MAX_BINARY_DATETIME_LENGTH;
+    return k_MAX_BINARY_DATETIME_LENGTH;
 }
 
 template <>
 inline
 int BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdlt::DateTz>()
 {
-    return MAX_BINARY_DATETZ_LENGTH;
+    return k_MAX_BINARY_DATETZ_LENGTH;
 }
 
 template <>
 inline
 int BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdlt::TimeTz>()
 {
-    return MAX_BINARY_TIMETZ_LENGTH;
+    return k_MAX_BINARY_TIMETZ_LENGTH;
 }
 
 template <>
 inline
 int BerUtil_Imp::BinaryDateTimeFormat::maxLength<bdlt::DatetimeTz>()
 {
-    return MAX_BINARY_DATETIMETZ_LENGTH;
+    return k_MAX_BINARY_DATETIMETZ_LENGTH;
 }
 
 template <>
@@ -620,13 +642,13 @@ inline
 int BerUtil::getEndOfContentOctets(bsl::streambuf *streamBuf,
                                         int            *accumNumBytesConsumed)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     *accumNumBytesConsumed += 2;
 
     return 0 == streamBuf->sbumpc() && 0 == streamBuf->sbumpc()
-         ? BDEM_SUCCESS
-         : BDEM_FAILURE;
+         ? k_BDEM_SUCCESS
+         : k_BDEM_FAILURE;
 }
 
 inline
@@ -654,44 +676,44 @@ int BerUtil::getValue(bsl::streambuf *streamBuf,
                            TYPE           *value,
                            int            *accumNumBytesConsumed)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     int length;
     if (BerUtil_Imp::getLength(streamBuf, &length, accumNumBytesConsumed))
     {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     if (getValue(streamBuf, value, length)) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     *accumNumBytesConsumed += length;
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 
 inline
 int BerUtil::putEndOfContentOctets(bsl::streambuf *streamBuf)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     return 0 == streamBuf->sputc(0) && 0 == streamBuf->sputc(0)
-         ? BDEM_SUCCESS
-         : BDEM_FAILURE;
+         ? k_BDEM_SUCCESS
+         : k_BDEM_FAILURE;
 }
 
 inline
 int BerUtil::putIndefiniteLengthOctet(bsl::streambuf *streamBuf)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     // "extra" unsigned char cast needed to suppress warning on Windows.
 
-    return BerUtil_Imp::INDEFINITE_LENGTH_OCTET
+    return BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET
                == streamBuf->sputc(static_cast<char>(
-                  (unsigned char)(BerUtil_Imp::INDEFINITE_LENGTH_OCTET)))
-               ? BDEM_SUCCESS
-               : BDEM_FAILURE;
+                  (unsigned char)(BerUtil_Imp::e_INDEFINITE_LENGTH_OCTET)))
+               ? k_BDEM_SUCCESS
+               : k_BDEM_FAILURE;
 }
 
 inline
@@ -719,9 +741,9 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
                                       TYPE           *value,
                                       int             length)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
-    enum { SIGN_BIT_MASK = 0x80 };
+    enum { k_SIGN_BIT_MASK = 0x80 };
 
     static const bool isUnsigned = (TYPE(-1) > TYPE(0));
 
@@ -734,7 +756,7 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
         if (0 != streamBuf->sbumpc()) {
             // First byte was not zero.  Fail.
 
-            return BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                      // RETURN
         }
 
         --length;
@@ -743,22 +765,22 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     if ((unsigned) length > sizeof(TYPE)) {
         // Overflow.
 
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
-    *value = (TYPE)(streamBuf->sgetc() & SIGN_BIT_MASK ? -1 : 0);
+    *value = (TYPE)(streamBuf->sgetc() & k_SIGN_BIT_MASK ? -1 : 0);
 
     for (int i = 0; i < length; ++i) {
         int nextOctet = streamBuf->sbumpc();
         if (bsl::streambuf::traits_type::eof() == nextOctet) {
-            return BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                      // RETURN
         }
 
-        *value = (TYPE)(*value << BITS_PER_OCTET);
+        *value = (TYPE)(*value << e_BITS_PER_OCTET);
         *value = (TYPE)(*value | (unsigned char)nextOctet);
     }
 
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 
 template <typename TYPE>
@@ -775,20 +797,20 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bool           *value,
                                int             length)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     if (1 != length) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     int intValue = streamBuf->sbumpc();
     if (bsl::streambuf::traits_type::eof() == intValue) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     *value = 0 != intValue;
 
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 
 inline
@@ -796,19 +818,19 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                char           *value,
                                int             length)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     if (1 != length) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     int valueOctet = streamBuf->sbumpc();
     if (bsl::streambuf::traits_type::eof() == valueOctet) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     *value = (char) valueOctet;
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 
 inline
@@ -816,14 +838,14 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                unsigned char  *value,
                                int             length)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     short temp;
     if (BerUtil_Imp::getIntegerValue(streamBuf, &temp, length)) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
     *value = (unsigned char) temp;
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 
 inline
@@ -839,14 +861,14 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                float          *value,
                                int             length)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     double dvalue;
     if (BerUtil_Imp::getDoubleValue(streamBuf, &dvalue, length)) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
     *value = (float) dvalue;
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 }
 
 inline
@@ -869,14 +891,14 @@ int BerUtil_Imp::getValue(bsl::streambuf               *streamBuf,
               || (bslmf::IsSame<bdlt::Datetime, TYPE>::VALUE
                && bslmf::IsSame<bdlt::DatetimeTz, TYPETZ>::VALUE));
 
-    const int MAX_BINARY_TYPETZ_LENGTH =
+    const int k_MAX_BINARY_TYPETZ_LENGTH =
                                      BinaryDateTimeFormat::maxLength<TYPETZ>();
-    const int MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
-    const int MAX_STRING_TYPE_LENGTH = StringDateTimeFormat::maxLength<TYPE>();
+    const int k_MAX_BINARY_TYPE_LENGTH = BinaryDateTimeFormat::maxLength<TYPE>();
+    const int k_MAX_STRING_TYPE_LENGTH = StringDateTimeFormat::maxLength<TYPE>();
 
-    bool doesNotHaveTzOffset = length > MAX_BINARY_TYPETZ_LENGTH
-                             ? length <= MAX_STRING_TYPE_LENGTH
-                             : length <= MAX_BINARY_TYPE_LENGTH;
+    bool doesNotHaveTzOffset = length > k_MAX_BINARY_TYPETZ_LENGTH
+                             ? length <= k_MAX_STRING_TYPE_LENGTH
+                             : length <= k_MAX_BINARY_TYPE_LENGTH;
 
     if (doesNotHaveTzOffset) {
         // Decode into TYPE
@@ -906,13 +928,13 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
     // narrower than 'int'.
 
     static const TYPE NEG_MASK = static_cast<TYPE>(
-             static_cast<TYPE>(0xff80) << ((sizeof(TYPE)-2) * BITS_PER_OCTET));
+             static_cast<TYPE>(0xff80) << ((sizeof(TYPE)-2) * e_BITS_PER_OCTET));
     if (0 == value) {
         numBytes = 1;
     }
     else if (value > 0) {
         static const TYPE SGN_BIT = static_cast<TYPE>(
-                  static_cast<TYPE>(1) << (sizeof(TYPE) * BITS_PER_OCTET - 1));
+                  static_cast<TYPE>(1) << (sizeof(TYPE) * e_BITS_PER_OCTET - 1));
         if (value & SGN_BIT) {
             // If value is > 0 but the high bit (sign bit) is set, then this
             // is an unsigned value and a leading zero byte must be emitted to
@@ -948,41 +970,41 @@ int BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
                                             TYPE            value,
                                             int             length)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     if (length <= 0) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     static const bool isUnsigned = (TYPE(-1) > TYPE(0));
 
     if (isUnsigned && (unsigned) length == sizeof(TYPE) + 1) {
         static const TYPE SGN_BIT =
-            TYPE(TYPE(1) << (sizeof(TYPE) * BITS_PER_OCTET - 1));
+            TYPE(TYPE(1) << (sizeof(TYPE) * e_BITS_PER_OCTET - 1));
         // Length may be one greater than sizeof(TYPE) only if type is
         // unsigned and the high bit (normally the sign bit) is set.  In this
         // case, a leading zero octet is emitted.
 
         if (! (value & SGN_BIT)) {
-            return BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                      // RETURN
         }
 
         if (0 != streamBuf->sputc(0)) {
-            return BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                      // RETURN
         }
 
         --length;
     }
 
     if ((unsigned) length > sizeof(TYPE)) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
 #if BSLS_PLATFORM_IS_BIG_ENDIAN
     return length == streamBuf->sputn((char *) &value + sizeof(TYPE) - length,
                                       length)
-         ? BDEM_SUCCESS
-         : BDEM_FAILURE;
+         ? k_BDEM_SUCCESS
+         : k_BDEM_FAILURE;
 
 #else
 
@@ -990,11 +1012,11 @@ int BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
     for ( ; length > 0; --length) {
         unsigned char c = *--dst;
         if (c != streamBuf->sputc(c)) {
-            return BDEM_FAILURE;                                      // RETURN
+            return k_BDEM_FAILURE;                                      // RETURN
         }
     }
 
-    return BDEM_SUCCESS;
+    return k_BDEM_SUCCESS;
 
 #endif
 }
@@ -1004,12 +1026,12 @@ inline
 int BerUtil_Imp::putIntegerValue(bsl::streambuf *streamBuf,
                                       TYPE            value)
 {
-    enum { BDEM_FAILURE = -1 };
+    enum { k_BDEM_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;
     const int length = numBytesToStream(value);
     if (length != streamBuf->sputc((char_type)length)) {
-        return BDEM_FAILURE;                                          // RETURN
+        return k_BDEM_FAILURE;                                          // RETURN
     }
 
     return putIntegerGivenLength(streamBuf, value, length);
@@ -1020,12 +1042,12 @@ int BerUtil_Imp::putStringValue(bsl::streambuf *streamBuf,
                                      const char     *value,
                                      int             valueLength)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     return BerUtil_Imp::putLength(streamBuf, valueLength)
         || valueLength != streamBuf->sputn(value, valueLength)
-         ? BDEM_FAILURE
-         : BDEM_SUCCESS;
+         ? k_BDEM_FAILURE
+         : k_BDEM_SUCCESS;
 }
 
 template <typename TYPE>
@@ -1055,14 +1077,14 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
     BSLMF_ASSERT(sizeof(bool) == sizeof(char));
     BSLS_ASSERT(0 == *(char *)&value || 1 == *(char *)&value);
 
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     typedef bsl::streambuf::char_type char_type;
 
     return 1 == streamBuf->sputc(1)
         && (int)value == streamBuf->sputc((char_type)(value ? 1 : 0))
-         ? BDEM_SUCCESS
-         : BDEM_FAILURE;
+         ? k_BDEM_SUCCESS
+         : k_BDEM_FAILURE;
 }
 
 inline
@@ -1070,12 +1092,12 @@ int BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                char                          value,
                                const BerEncoderOptions *)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
+    enum { k_BDEM_SUCCESS = 0, k_BDEM_FAILURE = -1 };
 
     return 1 == streamBuf->sputc(1)
         && (unsigned char) value == streamBuf->sputc(value)
-         ? BDEM_SUCCESS
-         : BDEM_FAILURE;
+         ? k_BDEM_SUCCESS
+         : k_BDEM_FAILURE;
 }
 
 inline

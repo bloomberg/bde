@@ -125,8 +125,8 @@ bool DefaultEventManager<Platform::SELECT>::
 
     for (; it != end; ++it) {
         const Event& event = it->first;
-        if (EventType::BTESO_READ == event.type()
-         || EventType::BTESO_ACCEPT == event.type()) {
+        if (EventType::e_READ == event.type()
+         || EventType::e_ACCEPT == event.type()) {
             FD_SET(event.handle(), &readControl);
         }
         else {
@@ -155,8 +155,8 @@ int DefaultEventManager<Platform::SELECT>::dispatchCallbacks(
 
     for (; numEvents > 0 && it != end; ++it) {
         const Event& event = it->first;
-        if (EventType::BTESO_READ == event.type()
-         || EventType::BTESO_ACCEPT == event.type()) {
+        if (EventType::e_READ == event.type()
+         || EventType::e_ACCEPT == event.type()) {
             if (FD_ISSET(event.handle(), &readSet)) {
                 d_signaledReads.push_back(event);
                 --numEvents;
@@ -222,8 +222,8 @@ DefaultEventManager<Platform::SELECT>::DefaultEventManager(
     FD_ZERO(&d_writeSet);
     FD_ZERO(&d_exceptSet);
 
-    d_signaledReads.reserve(BTESO_MAX_NUM_HANDLES);
-    d_signaledWrites.reserve(BTESO_MAX_NUM_HANDLES);
+    d_signaledReads.reserve(k_MAX_NUM_HANDLES);
+    d_signaledWrites.reserve(k_MAX_NUM_HANDLES);
 }
 
 DefaultEventManager<Platform::SELECT>::DefaultEventManager(
@@ -242,8 +242,8 @@ DefaultEventManager<Platform::SELECT>::DefaultEventManager(
     FD_ZERO(&d_writeSet);
     FD_ZERO(&d_exceptSet);
 
-    d_signaledReads.reserve(BTESO_MAX_NUM_HANDLES);
-    d_signaledWrites.reserve(BTESO_MAX_NUM_HANDLES);
+    d_signaledReads.reserve(k_MAX_NUM_HANDLES);
+    d_signaledWrites.reserve(k_MAX_NUM_HANDLES);
 }
 
 DefaultEventManager<Platform::SELECT>::~DefaultEventManager()
@@ -273,10 +273,10 @@ int DefaultEventManager<Platform::SELECT>::dispatch(int flags)
     do {
         errno = 0;
         if (d_timeMetric) {
-            d_timeMetric->switchTo(TimeMetrics::BTESO_IO_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, NULL);
             savedErrno = errno;
-            d_timeMetric->switchTo(TimeMetrics::BTESO_CPU_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_CPU_BOUND);
         }
         else {
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, NULL);
@@ -284,7 +284,7 @@ int DefaultEventManager<Platform::SELECT>::dispatch(int flags)
         }
     } while (ret < 0
           && EINTR == savedErrno
-          && !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT));
+          && !(flags & bteso_Flag::k_ASYNC_INTERRUPT));
 
     if (ret < 0) {
         return EINTR == savedErrno ? -1 : ret;
@@ -322,9 +322,9 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
     if (0 == d_events.size()) {
         DWORD timeoutMS = tv.tv_sec * 1000 + tv.tv_usec / 1000 + 1;
         if (d_timeMetric) {
-            d_timeMetric->switchTo(TimeMetrics::BTESO_IO_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
             ::Sleep(timeoutMS);
-            d_timeMetric->switchTo(TimeMetrics::BTESO_CPU_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_CPU_BOUND);
         }
         else {
             ::Sleep(timeoutMS);
@@ -333,9 +333,9 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
     }
     else {
         if (d_timeMetric) {
-            d_timeMetric->switchTo(TimeMetrics::BTESO_IO_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
-            d_timeMetric->switchTo(TimeMetrics::BTESO_CPU_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_CPU_BOUND);
         }
         else {
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
@@ -353,17 +353,17 @@ int DefaultEventManager<Platform::SELECT>::dispatch(
         convert(&tv, delta);
         errno = 0;
         if (d_timeMetric) {
-            d_timeMetric->switchTo(TimeMetrics::BTESO_IO_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_IO_BOUND);
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
             savedErrno = errno;
-            d_timeMetric->switchTo(TimeMetrics::BTESO_CPU_BOUND);
+            d_timeMetric->switchTo(TimeMetrics::e_CPU_BOUND);
         }
         else {
             ret = ::select(d_maxFd, &readSet, &writeSet, &exceptSet, &tv);
             savedErrno = errno;
         }
     } while ((ret < 0 && EINTR == savedErrno
-          && !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT))
+          && !(flags & bteso_Flag::k_ASYNC_INTERRUPT))
              #ifdef BSLS_PLATFORM_OS_LINUX
              // Linux select() returns at one tick *preceding* the expiration
              // of the timeout.  Since code usually expects that select() will
@@ -391,7 +391,7 @@ int DefaultEventManager<Platform::SELECT>::registerSocketEvent(
                                  const EventManager::Callback& callback)
 {
 #ifdef BTLSO_PLATFORM_BSD_SOCKETS
-    BSLS_ASSERT(handle < BTESO_MAX_NUM_HANDLES);
+    BSLS_ASSERT(handle < k_MAX_NUM_HANDLES);
 #else
     BSLS_ASSERT(canRegisterSockets());
 #endif
@@ -399,8 +399,8 @@ int DefaultEventManager<Platform::SELECT>::registerSocketEvent(
     Event ev(handle, eventType);
     d_events[ev] = callback;
 
-    if (eventType == EventType::BTESO_READ
-     || eventType == EventType::BTESO_ACCEPT) {
+    if (eventType == EventType::e_READ
+     || eventType == EventType::e_ACCEPT) {
         if (!FD_ISSET(handle, &d_readSet)) {
             FD_SET(handle, &d_readSet);
             ++d_numRead;
@@ -431,8 +431,8 @@ void DefaultEventManager<Platform::SELECT>::deregisterSocketEvent(
     Event ev(handle, event);
 
     if (1 == d_events.erase(ev)) {
-        if (event == EventType::BTESO_READ
-         || event == EventType::BTESO_ACCEPT) {
+        if (event == EventType::e_READ
+         || event == EventType::e_ACCEPT) {
             FD_CLR(handle, &d_readSet);
             --d_numRead;
         }
@@ -462,20 +462,20 @@ int DefaultEventManager<Platform::SELECT>::deregisterSocket(
     }
 #endif
     int ncbs = 0;
-    if (isRegistered(handle, EventType::BTESO_READ)) {
-        deregisterSocketEvent(handle, EventType::BTESO_READ);
+    if (isRegistered(handle, EventType::e_READ)) {
+        deregisterSocketEvent(handle, EventType::e_READ);
         ++ncbs;
     }
-    if (isRegistered(handle, EventType::BTESO_WRITE)) {
-        deregisterSocketEvent(handle, EventType::BTESO_WRITE);
+    if (isRegistered(handle, EventType::e_WRITE)) {
+        deregisterSocketEvent(handle, EventType::e_WRITE);
         ++ncbs;
     }
-    if (isRegistered(handle, EventType::BTESO_ACCEPT)) {
-        deregisterSocketEvent(handle, EventType::BTESO_ACCEPT);
+    if (isRegistered(handle, EventType::e_ACCEPT)) {
+        deregisterSocketEvent(handle, EventType::e_ACCEPT);
         ++ncbs;
     }
-    if (isRegistered(handle, EventType::BTESO_CONNECT)) {
-        deregisterSocketEvent(handle, EventType::BTESO_CONNECT);
+    if (isRegistered(handle, EventType::e_CONNECT)) {
+        deregisterSocketEvent(handle, EventType::e_CONNECT);
         ++ncbs;
     }
     return ncbs;
@@ -497,9 +497,9 @@ bool DefaultEventManager<Platform::SELECT>::canRegisterSockets()
                                                                           const
 {
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
-    return bsl::max(d_numRead, d_numWrite) < BTESO_MAX_NUM_HANDLES;
+    return bsl::max(d_numRead, d_numWrite) < k_MAX_NUM_HANDLES;
 #else
-    return d_maxFd < BTESO_MAX_NUM_HANDLES;
+    return d_maxFd < k_MAX_NUM_HANDLES;
 #endif
 }
 
@@ -513,10 +513,10 @@ int DefaultEventManager<Platform::SELECT>::isRegistered(
 int DefaultEventManager<Platform::SELECT>::numSocketEvents (
                                 const SocketHandle::Handle& handle) const
 {
-    return   isRegistered(handle, EventType::BTESO_READ)
-           + isRegistered(handle, EventType::BTESO_WRITE)
-           + isRegistered(handle, EventType::BTESO_ACCEPT)
-           + isRegistered(handle, EventType::BTESO_CONNECT);
+    return   isRegistered(handle, EventType::e_READ)
+           + isRegistered(handle, EventType::e_WRITE)
+           + isRegistered(handle, EventType::e_ACCEPT)
+           + isRegistered(handle, EventType::e_CONNECT);
 }
 
 }  // close namespace BloombergLP

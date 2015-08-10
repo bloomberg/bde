@@ -71,7 +71,10 @@ class JournalHeaderPageList {
   public:
     // TYPES
     enum {
-        BAECS_INVALID_PAGE = 0xFFFFFFFF
+        k_INVALID_PAGE = 0xFFFFFFFF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_INVALID_PAGE = k_INVALID_PAGE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // DATA
@@ -113,12 +116,19 @@ class JournalHeader {
   public:
     // TYPES
     enum {
-        BAECS_INVALID_RECORD_HANDLE = 0xFFFFFFFF
+        k_INVALID_RECORD_HANDLE = 0xFFFFFFFF
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_INVALID_RECORD_HANDLE = k_INVALID_RECORD_HANDLE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        BAECS_JOURNAL_MAGIC_NUMBER    = 0x4A524E4C,
-        BAECS_JOURNAL_VERSION_CURRENT = 1
+        k_JOURNAL_MAGIC_NUMBER    = 0x4A524E4C
+      , k_JOURNAL_VERSION_CURRENT = 1
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAECS_JOURNAL_MAGIC_NUMBER    = k_JOURNAL_MAGIC_NUMBER
+      , BAECS_JOURNAL_VERSION_CURRENT = k_JOURNAL_VERSION_CURRENT
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     struct HeaderState {
@@ -140,7 +150,10 @@ class JournalHeader {
 
     struct OnDisk {
         enum {
-            BAECS_NUM_STATES = 2
+            k_NUM_STATES = 2
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+          , BAECS_NUM_STATES = k_NUM_STATES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         };
 
         // immutable part
@@ -157,7 +170,7 @@ class JournalHeader {
         bdlb::BigEndianInt64  d_creationTime;
         bdlb::BigEndianUint32 d_userDataSize;
         bdlb::BigEndianUint32 d_reserve;
-        HeaderState           d_state[BAECS_NUM_STATES];
+        HeaderState           d_state[k_NUM_STATES];
         char                  d_userData[8];
     };
 
@@ -246,8 +259,8 @@ bsl::ostream& operator<<(bsl::ostream&        stream,
 inline
 void JournalHeaderPageList::init()
 {
-    d_firstPage   = BAECS_INVALID_PAGE;
-    d_last        = BAECS_INVALID_PAGE;
+    d_firstPage   = k_INVALID_PAGE;
+    d_last        = k_INVALID_PAGE;
     d_numElements = 0;
 }
 
@@ -259,8 +272,8 @@ void JournalHeaderPageList::init()
 inline
 void JournalHeaderRecordList::init()
 {
-    d_first       = JournalHeader::BAECS_INVALID_RECORD_HANDLE;
-    d_last        = JournalHeader::BAECS_INVALID_RECORD_HANDLE;
+    d_first       = JournalHeader::k_INVALID_RECORD_HANDLE;
+    d_last        = JournalHeader::k_INVALID_RECORD_HANDLE;
     d_numElements = 0;
 }
 

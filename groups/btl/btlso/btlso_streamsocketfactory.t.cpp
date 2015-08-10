@@ -280,7 +280,7 @@ void f(btlso::StreamSocketFactory<TestIPAddress> *factory)
     }
     else {
 
-        if (socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE) != 0) {
+        if (socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE) != 0) {
             //cout << "Blocking Mode could not be set" << endl;
             ASSERT(1);
         }
@@ -330,7 +330,7 @@ int main(int argc, char *argv[]) {
 // user allocates a stream socket and wants to pass it to a higher level pool
 // for management.  This component provides,
 // 'btlso::StreamSocketFactoryDeleter', that contains a 'deleter' method,
-// 'deleteObject', that can safely deallocate the stream socket on its 
+// 'deleteObject', that can safely deallocate the stream socket on its
 // destruction.
 //
 // The example below shows the syntax for constructing managed and shared
@@ -388,7 +388,7 @@ int main(int argc, char *argv[]) {
         // Invoke a function on the socket returned and verify that
         // the function on the test concrete class was called.
         char buf[100];
-        ASSERT(socketP->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH) == -1);
+        ASSERT(socketP->shutdown(bteso_Flag::e_SHUTDOWN_BOTH) == -1);
         ASSERT(factory.getOpCode() == 6);
 
         factoryP->deallocate(socketP);

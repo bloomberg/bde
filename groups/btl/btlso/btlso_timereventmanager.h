@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 // Socket event registrations specify a socket handle and the type of event to
 // monitor on the specified socket.  Socket event registrations stay in effect
 // until they are subsequently deregistered; the callback is invoked each time
-// the specified socket event occurs.  Note that 'btlso::EventType::BTESO_READ'
-// and 'btlso::EventType::BTESO_WRITE' are the only events that can be
+// the specified socket event occurs.  Note that 'btlso::EventType::e_READ'
+// and 'btlso::EventType::e_WRITE' are the only events that can be
 // registered simultaneously for a socket.  Otherwise only a single socket
 // event can be registered for a particular socket.
 //
@@ -428,7 +428,7 @@ class TimerEventManager {
         // value otherwise.  Socket event registrations stay in effect until
         // they are subsequently deregistered; the callback is invoked each
         // time the specified 'event' is seen.  Typically,
-        // 'EventType::BTESO_READ' and 'EventType::BTESO_WRITE' are
+        // 'EventType::e_READ' and 'EventType::e_WRITE' are
         // the only events that can be registered simultaneously for a socket.
         // Simultaneously registering for incompatible events for the same
         // socket 'handle' will result in undefined behavior.  If a

@@ -743,7 +743,7 @@ int main(int argc, char *argv[]) {
 
                   bsls::TimeInterval timeout(0, 5), time(60, 0);
                   int non_interrupt = 0,
-                      interruptible = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===================>
@@ -880,13 +880,13 @@ int main(int argc, char *argv[]) {
                   LOOP_ASSERT(i, 0 != acceptor.address().portNumber());
 
                   // Get the socket option for Nagle algorithm flag.
-                  int level  = btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                      option = btlso::SocketOptUtil::BTESO_TCPNODELAY,
+                  int level  = btlso::SocketOptUtil::k_TCPLEVEL,
+                      option = btlso::SocketOptUtil::k_TCPNODELAY,
                       result = 0;
                   ret = acceptor.getOption(&result, level, option);
                   LOOP_ASSERT(i, 0 == ret);
                   LOOP_ASSERT(i,
-                              btlso::SocketOptUtil::BTESO_TCPNODELAY != result);
+                              btlso::SocketOptUtil::k_TCPNODELAY != result);
 
                   // Get the socket option for Nagle algorithm flag and verify
                   // the result.
@@ -921,7 +921,7 @@ int main(int argc, char *argv[]) {
           }
           {
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
 
               struct {
                   int                   d_lineNum;
@@ -960,8 +960,8 @@ int main(int argc, char *argv[]) {
                   LOOP_ASSERT(i, 0 != acceptor.socket());
                   LOOP_ASSERT(i, 0 != acceptor.address().portNumber());
 
-                  int level  = btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      option = btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                  int level  = btlso::SocketOptUtil::k_SOCKETLEVEL,
+                      option = btlso::SocketOptUtil::k_REUSEADDRESS,
                       result = 0;
                   ret = acceptor.getOption(&result, level, option);
                   LOOP_ASSERT(i, 0 == ret);
@@ -1205,7 +1205,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1621,7 +1621,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1987,7 +1987,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   LOOP_ASSERT(i, 0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -2095,7 +2095,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   ASSERT(0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>

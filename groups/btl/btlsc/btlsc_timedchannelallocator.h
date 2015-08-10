@@ -91,7 +91,7 @@ BSLS_IDENT("$Id: $")
 // (leaving the allocator unaffected) upon the occurrence of an AE.  Such
 // authorizations are made explicitly by incorporating into the optional
 // (trailing) integer 'flags' argument to a method call the
-// 'btesc_Flag::BTESC_ASYNC_INTERRUPT' value.
+// 'btesc_Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Timeouts
 ///--------
@@ -127,18 +127,20 @@ BSLS_IDENT("$Id: $")
 // Let's assume that we have a function that knows how to print platform
 // neutral encodings of type 'my_Tick':
 //..
+//  #define VERSION_SELECTOR 20140601
+//
 //  static int calculateMyTickMessageSize()
-//      // Calculate and return the number of bytes in a 'bdex' byte-stream
+//      // Calculate and return the number of bytes in a BDEX byte-stream
 //      // encoding of a (dummy) 'my_Tick' value (called just once, see below).
 //  {
 //      my_Tick dummy;
-//      bdlxxxx::ByteOutStream bos;
+//      bslx::ByteOutStream bos(VERSION_SELECTOR);
 //      bos << dummy;
 //      return bos.length();
 //  }
 //
 //  static int myTickMessageSize()
-//      // Return the number of bytes in a 'bdex' byte-stream encoding
+//      // Return the number of bytes in a BDEX byte-stream encoding
 //      // of a 'my_Tick' value without creating a runtime-initialized
 //      // file-scope static variable (which is link-order dependent).
 //  {
@@ -148,7 +150,7 @@ BSLS_IDENT("$Id: $")
 //
 //  static void myPrintTick(bsl::ostream& stream, const char *buffer);
 //      // Print the value of the specified 'buffer' interpreted as a
-//      // 'bdex' byte-stream representation of a 'my_Tick' value to the
+//      // BDEX byte-stream representation of a 'my_Tick' value to the
 //      // specified 'stream' or report an error to 'stream' if 'buffer' is
 //      // determined *not* to hold an encoding of a valid 'my_Tick' value.
 //..
@@ -384,7 +386,7 @@ BSLS_IDENT("$Id: $")
 //                            << bsl::endl;
 //              }
 //              else {
-//                  bdlxxxx::ByteOutStream bos;
+//                  bslx::ByteOutStream bos(VERSION_SELECTOR);
 //                  bos << tick;
 //                  int msgSize = bos.length();
 //                  if (0 >= newChannel->timedWrite(bos.data(),
@@ -508,7 +510,7 @@ class TimedChannelAllocator // : public ChannelAllocator
     // MANIPULATORS
     virtual Channel *allocate(int *status, int flags = 0) = 0;
         // Allocate a stream-based channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a channel
         // on success, and null otherwise.  On an unsuccessful allocation, load
@@ -529,7 +531,7 @@ class TimedChannelAllocator // : public ChannelAllocator
                                  int                        flags = 0) = 0;
         // Allocate a stream-based channel or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a channel
         // on success, and null otherwise.  On an unsuccessful allocation, load
@@ -549,7 +551,7 @@ class TimedChannelAllocator // : public ChannelAllocator
 
     virtual TimedChannel *allocateTimed(int *status, int flags = 0) = 0;
         // Allocate a stream-based timed channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a timed
         // channel on success, and null otherwise.  On an unsuccessful
@@ -570,7 +572,7 @@ class TimedChannelAllocator // : public ChannelAllocator
                                       int                       flags = 0) = 0;
         // Allocate a stream-based timed channel or interrupt after the
         // specified absolute 'timeout' time is reached.  If the optionally
-        // specified 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a timed
         // channel on success, and null otherwise.  On an unsuccessful

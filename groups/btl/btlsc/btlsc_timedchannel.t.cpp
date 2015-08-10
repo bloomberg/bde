@@ -664,7 +664,7 @@ int main(int argc, char *argv[]) {
             // if the derived class method is invoked.
 
             // Flags to indicate that async interrupts are allowed.
-            int myFlags = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+            int myFlags = btesc_Flag::k_ASYNC_INTERRUPT;
             int augStatus = 0;
             bsls::TimeInterval timeout(bdlt::CurrentTime::now());
             ASSERT(0 == myC.flags());

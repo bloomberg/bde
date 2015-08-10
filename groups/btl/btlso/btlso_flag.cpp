@@ -8,12 +8,10 @@ BSLS_IDENT_RCSID(btlso_flag_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#define CASE(X) case(BTESO_ ## X): return #X
-
 const char *bteso_Flag::toAscii(bteso_Flag::Flag value)
 {
     switch (value) {
-        CASE(ASYNC_INTERRUPT);
+        case k_ASYNC_INTERRUPT: return "ASYNC_INTERRUPT";
         default: return "(* UNKNOWN *)";
     }
 }
@@ -21,8 +19,8 @@ const char *bteso_Flag::toAscii(bteso_Flag::Flag value)
 const char *bteso_Flag::toAscii(bteso_Flag::BlockingMode value)
 {
     switch (value) {
-        CASE(BLOCKING_MODE);
-        CASE(NONBLOCKING_MODE);
+        case e_BLOCKING_MODE: return "BLOCKING_MODE";
+        case e_NONBLOCKING_MODE: return "NONBLOCKING_MODE";
         default: return "(* UNKNOWN *)";
     }
 }
@@ -30,9 +28,9 @@ const char *bteso_Flag::toAscii(bteso_Flag::BlockingMode value)
 const char *bteso_Flag::toAscii(bteso_Flag::ShutdownType value)
 {
     switch (value) {
-        CASE(SHUTDOWN_RECEIVE);
-        CASE(SHUTDOWN_SEND);
-        CASE(SHUTDOWN_BOTH);
+        case e_SHUTDOWN_RECEIVE: return "SHUTDOWN_RECEIVE";
+        case e_SHUTDOWN_SEND: return "SHUTDOWN_SEND";
+        case e_SHUTDOWN_BOTH: return "SHUTDOWN_BOTH";
         default: return "(* UNKNOWN *)";
     }
 }
@@ -40,14 +38,12 @@ const char *bteso_Flag::toAscii(bteso_Flag::ShutdownType value)
 const char *bteso_Flag::toAscii(bteso_Flag::IOWaitType value)
 {
     switch (value) {
-        CASE(IO_READ);
-        CASE(IO_WRITE);
-        CASE(IO_RW);
+        case e_IO_READ: return "IO_READ";
+        case e_IO_WRITE: return "IO_WRITE";
+        case e_IO_RW: return "IO_RW";
         default: return "(* UNKNOWN *)";
     }
 }
-
-#undef CASE
 
 bsl::ostream& bteso_Flag::streamOut(bsl::ostream&    stream,
                                     bteso_Flag::Flag rhs)

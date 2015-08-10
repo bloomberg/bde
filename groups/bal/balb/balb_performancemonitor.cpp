@@ -86,26 +86,26 @@ struct MeasureData {
     bool        hasAverage;
 };
 
-MeasureData s_measureData[PM::BAEA_NUM_MEASURES] = {
-  { PM::BAEA_CPU_TIME,
+MeasureData s_measureData[PM::e_NUM_MEASURES] = {
+  { PM::e_CPU_TIME,
             "CPU_TIME",        "CPU Time",        "s ", false },
-  { PM::BAEA_CPU_TIME_USER,
+  { PM::e_CPU_TIME_USER,
             "CPU_TIME_USER",   "User CPU Time",   "s ", false },
-  { PM::BAEA_CPU_TIME_SYSTEM,
+  { PM::e_CPU_TIME_SYSTEM,
             "CPU_TIME_SYSTEM", "System CPU Time", "s ", false },
-  { PM::BAEA_CPU_UTIL,
+  { PM::e_CPU_UTIL,
             "CPU_UTIL",        "CPU",             "% ", true  },
-  { PM::BAEA_CPU_UTIL_USER,
+  { PM::e_CPU_UTIL_USER,
             "CPU_UTIL_USER",   "User CPU",        "% ", true  },
-  { PM::BAEA_CPU_UTIL_SYSTEM,
+  { PM::e_CPU_UTIL_SYSTEM,
             "CPU_UTIL_SYSTEM", "System CPU",      "% ", true  },
-  { PM::BAEA_RESIDENT_SIZE,
+  { PM::e_RESIDENT_SIZE,
             "RESIDENT_SIZE",   "Resident Size",   "Mb", true  },
-  { PM::BAEA_NUM_THREADS,
+  { PM::e_NUM_THREADS,
             "NUM_THREADS",     "Thread Count",    "  ", true  },
-  { PM::BAEA_NUM_PAGEFAULTS,
+  { PM::e_NUM_PAGEFAULTS,
             "NUM_PAGEFAULTS",  "Page Faults",     "  ", false },
-  { PM::BAEA_VIRTUAL_SIZE,
+  { PM::e_VIRTUAL_SIZE,
             "VIRTUAL_SIZE",    "Virtual Size",    "Mb", true  }
 };
 
@@ -405,15 +405,15 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::collect(
     }
     bsl::free(entry);
 
-    stats->d_lstData[BAEA_NUM_THREADS] = numThreads;
+    stats->d_lstData[e_NUM_THREADS] = numThreads;
 
     static const int pageSize = sysconf(_SC_PAGESIZE);
 
-    stats->d_lstData[BAEA_RESIDENT_SIZE] =
+    stats->d_lstData[e_RESIDENT_SIZE] =
                         static_cast<double>(procStats.d_rss) * pageSize /
                         (1024 * 1024);
 
-    stats->d_lstData[BAEA_VIRTUAL_SIZE] =
+    stats->d_lstData[e_VIRTUAL_SIZE] =
                         static_cast<double>(procStats.d_vsize) / (1024 * 1024);
 
     double cpuTimeU = static_cast<double>(procStats.d_utime) /
@@ -423,8 +423,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::collect(
 
     // Calculate CPU utilization
 
-    double deltaCpuTimeU = cpuTimeU - stats->d_lstData[BAEA_CPU_TIME_USER];
-    double deltaCpuTimeS = cpuTimeS - stats->d_lstData[BAEA_CPU_TIME_SYSTEM];
+    double deltaCpuTimeU = cpuTimeU - stats->d_lstData[e_CPU_TIME_USER];
+    double deltaCpuTimeS = cpuTimeS - stats->d_lstData[e_CPU_TIME_SYSTEM];
 
     double elapsedTime = (bdlt::CurrentTime::now() - stats->d_startTime).
                                                         totalSecondsAsDouble();
@@ -434,19 +434,19 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::collect(
     double deltaCpuTimeT = deltaCpuTimeU + deltaCpuTimeS;
 
     if ((stats->d_numSamples != 0) && (dt > 0)) {
-        stats->d_lstData[BAEA_CPU_UTIL]        = deltaCpuTimeT / dt * 100.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL]        = deltaCpuTimeT / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
     }
     else {
-        stats->d_lstData[BAEA_CPU_UTIL]        = 0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0;
+        stats->d_lstData[e_CPU_UTIL]        = 0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = 0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0;
     }
 
-    stats->d_lstData[BAEA_CPU_TIME_USER]   = cpuTimeU;
-    stats->d_lstData[BAEA_CPU_TIME_SYSTEM] = cpuTimeS;
-    stats->d_lstData[BAEA_CPU_TIME]        = cpuTimeU + cpuTimeS;
+    stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
+    stats->d_lstData[e_CPU_TIME_SYSTEM] = cpuTimeS;
+    stats->d_lstData[e_CPU_TIME]        = cpuTimeU + cpuTimeS;
 
     stats->d_elapsedTime = elapsedTime;
 
@@ -454,7 +454,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>::collect(
 
     // Calculate averages for each measure
 
-    for (int i = 0; i < BAEA_NUM_MEASURES; ++i) {
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
         if (s_measureData[i].hasAverage) {
 
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
@@ -662,10 +662,10 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::collect(
         return -1;
     }
 
-    stats->d_lstData[BAEA_NUM_THREADS]   = 0;
+    stats->d_lstData[e_NUM_THREADS]   = 0;
 
-    stats->d_lstData[BAEA_RESIDENT_SIZE] = 0;
-    stats->d_lstData[BAEA_VIRTUAL_SIZE]  = 0;
+    stats->d_lstData[e_RESIDENT_SIZE] = 0;
+    stats->d_lstData[e_VIRTUAL_SIZE]  = 0;
 
     double cpuTimeU = static_cast<double>(procStats.d_userTimeSecs) +
                       static_cast<double>(procStats.d_userTimeMSecs) /
@@ -675,8 +675,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::collect(
                       static_cast<double>(1000000);
     // Calculate CPU utilization
 
-    double deltaCpuTimeU = cpuTimeU - stats->d_lstData[BAEA_CPU_TIME_USER];
-    double deltaCpuTimeS = cpuTimeS - stats->d_lstData[BAEA_CPU_TIME_SYSTEM];
+    double deltaCpuTimeU = cpuTimeU - stats->d_lstData[e_CPU_TIME_USER];
+    double deltaCpuTimeS = cpuTimeS - stats->d_lstData[e_CPU_TIME_SYSTEM];
 
     // Inaccurate for the first sample but this doesn't affect our results,
     // as the CPU utilization is not calculated until the second sample is
@@ -686,22 +686,22 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::collect(
     double dt = elapsedTime - stats->d_elapsedTime;
 
     if ((stats->d_numSamples != 0) && (dt > 0)) {
-        stats->d_lstData[BAEA_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
+        stats->d_lstData[e_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
                                    / dt
                                    * 100.0;
 
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
     }
     else {
-        stats->d_lstData[BAEA_CPU_UTIL]        = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0.0;
+        stats->d_lstData[e_CPU_UTIL]        = 0.0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = 0.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
     }
 
-    stats->d_lstData[BAEA_CPU_TIME_USER]   = cpuTimeU;
-    stats->d_lstData[BAEA_CPU_TIME_SYSTEM] = cpuTimeS;
-    stats->d_lstData[BAEA_CPU_TIME]        = cpuTimeU + cpuTimeS;
+    stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
+    stats->d_lstData[e_CPU_TIME_SYSTEM] = cpuTimeS;
+    stats->d_lstData[e_CPU_TIME]        = cpuTimeU + cpuTimeS;
 
     stats->d_elapsedTime = elapsedTime;
 
@@ -709,7 +709,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>::collect(
 
     // Calculate averages for each measure
 
-    for (int i = 0; i < BAEA_NUM_MEASURES; ++i) {
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
         if (s_measureData[i].hasAverage) {
 
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
@@ -826,18 +826,18 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::collect(
         return -1;                                                    // RETURN
     }
 
-    stats->d_lstData[BAEA_NUM_THREADS]   = ti.pti_threadnum;
-    stats->d_lstData[BAEA_RESIDENT_SIZE] = ti.pti_resident_size / 1048576.0;
-    stats->d_lstData[BAEA_VIRTUAL_SIZE]  = ti.pti_virtual_size  / 1048576.0;
+    stats->d_lstData[e_NUM_THREADS]   = ti.pti_threadnum;
+    stats->d_lstData[e_RESIDENT_SIZE] = ti.pti_resident_size / 1048576.0;
+    stats->d_lstData[e_VIRTUAL_SIZE]  = ti.pti_virtual_size  / 1048576.0;
 
     const double cpuTimeU = ti.pti_total_user   / 1e9;
     const double cpuTimeS = ti.pti_total_system / 1e9;
     const double cpuTime  = cpuTimeU + cpuTimeS;
 
     const double deltaCpuTimeU =
-                               cpuTimeU - stats->d_lstData[BAEA_CPU_TIME_USER];
+                               cpuTimeU - stats->d_lstData[e_CPU_TIME_USER];
     const double deltaCpuTimeS =
-                             cpuTimeS - stats->d_lstData[BAEA_CPU_TIME_SYSTEM];
+                             cpuTimeS - stats->d_lstData[e_CPU_TIME_SYSTEM];
     const double deltaCpuTime  = deltaCpuTimeU + deltaCpuTimeS;
 
     // Inaccurate for the first sample, but this doesn't affect our results as
@@ -846,19 +846,19 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::collect(
     const double dt          = elapsedTime - stats->d_elapsedTime;
 
     if ((stats->d_numSamples != 0) && (dt > 0)) {
-        stats->d_lstData[BAEA_CPU_UTIL]        = deltaCpuTime  / dt * 100.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL]        = deltaCpuTime  / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
     }
     else {
-        stats->d_lstData[BAEA_CPU_UTIL]        = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0.0;
+        stats->d_lstData[e_CPU_UTIL]        = 0.0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = 0.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
     }
 
-    stats->d_lstData[BAEA_CPU_TIME]        = cpuTime;
-    stats->d_lstData[BAEA_CPU_TIME_USER]   = cpuTimeU;
-    stats->d_lstData[BAEA_CPU_TIME_SYSTEM] = cpuTimeS;
+    stats->d_lstData[e_CPU_TIME]        = cpuTime;
+    stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
+    stats->d_lstData[e_CPU_TIME_SYSTEM] = cpuTimeS;
 
     stats->d_elapsedTime                   = elapsedTime;
 
@@ -866,7 +866,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>::collect(
 
     // Calculate averages for each measure
 
-    for (int i = 0; i < BAEA_NUM_MEASURES; ++i) {
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
         if (s_measureData[i].hasAverage) {
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
                                             stats->d_lstData[i]);
@@ -1024,8 +1024,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
 
     numThreads = info.pr_nlwp;
 
-    stats->d_lstData[BAEA_NUM_THREADS]   = static_cast<double>(numThreads);
-    stats->d_lstData[BAEA_RESIDENT_SIZE] = static_cast<double>(info.pr_rssize)
+    stats->d_lstData[e_NUM_THREADS]   = static_cast<double>(numThreads);
+    stats->d_lstData[e_RESIDENT_SIZE] = static_cast<double>(info.pr_rssize)
                                            / 1024; // in Kb
 
     close(fd);
@@ -1051,7 +1051,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
         return -1;
     }
 
-    stats->d_lstData[BAEA_VIRTUAL_SIZE]  =
+    stats->d_lstData[e_VIRTUAL_SIZE]  =
         static_cast<double>(status.pr_brksize) / (1024 * 1024);
 
     cpuTimeU = bsls::TimeInterval(static_cast<double>(status.pr_utime.tv_sec),
@@ -1088,8 +1088,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
     }
     numThreads = status.pst_nlwps;
 
-    stats->d_lstData[BAEA_NUM_THREADS]   = static_cast<double>(numThreads);
-    stats->d_lstData[BAEA_RESIDENT_SIZE] =
+    stats->d_lstData[e_NUM_THREADS]   = static_cast<double>(numThreads);
+    stats->d_lstData[e_RESIDENT_SIZE] =
                   static_cast<double>(status.pst_rssize) * pstatic.page_size
                    / (1024 * 1024);
 
@@ -1139,7 +1139,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
                   << BALL_LOG_END;
 #endif
 
-    stats->d_lstData[BAEA_VIRTUAL_SIZE]  =
+    stats->d_lstData[e_VIRTUAL_SIZE]  =
                      (static_cast<double>(status.pst_vdsize *
                                           pstatic.page_size) / (1024 * 1024);
 
@@ -1153,8 +1153,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
 
     // Calculate CPU utilization
 
-    double deltaCpuTimeU = cpuTimeU - stats->d_lstData[BAEA_CPU_TIME_USER];
-    double deltaCpuTimeS = cpuTimeS - stats->d_lstData[BAEA_CPU_TIME_SYSTEM];
+    double deltaCpuTimeU = cpuTimeU - stats->d_lstData[e_CPU_TIME_USER];
+    double deltaCpuTimeS = cpuTimeS - stats->d_lstData[e_CPU_TIME_SYSTEM];
 
     double elapsedTime = (bdlt::CurrentTime::now() - stats->d_startTime).
                                                         totalSecondsAsDouble();
@@ -1162,34 +1162,34 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
     double dt = elapsedTime - stats->d_elapsedTime;
 
     if ((stats->d_numSamples != 0) && (dt > 0)) {
-        stats->d_lstData[BAEA_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
+        stats->d_lstData[e_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
                                    / dt
                                    * 100.0;
 
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
     }
     else {
-        stats->d_lstData[BAEA_CPU_UTIL]        = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0.0;
+        stats->d_lstData[e_CPU_UTIL]        = 0.0;
+        stats->d_lstData[e_CPU_UTIL_USER]   = 0.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
     }
 
-    if (stats->d_lstData[BAEA_CPU_UTIL] > numThreads * 100.0)
+    if (stats->d_lstData[e_CPU_UTIL] > numThreads * 100.0)
     {
         BALL_LOG_DEBUG << "Calculated impossible CPU utilization = "
-                       << stats->d_lstData[BAEA_CPU_UTIL]
+                       << stats->d_lstData[e_CPU_UTIL]
                        << ", num threads = " << numThreads
                        << BALL_LOG_END;
 
-        stats->d_lstData[BAEA_CPU_UTIL] = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER] = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0.0;
+        stats->d_lstData[e_CPU_UTIL] = 0.0;
+        stats->d_lstData[e_CPU_UTIL_USER] = 0.0;
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
     }
 
-    stats->d_lstData[BAEA_CPU_TIME_USER]   = cpuTimeU;
-    stats->d_lstData[BAEA_CPU_TIME_SYSTEM] = cpuTimeS;
-    stats->d_lstData[BAEA_CPU_TIME]        = cpuTimeU + cpuTimeS;
+    stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
+    stats->d_lstData[e_CPU_TIME_SYSTEM] = cpuTimeS;
+    stats->d_lstData[e_CPU_TIME]        = cpuTimeU + cpuTimeS;
 
     stats->d_elapsedTime = elapsedTime;
 
@@ -1197,7 +1197,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>::collect(
 
     // Calculate averages for each measure
 
-    for (int i = 0; i < BAEA_NUM_MEASURES; ++i) {
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
         if (s_measureData[i].hasAverage) {
 
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
@@ -1578,22 +1578,22 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::collect(
     }
 
     if (stats->d_numSamples != 0) {
-        stats->d_lstData[BAEA_CPU_UTIL]        = values[PROCESSOR_TIME]
+        stats->d_lstData[e_CPU_UTIL]        = values[PROCESSOR_TIME]
                                            .doubleValue;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = values[USER_PROCESSOR_TIME]
+        stats->d_lstData[e_CPU_UTIL_USER]   = values[USER_PROCESSOR_TIME]
                                            .doubleValue;
 
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] =
-                                          stats->d_lstData[BAEA_CPU_UTIL]
-                                        - stats->d_lstData[BAEA_CPU_UTIL_USER];
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] =
+                                          stats->d_lstData[e_CPU_UTIL]
+                                        - stats->d_lstData[e_CPU_UTIL_USER];
     }
 
-    stats->d_lstData[BAEA_NUM_THREADS]     = values[THREAD_COUNT].doubleValue;
+    stats->d_lstData[e_NUM_THREADS]     = values[THREAD_COUNT].doubleValue;
 
-    stats->d_lstData[BAEA_RESIDENT_SIZE]   = values[WORKING_SET].doubleValue
+    stats->d_lstData[e_RESIDENT_SIZE]   = values[WORKING_SET].doubleValue
                                              / (1024 * 1024);
 
-    stats->d_lstData[BAEA_VIRTUAL_SIZE]    = values[VIRTUAL_SIZE].doubleValue
+    stats->d_lstData[e_VIRTUAL_SIZE]    = values[VIRTUAL_SIZE].doubleValue
                                              / (1024 * 1024);
 
     FILETIME creationFileTime, exitFileTime, kernelFileTime, userFileTime;
@@ -1609,20 +1609,20 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::collect(
     LARGE_INTEGER userTime            = { userFileTime.dwLowDateTime,
                                           userFileTime.dwHighDateTime };
 
-    stats->d_lstData[BAEA_CPU_TIME_SYSTEM] = double(userTime.QuadPart)
+    stats->d_lstData[e_CPU_TIME_SYSTEM] = double(userTime.QuadPart)
                                       / 10000000.0;
 
-    stats->d_lstData[BAEA_CPU_TIME_USER]   = double(userTime.QuadPart)
+    stats->d_lstData[e_CPU_TIME_USER]   = double(userTime.QuadPart)
                                       / 10000000.0;
 
-    stats->d_lstData[BAEA_CPU_TIME_SYSTEM] =
-                                        stats->d_lstData[BAEA_CPU_TIME_USER]
-                                      + stats->d_lstData[BAEA_CPU_TIME_SYSTEM];
+    stats->d_lstData[e_CPU_TIME_SYSTEM] =
+                                        stats->d_lstData[e_CPU_TIME_USER]
+                                      + stats->d_lstData[e_CPU_TIME_SYSTEM];
 
     double elapsedTime = values[ELAPSED_TIME].doubleValue;
     double deltaElapsedTime = elapsedTime - stats->d_elapsedTime;
 
-    stats->d_lstData[BAEA_NUM_PAGEFAULTS] +=
+    stats->d_lstData[e_NUM_PAGEFAULTS] +=
                                          values[PAGEFAULTS_PER_SEC].doubleValue
                                        * deltaElapsedTime;
 
@@ -1632,7 +1632,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::collect(
 
     // Calculate averages for each measure
 
-    for (int i = 0; i < BAEA_NUM_MEASURES; ++i) {
+    for (int i = 0; i < e_NUM_MEASURES; ++i) {
         if (s_measureData[i].hasAverage) {
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
                                             stats->d_lstData[i]);
@@ -1669,7 +1669,7 @@ balb::PerformanceMonitor::Statistics::Statistics(
 
 void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os) const
 {
-    for (int measure = 0; measure < BAEA_NUM_MEASURES; ++measure) {
+    for (int measure = 0; measure < e_NUM_MEASURES; ++measure) {
         print(os, (Measure)measure);
     }
 }
@@ -1686,7 +1686,7 @@ void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os,
        << bsl::left << bsl::setw(18) << d_description
        << bsl::right << bsl::setw(10) << d_pid << " ";
 
-    BSLS_ASSERT(measure >= 0 && measure < BAEA_NUM_MEASURES);
+    BSLS_ASSERT(measure >= 0 && measure < e_NUM_MEASURES);
 
     os << bsl::left << bsl::setw(20);
     os << s_measureData[measure].name;
@@ -1733,7 +1733,7 @@ void balb::PerformanceMonitor::Statistics::print(
                                               const char    *measureIdentifier)
                                               const
 {
-    for (int measure = 0; measure < BAEA_NUM_MEASURES; ++measure) {
+    for (int measure = 0; measure < e_NUM_MEASURES; ++measure) {
         if (0 == bsl::strcmp(measureIdentifier, s_measureData[measure].tag)) {
             print(os, (Measure)measure);
             return;                                                   // RETURN
@@ -1756,11 +1756,11 @@ void balb::PerformanceMonitor::Statistics::reset()
     bsl::memset(d_totData, 0, sizeof d_totData);
 
     bsl::fill(d_minData,
-              d_minData + BAEA_NUM_MEASURES,
+              d_minData + e_NUM_MEASURES,
               bsl::numeric_limits<double>::max());
 
     bsl::fill(d_maxData,
-              d_maxData + BAEA_NUM_MEASURES,
+              d_maxData + e_NUM_MEASURES,
               bsl::numeric_limits<double>::min());
 }
 

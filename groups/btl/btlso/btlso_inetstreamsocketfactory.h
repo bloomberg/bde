@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 //  int nativeErrNo = 0;
 //  btlso::SocketImpUtil::open<btlso::IPv4Address>(
 //                                    &fd,
-//                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+//                                    btlso::SocketImpUtil::k_SOCKET_STREAM,
 //                                    &nativeErrNo);
 //  assert(0 == nativeErrNo);
 //..
@@ -304,7 +304,7 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // until a connection request is received or an error occurs.  If this
         // socket is in non-blocking mode and there is no pending connection
         // request, this call returns immediately with an error status of
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK'.  Note that this socket
+        // 'SocketHandle::e_ERROR_WOULDBLOCK'.  Note that this socket
         // must be listening for connections ('listen').
 
     virtual int accept(StreamSocket<ADDRESS> **socket,
@@ -317,7 +317,7 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // until a connection request is received or an error occurs.  If this
         // socket is in non-blocking mode and there is no pending connection
         // request, this call returns immediately with an error status of
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK'.  Note that this socket
+        // 'SocketHandle::e_ERROR_WOULDBLOCK'.  Note that this socket
         // must be listening for connections ('listen').
 
     virtual int bind(const ADDRESS& address);
@@ -332,7 +332,7 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // is in blocking mode, the call waits until a connection is
         // established or an error occurs.  If this socket is in non-blocking
         // mode and the connection cannot be established immediately
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK' is returned.  The
+        // 'SocketHandle::e_ERROR_WOULDBLOCK' is returned.  The
         // 'waitForConnect' method may then be used to determine when the
         // connection request has completed.
 
@@ -350,11 +350,11 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // for data to arrive.  If this socket is in non-blocking mode, the
         // function reads as many bytes as possible without blocking, and
         // returns the number of bytes read, or
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK' if zero bytes were
+        // 'SocketHandle::e_ERROR_WOULDBLOCK' if zero bytes were
         // immediately available.  If the connection has been closed and there
-        // is no data available, 'SocketHandle::BTESO_ERROR_EOF' is
+        // is no data available, 'SocketHandle::e_ERROR_EOF' is
         // returned.  If the call is interrupted before data is available,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  The
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  The
         // behavior is undefined unless 0 < length and 'buffer' refers to at
         // least 'length' writable bytes.
 
@@ -368,11 +368,11 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // for data to arrive.  If this socket is in non-blocking mode, the
         // function reads as many bytes as possible without blocking, and
         // returns the number of bytes read or
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK' if zero bytes were
+        // 'SocketHandle::e_ERROR_WOULDBLOCK' if zero bytes were
         // immediately available.  If the connection has been closed, and there
-        // is no data available, 'SocketHandle::BTESO_ERROR_EOF' is
+        // is no data available, 'SocketHandle::e_ERROR_EOF' is
         // returned.  If the call is interrupted before data is available,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  The
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  The
         // behavior is undefined unless 0 < numBuffers.
 
     virtual int write(const char *buffer, int length);
@@ -382,11 +382,11 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // the call blocks until the data is fully written.  If this socket is
         // in non-blocking mode, the function writes as many bytes as possible
         // without blocking, and returns the number of bytes written, or
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK' if no bytes were
+        // 'SocketHandle::e_ERROR_WOULDBLOCK' if no bytes were
         // written.  If the connection has been closed,
-        // 'SocketHandle::BTESO_ERROR_CONNDEAD' is returned.  If the call
+        // 'SocketHandle::e_ERROR_CONNDEAD' is returned.  If the call
         // is interrupted before any data is written,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  The
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  The
         // behavior is undefined unless 0 < length.  Note that a successful
         // call to this function does not guarantee that the data has been
         // transmitted successfully, but simply that the data was written
@@ -404,11 +404,11 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // call blocks until the data is fully written.  If this socket is in
         // non-blocking mode, the function writes as many bytes as possible
         // without blocking, and returns the number of bytes written, or
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK', if no bytes were
+        // 'SocketHandle::e_ERROR_WOULDBLOCK', if no bytes were
         // written.  If the connection has been closed,
-        // 'SocketHandle::BTESO_ERROR_CONNDEAD' is returned.  If the call
+        // 'SocketHandle::e_ERROR_CONNDEAD' is returned.  If the call
         // is interrupted before any data is written,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  The
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  The
         // behavior is undefined unless 0 < numBuffers.  Note that a successful
         // call to this function does not guarantee that the data has been
         // transmitted successfully, but simply that the data was successfully
@@ -454,15 +454,15 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // specified absolute 'timeout' is reached, whichever occurs first.
         // Return IO_READ, IO_WRITE or IO_RW if the corresponding event
         // occurred, and a non-zero value otherwise.  If a timeout occurred, a
-        // value of 'SocketHandle::BTESO_ERROR_TIMEDOUT' is returned.  If
+        // value of 'SocketHandle::e_ERROR_TIMEDOUT' is returned.  If
         // this call is interrupted,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.
 
     virtual int waitForIO(bteso_Flag::IOWaitType type);
         // Wait for an I/O of the specified 'type' to occur.  Return 'type' if
         // the corresponding event occurred, and a negative value otherwise.
         // If this call is interrupted,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.
 
     virtual int setLingerOption(
                                const SocketOptUtil::LingerData& options);
@@ -500,8 +500,8 @@ class InetStreamSocket : public StreamSocket<ADDRESS> {
         // Test the connection status of this socket.  Return 0 if this socket
         // has an established connection, and a non-zero value otherwise.  If
         // there is no established or pending connection, a value of
-        // 'SocketHandle::BTESO_ERROR_CONNDEAD' is returned.  A value of
-        // 'SocketHandle::BTESO_ERROR_CONNDEAD' is also returned if a
+        // 'SocketHandle::e_ERROR_CONNDEAD' is returned.  A value of
+        // 'SocketHandle::e_ERROR_CONNDEAD' is also returned if a
         // non-blocking connection request fails.  Note that this method is
         // typically used to determine the result of a non-blocking connection
         // request.
@@ -648,7 +648,7 @@ int InetStreamSocket<ADDRESS>::read(char *buffer, int length)
     int ret = SocketImpUtil::read(buffer, d_handle, length);
 
     if (length > 0 && ret == 0) {
-        ret = SocketHandle::BTESO_ERROR_EOF;
+        ret = SocketHandle::e_ERROR_EOF;
     }
 
     return ret;
@@ -667,7 +667,7 @@ int InetStreamSocket<ADDRESS>::readv(const btls::Iovec   *buffers,
         int i;
         for (i = 0; i < numBuffers; ++i) {
             if (buffers[i].length()) {
-                return SocketHandle::BTESO_ERROR_EOF;           // RETURN
+                return SocketHandle::e_ERROR_EOF;           // RETURN
             }
         }
     }
@@ -709,9 +709,9 @@ int InetStreamSocket<ADDRESS>::setBlockingMode(
 {
     return IoUtil::setBlockingMode(
                                        d_handle,
-                                       mode == bteso_Flag::BTESO_BLOCKING_MODE
-                                       ? IoUtil::BTESO_BLOCKING
-                                       : IoUtil::BTESO_NONBLOCKING);
+                                       mode == bteso_Flag::e_BLOCKING_MODE
+                                       ? IoUtil::e_BLOCKING
+                                       : IoUtil::e_NONBLOCKING);
 }
 
 template <class ADDRESS>
@@ -719,9 +719,9 @@ int InetStreamSocket<ADDRESS>::setLingerOption(
                                 const SocketOptUtil::LingerData& options)
 {
     return SocketOptUtil::setOption(handle(),
-          SocketOptUtil::BTESO_SOCKETLEVEL,
-          SocketOptUtil::BTESO_LINGER,
-          options) ? SocketHandle::BTESO_ERROR_UNCLASSIFIED : 0;
+          SocketOptUtil::k_SOCKETLEVEL,
+          SocketOptUtil::k_LINGER,
+          options) ? SocketHandle::e_ERROR_UNCLASSIFIED : 0;
 }
 
 template <class ADDRESS>
@@ -731,20 +731,20 @@ int InetStreamSocket<ADDRESS>::setOption(int level,
 {
     return SocketOptUtil::setOption(handle(),
           level, option,
-          value) ? SocketHandle::BTESO_ERROR_UNCLASSIFIED : 0;
+          value) ? SocketHandle::e_ERROR_UNCLASSIFIED : 0;
 }
 
 template <class ADDRESS>
 int InetStreamSocket<ADDRESS>::shutdown(bteso_Flag::ShutdownType value)
 {
     static enum SocketImpUtil::ShutDownType shutDownTypeMapping[] = {
-         SocketImpUtil::BTESO_SHUTDOWN_RECEIVE,
-         SocketImpUtil::BTESO_SHUTDOWN_SEND,
-         SocketImpUtil::BTESO_SHUTDOWN_BOTH
+         SocketImpUtil::e_SHUTDOWN_RECEIVE,
+         SocketImpUtil::e_SHUTDOWN_SEND,
+         SocketImpUtil::e_SHUTDOWN_BOTH
     };
-    BSLMF_ASSERT(bteso_Flag::BTESO_SHUTDOWN_RECEIVE == 0 &&
-                 bteso_Flag::BTESO_SHUTDOWN_SEND == 1 &&
-                 bteso_Flag::BTESO_SHUTDOWN_BOTH == 2);
+    BSLMF_ASSERT(bteso_Flag::e_SHUTDOWN_RECEIVE == 0 &&
+                 bteso_Flag::e_SHUTDOWN_SEND == 1 &&
+                 bteso_Flag::e_SHUTDOWN_BOTH == 2);
 
     int ret = SocketImpUtil::shutDown(d_handle,
                                             shutDownTypeMapping[value]);
@@ -765,7 +765,7 @@ int InetStreamSocket<ADDRESS>::waitForConnect(
         microseconds = 0;
     }
 
-    int rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+    int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
 
 #ifdef BSLS_PLATFORM_OS_UNIX
     struct pollfd fds;
@@ -781,13 +781,13 @@ int InetStreamSocket<ADDRESS>::waitForConnect(
         rc = 0;
     }
     else if (ret == 0) {
-        rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+        rc = SocketHandle::e_ERROR_TIMEDOUT;
     }
     else if (EINTR == errno) {
-        rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+        rc = SocketHandle::e_ERROR_INTERRUPTED;
     }
     else {
-        rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+        rc = SocketHandle::e_ERROR_UNCLASSIFIED;
     }
 #else
     fd_set writeset;
@@ -807,13 +807,13 @@ int InetStreamSocket<ADDRESS>::waitForConnect(
         rc = 0;
     }
     else if (ret == 0) {
-        rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+        rc = SocketHandle::e_ERROR_TIMEDOUT;
     }
     else if (WSAEINTR == WSAGetLastError()) {
-        rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+        rc = SocketHandle::e_ERROR_INTERRUPTED;
     }
     else {
-        rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+        rc = SocketHandle::e_ERROR_UNCLASSIFIED;
     }
 #endif
 
@@ -825,7 +825,7 @@ int InetStreamSocket<ADDRESS>::waitForAccept(
                                               const bsls::TimeInterval& timeout)
 {
     return InetStreamSocket<ADDRESS>::waitForIO(
-                                                     bteso_Flag::BTESO_IO_READ,
+                                                     bteso_Flag::e_IO_READ,
                                                      timeout);
 }
 
@@ -843,11 +843,11 @@ int InetStreamSocket<ADDRESS>::waitForIO(
         microseconds = 0;
     }
 
-    int rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+    int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
 
     switch (type)
     {
-      case bteso_Flag::BTESO_IO_READ:
+      case bteso_Flag::e_IO_READ:
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
@@ -860,15 +860,15 @@ int InetStreamSocket<ADDRESS>::waitForIO(
             int ret = ::poll(&fds, 1, milliseconds);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_READ;
+                rc = bteso_Flag::e_IO_READ;
             }
             else if (ret == 0) {
-                rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+                rc = SocketHandle::e_ERROR_TIMEDOUT;
             }
             else if (EINTR == errno) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #else
             fd_set readset;
@@ -882,19 +882,19 @@ int InetStreamSocket<ADDRESS>::waitForIO(
             int ret = ::select(d_handle + 1, &readset, 0, 0, &tv);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_READ;
+                rc = bteso_Flag::e_IO_READ;
             }
             else if (ret == 0) {
-                rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+                rc = SocketHandle::e_ERROR_TIMEDOUT;
             }
             else if (WSAEINTR == WSAGetLastError()) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #endif
         } break;
-      case bteso_Flag::BTESO_IO_WRITE:
+      case bteso_Flag::e_IO_WRITE:
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
@@ -907,15 +907,15 @@ int InetStreamSocket<ADDRESS>::waitForIO(
             int ret = ::poll(&fds, 1, milliseconds);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_WRITE;
+                rc = bteso_Flag::e_IO_WRITE;
             }
             else if (ret == 0) {
-                rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+                rc = SocketHandle::e_ERROR_TIMEDOUT;
             }
             else if (EINTR == errno) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #else
             fd_set writeset;
@@ -929,19 +929,19 @@ int InetStreamSocket<ADDRESS>::waitForIO(
             int ret = ::select(d_handle + 1, 0, &writeset, 0, &tv);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_WRITE;
+                rc = bteso_Flag::e_IO_WRITE;
             }
             else if (ret == 0) {
-                rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+                rc = SocketHandle::e_ERROR_TIMEDOUT;
             }
             else if (WSAEINTR == WSAGetLastError()) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #endif
         } break;
-      case bteso_Flag::BTESO_IO_RW:
+      case bteso_Flag::e_IO_RW:
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
@@ -956,21 +956,21 @@ int InetStreamSocket<ADDRESS>::waitForIO(
             if (ret > 0) {
                 if (fds.revents & POLLIN) {
                     if (fds.revents & POLLOUT) {
-                        rc = bteso_Flag::BTESO_IO_RW;
+                        rc = bteso_Flag::e_IO_RW;
                     } else {
-                        rc = bteso_Flag::BTESO_IO_READ;
+                        rc = bteso_Flag::e_IO_READ;
                     }
                 } else {
-                    rc = bteso_Flag::BTESO_IO_WRITE;
+                    rc = bteso_Flag::e_IO_WRITE;
                 }
             }
             else if (ret == 0) {
-                rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+                rc = SocketHandle::e_ERROR_TIMEDOUT;
             }
             else if (EINTR == errno) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #else
             fd_set readset;
@@ -989,21 +989,21 @@ int InetStreamSocket<ADDRESS>::waitForIO(
             if (ret > 0) {
                 if (FD_ISSET(d_handle, &readset)) {
                     if (FD_ISSET(d_handle, &writeset)) {
-                          rc = bteso_Flag::BTESO_IO_RW;
+                          rc = bteso_Flag::e_IO_RW;
                     } else {
-                          rc = bteso_Flag::BTESO_IO_READ;
+                          rc = bteso_Flag::e_IO_READ;
                     }
                 } else {
-                    rc = bteso_Flag::BTESO_IO_WRITE;
+                    rc = bteso_Flag::e_IO_WRITE;
                 }
             }
             else if (ret == 0) {
-                rc = SocketHandle::BTESO_ERROR_TIMEDOUT;
+                rc = SocketHandle::e_ERROR_TIMEDOUT;
             }
             else if (WSAEINTR == WSAGetLastError()) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #endif
         } break;
@@ -1015,11 +1015,11 @@ int InetStreamSocket<ADDRESS>::waitForIO(
 template <class ADDRESS>
 int InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
 {
-    int rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+    int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
 
     switch (type)
     {
-      case bteso_Flag::BTESO_IO_READ:
+      case bteso_Flag::e_IO_READ:
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
@@ -1032,12 +1032,12 @@ int InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
             int ret = ::poll(&fds, 1, milliseconds);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_READ;
+                rc = bteso_Flag::e_IO_READ;
             }
             else if (EINTR == errno) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #else
             fd_set readset;
@@ -1047,16 +1047,16 @@ int InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
             int ret = ::select(d_handle + 1, &readset, 0, 0, 0);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_READ;
+                rc = bteso_Flag::e_IO_READ;
             }
             else if (WSAEINTR == WSAGetLastError()) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #endif
         } break;
-      case bteso_Flag::BTESO_IO_WRITE:
+      case bteso_Flag::e_IO_WRITE:
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
@@ -1069,12 +1069,12 @@ int InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
             int ret = ::poll(&fds, 1, milliseconds);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_WRITE;
+                rc = bteso_Flag::e_IO_WRITE;
             }
             else if (EINTR == errno) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #else
             fd_set writeset;
@@ -1084,16 +1084,16 @@ int InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
             int ret = ::select(d_handle + 1, 0, &writeset, 0, 0);
 
             if (ret > 0) {
-                rc = bteso_Flag::BTESO_IO_WRITE;
+                rc = bteso_Flag::e_IO_WRITE;
             }
             else if (WSAEINTR == WSAGetLastError()) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #endif
         } break;
-      case bteso_Flag::BTESO_IO_RW:
+      case bteso_Flag::e_IO_RW:
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
             struct pollfd fds;
@@ -1108,18 +1108,18 @@ int InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
             if (ret > 0) {
                 if (fds.revents & POLLIN) {
                     if (fds.revents & POLLOUT) {
-                        rc = bteso_Flag::BTESO_IO_RW;
+                        rc = bteso_Flag::e_IO_RW;
                     } else {
-                        rc = bteso_Flag::BTESO_IO_READ;
+                        rc = bteso_Flag::e_IO_READ;
                     }
                 } else {
-                    rc = bteso_Flag::BTESO_IO_WRITE;
+                    rc = bteso_Flag::e_IO_WRITE;
                 }
             }
             if (EINTR == errno) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #else
             fd_set readset;
@@ -1134,18 +1134,18 @@ int InetStreamSocket<ADDRESS>::waitForIO(bteso_Flag::IOWaitType type)
             if (ret > 0) {
                 if (FD_ISSET(d_handle, &readset)) {
                     if (FD_ISSET(d_handle, &writeset)) {
-                          rc = bteso_Flag::BTESO_IO_RW;
+                          rc = bteso_Flag::e_IO_RW;
                     } else {
-                          rc = bteso_Flag::BTESO_IO_READ;
+                          rc = bteso_Flag::e_IO_READ;
                     }
                 } else {
-                    rc = bteso_Flag::BTESO_IO_WRITE;
+                    rc = bteso_Flag::e_IO_WRITE;
                 }
             }
             else if (WSAEINTR == WSAGetLastError()) {
-                rc = SocketHandle::BTESO_ERROR_INTERRUPTED;
+                rc = SocketHandle::e_ERROR_INTERRUPTED;
             } else {
-                rc = SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+                rc = SocketHandle::e_ERROR_UNCLASSIFIED;
             }
 #endif
         } break;
@@ -1163,9 +1163,9 @@ int InetStreamSocket<ADDRESS>::blockingMode(
     int res = IoUtil::getBlockingMode(&mode, d_handle);
 
     if (res == 0) {
-        *result = (mode == IoUtil::BTESO_BLOCKING)
-                ? bteso_Flag::BTESO_BLOCKING_MODE
-                : bteso_Flag::BTESO_NONBLOCKING_MODE;
+        *result = (mode == IoUtil::e_BLOCKING)
+                ? bteso_Flag::e_BLOCKING_MODE
+                : bteso_Flag::e_NONBLOCKING_MODE;
     }
 
     return res;
@@ -1193,7 +1193,7 @@ int InetStreamSocket<ADDRESS>::connectionStatus() const
         return 0;                                                     // RETURN
     }
 
-    return SocketHandle::BTESO_ERROR_CONNDEAD;
+    return SocketHandle::e_ERROR_CONNDEAD;
 }
 
 template <class ADDRESS>
@@ -1203,9 +1203,9 @@ int InetStreamSocket<ADDRESS>::lingerOption(
     return SocketOptUtil::getOption(
                                         result,
                                         handle(),
-                                        SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        SocketOptUtil::BTESO_LINGER)
-           ? SocketHandle::BTESO_ERROR_UNCLASSIFIED
+                                        SocketOptUtil::k_SOCKETLEVEL,
+                                        SocketOptUtil::k_LINGER)
+           ? SocketHandle::e_ERROR_UNCLASSIFIED
            : 0;
 }
 
@@ -1215,7 +1215,7 @@ int InetStreamSocket<ADDRESS>::socketOption(int *result,
                                                   int  option) const
 {
     return SocketOptUtil::getOption(result, handle(), level, option)
-           ? SocketHandle::BTESO_ERROR_UNCLASSIFIED
+           ? SocketHandle::e_ERROR_UNCLASSIFIED
            : 0;
 }
 
@@ -1265,7 +1265,7 @@ StreamSocket<ADDRESS> *InetStreamSocketFactory<ADDRESS>::allocate()
     SocketHandle::Handle newSocketHandle;
 
     int ret = SocketImpUtil::open<ADDRESS>(
-                   &newSocketHandle, SocketImpUtil::BTESO_SOCKET_STREAM);
+                   &newSocketHandle, SocketImpUtil::k_SOCKET_STREAM);
 
     if (ret < 0) {
         return 0;                                                     // RETURN

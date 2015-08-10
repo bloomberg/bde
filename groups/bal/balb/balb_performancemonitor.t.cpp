@@ -389,11 +389,11 @@ int main(int argc, char *argv[])
             perfmon.collect();
 
             userCpu = perfmonIter->avgValue(
-                                  balb::PerformanceMonitor::BAEA_CPU_UTIL_USER);
+                                  balb::PerformanceMonitor::e_CPU_UTIL_USER);
             systemCpu = perfmonIter->avgValue(
-                                balb::PerformanceMonitor::BAEA_CPU_UTIL_SYSTEM);
+                                balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
             totalCpu = perfmonIter->avgValue(
-                                       balb::PerformanceMonitor::BAEA_CPU_UTIL);
+                                       balb::PerformanceMonitor::e_CPU_UTIL);
 
             if (verbose) {
                 cout << "  userCpu = " << userCpu
@@ -415,11 +415,11 @@ int main(int argc, char *argv[])
             // our CPU utilization should be really low
 
             userCpu = perfmonIter->avgValue(
-                                  balb::PerformanceMonitor::BAEA_CPU_UTIL_USER);
+                                  balb::PerformanceMonitor::e_CPU_UTIL_USER);
             systemCpu = perfmonIter->avgValue(
-                                balb::PerformanceMonitor::BAEA_CPU_UTIL_SYSTEM);
+                                balb::PerformanceMonitor::e_CPU_UTIL_SYSTEM);
             totalCpu = perfmonIter->avgValue(
-                                       balb::PerformanceMonitor::BAEA_CPU_UTIL);
+                                       balb::PerformanceMonitor::e_CPU_UTIL);
 
             if (verbose) {
                 cout << "  userCpu = " << userCpu
@@ -671,10 +671,10 @@ int main(int argc, char *argv[])
             bsls::Types::Int64      peakBytesInUse    = 0;
 
             balb::PerformanceMonitor::Measure virtualSizeMeasure =
-                                  balb::PerformanceMonitor::BAEA_VIRTUAL_SIZE;
+                                  balb::PerformanceMonitor::e_VIRTUAL_SIZE;
 
             balb::PerformanceMonitor::Measure residentSizeMeasure =
-                                  balb::PerformanceMonitor::BAEA_RESIDENT_SIZE;
+                                  balb::PerformanceMonitor::e_RESIDENT_SIZE;
 
             perfmon.registerPid(0, "test");
 

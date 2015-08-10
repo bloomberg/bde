@@ -64,19 +64,19 @@ inline
     if (!socket_p) {
         return NULL;
     }
-    int rc = socket_p->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE);
+    int rc = socket_p->setBlockingMode(bteso_Flag::e_BLOCKING_MODE);
 
     BSLS_ASSERT(0 == rc);
     while (1) {
         int s = socket_p->connect(peerAddress);
 
         if (0 == s) break;
-        if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != s) {
+        if (btlso::SocketHandle::e_ERROR_INTERRUPTED != s) {
             *status = FAILED; // Any negative number satisfies the contract.
             factory->deallocate(socket_p);
             return NULL;
         }
-        if (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT) {
+        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
             return NULL;
@@ -141,10 +141,10 @@ btlsc::Channel *TcpConnector::allocate(int *status, int flags)
 {
     BSLS_ASSERT(status);
 
-    if (d_isInvalidFlag ||  btlso::IPv4Address::BTESO_ANY_PORT ==
+    if (d_isInvalidFlag ||  btlso::IPv4Address::k_ANY_PORT ==
         d_peerAddress.portNumber())
     {
-        if (btlso::IPv4Address::BTESO_ANY_PORT == d_peerAddress.portNumber()) {
+        if (btlso::IPv4Address::k_ANY_PORT == d_peerAddress.portNumber()) {
             *status = PEER_UNSET;
         }
         else {
@@ -172,10 +172,10 @@ btlsc::TimedChannel *TcpConnector::allocateTimed(int *status,
 {
     BSLS_ASSERT(status);
 
-    if (d_isInvalidFlag ||  btlso::IPv4Address::BTESO_ANY_PORT ==
+    if (d_isInvalidFlag ||  btlso::IPv4Address::k_ANY_PORT ==
                                                d_peerAddress.portNumber())
     {
-        if (btlso::IPv4Address::BTESO_ANY_PORT == d_peerAddress.portNumber()) {
+        if (btlso::IPv4Address::k_ANY_PORT == d_peerAddress.portNumber()) {
             *status = PEER_UNSET;
         }
         else {

@@ -38,8 +38,8 @@ BSLS_IDENT_RCSID(btlso_tcptimereventmanager_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
     enum {
-        CPU_BOUND = btlso::TimeMetrics::BTESO_CPU_BOUND,
-        IO_BOUND = btlso::TimeMetrics::BTESO_IO_BOUND,
+        CPU_BOUND = btlso::TimeMetrics::e_CPU_BOUND,
+        IO_BOUND = btlso::TimeMetrics::e_IO_BOUND,
         NUM_CATEGORIES = 2
     };
 
@@ -84,12 +84,12 @@ TcpTimerEventManager::TcpTimerEventManager(
                                                           basicAllocator);
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
     switch (infrequentRegistrationHint) {
-      case BTESO_NO_HINT: {
+      case e_NO_HINT: {
         d_manager_p = new (*d_allocator_p)
             DefaultEventManager<Platform::POLL>(&d_metrics,
                                                             basicAllocator);
       } break;
-      case BTESO_INFREQUENT_REGISTRATION: {
+      case e_INFREQUENT_REGISTRATION: {
         d_manager_p = new (*d_allocator_p)
             DefaultEventManager<Platform::DEVPOLL>(&d_metrics,
                                                                basicAllocator);

@@ -29,10 +29,10 @@ BSLS_IDENT("$Id: $")
 //..
 //      btlso::SocketHandle::Handle socketHandle;
 //      int nativeErrNo, s;
-//      btlso::IoUtil::BlockingMode option = btlso::IoUtil::BTESO_NONBLOCKING;
+//      btlso::IoUtil::BlockingMode option = btlso::IoUtil::e_NONBLOCKING;
 //      btlso::IoUtil::BlockingMode result;
 //      btlso::SocketImpUtil::open<btlso::IPv4Address>(&socketHandle,
-//                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+//                                    btlso::SocketImpUtil::k_SOCKET_STREAM,
 //                                    &nativeErrNo);
 //      s = btlso::IoUtil::setBlockingMode(socketHandle,
 //                                        option, &nativeErrNo);
@@ -46,11 +46,11 @@ BSLS_IDENT("$Id: $")
 //                                        &nativeErrNo);
 //      assert(0 == s);
 //      assert(0 == nativeErrNo);
-//      assert(btlso::IoUtil::BTESO_NONBLOCKING == result);
+//      assert(btlso::IoUtil::e_NONBLOCKING == result);
 //..
 //  Now set blocking mode on the socket:
 //..
-//      option = btlso::IoUtil::BTESO_BLOCKING;
+//      option = btlso::IoUtil::e_BLOCKING;
 //      s = btlso::IoUtil::setBlockingMode(socketHandle, option,
 //                                        &nativeErrNo);
 //      assert(0 == s);   assert(0 == nativeErrNo);
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //      s = btlso::IoUtil::getBlockingMode(&result,
 //                                        socketHandle,
 //                                        &nativeErrNo);
-//      assert(0 == s);   assert(btlso::IoUtil::BTESO_BLOCKING == result);
+//      assert(0 == s);   assert(btlso::IoUtil::e_BLOCKING == result);
 //      assert(0 == nativeErrNo);
 //..
 
@@ -87,20 +87,24 @@ struct IoUtil {
         // an error occurs during the operation.
 
     enum BlockingMode {
-        BTESO_BLOCKING           =  0,   // blocking mode
-        BTESO_NONBLOCKING        =  1    // non-blocking mode
+        e_BLOCKING    = 0    // blocking mode
+      , e_NONBLOCKING = 1    // non-blocking mode
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BLOCKING    = BTESO_BLOCKING
-      , NONBLOCKING = BTESO_NONBLOCKING
+      , BTESO_BLOCKING    = e_BLOCKING
+      , BTESO_NONBLOCKING = e_NONBLOCKING
+      , BLOCKING    = e_BLOCKING
+      , NONBLOCKING = e_NONBLOCKING
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum AsyncMode {
-        BTESO_SYNCHRONOUS      =  0,     // synchronous mode turned on
-        BTESO_ASYNCHRONOUS     =  1      // synchronous mode turned off
+        e_SYNCHRONOUS  = 0      // synchronous mode turned on
+      , e_ASYNCHRONOUS = 1      // synchronous mode turned off
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , SYNCHRONOUS  = BTESO_SYNCHRONOUS
-      , ASYNCHRONOUS = BTESO_ASYNCHRONOUS
+      , BTESO_SYNCHRONOUS  = e_SYNCHRONOUS
+      , BTESO_ASYNCHRONOUS = e_ASYNCHRONOUS
+      , SYNCHRONOUS  = e_SYNCHRONOUS
+      , ASYNCHRONOUS = e_ASYNCHRONOUS
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

@@ -30,7 +30,7 @@ BerDecoder::BerDecoder(
 : d_options       (options)
 , d_allocator     (bslma::Default::allocator(basicAllocator))
 , d_logStream     (0)
-, d_severity      (BDEM_BER_SUCCESS)
+, d_severity      (e_BER_SUCCESS)
 , d_streamBuf     (0)
 , d_currentDepth  (0)
 , d_numUnknownElementsSkipped(0)
@@ -49,8 +49,8 @@ BerDecoder::~BerDecoder()
 void
 BerDecoder::logErrorImp(const char *msg)
 {
-    if ((int) d_severity < (int) BDEM_BER_ERROR) {
-        d_severity = BDEM_BER_ERROR;
+    if ((int) d_severity < (int) e_BER_ERROR) {
+        d_severity = e_BER_ERROR;
     }
     logMsg("ERROR", msg);
 }
@@ -144,20 +144,20 @@ BerDecoder_Node::print(bsl::ostream&  out,
     const char *strTagNum = 0;
 
     switch(d_tagClass) {
-      case BerConstants::BDEM_UNIVERSAL:
+      case BerConstants::e_UNIVERSAL:
         out << "UNV-";
         if (0 == BerUniversalTagNumber::fromInt(&eTagNum, d_tagNumber)) {
             strTagNum = BerUniversalTagNumber::toString(eTagNum);
         }
         break;
 
-      case BerConstants::BDEM_CONTEXT_SPECIFIC:
+      case BerConstants::e_CONTEXT_SPECIFIC:
         out << "CTX-";
         break;
-      case BerConstants::BDEM_APPLICATION:
+      case BerConstants::e_APPLICATION:
         out << "APP-";
         break;
-      case BerConstants::BDEM_PRIVATE:
+      case BerConstants::e_PRIVATE:
         out << "PRV-";
         break;
       default:
@@ -166,8 +166,8 @@ BerDecoder_Node::print(bsl::ostream&  out,
     }
 
     switch(d_tagType) {
-      case BerConstants::BDEM_CONSTRUCTED:  out << "C-";  break;
-      case BerConstants::BDEM_PRIMITIVE:    out << "P-";  break;
+      case BerConstants::e_BDEM_CONSTRUCTED:  out << "C-";  break;
+      case BerConstants::e_BDEM_PRIMITIVE:    out << "P-";  break;
       default:                              out << "*-";  break;
     }
 
@@ -247,13 +247,13 @@ BerDecoder_Node::readTagHeader()
         this->print(out, d_decoder->d_currentDepth, 2, "Enter ");
     }
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 int
 BerDecoder_Node::readTagTrailer()
 {
-    if (BerUtil::BDEM_INDEFINITE_LENGTH == d_expectedLength) {
+    if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
 
         if (0 != BerUtil::getEndOfContentOctets(
                                             d_decoder->d_streamBuf,
@@ -271,7 +271,7 @@ BerDecoder_Node::readTagTrailer()
 
     }
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 int
@@ -281,7 +281,7 @@ BerDecoder_Node::skipField()
         return logError("Unknown element (skipping is disabled)");
     }
 
-    if (BerUtil::BDEM_INDEFINITE_LENGTH != d_expectedLength ) {
+    if (BerUtil::e_INDEFINITE_LENGTH != d_expectedLength ) {
 
         // We would do this, but not every streambuf is seekable :( .
         //
@@ -305,11 +305,11 @@ BerDecoder_Node::skipField()
             remainLength -= numRead;
         }
 
-        return BerDecoder::BDEM_BER_SUCCESS;
+        return BerDecoder::e_BER_SUCCESS;
     }
 
     // must be CONSTRUCTED, so recursively skip sub-fields
-    if (d_tagType != BerConstants::BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
         return logError(
             "Only CONSTRUCTED fields with INDEFINITE length can be skipped");
     }
@@ -319,28 +319,28 @@ BerDecoder_Node::skipField()
         BerDecoder_Node innerNode(d_decoder);
 
         int rc = innerNode.readTagHeader();
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
         }
 
         rc = innerNode.skipField();
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
         }
 
         rc = innerNode.readTagTrailer();
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
         }
     }
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 int
 BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
 {
-    if (d_tagType != BerConstants::BDEM_PRIMITIVE) {
+    if (d_tagType != BerConstants::e_BDEM_PRIMITIVE) {
         return logError("Expected PRIMITIVE tag type for 'vector<char>'");
     }
 
@@ -368,7 +368,7 @@ BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
 
     d_consumedBodyBytes += d_expectedLength;
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 }  // close package namespace
 

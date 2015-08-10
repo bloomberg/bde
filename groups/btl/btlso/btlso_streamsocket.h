@@ -73,14 +73,14 @@ BSLS_IDENT("$Id: $")
 //     if (sizeof length != rc) {
 //         bsl::cout << "Error writing request header to server: " << rc
 //                   << bsl::endl;
-//         client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //         return;
 //     }
 //     rc = client->write(word, sizeof word);
 //     if (rc != length) {
 //         bsl::cout << "Error writing request body to server: " << rc
 //                   << bsl::endl;
-//         client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //         return;
 //     }
 //..
@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //     rc = client->read((char*)&length, sizeof length);
 //     if (rc != sizeof length) {
 //         bsl::cout << "Error reading from server: " << rc << bsl::endl;
-//         client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //         return;
 //     }
 //
@@ -99,11 +99,11 @@ BSLS_IDENT("$Id: $")
 //     rc = client->read(definition, length);
 //     if (rc != length) {
 //         bsl::cout << "Error reading from server: " << rc << bsl::endl;
-//         client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //         return;
 //     }
 //     bsl::cout << definition << bsl::endl;
-//     client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//     client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 // }
 //..
 ///Example 2
@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //         SERVER_PORT            = 2698  // arbitrary port number
 //     };
 //
-//     btlso::IPv4Address addr(btlso::IPv4Address::BTESO_ANY_ADDRESS,
+//     btlso::IPv4Address addr(btlso::IPv4Address::k_ANY_ADDRESS,
 //                            SERVER_PORT);
 //     int rc;
 //..
@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //         rc = client->read((char*)&length, sizeof length);
 //         if (rc != sizeof length) {
 //             bsl::cout << "Error reading from client: " << rc << bsl::endl;
-//             client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//             client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //
@@ -181,7 +181,7 @@ BSLS_IDENT("$Id: $")
 //         rc = client->read(word, length);
 //         if (length != rc) {
 //             bsl::cout << "Error reading from client: " << rc << bsl::endl;
-//             client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//             client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //..
@@ -199,19 +199,19 @@ BSLS_IDENT("$Id: $")
 //         rc = client->write((char*)&tmp, sizeof tmp);
 //         if (sizeof tmp != rc) {
 //             bsl::cout << "Error writing to client: " << rc << bsl::endl;
-//             client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//             client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //         rc = client->write(definition, length);
 //         if (rc != length) {
 //             bsl::cerr << "Error writing to client: " << rc << bsl::endl;
-//             client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//             client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //             continue;
 //         }
 //..
 // Now, terminate the client connection.
 //..
-//         client->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+//         client->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 //..
 // Finally, loop for the next connection.
 //..
@@ -283,7 +283,7 @@ class StreamSocket {
         // function waits until a connection request is received or an error
         // occurs.  In non-blocking mode, if there is no pending connection
         // request, this call returns immediately with an error status of
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK'.  The behavior is
+        // 'SocketHandle::e_ERROR_WOULDBLOCK'.  The behavior is
         // undefined unless this socket is listening for connections (i.e.,
         // unless 'listen' has been called).
 
@@ -296,7 +296,7 @@ class StreamSocket {
         // function waits until a connection request is received or an error
         // occurs.  In non-blocking mode and there is no pending connection
         // request, this call returns immediately with an error status of
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK'.  The behavior is
+        // 'SocketHandle::e_ERROR_WOULDBLOCK'.  The behavior is
         // undefined unless this socket is listening for connections (i.e.,
         // unless 'listen' has been called).
 
@@ -312,7 +312,7 @@ class StreamSocket {
         // is in blocking mode, the call waits until a connection is
         // established or an error occurs.  In non-blocking mode and the
         // connection cannot be established immediately
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK' is returned.  The
+        // 'SocketHandle::e_ERROR_WOULDBLOCK' is returned.  The
         // 'waitForConnect' method may then be used to determine when the
         // connection request has completed.
 
@@ -331,10 +331,10 @@ class StreamSocket {
         // reads as many bytes as possible without blocking.  Return the
         // positive total number of bytes read, or a negative value on error.
         // If this socket is in non-blocking mode and zero bytes were
-        // immediately available, 'SocketHandle::BTESO_ERROR_WOULDBLOCK'
+        // immediately available, 'SocketHandle::e_ERROR_WOULDBLOCK'
         // is returned.  If this socket is in blocking mode and the call is
         // interrupted before data is available,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  If the
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  If the
         // connection has been closed prior to this call and there is no data
         // available, 'SocketHandle::EOF' is returned.  The behavior is
         // undefined unless 0 < 'length' and buffer provides capacity for at
@@ -351,9 +351,9 @@ class StreamSocket {
         // many bytes as possible without blocking.  Return the positive total
         // number of bytes read, or a negative value on error.  If this socket
         // is in non-blocking mode and zero bytes were immediately available,
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK' is returned.  If this
+        // 'SocketHandle::e_ERROR_WOULDBLOCK' is returned.  If this
         // socket is in blocking mode and the call is interrupted before data
-        // is available, 'SocketHandle::BTESO_ERROR_INTERRUPTED' is
+        // is available, 'SocketHandle::e_ERROR_INTERRUPTED' is
         // returned.  If the connection has been closed prior to this call and
         // there is no data available, 'SocketHandle::EOF' is returned.
         // The behavior is undefined unless 0 < 'numBuffers' and at least one
@@ -366,11 +366,11 @@ class StreamSocket {
         // write the full message, the call blocks until the message is fully
         // written.  In non-blocking mode, the function writes as many bytes as
         // possible without blocking, and returns the number of bytes written,
-        // or 'SocketHandle::BTESO_ERROR_WOULDBLOCK' if no bytes were
+        // or 'SocketHandle::e_ERROR_WOULDBLOCK' if no bytes were
         // written.  If the connection has been closed
-        // 'SocketHandle::BTESO_ERROR_CONNDEAD' is returned.  If the call
+        // 'SocketHandle::e_ERROR_CONNDEAD' is returned.  If the call
         // is interrupted before any data is written,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  The
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  The
         // behavior is undefined unless 0 < 'length'.  Note that a successful
         // call to this function does not guarantee that the data has been
         // transmitted successfully, but simply that the data was written
@@ -386,11 +386,11 @@ class StreamSocket {
         // full message, the call blocks until the message is fully written.
         // In non-blocking mode, the function writes as many bytes as possible
         // without blocking, and returns the number of bytes written, or
-        // 'SocketHandle::BTESO_ERROR_WOULDBLOCK', if no bytes were
+        // 'SocketHandle::e_ERROR_WOULDBLOCK', if no bytes were
         // written.  If the connection has been closed
-        // 'SocketHandle::BTESO_ERROR_CONNDEAD' is returned.  If the call
+        // 'SocketHandle::e_ERROR_CONNDEAD' is returned.  If the call
         // is interrupted before any data is written,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  The
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  The
         // behavior is undefined unless 0 < 'numBuffers' and at least one of
         // the 'buffers[i].length()' values is positive.  Note that a
         // successful call to this function does not guarantee that the data
@@ -438,21 +438,21 @@ class StreamSocket {
         // whichever occurs first.  Return a value indicating the type(s) of
         // the event(s) occurred before 'timeout', if any, and a negative value
         // otherwise.  If 'timeout' is reached without an I/O event matching
-        // 'type', a value of 'SocketHandle::BTESO_ERROR_TIMEDOUT' is
+        // 'type', a value of 'SocketHandle::e_ERROR_TIMEDOUT' is
         // returned.  If this call is interrupted,
-        // 'SocketHandle::BTESO_ERROR_INTERRUPTED' is returned.  Note
+        // 'SocketHandle::e_ERROR_INTERRUPTED' is returned.  Note
         // that the return value is 'type' if 'type' is different from 'IO_RW',
         // and one of 'IO_READ', 'IO_WRITE', or 'IO_RW' if 'type' is 'IO_RW.
         // Also note that if 'timeout' is in the past, this function will
         // return a value indicating the type(s) of the event(s) currently
         // available if polling the socket returns a matching event, and
-        // 'SocketHandle::BTESO_ERROR_TIMEDOUT' otherwise.
+        // 'SocketHandle::e_ERROR_TIMEDOUT' otherwise.
 
     virtual int waitForIO(bteso_Flag::IOWaitType type) = 0;
         // Wait for the occurrence of an I/O event matching the specified
         // 'type'.  Return a value indicating the type(s) of the event(s)
         // occurred, and a negative value on error.  If this call is
-        // interrupted, 'SocketHandle::BTESO_ERROR_INTERRUPTED' is
+        // interrupted, 'SocketHandle::e_ERROR_INTERRUPTED' is
         // returned.  Note that the return value is 'type' if 'type' is
         // different from 'IO_RW', and one of 'IO_READ', 'IO_WRITE', or 'IO_RW'
         // if 'type' is 'IO_RW.
@@ -477,7 +477,7 @@ class StreamSocket {
     virtual int connectionStatus() const = 0;
         // Test the connection status of this socket.  Return 0 if this socket
         // has an established connection, and a non-zero value otherwise.  A
-        // value of 'SocketHandle::BTESO_ERROR_CONNDEAD' is returned if a
+        // value of 'SocketHandle::e_ERROR_CONNDEAD' is returned if a
         // connection request has failed.  Note that this method is typically
         // used to determine the result of a non-blocking connection request.
         // The behavior is undefined unless a connection request with 'connect'

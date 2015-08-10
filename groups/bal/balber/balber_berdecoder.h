@@ -267,8 +267,13 @@ class BerDecoder {
   public:
     // PUBLIC TYPES
     enum ErrorSeverity {
-        BDEM_BER_SUCCESS = 0x00,
-        BDEM_BER_ERROR   = 0x02
+        e_BER_SUCCESS = 0x00
+      , e_BER_ERROR   = 0x02
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BDEM_BER_SUCCESS = e_BER_SUCCESS
+      , BDEM_BER_ERROR   = e_BER_ERROR
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   private:
@@ -307,7 +312,7 @@ class BerDecoder {
     // PRIVATE MANIPULATORS
     ErrorSeverity logError(const char *msg);
         // log 'msg' and upgrade the severity level.
-        // Return BDEM_BER_ERROR.
+        // Return e_BER_ERROR.
 
     void logErrorImp(const char *msg);
         // log 'msg' and upgrade the severity level.
@@ -496,7 +501,7 @@ class BerDecoder_Node {
 //         // type 'TYPE'.
 
     int logError(const char *msg);
-        // Set the node severity to BDEM_BER_ERROR, print the error message
+        // Set the node severity to e_BER_ERROR, print the error message
         // specified by 'msg' to the decoder's log, print the stack of nodes
         // to the decoder's log, and return a non-zero value.
 
@@ -687,7 +692,7 @@ BerDecoder::logError(const char *msg)
     // This is inline just so compilers see it cannot return SUCCESS,
     //   thereby improving flow analysis and choking off spurious warnings.
     logErrorImp(msg);
-    return BDEM_BER_ERROR;
+    return e_BER_ERROR;
 }
 
 inline
@@ -722,7 +727,7 @@ int BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
     d_streamBuf = streamBuf;
 
     d_currentDepth = 0;
-    d_severity = BDEM_BER_SUCCESS;
+    d_severity = e_BER_SUCCESS;
     d_numUnknownElementsSkipped = 0;
 
     if (d_logStream != 0) {
@@ -805,8 +810,8 @@ inline
 BerDecoder_Node::BerDecoder_Node(BerDecoder *decoder)
 : d_decoder              (decoder)
 , d_parent               (d_decoder->d_topNode)
-, d_tagClass             (BerConstants::BDEM_UNIVERSAL)
-, d_tagType              (BerConstants::BDEM_PRIMITIVE)
+, d_tagClass             (BerConstants::e_UNIVERSAL)
+, d_tagType              (BerConstants::e_BDEM_PRIMITIVE)
 , d_tagNumber            (0)
 , d_expectedLength       (0)
 , d_consumedHeaderBytes  (0)
@@ -840,9 +845,9 @@ inline
 bool
 BerDecoder_Node::hasMore()
 {
-    BSLS_ASSERT_SAFE(d_tagType == BerConstants::BDEM_CONSTRUCTED);
+    BSLS_ASSERT_SAFE(d_tagType == BerConstants::e_BDEM_CONSTRUCTED);
 
-    if (BerUtil::BDEM_INDEFINITE_LENGTH == d_expectedLength) {
+    if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
         return 0 != d_decoder->d_streamBuf->sgetc();
     }
 
@@ -951,13 +956,13 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Choice)
     // However, if the element is anonymous (i.e., untagged), then there is no
     // inner tag.  This behavior is kept for backward compatibility.
 
-    if (d_tagType != BerConstants::BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag type for choice");
     }
 
     bool isUntagged = d_formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED;
 
-    int rc = BerDecoder::BDEM_BER_SUCCESS;
+    int rc = BerDecoder::e_BER_SUCCESS;
 
     if (!isUntagged) {
 
@@ -966,16 +971,16 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Choice)
 //        innerNode.setType(variable);
 
         rc = innerNode.readTagHeader();
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
         }
 
-        if (innerNode.tagClass() != BerConstants::BDEM_CONTEXT_SPECIFIC) {
+        if (innerNode.tagClass() != BerConstants::e_CONTEXT_SPECIFIC) {
             return innerNode.logError(
                 "Expected CONTEXT tag class for tagged choice");
         }
 
-        if (innerNode.tagType() != BerConstants::BDEM_CONSTRUCTED) {
+        if (innerNode.tagType() != BerConstants::e_BDEM_CONSTRUCTED) {
             return innerNode.logError(
                 "Expected CONSTRUCTED tag type for tagged choice");
         }
@@ -988,7 +993,7 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Choice)
         if (innerNode.hasMore()) {
             // if shouldContinue returns false, then there is no selection
             rc  = innerNode.decodeChoice(variable);
-            if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+            if (rc != BerDecoder::e_BER_SUCCESS) {
                 return rc;  // error message is already logged
             }
         }
@@ -1008,12 +1013,12 @@ template <typename TYPE>
 int
 BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::NullableValue)
 {
-    int rc = BerDecoder::BDEM_BER_SUCCESS;
+    int rc = BerDecoder::e_BER_SUCCESS;
 
     if (d_formattingMode & bdeat_FormattingMode::BDEAT_NILLABLE) {
         // nillable is encoded in BER as a sequence with one optional element
 
-        if (d_tagType != BerConstants::BDEM_CONSTRUCTED) {
+        if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
             return logError("Expected CONSTRUCTED tag type for nullable");
         }
 
@@ -1024,12 +1029,12 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::NullableValue)
 //            innerNode.setType(variable);
 
             rc = innerNode.readTagHeader();
-            if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+            if (rc != BerDecoder::e_BER_SUCCESS) {
                 return rc;  // error message is already logged
             }
 
             if (innerNode.tagClass()
-                                 != BerConstants::BDEM_CONTEXT_SPECIFIC) {
+                                 != BerConstants::e_CONTEXT_SPECIFIC) {
                 return innerNode.logError(
                     "Expected CONTEXT tag class for inner nillable");
             }
@@ -1043,7 +1048,7 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::NullableValue)
 
             rc = bdeat_NullableValueFunctions::manipulateValue(variable,
                                                                innerNode);
-            if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+            if (rc != BerDecoder::e_BER_SUCCESS) {
                 return rc;  // error message is already logged
             }
 
@@ -1075,7 +1080,7 @@ BerDecoder_Node::decode(TYPE *variable,
     typedef typename bdeat_TypeCategory::Select<BaseType>::Type BaseTag;
     int rc = this->decode(&base, BaseTag());
 
-    if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+    if (rc != BerDecoder::e_BER_SUCCESS) {
         return rc;  // error message is already logged
     }
 
@@ -1084,7 +1089,7 @@ BerDecoder_Node::decode(TYPE *variable,
         return logError("Error converting from base type for customized");
     }
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 template <typename TYPE>
@@ -1094,7 +1099,7 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Enumeration)
     int value = 0;
     int rc = this->decode(&value, bdeat_TypeCategory::Simple());
 
-    if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+    if (rc != BerDecoder::e_BER_SUCCESS) {
         return rc;  // error message is already logged
     }
 
@@ -1102,14 +1107,14 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Enumeration)
         return logError("Error converting enumeration value");
     }
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 template <typename TYPE>
 inline
 int BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Simple)
 {
-    if (d_tagType != BerConstants::BDEM_PRIMITIVE) {
+    if (d_tagType != BerConstants::e_BDEM_PRIMITIVE) {
         return logError("Expected PRIMITIVE tag type for simple type");
     }
 
@@ -1121,14 +1126,14 @@ int BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Simple)
 
     d_consumedBodyBytes = d_expectedLength;
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 template <typename TYPE>
 int
 BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Sequence)
 {
-    if (d_tagType != BerConstants::BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag type for sequence");
     }
 
@@ -1137,11 +1142,11 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Sequence)
         BerDecoder_Node innerNode(d_decoder);
 
         int rc = innerNode.readTagHeader();
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
         }
 
-        if (innerNode.tagClass() != BerConstants::BDEM_CONTEXT_SPECIFIC) {
+        if (innerNode.tagClass() != BerConstants::e_CONTEXT_SPECIFIC) {
             return innerNode.logError(
                 "Expected CONTEXT tag class inside sequence");
         }
@@ -1162,17 +1167,17 @@ BerDecoder_Node::decode(TYPE *variable, bdeat_TypeCategory::Sequence)
                                    d_decoder->numUnknownElementsSkipped() + 1);
         }
 
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
         }
 
         rc = innerNode.readTagTrailer();
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged
         }
     }
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 template <typename TYPE>
@@ -1198,11 +1203,11 @@ int BerDecoder_Node::decodeChoice(TYPE *variable)
 //    innerNode.setType(variable);
 
     int rc = innerNode.readTagHeader();
-    if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+    if (rc != BerDecoder::e_BER_SUCCESS) {
         return rc;  // error message is already logged
     }
 
-    if (innerNode.tagClass() != BerConstants::BDEM_CONTEXT_SPECIFIC) {
+    if (innerNode.tagClass() != BerConstants::e_CONTEXT_SPECIFIC) {
         return innerNode.logError(
             "Expected CONTEXT tag class for internal choice");
     }
@@ -1226,7 +1231,7 @@ int BerDecoder_Node::decodeChoice(TYPE *variable)
                                    d_decoder->numUnknownElementsSkipped() + 1);
     }
 
-    if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+    if (rc != BerDecoder::e_BER_SUCCESS) {
         return rc;  // error message is already logged
     }
 
@@ -1237,7 +1242,7 @@ template <typename TYPE>
 int
 BerDecoder_Node::decodeArray(TYPE *variable)
 {
-    if (d_tagType != BerConstants::BDEM_CONSTRUCTED) {
+    if (d_tagType != BerConstants::e_BDEM_CONSTRUCTED) {
         return logError("Expected CONSTRUCTED tag class for array");
     }
 
@@ -1255,13 +1260,13 @@ BerDecoder_Node::decodeArray(TYPE *variable)
 
         BerDecoder_UniversalElementVisitor visitor(d_decoder);
         int rc = bdeat_ArrayFunctions::manipulateElement(variable, visitor, i);
-        if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+        if (rc != BerDecoder::e_BER_SUCCESS) {
             return logError("Error in decoding array element");
         }
         i = j;
     }
 
-    return BerDecoder::BDEM_BER_SUCCESS;
+    return BerDecoder::e_BER_SUCCESS;
 }
 
                  // -----------------------------------------
@@ -1313,11 +1318,11 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 //    d_node.setType(variable);
 
     int rc = d_node.readTagHeader();
-    if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+    if (rc != BerDecoder::e_BER_SUCCESS) {
         return rc;  // error message is already logged
     }
 
-    if (d_node.tagClass() != BerConstants::BDEM_UNIVERSAL) {
+    if (d_node.tagClass() != BerConstants::e_UNIVERSAL) {
         return d_node.logError("Expected UNIVERSAL tag class");
     }
 
@@ -1329,7 +1334,7 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 
     rc = d_node(variable);
 
-    if (rc != BerDecoder::BDEM_BER_SUCCESS) {
+    if (rc != BerDecoder::e_BER_SUCCESS) {
         return rc;
     }
 

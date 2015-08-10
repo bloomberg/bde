@@ -171,11 +171,12 @@ class DefaultEventManager<Platform::SELECT>
 
   public:
     enum {
-        BTESO_MAX_NUM_HANDLES = FD_SETSIZE  // maximum number of socket handles
-                                            // that can be registered with an
-                                            // event manager (of this type)
+        k_MAX_NUM_HANDLES = FD_SETSIZE  // maximum number of socket handles
+                                        // that can be registered with an
+                                        // event manager (of this type)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , MAX_NUM_HANDLES = BTESO_MAX_NUM_HANDLES
+      , BTESO_MAX_NUM_HANDLES = k_MAX_NUM_HANDLES
+      , MAX_NUM_HANDLES = k_MAX_NUM_HANDLES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -253,18 +254,18 @@ class DefaultEventManager<Platform::SELECT>
         // registered with this event manager.  If no event is pending, wait
         // until either (1) at least one event occurs (in which case the
         // corresponding callback(s) is invoked) or (2) provided that the
-        // specified 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an
+        // specified 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT', an
         // underlying system call is interrupted by a signal.  Return the
         // number of dispatched callbacks on success, and a negative value
         // otherwise; -1 is reserved to indicate that an underlying system
         // call was interrupted.  When such an interruption occurs this method
         // will return (-1) if 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT' and otherwise will automatically
+        // 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise will automatically
         // restart (i.e., reissue the identical system call).  Note that all
         // callbacks are invoked in the same thread that invokes 'dispatch',
         // and the order of invocation, relative to the order of registration,
         // is unspecified.  Also note that -1 is never returned if 'option' is
-        // not set to 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // not set to 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
     int dispatch(const bsls::TimeInterval& timeout, int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -272,18 +273,18 @@ class DefaultEventManager<Platform::SELECT>
         // until either (1) at least one event occurs (in which case the
         // corresponding callback(s) is invoked), (2) the specified absolute
         // 'timeout' is reached, or (3) provided that the specified 'flags'
-        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system
         // call is interrupted by a signal.  Return the number of dispatched
         // callbacks on success, 0 if 'timeout' is reached, and a negative
         // value otherwise; -1 is reserved to indicate that an underlying
         // system call was interrupted.  When such an interruption occurs this
         // method will return -1 if 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', and otherwise will
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will
         // automatically restart (i.e., reissue the identical system call).
         // Note that all callbacks are invoked in the same thread that invokes
         // 'dispatch', and the order of invocation, relative to the order of
         // registration, is unspecified.  Also note that -1 is never returned
-        // unless 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // unless 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
      int registerSocketEvent(const SocketHandle::Handle&   handle,
                              const EventType::Type         event,
@@ -292,8 +293,8 @@ class DefaultEventManager<Platform::SELECT>
         // invoked when the specified 'event' occurs on the specified socket
         // 'handle'.  Each socket event registration stays in effect until it
         // is subsequently deregistered; the callback is invoked each time the
-        // corresponding event is detected.  'EventType::BTESO_READ' and
-        // 'EventType::BTESO_WRITE' are the only events that can be
+        // corresponding event is detected.  'EventType::e_READ' and
+        // 'EventType::e_WRITE' are the only events that can be
         // registered simultaneously for a socket.  If a registration attempt
         // is made for an event that is already registered, the callback
         // associated with this event will be overwritten with the new one.

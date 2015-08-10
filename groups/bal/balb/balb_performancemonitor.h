@@ -25,37 +25,37 @@ BSLS_IDENT("$Id: $")
 //..
 // Measure           Identifier           Description
 // -------           ----------           -----------
-// User CPU Time     BAEA_CPU_TIME_USER   Total amount of time spent executing
+// User CPU Time     e_CPU_TIME_USER   Total amount of time spent executing
 //                                        instructions in user mode.
 //
-// System CPU Time   BAEA_CPU_TIME_SYSTEM Total amount of time spent executing
+// System CPU Time   e_CPU_TIME_SYSTEM Total amount of time spent executing
 //                                        instructions in kernel mode.
 //
-// CPU Time          BAEA_CPU_TIME        The sum of User and System CPU times.
+// CPU Time          e_CPU_TIME        The sum of User and System CPU times.
 //
-// User CPU %        BAEA_CPU_UTIL_USER   Percentage of elapsed CPU time this
+// User CPU %        e_CPU_UTIL_USER   Percentage of elapsed CPU time this
 //                                        process spent executing instructions
 //                                        in user mode.
 //
-// System CPU %      BAEA_CPU_UTIL_SYSTEM Percentage of elapsed CPU time this
+// System CPU %      e_CPU_UTIL_SYSTEM Percentage of elapsed CPU time this
 //                                        process spent executing instructions
 //                                        in kernel mode.
 //
-// CPU %             BAEA_CPU_UTIL        Sum of User CPU % and System CPU %.
+// CPU %             e_CPU_UTIL        Sum of User CPU % and System CPU %.
 //
-// Resident Size     BAEA_RESIDENT_SIZE   Number of mega-bytes of physical
+// Resident Size     e_RESIDENT_SIZE   Number of mega-bytes of physical
 //                                        memory used by the process.
 //
-// Virtual Size      BAEA_VIRTUAL_SIZE    The size of the heap, in
+// Virtual Size      e_VIRTUAL_SIZE    The size of the heap, in
 //                                        mega-bytes. This value does not
 //                                        include the size of the address
 //                                        space mapped to files (anonymous or
 //                                        otherwise.)
 //
-// Thread Count      BAEA_NUM_THREADS     Number of threads executing in the
+// Thread Count      e_NUM_THREADS     Number of threads executing in the
 //                                        process.
 //
-// Page Faults       BAEA_NUM_PAGEFAULTS  Total number of page faults incurred
+// Page Faults       e_NUM_PAGEFAULTS  Total number of page faults incurred
 //                                        throughout the lifetime of the
 //                                        process.
 //..
@@ -279,29 +279,40 @@ typedef bsls::Platform::OsHpUx OsType;
         // Enumerates the set of performance measures this class is capable of
         // monitoring.
 
-        BAEA_CPU_TIME,          // CPU time (seconds)
-        BAEA_CPU_TIME_USER,     // user CPU time (seconds)
-        BAEA_CPU_TIME_SYSTEM,   // system CPU time (seconds)
-        BAEA_CPU_UTIL,          // weighted CPU % (user + system)
-        BAEA_CPU_UTIL_USER,     // weighted user CPU %
-        BAEA_CPU_UTIL_SYSTEM,   // weighted system CPU %
-        BAEA_RESIDENT_SIZE,     // number of MBs of physical memory
-        BAEA_NUM_THREADS,       // number of threads
-        BAEA_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
-        BAEA_VIRTUAL_SIZE,      // number of MBs in the heap
-        BAEA_NUM_MEASURES
+        e_CPU_TIME,          // CPU time (seconds)
+        e_CPU_TIME_USER,     // user CPU time (seconds)
+        e_CPU_TIME_SYSTEM,   // system CPU time (seconds)
+        e_CPU_UTIL,          // weighted CPU % (user + system)
+        e_CPU_UTIL_USER,     // weighted user CPU %
+        e_CPU_UTIL_SYSTEM,   // weighted system CPU %
+        e_RESIDENT_SIZE,     // number of MBs of physical memory
+        e_NUM_THREADS,       // number of threads
+        e_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
+        e_VIRTUAL_SIZE,      // number of MBs in the heap
+        e_NUM_MEASURES
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , CPU_TIME        = BAEA_CPU_TIME
-      , CPU_TIME_USER   = BAEA_CPU_TIME_USER
-      , CPU_TIME_SYSTEM = BAEA_CPU_TIME_SYSTEM
-      , CPU_UTIL        = BAEA_CPU_UTIL
-      , CPU_UTIL_USER   = BAEA_CPU_UTIL_USER
-      , CPU_UTIL_SYSTEM = BAEA_CPU_UTIL_SYSTEM
-      , RESIDENT_SIZE   = BAEA_RESIDENT_SIZE
-      , NUM_THREADS     = BAEA_NUM_THREADS
-      , NUM_PAGEFAULTS  = BAEA_NUM_PAGEFAULTS
-      , VIRTUAL_SIZE    = BAEA_VIRTUAL_SIZE
-      , NUM_MEASURES    = BAEA_NUM_MEASURES
+      , BAEA_CPU_TIME        = e_CPU_TIME
+      , BAEA_CPU_TIME_USER   = e_CPU_TIME_USER
+      , BAEA_CPU_TIME_SYSTEM = e_CPU_TIME_SYSTEM
+      , BAEA_CPU_UTIL        = e_CPU_UTIL
+      , BAEA_CPU_UTIL_USER   = e_CPU_UTIL_USER
+      , BAEA_CPU_UTIL_SYSTEM = e_CPU_UTIL_SYSTEM
+      , BAEA_RESIDENT_SIZE   = e_RESIDENT_SIZE
+      , BAEA_NUM_THREADS     = e_NUM_THREADS
+      , BAEA_NUM_PAGEFAULTS  = e_NUM_PAGEFAULTS
+      , BAEA_VIRTUAL_SIZE    = e_VIRTUAL_SIZE
+      , BAEA_NUM_MEASURES    = e_NUM_MEASURES
+      , CPU_TIME        = e_CPU_TIME
+      , CPU_TIME_USER   = e_CPU_TIME_USER
+      , CPU_TIME_SYSTEM = e_CPU_TIME_SYSTEM
+      , CPU_UTIL        = e_CPU_UTIL
+      , CPU_UTIL_USER   = e_CPU_UTIL_USER
+      , CPU_UTIL_SYSTEM = e_CPU_UTIL_SYSTEM
+      , RESIDENT_SIZE   = e_RESIDENT_SIZE
+      , NUM_THREADS     = e_NUM_THREADS
+      , NUM_PAGEFAULTS  = e_NUM_PAGEFAULTS
+      , VIRTUAL_SIZE    = e_VIRTUAL_SIZE
+      , NUM_MEASURES    = e_NUM_MEASURES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -331,10 +342,10 @@ typedef bsls::Platform::OsHpUx OsType;
 
         bsls::AtomicInt   d_numSamples;            // num samples taken
 
-        double           d_lstData[BAEA_NUM_MEASURES]; // latest collected data
-        double           d_minData[BAEA_NUM_MEASURES]; // min
-        double           d_maxData[BAEA_NUM_MEASURES]; // max
-        double           d_totData[BAEA_NUM_MEASURES]; // cumulative
+        double           d_lstData[e_NUM_MEASURES]; // latest collected data
+        double           d_minData[e_NUM_MEASURES]; // min
+        double           d_maxData[e_NUM_MEASURES]; // max
+        double           d_totData[e_NUM_MEASURES]; // cumulative
 
         mutable bdlqq::RWMutex
                          d_guard;                 // serialize write access
@@ -400,7 +411,7 @@ typedef bsls::Platform::OsHpUx OsType;
             // Print the specified 'measureDescription' to the specified 'os'
             // stream.  The value of measureIdentifier should be a string
             // literal corresponding to the desired measure enumerator, e.g.,
-            // 'BAEA_CPU_TIME'.
+            // 'e_CPU_TIME'.
     };
 
     class ConstIterator {
@@ -647,7 +658,7 @@ bool balb::PerformanceMonitor::ConstIterator::operator!=(
 inline
 double balb::PerformanceMonitor::Statistics::latestValue(Measure measure) const
 {
-    BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+    BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
     return d_lstData[measure];
@@ -656,7 +667,7 @@ double balb::PerformanceMonitor::Statistics::latestValue(Measure measure) const
 inline
 double balb::PerformanceMonitor::Statistics::minValue(Measure measure) const
 {
-    BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+    BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
     return d_minData[measure];
@@ -665,7 +676,7 @@ double balb::PerformanceMonitor::Statistics::minValue(Measure measure) const
 inline
 double balb::PerformanceMonitor::Statistics::maxValue(Measure measure) const
 {
-    BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+    BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
     return d_maxData[measure];
@@ -674,7 +685,7 @@ double balb::PerformanceMonitor::Statistics::maxValue(Measure measure) const
 inline
 double balb::PerformanceMonitor::Statistics::avgValue(Measure measure) const
 {
-    BSLS_ASSERT_SAFE(measure >= 0 && measure < BAEA_NUM_MEASURES);
+    BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
     bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
     return d_totData[measure] / d_numSamples;
