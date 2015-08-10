@@ -67,11 +67,11 @@ BSLS_IDENT("$Id: $")
 //      // This class implements a simple multi-user echo server as
 //      // specified by the RFC 862.
 //      enum {
-//         READ_SIZE = 10,  // The number of bytes to be read can be changed,
-//                          // but a larger 'READ_SIZE' will require the
-//                          // client to input more data to be echoed.
-//         DEFAULT_PORT_NUMBER = 1234,   // As specified by the RFC 862
-//         QUEUE_SIZE = 16
+//         k_READ_SIZE = 10,  // The number of bytes to be read can be changed,
+//                            // but a larger 'k_READ_SIZE' will require the
+//                            // client to input more data to be echoed.
+//         k_DEFAULT_PORT_NUMBER = 1234,   // As specified by the RFC 862
+//         k_QUEUE_SIZE = 16
 //      };
 //      btlsos::TcpTimedCbAcceptor   d_allocator;
 //      bsls::TimeInterval           d_acceptTimeout;
@@ -121,7 +121,7 @@ BSLS_IDENT("$Id: $")
 //         // is shut down properly (i.e., via 'close').
 //
 //     // MANIPULATORS
-//     int open(int portNumber = DEFAULT_PORT_NUMBER);
+//     int open(int portNumber = k_DEFAULT_PORT_NUMBER);
 //         // Establish a listening socket on the specified 'portNumber';
 //         // return 0 on success, and a non-zero value otherwise.  The
 //         // behavior is undefined unless 0 <= portNumber and the listening
@@ -159,7 +159,7 @@ BSLS_IDENT("$Id: $")
 //      btlso::IPv4Address serverAddress;
 //      serverAddress.setPortNumber(portNumber);
 //
-//      if (d_allocator.open(serverAddress, QUEUE_SIZE)) {
+//      if (d_allocator.open(serverAddress, k_QUEUE_SIZE)) {
 //          return -1;
 //      }
 //      // Set reuse address socket option on the listening socket.
@@ -192,7 +192,8 @@ BSLS_IDENT("$Id: $")
 // channel is shut down.  Note that the allocation functor is cached to improve
 // performance:
 //..
-//  void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
+//  void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status)
+//  {
 //      if (channel) {
 //          // Accepted a connection;  issue a buffered read request.
 //          bdlf::Function<void (*)(const char *, int, int)> callback(
@@ -201,7 +202,7 @@ BSLS_IDENT("$Id: $")
 //                                      _1, _2, _3
 //                                      channel));
 //          if (channel->timedBufferedRead(
-//                                    READ_SIZE,
+//                                    k_READ_SIZE,
 //                                    bdlt::CurrentTime::now() + d_readTimeout,
 //                                    callback)) {
 //              bsl::cout << "Failed to enqueue read request." << bsl::endl;
@@ -260,7 +261,7 @@ BSLS_IDENT("$Id: $")
 //                                      _1, _2, _3,
 //                                      channel));
 //
-//          if (channel->timedBufferedRead(READ_SIZE,
+//          if (channel->timedBufferedRead(k_READ_SIZE,
 //                  bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
 //              bsl::cout << "Failed to enqueue read request." << bsl::endl;
 //              d_allocator.deallocate(channel);

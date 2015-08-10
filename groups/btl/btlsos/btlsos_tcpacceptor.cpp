@@ -30,22 +30,22 @@ namespace BloombergLP {
                          // ========================
 
 enum {
-    BLOCKING_MODE    = bteso_Flag::BTESO_BLOCKING_MODE,
-    NONBLOCKING_MODE = bteso_Flag::BTESO_NONBLOCKING_MODE
+    e_BLOCKING_MODE    = bteso_Flag::BTESO_BLOCKING_MODE,
+    e_NONBLOCKING_MODE = bteso_Flag::BTESO_NONBLOCKING_MODE
 };
 
 enum {
-    ARENA_SIZE = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
+    k_ARENA_SIZE = sizeof(btlsos::TcpChannel) < sizeof(btlsos::TcpTimedChannel)
                  ? sizeof(btlsos::TcpTimedChannel)
                  : sizeof(btlsos::TcpChannel)
 };
 
 enum {
-    INVALID       = -4,
-    FAILED        = -3,
-    UNINITIALIZED = -2,
-    CANCELLED     = -1,
-    SUCCESS       =  0
+    e_INVALID       = -4,
+    e_FAILED        = -3,
+    e_UNINITIALIZED = -2,
+    e_CANCELLED     = -1,
+    e_SUCCESS       =  0
 };
 
                          // =======================
@@ -74,7 +74,7 @@ RESULT *allocate(int *status, int flags,
         if (acceptedConnection) { break; }
 
         if (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != s) {
-            *status = FAILED;
+            *status = e_FAILED;
             socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
             return NULL;
         }
@@ -110,7 +110,7 @@ namespace btlsos {
 TcpAcceptor::TcpAcceptor(
         btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
         bslma::Allocator                             *basicAllocator)
-: d_pool(ARENA_SIZE, basicAllocator)
+: d_pool(k_ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
 , d_serverSocket_p(0)
@@ -124,7 +124,7 @@ TcpAcceptor::TcpAcceptor(
         btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
         int                                           initialCapacity,
         bslma::Allocator                             *basicAllocator)
-: d_pool(ARENA_SIZE,
+: d_pool(k_ARENA_SIZE,
          bsls::BlockGrowth::BSLS_CONSTANT,
          initialCapacity,
          basicAllocator)
@@ -194,10 +194,10 @@ btlsc::Channel *TcpAcceptor::allocate(int *status, int flags)
 
     if (d_isInvalidFlag || NULL == d_serverSocket_p) {
         if (NULL == d_serverSocket_p) {
-            *status = UNINITIALIZED;
+            *status = e_UNINITIALIZED;
         }
         else {
-            *status = INVALID;
+            *status = e_INVALID;
         }
         return NULL;
     }
@@ -222,10 +222,10 @@ btlsc::TimedChannel *TcpAcceptor::allocateTimed(int *status, int flags)
     BSLS_ASSERT(status);
     if (d_isInvalidFlag || NULL == d_serverSocket_p) {
         if (NULL == d_serverSocket_p) {
-            *status = UNINITIALIZED;
+            *status = e_UNINITIALIZED;
         }
         else {
-            *status = INVALID;
+            *status = e_INVALID;
         }
         return NULL;
     }
@@ -250,7 +250,7 @@ int TcpAcceptor::close() {
     d_factory_p->deallocate(d_serverSocket_p);
     d_serverSocket_p = NULL;
     d_serverAddress = btlso::IPv4Address();
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int TcpAcceptor::open(const btlso::IPv4Address& endpoint,
@@ -260,60 +260,60 @@ int TcpAcceptor::open(const btlso::IPv4Address& endpoint,
     BSLS_ASSERT(NULL == d_serverSocket_p);
 
     enum {
-        CANT_SET_OPTIONS     = -7,
-        INVALID_ACCEPTOR     = -6,
-        ALLOCATION_FAILED    = -5,
-        BIND_FAILED          = -4,
-        LISTEN_FAILED        = -3,
-        LOCALINFO_FAILED     = -2,
-        BLOCKMODE_FAILED     = -1
+        e_CANT_SET_OPTIONS     = -7,
+        e_INVALID_ACCEPTOR     = -6,
+        e_ALLOCATION_FAILED    = -5,
+        e_BIND_FAILED          = -4,
+        e_LISTEN_FAILED        = -3,
+        e_LOCALINFO_FAILED     = -2,
+        e_BLOCKMODE_FAILED     = -1
     };
 
     if (d_isInvalidFlag) {
-        return INVALID_ACCEPTOR;
+        return e_INVALID_ACCEPTOR;
     }
     d_serverSocket_p = d_factory_p->allocate();
     if (!d_serverSocket_p) {
-        return ALLOCATION_FAILED;
+        return e_ALLOCATION_FAILED;
     }
 
     if (reuseAddressFlag) {
         if (0 != d_serverSocket_p->setOption(
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
-                                       reuseAddressFlag)) {
+                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                      reuseAddressFlag)) {
             d_factory_p->deallocate(d_serverSocket_p);
             d_serverSocket_p = NULL;
-            return CANT_SET_OPTIONS;
+            return e_CANT_SET_OPTIONS;
         }
     }
 
     if (0 != d_serverSocket_p->bind(endpoint)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return BIND_FAILED;
+        return e_BIND_FAILED;
     }
 
     if (0 != d_serverSocket_p->localAddress(&d_serverAddress)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return BIND_FAILED;
+        return e_BIND_FAILED;
     }
     BSLS_ASSERT(d_serverAddress.portNumber());
 
     if (0 != d_serverSocket_p->listen(queueSize)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return LISTEN_FAILED;
+        return e_LISTEN_FAILED;
     }
 
     if (0 != d_serverSocket_p->setBlockingMode(
                                          bteso_Flag::BTESO_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return BLOCKMODE_FAILED;
+        return e_BLOCKMODE_FAILED;
     }
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int TcpAcceptor::setOption(int level, int option, int value)

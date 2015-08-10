@@ -53,11 +53,11 @@ BSLS_IDENT("$Id: $")
 // Second, define configuration parameters for the acceptor:
 //..
 //    enum {
-//        ECHO_PORT = 1888,
-//        QUEUE_SIZE = 32
+//        k_ECHO_PORT  = 1888,
+//        k_QUEUE_SIZE =   32
 //    };
 //    btlso::IPv4Address serverAddress;
-//    serverAddress.setPort(ECHO_PORT);
+//    serverAddress.setPort(k_ECHO_PORT);
 //    bsls::TimeInterval acceptTimeout(120, 0);     // 2 minutes
 //..
 // Now, create an acceptor and prepare it for accepting connections:
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Set communication parameters for a channel:
 //..
-//   enum { READ_SIZE = 10 };
+//   enum { k_READ_SIZE = 10 };
 //   // Note: this is OK *if and only if* it is in the 'main' function.
 //   bdlt::TimeInverval readTimeout(30, 0);  // 30 seconds
 //   bsls::TimeInterval writeTimeout(0.5);   // 0.5 seconds
@@ -84,17 +84,17 @@ BSLS_IDENT("$Id: $")
 //       btlsc::TimedChannel *channel = acceptor.allocateTimed(&status);
 //       if (channel) {
 //           while (1) {
-//                char result[READ_SIZE];
-//                int readStatus = channel->read(result, READ_SIZE);
+//                char result[k_READ_SIZE];
+//                int readStatus = channel->read(result, k_READ_SIZE);
 //                if (0 >= readStatus) {
 //                    bsl::cout << "Failed to read data." << bsl::endl;
 //                    break;
 //                }
 //                int ws =
 //                    channel->timedWrite(
-//                                     result,
-//                                     readStatus,
-//                                     bdesu::SystemTime::now() + writeTimeout);
+//                                    result,
+//                                    readStatus,
+//                                    bdesu::SystemTime::now() + writeTimeout);
 //                if (readStatus != ws) {
 //                    bsl::cout << "Failed to send data." << bsl::endl;
 //                    break;

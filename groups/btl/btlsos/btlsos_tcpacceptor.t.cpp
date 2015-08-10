@@ -136,18 +136,18 @@ const char *HOST_NAME = "127.0.0.1";
 const bsls::TimeInterval *INFINITED = 0;
 
 enum {
-    DEFAULT_PORT_NUMBER     = 0,
-    DEFAULT_NUM_CONNECTIONS = 10,
-    DEFAULT_EQUEUE_SIZE     = 5,
-    SLEEP_TIME              = 100000,
-    VALID                   = 0,
-    INVALID                 = -1,
-    NO_OP                   = -2
+    k_DEFAULT_PORT_NUMBER     = 0,
+    k_DEFAULT_NUM_CONNECTIONS = 10,
+    k_DEFAULT_EQUEUE_SIZE     = 5,
+    k_SLEEP_TIME              = 100000,
+    e_VALID                   = 0,
+    e_INVALID                 = -1,
+    e_NO_OP                   = -2
 };
 
 enum {
-    CHANNEL   = 0,              // 'btlsos::TcpChannel'
-    T_CHANNEL = 1               // 'btlsos::TcpTimedChannel'
+    e_CHANNEL   = 0,              // 'btlsos::TcpChannel'
+    e_T_CHANNEL = 1               // 'btlsos::TcpTimedChannel'
 };
 
 struct ConnectionInfo {
@@ -276,7 +276,7 @@ void* threadAsClient(void *arg)
         // helper thread is in the accept() call, hence the yield and sleep.
         info.d_barrier->wait();
         bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
 
         if (info.d_commands[i].d_signal) {
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -288,13 +288,13 @@ void* threadAsClient(void *arg)
             }
             // reasonable spinning
             while (syncWithSigHandler == 0)
-                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
             ASSERT(syncWithSigHandler == 1);
             syncWithSigHandler = 0;
 #endif
             // XXX RACE AGAIN, but we do not have any choice
             bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+            bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
         }
 
         // XXX at this point if the helper thread has left accept BUT has not
@@ -410,7 +410,7 @@ static int testExecutionHelper(btlsos::TcpAcceptor          *acceptor,
     syncBarrier->wait();
     switch (command->d_commandCode) {
     case 'A': {  // an "ACCEPTOR" request
-        if (CHANNEL == command->d_channelType) {
+        if (e_CHANNEL == command->d_channelType) {
             if (INFINITED == command->d_timeout) {
                 *newChannel = acceptor->allocate(status,
                                                  command->d_interruptFlags);
@@ -527,7 +527,7 @@ int processTest(btlsos::TcpAcceptor               *acceptor,
 
         if (newChannel) {
             channels->push_back(newChannel);
-            if (CHANNEL == commands[i].d_channelType) {
+            if (e_CHANNEL == commands[i].d_channelType) {
               // LOOP_ASSERT(commands[i].d_lineNum, typeid(*newChannel) ==
               //              typeid(btlsos::TcpChannel));
             }
@@ -593,21 +593,21 @@ int main(int argc, char *argv[]) {
         {
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
             enum {
-                ECHO_PORT = 1888,
-                QUEUE_SIZE = 32
+                k_ECHO_PORT = 1888,
+                k_QUEUE_SIZE = 32
             };
             btlso::IPv4Address serverAddress;
-            serverAddress.setPortNumber(ECHO_PORT);
+            serverAddress.setPortNumber(k_ECHO_PORT);
             btlsos::TcpAcceptor acceptor(&factory); // default allocator.
             ASSERT(0 == acceptor.isInvalid());
-            if (0 != acceptor.open(serverAddress, QUEUE_SIZE)) {
+            if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
                if (verbose) {
                    cout << "Can't open listening socket" << bsl::endl;
                }
                break; // return -1;
             }
             ASSERT(acceptor.address() == serverAddress);
-            enum { READ_SIZE = 10 };
+            enum { k_READ_SIZE = 10 };
             // Note: this is OK *if and only if* it is in the 'main' function.
             bsls::TimeInterval readTimeout(30, 0);  // 30 seconds
             bsls::TimeInterval writeTimeout(5, 0);  // 5 seconds
@@ -617,9 +617,9 @@ int main(int argc, char *argv[]) {
                     acceptor.allocateTimed(&status);
                 if (channel) {
                     while (1) {
-                         char result[READ_SIZE];
+                         char result[k_READ_SIZE];
                          int readStatus =
-                             channel->read(result, READ_SIZE);
+                             channel->read(result, k_READ_SIZE);
                          if (0 >= readStatus) {
                              if (verbose) {
                                  cout << "Failed to read data, readStatus = "
@@ -634,9 +634,9 @@ int main(int argc, char *argv[]) {
                          }
                          int ws =
                              channel->timedWrite(
-                                       result,
-                                       readStatus,
-                                       bdlt::CurrentTime::now() + writeTimeout);
+                                      result,
+                                      readStatus,
+                                      bdlt::CurrentTime::now() + writeTimeout);
                          if (readStatus != ws) {
                              if (verbose) {
                                  cout << "Failed to send data, writeStatus = "
@@ -723,7 +723,7 @@ int main(int argc, char *argv[]) {
 
                   btlso::IPv4Address serverAddress;
                   serverAddress.setIpAddress(HOST_NAME);
-                  serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                  serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                   // Open the 'acceptor' to establish a listening server
                   // socket.
@@ -745,42 +745,42 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // A channel is established before "time" is reached.
-  {L_, 'A',  CHANNEL, interruptible,   INFINITED,   0,       1,          1,
+  {L_, 'A',  e_CHANNEL, interruptible,   INFINITED,   0,       1,          1,
    0    },
   // A channel is established before "time" is reached.
-  {L_, 'A',  CHANNEL, interruptible,   INFINITED,   0,       1,          2,
+  {L_, 'A',  e_CHANNEL, interruptible,   INFINITED,   0,       1,          2,
    0    },
 
   // Multiple channels can be established.
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          3,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          4,
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          4,
    0    },
 
   // Now deallocate a channel.
-  {L_, 'D',   CHANNEL, non_interrupt,  INFINITED,   0,       0,          3,
+  {L_, 'D',   e_CHANNEL, non_interrupt,  INFINITED,   0,       0,          3,
    0    },
-  {L_, 'D', T_CHANNEL, non_interrupt,  INFINITED,   0,       0,          2,
+  {L_, 'D', e_T_CHANNEL, non_interrupt,  INFINITED,   0,       0,          2,
    0    },
 
   // Establish new channels after the above deallocate.
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          3,
    0    },
-  {L_, 'A',   CHANNEL, non_interrupt,  INFINITED,   0,       1,          4,
+  {L_, 'A',   e_CHANNEL, non_interrupt,  INFINITED,   0,       1,          4,
    0    },
-  {L_, 'A',   CHANNEL, non_interrupt,  INFINITED,   0,       1,          5,
+  {L_, 'A',   e_CHANNEL, non_interrupt,  INFINITED,   0,       1,          5,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          6,
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          6,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          7,
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,   0,       1,          7,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C', T_CHANNEL, non_interrupt,  INFINITED,   0,       0,          7,
+  {L_, 'C', e_T_CHANNEL, non_interrupt,  INFINITED,   0,       0,          7,
    0    },
-  {L_, 'A', T_CHANNEL, interruptible,  INFINITED,  -2,       0,          7,
+  {L_, 'A', e_T_CHANNEL, interruptible,  INFINITED,  -2,       0,          7,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt,  INFINITED,  -2,       0,          7,
+  {L_, 'A', e_T_CHANNEL, non_interrupt,  INFINITED,  -2,       0,          7,
    0},
 
 };
@@ -861,7 +861,7 @@ int main(int argc, char *argv[]) {
 
                   btlso::IPv4Address serverAddress;
                   serverAddress.setIpAddress(HOST_NAME);
-                  serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                  serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                   // Open the 'acceptor' to establish a listening server
                   // socket.
@@ -878,7 +878,7 @@ int main(int argc, char *argv[]) {
                   ret = acceptor.getOption(&result, level, option);
                   LOOP_ASSERT(i, 0 == ret);
                   LOOP_ASSERT(i,
-                              btlso::SocketOptUtil::BTESO_TCPNODELAY != result);
+                             btlso::SocketOptUtil::BTESO_TCPNODELAY != result);
 
                   // Get the socket option for Nagle algorithm flag and verify
                   // the result.
@@ -939,7 +939,7 @@ int main(int argc, char *argv[]) {
 
                   btlso::IPv4Address serverAddress;
                   serverAddress.setIpAddress(HOST_NAME);
-                  serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                  serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                   // Open the 'acceptor' to establish a listening server
                   // socket.
@@ -968,15 +968,15 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  -------  ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          1,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          1,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          2,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          2,
    0    },
-  {L_, 'C',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
+  {L_, 'C',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
    0    },
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,  -2,        0,          2,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,  -2,        0,          2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -2,        0,          2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -2,        0,          2,
    0    },
 };
 // ===============>
@@ -1011,9 +1011,9 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  -------  ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,   existing + 1,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,   existing + 2,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,     1,   existing + 2,
    0    },
 };
 // ===================>
@@ -1054,9 +1054,9 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  -------  ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   -2,      0,       existing,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   -2,      0,     existing,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   -2,      0,       existing,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   -2,      0,     existing,
    0    },
 };
 // ===================>
@@ -1230,49 +1230,49 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // Generate a 'SIGSYS' and no channel is established: concern (1).
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   1,        0,          0,
+  {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   1,        0,          0,
    1    },
 
   // Generate a 'SIGSYS' but a channel will be established: concern (2), (3).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          1,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          1,
    1    },
 
   // Generates a 'SIGSYS' and no channel is established: concern (4).
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  1,        0,          1,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED,  1,        0,          1,
    1    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
    0    },
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
    0    },
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
+  {L_, 'C', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
    0    },
 
 };
@@ -1283,41 +1283,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // a channel is established.
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
    0    },
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
    0    },
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
+  {L_, 'C', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
    0    },
 
 };
@@ -1366,11 +1366,11 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // New channels can still be established: concern (9).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,       1,   existing + 1,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,     1,   existing + 1,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,       1,   existing + 2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,     1,   existing + 2,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,       1,   existing + 3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,     1,   existing + 3,
    0    },
 
 };
@@ -1416,7 +1416,7 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
    0    };
 // ===================>
 
@@ -1468,17 +1468,17 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // New channels can still be established: concern (9).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,   0,      1,   existing + 1,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,   0,    1,   existing + 1,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt,  INFINITED,  0,      1,   existing + 2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt,  INFINITED,  0,    1,   existing + 2,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,   0,      1,   existing + 3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,   0,    1,   existing + 3,
    0    },
-  {L_, 'I', T_CHANNEL,  non_interrupt, INFINITED,   0,      0,   existing + 3,
+  {L_, 'I', e_T_CHANNEL,  non_interrupt, INFINITED,   0,    0,   existing + 3,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -4,      0,   existing + 3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -4,    0,   existing + 3,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -4,      0,   existing + 3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -4,    0,   existing + 3,
    0    },
 
 };
@@ -1630,7 +1630,7 @@ int main(int argc, char *argv[]) {
                   {
                       btlso::IPv4Address serverAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       // Open the 'acceptor' to establish a listening server
                       // socket.
@@ -1647,49 +1647,49 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // Generate a 'SIGSYS' and no channel is established: concern (1).
-  {L_, 'A',  CHANNEL, interruptible,  INFINITED,   1,       0,           0,
+  {L_, 'A',  e_CHANNEL, interruptible,  INFINITED,   1,       0,           0,
    1    },
 
   // Generate a 'SIGSYS' but a channel will be established: concern (2), (3).
-  {L_, 'A',  CHANNEL, non_interrupt,  INFINITED,   0,       1,           1,
+  {L_, 'A',  e_CHANNEL, non_interrupt,  INFINITED,   0,       1,           1,
    1    },
 
   // Generates a 'SIGSYS' and no channel is established: concern (4).
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,   1,       0,           1,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,   1,       0,           1,
    1    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,       0,           2,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,       0,           2,
    0    },
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,       0,           1,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,       0,           1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,           3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,           3,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,           4,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,           4,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           5,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           5,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C',  CHANNEL,  non_interrupt, INFINITED,   0,       0,           6,
+  {L_, 'C',  e_CHANNEL,  non_interrupt, INFINITED,   0,       0,           6,
    0    },
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,  -2,       0,           6,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,  -2,       0,           6,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -2,       0,           6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -2,       0,           6,
    0    },
 
 };
@@ -1700,41 +1700,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // one channel is established.
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,   0,       1,           1,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,   0,       1,           1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,       0,           2,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,       0,           2,
    0    },
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,       0,           1,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,       0,           1,
    0   },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,           3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,           3,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,           4,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,           4,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           5,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           5,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C',  CHANNEL,  non_interrupt, INFINITED,   0,       0,           6,
+  {L_, 'C',  e_CHANNEL,  non_interrupt, INFINITED,   0,       0,           6,
    0    },
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,  -2,       0,           6,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,  -2,       0,           6,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -2,       0,           6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -2,       0,           6,
    0    },
 
 };
@@ -1767,7 +1767,7 @@ int main(int argc, char *argv[]) {
                   {
                       btlso::IPv4Address serverAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       // The 'acceptor' is closed in step 1, now reopen it to
                       // establish a listening server socket.
@@ -1784,11 +1784,11 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // New channels can still be established: concern (9).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,   existing + 1,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,   existing + 2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,   existing + 3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 3,
    0    },
 
 };
@@ -1832,7 +1832,7 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A',  CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
    0    };
 // ===================>
 
@@ -1867,7 +1867,7 @@ int main(int argc, char *argv[]) {
 
                       btlso::IPv4Address serverAddress;
                       serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                      serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                       // Reopen the 'acceptor' establish a new listening server
                       // socket.
@@ -1883,17 +1883,17 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // New channels can still be established: concern (9).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,   existing + 1,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 1,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,   existing + 2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,   existing + 3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,     1,   existing + 3,
    0    },
-  {L_, 'I',  CHANNEL,  non_interrupt, INFINITED,   0,       0,   existing + 3,
+  {L_, 'I',  e_CHANNEL,  non_interrupt, INFINITED,   0,     0,   existing + 3,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -4,       0,   existing + 3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -4,     0,   existing + 3,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -4,       0,   existing + 3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -4,     0,   existing + 3,
    0    },
 
 };
@@ -1971,7 +1971,7 @@ int main(int argc, char *argv[]) {
 
                   btlso::IPv4Address serverAddress;
                   serverAddress.setIpAddress(HOST_NAME);
-                  serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                  serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                   // Open the 'acceptor' to establish a listening server
                   // socket.
@@ -1989,18 +1989,18 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // Each of the following command is to establish a channel.
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          1,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          1,
    0    },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,        1,          2,
+  {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,        1,          2,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
    0    },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
+  {L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
    0    },
-  {L_, 'A',   CHANNEL, interruptible, INFINITED,   0,        1,          5,
+  {L_, 'A',   e_CHANNEL, interruptible, INFINITED,   0,        1,          5,
    0    },
 
-  {L_, 'I',   CHANNEL, interruptible, INFINITED,   0,        0,          5,
+  {L_, 'I',   e_CHANNEL, interruptible, INFINITED,   0,        0,          5,
    0    },
 };
 // ===============>
@@ -2079,7 +2079,7 @@ int main(int argc, char *argv[]) {
                   Obj acceptor(&factory, VALUES[i].d_allocator_p);
                   btlso::IPv4Address serverAddress;
                   serverAddress.setIpAddress(HOST_NAME);
-                  serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                  serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                   // Open the 'acceptor' to establish a listening server
                   // socket.
@@ -2097,47 +2097,47 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // Each of the following command is to establish a channel.
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,       1,           1,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,       1,           1,
    0    },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,       1,           2,
+  {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,       1,           2,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,           3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,           3,
    0    },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,       1,           4,
+  {L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,       1,           4,
    0    },
-  {L_, 'A',   CHANNEL, interruptible, INFINITED,   0,       1,           5,
-   0    },
-
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,       1,           6,
-   0    },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,       1,           7,
-   0    },
-  {L_, 'A',   CHANNEL, non_interrupt, INFINITED,   0,       1,           8,
-   0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,           9,
-   0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,          10,
+  {L_, 'A',   e_CHANNEL, interruptible, INFINITED,   0,       1,           5,
    0    },
 
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,          11,
+  {L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,       1,           6,
    0    },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,       1,          12,
+  {L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,       1,           7,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,          13,
+  {L_, 'A',   e_CHANNEL, non_interrupt, INFINITED,   0,       1,           8,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,          14,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,           9,
    0    },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,       1,          15,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,          10,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,          16,
+
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,          11,
    0    },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,       1,          17,
+  {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,       1,          12,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,          18,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,          13,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,       1,          19,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,          14,
    0    },
-  {L_, 'A', T_CHANNEL, interruptible, INFINITED,   0,       1,          20,
+  {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,       1,          15,
+   0    },
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,          16,
+   0    },
+  {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,       1,          17,
+   0    },
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,          18,
+   0    },
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,       1,          19,
+   0    },
+  {L_, 'A', e_T_CHANNEL, interruptible, INFINITED,   0,       1,          20,
    0    },
 };
 // ===============>
