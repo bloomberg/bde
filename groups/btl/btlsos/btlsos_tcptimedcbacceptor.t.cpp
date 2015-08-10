@@ -1061,7 +1061,7 @@ int main(int argc, char *argv[])
                      = btlso::TcpTimerEventManager::BTESO_NO_HINT;
                 if (atoi(argv[2])) {
                     hint =
-                     btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                    btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
                 }
                 btlso::TcpTimerEventManager   manager(hint, &testAllocator);
                 my_EchoServer echoServer(&factory, &manager, &testAllocator);
@@ -1152,7 +1152,8 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1166,7 +1167,8 @@ int main(int argc, char *argv[])
                                   0 == acceptor.allocate(cb));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1199,7 +1201,8 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1213,7 +1216,8 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                           bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                           bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                   int)>
                                cb(bdlf::BindUtil::bind( &acceptCb
                                                      , _1, _2
                                                      , &acceptor
@@ -1257,7 +1261,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -1,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1276,7 +1281,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -1,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1371,7 +1377,8 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1385,7 +1392,8 @@ int main(int argc, char *argv[])
                                   0 == acceptor.allocate(cb));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1418,7 +1426,8 @@ int main(int argc, char *argv[])
                         int channelFlag = 0, expStatus = -1,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1432,7 +1441,8 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1460,7 +1470,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -2,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1479,7 +1490,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -2,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1579,7 +1591,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1596,7 +1609,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1630,7 +1644,8 @@ int main(int argc, char *argv[])
                         int channelFlag = 0, expStatus = -1,
                                cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1644,7 +1659,8 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1681,7 +1697,8 @@ int main(int argc, char *argv[])
                             cancelFlag = 1;
                         }
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1695,7 +1712,8 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1748,7 +1766,7 @@ int main(int argc, char *argv[])
                                        // function, e.g., 'D' -- invoke the
                                        // event manager's dispatch() 'R' -- an
                                        // "ACCEPT" request etc.
-                    int d_channelFlag; // a request for a 'btlsos::TcpCbChannel'
+                    int d_channelFlag; // request for a 'btlsos::TcpCbChannel'
                                        // or 'btlsos::TcpTimedCbChannel', i.e.,
                                        // 1 for a timed channel and 0 for a
                                        // 'btlsos::TcpCbChannel'
@@ -1868,7 +1886,8 @@ int main(int argc, char *argv[])
                             }
                             else {
                                 // a 'btlsos::TcpCbChannel'
-                                bdlf::Function<void (*)(btlsc::CbChannel*, int)>
+                                bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                        int)>
                                                                             cb;
                                 if (VALUES[i][j].d_timeoutFlag) {
                                     validChannel = 0;
@@ -2007,7 +2026,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -2128,7 +2148,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -2241,7 +2262,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
+                                                    int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -2353,7 +2375,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -2469,7 +2492,8 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                            bdlf::Function<void (*)(btlsc::CbChannel*,
+                                                    int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor

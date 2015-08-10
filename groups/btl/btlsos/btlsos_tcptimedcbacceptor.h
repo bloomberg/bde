@@ -77,11 +77,11 @@ BSLS_IDENT("$Id: $")
 //      // This class implements a simple multi-user echo server as
 //      // specified by the RFC 862.
 //      enum {
-//         READ_SIZE = 10,  // The number of bytes to be read can be changed,
-//                          // but a larger 'READ_SIZE' will require the
-//                          // client to input more data to be echoed.
-//         DEFAULT_PORT_NUMBER = 1234,   // As specified by the RFC 862
-//         QUEUE_SIZE = 16
+//         k_READ_SIZE = 10,  // The number of bytes to be read can be changed,
+//                            // but a larger 'k_READ_SIZE' will require the
+//                            // client to input more data to be echoed.
+//         k_DEFAULT_PORT_NUMBER = 1234,   // As specified by the RFC 862
+//         k_QUEUE_SIZE = 16
 //      };
 //      btlsos::TcpTimedCbAcceptor   d_allocator;
 //      bsls::TimeInterval           d_acceptTimeout;
@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //         // is shut down properly (i.e., via 'close').
 //
 //     // MANIPULATORS
-//     int open(int portNumber = DEFAULT_PORT_NUMBER);
+//     int open(int portNumber = k_DEFAULT_PORT_NUMBER);
 //         // Establish a listening socket on the specified 'portNumber';
 //         // return 0 on success, and a non-zero value otherwise.  The
 //         // behavior is undefined unless 0 <= portNumber and the listening
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 //      btlso::IPv4Address serverAddress;
 //      serverAddress.setPortNumber(portNumber);
 //
-//      if (d_allocator.open(serverAddress, QUEUE_SIZE)) {
+//      if (d_allocator.open(serverAddress, k_QUEUE_SIZE)) {
 //          return -1;
 //      }
 //      // Set reuse address socket option on the listening socket.
@@ -202,7 +202,8 @@ BSLS_IDENT("$Id: $")
 // channel is shut down.  Note that the allocation functor is cached to improve
 // performance:
 //..
-//  void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
+//  void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel,
+//                                 int                    status) {
 //      if (channel) {
 //          // Accepted a connection;  issue a buffered read request.
 //          bdlf::Function<void (*)(const char *, int, int)> callback(
@@ -210,7 +211,7 @@ BSLS_IDENT("$Id: $")
 //                                      this,
 //                                      _1, _2, _3,
 //                                      channel));
-//          if (channel->timedBufferedRead(READ_SIZE,
+//          if (channel->timedBufferedRead(k_READ_SIZE,
 //                  bdlt::CurrentTime::now() + d_readTimeout, callback)) {
 //              bsl::cout << "Failed to enqueue read request." << bsl::endl;
 //              d_allocator.deallocate(channel);
@@ -270,7 +271,7 @@ BSLS_IDENT("$Id: $")
 //                                      _1, _2, _3,
 //                                      channel));
 //
-//          if (channel->timedBufferedRead(READ_SIZE,
+//          if (channel->timedBufferedRead(k_READ_SIZE,
 //                  bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
 //              bsl::cout << "Failed to enqueue read request." << bsl::endl;
 //              d_allocator.deallocate(channel);
@@ -353,18 +354,9 @@ namespace BloombergLP {
 namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
+namespace btlsos {
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-
-}  // close package namespace
-
-namespace btlsos {class TcpTimedCbAcceptor_Reg; // component-local class
-
-                                                // declaration
+class TcpTimedCbAcceptor_Reg; // component-local class declaration
 
                          // ========================
                          // class TcpTimedCbAcceptor
@@ -389,35 +381,35 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
     bdlma::Pool         d_channelPool;     // memory pool for channels
 
     bsl::deque<TcpTimedCbAcceptor_Reg *>
-                       d_callbacks;       // registered callbacks
+                        d_callbacks;       // registered callbacks
 
     bsl::vector<btlsc::CbChannel*>
-                       d_channels;        // managed channels
+                        d_channels;        // managed channels
 
     btlso::TimerEventManager               // multiplexer of both socket events
-                      *d_manager_p;       // and timers
+                       *d_manager_p;       // and timers
 
     btlso::StreamSocketFactory<btlso::IPv4Address>
-                      *d_factory_p;       // factory used to supply sockets
+                       *d_factory_p;       // factory used to supply sockets
 
     btlso::StreamSocket<btlso::IPv4Address>
-                      *d_serverSocket_p;  // listening socket
+                       *d_serverSocket_p;  // listening socket
 
     btlso::IPv4Address  d_serverAddress;   // address of listening socket
 
-    int                d_isInvalidFlag;   // set if acceptor is invalid
+    int                 d_isInvalidFlag;   // set if acceptor is invalid
 
     bdlf::Function<void (*)()>
-                       d_acceptFunctor;   // cached callbacks
+                        d_acceptFunctor;   // cached callbacks
     bdlf::Function<void (*)()>
-                       d_timeoutFunctor;
+                        d_timeoutFunctor;
 
-    void              *d_timerId;         // registration id from socket event
-                                          // manager
+    void               *d_timerId;         // registration id from socket event
+                                           // manager
     TcpTimedCbAcceptor_Reg
-                      *d_currentRequest_p;// address of the current request
+                       *d_currentRequest_p;// address of the current request
 
-    bslma::Allocator  *d_allocator_p;
+    bslma::Allocator   *d_allocator_p;
 
   private:
     // PRIVATE MANIPULATORS

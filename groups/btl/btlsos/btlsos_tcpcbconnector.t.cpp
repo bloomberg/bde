@@ -113,12 +113,12 @@ static int globalVeryVerbose;
 static int globalVeryVeryVerbose;
 
 enum {
-    DEFAULT_PORT_NUMBER     = 0,
-    DEFAULT_NUM_CONNECTIONS = 10,
-    DEFAULT_EQUEUE_SIZE     = 5,
-    SLEEP_TIME              = 100000,
-    VALID                   = 0,
-    INVALID                 = -1
+    k_DEFAULT_PORT_NUMBER     = 0,
+    k_DEFAULT_NUM_CONNECTIONS = 10,
+    k_DEFAULT_EQUEUE_SIZE     = 5,
+    k_SLEEP_TIME              = 100000,
+    e_VALID                   = 0,
+    e_INVALID                 = -1
 };
 
 struct ConnectionInfo {
@@ -172,13 +172,13 @@ struct TestCommand {
 
 class my_EchoClient {
     enum {
-            BUFFER_SIZE     = 100
+        k_BUFFER_SIZE     = 100
     };
 
     btlsos::TcpCbConnector  d_allocator;
     bsls::TimeInterval      d_readTimeout;
     bsls::TimeInterval      d_writeTimeout;
-    char                   d_controlBuffer[BUFFER_SIZE];
+    char                   d_controlBuffer[k_BUFFER_SIZE];
     int                    d_numConnections;
     int                    d_maxConnections;
     int                    d_numMessages;
@@ -230,7 +230,7 @@ my_EchoClient::my_EchoClient(
     ASSERT(manager);
     d_allocateFunctor = bdlf::MemFnUtil::memFn(&my_EchoClient::allocateCb,
                                               this);
-    memset(d_controlBuffer, 'A', BUFFER_SIZE);
+    memset(d_controlBuffer, 'A', k_BUFFER_SIZE);
 }
 
 my_EchoClient::~my_EchoClient() {
@@ -251,10 +251,10 @@ void my_EchoClient::allocateCb(btlsc::TimedCbChannel *channel, int status) {
                   , channel
                   , 0));
         if (channel->timedBufferedWrite(
-                                      d_controlBuffer,
-                                      BUFFER_SIZE,
-                                      bdlt::CurrentTime::now() + d_writeTimeout,
-                                      callback))
+                                     d_controlBuffer,
+                                     k_BUFFER_SIZE,
+                                     bdlt::CurrentTime::now() + d_writeTimeout,
+                                     callback))
         {
             cout << "Failed to enqueue write request." << endl;
             ASSERT(channel->isInvalidWrite());
@@ -300,8 +300,8 @@ void my_EchoClient::bufferedReadCb(const char *buffer, int status,
     }
     ASSERT(channel);
     if (0 < status) {
-        ASSERT(BUFFER_SIZE == status);
-        ASSERT(0 == memcmp(buffer, d_controlBuffer, BUFFER_SIZE));
+        ASSERT(k_BUFFER_SIZE == status);
+        ASSERT(0 == memcmp(buffer, d_controlBuffer, k_BUFFER_SIZE));
 
         // If we're not done -- enqueue another request
         if (sequence < d_numMessages) {
@@ -312,10 +312,10 @@ void my_EchoClient::bufferedReadCb(const char *buffer, int status,
                       , channel
                       , sequence + 1));
             if (channel->timedBufferedWrite(
-                                      d_controlBuffer,
-                                      BUFFER_SIZE,
-                                      bdlt::CurrentTime::now() + d_writeTimeout,
-                                      callback))
+                                     d_controlBuffer,
+                                     k_BUFFER_SIZE,
+                                     bdlt::CurrentTime::now() + d_writeTimeout,
+                                     callback))
             {
                 cout << "Failed to enqueue write request." << endl;
                 ASSERT(channel->isInvalidWrite());
@@ -354,7 +354,7 @@ void my_EchoClient::writeCb(int status, int asyncStatus,
              << " bytes to server." << endl;
     }
     if (0 < status) {
-        if (status != BUFFER_SIZE) {
+        if (status != k_BUFFER_SIZE) {
             d_allocator.deallocate(channel);
             ASSERT("Failed to send data to the server" && 0);
 
@@ -362,14 +362,14 @@ void my_EchoClient::writeCb(int status, int asyncStatus,
         else {
             bdlf::Function<void (*)(const char *, int, int)> callback(
                 bdlf::BindUtil::bind(
-                    bdlf::MemFnUtil::memFn(&my_EchoClient::bufferedReadCb, this)
+                   bdlf::MemFnUtil::memFn(&my_EchoClient::bufferedReadCb, this)
                   , _1, _2, _3
                   , channel
                   , sequence));
             if (channel->timedBufferedRead(
-                                       BUFFER_SIZE,
-                                       bdlt::CurrentTime::now() + d_readTimeout,
-                                       callback))
+                                      k_BUFFER_SIZE,
+                                      bdlt::CurrentTime::now() + d_readTimeout,
+                                      callback))
             {
                 ASSERT(channel->isInvalidRead());
                 d_allocator.deallocate(channel);
@@ -402,8 +402,8 @@ int my_EchoClient::setPeer(const btlso::IPv4Address& address) {
 ///---------------
 class my_DataStream {
   enum {
-      DEFAULT_PORT_NUMBER = 1234,
-      QUEUE_SIZE = 16
+      k_DEFAULT_PORT_NUMBER = 1234,
+      k_QUEUE_SIZE = 16
   };
   btlsos::TcpCbConnector  d_allocator;
   bsls::TimeInterval           d_connectTimeout;
@@ -668,14 +668,14 @@ static int testExecutionHelper(btlsos::TcpCbConnector *connector,
                             connector->allocate(cb));
             }
         }
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
     }  break;
     case 'C': {
         connector->cancelAll();
     } break;
     case 'D': {
         int ret = manager->dispatch(0);
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME * 2);
+        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME * 2);
         rCode = !ret;
     } break;
     case 'I': {
@@ -691,17 +691,18 @@ static int testExecutionHelper(btlsos::TcpCbConnector *connector,
     return rCode;
 }
 
-static int createServerThread(bdlqq::ThreadUtil::Handle           *threadHandle,
-            btlso::InetStreamSocketFactory<btlso::IPv4Address>     *factory,
-            btlso::StreamSocket<btlso::IPv4Address>                *serverSocket,
-            bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> *connList,
-            int                                                   numConnects,
-            btlso::IPv4Address                                    *localAddress)
+static int createServerThread(
+          bdlqq::ThreadUtil::Handle                              *threadHandle,
+          btlso::InetStreamSocketFactory<btlso::IPv4Address>     *factory,
+          btlso::StreamSocket<btlso::IPv4Address>                *serverSocket,
+          bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> *connList,
+          int                                                     numConnects,
+          btlso::IPv4Address                                     *localAddress)
 {
     bdlqq::ThreadAttributes attributes;
     btlso::IPv4Address serverAddress;
     serverAddress.setIpAddress(hostName);
-    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
     int ret = serverSocket->setOption(btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
@@ -724,7 +725,7 @@ static int createServerThread(bdlqq::ThreadUtil::Handle           *threadHandle,
 
     ConnectionInfo connectInfo = { factory,
                                    serverSocket,
-                                   DEFAULT_EQUEUE_SIZE,
+                                   k_DEFAULT_EQUEUE_SIZE,
                                    connList,
                                    numConnects
                                  };
@@ -732,7 +733,7 @@ static int createServerThread(bdlqq::ThreadUtil::Handle           *threadHandle,
     bdlqq::ThreadUtil::create(threadHandle, attributes,
                              threadToAcceptConnection, &connectInfo);
 
-    bdlqq::ThreadUtil::microSleep(SLEEP_TIME * 3);
+    bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME * 3);
     return ret;
 }
 
@@ -792,9 +793,9 @@ int main(int argc, char *argv[])
                 // Arguments provided to the test driver are <case#>
                 // <numConnections> <portNumber> <host>
                 enum {
-                    DEFAULT_PORT_NUMBER = 1234,
-                    DEFAULT_NUM_CONNECTIONS =  10,
-                   DEFAULT_NUM_MESSAGES = 10000
+                    k_DEFAULT_PORT_NUMBER     =  1234,
+                    k_DEFAULT_NUM_CONNECTIONS =    10,
+                    k_DEFAULT_NUM_MESSAGES    = 10000
                 };
 
                 int numConnections, portNumber;
@@ -834,8 +835,8 @@ int main(int argc, char *argv[])
                 btlso::TcpTimerEventManager::Hint hint
                      = btlso::TcpTimerEventManager::BTESO_NO_HINT;
                 if (argc > 6) {
-                     hint =
-                     btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                    hint =
+                    btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
                 }
                 if (verbose) {
                     P(numConnections);
@@ -890,9 +891,9 @@ int main(int argc, char *argv[])
                 // Arguments provided to the test driver are <case#>
                 // <numConnections> <portNumber> <host> <numMessages>
                 enum {
-                    DEFAULT_PORT_NUMBER = 1635,
-                    DEFAULT_NUM_CONNECTIONS =  10,
-                    DEFAULT_NUM_MESSAGES = 10000
+                    k_DEFAULT_PORT_NUMBER     =  1635,
+                    k_DEFAULT_NUM_CONNECTIONS =    10,
+                    k_DEFAULT_NUM_MESSAGES    = 10000
                 };
 
                 int numConnections, portNumber, numMessages;
@@ -943,7 +944,7 @@ int main(int argc, char *argv[])
                      = btlso::TcpTimerEventManager::BTESO_NO_HINT;
                 if (argc > 6) {
                     hint =
-                     btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                    btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
                 }
                 if (verbose) {
                     P(numConnections);
@@ -1002,16 +1003,16 @@ int main(int argc, char *argv[])
             {
                 btlso::IPv4Address serverAddress, localAddress;
                 serverAddress.setIpAddress(hostName);
-                serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                 btlso::StreamSocket<btlso::IPv4Address> *d_serverSocket_p =
                                               factory.allocate();
 
                 ASSERT(0 != d_serverSocket_p);
                 int ret = d_serverSocket_p->setOption(
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
-                                       1);
+                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                      1);
                 ASSERT(0 == ret);
                 ASSERT(0 == d_serverSocket_p->bind(serverAddress));
 
@@ -1022,7 +1023,7 @@ int main(int argc, char *argv[])
                                                  connList(&testAllocator);
                 ConnectionInfo connectInfo = { &factory,
                                                d_serverSocket_p,
-                                               DEFAULT_EQUEUE_SIZE,
+                                               k_DEFAULT_EQUEUE_SIZE,
                                                &connList,
                                                NUM_CONNECTIONS
                                              };
@@ -1033,7 +1034,7 @@ int main(int argc, char *argv[])
                                      threadToAcceptConnection, &connectInfo);
 
                 int numConnections = 0;
-                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
                 {
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj connector(&factory, &manager, &testAllocator);
@@ -1081,7 +1082,7 @@ int main(int argc, char *argv[])
             //   int invalidate();
             // ----------------------------------------------------------------
             enum {
-                MAX_COMMANDS = 20
+                k_MAX_COMMANDS = 20
             };
 
             if (verbose) {
@@ -1104,7 +1105,7 @@ int main(int argc, char *argv[])
                 //   F      d_validChannel           L       d_returnValue
                 //..
 
-                TestCommand commands[][MAX_COMMANDS] =
+                TestCommand commands[][k_MAX_COMMANDS] =
                 #ifdef BSLS_PLATFORM_OS_SOLARIS
                   // On Solaris, non-blocking connects to the loopback succeed
                   // right away so we do not need a dispatch call.  This is
@@ -1114,22 +1115,22 @@ int main(int argc, char *argv[])
                 {
                   { // There's no channel established before calling
                     // invalidate().
-                    { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  0,  0,   VALID },
-                    { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
+                   { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  0,  0,   e_VALID },
+                   { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
                   },
                   { // There's one channel established before calling
                     // invalidate().
-                    { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  1,  0,   VALID },
-                    { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
-                    { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
+                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  1,  0,   e_VALID },
+                   { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  1,  0,   e_VALID },
+                   { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
                   },
                 };
                 #else
@@ -1152,46 +1153,46 @@ int main(int argc, char *argv[])
                     //-     -    -   -   -   -   -   -   -   -   -    -
                   { // There's no channel established before calling
                     // invalidate().
-                    { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
-                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
+                   { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
                   },
                   { // A request should be valid if it's submitted before
                     // calling invalidate().
-                    { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  0,  0,   VALID },
-                    { L_,  'I',  0,  0,  0,  0,  0,  1,  0,  0,  0,   VALID },
-                    { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
-                    { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
+                   { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  0,  0,   e_VALID },
+                   { L_,  'I',  0,  0,  0,  0,  0,  1,  0,  0,  0,   e_VALID },
+                   { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   e_VALID },
+                   { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
                   },
                   { // One channel is established before calling invalidate().
-                    { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  0,  0,   VALID },
-                    { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
-                    { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
-                    { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, INVALID },
-                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
+                   { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  0,  0,   e_VALID },
+                   { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   e_VALID },
+                   { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  1,  0,   e_VALID },
+                   { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
                   },
                   { // One channel is established and another request has been
                     // submitted before calling invalidate().
-                    { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  0,  0,   VALID },
-                    { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   VALID },
-                    { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  1,  0,   VALID },
-                    { L_,  'I',  0,  0,  0,  0,  0,  1,  0,  1,  0, INVALID },
-                    { L_,  'R',  1,  1,  0,  0,  0,  1,  0,  1,  0, INVALID },
-                    { L_,  'R',  1,  0,  0,  0,  0,  1,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  0,  0,  0,  0,  1,  0,  1,  0, INVALID },
-                    { L_,  'R',  0,  1,  0,  0,  0,  1,  0,  1,  0, INVALID },
-                    { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  2,  0,   VALID },
-                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, INVALID },
+                   { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  0,  0,   e_VALID },
+                   { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  1,  0,   e_VALID },
+                   { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  1,  0,   e_VALID },
+                   { L_,  'I',  0,  0,  0,  0,  0,  1,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  1,  1,  0,  0,  0,  1,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  1,  0,  0,  0,  0,  1,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  0,  0,  0,  0,  1,  0,  1,  0, e_INVALID },
+                   { L_,  'R',  0,  1,  0,  0,  0,  1,  0,  1,  0, e_INVALID },
+                   { L_,  'D',  0,  0,  0,  0,  0,  0,  0,  2,  0,   e_VALID },
+                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
                   },
                 };
                 #endif
@@ -1206,7 +1207,7 @@ int main(int argc, char *argv[])
 
                     int maxConnections = 0, numConnections = 0;
                     maxConnections = getMaxconnectValue(commands[i],
-                                                        MAX_COMMANDS);
+                                                        k_MAX_COMMANDS);
                     btlso::IPv4Address serverAddress;
                     bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
                                                     connList(&testAllocator);
@@ -1216,7 +1217,7 @@ int main(int argc, char *argv[])
                                               &connList, maxConnections,
                                               &serverAddress));
                     // The client is waiting for the server.
-                    bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+                    bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1298,8 +1299,8 @@ int main(int argc, char *argv[])
                   //A     B    C   D   E   F   G   H   I   J   K   L
                   //-     -    -   -   -   -   -   -   -   -   -   -
                 {
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  1,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  2,  0, VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  2,  0, e_VALID },
                 };
                 #else // windows platform
                 {
@@ -1319,49 +1320,49 @@ int main(int argc, char *argv[])
                   //A     B    C   D   E   F    G   H   I   J   K    L
                   //-     -    -   -   -   -    -   -   -   -   -    -
                   // There's no channel established before calling cancelAll().
-                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  0,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  0,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  0,  -1,  1,  0,  0,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  0,  0, VALID },
-                  { L_,  'C',  0,  0,  0,  0,   0,  0,  0,  0,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  0,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  0,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  0,  -1,  1,  0,  0,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  0,  0, e_VALID },
+                  { L_,  'C',  0,  0,  0,  0,   0,  0,  0,  0,  0, e_VALID },
 
                   // One channel is established before calling cancelAll().
-                  { L_,  'R',  0,  0,  0,  1,   0,  1,  0,  0,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  1,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  1,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  1,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  1,  0, VALID },
-                  { L_,  'C',  0,  0,  0,  0,   0,  0,  0,  1,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,   0,  1,  0,  0,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  1,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  1,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  1,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  1,  0, e_VALID },
+                  { L_,  'C',  0,  0,  0,  0,   0,  0,  0,  1,  0, e_VALID },
 
                   // One channel is established before calling cancelAll(), and
                   // a request is submitted before dispatch() can also be
                   // cancelled.
-                  { L_,  'R',  1,  0,  0,  1,   0,  1,  0,  1,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  1,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  0,   0,  1,  0,  2,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  0,  -1,  1,  0,  2,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  2,  0, VALID },
-                  { L_,  'C',  0,  0,  0,  0,   0,  0,  0,  2,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,   0,  1,  0,  1,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  1,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  0,   0,  1,  0,  2,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  0,  -1,  1,  0,  2,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  2,  0, e_VALID },
+                  { L_,  'C',  0,  0,  0,  0,   0,  0,  0,  2,  0, e_VALID },
 
                   // The cancelAll() is called in the user-installed callback
                   // function.
-                  { L_,  'R',  1,  0,  0,  1,   0,  1,  0,  2,  1, VALID },
-                  { L_,  'R',  1,  1,  0,  0,  -1,  1,  0,  2,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  2,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  2,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  3,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,   0,  1,  0,  3,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  4,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,   0,  1,  0,  2,  1, e_VALID },
+                  { L_,  'R',  1,  1,  0,  0,  -1,  1,  0,  2,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  2,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  0,  -1,  1,  0,  2,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  3,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,   0,  1,  0,  3,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  4,  0, e_VALID },
 
                   // The cancelAll() is called in the user-installed callback
                   // function, different requests from the above test data are
                   // submitted.
-                  { L_,  'R',  0,  1,  0,  1,   0,  1,  0,  4,  1, VALID },
-                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  4,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  4,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  4,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  4,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  5,  0, VALID },
+                  { L_,  'R',  0,  1,  0,  1,   0,  1,  0,  4,  1, e_VALID },
+                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  4,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  0,  -1,  1,  0,  4,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  4,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  0,  -1,  1,  0,  4,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  5,  0, e_VALID },
 
                 };
                 #endif
@@ -1381,7 +1382,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1462,15 +1463,15 @@ int main(int argc, char *argv[])
                   //A    B    C   D   E   F   G   H   I   J   K    L
                   //-    -    -   -   -   -   -   -   -   -   -    -
                 {
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  2,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  3,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  4,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
 
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  5,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  6,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  7,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  8,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
                 };
                 #else
                 {
@@ -1491,44 +1492,44 @@ int main(int argc, char *argv[])
                   //A     B    C   D   E   F   G   H   I   J   K    L
                   //-     -    -   -   -   -   -   -   -   -   -    -
                   // Submit one request to establish one connection.
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  0,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  0,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
 
                   // Submit two same requests to establish two connections.
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  1,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  1,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  2,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  3,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  1,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  1,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  2,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  3,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  3,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  3,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  4,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  5,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  3,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  3,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  4,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  5,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  5,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  6,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  7,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  5,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  5,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  6,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  7,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  7,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  7,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  8,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  9,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  7,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  7,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0,  8,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0,  9,  0, e_VALID },
 
                   // Submit three different requests to establish three
                   // connections.
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0, 10,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0, 11,  0, VALID },
-                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0, 12,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0, 10,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  1,  0, 11,  0, e_VALID },
+                  { L_,  'D',  1,  0,  0,  1,  0,  0,  0, 12,  0, e_VALID },
                 };
                 #endif
 
@@ -1547,7 +1548,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1627,15 +1628,15 @@ int main(int argc, char *argv[])
                   //A     B    C   D   E   F   G   H   I   J   K    L
                   //-     -    -   -   -   -   -   -   -   -   -    -
                 {
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
 
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
 
                 };
                 #else
@@ -1656,44 +1657,44 @@ int main(int argc, char *argv[])
                   //A     B    C   D   E   F   G   H   I   J   K    L
                   //-     -    -   -   -   -   -   -   -   -   -    -
                   // Submit one request to establish one connection.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  0,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  0,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
 
                   // Submit two same requests to establish two connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  2,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  3,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  2,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  3,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  3,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  3,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  4,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  5,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  3,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  3,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  4,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  5,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  5,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  6,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  7,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  5,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  5,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  6,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  7,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  7,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  7,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  8,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  9,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  7,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  7,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  8,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  9,  0, e_VALID },
 
                   // Submit three different requests to establish three
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 10,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 11,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0, 12,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 10,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 11,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0, 12,  0, e_VALID },
                 };
                 #endif
 
@@ -1712,7 +1713,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1794,15 +1795,15 @@ int main(int argc, char *argv[])
                   //A     B    C   D   E   F   G   H   I   J   K    L
                   //-     -    -   -   -   -   -   -   -   -   -    -
                 {
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
 
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
                 };
                 #else
                 {
@@ -1822,44 +1823,44 @@ int main(int argc, char *argv[])
                   //A     B    C   D   E   F   G   H   I   J   K    L
                   //-     -    -   -   -   -   -   -   -   -   -    -
                   // Submit one request to establish one connection.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  0,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  0,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
 
                   // Submit two same requests to establish two connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  2,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  3,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  1,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  2,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  3,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  3,  0, VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  3,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  4,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  5,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  3,  0, e_VALID },
+                  { L_,  'R',  0,  1,  0,  1,  0,  1,  0,  3,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  4,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  5,  0, VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  5,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  6,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  7,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  5,  0, e_VALID },
+                  { L_,  'R',  1,  0,  0,  1,  0,  1,  0,  5,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  6,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  7,  0, e_VALID },
 
                   // Submit two different requests to establish two
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  7,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  7,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  8,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  9,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  7,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  7,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0,  8,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0,  9,  0, e_VALID },
 
                   // Submit three different requests to establish three
                   // connections.
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 10,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 11,  0, VALID },
-                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0, 12,  0, VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'R',  1,  1,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'R',  0,  0,  0,  1,  0,  1,  0,  9,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 10,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 11,  0, e_VALID },
+                  { L_,  'D',  0,  0,  0,  1,  0,  0,  0, 12,  0, e_VALID },
                 };
                 #endif
 
@@ -1878,7 +1879,7 @@ int main(int argc, char *argv[])
                                               serverSocket, &connList,
                                               maxConnections, &serverAddress));
                 // The client is waiting for the server.
-                bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
 
                 btlso::TcpTimerEventManager manager(&testAllocator);
 
@@ -1932,29 +1933,29 @@ int main(int argc, char *argv[])
                 bdlqq::ThreadAttributes attributes;
                 btlso::IPv4Address serverAddress, localAddress;
                 serverAddress.setIpAddress(hostName);
-                serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                 btlso::StreamSocket<btlso::IPv4Address> *d_serverSocket_p =
                                               factory.allocate();
 
                 ASSERT(0 != d_serverSocket_p);
                 int ret = d_serverSocket_p->setOption(
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
-                                       1);
+                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                      1);
                 ASSERT(0 == ret);
                 ASSERT(0 == d_serverSocket_p->bind(serverAddress));
 
                 ASSERT(0 == d_serverSocket_p->localAddress(&localAddress));
 
-                enum { NUM_CONNECTIONS = 10 };
+                enum { k_NUM_CONNECTIONS = 10 };
                 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
                                                    connList(&testAllocator);
                 ConnectionInfo connectInfo = { &factory,
                                                d_serverSocket_p,
-                                               DEFAULT_EQUEUE_SIZE,
+                                               k_DEFAULT_EQUEUE_SIZE,
                                                &connList,
-                                               NUM_CONNECTIONS
+                                               k_NUM_CONNECTIONS
                                              };
 
                 ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -1962,7 +1963,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == ret);
 
                 int numConnections = 0;
-                bdlqq::ThreadUtil::microSleep(SLEEP_TIME * 10);
+                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME * 10);
                 {
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj connector(&factory, &manager, &testAllocator);
@@ -1979,7 +1980,7 @@ int main(int argc, char *argv[])
                                                , expStatus
                                                , cancelFlag));
 
-                    for (int i = 0; i < NUM_CONNECTIONS; ++i) {
+                    for (int i = 0; i < k_NUM_CONNECTIONS; ++i) {
                         int ret = connector.allocate(cb);
                         LOOP_ASSERT(i, 0 == ret);
                         ret = manager.dispatch(0);

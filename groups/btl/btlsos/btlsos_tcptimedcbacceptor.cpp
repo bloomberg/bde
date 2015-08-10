@@ -75,26 +75,27 @@ namespace BloombergLP {
                          // ========================
 
 enum {
-    CALLBACK_SIZE      = sizeof(btlsc::TimedCbChannelAllocator::Callback),
-    TIMEDCALLBACK_SIZE = sizeof (btlsc::TimedCbChannelAllocator::TimedCallback),
-    ARENA_SIZE         = CALLBACK_SIZE < TIMEDCALLBACK_SIZE
-                         ? TIMEDCALLBACK_SIZE
-                         : CALLBACK_SIZE
+    k_CALLBACK_SIZE      = sizeof(btlsc::TimedCbChannelAllocator::Callback),
+    k_TIMEDCALLBACK_SIZE =
+                        sizeof (btlsc::TimedCbChannelAllocator::TimedCallback),
+    k_ARENA_SIZE         = k_CALLBACK_SIZE < k_TIMEDCALLBACK_SIZE
+                         ? k_TIMEDCALLBACK_SIZE
+                         : k_CALLBACK_SIZE
 };
 
 enum {
-    CHANNEL_SIZE       = sizeof(btlsos::TcpCbChannel) <
-                                               sizeof(btlsos::TcpTimedCbChannel)
+    k_CHANNEL_SIZE       = sizeof(btlsos::TcpCbChannel) <
+                                              sizeof(btlsos::TcpTimedCbChannel)
                          ? sizeof(btlsos::TcpTimedCbChannel)
                          : sizeof(btlsos::TcpCbChannel)
 };
 
 enum {
-    CLOSED             = -3,
-    UNINITIALIZED      = -2,
-    INVALID            = -1,
-    CANCELLED          = -1,
-    SUCCESS            = 0
+    e_CLOSED             = -3,
+    e_UNINITIALIZED      = -2,
+    e_INVALID            = -1,
+    e_CANCELLED          = -1,
+    e_SUCCESS            = 0
 };
 
 namespace btlsos {
@@ -109,7 +110,7 @@ class TcpTimedCbAcceptor_Reg {
 
     // PRIVATE DATA MEMBERS
     union {
-        char                                d_callbackArena[ARENA_SIZE];
+        char                                d_callbackArena[k_ARENA_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;  // for alignment
     } d_cb;                                      // callback storage arena
 
@@ -126,15 +127,15 @@ class TcpTimedCbAcceptor_Reg {
   public:
     // CREATORS
     TcpTimedCbAcceptor_Reg(
-            const bsls::TimeInterval& timeout
-          , const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
-          , int flags);
+           const bsls::TimeInterval& timeout
+         , const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
+         , int flags);
     TcpTimedCbAcceptor_Reg(
             const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor
           , int flags);
     TcpTimedCbAcceptor_Reg(
-            const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
-          , int flags);
+           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
+         , int flags);
     TcpTimedCbAcceptor_Reg(
             const bsls::TimeInterval& timeout
           , const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor
@@ -440,7 +441,7 @@ TcpTimedCbAcceptor::TcpTimedCbAcceptor(
         btlso::TimerEventManager                      *manager,
         bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(TcpTimedCbAcceptor_Reg), basicAllocator)
-, d_channelPool(CHANNEL_SIZE, basicAllocator)
+, d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_callbacks(basicAllocator)
 , d_channels(basicAllocator)
 , d_manager_p(manager)
@@ -468,7 +469,7 @@ TcpTimedCbAcceptor::TcpTimedCbAcceptor(
         int                                           numElements,
         bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(TcpTimedCbAcceptor_Reg), basicAllocator)
-, d_channelPool(CHANNEL_SIZE,
+, d_channelPool(k_CHANNEL_SIZE,
                 bsls::BlockGrowth::BSLS_CONSTANT,
                 numElements,
                 basicAllocator)
@@ -514,11 +515,11 @@ TcpTimedCbAcceptor::~TcpTimedCbAcceptor()
 int TcpTimedCbAcceptor::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return INVALID;
+        return e_INVALID;
     }
     if (NULL == d_serverSocket_p) {
-        callback(NULL, UNINITIALIZED);
-        return UNINITIALIZED;
+        callback(NULL, e_UNINITIALIZED);
+        return e_UNINITIALIZED;
     }
 
     TcpTimedCbAcceptor_Reg *cb =
@@ -532,26 +533,27 @@ int TcpTimedCbAcceptor::allocate(const Callback& callback, int flags)
 
     d_callbacks.push_front(cb);
     if (1 == d_callbacks.size()) {
-        if (0 != d_manager_p->registerSocketEvent(d_serverSocket_p->handle(),
-                                                 btlso::EventType::BTESO_ACCEPT,
-                                                 d_acceptFunctor)) {
-            cb->invoke(CANCELLED);
+        if (0 != d_manager_p->registerSocketEvent(
+                                                d_serverSocket_p->handle(),
+                                                btlso::EventType::BTESO_ACCEPT,
+                                                d_acceptFunctor)) {
+            cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return INVALID;
+            return e_INVALID;
         }
     }
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return INVALID;
+        return e_INVALID;
     }
     if (NULL == d_serverSocket_p) {
-        callback(NULL, UNINITIALIZED);
-        return UNINITIALIZED;
+        callback(NULL, e_UNINITIALIZED);
+        return e_UNINITIALIZED;
     }
 
     TcpTimedCbAcceptor_Reg *cb =
@@ -565,16 +567,17 @@ int TcpTimedCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
 
     d_callbacks.push_front(cb);
     if (1 == d_callbacks.size()) {
-        if (0 != d_manager_p->registerSocketEvent(d_serverSocket_p->handle(),
-                                                 btlso::EventType::BTESO_ACCEPT,
-                                                 d_acceptFunctor)) {
-            cb->invoke(CANCELLED);
+        if (0 != d_manager_p->registerSocketEvent(
+                                                d_serverSocket_p->handle(),
+                                                btlso::EventType::BTESO_ACCEPT,
+                                                d_acceptFunctor)) {
+            cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return INVALID;
+            return e_INVALID;
         }
     }
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 void TcpTimedCbAcceptor::cancelAll()
@@ -626,14 +629,14 @@ void TcpTimedCbAcceptor::cancelAll()
 
 int TcpTimedCbAcceptor::close()
 {
-    enum { SUCCESS = 0 };
+    enum { e_SUCCESS = 0 };
     BSLS_ASSERT(NULL != d_serverSocket_p);
     BSLS_ASSERT(d_serverAddress.portNumber());  // Address is valid.
     cancelAll();
     d_factory_p->deallocate(d_serverSocket_p);
     d_serverSocket_p = NULL;
     d_serverAddress = btlso::IPv4Address();
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 void TcpTimedCbAcceptor::deallocate(btlsc::CbChannel *channel)
@@ -662,46 +665,46 @@ int TcpTimedCbAcceptor::open(const btlso::IPv4Address& endpoint,
     BSLS_ASSERT(NULL == d_serverSocket_p);
 
     enum {
-        REUSEADDRESS_FAILED  = -6,
-        ALLOCATION_FAILED    = -5,
-        BIND_FAILED          = -4,
-        LISTEN_FAILED        = -3,
-        LOCALINFO_FAILED     = -2,
-        BLOCKMODE_FAILED     = -1,
-        SUCCESS              =  0
+        e_REUSEADDRESS_FAILED  = -6,
+        e_ALLOCATION_FAILED    = -5,
+        e_BIND_FAILED          = -4,
+        e_LISTEN_FAILED        = -3,
+        e_LOCALINFO_FAILED     = -2,
+        e_BLOCKMODE_FAILED     = -1,
+        e_SUCCESS              =  0
     };
 
     d_serverSocket_p = d_factory_p->allocate();
     if (!d_serverSocket_p) {
-        return ALLOCATION_FAILED;
+        return e_ALLOCATION_FAILED;
     }
 
-    if (0 !=
-           d_serverSocket_p->setOption(btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                       btlso::SocketOptUtil::BTESO_REUSEADDRESS,
-                                       !!reuseAddress))
+    if (0 != d_serverSocket_p->setOption(
+                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+                                      !!reuseAddress))
     {
         d_factory_p->deallocate(d_serverSocket_p);
-        return REUSEADDRESS_FAILED;
+        return e_REUSEADDRESS_FAILED;
     }
 
     if (0 != d_serverSocket_p->bind(endpoint)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return BIND_FAILED;
+        return e_BIND_FAILED;
     }
 
     if (0 != d_serverSocket_p->localAddress(&d_serverAddress)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return BIND_FAILED;
+        return e_BIND_FAILED;
     }
     BSLS_ASSERT(d_serverAddress.portNumber());
 
     if (0 != d_serverSocket_p->listen(queueSize)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return LISTEN_FAILED;
+        return e_LISTEN_FAILED;
     }
 #ifndef BTLSO_PLATFORM_WIN_SOCKETS
     // Windows has a bug -- setting listening socket to non-blocking mode will
@@ -713,10 +716,10 @@ int TcpTimedCbAcceptor::open(const btlso::IPv4Address& endpoint,
     {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return BLOCKMODE_FAILED;
+        return e_BLOCKMODE_FAILED;
     }
 #endif
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int TcpTimedCbAcceptor::setOption(int level, int option, int value)
@@ -730,11 +733,11 @@ int TcpTimedCbAcceptor::timedAllocate(const Callback&           callback,
                                       int                       flags)
 {
     if (d_isInvalidFlag) {
-        return INVALID;
+        return e_INVALID;
     }
     if (NULL == d_serverSocket_p) {
-        callback(NULL, UNINITIALIZED);
-        return UNINITIALIZED;
+        callback(NULL, e_UNINITIALIZED);
+        return e_UNINITIALIZED;
     }
     // void *arena = d_callbackPool.allocate(); BSLS_ASSERT(arena);
 
@@ -752,16 +755,17 @@ int TcpTimedCbAcceptor::timedAllocate(const Callback&           callback,
     if (1 == d_callbacks.size()) {
         d_timerId = d_manager_p->registerTimer(timeout, d_timeoutFunctor);
         BSLS_ASSERT(d_timerId);
-        if (0 != d_manager_p->registerSocketEvent(d_serverSocket_p->handle(),
-                                                 btlso::EventType::BTESO_ACCEPT,
-                                                 d_acceptFunctor)) {
-            cb->invoke(CANCELLED);
+        if (0 != d_manager_p->registerSocketEvent(
+                                                d_serverSocket_p->handle(),
+                                                btlso::EventType::BTESO_ACCEPT,
+                                                d_acceptFunctor)) {
+            cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return INVALID;
+            return e_INVALID;
         }
     }
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 int TcpTimedCbAcceptor::timedAllocateTimed(const TimedCallback&      callback,
@@ -770,11 +774,11 @@ int TcpTimedCbAcceptor::timedAllocateTimed(const TimedCallback&      callback,
 {
 
     if (d_isInvalidFlag) {
-        return INVALID;
+        return e_INVALID;
     }
     if (NULL == d_serverSocket_p) {
-        callback(NULL, UNINITIALIZED);
-        return UNINITIALIZED;
+        callback(NULL, e_UNINITIALIZED);
+        return e_UNINITIALIZED;
     }
 
     TcpTimedCbAcceptor_Reg *cb =
@@ -791,16 +795,17 @@ int TcpTimedCbAcceptor::timedAllocateTimed(const TimedCallback&      callback,
     if (1 == d_callbacks.size()) {
         d_timerId = d_manager_p->registerTimer(timeout, d_timeoutFunctor);
         BSLS_ASSERT(d_timerId);
-        if (0 != d_manager_p->registerSocketEvent(d_serverSocket_p->handle(),
-                                                 btlso::EventType::BTESO_ACCEPT,
-                                                 d_acceptFunctor)) {
-            cb->invoke(CANCELLED);
+        if (0 != d_manager_p->registerSocketEvent(
+                                                d_serverSocket_p->handle(),
+                                                btlso::EventType::BTESO_ACCEPT,
+                                                d_acceptFunctor)) {
+            cb->invoke(e_CANCELLED);
             d_callbacks.pop_back();
             d_callbackPool.deleteObjectRaw(cb);
-            return INVALID;
+            return e_INVALID;
         }
     }
-    return SUCCESS;
+    return e_SUCCESS;
 }
 
 // ACCESSORS

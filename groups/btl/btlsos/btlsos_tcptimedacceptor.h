@@ -67,11 +67,11 @@ BSLS_IDENT("$Id: $")
 // Second, define configuration parameters for the acceptor:
 //..
 //    enum {
-//        ECHO_PORT = 1888,
-//        QUEUE_SIZE = 32
+//        k_ECHO_PORT  = 1888,
+//        k_QUEUE_SIZE =   32
 //    };
 //    btlso::IPv4Address serverAddress;
-//    serverAddress.setPort(ECHO_PORT);
+//    serverAddress.setPort(k_ECHO_PORT);
 //    bsls::TimeInterval acceptTimeout(120, 0);     // 2 minutes
 //..
 // Now, create an acceptor and prepare it for accepting connections:
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Set communication parameters for a channel:
 //..
-//   enum { READ_SIZE = 10 };
+//   enum { k_READ_SIZE = 10 };
 //   // Note: this is OK *if and only if* it is in the 'main' function.
 //   bdlt::TimeInverval readTimeout(30, 0);  // 30 seconds
 //   bsls::TimeInterval writeTimeout(0.5);   // 0.5 seconds
@@ -97,25 +97,25 @@ BSLS_IDENT("$Id: $")
 //       int status;
 //       btlsc::TimedChannel *channel =
 //           acceptor.timedAllocateTimed(
-//                                    &status,
-//                                    bdesu::SystemTime::now() + acceptTimeout);
+//                                   &status,
+//                                   bdesu::SystemTime::now() + acceptTimeout);
 //       if (channel) {
 //           while (1) {
 //                char *result;
 //                int readStatus =
 //                    channel->timedBufferedReadRaw(
-//                                      &result,
-//                                      READ_SIZE,
-//                                      bdesu::SystemTime::now() + readTimeout);
+//                                     &result,
+//                                     k_READ_SIZE,
+//                                     bdesu::SystemTime::now() + readTimeout);
 //                if (0 >= readStatus) {
 //                    bsl::cout << "Failed to read data." << bsl::endl;
 //                    break;
 //                }
 //                int ws =
 //                    channel->timedWrite(
-//                                     result,
-//                                     readStatus,
-//                                     bdesu::SystemTime::now() + writeTimeout);
+//                                    result,
+//                                    readStatus,
+//                                    bdesu::SystemTime::now() + writeTimeout);
 //                if (readStatus != ws) {
 //                    bsl::cout << "Failed to send data." << bsl::endl;
 //                    break;
@@ -169,19 +169,11 @@ namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlsc { class TimedChannel; }
 namespace btlsc { class Channel; }
+namespace btlsos {
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-
-}  // close package namespace
-
-namespace btlsos {                        // =============================
-
-                        // class TcpTimedAcceptor
-                        // =============================
+                          // ======================
+                          // class TcpTimedAcceptor
+                          // ======================
 
 class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for a

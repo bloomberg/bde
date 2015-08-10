@@ -62,27 +62,27 @@ namespace BloombergLP {
                          // ========================
 
 enum {
-    CALLBACK_SIZE      = sizeof(btlsc::CbChannelAllocator::Callback),
-    TIMEDCALLBACK_SIZE = sizeof (btlsc::CbChannelAllocator::TimedCallback),
-    ARENA_SIZE         = CALLBACK_SIZE < TIMEDCALLBACK_SIZE
-                         ? TIMEDCALLBACK_SIZE
-                         : CALLBACK_SIZE
+    k_CALLBACK_SIZE      = sizeof(btlsc::CbChannelAllocator::Callback),
+    k_TIMEDCALLBACK_SIZE = sizeof (btlsc::CbChannelAllocator::TimedCallback),
+    k_ARENA_SIZE         = k_CALLBACK_SIZE < k_TIMEDCALLBACK_SIZE
+                         ? k_TIMEDCALLBACK_SIZE
+                         : k_CALLBACK_SIZE
 };
 
 enum {
-    CHANNEL_SIZE       = sizeof(btlsos::TcpCbChannel) <
-                                               sizeof(btlsos::TcpTimedCbChannel)
-                       ? sizeof(btlsos::TcpTimedCbChannel)
-                       : sizeof(btlsos::TcpCbChannel)
+    k_CHANNEL_SIZE       = sizeof(btlsos::TcpCbChannel) <
+                                              sizeof(btlsos::TcpTimedCbChannel)
+                         ? sizeof(btlsos::TcpTimedCbChannel)
+                         : sizeof(btlsos::TcpCbChannel)
 };
 
 enum {
-    CLOSED             = -3,
-    UNINITIALIZED      = -2,
-    INVALID            = -1,
-    CANCELLED          = -1,
-    SUCCESS            = 0,
-    TIMEDOUT           = 0
+    e_CLOSED             = -3,
+    e_UNINITIALIZED      = -2,
+    e_INVALID            = -1,
+    e_CANCELLED          = -1,
+    e_SUCCESS            = 0,
+    e_TIMEDOUT           = 0
 };
 
 namespace btlsos {
@@ -95,7 +95,7 @@ class TcpCbConnector_Reg {
 
     // PRIVATE DATA MEMBERS
     union {
-        char                                d_callbackArena[ARENA_SIZE];
+        char                                d_callbackArena[k_ARENA_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;  // for alignment
     }                     d_cb;
 
@@ -112,8 +112,8 @@ public:
             const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor
           , int flags);
     TcpCbConnector_Reg(
-            const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
-          , int flags);
+           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
+         , int flags);
 
     ~TcpCbConnector_Reg();
 
@@ -139,7 +139,7 @@ TcpCbConnector_Reg::TcpCbConnector_Reg(
 , d_flags(flags)
 {
     new (d_cb.d_callbackArena)
-                  bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(functor);
+                bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(functor);
 }
 
 TcpCbConnector_Reg::TcpCbConnector_Reg(
@@ -148,7 +148,7 @@ TcpCbConnector_Reg::TcpCbConnector_Reg(
 , d_flags(flags)
 {
     new (d_cb.d_callbackArena)
-                       bdlf::Function<void (*)(btlsc::CbChannel*, int)>(functor);
+                     bdlf::Function<void (*)(btlsc::CbChannel*, int)>(functor);
 }
 
 TcpCbConnector_Reg::~TcpCbConnector_Reg()
@@ -248,8 +248,8 @@ int TcpCbConnector::initiateConnection(
 {
     d_connectingSocket_p = d_factory_p->allocate();
     if (NULL == d_connectingSocket_p) {
-        callback(NULL, UNINITIALIZED);
-        return UNINITIALIZED;
+        callback(NULL, e_UNINITIALIZED);
+        return e_UNINITIALIZED;
     }
 
     if (0 != d_connectingSocket_p->
@@ -276,7 +276,7 @@ int TcpCbConnector::initiateConnection(
                                          d_connectingSocket_p->handle(),
                                          btlso::EventType::BTESO_CONNECT,
                                          d_connectFunctor)){
-            callback(0, CANCELLED);
+            callback(0, e_CANCELLED);
             TcpCbConnector_Reg *cb = d_callbacks.back();
             d_callbackPool.deleteObjectRaw(cb);
             d_callbacks.pop_back();
@@ -418,7 +418,7 @@ TcpCbConnector::TcpCbConnector(
                   btlso::TimerEventManager                      *manager,
                   bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(TcpCbConnector_Reg), basicAllocator)
-, d_channelPool(CHANNEL_SIZE, basicAllocator)
+, d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_currentRequest_p(NULL)
 , d_manager_p(manager)
@@ -439,7 +439,7 @@ TcpCbConnector::TcpCbConnector(
                   int                                           numChannels,
                   bslma::Allocator                             *basicAllocator)
 : d_callbackPool(sizeof(TcpCbConnector_Reg), basicAllocator)
-, d_channelPool(CHANNEL_SIZE, basicAllocator)
+, d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_currentRequest_p(NULL)
 , d_manager_p(manager)
@@ -476,7 +476,7 @@ TcpCbConnector::~TcpCbConnector()
 int TcpCbConnector::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return INVALID;
+        return e_INVALID;
     }
 
     if (d_callbacks.size() == 0) {
@@ -494,7 +494,7 @@ int TcpCbConnector::allocate(const Callback& callback, int flags)
 int TcpCbConnector::allocateTimed(const TimedCallback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return INVALID;
+        return e_INVALID;
     }
 
     // Implementation note: the request must be pushed onto the queue before
@@ -539,8 +539,9 @@ void TcpCbConnector::cancelAll()
         d_callbacks.clear();
         int numToCancel = toBeCancelled.size();
         if (numToCancel) {
-            d_manager_p->deregisterSocketEvent(d_connectingSocket_p->handle(),
-                                               btlso::EventType::BTESO_CONNECT);
+            d_manager_p->deregisterSocketEvent(
+                                              d_connectingSocket_p->handle(),
+                                              btlso::EventType::BTESO_CONNECT);
 
             d_factory_p->deallocate(d_connectingSocket_p);
         }

@@ -59,14 +59,14 @@ BSLS_IDENT("$Id: $")
 //..
 // Second, define configuration parameters for the connector:
 //..
-//    enum { ECHO_PORT = 1888 };
+//    enum { k_ECHO_PORT = 1888 };
 //    enum {
-//        NUM_PACKETS = 5,
-//        PACKET_SIZE = 10
+//        k_NUM_PACKETS = 5,
+//        k_PACKET_SIZE = 10
 //    }; // TCP/IP over Ethernet
 //
 //    const char *SERVER_IP = "127.0.0.1";           // assume local host
-//    btlso::IPv4Address serverAddress(SERVER_IP, ECHO_PORT);
+//    btlso::IPv4Address serverAddress(SERVER_IP, k_ECHO_PORT);
 //
 //    bsls::TimeInterval connectTimeout(120, 0);      // 2 minutes
 //..
@@ -79,17 +79,17 @@ BSLS_IDENT("$Id: $")
 //..
 // Set communication parameters for the channel:
 //..
-//   enum { READ_SIZE = 10 };                // only for demo
+//   enum { k_READ_SIZE = 10 };               // only for demo
 //   bsls::TimeInterval readTimeout(1.0);     // 1 second
 //   bsls::TimeInterval writeTimeout(30.0);   // 30 seconds
 //..
 // Prepare the "input" packet that will be sent on every iteration, and save it
 // as a "control" packet:
 //..
-//   char controlPacket[PACKET_SIZE];
-//   char inputPacket[PACKET_SIZE];
-//   generatePattern(inputPacket, PACKET_SIZE);
-//   memcpy(controlPacket, inputPacket, PACKET_SIZE);
+//   char controlPacket[k_PACKET_SIZE];
+//   char inputPacket[k_PACKET_SIZE];
+//   generatePattern(inputPacket, k_PACKET_SIZE);
+//   memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
 //..
 // Establish a connection with the echo server:
 //..
@@ -107,26 +107,26 @@ BSLS_IDENT("$Id: $")
 // and verify that the received packet is correct:
 //..
 //   assert(0 == channel->isInvalid());
-//   char receivePacket[PACKET_SIZE];
-//   for (int i = 0; i < NUM_PACKETS; ++i) {
+//   char receivePacket[k_PACKET_SIZE];
+//   for (int i = 0; i < k_NUM_PACKETS; ++i) {
 //       // Request/response mechanism
 //       int writeStatus = channel->timedWrite(
-//                                     inputPacket,
-//                                     PACKET_SIZE,
-//                                     bdlt::CurrentTime::now() + writeTimeout);
-//       if (PACKET_SIZE != writeStatus) {
+//                                    inputPacket,
+//                                    k_PACKET_SIZE,
+//                                    bdlt::CurrentTime::now() + writeTimeout);
+//       if (k_PACKET_SIZE != writeStatus) {
 //           bsl::cout << "Failed to send data." << bsl::endl;
 //           break;
 //       }
 //       int readStatus = channel->timedRead(
-//                                      receivePacket,
-//                                      PACKET_SIZE,
-//                                      bdlt::CurrentTime::now() + readTimeout);
-//       if (PACKET_SIZE != readStatus) {
+//                                     receivePacket,
+//                                     k_PACKET_SIZE,
+//                                     bdlt::CurrentTime::now() + readTimeout);
+//       if (k_PACKET_SIZE != readStatus) {
 //           bsl::cout << "Failed to read data" << bsl::endl;
 //           break;
 //       }
-//       assert(0 == memcmp(receivedPacket, controlPacket PACKET_SIZE);
+//       assert(0 == memcmp(receivedPacket, controlPacket k_PACKET_SIZE);
 //   }
 //
 //   // Perform proper shut down procedure
