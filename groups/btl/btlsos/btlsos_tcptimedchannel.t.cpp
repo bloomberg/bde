@@ -3346,15 +3346,15 @@ int main(int argc, char *argv[]) {
     // method with the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,  TRBR,           1,         0,           1,         0,  &longTime },
-      {L_,  TRBR,          49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,  e_TRBR,           1,         0,           1,         0,  &longTime },
+    {L_,  e_TRBR,          49,         0,          49,         0,  &longTime },
         // Now close the channel, and try some 'read' operations, each of which
         // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-      {L_, TRBRA,          20,         0,         e_ERR,       0,  &longTime },
-    {L_,  TRBR,          80,         0,        e_INVALID,      0,  &longTime },
-    {L_, TRBRA,          40,         0,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+    {L_, e_TRBRA,          20,         0,         e_ERR,       0,  &longTime },
+  {L_,  e_TRBR,          80,         0,        e_INVALID,      0,  &longTime },
+  {L_, e_TRBRA,          40,         0,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
@@ -3362,15 +3362,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method w/o the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_, TRBRA,           1,         0,           1,         0,  &longTime },
-      {L_, TRBRA,          49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_, e_TRBRA,           1,         0,           1,         0,  &longTime },
+    {L_, e_TRBRA,          49,         0,          49,         0,  &longTime },
       // Now close the channel, and try some 'read' operations, each of which
       // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-    {L_, TRBRA,          20,         1,         e_ERR,         0,  &longTime },
-    {L_,  TRBR,          80,         1,        e_INVALID,      0,  &longTime },
-    {L_, TRBRA,          40,         1,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+  {L_, e_TRBRA,          20,         1,         e_ERR,         0,  &longTime },
+  {L_,  e_TRBR,          80,         1,        e_INVALID,      0,  &longTime },
+  {L_, e_TRBRA,          40,         1,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
     #endif
@@ -3378,20 +3378,20 @@ int main(int argc, char *argv[]) {
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,       0,         50,            0,       0   },
-      {L_, TRBRA,           1,       0,          1,            0,  &longTime},
-      {L_, TRBRA,          25,       0,         25,            0,  &longTime},
-      {L_, TRBRA,          36,       0,         24,            0,  &timeout1},
+     {L_, e_HELP_WRITE,     50,       0,         50,            0,       0   },
+     {L_, e_TRBRA,           1,       0,          1,            0,  &longTime},
+     {L_, e_TRBRA,          25,       0,         25,            0,  &longTime},
+     {L_, e_TRBRA,          36,       0,         24,            0,  &timeout1},
         // The channel will be closed by the peer when the 'read' request is on
         // going, so it'll return 'CLOSED'.
       {L_,    -1,           0,      0,           0,            0,       0   },
     },
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,       0,         50,            0,       0   },
-      {L_,  TRBR,           1,       0,          1,            0,  &longTime},
-      {L_,  TRBR,          25,       0,         25,            0,  &longTime},
-      {L_,  TRBR,          36,       0,         24,            0,  &timeout1},
+     {L_, e_HELP_WRITE,     50,       0,         50,            0,       0   },
+     {L_,  e_TRBR,           1,       0,          1,            0,  &longTime},
+     {L_,  e_TRBR,          25,       0,         25,            0,  &longTime},
+     {L_,  e_TRBR,          36,       0,         24,            0,  &timeout1},
         // The channel will be closed by the peer when the 'read' request is on
         // going, so it'll return 'CLOSED'.
       {L_,    -1,           0,         0,           0,      0,       0   },
@@ -3704,15 +3704,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method with the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,  TRVR,           1,         0,           1,         0,  &longTime },
-      {L_,  TRVR,           7,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,  e_TRVR,           1,         0,           1,         0,  &longTime },
+    {L_,  e_TRVR,           7,         0,          49,         0,  &longTime },
         // Now close the channel, and try some 'read' operations, each of which
         // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-    {L_, TRVRA,           6,         0,         e_ERR,         0,  &longTime },
-    {L_,  TRVR,           4,         0,        e_INVALID,      0,  &longTime },
-    {L_, TRVRA,           6,         0,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+  {L_, e_TRVRA,           6,         0,         e_ERR,         0,  &longTime },
+  {L_,  e_TRVR,           4,         0,        e_INVALID,      0,  &longTime },
+  {L_, e_TRVRA,           6,         0,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
@@ -3720,15 +3720,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method w/o the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_, TRVRA,           1,         0,           1,         0,  &longTime },
-      {L_, TRVRA,           7,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_, e_TRVRA,           1,         0,           1,         0,  &longTime },
+    {L_, e_TRVRA,           7,         0,          49,         0,  &longTime },
       // Now close the channel, and try some 'read' operations, each of which
       // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-    {L_, TRVRA,           6,         1,         e_ERR,         0,  &longTime },
-    {L_,  TRVR,           4,         1,        e_INVALID,      0,  &longTime },
-    {L_, TRVRA,           6,         1,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+  {L_, e_TRVRA,           6,         1,         e_ERR,         0,  &longTime },
+  {L_,  e_TRVR,           4,         1,        e_INVALID,      0,  &longTime },
+  {L_, e_TRVRA,           6,         1,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
     #endif
@@ -3736,20 +3736,20 @@ int main(int argc, char *argv[]) {
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,       0,         50,            0,       0   },
-      {L_, TRVRA,           1,       0,          1,            0,  &longTime},
-      {L_, TRVRA,           5,       0,         25,            0,  &longTime},
-      {L_, TRVRA,           6,       0,         24,            0,  &timeout1},
+     {L_, e_HELP_WRITE,     50,       0,         50,            0,       0   },
+     {L_, e_TRVRA,           1,       0,          1,            0,  &longTime},
+     {L_, e_TRVRA,           5,       0,         25,            0,  &longTime},
+     {L_, e_TRVRA,           6,       0,         24,            0,  &timeout1},
         // The channel will be closed by the peer when the 'read' request is on
         // going, so it'll return 'CLOSED'.
       {L_,    -1,           0,      0,           0,            0,       0   },
     },
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,       0,         50,            0,       0   },
-      {L_,  TRVR,           1,       0,          1,            0,  &longTime},
-      {L_,  TRVR,           5,       0,         25,            0,  &longTime},
-      {L_,  TRVR,           6,       0,         24,            0,  &timeout1},
+     {L_, e_HELP_WRITE,     50,       0,         50,            0,       0   },
+     {L_,  e_TRVR,           1,       0,          1,            0,  &longTime},
+     {L_,  e_TRVR,           5,       0,         25,            0,  &longTime},
+     {L_,  e_TRVR,           6,       0,         24,            0,  &timeout1},
         // The channel will be closed by the peer when the 'read' request is on
         // going, so it'll return 'CLOSED'.
       {L_,    -1,           0,         0,           0,      0,       0   },
@@ -4068,15 +4068,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method with the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,        -9,  &longTime },
-      {L_,   TRB,           1,         0,           1,        -9,  &longTime },
-      {L_,   TRB,          49,         0,          49,        -9,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,        -9,  &longTime },
+    {L_,   e_TRB,           1,         0,           1,        -9,  &longTime },
+    {L_,   e_TRB,          49,         0,          49,        -9,  &longTime },
         // Now close the channel, and try some 'read' operations, each of which
         // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,        -9,  &longTime },
-    {L_,  TRBA,          20,         0,         e_ERR,        -9,  &longTime },
-    {L_,   TRB,          80,         0,        e_INVALID,     -9,  &longTime },
-    {L_,  TRBA,          40,         0,        e_INVALID,     -9,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,        -9,  &longTime },
+  {L_,  e_TRBA,          20,         0,         e_ERR,        -9,  &longTime },
+  {L_,   e_TRB,          80,         0,        e_INVALID,     -9,  &longTime },
+  {L_,  e_TRBA,          40,         0,        e_INVALID,     -9,  &longTime },
       {L_,    -1,           0,         0,           0,        -9,  &longTime },
     },
 
@@ -4084,15 +4084,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method w/o the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,        -9,  &longTime },
-      {L_,  TRBA,           1,         0,           1,        -9,  &longTime },
-      {L_,  TRBA,          49,         0,          49,        -9,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,        -9,  &longTime },
+    {L_,  e_TRBA,           1,         0,           1,        -9,  &longTime },
+    {L_,  e_TRBA,          49,         0,          49,        -9,  &longTime },
       // Now close the channel, and try some 'read' operations, each of which
       // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,        -9,  &longTime },
-    {L_,  TRBA,          20,         1,         e_ERR,        -9,  &longTime },
-    {L_,   TRB,          80,         1,        e_INVALID,     -9,  &longTime },
-    {L_,  TRBA,          40,         1,        e_INVALID,     -9,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,        -9,  &longTime },
+  {L_,  e_TRBA,          20,         1,         e_ERR,        -9,  &longTime },
+  {L_,   e_TRB,          80,         1,        e_INVALID,     -9,  &longTime },
+  {L_,  e_TRBA,          40,         1,        e_INVALID,     -9,  &longTime },
       {L_,    -1,           0,         0,           0,        -9,  &longTime },
     },
     #endif
@@ -4100,20 +4100,20 @@ int main(int argc, char *argv[]) {
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,       0,         50,        -9,       0   },
-      {L_,  TRB,            1,       0,          1,        -9,  &longTime},
-      {L_,  TRB,           25,       0,         25,        -9,  &longTime},
-      {L_,  TRB,           36,       0,         24,        -9,  &timeout1},
+      {L_, e_HELP_WRITE,     50,       0,         50,        -9,       0   },
+      {L_,  e_TRB,            1,       0,          1,        -9,  &longTime},
+      {L_,  e_TRB,           25,       0,         25,        -9,  &longTime},
+      {L_,  e_TRB,           36,       0,         24,        -9,  &timeout1},
         // The channel will be closed by the peer when the 'read' request is on
         // going, so it'll return 'CLOSED'.
       {L_,    -1,           0,         0,           0,     -9,       0   },
     },
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,       0,         50,        -9,       0   },
-      {L_,   TRB,           1,       0,          1,        -9,  &longTime},
-      {L_,   TRB,          25,       0,         25,        -9,  &longTime},
-      {L_,   TRB,          36,       0,         24,        -9,  &timeout1},
+      {L_, e_HELP_WRITE,     50,       0,         50,        -9,       0   },
+      {L_,   e_TRB,           1,       0,          1,        -9,  &longTime},
+      {L_,   e_TRB,          25,       0,         25,        -9,  &longTime},
+      {L_,   e_TRB,          36,       0,         24,        -9,  &timeout1},
         // The channel will be closed by the peer when the 'read' request is on
         // going, so it'll return 'CLOSED'.
       {L_,    -1,           0,         0,           0,     -9,       0   },
@@ -4816,15 +4816,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method with the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,   TRR,           1,         0,           1,         0,  &longTime },
-      {L_,   TRR,          49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,   e_TRR,           1,         0,           1,         0,  &longTime },
+    {L_,   e_TRR,          49,         0,          49,         0,  &longTime },
         // Now close the channel, and try some 'read' operations, each of which
         // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-      {L_,  TRRA,          20,         0,         e_ERR,       0,  &longTime },
-    {L_,   TRR,          80,         0,        e_INVALID,      0,  &longTime },
-    {L_,  TRRA,          40,         0,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+    {L_,  e_TRRA,          20,         0,         e_ERR,       0,  &longTime },
+  {L_,   e_TRR,          80,         0,        e_INVALID,      0,  &longTime },
+  {L_,  e_TRRA,          40,         0,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
@@ -4832,15 +4832,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method w/o the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,  TRRA,           1,         0,           1,         0,  &longTime },
-      {L_,  TRRA,          49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,  e_TRRA,           1,         0,           1,         0,  &longTime },
+    {L_,  e_TRRA,          49,         0,          49,         0,  &longTime },
       // Now close the channel, and try some 'read' operations, each of which
       // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-      {L_,  TRRA,          20,         1,         e_ERR,       0,  &longTime },
-     {L_,   TR,          80,         1,        e_INVALID,      0,  &longTime },
-    {L_,  TRRA,          40,         1,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+    {L_,  e_TRRA,          20,         1,         e_ERR,       0,  &longTime },
+   {L_,   e_TR,          80,         1,        e_INVALID,      0,  &longTime },
+  {L_,  e_TRRA,          40,         1,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
     #endif
@@ -4848,16 +4848,16 @@ int main(int argc, char *argv[]) {
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,   TRRA,          1,         0,           1,         0,  &longTime },
-      {L_,   TRRA,         49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,   e_TRRA,          1,         0,           1,         0,  &longTime },
+    {L_,   e_TRRA,         49,         0,          49,         0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,    TRR,          1,         0,           1,         0,  &longTime },
-      {L_,    TRR,         49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,    e_TRR,          1,         0,           1,         0,  &longTime },
+    {L_,    e_TRR,         49,         0,          49,         0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
@@ -5167,15 +5167,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method with the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,    TR,           1,         0,           1,         0,  &longTime },
-      {L_,    TR,          49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,    e_TR,           1,         0,           1,         0,  &longTime },
+    {L_,    e_TR,          49,         0,          49,         0,  &longTime },
         // Now close the channel, and try some 'read' operations, each of which
         // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-      {L_,   TRA,          20,         0,         e_ERR,       0,  &longTime },
-    {L_,    TR,          80,         0,        e_INVALID,      0,  &longTime },
-    {L_,   TRA,          40,         0,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+    {L_,   e_TRA,          20,         0,         e_ERR,       0,  &longTime },
+  {L_,    e_TR,          80,         0,        e_INVALID,      0,  &longTime },
+  {L_,   e_TRA,          40,         0,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
@@ -5183,15 +5183,15 @@ int main(int argc, char *argv[]) {
     // behavior of the 'read' method w/o the 'augStatus' parameter.
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,   TRA,           1,         0,           1,         0,  &longTime },
-      {L_,   TRA,          49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,   e_TRA,           1,         0,           1,         0,  &longTime },
+    {L_,   e_TRA,          49,         0,          49,         0,  &longTime },
       // Now close the channel, and try some 'read' operations, each of which
       // should return a "ERROR".
-      {L_, CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
-      {L_,   TRA,          20,         1,         e_ERR,       0,  &longTime },
-    {L_,    TR,          80,         1,        e_INVALID,      0,  &longTime },
-    {L_,   TRA,          40,         1,        e_INVALID,      0,  &longTime },
+    {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0,  &longTime },
+    {L_,   e_TRA,          20,         1,         e_ERR,       0,  &longTime },
+  {L_,    e_TR,          80,         1,        e_INVALID,      0,  &longTime },
+  {L_,   e_TRA,          40,         1,        e_INVALID,      0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
@@ -5200,16 +5200,16 @@ int main(int argc, char *argv[]) {
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,    TRA,          1,         0,           1,         0,  &longTime },
-      {L_,    TRA,         49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,    e_TRA,          1,         0,           1,         0,  &longTime },
+    {L_,    e_TRA,         49,         0,          49,         0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
     {
       // Establish a channel and verify that it works fine.
-      {L_, HELP_WRITE,     50,         0,          50,         0,  &longTime },
-      {L_,     TR,          1,         0,           1,         0,  &longTime },
-      {L_,     TR,         49,         0,          49,         0,  &longTime },
+    {L_, e_HELP_WRITE,     50,         0,          50,         0,  &longTime },
+    {L_,     e_TR,          1,         0,           1,         0,  &longTime },
+    {L_,     e_TR,         49,         0,          49,         0,  &longTime },
       {L_,    -1,           0,         0,           0,         0,  &longTime },
     },
 
@@ -6147,7 +6147,7 @@ int main(int argc, char *argv[]) {
               {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,   e_WVO,           7,         0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
@@ -6164,7 +6164,7 @@ int main(int argc, char *argv[]) {
               {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,   e_WVI,           7,         0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
@@ -6181,7 +6181,7 @@ int main(int argc, char *argv[]) {
               {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,  e_WVOA,           7,         0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
@@ -6198,7 +6198,7 @@ int main(int argc, char *argv[]) {
               {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,   0,         0,           0,         0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,           0,         0   },
               {L_,  e_WVIA,           7,         0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
@@ -6665,7 +6665,7 @@ int main(int argc, char *argv[]) {
               {L_,    e_WR,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,  0,          0,           0,           0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
               {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
@@ -6683,7 +6683,7 @@ int main(int argc, char *argv[]) {
               {L_,   e_WRA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,  0,          0,           0,           0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
               {L_,   e_WRA,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent read operations will not succeed any more.
@@ -6978,7 +6978,7 @@ int main(int argc, char *argv[]) {
               {L_,     e_W,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,  0,          0,           0,           0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
               {L_,     e_W,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent write operations will not succeed any
@@ -6996,7 +6996,7 @@ int main(int argc, char *argv[]) {
               {L_,    e_WA,     BUF_WRITE,       0,      BUF_WRITE,      0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
-              {L_, CLOSE_OBSERVE,  0,          0,           0,           0   },
+            {L_, e_CLOSE_OBSERVE,  0,          0,           0,           0   },
               {L_,    e_WA,   SYS_DEPENDENT_LEN, 0,         e_ERR,       0   },
                 // The channel now is invalid due to the operation failure, and
                 // so the subsequent write operations will not succeed any
@@ -7356,15 +7356,15 @@ int main(int argc, char *argv[]) {
             // behavior of the method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,      50,         0,        50,         0   },
-              {L_,     RBR,         16,         0,        16,         0   },
-              {L_,     RBR,         60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,      50,         0,        50,         0   },
+              {L_,     e_RBR,         16,         0,        16,         0   },
+              {L_,     e_RBR,         60,         0,        34,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,    0,         0,         0,         0   },
-              {L_,    RBRA,         20,         0,       e_ERR,       0   },
-              {L_,     RBR,         80,         0,      e_INVALID,      0   },
-              {L_,    RBRA,         40,         0,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,    0,         0,         0,         0   },
+              {L_,    e_RBRA,         20,         0,       e_ERR,       0   },
+             {L_,     e_RBR,         80,         0,      e_INVALID,      0   },
+             {L_,    e_RBRA,         40,         0,      e_INVALID,      0   },
               {L_,    -1,            0,         0,         0,         0   },
             },
 
@@ -7372,15 +7372,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,      50,         0,        50,         0   },
-              {L_,    RBRA,         16,         0,        16,         0   },
-              {L_,    RBRA,         60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,      50,         0,        50,         0   },
+              {L_,    e_RBRA,         16,         0,        16,         0   },
+              {L_,    e_RBRA,         60,         0,        34,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,    0,         0,         0,         0   },
-              {L_,    RBRA,         20,         1,       e_ERR,       0   },
-              {L_,     RBR,         80,         1,      e_INVALID,      0   },
-              {L_,    RBRA,         40,         1,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,    0,         0,         0,         0   },
+              {L_,    e_RBRA,         20,         1,       e_ERR,       0   },
+             {L_,     e_RBR,         80,         1,      e_INVALID,      0   },
+             {L_,    e_RBRA,         40,         1,      e_INVALID,      0   },
               {L_,    -1,            0,         0,         0,         0   },
             },
             #endif
@@ -7388,18 +7388,18 @@ int main(int argc, char *argv[]) {
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,  RBRA,           1,         0,         1,         0   },
-              {L_,  RBRA,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,  e_RBRA,           1,         0,         1,         0   },
+              {L_,  e_RBRA,          25,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
               {L_,    -1,           0,         0,         0,         0   },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RBR,           1,         0,         1,         0   },
-              {L_,   RBR,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RBR,           1,         0,         1,         0   },
+              {L_,   e_RBR,          25,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
                {L_,   -1,           0,         0,         0,         0   },
@@ -7656,15 +7656,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     RB,          1,         0,         1,         0   },
-              {L_,     RB,         30,         0,        30,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,     e_RB,          1,         0,         1,         0   },
+              {L_,     e_RB,         30,         0,        30,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    RBA,         20,         0,       e_ERR,       0   },
-              {L_,     RB,         80,         0,      e_INVALID,      0   },
-              {L_,    RBA,         40,         0,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,    e_RBA,         20,         0,       e_ERR,       0   },
+              {L_,     e_RB,         80,         0,      e_INVALID,      0   },
+              {L_,    e_RBA,         40,         0,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
 
@@ -7672,17 +7672,17 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     RB,          1,         0,         1,         0   },
-              {L_,    RBA,         10,         0,        10,         0   },
-              {L_,     RB,         15,         0,        15,         0   },
-              {L_,    RBA,         20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,     e_RB,          1,         0,         1,         0   },
+              {L_,    e_RBA,         10,         0,        10,         0   },
+              {L_,     e_RB,         15,         0,        15,         0   },
+              {L_,    e_RBA,         20,         0,        20,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    RBA,         20,         1,       e_ERR,       0   },
-              {L_,     RB,         80,         1,      e_INVALID,      0   },
-              {L_,    RBA,         40,         1,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,    e_RBA,         20,         1,       e_ERR,       0   },
+              {L_,     e_RB,         80,         1,      e_INVALID,      0   },
+              {L_,    e_RBA,         40,         1,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
             #endif
@@ -7690,18 +7690,18 @@ int main(int argc, char *argv[]) {
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RBA,           1,         0,         1,         0   },
-              {L_,   RBA,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RBA,           1,         0,         1,         0   },
+              {L_,   e_RBA,          25,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
               {L_,    -1,           0,         0,         0,         0   },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    RB,           1,         0,         1,         0   },
-              {L_,    RB,          25,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,    e_RB,           1,         0,         1,         0   },
+              {L_,    e_RB,          25,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
                {L_,   -1,           0,         0,         0,         0   },
@@ -7967,15 +7967,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    RVR,          1,         0,         1,         0   },
-              {L_,    RVR,          7,         0,        49,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,    e_RVR,          1,         0,         1,         0   },
+              {L_,    e_RVR,          7,         0,        49,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,   RVRA,          6,         1,       e_ERR,       0   },
-              {L_,    RVR,          4,         1,     e_INVALID,       0   },
-              {L_,   RVRA,          5,         1,     e_INVALID,       0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,   e_RVRA,          6,         1,       e_ERR,       0   },
+              {L_,    e_RVR,          4,         1,     e_INVALID,       0   },
+              {L_,   e_RVRA,          5,         1,     e_INVALID,       0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
 
@@ -7983,15 +7983,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RVRA,          2,         0,         4,         0   },
-              {L_,   RVRA,          7,         0,        46,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RVRA,          2,         0,         4,         0   },
+              {L_,   e_RVRA,          7,         0,        46,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    RVR,          6,         1,       e_ERR,       0   },
-              {L_,    RVR,          4,         1,      e_INVALID,      0   },
-              {L_,   RVRA,          5,         1,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,    e_RVR,          6,         1,       e_ERR,       0   },
+              {L_,    e_RVR,          4,         1,      e_INVALID,      0   },
+              {L_,   e_RVRA,          5,         1,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
             #endif
@@ -7999,18 +7999,18 @@ int main(int argc, char *argv[]) {
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,  RVRA,           1,         0,         1,         0   },
-              {L_,  RVRA,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,  e_RVRA,           1,         0,         1,         0   },
+              {L_,  e_RVRA,           5,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
               {L_,    -1,           0,         0,         0,         0   },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RVR,           1,         0,         1,         0   },
-              {L_,   RVR,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RVR,           1,         0,         1,         0   },
+              {L_,   e_RVR,           5,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
                {L_,   -1,           0,         0,         0,         0   },
@@ -8291,15 +8291,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    RV,           1,         0,         1,         0   },
-              {L_,    RV,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,    e_RV,           1,         0,         1,         0   },
+              {L_,    e_RV,           5,         0,        25,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,   RVA,           6,         1,       e_ERR,       0   },
-              {L_,    RV,           4,         1,      e_INVALID,      0   },
-              {L_,   RVA,           5,         1,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,   e_RVA,           6,         1,       e_ERR,       0   },
+              {L_,    e_RV,           4,         1,      e_INVALID,      0   },
+              {L_,   e_RVA,           5,         1,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
 
@@ -8307,15 +8307,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RVA,           2,         0,         4,         0   },
-              {L_,   RVA,           6,         0,        35,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RVA,           2,         0,         4,         0   },
+              {L_,   e_RVA,           6,         0,        35,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    RV,           6,         1,       e_ERR,       0   },
-              {L_,    RV,           4,         1,      e_INVALID,      0   },
-              {L_,   RVA,           5,         1,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,    e_RV,           6,         1,       e_ERR,       0   },
+              {L_,    e_RV,           4,         1,      e_INVALID,      0   },
+              {L_,   e_RVA,           5,         1,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
             #endif
@@ -8323,18 +8323,18 @@ int main(int argc, char *argv[]) {
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RVA,           1,         0,         1,         0   },
-              {L_,   RVA,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RVA,           1,         0,         1,         0   },
+              {L_,   e_RVA,           5,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
               {L_,    -1,           0,         0,         0,         0   },
             },
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    RV,           1,         0,         1,         0   },
-              {L_,    RV,           5,         0,        25,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,    e_RV,           1,         0,         1,         0   },
+              {L_,    e_RV,           5,         0,        25,         0   },
                 // The channel will be closed by the peer when the 'read'
                 // request is on going, so it'll return 'CLOSED'.
                {L_,   -1,           0,         0,         0,         0   },
@@ -8635,15 +8635,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    RR,          16,         0,        16,         0   },
-              {L_,    RR,          60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,    e_RR,          16,         0,        16,         0   },
+              {L_,    e_RR,          60,         0,        34,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    RR,          20,         1,       e_ERR,       0   },
-              {L_,    RR,          80,         1,      e_INVALID,      0   },
-              {L_,   RRA,          40,         1,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,    e_RR,          20,         1,       e_ERR,       0   },
+              {L_,    e_RR,          80,         1,      e_INVALID,      0   },
+              {L_,   e_RRA,          40,         1,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
 
@@ -8651,31 +8651,31 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RRA,          16,         0,        16,         0   },
-              {L_,   RRA,          60,         0,        34,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RRA,          16,         0,        16,         0   },
+              {L_,   e_RRA,          60,         0,        34,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,   RRA,          20,         0,       e_ERR,       0   },
-              {L_,    RR,          80,         0,      e_INVALID,      0   },
-              {L_,   RRA,          40,         0,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,   e_RRA,          20,         0,       e_ERR,       0   },
+              {L_,    e_RR,          80,         0,      e_INVALID,      0   },
+              {L_,   e_RRA,          40,         0,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,   RRA,           1,         0,         1,         0   },
-              {L_,   RRA,           5,         0,         5,         0   },
-              {L_,   RBR,         250,         0,        44,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,   e_RRA,           1,         0,         1,         0   },
+              {L_,   e_RRA,           5,         0,         5,         0   },
+              {L_,   e_RBR,         250,         0,        44,         0   },
             },
             {
-              {L_, HELP_WRITE,    100,         0,         0,         0   },
-              {L_,    RR,           1,         0,         1,         0   },
-              {L_,    RR,           5,         0,         5,         0   },
-              {L_,   RBR,         250,         0,        94,         0   },
+              {L_, e_HELP_WRITE,    100,         0,         0,         0   },
+              {L_,    e_RR,           1,         0,         1,         0   },
+              {L_,    e_RR,           5,         0,         5,         0   },
+              {L_,   e_RBR,         250,         0,        94,         0   },
             },
 
             #else
@@ -8926,15 +8926,15 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method with the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     R,           1,         0,         1,         0   },
-              {L_,     R,          30,         0,        30,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,     e_R,           1,         0,         1,         0   },
+              {L_,     e_R,          30,         0,        30,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    RA,          20,         0,       e_ERR,         0   },
-              {L_,     R,          80,         0,      e_INVALID,      0   },
-              {L_,    RA,          40,         0,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,    e_RA,          20,         0,       e_ERR,         0   },
+              {L_,     e_R,          80,         0,      e_INVALID,      0   },
+              {L_,    e_RA,          40,         0,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
 
@@ -8942,33 +8942,33 @@ int main(int argc, char *argv[]) {
             // behavior of the 'read' method w/o the 'augStatus' parameter.
             {
                 // Establish a channel and verify that it works fine.
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,     R,           1,         0,         1,         0   },
-              {L_,    RA,          10,         0,        10,         0   },
-              {L_,     R,          15,         0,        15,         0   },
-              {L_,    RA,          20,         0,        20,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,     e_R,           1,         0,         1,         0   },
+              {L_,    e_RA,          10,         0,        10,         0   },
+              {L_,     e_R,          15,         0,        15,         0   },
+              {L_,    e_RA,          20,         0,        20,         0   },
                 // Now close the channel, and try some 'read' operations, each
                 // of which should return a "ERROR".
-              {L_, CLOSE_OBSERVE,   0,         0,         0,         0   },
-              {L_,    RA,          20,         1,       e_ERR,       0   },
-              {L_,     R,          80,         1,      e_INVALID,      0   },
-              {L_,    RA,          40,         1,      e_INVALID,      0   },
+              {L_, e_CLOSE_OBSERVE,   0,         0,         0,         0   },
+              {L_,    e_RA,          20,         1,       e_ERR,       0   },
+              {L_,     e_R,          80,         1,      e_INVALID,      0   },
+              {L_,    e_RA,          40,         1,      e_INVALID,      0   },
               {L_,    -1,           0,         0,         0,         0   },
             },
             #endif
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
             {
-              {L_, HELP_WRITE,     50,         0,        50,         0   },
-              {L_,    RA,           1,         0,         1,         0   },
-              {L_,    RA,           5,         0,         5,         0   },
-              {L_,   RBR,         250,         0,        44,         0   },
+              {L_, e_HELP_WRITE,     50,         0,        50,         0   },
+              {L_,    e_RA,           1,         0,         1,         0   },
+              {L_,    e_RA,           5,         0,         5,         0   },
+              {L_,   e_RBR,         250,         0,        44,         0   },
             },
             {
-              {L_, HELP_WRITE,     50,         0,         0,         0   },
-              {L_,     R,           1,         0,         1,         0   },
-              {L_,     R,           5,         0,         5,         0   },
-              {L_,   RBR,         250,         0,        44,         0   },
+              {L_, e_HELP_WRITE,     50,         0,         0,         0   },
+              {L_,     e_R,           1,         0,         1,         0   },
+              {L_,     e_R,           5,         0,         5,         0   },
+              {L_,   e_RBR,         250,         0,        44,         0   },
             },
 
             #else
