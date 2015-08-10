@@ -81,7 +81,7 @@ public:
 
     // PUBLIC DATA MEMBERS
     union {
-        char                                d_arena[ARENA_SIZE];
+        char                                d_arena[k_ARENA_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;  // for alignment
     }                 d_cb;
 
@@ -364,15 +364,15 @@ void TcpTimedCbChannel_RReg::invokeConditionally(int status,
 bsl::ostream& operator<<(bsl::ostream&                        out,
                          const TcpTimedCbChannel_RReg& reg) {
     switch(reg.d_category) {
-       case TcpTimedCbChannel_RReg::BUFFERED: {
+       case TcpTimedCbChannel_RReg::e_BUFFERED: {
            out << 'B' << reg.d_requestLength << ", "
                << reg.d_data.d_s.d_length << ';' << bsl::flush;
        } break;
-       case TcpTimedCbChannel_RReg::NON_BUFFERED: {
+       case TcpTimedCbChannel_RReg::e_NON_BUFFERED: {
            out << 'N' << reg.d_requestLength << ", "
                << reg.d_data.d_s.d_length << ';' << bsl::flush;
        } break;
-       case TcpTimedCbChannel_RReg::VECTORED_I: {
+       case TcpTimedCbChannel_RReg::e_VECTORED_I: {
            out << 'V' << reg.d_requestLength << ", "
                << reg.d_data.d_vi.d_numBuffers << ';' << bsl::flush;
        } break;
@@ -691,19 +691,19 @@ void TcpTimedCbChannel_WReg::invokeConditionally(int status,
 bsl::ostream& operator<<(bsl::ostream& out,
                          const TcpTimedCbChannel_WReg& reg) {
     switch(reg.d_category) {
-       case TcpTimedCbChannel_WReg::BUFFERED: {
+       case TcpTimedCbChannel_WReg::e_BUFFERED: {
            out << 'B' << reg.d_requestLength << ", "
                << reg.d_data.d_s.d_length << ';' << bsl::flush;
        } break;
-       case TcpTimedCbChannel_WReg::NON_BUFFERED: {
+       case TcpTimedCbChannel_WReg::e_NON_BUFFERED: {
            out << 'N' << reg.d_requestLength << ", "
                << reg.d_data.d_s.d_length << ';' << bsl::flush;
        } break;
-       case TcpTimedCbChannel_WReg::VECTORED_I: {
+       case TcpTimedCbChannel_WReg::e_VECTORED_I: {
            out << 'V' << reg.d_requestLength << ", "
                << reg.d_data.d_vi.d_numBuffers << ';' << bsl::flush;
        } break;
-       case TcpTimedCbChannel_WReg::VECTORED_O: {
+       case TcpTimedCbChannel_WReg::e_VECTORED_O: {
        } break;
     }
     return out;
@@ -767,7 +767,7 @@ int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
     int rv = 0;
 
     switch(request->d_category) {
-      case btlsos::TcpTimedCbChannel_RReg::BUFFERED: {
+      case btlsos::TcpTimedCbChannel_RReg::e_BUFFERED: {
           if (request->d_requestLength <= *offset - *SP) {
               int savedSP = *SP;
               *SP += request->d_requestLength;
@@ -786,7 +786,7 @@ int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
               rv = 1;
           }
       } break;
-      case btlsos::TcpTimedCbChannel_RReg::NON_BUFFERED: {
+      case btlsos::TcpTimedCbChannel_RReg::e_NON_BUFFERED: {
           BSLS_ASSERT(request->d_requestLength
                                               == request->d_data.d_s.d_length);
           int dataLength = *offset - *SP;
@@ -816,7 +816,7 @@ int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
               *offset = *SP;
           }
       } break;
-      case btlsos::TcpTimedCbChannel_RReg::VECTORED_I: {
+      case btlsos::TcpTimedCbChannel_RReg::e_VECTORED_I: {
           int s = btls::IovecUtil::scatter(request->d_data.d_vi.d_buffers,
                                           request->d_data.d_vi.d_numBuffers,
                                           buffer + *SP, *offset - *SP);
@@ -906,9 +906,9 @@ void TcpTimedCbChannel::bufferedReadCb()
 
     d_currentReadRequest_p = d_readRequests.back();
     BSLS_ASSERT(d_currentReadRequest_p);
-    BSLS_ASSERT(TcpTimedCbChannel_RReg::BUFFERED ==
+    BSLS_ASSERT(TcpTimedCbChannel_RReg::e_BUFFERED ==
                    d_currentReadRequest_p->d_category);
-    BSLS_ASSERT(TcpTimedCbChannel_RReg::VFUNC3 ==
+    BSLS_ASSERT(TcpTimedCbChannel_RReg::e_VFUNC3 ==
                    d_currentReadRequest_p->d_callbackType);
 
     if (0 == d_readBuffer.size()) {
@@ -1051,7 +1051,7 @@ void TcpTimedCbChannel::bufferedReadCb()
                 d_currentReadRequest_p->d_timeout, d_readTimerFunctor);
             BSLS_ASSERT(d_readTimerId);
         }
-        while (TcpTimedCbChannel_RReg::BUFFERED !=
+        while (TcpTimedCbChannel_RReg::e_BUFFERED !=
                                           d_currentReadRequest_p->d_category)
         {
             if (0 == d_rManager_p->registerSocketEvent(d_socket_p->handle(),
@@ -1101,7 +1101,7 @@ void TcpTimedCbChannel::readCb()
 
     while (1) {
         switch(d_currentReadRequest_p->d_category) {
-          case TcpTimedCbChannel_RReg::NON_BUFFERED:
+          case TcpTimedCbChannel_RReg::e_NON_BUFFERED:
           {
               char *buffer = d_currentReadRequest_p->d_data.d_s.d_buffer;
               int numBytes = d_currentReadRequest_p->d_data.d_s.d_length;
@@ -1200,7 +1200,7 @@ void TcpTimedCbChannel::readCb()
                   d_readRequests.push_back(d_currentReadRequest_p);
               }
           } break;
-          case TcpTimedCbChannel_RReg::VECTORED_I: {
+          case TcpTimedCbChannel_RReg::e_VECTORED_I: {
               const btls::Iovec *buffers =
                   d_currentReadRequest_p->d_data.d_vi.d_buffers;
               BSLS_ASSERT(buffers);
@@ -1310,7 +1310,7 @@ void TcpTimedCbChannel::readCb()
         d_currentReadRequest_p = NULL;
 
         if (0 == d_readRequests.size() ||
-            TcpTimedCbChannel_RReg::BUFFERED ==
+            TcpTimedCbChannel_RReg::e_BUFFERED ==
                                                  d_readRequests[0]->d_category)
         {
             break;
@@ -1334,7 +1334,7 @@ void TcpTimedCbChannel::readCb()
                     d_currentReadRequest_p->d_timeout, d_readTimerFunctor);
             BSLS_ASSERT(d_readTimerId);
         }
-        while (TcpTimedCbChannel_RReg::BUFFERED ==
+        while (TcpTimedCbChannel_RReg::e_BUFFERED ==
                 d_currentReadRequest_p->d_category)
         {
             if (0 == d_rManager_p->registerSocketEvent(d_socket_p->handle(),
@@ -1388,7 +1388,7 @@ void TcpTimedCbChannel::readTimerCb()
     BSLS_ASSERT(d_currentReadRequest_p->d_isTimedFlag);
 
     switch(d_currentReadRequest_p->d_category) {
-      case TcpTimedCbChannel_RReg::BUFFERED: {
+      case TcpTimedCbChannel_RReg::e_BUFFERED: {
           BSLS_ASSERT(d_readBufferOffset <
                          d_currentReadRequest_p->d_requestLength);
 
@@ -1401,12 +1401,12 @@ void TcpTimedCbChannel::readTimerCb()
                                          e_TIMEDOUT);
           d_readBufferOffset = 0;
       } break;
-      case TcpTimedCbChannel_RReg::NON_BUFFERED: {
+      case TcpTimedCbChannel_RReg::e_NON_BUFFERED: {
           d_currentReadRequest_p->invoke(
               d_currentReadRequest_p->d_requestLength -
               d_currentReadRequest_p->d_data.d_s.d_length, e_TIMEDOUT);
       } break;
-      case TcpTimedCbChannel_RReg::VECTORED_I: {
+      case TcpTimedCbChannel_RReg::e_VECTORED_I: {
           d_currentReadRequest_p->invoke(0, e_TIMEDOUT);
       } break;
       default: {
@@ -1431,7 +1431,7 @@ void TcpTimedCbChannel::readTimerCb()
             BSLS_ASSERT(d_readTimerId);
         }
 
-        if (TcpTimedCbChannel_RReg::BUFFERED ==
+        if (TcpTimedCbChannel_RReg::e_BUFFERED ==
             d_currentReadRequest_p->d_category)
         {
             if (0 != d_rManager_p->registerSocketEvent(d_socket_p->handle(),
@@ -1481,14 +1481,14 @@ void TcpTimedCbChannel::bufferedWriteCb()
     BSLS_ASSERT(d_socket_p);
     BSLS_ASSERT(d_writeRequests.size());
 
-    BSLS_ASSERT(TcpTimedCbChannel_WReg::BUFFERED ==
+    BSLS_ASSERT(TcpTimedCbChannel_WReg::e_BUFFERED ==
                                            d_writeRequests.back()->d_category);
 
     int numBytesToWrite = 0;
     int numPendingRequests = d_writeRequests.size();
     for (int i = numPendingRequests - 1; 0 <= i; --i) {
         if (d_writeRequests[i]->d_category
-                                  != TcpTimedCbChannel_WReg::BUFFERED) {
+                                  != TcpTimedCbChannel_WReg::e_BUFFERED) {
             break;
         }
         numBytesToWrite += d_writeRequests[i]->d_data.d_s.d_length;
@@ -1538,7 +1538,7 @@ void TcpTimedCbChannel::bufferedWriteCb()
                     d_currentWriteRequest_p->d_timeout, d_writeTimerFunctor);
                 BSLS_ASSERT(d_writeTimerId);
             }
-            while (TcpTimedCbChannel_WReg::BUFFERED !=
+            while (TcpTimedCbChannel_WReg::e_BUFFERED !=
                 d_currentWriteRequest_p->d_category)
             {
                 if (0 != d_wManager_p->registerSocketEvent(
@@ -1653,7 +1653,7 @@ void TcpTimedCbChannel::bufferedWriteCb()
                 d_currentWriteRequest_p->d_timeout, d_writeTimerFunctor);
             BSLS_ASSERT(d_writeTimerId);
         }
-        while (TcpTimedCbChannel_WReg::BUFFERED !=
+        while (TcpTimedCbChannel_WReg::e_BUFFERED !=
             d_currentWriteRequest_p->d_category)
         {
             if (0 == d_wManager_p->registerSocketEvent(d_socket_p->handle(),
@@ -1702,7 +1702,7 @@ void TcpTimedCbChannel::writeCb()
     BSLS_ASSERT(d_currentWriteRequest_p);
 
     switch(d_currentWriteRequest_p->d_category) {
-      case TcpTimedCbChannel_WReg::NON_BUFFERED: {
+      case TcpTimedCbChannel_WReg::e_NON_BUFFERED: {
           const char *buffer = d_currentWriteRequest_p->d_data.d_s.d_buffer;
           int numBytes = d_currentWriteRequest_p->d_data.d_s.d_length;
           int requestLength = d_currentWriteRequest_p->d_requestLength;
@@ -1793,7 +1793,7 @@ void TcpTimedCbChannel::writeCb()
               BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
           }
       } break;
-      case TcpTimedCbChannel_WReg::VECTORED_I: {
+      case TcpTimedCbChannel_WReg::e_VECTORED_I: {
           const btls::Iovec *buffers =
               d_currentWriteRequest_p->d_data.d_vi.d_buffers;
           int numBuffers = d_currentWriteRequest_p->d_data.d_vi.d_numBuffers;
@@ -1871,7 +1871,7 @@ void TcpTimedCbChannel::writeCb()
         BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
           }
       } break;
-      case TcpTimedCbChannel_WReg::VECTORED_O: {
+      case TcpTimedCbChannel_WReg::e_VECTORED_O: {
           const btls::Ovec *buffers =
               d_currentWriteRequest_p->d_data.d_vo.d_buffers;
           int numBuffers = d_currentWriteRequest_p->d_data.d_vo.d_numBuffers;
@@ -1970,7 +1970,7 @@ void TcpTimedCbChannel::writeCb()
             BSLS_ASSERT(d_writeTimerId);
         }
         int rCode = 0;
-        if ((int) TcpTimedCbChannel_WReg::BUFFERED ==
+        if ((int) TcpTimedCbChannel_WReg::e_BUFFERED ==
             (int) d_currentWriteRequest_p->d_category)
         {
             rCode = d_wManager_p->registerSocketEvent(
@@ -2025,19 +2025,19 @@ void TcpTimedCbChannel::writeTimerCb()
     BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
 
     switch(d_currentWriteRequest_p->d_category) {
-      case TcpTimedCbChannel_WReg::BUFFERED: {
+      case TcpTimedCbChannel_WReg::e_BUFFERED: {
           d_currentWriteRequest_p->invoke(
               d_currentWriteRequest_p->d_requestLength -
               d_currentWriteRequest_p->d_data.d_s.d_length, e_TIMEDOUT);
           d_writeBufferOffset = 0;
       } break;
-      case TcpTimedCbChannel_WReg::NON_BUFFERED: {
+      case TcpTimedCbChannel_WReg::e_NON_BUFFERED: {
           d_currentWriteRequest_p->invoke(
               d_currentWriteRequest_p->d_requestLength -
               d_currentWriteRequest_p->d_data.d_s.d_length, e_TIMEDOUT);
       } break;
-      case TcpTimedCbChannel_WReg::VECTORED_I:
-      case TcpTimedCbChannel_WReg::VECTORED_O: {
+      case TcpTimedCbChannel_WReg::e_VECTORED_I:
+      case TcpTimedCbChannel_WReg::e_VECTORED_O: {
           d_currentWriteRequest_p->invoke(0, e_TIMEDOUT);
       } break;
       default: {
@@ -2063,7 +2063,7 @@ void TcpTimedCbChannel::writeTimerCb()
             BSLS_ASSERT(d_writeTimerId);
         }
         int rCode = 0;
-        if (TcpTimedCbChannel_WReg::BUFFERED ==
+        if (TcpTimedCbChannel_WReg::e_BUFFERED ==
             d_currentWriteRequest_p->d_category)
         {
             rCode = d_wManager_p->registerSocketEvent(d_socket_p->handle(),
@@ -4145,7 +4145,7 @@ void TcpTimedCbChannel::cancelRead() {
         while (numToCancel--) {
             TcpTimedCbChannel_RReg *reg = toBeCancelled.back();
 
-            if (reg->d_callbackType == TcpTimedCbChannel_RReg::VFUNC3) {
+            if (reg->d_callbackType == TcpTimedCbChannel_RReg::e_VFUNC3) {
                 reg->invoke(NULL, 0, e_DEQUEUED);
             }
             else {
@@ -4173,7 +4173,7 @@ void TcpTimedCbChannel::cancelRead() {
 
         for (int i = 0; i < numToCancel; ++i) {
             TcpTimedCbChannel_RReg *reg = toBeCancelled[i];
-            if (reg->d_callbackType == TcpTimedCbChannel_RReg::VFUNC3) {
+            if (reg->d_callbackType == TcpTimedCbChannel_RReg::e_VFUNC3) {
                 reg->invoke(NULL, 0, e_DEQUEUED);
             }
             else {

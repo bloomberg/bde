@@ -141,10 +141,10 @@ struct ConnectionInfo {
 };
 
 enum {
-    DEFAULT_PORT_NUMBER     = 0,
-    DEFAULT_NUM_CONNECTIONS = 10,
-    DEFAULT_EQUEUE_SIZE     = 5,
-    DEFAULT_SLEEP_TIME      = 100000
+    k_DEFAULT_PORT_NUMBER     = 0,
+    k_DEFAULT_NUM_CONNECTIONS = 10,
+    k_DEFAULT_EQUEUE_SIZE     = 5,
+    k_DEFAULT_SLEEP_TIME      = 100000
 };
 
 //=============================================================================
@@ -154,9 +154,9 @@ enum {
 
 class my_EchoServer {
     enum {
-        READ_SIZE = 200,
-        DEFAULT_PORT_NUMBER = 1234,   // As specified by RFC
-        QUEUE_SIZE = 16
+        k_READ_SIZE = 200,
+        k_DEFAULT_PORT_NUMBER = 1234,   // As specified by RFC
+        k_QUEUE_SIZE = 16
     };
     btlsos::TcpTimedCbAcceptor   d_allocator;
     bsls::TimeInterval           d_acceptTimeout;
@@ -167,7 +167,7 @@ class my_EchoServer {
                                 d_allocateFunctor;
 
     bslma::Allocator           *d_allocator_p;
-    char                        d_buffer[READ_SIZE];
+    char                        d_buffer[k_READ_SIZE];
 
     void allocateCb(btlsc::TimedCbChannel *channel, int status);
          // Invoked by the socket event manager when a connection is accepted.
@@ -193,7 +193,7 @@ class my_EchoServer {
     ~my_EchoServer();
 
     //  MANIPULATORS
-    int open(int portNumber = DEFAULT_PORT_NUMBER);
+    int open(int portNumber = k_DEFAULT_PORT_NUMBER);
     int close();
 };
 
@@ -232,7 +232,7 @@ void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
                       , _1, _2
                       , channel));
 
-        if (channel->timedReadRaw(d_buffer, READ_SIZE,
+        if (channel->timedReadRaw(d_buffer, k_READ_SIZE,
                 bdlt::CurrentTime::now() + d_readTimeout, callback))
         {
             cout << "Failed to enqueue buffered read request." << endl;
@@ -297,7 +297,7 @@ void my_EchoServer::bufferedReadCb(const char *buffer, int status,
                   , this
                   , _1, _2, _3
                   , channel));
-        if (channel->timedBufferedRead(READ_SIZE,
+        if (channel->timedBufferedRead(k_READ_SIZE,
                 bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
             cout << "Failed to enqueue read request." << endl;
             d_allocator.deallocate(channel);
@@ -349,7 +349,7 @@ void my_EchoServer::readCb(int status, int asyncStatus,
                       , this
                       , _1, _2
                       , channel));
-        if (channel->timedReadRaw(d_buffer, READ_SIZE,
+        if (channel->timedReadRaw(d_buffer, k_READ_SIZE,
                 bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
             cout << "Failed to enqueue read request." << endl;
             d_allocator.deallocate(channel);
@@ -384,7 +384,7 @@ void my_EchoServer::writeCb(int status, int asyncStatus,
 int my_EchoServer::open(int portNumber) {
     btlso::IPv4Address serverAddress;
     serverAddress.setPortNumber(portNumber);
-    int s = d_allocator.open(serverAddress, QUEUE_SIZE);
+    int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
     if (s) {
         cout << "Failed to open listening port." << endl;
         return s;
@@ -681,10 +681,10 @@ void my_TickReporter::readCb(const char           *buffer,
 
     const int msgSize = ::myTickMessageSize();
 
-    enum { TIME_LEN = 15 };  // 15 seconds
+    enum { k_TIME_LEN = 15 };  // 15 seconds
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     static bsls::TimeInterval lastTime(now);
-    const bsls::TimeInterval PERIOD(TIME_LEN, 0);
+    const bsls::TimeInterval PERIOD(k_TIME_LEN, 0);
 
     if (msgSize == status) {  // Encoded-tick value read successfully.
         ASSERT(buffer);
@@ -706,7 +706,7 @@ void my_TickReporter::readCb(const char           *buffer,
                       , 0
                       , &curNumTicks
                       , now));
-            d_eventManager_p->registerTimer(now + TIME_LEN, timerFunctor);
+            d_eventManager_p->registerTimer(now + k_TIME_LEN, timerFunctor);
         }
 
         btlsc::TimedCbChannel::BufferedReadCallback readFunctor(
@@ -756,7 +756,7 @@ void my_TickReporter::timeCb(int                lastNumTicks,
                               bsls::TimeInterval  lastTime)
 {
     int numTicks = *curNumTicks - lastNumTicks;
-    enum { TIME_LEN = 15 };  // 15 seconds
+    enum { k_TIME_LEN = 15 };  // 15 seconds
     bsls::TimeInterval now = bdlt::CurrentTime::now();
 
     bsls::TimeInterval timePeriod = now - lastTime;
@@ -775,7 +775,7 @@ void my_TickReporter::timeCb(int                lastNumTicks,
                   , *curNumTicks
                   , curNumTicks
                   , now));
-    d_eventManager_p->registerTimer(now + TIME_LEN, timerFunctor);
+    d_eventManager_p->registerTimer(now + k_TIME_LEN, timerFunctor);
 }
 
 my_TickReporter::my_TickReporter(bsl::ostream&                  console,
@@ -961,9 +961,9 @@ int main(int argc, char *argv[])
                           << "\n======================================"
                           << endl;
         {
-            enum { DEFAULT_PORT = 5000 };
+            enum { k_DEFAULT_PORT = 5000 };
 
-            const int portNumber = argc > 2 ? atoi(argv[2]) : DEFAULT_PORT;
+            const int portNumber = argc > 2 ? atoi(argv[2]) : k_DEFAULT_PORT;
 
             btlso::IPv4Address address;
             address.setPortNumber(portNumber);
@@ -972,7 +972,7 @@ int main(int argc, char *argv[])
             btlso::InetStreamSocketFactory<btlso::IPv4Address> sf;
             btlsos::TcpTimedCbAcceptor acceptor(&sf, &sem);
 
-            ASSERT(0 == acceptor.open(address, DEFAULT_EQUEUE_SIZE));
+            ASSERT(0 == acceptor.open(address, k_DEFAULT_EQUEUE_SIZE));
 
             if (acceptor.isInvalid()) {
                  bsl::cout << "Error: Unable to create acceptor" << bsl::endl;
@@ -1009,9 +1009,9 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
-            enum { DEFAULT_PORT = 5000, LISTEN_QUEUE_SIZE = 64 };
+            enum { k_DEFAULT_PORT = 5000, k_LISTEN_QUEUE_SIZE = 64 };
 
-            const int portNumber = argc > 2 ? atoi(argv[2]) : DEFAULT_PORT;
+            const int portNumber = argc > 2 ? atoi(argv[2]) : k_DEFAULT_PORT;
 
             btlso::IPv4Address address(btlso::IPv4Address::BTESO_ANY_ADDRESS,
                                       portNumber);
@@ -1020,7 +1020,7 @@ int main(int argc, char *argv[])
                                                       // concrete factory
             btlsos::TcpTimedCbAcceptor acceptor(&sf, &sem);
 
-            if (acceptor.open(address, LISTEN_QUEUE_SIZE)) {
+            if (acceptor.open(address, k_LISTEN_QUEUE_SIZE)) {
                 bsl::cout << "Error: Unable to listen on " << address
                           << bsl::endl;
                 break; // return -1;
@@ -1122,12 +1122,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -1138,7 +1138,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    totalConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -1302,7 +1302,7 @@ int main(int argc, char *argv[])
                     }
                     // Now expected number of channels are still valid.
                     LOOP_ASSERT(i, totalConnections == acceptor.numChannels());
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1343,12 +1343,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -1358,7 +1358,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    VALUES[i].d_numConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -1505,7 +1505,7 @@ int main(int argc, char *argv[])
                     }
                     // Now expected number of channels have been established.
                     LOOP_ASSERT(i, connections == acceptor.numChannels());
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1546,12 +1546,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -1564,7 +1564,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    totalConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -1723,7 +1723,7 @@ int main(int argc, char *argv[])
                     // Now expected number of channels have been established.
                     LOOP_ASSERT(i, VALUES[i].d_numConnections + 1 ==
                                    acceptor.numChannels());
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1740,7 +1740,7 @@ int main(int argc, char *argv[])
                               << "\n=====================" << endl;
             {
                 enum {
-                    MAX_COMMANDS = 50 // the maximum commands in one test
+                    k_MAX_COMMANDS = 50 // the maximum commands in one test
                 };
                 struct {
                     int  d_lineNum;
@@ -1759,7 +1759,7 @@ int main(int argc, char *argv[])
                     int d_expNumTimers;// the number of timers after the
                                        // execution of this command
                     int d_expNumChannels;
-                } VALUES[][MAX_COMMANDS] =
+                } VALUES[][k_MAX_COMMANDS] =
                   //line command  channelFlag timeout  Events  Timers channels
                   //---- -------  ----------- -------  ------  ------ --------
                 {
@@ -1800,12 +1800,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -1817,7 +1817,7 @@ int main(int argc, char *argv[])
                         { &factory,
                           &serverAddr,
                           1,       // the number of channels to be established
-                          DEFAULT_SLEEP_TIME,
+                          k_DEFAULT_SLEEP_TIME,
                         };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -1828,7 +1828,7 @@ int main(int argc, char *argv[])
                     timeout1 += bdlt::CurrentTime::now();
                     timeout2 += bdlt::CurrentTime::now();
 
-                    for (int j = 0; j < MAX_COMMANDS; ++j) {
+                    for (int j = 0; j < k_MAX_COMMANDS; ++j) {
                         if (!VALUES[i][j].d_commandCode) {
                             break;
                         }
@@ -1899,7 +1899,7 @@ int main(int argc, char *argv[])
                         case 'D': {
                             manager.dispatch(0);
                             bdlqq::ThreadUtil::microSleep(
-                                                    DEFAULT_SLEEP_TIME * 2);
+                                                    k_DEFAULT_SLEEP_TIME * 2);
                         } break;
                         default:
                             break;
@@ -1921,7 +1921,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
 
@@ -1959,12 +1959,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -1975,7 +1975,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    VALUES[i].d_numConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -2039,7 +2039,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2076,12 +2076,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -2092,7 +2092,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    VALUES[i].d_numConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     int ret = bdlqq::ThreadUtil::create(&threadHandle,
@@ -2159,7 +2159,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2196,12 +2196,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -2212,7 +2212,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    VALUES[i].d_numConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -2272,7 +2272,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2309,12 +2309,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -2325,7 +2325,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    VALUES[i].d_numConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -2384,7 +2384,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2425,12 +2425,12 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_VALUES; i++) {
                     btlso::IPv4Address serverAddress;
                     serverAddress.setIpAddress(hostName);
-                    serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                    serverAddress.setPortNumber(k_DEFAULT_PORT_NUMBER);
 
                     btlso::TcpTimerEventManager manager(&testAllocator);
                     Obj acceptor(&factory, &manager, &testAllocator);
                     ASSERT(0 == acceptor.open(serverAddress,
-                                              DEFAULT_EQUEUE_SIZE));
+                                              k_DEFAULT_EQUEUE_SIZE));
 
                     bdlqq::ThreadUtil::Handle threadHandle;
                     bdlqq::ThreadAttributes attributes;
@@ -2441,7 +2441,7 @@ int main(int argc, char *argv[])
                     ConnectionInfo connectInfo = { &factory,
                                                    &serverAddr,
                                                    VALUES[i].d_numConnections,
-                                                   DEFAULT_SLEEP_TIME
+                                                   k_DEFAULT_SLEEP_TIME
                                                  };
 
                     bdlqq::ThreadUtil::create(&threadHandle, attributes,
@@ -2506,7 +2506,7 @@ int main(int argc, char *argv[])
                     if (verbose) {
                         PT(acceptor.address().ipAddress());
                     }
-                     bdlqq::ThreadUtil::microSleep(DEFAULT_SLEEP_TIME * 2);
+                     bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
