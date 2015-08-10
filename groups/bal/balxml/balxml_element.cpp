@@ -4,9 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_element_cpp,"$Id$ $CSID$")
 
-#include <bdlmca_blob.h>
-#include <bdlmca_blobutil.h>
-#include <bdlmca_blobstreambuf.h>
+#include <btlb_blob.h>
+#include <btlb_blobutil.h>
+#include <btlb_blobstreambuf.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -27,9 +27,9 @@ class BlobCharIterator {
     // Class for iterating over characters in a blob.
 
     // PRIVATE DATA MEMBERS
-    const bdlmca::Blob       *d_data_p;   // Blob on which to iterate (held)
+    const btlb::Blob       *d_data_p;   // Blob on which to iterate (held)
     int                     d_absPos;   // Absolute position within blob
-    const bdlmca::BlobBuffer *d_buffer_p; // Current buffer within blob (held)
+    const btlb::BlobBuffer *d_buffer_p; // Current buffer within blob (held)
     int                     d_relPos;   // Position relative to current buffer
 
   private:
@@ -39,7 +39,7 @@ class BlobCharIterator {
 
   public:
     // CREATORS
-    explicit BlobCharIterator(const bdlmca::Blob *data);
+    explicit BlobCharIterator(const btlb::Blob *data);
 
     ~BlobCharIterator();
 
@@ -61,7 +61,7 @@ class BlobCharIterator {
                            // ----------------------
 // CREATORS
 
-BlobCharIterator::BlobCharIterator(const bdlmca::Blob *data)
+BlobCharIterator::BlobCharIterator(const btlb::Blob *data)
 : d_data_p(data)
 , d_absPos(0)
 , d_buffer_p(&data->buffer(0))
@@ -218,7 +218,7 @@ void initNodeDeepCopy(balxml::Element_Node        *dst,
 }
 
 int loadTree(balxml::Element_Node      *rootNode,
-             const bdlmca::Blob&  data,
+             const btlb::Blob&  data,
              int                startPos,
              int                endPos,
              int                numLevels)
@@ -565,7 +565,7 @@ ElementRef ElementRef::operator[](int index) const
     return ret;
 }
 
-void ElementRef::extractContent(bdlmca::Blob *content) const
+void ElementRef::extractContent(btlb::Blob *content) const
 {
     BSLS_ASSERT(content);
     BSLS_ASSERT(d_node_p);
@@ -590,24 +590,24 @@ void ElementRef::extractContent(bdlmca::Blob *content) const
         contentLength = it.pos() - contentBegin;
     }
 
-    bdlmca::BlobUtil::append(content,
+    btlb::BlobUtil::append(content,
                            d_node_p->d_imp_p->d_data,
                            contentBegin,
                            contentLength);
 }
 
-void ElementRef::extractData(bdlmca::Blob *data) const
+void ElementRef::extractData(btlb::Blob *data) const
 {
     BSLS_ASSERT(data);
     BSLS_ASSERT(d_node_p);
 
-    bdlmca::Blob& src    = d_node_p->d_imp_p->d_data;
+    btlb::Blob& src    = d_node_p->d_imp_p->d_data;
     int         begin  = d_node_p->d_openTagBegin
                                                + d_node_p->indexOffsetAmount();
     int         length = d_node_p->d_elementLength;
 
     data->removeAll();
-    bdlmca::BlobUtil::append(data, src, begin, length);
+    btlb::BlobUtil::append(data, src, begin, length);
 }
 
 void ElementRef::extractElementName(bsl::string *elementName) const
@@ -618,7 +618,7 @@ void ElementRef::extractElementName(bsl::string *elementName) const
     int begin  = d_node_p->d_openTagBegin + d_node_p->indexOffsetAmount() + 1;
     int length = 0;
 
-    bdlmca::Blob& src = d_node_p->d_imp_p->d_data;
+    btlb::Blob& src = d_node_p->d_imp_p->d_data;
 
     BlobCharIterator it(&src);
 
@@ -652,7 +652,7 @@ void ElementRef::extractOpenTag(bsl::string *tag) const
     int begin  = d_node_p->d_openTagBegin + d_node_p->indexOffsetAmount();
     int length = 0;
 
-    bdlmca::Blob& src = d_node_p->d_imp_p->d_data;
+    btlb::Blob& src = d_node_p->d_imp_p->d_data;
 
     BlobCharIterator it(&src);
 
@@ -690,7 +690,7 @@ void ElementRef::insertSubElement(
 
     bslma::Allocator *allocator = d_node_p->d_imp_p->d_allocator_p;
 
-    bdlmca::Blob data;
+    btlb::Blob data;
     elementRef.extractData(&data);
 
     bsl::shared_ptr<Element_Node> node;
@@ -713,12 +713,12 @@ void ElementRef::insertSubElement(
         else {
             node->d_openTagBegin = d_node_p->d_openTagLength;
 
-            bdlmca::Blob *dest       = &d_node_p->d_imp_p->d_data;
+            btlb::Blob *dest       = &d_node_p->d_imp_p->d_data;
             int         destOffset = d_node_p->indexOffsetAmount()
                                      + d_node_p->d_openTagBegin
                                      + node->d_openTagBegin;
 
-            bdlmca::BlobUtil::insert(dest, destOffset, data);
+            btlb::BlobUtil::insert(dest, destOffset, data);
             lengthDifference = data.length();
         }
     }
@@ -728,12 +728,12 @@ void ElementRef::insertSubElement(
         node->d_openTagBegin = d_node_p->d_subNodes[prev]->d_openTagBegin
                                + d_node_p->d_subNodes[prev]->d_elementLength;
 
-        bdlmca::Blob *dest       = &d_node_p->d_imp_p->d_data;
+        btlb::Blob *dest       = &d_node_p->d_imp_p->d_data;
         int         destOffset = d_node_p->indexOffsetAmount()
                                  + d_node_p->d_openTagBegin
                                  + node->d_openTagBegin;
 
-        bdlmca::BlobUtil::insert(dest, destOffset, data);
+        btlb::BlobUtil::insert(dest, destOffset, data);
         lengthDifference = data.length();
     }
 
@@ -774,7 +774,7 @@ int ElementRef::numSubElements() const
 
 void ElementRef::removeAllSubElements() const
 {
-    setContent(bdlmca::Blob());
+    setContent(btlb::Blob());
 }
 
 void ElementRef::removeSubElement(int index) const
@@ -784,7 +784,7 @@ void ElementRef::removeSubElement(int index) const
     int numKeptSubElem = 0;
 
     // Clear the current content
-    setContent(bdlmca::Blob());
+    setContent(btlb::Blob());
 
     // Selectively insert back from the original.
     for (int i = 0; i < numSubElem; ++i) {
@@ -793,7 +793,7 @@ void ElementRef::removeSubElement(int index) const
     }
 }
 
-void ElementRef::setContent(const bdlmca::Blob& content) const
+void ElementRef::setContent(const btlb::Blob& content) const
 {
     BSLS_ASSERT(d_node_p);
 
@@ -818,10 +818,10 @@ void ElementRef::setContent(const bdlmca::Blob& content) const
         prevContentLength = it.pos() - contentBegin;
     }
 
-    bdlmca::BlobUtil::erase(&d_node_p->d_imp_p->d_data,
+    btlb::BlobUtil::erase(&d_node_p->d_imp_p->d_data,
                           contentBegin,
                           prevContentLength);
-    bdlmca::BlobUtil::insert(&d_node_p->d_imp_p->d_data,
+    btlb::BlobUtil::insert(&d_node_p->d_imp_p->d_data,
                            contentBegin,
                            content);
 
@@ -907,12 +907,12 @@ ElementConstRef ElementConstRef::operator[](int index) const
     return d_imp[index];
 }
 
-void ElementConstRef::extractContent(bdlmca::Blob *content) const
+void ElementConstRef::extractContent(btlb::Blob *content) const
 {
     d_imp.extractContent(content);
 }
 
-void ElementConstRef::extractData(bdlmca::Blob *data) const
+void ElementConstRef::extractData(btlb::Blob *data) const
 {
     d_imp.extractData(data);
 }
@@ -979,7 +979,7 @@ Element& Element::operator=(const Element& rhs)
     if (&rhs != this) {
         bslma::Allocator *allocator = d_imp.d_allocator_p;
 
-        bdlmca::Blob tmpData(rhs.d_imp.d_data, allocator);
+        btlb::Blob tmpData(rhs.d_imp.d_data, allocator);
         bsl::shared_ptr<Element_Node> tmpNode;
 
         if (rhs.d_root.d_node_p.get()) {
@@ -999,7 +999,7 @@ Element& Element::operator=(const ElementRef& rhs)
     if (rhs != d_root) {
         bslma::Allocator *allocator = d_imp.d_allocator_p;
 
-        bdlmca::Blob                    tmpData(allocator);
+        btlb::Blob                    tmpData(allocator);
         bsl::shared_ptr<Element_Node> tmpNode;
 
         rhs.extractData(&tmpData);
@@ -1020,7 +1020,7 @@ Element& Element::operator=(const ElementConstRef& rhs)
     if (rhs != d_root) {
         bslma::Allocator *allocator = d_imp.d_allocator_p;
 
-        bdlmca::Blob                    tmpData(allocator);
+        btlb::Blob                    tmpData(allocator);
         bsl::shared_ptr<Element_Node> tmpNode;
 
         rhs.extractData(&tmpData);
@@ -1047,12 +1047,12 @@ void Element::insertSubElement(int                    index,
     return d_root.insertSubElement(index, elementRef);
 }
 
-int Element::load(const bdlmca::Blob& data)
+int Element::load(const btlb::Blob& data)
 {
     return load(data, UNLIMITED_LEVELS);
 }
 
-int Element::load(const bdlmca::Blob& data, int numLevels)
+int Element::load(const btlb::Blob& data, int numLevels)
 {
     bslma::Allocator *allocator = d_imp.d_allocator_p;
 
@@ -1083,7 +1083,7 @@ void Element::removeSubElement(int index)
     d_root.removeSubElement(index);
 }
 
-void Element::setContent(const bdlmca::Blob& content)
+void Element::setContent(const btlb::Blob& content)
 {
     d_root.setContent(content);
 }
@@ -1102,12 +1102,12 @@ balxml::Element::operator balxml::ElementConstRef() const
 }
 
 namespace balxml {
-void Element::extractContent(bdlmca::Blob *content) const
+void Element::extractContent(btlb::Blob *content) const
 {
     d_root.extractContent(content);
 }
 
-void Element::extractData(bdlmca::Blob *data) const
+void Element::extractData(btlb::Blob *data) const
 {
     d_root.extractData(data);
 }

@@ -1,10 +1,10 @@
 // balxml_element.t.cpp  -*-C++-*-
 #include <balxml_element.h>
 
-#include <bdlmca_blob.h>
-#include <bdlmca_blobutil.h>
-#include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlmca_blobstreambuf.h>
+#include <btlb_blob.h>
+#include <btlb_blobutil.h>
+#include <btlb_pooledblobbufferfactory.h>
+#include <btlb_blobstreambuf.h>
 
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
@@ -74,17 +74,17 @@ static void aSsErT(int c, const char *s, int i)
 //                          HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
 
-void makeBlob(bdlmca::Blob *data, const bsl::string& str)
+void makeBlob(btlb::Blob *data, const bsl::string& str)
 {
-    bdlmca::OutBlobStreamBuf osb(data);
+    btlb::OutBlobStreamBuf osb(data);
     bsl::ostream           os(&osb);
 
     os << str << bsl::flush;
 }
 
-bsl::string blobToString(const bdlmca::Blob& data)
+bsl::string blobToString(const btlb::Blob& data)
 {
-    bdlmca::InBlobStreamBuf isb(&data);
+    btlb::InBlobStreamBuf isb(&data);
     bsl::istream          is(&isb);
     bsl::string           result;
 
@@ -95,10 +95,10 @@ bsl::string blobToString(const bdlmca::Blob& data)
 void printElement(bsl::ostream&         stream,
                   const balxml::Element& element)
 {
-    bdlmca::Blob data;
+    btlb::Blob data;
     element.extractData(&data);
     {
-        bdlmca::InBlobStreamBuf isb(&data);
+        btlb::InBlobStreamBuf isb(&data);
         stream << (&isb) << bsl::flush;
     }
 }
@@ -113,10 +113,10 @@ void printElementDetailed(bsl::ostream&                stream,
                           const balxml::ElementConstRef& element,
                           const bsl::string&           name)
 {
-    bdlmca::Blob data;
+    btlb::Blob data;
     element.extractData(&data);
     {
-        bdlmca::InBlobStreamBuf isb(&data);
+        btlb::InBlobStreamBuf isb(&data);
         stream << '\n' << name << " =\n" << (&isb) << bsl::endl;
     }
     int numSubElements = element.numSubElements();
@@ -211,11 +211,11 @@ void printElementDetailed(bsl::ostream&                stream,
 // data in 'Listing 1' and pick an appropriate element from the scratch data.
 //
 // For efficiency reasons, we will allocate this scratch data only once, into a
-// 'bdlmca::Blob', and reuse the blob buffers for each request.  Our 'convert'
+// 'btlb::Blob', and reuse the blob buffers for each request.  Our 'convert'
 // function will take this global scratch data as a third argument:
 //..
-    int convert(bdlmca::Blob            *soapEnvelopeData,
-                const bdlmca::Blob&      portResponseData,
+    int convert(btlb::Blob            *soapEnvelopeData,
+                const btlb::Blob&      portResponseData,
                 const balxml::Element&  globalScratchData)
         // Convert from the specified 'portResponseData' to the specified
         // 'soapEnvelopeData', using the specified 'globalScratchData'.  Return
@@ -284,7 +284,7 @@ void printElementDetailed(bsl::ostream&                stream,
 // elements are inserted, there is no deep copying of data, so it will still be
 // efficient:
 //..
-        bdlmca::Blob content;
+        btlb::Blob content;
 
         responseElement.extractContent(&content);
         responseElementWithNs.setContent(content);
@@ -330,10 +330,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nDRQS TEST"
                           << "\n=========" << endl;
 
-        bdlmca::PooledBlobBufferFactory factory(30);
+        btlb::PooledBlobBufferFactory factory(30);
 
         Obj mX;
-        bdlmca::Blob data(&factory);
+        btlb::Blob data(&factory);
         makeBlob(&data,
                  "<?xml version='1.0'?>\n"
                  "<tns:suggestion xmlns:tns='urn:test'>\n"
@@ -353,18 +353,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUSAGE EXAMPLE"
                           << "\n=============" << endl;
 
-        bdlmca::PooledBlobBufferFactory factory(30);
+        btlb::PooledBlobBufferFactory factory(30);
 
-        bdlmca::Blob portResponseData(&factory);
+        btlb::Blob portResponseData(&factory);
         makeBlob(&portResponseData, portResponseMsg);
 
-        bdlmca::Blob scratchData(&factory);
+        btlb::Blob scratchData(&factory);
         makeBlob(&scratchData, scratchDataText);
 
         balxml::Element scratchElement;
         scratchElement.load(scratchData);
 
-        bdlmca::Blob soapEnvelopeData;
+        btlb::Blob soapEnvelopeData;
         convert(&soapEnvelopeData, portResponseData, scratchElement);
 
         bsl::string result = blobToString(soapEnvelopeData);
@@ -395,10 +395,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                           << "\n==============" << endl;
 
-        bdlmca::PooledBlobBufferFactory factory(30);
+        btlb::PooledBlobBufferFactory factory(30);
 
         Obj mX;
-        bdlmca::Blob data(&factory);
+        btlb::Blob data(&factory);
         makeBlob(&data,
                  "<?xml version='1.0'?>\n"
                  "<Envelope>\n"

@@ -7,15 +7,15 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a 'bdlmca::Blob'-based XML element container.
+//@PURPOSE: Provide a 'btlb::Blob'-based XML element container.
 //
 //@CLASSES:
 // balxml::ElementRef     : mutable reference to sub-element in 'balxml::Element'
 // balxml::ElementConstRef: immutable reference to sub-element in
 //                         'balxml::Element'
-// balxml::Element        : 'bdlmca::Blob'-based XML element
+// balxml::Element        : 'btlb::Blob'-based XML element
 //
-//@SEE_ALSO: bdlmca_blob
+//@SEE_ALSO: btlb_blob
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //
@@ -105,11 +105,11 @@ BSLS_IDENT("$Id: $")
 // data in 'Listing 1' and pick an appropriate element from the scratch data.
 //
 // For efficiency reasons, we will allocate this scratch data only once, into a
-// 'bdlmca::Blob', and reuse the blob buffers for each request.  Our 'convert'
+// 'btlb::Blob', and reuse the blob buffers for each request.  Our 'convert'
 // function will take this global scratch data as a third argument:
 //..
-//  int convert(bdlmca::Blob            *soapEnvelopeData,
-//              const bdlmca::Blob&      portResponseData,
+//  int convert(btlb::Blob            *soapEnvelopeData,
+//              const btlb::Blob&      portResponseData,
 //              const balxml::Element&  globalScratchData)
 //      // Convert from the specified 'portResponseData' to the specified
 //      // 'soapEnvelopeData', using the specified 'globalScratchData'.  Return
@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 // elements are inserted, there is no deep copying of data, so it will still be
 // efficient:
 //..
-//      bdlmca::Blob content;
+//      btlb::Blob content;
 //
 //      responseElement.extractContent(&content);
 //      responseElementWithNs.setContent(content);
@@ -197,8 +197,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -244,7 +244,7 @@ class Element_Imp;
 // </Root>
 //
 // Element_Imp
-//   - bdlmca::Blob        d_data;
+//   - btlb::Blob        d_data;
 //   - bslma::Allocator *d_allocator_p;
 //
 // Element_Node
@@ -299,7 +299,7 @@ class Element_Imp {
 
   public:
     // DATA MEMBERS
-    bdlmca::Blob        d_data;
+    btlb::Blob        d_data;
     bslma::Allocator *d_allocator_p;
 
     // CREATORS
@@ -412,12 +412,12 @@ class ElementRef {
         // The behavior is undefined unless '0 <= index' and
         // 'index < numSubElements()'.
 
-    void extractContent(bdlmca::Blob *content) const;
+    void extractContent(btlb::Blob *content) const;
         // Extract the XML content for the element referred to by this
         // 'ElementRef' into the specified 'content'.  This does not include
         // the open tag or close tag.
 
-    void extractData(bdlmca::Blob *data) const;
+    void extractData(btlb::Blob *data) const;
         // Extract the XML data for the element referred to by this
         // 'ElementRef' into the specified 'data'.  This includes the open tag,
         // content, and close tag.
@@ -452,7 +452,7 @@ class ElementRef {
         // referred to by this 'ElementRef'.  The behavior is undefined unless
         // '0 <= index' and 'index < numSubElements()'.
 
-    void setContent(const bdlmca::Blob& content) const;
+    void setContent(const btlb::Blob& content) const;
         // Set the content of the element referred to by this 'ElementRef' to
         // the specified 'content'.
 };
@@ -507,12 +507,12 @@ class ElementConstRef {
         // 'index'.  The behavior is undefined unless '0 <= index' and
         // 'index < numSubElements()'.
 
-    void extractContent(bdlmca::Blob *content) const;
+    void extractContent(btlb::Blob *content) const;
         // Extract the XML content for the element referred to by this
         // 'ElementConstRef' into the specified 'content'.  This does not
         // include the open tag or close tag.
 
-    void extractData(bdlmca::Blob *data) const;
+    void extractData(btlb::Blob *data) const;
         // Extract the XML data for the element referred to by this
         // 'ElementConstRef' into the specified 'data'.  This includes the open
         // tag, content, and close tag.
@@ -552,7 +552,7 @@ class Element {
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator will be used.  Note that this 'Element' object
         // cannot be used until it is assigned state using 'operator=' or
-        // 'load(const bdlmca::Blob&)'.
+        // 'load(const btlb::Blob&)'.
 
     Element(const Element&  original,
                    bslma::Allocator      *basicAllocator = 0);
@@ -593,12 +593,12 @@ class Element {
         // sub-element of this element at the specified 'index'.  The behavior
         // is undefined unless '0 <= index' and 'index <= numSubElements()'.
 
-    int load(const bdlmca::Blob& data);
-    int load(const bdlmca::Blob& data, int numLevels);
+    int load(const btlb::Blob& data);
+    int load(const btlb::Blob& data, int numLevels);
         // Load the element with the specified 'data'.  Return 0 on success,
         // and a non-zero value otherwise, with no effect on this object.
 
-    void setContent(const bdlmca::Blob& content);
+    void setContent(const btlb::Blob& content);
         // Set the content of this element to the specified 'content'.
 
     void removeAllSubElements();
@@ -618,11 +618,11 @@ class Element {
     operator ElementConstRef() const;
         // Return an 'ElementConstRef' to this element.
 
-    void extractContent(bdlmca::Blob *content) const;
+    void extractContent(btlb::Blob *content) const;
         // Extract the XML content for this element into the specified
         // 'content'.  This does not include the open tag or close tag.
 
-    void extractData(bdlmca::Blob *data) const;
+    void extractData(btlb::Blob *data) const;
         // Extract the XML data for this element into the specified 'data'.
         // This includes the open tag, content, and close tag.
 
