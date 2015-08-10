@@ -7,18 +7,18 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a container of 'bael_Record' user-field valuees.
+//@PURPOSE: Provide a type for the value of a user supplied field.
 //
 //@CLASSES:
-//  ball::UserFieldValue: a container of 'bael_Record' user-field value
+//  ball::UserFieldValue: the value of a user supplied field
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@SEE_ALSO: 
 //
-//@DESCRIPTION: This component provides a *value* *semantic* container-type,
-// 'ball::UserFieldValue', that represents a (randomly accessible) sequence of
-// user field value (typically associated with a bael log record).
+//@DESCRIPTION: This component provides a value-semantic class,
+// 'ball::UserFieldValue', that represents the value of a user supplied log
+// field value.
 //
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -51,9 +51,9 @@ namespace BloombergLP {
 
 namespace ball {
 
-                        // =====================
+                        // ====================
                         // class UserFieldValue
-                        // =====================
+                        // ====================
 
 class UserFieldValue {
 
@@ -75,6 +75,12 @@ class UserFieldValue {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
+    explicit UserFieldValue(bslma::Allocator *basicAllocator = 0);
+        // Create a user field value having the default (unset) value.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+ 
     explicit UserFieldValue(int64_t                  value, 
                             bslma::Allocator        *basicAllocator = 0);
     explicit UserFieldValue(double                   value, 
@@ -83,6 +89,10 @@ class UserFieldValue {
                             bslma::Allocator        *basicAllocator = 0);
     explicit UserFieldValue(const bdlt::DatetimeTz&  value, 
                             bslma::Allocator        *basicAllocator = 0);
+        // Create a user field value having the specified 'value'.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     UserFieldValue(const UserFieldValue&  original,
                    bslma::Allocator       *basicAllocator = 0);
@@ -90,6 +100,7 @@ class UserFieldValue {
     // MANIPULATORS
     UserFieldValue& operator=(const UserFieldValue& rhs);
 
+    void reset();
     void setValue(int64_t value);
     void setValue(double value);
     void setValue(bslstl::StringRef value);
@@ -129,16 +140,16 @@ class UserFieldValue {
 bool operator==(const UserFieldValue& lhs, const UserFieldValue& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'UserFieldValue' objects have the
-    // same value if the corresponding value of their 'identifier' attribute is
-    // the same and if both store the same sequence of transitions, ordered by
-    // time.
+    // same value if they have the same 'type', and (if the type is not
+    // 'e_VOID') the value of that type (as accessed through 'the*' methods)
+    // is the same.
 
 bool operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'UserFieldValue' objects do not
-    // have the same value if their corresponding 'identifier' attribute does
-    // not have the same value, or if both do *not* store the same sequence of
-    // transitions, ordered by time.
+    // have the same value if their 'type' is not the same, or (if their type
+    // is not 'e_VOID') the value of that type (as accessed through 'the*'
+    // methods) is not the same.
 
 bsl::ostream& operator<<(bsl::ostream&          stream,
                          const UserFieldValue& object);
@@ -165,6 +176,12 @@ void swap(ball::UserFieldValue& a, ball::UserFieldValue& b);
                         // ---------------------
                         // class UserFieldValue
                         // ---------------------
+
+inline
+UserFieldValue::UserFieldValue(bslma::Allocator *basicAllocator)
+: d_value(basicAllocator)
+{   
+}
 
 inline
 UserFieldValue::UserFieldValue(int64_t value, bslma::Allocator *basicAllocator)
@@ -195,7 +212,7 @@ UserFieldValue::UserFieldValue(const bdlt::DatetimeTz&  value,
 
 inline
 UserFieldValue::UserFieldValue(const UserFieldValue&  original,
-                                 bslma::Allocator       *basicAllocator)
+                               bslma::Allocator       *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
@@ -206,6 +223,12 @@ UserFieldValue& UserFieldValue::operator=(const UserFieldValue& rhs)
 {
     d_value = rhs.d_value;
     return *this;
+}
+
+inline
+void UserFieldValue::reset()
+{
+    d_value.reset();
 }
    
 inline
@@ -249,6 +272,10 @@ inline
 ball::UserFieldType::Enum UserFieldValue::type() const
 {
     switch (d_value.typeIndex()) {
+      case 0: {
+          BSLS_ASSERT_SAFE(d_value.isUnset());
+          return ball::UserFieldType::e_VOID;
+      } break;
       case 1: {
           BSLS_ASSERT_SAFE(d_value.is<int64_t>());
           return ball::UserFieldType::e_INT64;

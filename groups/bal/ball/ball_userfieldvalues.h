@@ -7,18 +7,18 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a container of 'bael_Record' user-field valuees.
+//@PURPOSE: Provide a container of user supplied field values.
 //
 //@CLASSES:
-//  ball::UserFieldValues: a container of 'bael_Record' user-field values
+//  ball::UserFieldValues: a container of user supplied field values
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@SEE_ALSO: 
 //
-//@DESCRIPTION: This component provides a *value* *semantic* container-type,
+//@DESCRIPTION: This component provides a value-semantic container-type,
 // 'ball::UserFieldValues', that represents a (randomly accessible) sequence of
-// user field values (typically associated with a bael log record).
+// user supplied field values (typically associated with a 'ball::LogRecord').
 //
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -70,6 +70,9 @@ class UserFieldValues {
 
     void removeAll();
 
+    void append(const UserFieldValue& value);
+
+    void appendNull();
     void appendInt64(int64_t value);
     void appendDouble(double value);
     void appendString(bslstl::StringRef value);
@@ -173,29 +176,35 @@ void UserFieldValues::removeAll()
 {
     d_values.clear();
 }
+
+inline
+void UserFieldValues::appendNull()
+{
+    d_values.emplace_back();
+}
         
 inline
 void UserFieldValues::appendInt64(int64_t value)
 {
-    d_values.push_back(UserFieldValue(value));
+    d_values.emplace_back(value);
 }
 
 inline
 void UserFieldValues::appendDouble(double value)
 {
-    d_values.push_back(UserFieldValue(value));
+    d_values.emplace_back(value);
 }
 
 inline
 void UserFieldValues::appendString(bslstl::StringRef value)
 {
-    d_values.push_back(UserFieldValue(value));
+    d_values.emplace_back(value);
 }
 
 inline
 void UserFieldValues::appendDatetimeTz(const bdlt::DatetimeTz& value)
 {
-    d_values.push_back(UserFieldValue(value));
+    d_values.emplace_back(value);
 }
 
 inline
