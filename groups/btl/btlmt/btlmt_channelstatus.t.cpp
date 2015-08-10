@@ -2,7 +2,7 @@
 
 #include <btlmt_channelstatus.h>
 
-#include <bdlmca_blob.h>
+#include <btlb_blob.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -140,7 +140,7 @@ class MyChannel {
 
   public:
     //...
-    int write(const bdlmca::Blob& blob);
+    int write(const btlb::Blob& blob);
         // Enqueue the specified 'blob' message to be written to this channel.
         // Return 0 on success, and a non-zero value otherwise.  On error, the
         // return value *may* equal to one of the enumerators in
@@ -148,7 +148,7 @@ class MyChannel {
     //...
 };
 
-int MyChannel::write(const bdlmca::Blob& blob)
+int MyChannel::write(const btlb::Blob& blob)
 {
     (void)blob;
     return btlmt::ChannelStatus::BTEMT_SUCCESS;
@@ -203,11 +203,11 @@ int main(int argc, char *argv[])
 //..
 
 //..
-// Further suppose that we have a 'bdlmca::Blob' object, 'blob', and a
+// Further suppose that we have a 'btlb::Blob' object, 'blob', and a
 // 'MyChannel' object, 'channel'.
         MyChannel channel;
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-        bdlmca::Blob blob(&scratch);
+        btlb::Blob blob(&scratch);
 //
 // First, we use the 'write' method to write 'blob' into 'channel':
 //..

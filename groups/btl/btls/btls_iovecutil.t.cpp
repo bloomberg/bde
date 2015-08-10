@@ -2,8 +2,8 @@
 
 #include <btls_iovecutil.h>
 
-#include <bdlmca_blob.h>
-#include <bdlmca_pooledblobbufferfactory.h>
+#include <btlb_blob.h>
+#include <btlb_pooledblobbufferfactory.h>
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 
         // Try several buffer sizes for the 'factory'.
         for (int m = 1; m < BUFFER_MAX_SIZE; ++m) {
-            bdlmca::PooledBlobBufferFactory factory(m, &testAllocator);
+            btlb::PooledBlobBufferFactory factory(m, &testAllocator);
 
             if (verbose)
                 cout << "\tTrying factory of buffers of size " << m << ".\n";
@@ -191,8 +191,8 @@ int main(int argc, char *argv[])
                     if (veryVerbose)
                         cout << "\tTesting offset " << offset << ".\n";
                     // Create and initialize blob.
-                    bdlmca::Blob *blob = new (testAllocator)
-                                        bdlmca::Blob(&factory, &testAllocator);
+                    btlb::Blob *blob = new (testAllocator)
+                                        btlb::Blob(&factory, &testAllocator);
                     blob->setLength(j);
 
                     for (int k = 0; k < j; ++k) {
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 
         // Try several buffer sizes for the 'factory'.
         for (int m = 1; m < BUFFER_MAX_SIZE; ++m) {
-            bdlmca::PooledBlobBufferFactory factory(m, &testAllocator);
+            btlb::PooledBlobBufferFactory factory(m, &testAllocator);
 
             if (verbose)
                 cout << "\tTrying factory of buffers of size " << m << ".\n";
@@ -264,8 +264,8 @@ int main(int argc, char *argv[])
                     if (veryVerbose)
                         cout << "\tTesting offset " << offset << ".\n";
                     // Create and initialize blob.
-                    bdlmca::Blob *blob = new (testAllocator)
-                                        bdlmca::Blob(&factory, &testAllocator);
+                    btlb::Blob *blob = new (testAllocator)
+                                        btlb::Blob(&factory, &testAllocator);
                     blob->setLength(j);
 
                     for (int k = 0; k < j; ++k) {

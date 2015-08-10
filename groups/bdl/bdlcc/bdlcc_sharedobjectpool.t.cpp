@@ -5,9 +5,7 @@
 #include <bdls_testutil.h>
 
 #include <bdlcc_objectpool.h>
-#include <bdlmca_blob.h>
 #include <bdlma_concurrentpoolallocator.h>
-#include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
@@ -75,6 +73,23 @@ namespace {
 
 bdlqq::SpinLock coutLock;
 
+class PooledBlobBufferFactory {
+  public:
+    // CREATORS
+    PooledBlobBufferFactory(int bufferSize, bslma::Allocator *allocator) {}
+    ~PooledBlobBufferFactory() {}
+};
+
+class Blob {
+  public:
+    // CREATORS
+    Blob(PooledBlobBufferFactory *factory, bslma::Allocator *allocator) {}
+    ~Blob() {}
+
+    // MANIPULATORS
+    void removeAll() {}
+};
+
 template <class POOL>
 class TestRun
 {
@@ -127,7 +142,7 @@ void TestRun<POOL>::threadProc(int id)
    for (int count = 0; true; ++count) {
       double elapsed = timer.elapsedTime();
       if (elapsed < d_secondsToRun) {
-         vector<bsl::shared_ptr<bdlmca::Blob> > blobs(d_allocator_p);
+         vector<bsl::shared_ptr<Blob> > blobs(d_allocator_p);
          blobs.resize(d_numBlobsPerIteration);
          for (int i = 0; i < d_numBlobsPerIteration; ++i) {
             d_pool.getBlob(&blobs[i]);
@@ -163,15 +178,16 @@ void TestRun<POOL>::run()
 }
 
 class SlowerBlobPool {
-    bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-    bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
+    PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+    bdlcc::ObjectPool<Blob>   d_blobPool;     // supply blobs
     bslma::Allocator             *d_allocator_p;  // allocator (held)
 
     enum { k_BUFFER_SIZE=65536 };
 
-    static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
+        // TBD::Added Pooled
+    static void createBlob(void* address, PooledBlobBufferFactory *factory,
                            bslma::Allocator *allocator) {
-        new (address) bdlmca::Blob(factory, allocator);
+        new (address) Blob(factory, allocator);
     }
 
   public:
@@ -188,37 +204,39 @@ class SlowerBlobPool {
 
    {}
 
-   void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp) {
+   void getBlob(bsl::shared_ptr<Blob> *blob_sp) {
        blob_sp->reset(d_blobPool.getObject(),
                       bdlf::MemFnUtil::memFn(
-                              &bdlcc::ObjectPool<bdlmca::Blob>::releaseObject,
+                              &bdlcc::ObjectPool<Blob>::releaseObject,
                               &d_blobPool),
                       d_allocator_p);
    }
 };
 
+
 ///Usage
 ///-----
 // This component is intended to improve the efficiency of code which provides
 // shared pointers to pooled objects.  As an example, consider a class which
-// maintains a pool of 'bdlmca::Blob' objects and provides shared pointers to
+// maintains a pool of 'Blob' objects and provides shared pointers to
 // them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
 //..
     class SlowBlobPool {
         bdlma::ConcurrentPoolAllocator  d_spAllocator;  // alloc. shared ptr.
-        bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-        bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
+        PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+        bdlcc::ObjectPool<Blob> d_blobPool;     // supply blobs
 
         enum { k_BUFFER_SIZE = 65536 };
 
+            // TBD: Added Pooled
         static void createBlob(void                      *address,
-                               bdlmca::BlobBufferFactory *factory,
+                               PooledBlobBufferFactory *factory,
                                bslma::Allocator          *allocator) {
-            new (address) bdlmca::Blob(factory, allocator);
+            new (address) Blob(factory, allocator);
         }
 
-        static void resetAndReturnBlob(bdlmca::Blob                    *blob,
-                                       bdlcc::ObjectPool<bdlmca::Blob> *pool) {
+        static void resetAndReturnBlob(Blob                    *blob,
+                                       bdlcc::ObjectPool<Blob> *pool) {
             blob->removeAll();
             pool->releaseObject(blob);
         }
@@ -237,7 +255,7 @@ class SlowerBlobPool {
         {
         }
 
-        void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+        void getBlob(bsl::shared_ptr<Blob> *blob_sp)
         {
             blob_sp->reset(
                         d_blobPool.getObject(),
@@ -259,20 +277,21 @@ class SlowerBlobPool {
 //..
     class FastBlobPool {
         typedef bdlcc::SharedObjectPool<
-                 bdlmca::Blob,
+                 Blob,
                  bdlcc::ObjectPoolFunctors::DefaultCreator,
-                 bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
+                 bdlcc::ObjectPoolFunctors::RemoveAll<Blob> > BlobPool;
 
-        bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
+        PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
         BlobPool                        d_blobPool;     // supply blobs
 
         enum { k_BUFFER_SIZE = 65536 };
 
+            // TBD: Added Pooled
         static void createBlob(void                      *address,
-                               bdlmca::BlobBufferFactory *factory,
+                               PooledBlobBufferFactory *factory,
                                bslma::Allocator          *allocator)
         {
-            new (address) bdlmca::Blob(factory, allocator);
+            new (address) Blob(factory, allocator);
         }
 
       public:
@@ -288,7 +307,7 @@ class SlowerBlobPool {
         {
         }
 
-        void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+        void getBlob(bsl::shared_ptr<Blob> *blob_sp)
         {
             *blob_sp = d_blobPool.getObject();
         }
@@ -859,6 +878,7 @@ int main(int argc, char *argv[])
             cout << "Thread safety test" << endl;
          }
 
+
          enum {
             k_NUM_THREADS=20,
             k_NUM_BLOBS_PER_ITER=10000,
@@ -902,7 +922,7 @@ int main(int argc, char *argv[])
         SlowBlobPool slowPool(&slowAllocator);
         FastBlobPool fastPool(&fastAllocator);
 
-        bsl::shared_ptr<bdlmca::Blob> blob_sp;
+        bsl::shared_ptr<Blob> blob_sp;
 
         fastPool.getBlob(&blob_sp);
         slowPool.getBlob(&blob_sp);  // throw away the first blob

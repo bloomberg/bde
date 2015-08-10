@@ -46,7 +46,7 @@ namespace BloombergLP {
 
 namespace bsls { class TimeInterval; }
 
-namespace bdlmca { class Blob; }
+namespace btlb { class Blob; }
 
 namespace btlmt {
 
@@ -90,7 +90,7 @@ class AsyncChannel {
 
     };
 
-    typedef bdlf::Function<void (*)(int, int *, bdlmca::Blob *, int)>
+    typedef bdlf::Function<void (*)(int, int *, btlb::Blob *, int)>
                                                          BlobBasedReadCallback;
         // A callback of this type is invoked for 'read' and 'timeRead' when
         // either the requested number of bytes are available, or an error
@@ -99,9 +99,9 @@ class AsyncChannel {
         // of the read operation, and if this code is equal to 'e_SUCCESS', (2)
         // a pointer to an integer value where the callee can indicate how many
         // more bytes are needed to complete the read operation, (3) a
-        // modifiable 'bdlmca::Blob' object containing the payload.  The caller
+        // modifiable 'btlb::Blob' object containing the payload.  The caller
         // is responsible for taking ownership of a certain number of bytes in
-        // the 'bdlmca::Blob' and readjusting it appropriately.  Note that the
+        // the 'btlb::Blob' and readjusting it appropriately.  Note that the
         // read operation is not considered completed until the callee
         // indicates that zero more bytes are needed (argument 2), and (4)
         // channel id.  Also note that the last three arguments are ignored if
@@ -111,7 +111,7 @@ class AsyncChannel {
         //..
         //  void myReadCallback(int           result,
         //                      int          *numNeeded,
-        //                      bdlmca::Blob *blob,
+        //                      btlb::Blob *blob,
         //                      int           channelId);
         //..
 
@@ -145,7 +145,7 @@ class AsyncChannel {
         // a non-zero value otherwise.  On error, the return value *may* equal
         // to one of the enumerators in 'ChannelStatus::Enum'.
 
-    virtual int write(const bdlmca::Blob& blob,
+    virtual int write(const btlb::Blob& blob,
                       int                 highWaterMark = INT_MAX) = 0;
         // Enqueue the specified 'blob' message to be written to this channel.
         // Optionally provide 'highWaterMark' to specify the maximum data size

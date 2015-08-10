@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btls_iovecutil_cpp,"$Id$ $CSID$")
 
-#include <bdlmca_blob.h>
-#include <bdlmca_pooledblobbufferfactory.h>
+#include <btlb_blob.h>
+#include <btlb_pooledblobbufferfactory.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
@@ -25,7 +25,7 @@ namespace {
                          // ------------------------
 
 template <class IOVEC>
-void genericAppendToBlob(bdlmca::Blob *blob,
+void genericAppendToBlob(btlb::Blob *blob,
                          const IOVEC  *vecs,
                          int           numVecs,
                          int           offset)
@@ -244,7 +244,7 @@ int genericScatter(const IOVEC *buffers,
                          // class IovecUtil
                          // ---------------
 
-void IovecUtil::appendToBlob(bdlmca::Blob *blob,
+void IovecUtil::appendToBlob(btlb::Blob *blob,
                              const Iovec  *vecs,
                              int           numVecs,
                              int           offset)
@@ -252,7 +252,7 @@ void IovecUtil::appendToBlob(bdlmca::Blob *blob,
     genericAppendToBlob(blob, vecs, numVecs, offset);
 }
 
-void IovecUtil::appendToBlob(bdlmca::Blob *blob,
+void IovecUtil::appendToBlob(btlb::Blob *blob,
                              const Ovec   *vecs,
                              int           numVecs,
                              int           offset)
@@ -260,14 +260,14 @@ void IovecUtil::appendToBlob(bdlmca::Blob *blob,
     genericAppendToBlob(blob, vecs, numVecs, offset);
 }
 
-bdlmca::Blob *IovecUtil::blob(const Iovec               *vecs,
+btlb::Blob *IovecUtil::blob(const Iovec               *vecs,
                               int                        numVecs,
                               int                        offset,
-                              bdlmca::BlobBufferFactory *factory,
+                              btlb::BlobBufferFactory *factory,
                               bslma::Allocator          *basicAllocator)
 {
     bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
-    bdlmca::Blob     *blob = new (*allocator) bdlmca::Blob(factory, allocator);
+    btlb::Blob     *blob = new (*allocator) btlb::Blob(factory, allocator);
 
     appendToBlob(blob, vecs, numVecs, offset);
     return blob;

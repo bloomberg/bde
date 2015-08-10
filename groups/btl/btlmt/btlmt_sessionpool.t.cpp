@@ -5,7 +5,7 @@
 #include <btlmt_channelpool.h>
 #include <btlmt_session.h>
 
-#include <bdlmca_blobutil.h>
+#include <btlb_blobutil.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadutil.h>
@@ -296,9 +296,9 @@ void sessionStateCallbackWithCounter(int              state,
 
 void readCbWithBlob(int           result,
                     int          *numNeeded,
-                    bdlmca::Blob *data,
+                    btlb::Blob *data,
                     int           ,
-                    bdlmca::Blob *blob)
+                    btlb::Blob *blob)
 {
     if (result) {
         // Session is going down.
@@ -317,9 +317,9 @@ void readCbWithBlob(int           result,
 
 void readCbWithBlobAndBarrier(int             result,
                               int            *numNeeded,
-                              bdlmca::Blob   *data,
+                              btlb::Blob   *data,
                               int             channelId,
-                              bdlmca::Blob   *blob,
+                              btlb::Blob   *blob,
                               bdlqq::Barrier *barrier)
 {
     readCbWithBlob(result, numNeeded, data, channelId, blob);
@@ -328,7 +328,7 @@ void readCbWithBlobAndBarrier(int             result,
 
 void readCbWithCountAndBarrier(int             result,
                                int            *numNeeded,
-                               bdlmca::Blob   *data,
+                               btlb::Blob   *data,
                                int             ,
                                int            *cbCount,
                                bdlqq::Barrier *barrier)
@@ -365,7 +365,7 @@ class TestSession : public btlmt::Session {
 
     void blobReadCb(int         result,
                     int        *numNeeded,
-                    bdlmca::Blob *blob,
+                    btlb::Blob *blob,
                     int         channelId);
         // Read callback for session pool.
 
@@ -396,7 +396,7 @@ class TestSession : public btlmt::Session {
 // PRIVATE MANIPULATORS
 void TestSession::blobReadCb(int           result,
                              int          *numNeeded,
-                             bdlmca::Blob *blob,
+                             btlb::Blob *blob,
                              int           )
 {
     if (result) {
@@ -764,7 +764,7 @@ void runTestFunction(bdlqq::ThreadUtil::Handle                *connectThreads,
                      btlmt::SessionPool                       *pool,
                      btlmt::SessionPool::SessionStateCallback *sessionStateCb,
                      TestFactory                              *sessionFactory,
-                     const bdlmca::Blob&                       dataBlob)
+                     const btlb::Blob&                       dataBlob)
 {
     bsl::vector<int> serverHandles(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
@@ -870,7 +870,7 @@ enum {
 
 void readCbWithMetrics(int               result,
                        int              *numNeeded,
-                       bdlmca::Blob     *blob,
+                       btlb::Blob     *blob,
                        int               ,
                        int               numBytesToRead,
                        bdlqq::Semaphore *semaphore)
@@ -917,7 +917,7 @@ void readCbWithMetrics(int               result,
         maxNumBuffers = blob->numBuffers();
     }
 
-    bdlmca::BlobUtil::erase(blob, 0, consume);
+    btlb::BlobUtil::erase(blob, 0, consume);
 
     if (numBytesRead < numBytesToRead) {
         *numNeeded = PAYLOAD_SIZE;
@@ -1041,7 +1041,7 @@ class TesterSession : public btlmt::Session {
 
     void readCb(int           result,
                 int          *numNeeded,
-                bdlmca::Blob *blob,
+                btlb::Blob *blob,
                 int           channelId);
         // Read callback for session pool.
 
@@ -1151,7 +1151,7 @@ TesterSession::~TesterSession()
 // MANIPULATORS
 void TesterSession::readCb(int           result,
                            int          *numNeeded,
-                           bdlmca::Blob *blob,
+                           btlb::Blob *blob,
                            int           )
 {
     if (veryVerbose) {
@@ -1166,7 +1166,7 @@ void TesterSession::readCb(int           result,
     ASSERT(0 == d_channel_sp->write(*blob));
 
     *numNeeded = 1;
-    bdlmca::BlobUtil::erase(blob, 0, blob->length());
+    btlb::BlobUtil::erase(blob, 0, blob->length());
 
     bdlqq::ThreadUtil::Handle handle(bdlqq::ThreadUtil::invalidHandle());
     ASSERT(0 == bdlqq::ThreadUtil::create(
@@ -1444,7 +1444,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
        // PRIVATE MANIPULATORS
        void readCb(int           result,
                    int          *numNeeded,
-                   bdlmca::Blob *blob,
+                   btlb::Blob *blob,
                    int           channelId);
            // Read callback for session pool.
 
@@ -1523,7 +1523,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
     // PRIVATE MANIPULATORS
     void my_EchoSession::readCb(int           result,
                                 int          *numNeeded,
-                                bdlmca::Blob *blob,
+                                btlb::Blob *blob,
                                 int           )
     {
         if (result) {
@@ -1537,7 +1537,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         ASSERT(0 == d_channel_p->write(*blob));
 
         *numNeeded   = 1;
-        bdlmca::BlobUtil::erase(blob, 0, blob->length());
+        btlb::BlobUtil::erase(blob, 0, blob->length());
 
         d_channel_p->close(); // close connection.
     }
@@ -1906,7 +1906,7 @@ int main(int argc, char *argv[])
         config.setMaxThreads(4);
 
         const int SIZE = 88;
-        bdlmca::Blob    blob;
+        btlb::Blob    blob;
         bdlqq::Barrier barrier(2);
 
         BlobReadCallback callback = bdlf::BindUtil::bind(
@@ -1932,7 +1932,7 @@ int main(int argc, char *argv[])
                                               &barrier);
         const char FILL = 0xBB;
         BSLS_ASSERT(0 == SIZE%2); // test invariant
-        bdlmca::PooledBlobBufferFactory blobFactory(SIZE/2);
+        btlb::PooledBlobBufferFactory blobFactory(SIZE/2);
         {
             Obj mX(&blobFactory, config, poolCb, &pa);
 
@@ -2109,8 +2109,8 @@ int main(int argc, char *argv[])
                                 &numUpConnections);
 
         const int                     SIZE = 1024 * 1024; // 1 MB
-        bdlmca::PooledBlobBufferFactory factory(SIZE);
-        bdlmca::Blob                    dataBlob(&factory);
+        btlb::PooledBlobBufferFactory factory(SIZE);
+        btlb::Blob                    dataBlob(&factory);
         dataBlob.setLength(NUM_BYTES);
 
         TestFactory sessionFactory;
@@ -2564,8 +2564,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.start());
 
         const int                     SIZE = 1024 * 1024; // 1 MB
-        bdlmca::PooledBlobBufferFactory factory(SIZE);
-        bdlmca::Blob                    dataBlob(&factory);
+        btlb::PooledBlobBufferFactory factory(SIZE);
+        btlb::Blob                    dataBlob(&factory);
         dataBlob.setLength(NUM_BYTES);
 
         bdlqq::ThreadUtil::Handle connectThreads[NUM_THREADS];
@@ -2604,7 +2604,7 @@ int main(int argc, char *argv[])
         //:   buffers provided to clients in the data callback.
         //
         // Plan:
-        //: 1 Create a bdlmca::Blob that stores the data returned in the data
+        //: 1 Create a btlb::Blob that stores the data returned in the data
         //:   callback.
         //:
         //: 2 Create a session pool object, 'mX', designed to use blobs
@@ -2638,7 +2638,7 @@ int main(int argc, char *argv[])
             PoolCb    poolCb    = &poolStateCallback;
             SessionCb sessionCb = &sessionStateCallback;
 
-            bdlmca::Blob           blob;
+            btlb::Blob           blob;
             bslma::TestAllocator ta1, ta2;
             BlobReadCallback     callback(bdlf::BindUtil::bind(&readCbWithBlob,
                                                               _1,

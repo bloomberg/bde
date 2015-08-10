@@ -233,8 +233,8 @@ BSLS_IDENT("$Id: $")
 #include <balj_mappingmanager.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
@@ -283,7 +283,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmca { class Blob; }
+namespace btlb { class Blob; }
 
 class balj_Journal;
 
@@ -510,12 +510,12 @@ class balj_Journal {
     int validateImpl(bool verbose) const;
 
     int addRecord(RecordHandle         *record,
-                  const bdlmca::Blob     *blob,
+                  const btlb::Blob     *blob,
                   void*                 data,
                   unsigned              size,
                   unsigned              attributes);
 
-    int getRecordData(bdlmca::Blob    *blob,
+    int getRecordData(btlb::Blob    *blob,
                       char          *buf,
                       unsigned       bufSize,
                       RecordHandle   handle) const;
@@ -541,7 +541,7 @@ class balj_Journal {
 
     // MANIPULATORS
     int addRecord(RecordHandle         *handle,
-                  const bdlmca::Blob&     record,
+                  const btlb::Blob&     record,
                   unsigned              attributes = 0);
     int addRecord(RecordHandle         *handle,
                   void                 *record,
@@ -685,7 +685,7 @@ class balj_Journal {
         // by this record.  Return 0 on success and a non-zero error code
         // otherwise.
 
-    int getRecordData(bdlmca::Blob *blob, RecordHandle handle) const;
+    int getRecordData(btlb::Blob *blob, RecordHandle handle) const;
         // Load into the specified 'blob' a reference to the data of the
         // record with the specified 'handle'.  Return the number of bytes
         // in the record.  The behavior is undefined unless 'handle' is the
@@ -784,7 +784,7 @@ class balj_Journal {
 
 inline
 int balj_Journal::addRecord(balj_Journal::RecordHandle *handle,
-                             const bdlmca::Blob&            record,
+                             const btlb::Blob&            record,
                              unsigned                     attributes)
 {
     return addRecord(handle, &record, 0, 0, attributes);
@@ -800,7 +800,7 @@ int balj_Journal::addRecord(balj_Journal::RecordHandle *handle,
 }
 
 inline
-int balj_Journal::getRecordData(bdlmca::Blob         *blob,
+int balj_Journal::getRecordData(btlb::Blob         *blob,
                                  RecordHandle        handle) const
 {
     return getRecordData(blob, 0, 0, handle);

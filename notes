@@ -1,0 +1,341 @@
+ An invocable object is any object that can be invoked in syntactically the
+same manner as a function.  Invocable objects include function pointers, and
+objects that provide an 'operator()' method.
+
+bdef_Function_Rep: The general place for storing the actual function either
+                   in-place or out-of-place.
+                   The d_object_p points to the in-place representation if
+                   d_manager_p is 0 or to an external representation if it is
+                   not.
+
+bdef_Function_TypeList: Argument list for a function.
+
+Invocable: The function to be invoked including function pointers and
+           user-defined types defining operator().
+ 
+bdef_Function_Invoker: Utility holding the invocable
+- Contains a invoke method that calls the appropriate method
+
+InvokerFunc: Function pointer taking args and returning return type
+
+
+bdef_Function_RepUtil: a namespace for functions managing 'bdef_Function_Rep'
+instances.  These static methods ends up as the d_manager_p in
+bdef_Function_Rep objects.
+
+bdef_Function:
+
+2 data members:
+
+- Rep: Actual function to call
+- InvokerFunc: mechanism for calling the function with appropriate arguments
+
+
+Function_TypeList: bslmf::FunctionPointerTraits::ArgumentList
+- This makes the types in the function arguments available as templated types 
+
+Function_Invocable
+- Provides an invocable() method that returns the function to invoke
+
+BDLF_FUNCTION_INVOKER(FUNC, rep): Private macro expands to a call to
+  rep->invocable():  This just calls the underlying function in rep with the
+                     appropriate syntax
+
+BDLF_FUNCTION_DECLARE_INVOKER_TAG:
+Specifies the enum values before invocation of the function
+
+
+Rep
+- Container referring to the function pointer to invoke, d_arena stores it
+  in-place or out-of-place
+- Manager: Manages the invocable function including copy constructing,
+           clearing etc
+
+InvokerFunc
+- Function that is passed a Rep and invokes the method
+  Function imp uses BDLF_FUNCTION_DECLARE_INVOKER_TAG and
+BDLF_FUNCTION_INVOKER
+
+bdlf_function only knows about the signature of the method being invoked.  It
+does not store the binded arguments.
+
+Steps:
+------
+
+bdlf_function is constructed with a function signature.  This signature
+contains the actual function pointer, the parameters, and the return type.
+
+From the function pointer the bdlf_function object constructs a Function_Rep
+that stores the pointer. 
+
+From the parameters and the return type the bdlf_function stores a static
+invoker function that is called with the function signature and subsequently
+calls the Function_Rep->invocable() with the appropriate parameters.  
+
+When operator()(Args) is called then the bdlf_function object calls the
+invoker function with the rep and the Args as arguments.
+
+
+bdlf_bind
+
+This component provides a parameterized binder mechanism,
+'bdlf::Bind', that is a functor object that binds an invokable object or
+function to a list of arguments.  This component also defines factory
+methods in the 'bdlf::BindUtil' namespace for creating 'bdlf::Bind' objects
+(e.g., 'bind', 'bindA', and 'bindR').  The 'bdlf::Bind' functor (called
+henceforth a "binder") is an object that can hold any invocable object (the
+"bound functor") and a number of parameters (the "bound arguments", some of
+which can be place-holders of type 'bdlf::PlaceHolder').  When the binder is
+later invoked (with optional additional arguments called the "invocation
+arguments" used to compute the value of bound arguments that use
+place-holders), it returns the result of calling the bound functor with the
+bound arguments and invocation arguments.
+
+This component supports bound objects that can be function pointers, member
+function pointers (the first bound argument must evaluate to an instance of
+the class of which the function is a member), or function objects passed by
+address or by value. In addition, there is a limitation on the number of
+parameters that such an object can take (currently no more than 14).
+
+The bound arguments must be of a value-semantic type (unless they are
+place-holders or 'bdlf::Bind' objects).
+
+bdlf::Bind: Functor  (also called Binder) that holds the invocable and a
+number of parameters.  They are evaluated at binding time once and only once
+and their value copied into the binder (using the default allocator to supply
+memory unless an allocator is specified).  
+
+bdlf::BindUtil: Namespace containing factory methods to construct bdlf::Bind
+objects.
+
+bdlc::Bind provides the functor syntax that can invoked by bdlf::Function.  It
+stores the function pointer, the placeholder arguments, and the bound
+arguments by value.
+
+The operator() would take the expected number of arguments in the function
+that was provided to bdlf::BindUtil and would then invoke the underlying
+function passing the appropriate number of arguments.
+
+template <class RET, class FUNC, class LIST>
+bdlc::Bind
+
+derives from Bind_ImplSelector does this:
+
+typedef typename Bind_ImplSelector<RET, FUNC, LIST>::Type Base;
+
+Bind_ImplSelector defines Type as:
+
+    typedef typename
+        bslmf::If<IS_EXPLICIT,
+                 Bind_ImplExplicit<RET,FUNC,LIST>,
+                 Bind_Impl<RET,FUNC,LIST> >::Type Type;
+
+    // A binder is explicit when:
+    //
+    //: 1 The function signature can be determined completely (return and
+    //:   argument types, e.g., free or member function pointers).
+    //: 2 There are no duplicate references to the same placeholder nor any
+    //:   nested 'Bind' objects in the bound arguments.
+    //: 3 There are no ellipsis argument in the signature of the function.
+
+template <class RET, class FUNC, class LIST>
+Bind_ImplExplicit
+
+    // This class implements the storage and functionality required for a
+    // binder that invokes an object of type 'FUNC' with a list of invocation
+    // parameters of type 'LIST'.  The return type of the invocation is
+
+Types:
+
+    typedef Bind_FuncTraits<RET,FUNC>                 Traits;
+    typedef typename Traits::Type                          FuncType;
+    typedef Bind_Invoker<typename Traits::ResultType,
+                              LIST::LENGTH>                Invoker;
+    typedef bslmf::Tag<Traits::HAS_POINTER_SEMANTICS>      HasPointerSemantics;
+    typedef typename Traits::ArgumentList                  Args;
+    typedef Bind_CalcParameterMask<LIST>              ParamMask;
+
+Data Members:
+
+    bslalg::ConstructorProxy<typename Traits::WrapperType> d_func;
+    LIST                                                   d_list;
+
+where
+
+    Bind_FuncTraits derives from Bind_FuncTraitsImp
+
+Bind_ImplExplicit's ctor looks as follows:
+
+    Bind_ImplExplicit(typename bslmf::ForwardingType<FUNC>::Type  func,
+                      LIST const&                                 list,
+                      bslma::Allocator                           *allocator)
+        // Construct a 'Bind_Impl' object bound to the specified
+        // invocable object 'func' using the invocation parameters specified
+        // in 'list'.
+    : d_func(func, allocator)
+    , d_list(list, allocator)
+    {
+    }
+
+and operator():
+
+    ResultType operator()(P1 p1, P2 p2) const
+        // Invoke the bound functor using the invocation template provided at
+        // construction of this 'Bind' object, substituting place-holders
+        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
+        // respectively.  Return the result.
+    {
+        typedef Bind_Tuple2<P1, P2> ARGS;
+        ARGS args(p1, p2);
+        return invoke(args);
+    }
+
+and invoke:
+
+    template <class ARGS>
+    ResultType invokeImpl(ARGS& arguments, bslmf::Tag<0>) const
+        // Invoke the bound functor using the invocation parameters provided at
+        // construction of this 'Bind' object.  Substituting place-holders
+        // for their respective values in the specified 'arguments'.  The
+        // 'bslmf::Tag' is only used for overloading resolution - indicating
+        // whether 'd_func' has pointer semantics or not.
+    {
+        Invoker invoker;
+        return invoker.invoke(&d_func.object(), &d_list, arguments);
+    }
+
+Bind_ImplExplicit also defines
+typedef Bind_Invoker<typename Traits::ResultType,
+                     LIST::LENGTH>                Invoker;
+
+template <class RET>
+struct Bind_Invoker<RET,3> {
+    // Invoker for functions that take three arguments.
+    template <class FUNC, class LIST, class ARGS>
+    RET invoke(FUNC *func, LIST *list, ARGS& args) const
+    {
+        return (*func)(BDLF_BIND_EVAL(1),
+                       BDLF_BIND_EVAL(2),
+                       BDLF_BIND_EVAL(3));
+    }
+};
+
+here 'list' contains the list of arguments specified at construction and
+includes bound arguments.  'args' contains the list of arguments specified at
+the time of the function call invocation.
+
+where:
+#define BDLF_BIND_EVAL(N) \
+    bdlf::Bind_Evaluator<typename bslmf::TypeListTypeOf<N,LIST>::Type, ARGS>\
+           ::eval(args, (list->d_a##N).value())
+
+
+Bind_Evaluator is specialized on the type of the argument being evaluated.
+Both 'list' (set of arguments specified at construction) and 'args' (set of
+arguments specified at invocation) are passed along with the index.  Based on
+that the appropriate argument is passed to the function.
+
+
+
+Bind_FuncTraitsImp defines the following types
+
+    // typedef ... Type;         // type of the bound function object
+    // typedef ... WrapperType;  // type of the bound object wrapper
+    // typedef ... ResultType;   // return type of the bound function object
+    // typedef ... ArgumentList; // signature of the bound function object
+
+namespace bdlf {template <class RET, class FUNC,
+          int IS_FUNCTION,
+          int IS_FUNCTION_POINTER,
+          int IS_MEMBER_FUNCTION_POINTER>
+
+template <class RET, class FUNC,
+          int IS_FUNCTION,
+          int IS_FUNCTION_POINTER,
+          int IS_MEMBER_FUNCTION_POINTER>
+struct Bind_FuncTraitsImp;
+    // This 'struct' provides a mechanism for inferring various traits of the
+    // function object type 'FUNC'.  The return type is given by 'RET' unless
+    // it is 'bslmf::Nil' in which case it is inferred from 'FUNC'.  The last
+    // three parameters 'IS_FUNCTION', 'IS_FUNCTION_POINTER' and
+    // 'IS_MEMBER_FUNCTION_POINTER' specify whether 'FUNC' is a free function
+    // type (either a reference-to-function or plain function type), a pointer
+    // to function type, or a pointer to member function type, respectively.
+    //
+    // Only specializations of this class should be used (given below).  All
+    // specializations define the types and enumerations documented in
+    // the 'Bind_FuncTraits' below.
+
+typedef Bind_CalcParameterMask<LIST>              ParamMask;
+
+BindUtil::bind is invoked as: 
+
+    template <class FUNC, class P1>
+    static
+    Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
+    bind(FUNC func, P1 const&p1)
+        // Return a 'Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with one parameter.
+    {
+        return Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
+                   (func, Bind_BoundTuple1<P1>(p1));
+    }
+
+    template <class FUNC, class P1>
+    static
+    Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
+    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1)
+        // Return a 'Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with one parameter.
+    {
+        return Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
+            (func, Bind_BoundTuple1<P1>(p1, allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1>
+    static
+    Bind<RET, FUNC, Bind_BoundTuple1<P1> >
+    bindR(FUNC func, P1 const&p1)
+        // Return a 'Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with one parameter
+        // and returns a value of type 'RET'.
+    {
+        return Bind<RET, FUNC, Bind_BoundTuple1<P1> >
+            (func, Bind_BoundTuple1<P1>(p1));
+    }
+
+The template parameter LIST in Bind refers to one of Bind_BoundTupleN etc where
+
+template <class A1>
+struct Bind_BoundTuple1 : public bslmf::TypeList1<A1>
+{
+    // This 'struct' stores a list of one argument.  It does *not* use the
+    // const-forwarding type of its argument, unlike 'Bind_Tuple1'
+    // which applies that optimization to avoid unnecessary copying.
+
+    // INSTANCE DATA
+    Bind_BoundTupleValue<A1> d_a1;
+
+    // CREATORS
+    Bind_BoundTuple1(const Bind_BoundTuple1<A1>&  orig,
+                          bslma::Allocator                 *allocator = 0)
+    : d_a1(orig.d_a1, allocator)
+    {
+    }
+
+    explicit Bind_BoundTuple1(A1 const& a1,
+                                   bslma::Allocator *allocator = 0)
+    : d_a1(a1, allocator)
+    {
+    }
+};
+
+
+where 
+Bind_BoundTupleValue<Type> stores 
+bslalg::ConstructorProxy<STORAGE_TYPE> d_value;
+
+
+bdlcf::BindUtil is similar to bdlf::BindUtil in that it creates a binder
+object.  bdlcf::BindUtil creates an object of bdlcf::BindWrapper and
+bdlf::BindUtil of bdlf::Bind.

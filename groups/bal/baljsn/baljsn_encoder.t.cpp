@@ -27,10 +27,6 @@
 #include <bdlb_nullablevalue.h>
 #include <bdlb_nullableallocatedvalue.h>
 
-#include <bdlmca_blob.h>
-#include <bdlmca_blobutil.h>
-#include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlmca_blobstreambuf.h>
 #include <bslma_testallocator.h>
 
 #include <bsl_c_limits.h>

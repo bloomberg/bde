@@ -221,9 +221,9 @@ BSLS_IDENT("$Id: $")
 ///Object pool creation and functor argument
 /// - - - - - - - - - - - - - - - - - - - -
 // In order to create an object pool, we may specify, at construction time, a
-// functor encapsulating object creation.  The pool invokes this this functor
-// to create an object in a memory location supplied by the allocator specified
-// at construction and owned by the pool.  By default, the creator invokes the
+// functor encapsulating object creation.  The pool invokes this functor to
+// create an object in a memory location supplied by the allocator specified at
+// construction and owned by the pool.  By default, the creator invokes the
 // default constructor of the underlying type, passing the pool's allocator if
 // the type uses the bslma::Allocator protocol to supply memory (as specified
 // by the "Uses Bslma Allocator" trait, see 'bslalg_typetraits').  If this

@@ -14,9 +14,9 @@
 #include <ball_loggermanager.h>
 
 #include <bdlcc_fixedqueue.h>
-#include <bdlmca_blob.h>
-#include <bdlmca_blobutil.h>
-#include <bdlmca_pooledblobbufferfactory.h>
+#include <btlb_blob.h>
+#include <btlb_blobutil.h>
+#include <btlb_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
@@ -464,9 +464,9 @@ int Case4Data::mainRand(int n) {
    return retval;
 }
 
-int verifyBlob(bdlmca::Blob *blob, const char* data) {
+int verifyBlob(btlb::Blob *blob, const char* data) {
    ostringstream oss;
-   bdlmca::BlobUtil::asciiDump(oss, *blob);
+   btlb::BlobUtil::asciiDump(oss, *blob);
 
    int rc = strcmp(data, oss.str().c_str());
 
@@ -483,7 +483,7 @@ int case5(Obj* mX, const char* data) {
    H handle = 0;
    int prevStatus = testStatus;
 
-   bdlmca::Blob *b1 = new bdlmca::Blob, *b2 = new bdlmca::Blob;
+   btlb::Blob *b1 = new btlb::Blob, *b2 = new btlb::Blob;
 
    if (veryVerbose) {
       cout << "Checking getRecordData..." << endl;
@@ -505,7 +505,7 @@ int case5(Obj* mX, const char* data) {
    ASSERT(0 == verifyBlob(b2, data));
 
    {
-      bdlmca::Blob autoBlob; // auto as in "automatic variable"
+      btlb::Blob autoBlob; // auto as in "automatic variable"
       // make a third blob; verify it and re-verify the previous one
       ASSERT(datalen == mX->getRecordData(&autoBlob, handle));
       ASSERT(0 != autoBlob.length());
@@ -534,7 +534,7 @@ int case5(Obj* mX, const char* data) {
 
    // Test reuse of the handle
    ASSERT(0 == mX->addRecord(&handle, const_cast<char *>(mydata), mydatalen));
-   b1 = new bdlmca::Blob;
+   b1 = new btlb::Blob;
    ASSERT(mydatalen == mX->getRecordData(b1, handle));
    ASSERT(0 != b1->length());
    ASSERT(0 == verifyBlob(b1, mydata));
@@ -1120,7 +1120,7 @@ class Case16 {
     bdlmt::TimerEventScheduler            d_eventScheduler;
     bdlmt::TimerEventScheduler::Handle    d_commitHandle;
 
-    void addBlob(const bdlmca::Blob &blob);
+    void addBlob(const btlb::Blob &blob);
     void producerThread();
     void consumerThread();
     void commitAll();
@@ -1195,7 +1195,7 @@ void Case16::removeFiles()
     }
 }
 
-void Case16::addBlob(const bdlmca::Blob &blob) {
+void Case16::addBlob(const btlb::Blob &blob) {
     Obj* newJournal = d_journals[fastrand(d_numJournals)].get();
     H newHandle;
     bsls::Stopwatch w;
@@ -1224,13 +1224,13 @@ void Case16::producerThread()
         }
         int numBuffers = fastrand(MAX_BUFFERS);
         int blobLength = 0;
-        bdlmca::Blob blob;
+        btlb::Blob blob;
         for(int i=0; i<numBuffers; i++) {
             int bufSize = fastrand(MAX_BUFFER_SIZE-1)+1;
             // not using test allocator here (too slow)
             const bsl::shared_ptr<char> sp =
               bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(bufSize);
-            bdlmca::BlobBuffer bb(sp, bufSize);
+            btlb::BlobBuffer bb(sp, bufSize);
             blob.appendBuffer(bb);
             blobLength += bufSize;
         }
@@ -1260,7 +1260,7 @@ void Case16::consumerThread()
         }
         ASSERT(rec.d_handle != Obj::BAECS_INVALID_RECORD_HANDLE);
         // get the data
-        bdlmca::Blob blob;
+        btlb::Blob blob;
         if (d_haltFlag) {
             // bsl::cout << "CONSUMER " << bdlqq::ThreadUtil::selfIdAsInt()
             //    << " HALTING." << bsl::endl;
@@ -2164,7 +2164,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(char((i % 200) + 1) == mY.userData()[i]);
              }
 
-             bdlmca::Blob *blob = new bdlmca::Blob;
+             btlb::Blob *blob = new btlb::Blob;
              LOOP3_ASSERT(NUM_INIT, NUM_APPEND, mY.numConfirmedRecords(),
                           NUM_INIT/2 + NUM_APPEND/2==mY.numConfirmedRecords());
 
@@ -2346,7 +2346,7 @@ int main(int argc, char *argv[]) {
              ASSERT(0 == mX.open(filename, MODE_RO));
              ASSERT(NUM_RECORDS == mX.numUnconfirmedRecords());
              int compareNumber = 0;
-             bdlmca::Blob* blob = new bdlmca::Blob;
+             btlb::Blob* blob = new btlb::Blob;
              for (H h = mX.firstUnconfirmedRecord();
                   h != Obj::BAECS_INVALID_RECORD_HANDLE;
                   h = mX.nextUnconfirmedRecord(h)) {
@@ -2745,7 +2745,7 @@ int main(int argc, char *argv[]) {
                 bool stringFound[2] = {0,0};
 
                 H handle = mX.firstConfirmedRecord();
-                bdlmca::Blob* blob = new bdlmca::Blob;
+                btlb::Blob* blob = new btlb::Blob;
                 ASSERT(handle != Obj::BAECS_INVALID_RECORD_HANDLE);
                 ASSERT(10 == mX.getRecordData(blob, handle));
                 ASSERT(0 == verifyBlob(blob, "abcdefghi"));
@@ -2911,7 +2911,7 @@ int main(int argc, char *argv[]) {
                 bool stringFound[2] = {0,0};
 
                 Obj::RecordHandle handle = mX.firstConfirmedRecord();
-                bdlmca::Blob* blob = new bdlmca::Blob;
+                btlb::Blob* blob = new btlb::Blob;
                 LOOP_ASSERT(i, handle != Obj::BAECS_INVALID_RECORD_HANDLE);
                 LOOP_ASSERT(i, 10 == mX.getRecordData(blob, handle));
                 LOOP_ASSERT(i, 0 == verifyBlob(blob, "abcdefghi"));

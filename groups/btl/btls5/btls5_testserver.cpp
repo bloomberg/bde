@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btls5_testserver_cpp, "$Id$ $CSID$")
 
-#include <bdlmca_blobutil.h>
+#include <btlb_blobutil.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_mutex.h>
 #include <bdlqq_mutex.h>
@@ -164,7 +164,7 @@ struct Socks5Session : public btlmt::Session {
     template<typename MSG>
     void readMessageCb(int           result,
                        int          *needed,
-                       bdlmca::Blob *msg,
+                       btlb::Blob *msg,
                        int           channelId,
                        void (Socks5Session::*func)(const MSG *data,
                                                    int        length,
@@ -174,7 +174,7 @@ struct Socks5Session : public btlmt::Session {
         // 'func' passing it the data from the specified 'msg' as the specified
         // template type 'MSG'.
 
-    int clientWriteImmediate(bsl::shared_ptr<bdlmca::Blob> blob);
+    int clientWriteImmediate(bsl::shared_ptr<btlb::Blob> blob);
         // Send the specified 'blob' to the client using 'd_channel_p'.  Return
         // 0 on success, and a non-zero value otherwise.
 
@@ -213,7 +213,7 @@ struct Socks5Session : public btlmt::Session {
 
     void readProxy(int           result,
                    int          *needed,
-                   bdlmca::Blob *msg,
+                   btlb::Blob *msg,
                    int           channelId);
         // If the specified 'result' is 'BTEMT_SUCCESS' forward the specified
         // 'msg' to the opposite connection, updating the counters at the
@@ -376,7 +376,7 @@ int Socks5Session::readMessage(
 template<typename MSG>
 void Socks5Session::readMessageCb(int           result,
                                   int          *needed,
-                                  bdlmca::Blob *msg,
+                                  btlb::Blob *msg,
                                   int           channelId,
                                   void (Socks5Session::*func)(
                                                         const MSG *data,
@@ -387,7 +387,7 @@ void Socks5Session::readMessageCb(int           result,
     if (btlmt::AsyncChannel::BTEMT_SUCCESS == result) {
         const int length = msg->length();
         bsl::string buf(length, '\0');
-        bdlmca::BlobUtil::copy(&buf[0], *msg, 0, length);
+        btlb::BlobUtil::copy(&buf[0], *msg, 0, length);
 
         int consumed = 0;
         (this->*func)(reinterpret_cast<MSG *>(&buf[0]),
@@ -398,7 +398,7 @@ void Socks5Session::readMessageCb(int           result,
         LOG_TRACE << "read " << length << " bytes"
                   << ", needed " << *needed <<", consumed " << consumed;
 
-        bdlmca::BlobUtil::erase(msg, 0, consumed);
+        btlb::BlobUtil::erase(msg, 0, consumed);
     } else {
         LOG_ERROR << "async read failed, result " << result;
         stop();
@@ -407,13 +407,13 @@ void Socks5Session::readMessageCb(int           result,
 }
 
 int Socks5Session::clientWriteImmediate(
-    bsl::shared_ptr<bdlmca::Blob> blob)
+    bsl::shared_ptr<btlb::Blob> blob)
 {
     if (btls5::TestServerArgs::e_TRACE <= d_args.d_verbosity) {
         *d_args.d_logStream_p << d_args.d_label << ": sending "
                               << blob->length() << " bytes to client "
                               << d_peer << ": ";
-        bdlmca::BlobUtil::hexDump(*d_args.d_logStream_p, *blob);
+        btlb::BlobUtil::hexDump(*d_args.d_logStream_p, *blob);
         *d_args.d_logStream_p << bsl::endl;
     }
     int rc = d_channel_p->write(*blob);
@@ -431,10 +431,10 @@ int Socks5Session::clientWrite(const char *buf, int length)
         buffer(reinterpret_cast<char*>(d_allocator_p->allocate(length)),
                d_allocator_p);
     bsl::memcpy(buffer.get(), buf, length);
-    bdlmca::BlobBuffer blobBuffer(buffer, length);
+    btlb::BlobBuffer blobBuffer(buffer, length);
 
-    bsl::shared_ptr<bdlmca::Blob> blob(new (*d_allocator_p)
-                                         bdlmca::Blob(d_allocator_p),
+    bsl::shared_ptr<btlb::Blob> blob(new (*d_allocator_p)
+                                         btlb::Blob(d_allocator_p),
                                      d_allocator_p);
     blob->prependDataBuffer(blobBuffer);
 
@@ -684,7 +684,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
 
 void Socks5Session::readProxy(int           result,
                               int          *needed,
-                              bdlmca::Blob *msg,
+                              btlb::Blob *msg,
                               int           channelId)
 {
     if (btlmt::AsyncChannel::BTEMT_SUCCESS == result) {
@@ -708,7 +708,7 @@ void Socks5Session::readProxy(int           result,
             stop();
         }
         else {
-            bdlmca::BlobUtil::erase(msg, 0, length);
+            btlb::BlobUtil::erase(msg, 0, length);
             *needed = 1;
         }
     }

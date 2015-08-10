@@ -6,9 +6,9 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <btlmt_channelpool.h>
 
-#include <bdlmca_blob.h>
-#include <bdlmca_blobutil.h>
-#include <bdlmca_pooledblobbufferfactory.h>
+#include <btlb_blob.h>
+#include <btlb_blobutil.h>
+#include <btlb_pooledblobbufferfactory.h>
 #include <bdlma_concurrentpoolallocator.h>
 #include <bdlqq_lockguard.h>
 
@@ -109,7 +109,7 @@ void ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 
     if (invokeCallback) {
         int          dummy;
-        bdlmca::Blob dummyBlob;
+        btlb::Blob dummyBlob;
         callback(cancellationCode, &dummy, &dummyBlob, 0);
     }
 }
@@ -118,7 +118,7 @@ void ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 ChannelPoolChannel::ChannelPoolChannel(
                              int                             channelId,
                              ChannelPool                    *channelPool,
-                             bdlmca::BlobBufferFactory      *blobBufferFactory,
+                             btlb::BlobBufferFactory      *blobBufferFactory,
                              bdlma::ConcurrentPoolAllocator *spAllocator,
                              bslma::Allocator               *basicAllocator)
 : d_mutex()
@@ -173,7 +173,7 @@ int ChannelPoolChannel::timedRead(int                          numBytes,
     return addReadQueueEntry(numBytes, callback, timeOut);
 }
 
-int ChannelPoolChannel::write(const bdlmca::Blob& blob,
+int ChannelPoolChannel::write(const btlb::Blob& blob,
                               int                 highWaterMark)
 {
     return d_channelPool_p->write(d_channelId, blob, highWaterMark);
@@ -205,7 +205,7 @@ void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
             bdlqq::LockGuardUnlock<bdlqq::Mutex> unlockGuard(&d_mutex);
 
             int          dummy = 0;
-            bdlmca::Blob emptyBlob;
+            btlb::Blob emptyBlob;
             callback(AsyncChannel::e_TIMEOUT,
                      &dummy,
                      &emptyBlob,
@@ -214,7 +214,7 @@ void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
     }
 }
 
-void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bdlmca::Blob *msg)
+void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
 {
     *numNeeded            = 1;
     int numBytesAvailable = msg->length();
@@ -318,7 +318,7 @@ void ChannelPoolChannel::cancelRead()
 
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         int dummy = 0;
-        bdlmca::Blob dummyBlob;
+        btlb::Blob dummyBlob;
         for (ReadQueue::iterator it = cancelQueue.begin();
              it != cancelQueue.end(); ++it) {
             bdlf::Function<void (*)()> cancelNotifyCallback(

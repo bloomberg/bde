@@ -12,7 +12,7 @@
 #include <ball_record.h>
 #include <ball_testobserver.h>
 
-#include <bdlmca_blob.h>
+#include <btlb_blob.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
@@ -215,7 +215,7 @@ int veryVeryVerbose;
   void processData(int               uuid,
                    int               luw,
                    int               terminalNumber,
-                   const bdlmca::Blob& data)
+                   const btlb::Blob& data)
       // Process the specified 'data' associated with the specified bloomberg
       // 'uuid', 'luw', and 'terminalNumber'.
   {
@@ -932,7 +932,7 @@ int main(int argc, char *argv[])
 
     BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 
-    bdlmca::Blob message;
+    btlb::Blob message;
 
     BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END;
     processData(3938908, 2, 9001, message);

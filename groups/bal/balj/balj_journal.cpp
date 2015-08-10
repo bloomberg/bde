@@ -3,7 +3,7 @@
 #include <balj_journalpageheader.h>
 #include <ball_log.h>
 
-#include <bdlmca_blobutil.h>
+#include <btlb_blobutil.h>
 
 #include <bdlde_crc32.h>
 #include <bdlf_bind.h>
@@ -80,7 +80,7 @@ namespace {
 
 const char LOG_CATEGORY[] = "BAECS.JOURNAL";
 
-unsigned static calculateChecksum(const bdlmca::Blob *blob,
+unsigned static calculateChecksum(const btlb::Blob *blob,
                                   void             *data,
                                   unsigned          size)
 {
@@ -1488,7 +1488,7 @@ void balj_Journal::removeRecordFromList(balj::JournalHeaderRecordList *list,
 }
 
 int balj_Journal::addRecord(unsigned         *outHandle,
-                             const bdlmca::Blob *blob,
+                             const btlb::Blob *blob,
                              void*             data,
                              unsigned          size,
                              unsigned          attributes)
@@ -1668,12 +1668,12 @@ int balj_Journal::addRecord(unsigned         *outHandle,
 
     if (d_mode & BAECS_PARANOID) {
         guard.relock(false);
-        bdlmca::Blob tmpblob;
+        btlb::Blob tmpblob;
         // getRecordData verifies the checksum
         getRecordData(&tmpblob, *outHandle);
         BALL_LOG_TRACE << "added record " << *outHandle << "("
             << tmpblob.length() << " bytes)\n"
-            << bdlmca::BlobUtilHexDumper(&tmpblob) << BALL_LOG_END;
+            << btlb::BlobUtilHexDumper(&tmpblob) << BALL_LOG_END;
     }
     return 0;
 }
@@ -1759,7 +1759,7 @@ int balj_Journal::removeRecord(unsigned headHandle)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     if (d_mode & BAECS_PARANOID) {
-        bdlmca::Blob tmpblob;
+        btlb::Blob tmpblob;
         // getRecordData verifies the checksum before removal
         getRecordData(&tmpblob, headHandle);
     }
@@ -1845,7 +1845,7 @@ int balj_Journal::confirmRecord(unsigned handle)
     return 0;
 }
 
-int balj_Journal::getRecordData(bdlmca::Blob *blob,
+int balj_Journal::getRecordData(btlb::Blob *blob,
                                  char       *buf,
                                  unsigned    bufSize,
                                  unsigned    headHandle) const
@@ -1921,7 +1921,7 @@ int balj_Journal::getRecordData(bdlmca::Blob *blob,
 
             if (blob) {
                 getPageData(page, false);
-                bdlmca::BlobBuffer bb(
+                btlb::BlobBuffer bb(
                     bsl::shared_ptr<char>(
                         data,
                         bdlf::BindUtil::bind(
@@ -1966,7 +1966,7 @@ int balj_Journal::getRecordData(bdlmca::Blob *blob,
         if (blob) {
             BALL_LOG_TRACE << "Got data for record " << headHandle << "("
             << blob->length() << " bytes)\n"
-            << bdlmca::BlobUtilHexDumper(blob) << BALL_LOG_END;
+            << btlb::BlobUtilHexDumper(blob) << BALL_LOG_END;
         } else {
             BALL_LOG_TRACE << "Got data for record " << headHandle << "("
             << numBytesCopied << " bytes)\n"
