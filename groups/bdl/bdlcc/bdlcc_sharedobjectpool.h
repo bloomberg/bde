@@ -95,96 +95,89 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is intended to improve the efficiency of code which provides
 // shared pointers to pooled objects.  As an example, consider a class which
-// maintains a pool of 'bdlmca::Blob' objects and provides shared pointers to
+// maintains a pool of 'vector<char>' objects and provides shared pointers to
 // them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
 //..
-//  class SlowBlobPool {
-//      bdlma::ConcurrentPoolAllocator  d_spAllocator;  // alloc. shared ptr.
-//      bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-//      bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
+//  typedef vector<char> CharArray;
 //
-//      enum { k_BUFFER_SIZE = 65536 };
+//  class SlowCharArrayPool {
+//      bdlma::ConcurrentPoolAllocator d_spAllocator;    // alloc. shared ptr.
+//      bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
 //
-//      static void createBlob(void                      *address,
-//                             bdlmca::BlobBufferFactory *factory,
-//                             bslma::Allocator          *allocator) {
-//          new (address) bdlmca::Blob(factory, allocator);
+//      static void createCharArray(void *address, bslma::Allocator *allocator)
+//      {
+//          new (address) CharArray(allocator);
 //      }
 //
-//      static void resetAndReturnBlob(bdlmca::Blob                    *blob,
-//                                     bdlcc::ObjectPool<bdlmca::Blob> *pool) {
-//          blob->removeAll();
-//          pool->releaseObject(blob);
+//      static void resetAndReturnCharArray(
+//                                     CharArray                    *charArray,
+//                                     bdlcc::ObjectPool<CharArray> *pool)
+//      {
+//          charArray->clear();
+//          pool->releaseObject(charArray);
 //      }
 //
 //    public:
 //
-//      SlowBlobPool(bslma::Allocator *basicAllocator = 0)
+//      SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
 //      : d_spAllocator(basicAllocator)
-//      , d_blobFactory(k_BUFFER_SIZE, basicAllocator)
-//      , d_blobPool(bdlf::BindUtil::bind(&SlowBlobPool::createBlob,
-//                                        bdlf::PlaceHolders::_1,
-//                                        &d_blobFactory,
-//                                        basicAllocator),
-//                   -1,
-//                   basicAllocator)
+//      , d_charArrayPool(bdlf::BindUtil::bind(
+//                                         &SlowCharArrayPool::createCharArray,
+//                                         bdlf::PlaceHolders::_1,
+//                                         basicAllocator),
+//                        -1,
+//                        basicAllocator)
 //      {
 //      }
 //
-//      void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+//      void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
 //      {
-//          blob_sp->reset(
-//                      d_blobPool.getObject(),
-//                      bdlf::BindUtil::bind(&SlowBlobPool::resetAndReturnBlob,
-//                                           bdlf::PlaceHolders::_1,
-//                                           &d_blobPool),
-//                      &d_spAllocator);
+//          charArray_sp->reset(d_charArrayPool.getObject(),
+//                              bdlf::BindUtil::bind(
+//                                 &SlowCharArrayPool::resetAndReturnCharArray,
+//                                 bdlf::PlaceHolders::_1,
+//                                 &d_charArrayPool),
+//                              &d_spAllocator);
 //      }
 //  };
 //..
-// Note that 'SlowBlobPool' must allocate the shared pointer itself from its
-// 'd_spAllocator' in addition to allocating the blob from its pool.  Moreover,
-// note that since the same function will handle resetting the object and
-// returning it to the pool, we must define a special function for that purpose
-// and bind its arguments.
+// Note that 'SlowCharArrayPool' must allocate the shared pointer itself from
+// its 'd_spAllocator' in addition to allocating the char array from its pool.
+// Moreover, note that since the same function will handle resetting the object
+// and returning it to the pool, we must define a special function for that
+// purpose and bind its arguments.
 //
 // We can solve both of these issues by using 'bdlcc::SharedObjectPool'
 // instead:
 //..
-//  class FastBlobPool {
+//  class FastCharArrayPool {
 //      typedef bdlcc::SharedObjectPool<
-//               bdlmca::Blob,
-//               bdlcc::ObjectPoolFunctors::DefaultCreator,
-//               bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
+//              CharArray,
+//              bdlcc::ObjectPoolFunctors::DefaultCreator,
+//              bdlcc::ObjectPoolFunctors::Clear<CharArray> > CharArrayPool;
 //
-//      bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-//      BlobPool                        d_blobPool;     // supply blobs
+//      CharArrayPool d_charArrayPool;     // supply charArrays
 //
-//      enum { k_BUFFER_SIZE = 65536 };
-//
-//      static void createBlob(void                      *address,
-//                             bdlmca::BlobBufferFactory *factory,
-//                             bslma::Allocator          *allocator)
+//      static void createCharArray(void *address, bslma::Allocator *allocator)
 //      {
-//          new (address) bdlmca::Blob(factory, allocator);
+//          new (address) CharArray(allocator);
 //      }
 //
 //    public:
 //
-//      FastBlobPool(bslma::Allocator *basicAllocator = 0)
-//      : d_blobFactory(k_BUFFER_SIZE, basicAllocator)
-//      , d_blobPool(bdlf::BindUtil::bind(&FastBlobPool::createBlob,
-//                                        bdlf::PlaceHolders::_1,
-//                                        &d_blobFactory,
-//                                        bdlf::PlaceHolders::_2),
-//                   -1,
-//                   basicAllocator)
+//      FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
+//      : d_charArrayPool(bdlf::BindUtil::bind(
+//                                         &FastCharArrayPool::createCharArray,
+//                                         bdlf::PlaceHolders::_1,
+//                                         bdlf::PlaceHolders::_2),
+//                        -1,
+//                        basicAllocator)
 //      {
 //      }
 //
-//      void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+//      void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
 //      {
-//          *blob_sp = d_blobPool.getObject();
+//          *charArray_sp = d_charArrayPool.getObject();
 //      }
 //  };
 //..
@@ -196,13 +189,13 @@ BSLS_IDENT("$Id: $")
 //..
 //  bslma::TestAllocator slowAllocator, fastAllocator;
 //  {
-//      SlowBlobPool slowPool(&slowAllocator);
-//      FastBlobPool fastPool(&fastAllocator);
+//      SlowCharArrayPool slowPool(&slowAllocator);
+//      FastCharArrayPool fastPool(&fastAllocator);
 //
-//      bsl::shared_ptr<bdlmca::Blob> blob_sp;
+//      bsl::shared_ptr<CharArray> charArray_sp;
 //
-//      fastPool.getBlob(&blob_sp);
-//      slowPool.getBlob(&blob_sp);  // throw away the first blob
+//      fastPool.getCharArray(&charArray_sp);
+//      slowPool.getCharArray(&charArray_sp);  // throw away the first array
 //  }
 //
 //  assert(2 == slowAllocator.numAllocations());
