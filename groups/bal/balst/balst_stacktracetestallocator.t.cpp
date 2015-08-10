@@ -1186,8 +1186,8 @@ int main(int argc, char *argv[])
         bdlsu::FilesystemUtil::remove("shipscrew.txt");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-	// 'remove' above uses the default allocator on Windows, so suppress
-	// the default allocator check at the end.
+        // 'remove' above uses the default allocator on Windows, so suppress
+        // the default allocator check at the end.
 
         expectedDefaultAllocations = -1;
 #endif
