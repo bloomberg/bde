@@ -12,6 +12,8 @@ BSLS_IDENT_RCSID(bdlsb_memoutstreambuf_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_limits.h>
 
+#include <bsls_performancehint.h>
+
 namespace BloombergLP {
 namespace bdlsb {
 
@@ -118,7 +120,7 @@ bsl::streamsize MemOutStreamBuf::xsputn(const char_type *source,
 
     const bsl::streamsize intMax = static_cast<bsl::streamsize>(
                                               bsl::numeric_limits<int>::max());
-    bsl::streamsize remainingLength = numChars;
+    bsl::streamsize       remainingLength = numChars;
     do {
         int bumpLength = static_cast<int>(bsl::min(intMax, remainingLength));
         pbump(bumpLength);

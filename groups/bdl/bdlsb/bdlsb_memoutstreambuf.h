@@ -7,17 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an output basic stream buffer using managed memory.
+//@PURPOSE: Provide an output 'basic_streambuf' using managed memory.
 //
 //@CLASSES:
 //   bdlsb::MemOutStreamBuf: output stream buffer using memory allocator
 //
 //@SEE_ALSO: bdlsb_fixedmemoutstreambuf, bdlsb_fixedmeminstreambuf
 //
-//@DESCRIPTION: This component implements the output portion of the
-// 'bsl::basic_streambuf' protocol using a managed, allocator-supplied memory
-// buffer, 'bdlsb::MemOutStreamBuf'.  Method names necessarily correspond to
-// the protocol-specified method names.
+//@DESCRIPTION: This component provides a mechanism, 'bdlsb::MemOutStreamBuf',
+// that implements the output portion of the bsl::basic_streambuf protocol
+// using a managed, allocator-supplied memory buffer.  Method names necessarily
+// correspond to the protocol-specified method names.
 //
 // This component provides none of the input-related functionality of
 // 'basic_streambuf' (see "Streaming Architecture", below), nor does it use
@@ -41,31 +41,33 @@ BSLS_IDENT("$Id: $")
 //
 /// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates use of a stream buffer by a stream, in this case
-// a stream with simple formatting requirements - namely, capitalizing all
-// lower-case ASCII character data that is output.  To simplify the example, we
-// do not include the functions for streaming non-character data, e.g., numeric
+// This example demonstrates how a stream buffer can be used for testing of a
+// certain stream.  bdlsb::MemOutStreamBuf provides a way to inspect the data
+// that has been processed by the stream.  In this case we will create a stream
+// with simple formatting requirements - namely, capitalizing all lower-case
+// ASCII character data that is output.  To simplify the example, we do not
+// include the functions for streaming non-character data, e.g., numeric
 // values.
 //
 // First, we define a stream class, that will use our stream buffer:
 //..
-//  class my_CapitalizingStream {
+//  class CapitalizingStream {
 //      // This class capitalizes lower-case ASCII characters that are output.
 //
 //      bdlsb::MemOutStreamBuf d_streamBuf;  // buffer to write to
 //
 //      friend
-//      my_CapitalizingStream& operator<<(my_CapitalizingStream&, char);
+//      CapitalizingStream& operator<<(CapitalizingStream& stream,
+//                                     char                data);
 //      friend
-//      my_CapitalizingStream& operator<<(my_CapitalizingStream&,
-//                                        const char *);
-//
+//      CapitalizingStream& operator<<(CapitalizingStream&  stream,
+//                                     const char          *data);
 //    public:
 //      // CREATORS
-//      my_CapitalizingStream();
+//      CapitalizingStream();
 //          // Create a capitalizing stream.
 //
-//      ~my_CapitalizingStream();
+//      ~CapitalizingStream();
 //          // Destroy this capitalizing stream.
 //
 //      // ACCESSORS
@@ -75,19 +77,19 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  // FREE OPERATORS
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                    char                    data);
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                    const char             *data);
+//  CapitalizingStream& operator<<(CapitalizingStream& stream,
+//                                 char                data);
+//  CapitalizingStream& operator<<(CapitalizingStream&  stream,
+//                                 const char          *data);
 //      // Write the specified 'data' in capitalized form to the specified
 //      // capitalizing 'stream', and return a reference to the modifiable
 //      // 'stream'.
 //
-//  my_CapitalizingStream::my_CapitalizingStream()
+//  CapitalizingStream::CapitalizingStream()
 //  {
 //  }
 //
-//  my_CapitalizingStream::~my_CapitalizingStream()
+//  CapitalizingStream::~CapitalizingStream()
 //  {
 //  }
 //..
@@ -95,33 +97,31 @@ BSLS_IDENT("$Id: $")
 // use the 'transform' algorithm to convert lower-case characters to uppercase:
 //..
 //
-//  #include <algorithm>
-//
 //  // FREE OPERATORS
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream, char data)
+//  CapitalizingStream& operator<<(CapitalizingStream& stream, char data)
 //  {
 //      stream.d_streamBuf.sputc(static_cast<char>(bsl::toupper(data)));
 //      return stream;
 //  }
 //
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                    const char             *data)
+//  CapitalizingStream& operator<<(CapitalizingStream&  stream,
+//                                 const char          *data)
 //  {
 //      bsl::string tmp(data);
 //      transform(tmp.begin(),
 //                tmp.end(),
 //                tmp.begin(),
-//                (int(*)(int))bsl::toupper);
+//                static_cast<int(*)(int)>(bsl::toupper));
 //      stream.d_streamBuf.sputn(tmp.data(), tmp.length());
 //      return stream;
 //  }
 //..
 // Now, we create an object of our stream and write some words to it:
 //..
-//  my_CapitalizingStream cs;
+//  UsageExample::CapitalizingStream cs;
 //  cs << "Hello," << ' ' << "World." << '\0';
 //..
-// Finally, we verify that the streamed data has been capitalized:
+// Finally, we are able to verify that the streamed data has been capitalized:
 //..
 //  if (verbose) {
 //      // Visually verify that the streamed data has been capitalized.
@@ -155,12 +155,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_BSL_CSTRING
-#include <bsl_cstring.h>
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOS
