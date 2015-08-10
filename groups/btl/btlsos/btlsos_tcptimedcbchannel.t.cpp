@@ -366,14 +366,14 @@ static void helpBuildVector()
 static void helpAssertVecData(int i, int j, int type, void *vecBuffer,
                               const char *expData)
 {
-    enum { NON_VEC = 0, OVECTOR, IOVECTOR };
+    enum { e_NON_VEC = 0, e_OVECTOR, e_IOVECTOR };
 
     ASSERT(vecBuffer);
 
     if (vecBuffer)
     {
         switch (type) {
-          case IOVECTOR: {
+          case e_IOVECTOR: {
               btls::Iovec *vec = (btls::Iovec*) vecBuffer;
               int idx = 0;
               int len = strlen((char*)vec[idx].buffer());
@@ -1797,7 +1797,7 @@ int main(int argc, char *argv[])
         btlso::SocketHandle::Handle handles[2];
         int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
         ASSERT(0 == ret);
         // The following socket options are set only if necessary.
 
@@ -1832,10 +1832,10 @@ int main(int argc, char *argv[])
         // requests can share the same event manager, in that case read and
         // write events will be registered in the same event queue.
         btlso::TcpTimerEventManager rEventManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
                                    wEventManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
         {
             // We should guarantee that the 'channel's destructor is invoked
@@ -2001,7 +2001,7 @@ int main(int argc, char *argv[])
                           << "\n========================================="
                           << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -2029,407 +2029,407 @@ int main(int argc, char *argv[])
  //------ -----               ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvit5,(255,90),1,40,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit5,(255,90),1,40,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvit6,(255,10),1,1040,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(265,100),1,0,-1", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit6,(255,10),1,1040,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,100),1,0,-1", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(255,40),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(265,10),1,0,-1",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,40),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,10),1,0,-1",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvit7,(255,8),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(265,10),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,8),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,10),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,5),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit5,(265,100),1,40,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(255,5),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit5,(265,100),1,40,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,9),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(265,10),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,9),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,10),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,9),1,29760,0", 0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wbvit7,(255,9),1,29760,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wbvit3,(265,8),1,18,0,{w4,1,4,0; wbvit1,(265,6),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit2,(275,100),1,15,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit2,(275,100),1,15,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wbvit7,(255,6),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(260,100),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit5,(260,100),1,40,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(255,6),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(260,100),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit5,(260,100),1,40,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,9),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(260,100),1,18,0", 0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,9),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(260,100),1,18,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,9),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wbvit7,(255,9),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wbvit3,(260,9),1,18,0,{w4,1,4,0; wbvit1,(20,100),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit2,(260,100),1,15,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit2,(260,100),1,15,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wbvit7,(255,6),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(260,10),1,0,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,6),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(260,10),1,0,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
-   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit7,(655,10),1,0,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbt728,(665,20),1,0,-1",  0,   2,    2,    2,    1, NVEC,   ""  },
+   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit7,(655,10),1,0,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbt728,(665,20),1,0,-1",  0,   2,    2,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbt728,(265,2),1, 728, 0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R55000",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbt728,(265,2),1, 728, 0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R55000",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvit5,(255,90),1,40,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit5,(255,90),1,40,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvit6,(255,10),1,540,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(265,100),1,0,-1", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit6,(255,10),1,540,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,100),1,0,-1", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(255,40),1,1024,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(265,10),1,0,-1",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,40),1,1024,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,10),1,0,-1",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvit6,(255,100),1,540,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(265,100),1,-3,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit6,(255,100),1,540,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,100),1,-3,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvit7,(255,80),1,1540,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(265,100),1,18,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,80),1,1540,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,100),1,18,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "wbvit7,(255,20),1,1540,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit7,(665,30),1,1540,0",0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R529",                    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R529",                    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,20),1,1540,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit7,(665,30),1,1540,0",0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R529",                    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R529",                    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,15),1,1540,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,18,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wbvit5,(275,100),1,40,0", 0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    2,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(255,15),1,1540,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,18,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit5,(275,100),1,40,0", 0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    2,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,10),1,1540,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(265,100),1,18,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,10),1,1540,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(265,100),1,18,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(255,9),1,1540,0", 0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(255,9),1,1540,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
 {L_, "wbvit3,(265,100),1,18,0,{w4,1,4,0; wbvit1,(275,100),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wbvit2,(285,100),1,15,0", 0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit2,(285,100),1,15,0", 0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wbvit7,(255,60),1,1540,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit7,(265,10),1,508,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wbvit5,(265,10),1,0,-1",  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(255,60),1,1540,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit7,(265,10),1,508,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit5,(265,10),1,0,-1",  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, /*
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
-   {L_, "w1024,1,1024,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit7,(255,10),1,1024,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbt528,(465,20),1,528,0", 0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "w1024,1,1024,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit7,(255,10),1,1024,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbt528,(465,20),1,528,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
 
-   {L_, "R1000",                   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "R1000",                   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  */
  #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvit5,(20,90),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit5,(20,90),1,40,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvit6,(20,10),1,1040,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,0,-1",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit6,(20,10),1,1040,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,0,-1",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(20,40),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(20,40),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(20,40),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(20,40),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvit6,(20,100),1,1040,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,-3,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit6,(20,100),1,1040,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,-3,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, /*
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvit7,(20,80),1,74720,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(20,80),1,74720,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "wbvit7,(5,20),1,74720,0", 0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit7,(5,30),1,74720,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(5,20),1,74720,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit7,(5,30),1,74720,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },  */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit8,(20,15),1,20478,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit3,(20,100),1,18,0",   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wbvit5,(300,100),1,40,0", 0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    2,    2,    1, NVEC,   ""  },
+   {L_, "wbvit8,(20,15),1,20478,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit3,(20,100),1,18,0",   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit5,(300,100),1,40,0", 0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    2,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },/*
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(20,10),1,74720,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(20,10),1,74720,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  // TBD
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(20,9),1,74720,0", 0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(20,9),1,74720,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
   {L_, "wbvit3,(20,100),1,18,0,{w4,1,4,0; wbvit1,(20,100),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wbvit2,(20,100),1,15,0",  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit2,(20,100),1,15,0",  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wbvit7,(20,60),1,73728,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(20,60),1,73728,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
    // Flood the buffers
-   {L_, "w45372,1,45372,0",        0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "w45372,1,45372,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
    // This operation will be partial due to a timeout
-   {L_, "wbvit7,(5,10),1,24576,0", 0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(5,10),1,24576,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
    // This operation will be dequeued,
-   {L_, "wbt728,(15,20),1, 0, -1", 0,   2,    2,    2,    1, NVEC,   ""  },
+   {L_, "wbt728,(15,20),1, 0, -1", 0,   2,    2,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbt728,(15,20),1, 728, 0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R55000",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbt728,(15,20),1, 728, 0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R55000",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  */
  #else                                  // sun test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvit5,(20,90),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit5,(20,90),1,40,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvit6,(20,10),1,1040,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,0,-1",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit6,(20,10),1,1040,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,0,-1",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(20,40),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(20,40),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvit6,(20,100),1,1040,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,-3,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit6,(20,100),1,1040,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,-3,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, /*
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvit7,(20,80),1,74720,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(20,80),1,74720,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "wbvit7,(5,20),1,74720,0", 0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit7,(5,30),1,74720,0", 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(5,20),1,74720,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit7,(5,30),1,74720,0", 0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },  */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(20,15),1,74720,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit3,(20,100),1,18,0",   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wbvit5,(20,100),1,40,0",  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    2,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(20,15),1,74720,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit3,(20,100),1,18,0",   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit5,(20,100),1,40,0",  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    2,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },/*
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(20,10),1,74720,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(20,10),1,74720,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,100),1,18,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  // TBD
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvit7,(20,9),1,74720,0", 0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(20,9),1,74720,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
   {L_, "wbvit3,(20,100),1,18,0,{w4,1,4,0; wbvit1,(20,100),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wbvit2,(20,100),1,15,0",  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit2,(20,100),1,15,0",  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wbvit7,(20,60),1,73728,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvit7,(20,60),1,73728,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wbvit3,(20,10),1,0,-1",   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
    // Flood the buffers
-   {L_, "w45372,1,45372,0",        0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "w45372,1,45372,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
    // This operation will be partial due to a timeout
-   {L_, "wbvit7,(5,10),1,24576,0", 0,   2,    1,    2,    1, NVEC,   ""  },
+   {L_, "wbvit7,(5,10),1,24576,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
    // This operation will be dequeued,
-   {L_, "wbt728,(15,20),1, 0, -1", 0,   2,    2,    2,    1, NVEC,   ""  },
+   {L_, "wbt728,(15,20),1, 0, -1", 0,   2,    2,    2,    1, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbt728,(15,20),1, 728, 0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R55000",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbt728,(15,20),1, 728, 0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R55000",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  */
  #endif
@@ -2445,7 +2445,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             adjustBufferSizes(handles[0], BUF_LIMIT, 1);
@@ -2462,7 +2462,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -2539,12 +2539,12 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -2607,7 +2607,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'bufferedWritev(btls::Iovec)'"
                           << "\n====================================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -2636,412 +2636,412 @@ int main(int argc, char *argv[])
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,29760,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,29760,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different event types, and dispatch.
-   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w40,1,40,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w40,1,40,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wbvi7,1,29760,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wbvi3,1,18,0,{w4,1,4,0; wbvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi2,1,15,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi2,1,15,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },/* 5 of 1000
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "w500,1,500,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w500,1,500,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different event types, and dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,1540,0",         0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "wbvi7,1,1540,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
    {L_, "wbvi3,1,18,0,{w4,1,4,0; wbvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,540,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "w500,1,500,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w500,1,500,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different event types, and dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,1540,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,1540,0",         0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "wbvi7,1,1540,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
    {L_, "wbvi3,1,18,0,{w4,1,4,0; wbvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R10000",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R10000",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvi7,1,16383,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,16383,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,16383,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,16383,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different event types, and dispatch.
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "wbvi8,1,20478,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
    {L_, "wbvi3,1,18,0,{w4,1,4,0; wbvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #else                                  // sun test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi5,1,40,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,0,-1",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,0,-1",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi6,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,-3,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 request, then dispatch.
-   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },/*
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },  */
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during the first dispatch.
-   {L_, "w63728,1,63728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w63728,1,63728,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different event types, and dispatch.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w30,1,30,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi5,1,40,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi3,1,18,0",            0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "w40,1,40,0",              0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "wbvi7,1,74720,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
    {L_, "wbvi3,1,18,0,{w4,1,4,0; wbvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wbvi2,1,15,0",            0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #endif
 };
@@ -3056,7 +3056,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -3080,7 +3080,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -3163,7 +3163,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -3226,7 +3226,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'timedBufferedWrite'"
                           << "\n============================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -3254,478 +3254,478 @@ int main(int argc, char *argv[])
  //------ -----                     ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  {
-   {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "iw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,0,-1",         0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "iw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,0,-1",         0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wbt27728,(20,100),1,27728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "cw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt27728,(20,100),1,27728,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "cw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbt40,(250,100),1,40,0",       0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt15,(250,100),1,15,0",       0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt40,(250,100),1,40,0",       0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt15,(250,100),1,15,0",       0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
-   {L_, "wbt27728,(200,100),1,27728,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt27728,(200,100),1,0,0",     0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt27728,(200,100),1,27728,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt27728,(200,100),1,0,0",     0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt27728,(250,100),1,27728,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt40,(250,100),1,40,0",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R22379",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt27728,(250,100),1,27728,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt40,(250,100),1,40,0",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R22379",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt27728,(250,100),1,27728,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt27728,(250,100),1,27728,0", 0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R22379",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt27728,(250,100),1,27728,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt27728,(250,100),1,27728,0", 0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R22379",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wbt27728,(250,100),1,27728,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt27728,(250,100),1,27728,0", 0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R22379",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt27728,(250,100),1,27728,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt27728,(250,100),1,27728,0", 0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R22379",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.
-   {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "R35000",                       0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "R35000",                       0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt40,(250,100),1,40,0",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R25000",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt40,(250,100),1,40,0",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R25000",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wbt28720,(255,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "wbt15,(255,10),1,15,0",        0,   1,    2,    1,    0, NVEC,  ""  },
-   {L_, "R22379",                       0,   1,    2,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
+ {L_, "wbt28720,(255,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "wbt15,(255,10),1,15,0",        0,   1,    2,    1,    0, e_NVEC,  ""  },
+ {L_, "R22379",                       0,   1,    2,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,  ""  },
+ {L_, "wbt28720,(250,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
   {L_, "wbt11,(250,8),1,11,0,{w20,0,20,0; wbt15,(255,6),0,15,0,{wb40,1,40,0}}",
-                                        0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt18,(250,100),1,18,0",       0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "R25769",                       0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    2,    1,    0, NVEC,  ""  },
+                                      0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt18,(250,100),1,18,0",       0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "R25769",                       0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    2,    1,    0, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
-   {L_, "wbt27728,(255,100),1,27728,0", 0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt23728,(655,100),1,0,0",     0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt728,(655,20),1,0,-1",       0,   2,    2,    2,    1, NVEC,  ""  },
+ {L_, "wbt27728,(255,100),1,27728,0", 0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt23728,(655,100),1,0,0",     0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt728,(655,20),1,0,-1",       0,   2,    2,    2,    1, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt728,(255,20),1,728,0",      0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R25000",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt728,(255,20),1,728,0",      0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R25000",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
-   {L_, "wbt140,(255,100),1,140,0",     0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "iw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(265,100),1,0,-1",        0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt140,(255,100),1,140,0",     0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "iw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(265,100),1,0,-1",        0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbt140,(20,100),1,140,0",      0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "cS",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,-3,0",         0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt140,(20,100),1,140,0",      0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "cS",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,-3,0",         0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wbt1024,(20,100),1,1024,0",    0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt300,(20,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "cw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1024,(20,100),1,1024,0",    0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt300,(20,100),1,0,-1",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "cw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbt40,(255,100),1,40,0",       0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt15,(265,100),1,15,0",       0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt40,(255,100),1,40,0",       0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt15,(265,100),1,15,0",       0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt1024,(255,100),1,1024,0",   0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt40,(265,100),1,40,0",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R729",                         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1024,(255,100),1,1024,0",   0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt40,(265,100),1,40,0",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R729",                         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt728,(265,100),1,728,0",     0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R829",                         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt728,(265,100),1,728,0",     0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R829",                         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt1120,(565,100),1,0,-1",     0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R729",                         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt1120,(565,100),1,0,-1",     0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R729",                         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /* 1 of 1000 fail
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.
-   {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "R500",                         0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "R500",                         0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt40,(265,100),1,40,0",       0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "R500",                         0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt40,(265,100),1,40,0",       0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "R500",                         0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "wbt15,(265,10),1,15,0",        0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "R729",                         0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    2,    1,    0, NVEC,  ""  },
+ {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt15,(265,10),1,15,0",        0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "R729",                         0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    2,    1,    0, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },  /* 1 of 1000 fail
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during first dispatch.
-   {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt1120,(465,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R729",                         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R729",                         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1020,(255,100),1,1020,0",   0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt1120,(465,100),1,1120,0",   0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R729",                         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R729",                         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, NVEC,  ""  },
+ {L_, "wbt1120,(255,100),1,1120,0",   0,   2,    1,    2,    1, e_NVEC,  ""  },
    {L_,
     "wbt11,(265,100),1,11,0,{w20,0,20,0; wbt15,(275,10),0,15,0,{wb40,1,40,0}}",
-                                        0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "wbt18,(285,100),1,18,0",       0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "R729",                         0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    2,    1,    0, NVEC,  ""  },
+                                      0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt18,(285,100),1,18,0",       0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "R729",                         0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    2,    1,    0, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /*
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
-   {L_, "wbt728,(255,100),1,728,0",     0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt700,(265,100),1,700,0",     0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt720,(275,20),1,324,0",      0,   2,    2,    2,    1, NVEC,  ""  },
+ {L_, "wbt728,(255,100),1,728,0",     0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt700,(265,100),1,700,0",     0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt720,(275,20),1,324,0",      0,   2,    2,    2,    1, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R500",                         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R500",                         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  */
  #elif BSLS_PLATFORM_OS_LINUX
 
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
-   {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "iw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,0,-1",         0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "iw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,0,-1",         0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "cS",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,-3,0",         0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "cS",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,-3,0",         0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "cw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "cw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbt40,(20,100),1,40,0",        0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt15,(20,100),1,15,0",        0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt40,(20,100),1,40,0",        0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt15,(20,100),1,15,0",        0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /*
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
-   {L_, "wbt40960,(20,100),1,40960,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt40960,(20,100),1,32768,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt40960,(20,100),1,40960,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt40960,(20,100),1,32768,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt40,(500,100),1,40,0",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R65536",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt40,(500,100),1,40,0",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R65536",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt10000,(500,100),1,10000,0", 0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R52379",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt10000,(500,100),1,10000,0", 0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R52379",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt30000,(500,100),1,0,-1",    0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R52379",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt16383,(20,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt30000,(500,100),1,0,-1",    0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R52379",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /*
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.  The first
    // requested must fill the buffers and be enqueued.  The second request
    // shall be enqueued.  Then we read the data thus making space available in
    // the system buffers.
-   {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "R40960",                       0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "R40960",                       0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wbt30000,(20,100),1,30000,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt40,(20,100),1,40,0",        0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "R35000",                       0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt30000,(20,100),1,30000,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt40,(20,100),1,40,0",        0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "R35000",                       0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },/*
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wbt81920,(15,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "wbt15,(15,10),1,15,0",         0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "R52379",                       0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    2,    2,    1, NVEC,  ""  },
+ {L_, "wbt81920,(15,100),1,81920,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt15,(15,10),1,15,0",         0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "R52379",                       0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    2,    2,    1, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during first dispatch.
-   {L_, "wbt16383,(10,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt16383,(10,100),1,16383,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt30000,(650, 100),1,30000,0",0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R32786",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R40960",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt16383,(10,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt16383,(10,100),1,16383,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt30000,(650, 100),1,30000,0",0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R32786",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R40960",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbt30000,(20,100),1,30000,0",  0,   2,    1,    2,    1, NVEC,  ""  },
+ {L_, "wbt30000,(20,100),1,30000,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
   {L_, "wbt11,(20,100),1,11,0,{w20,0,20,0; wbt15,(5,10),0,15,0,{wb40,1,40,0}}",
-                                        0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "wbt18,(200,100),1,18,0",       0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "R35769",                       0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    2,    1,    0, NVEC,  ""  },
+                                      0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt18,(200,100),1,18,0",       0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "R35769",                       0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    2,    1,    0, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R17000",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R17000",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /*
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
-   {L_, "wbt43728,(20,100),1,43728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt43728,(20,100),1,24576,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt728,(15,20),1,0,-1",        0,   2,    2,    2,    1, NVEC,  ""  },
+ {L_, "wbt43728,(20,100),1,43728,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt43728,(20,100),1,24576,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt728,(15,20),1,0,-1",        0,   2,    2,    2,    1, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt728,(15,20),1,728,0",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R35000",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt728,(15,20),1,728,0",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R35000",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  } */
  #else                                // sun test data
 
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
-   {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "iw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,0,-1",         0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "iw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,0,-1",         0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "cS",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,-3,0",         0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt1040,(20,100),1,1040,0",    0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "cS",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,-3,0",         0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "cw",                           0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt3,(20,100),1,0,-1",         0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "cw",                           0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wbt40,(20,100),1,40,0",        0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt15,(20,100),1,15,0",        0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "dw0",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt40,(20,100),1,40,0",        0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt15,(20,100),1,15,0",        0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "dw0",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /*
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
-   {L_, "wbt40960,(20,100),1,40960,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt40960,(20,100),1,32768,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt40960,(20,100),1,40960,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt40960,(20,100),1,32768,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt40,(200,100),1,40,0",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R65536",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt40,(200,100),1,40,0",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R65536",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wbt43728,(20,100),1,43728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt43728,(20,100),1,43728,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R52379",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt43728,(20,100),1,43728,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt43728,(20,100),1,43728,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R52379",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt73728,(20,100),1,0,-1",     0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R52379",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt73728,(20,100),1,73728,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt73728,(20,100),1,0,-1",     0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R52379",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /*
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.  The first
    // requested must fill the buffers and be enqueued.  The second request
    // shall be enqueued.  Then we read the data thus making space available in
    // the system buffers.
-   {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "R40960",                       0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "R40960",                       0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt40,(20,100),1,40,0",        0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "R35000",                       0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt81920,(20,100),1,81920,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt40,(20,100),1,40,0",        0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "R35000",                       0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },/*
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wbt81920,(15,100),1,81920,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "wbt15,(15,10),1,15,0",         0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "R52379",                       0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    2,    2,    1, NVEC,  ""  },
+ {L_, "wbt81920,(15,100),1,81920,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "w18,1,18,0",                   0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt15,(15,10),1,15,0",         0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "R52379",                       0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    2,    2,    1, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, */
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during first dispatch.
-   {L_, "wbt40960,(10,100),1,40960,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt81920,(650, 100),1,81920,0",0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R32786",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R40960",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "wbt40960,(10,100),1,40960,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt81920,(650, 100),1,81920,0",0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R32786",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R40960",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wbt74720,(20,100),1,74720,0",  0,   2,    1,    2,    1, NVEC,  ""  },
+ {L_, "wbt74720,(20,100),1,74720,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
   {L_, "wbt11,(20,100),1,11,0,{w20,0,20,0; wbt15,(5,10),0,15,0,{wb40,1,40,0}}",
-                                        0,   2,    2,    2,    1, NVEC,  ""  },
-   {L_, "wbt18,(200,100),1,18,0",       0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "R35769",                       0,   2,    3,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    2,    1,    0, NVEC,  ""  },
+                                      0,   2,    2,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt18,(200,100),1,18,0",       0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "R35769",                       0,   2,    3,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    2,    1,    0, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   1,    1,    1,    0, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   1,    1,    1,    0, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  }, /*
  { // Enqueue 1 request, then dispatch when the pipe is unwriteable: timeout.
    // after the request timeout, dispatch another request when writeable.
-   {L_, "wbt43728,(20,100),1,43728,0",  0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt43728,(20,100),1,24576,0",  0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "wbt728,(15,20),1,0,-1",        0,   2,    2,    2,    1, NVEC,  ""  },
+ {L_, "wbt43728,(20,100),1,43728,0",  0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt43728,(20,100),1,24576,0",  0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "wbt728,(15,20),1,0,-1",        0,   2,    2,    2,    1, e_NVEC,  ""  },
 
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_, "wbt728,(15,20),1,728,0",       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "R35000",                       0,   2,    1,    2,    1, NVEC,  ""  },
-   {L_, "dw1",                          0,   0,    0,    0,    0, NVEC,  ""  },
-   {L_,  0,                             0,   0,    0,    0,    0, NVEC,  ""  }
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+ {L_, "wbt728,(15,20),1,728,0",       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "R35000",                       0,   2,    1,    2,    1, e_NVEC,  ""  },
+ {L_, "dw1",                          0,   0,    0,    0,    0, e_NVEC,  ""  },
+  {L_,  0,                             0,   0,    0,    0,    0, e_NVEC,  ""  }
  } */
  #endif
 };
@@ -3740,7 +3740,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
             ret = btlso::SocketOptUtil::setOption(handles[1],
                       btlso::SocketOptUtil::BTESO_TCPLEVEL,
@@ -3774,7 +3774,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -3856,7 +3856,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                            SCRIPTS[i][j].d_expData,
                                            strlen(SCRIPTS[i][j].d_expData)));
@@ -3919,7 +3919,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'bufferedWrite'"
                           << "\n=======================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -3947,395 +3947,395 @@ int main(int argc, char *argv[])
  //------ -----               ----- ----- ----- ------ ----- ---- ------
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
  {
-   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it. and dispatch.
-   {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb23728,1,23728,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb23728,1,23728,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb27728,1,27728,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R8379",                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb27728,1,27728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb27728,1,27728,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R8379",                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.
-   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R25000",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R25000",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R25000",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R25000",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wb28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wb11,1,11,0,{wb15,0,15,0; w20,0,20,0,{wb40,1,40,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb18,1,18,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R25769",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb18,1,18,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R25769",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wb140,1,140,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb140,1,140,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wb140,1,140,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,-3,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb140,1,140,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,-3,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it. and dispatch.
-   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb30,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb850,1,850,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb850,1,850,0",           0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb850,1,850,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb850,1,850,0",           0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb1120,1,0,-1",           0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb1120,1,0,-1",           0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.
-   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R50 0",                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R50 0",                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, /* 2 of 1000 fail:
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during the first dispatch.
-   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1024,1,1024,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "wb1120,1,1120,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
    {L_, "wb11,1,11,0,{wb15,0,15,0; w20,0,20,0,{wb40,1,40,0}}",
-                                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wb18,1,18,0",             0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wb18,1,18,0",             0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
-   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,-3,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,-3,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it. and dispatch.
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb10000,1,10000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb10000,1,10000,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb30000,1,0,-1",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb30000,1,0,-1",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.
-   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R35000",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R35000",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during the first dispatch.
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "wb30000,1,30000,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
    {L_, "wb11,1,11,0,{wb15,0,15,0; w20,0,20,0,{wb40,1,40,0}}",
-                                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wb18,1,18,0",             0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R35769",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wb18,1,18,0",             0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R35769",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #else
                              // sun test data
  { // Invalidate the channel, then issue 1 request and try dispatching.
 
-   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,-3,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,-3,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it. and dispatch.
-   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wb43728,1,43728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb43728,1,43728,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb43728,1,43728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb43728,1,43728,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if the channel's buffer will be extended properly if a big chunk of
    // data is to be written from a request.
-   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb73728,1,0,-1",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb73728,1,0,-1",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a different kind of write request on the request queue can be
    // finished after the previous buffered requests before it.
-   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R35000",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Test if a write request on the request queue which can't be finished once
    // can be kept on the request queue and finished by following dispatches.
-   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R35000",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R35000",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Issue 3 requests of different types, then dispatch.
-   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wb15,1,15,0",             0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wb15,1,15,0",             0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during the first dispatch.
-   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wb73680,1,73680,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wb73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wb73680,1,73680,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "wb74720,1,74720,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
    {L_, "wb11,1,11,0,{wb15,0,15,0; w20,0,20,0,{wb40,1,40,0}}",
-                                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "wb18,1,18,0",             0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "R35769",                  0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
+                                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "wb18,1,18,0",             0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "R35769",                  0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #endif
 };
@@ -4350,7 +4350,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -4374,7 +4374,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -4456,7 +4456,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                            SCRIPTS[i][j].d_expData,
                                            strlen(SCRIPTS[i][j].d_expData)));
@@ -4519,7 +4519,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'timedWritev(btls::Iovec)'"
                           << "\n=================================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -4548,367 +4548,367 @@ int main(int argc, char *argv[])
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvit5,(250,100),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit5,(250,100),1,40,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,18,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,18,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvit6,(250,100),1,1040,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,0,-1",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit6,(250,100),1,1040,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,0,-1",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,0,-1",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,0,-1",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wvit7,(250,10),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(450,10),1,0,0",    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(450,10),1,0,0",    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvit7,(250,10),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,0,-1",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit5,(250,10),1,40,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,0,-1",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit5,(250,10),1,40,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during dispatch.
-   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,100),1,29760,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,100),1,29760,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of the same write type, and dispatch.
-   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,18,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit5,(250,100),1,40,0",   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,18,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit5,(250,100),1,40,0",   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,18,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,18,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wvit7,(250,100),1,29760,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wvit3,(255,8),1,18,0,{wb4,1,4,0; wvit1,(250,9),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit2,(250,100),1,15,0",   0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit2,(250,100),1,15,0",   0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvit5,(255,100),1,40,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit5,(255,100),1,40,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvit6,(255,100),1,540,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,0,-1",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit6,(255,100),1,540,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,0,-1",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,0,-1",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,0,-1",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(665,100),1,1024,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit7,(255,100),1,0,-1",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "wvit7,(255,100),1,0,-1",  0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "wvit7,(665,100),1,0,-1",  0,   2,    4,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(665,100),1,1024,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit7,(255,100),1,0,-1",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit7,(255,100),1,0,-1",  0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit7,(665,100),1,0,-1",  0,   2,    4,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvit6,(255,100),1,540,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,-3,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit6,(255,100),1,540,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,-3,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,0,-1",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit5,(275,100),1,40,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,0,-1",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit5,(275,100),1,40,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during dispatch.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(465,100),1,1024,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(465,100),1,1024,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit5,(275,100),1,40,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit5,(275,100),1,40,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, /* 1 of 1000 failed
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(265,100),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wvit7,(255,100),1,1024,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
   {L_, "wvit3,(265,100),1,18,0,{wb4,1,4,0; wvit1,(20,100),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit2,(275,100),1,15,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R729",                    0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit2,(275,100),1,15,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R729",                    0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvit5,(250,10),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit5,(250,10),1,40,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvit6,(250,10),1,1040,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,0,-1",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit6,(250,10),1,1040,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,0,-1",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,0,-1",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,0,-1",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit6,(250,10),1,0,0",    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit6,(250,10),1,0,0",    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvit6,(250,100),1,1040,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,-3,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit6,(250,100),1,1040,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,-3,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvit7,(20,10),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(20,10),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(20,10),1,0,-1",    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit5,(400,100),1,40,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(20,10),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(20,10),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(20,10),1,0,-1",    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit5,(400,100),1,40,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during dispatch.
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit8,(250,10),1,16383,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit8,(250,10),1,16383,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit5,(250,100),1,40,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R16383",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R16383",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit5,(250,100),1,40,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R16383",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R16383",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R16383",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,10),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R16383",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wvit7,(250,100),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,100),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wvit3,(250,100),1,18,0,{wb4,1,4,0;" // cont.
         "wvit1,(250,100),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit2,(250,100),1,15,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit2,(250,100),1,15,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #else                                  // sun test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvit5,(250,10),1,40,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit5,(250,10),1,40,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvit6,(250,10),1,1040,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,0,-1",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit6,(250,10),1,1040,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,0,-1",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,0,-1",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,0,-1",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and dispatch when no data in the pipe: timeout.
-   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,0,0",    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,0,0",    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvit6,(250,100),1,1040,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,-3,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit6,(250,100),1,1040,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,-3,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvit7,(20,10),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(20,10),1,0,-1",    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit5,(20,100),1,40,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(20,10),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(20,10),1,0,-1",    0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit5,(20,100),1,40,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during dispatch.
-   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit7,(250,10),1,57344,0",0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit7,(250,10),1,57344,0",0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,100),1,18,0",  0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit5,(250,100),1,40,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,100),1,18,0",  0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit5,(250,100),1,40,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R65536",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvit7,(250,10),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvit3,(250,10),1,18,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R65536",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvit7,(250,100),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wvit7,(250,100),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
  {L_, "wvit3,(250,100),1,18,0,{wb4,1,4,0; wvit1,(250,100),0,11,0,{wb9,1,9,0}}",
-                                   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wvit2,(250,100),1,15,0",  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                  0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "wvit2,(250,100),1,15,0",  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   2,    2,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    3,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #endif
 };
@@ -4923,7 +4923,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -4950,7 +4950,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             // LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -4960,7 +4960,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             //LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -4974,7 +4974,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -5057,7 +5057,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -5120,7 +5120,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'writev(btls::Iovec)'"
                           << "\n============================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -5149,326 +5149,326 @@ int main(int argc, char *argv[])
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
   { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,29760,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,29760,0",           0,   0,    0,    0,    0, NVEC,   "" },
+   {L_, "wvi7,1,29760,0",           0,   0,    0,    0,    0, e_NVEC,   "" },
    {L_, "wvi3,1,18,0,{wb4,1,4,0; wvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvi6,1,540,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi6,1,540,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvi6,1,540,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,-3,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi6,1,540,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,-3,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,1024,0",           0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,1024,0",           0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, NVEC,   "" },
+   {L_, "wvi7,1,1024,0",           0,   0,    0,    0,    0, e_NVEC,   "" },
    {L_, "wvi3,1,18,0,{wb4,1,4,0; wvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,-3,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,-3,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during dispatch.
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi8,1,16384,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi8,1,16384,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,16383,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,16383,0",           0,   0,    0,    0,    0, NVEC,   "" },
-   {L_, "wvi7,1,16383,0",           0,   0,    0,    0,    0, NVEC,   "" },
+   {L_, "wvi7,1,16383,0",           0,   0,    0,    0,    0, e_NVEC,   "" },
+   {L_, "wvi7,1,16383,0",           0,   0,    0,    0,    0, e_NVEC,   "" },
    {L_, "wvi3,1,18,0,{wb4,1,4,0; wvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #else                                  // sun test data
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi5,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,-3,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi6,1,1040,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,-3,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't send the specified
    // length of data during dispatch.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi7,1,57344,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi7,1,57344,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi5,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wvi7,1,73728,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wvi3,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wvi7,1,73728,0",           0,   0,    0,    0,    0, NVEC,   "" },
+   {L_, "wvi7,1,73728,0",           0,   0,    0,    0,    0, e_NVEC,   "" },
    {L_, "wvi3,1,18,0,{wb4,1,4,0; wvi1,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wvi2,1,15,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #endif
 };
@@ -5483,7 +5483,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -5507,7 +5507,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -5590,7 +5590,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -5654,7 +5654,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'timedWrite'"
                           << "\n====================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -5683,368 +5683,368 @@ int main(int argc, char *argv[])
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wt40,(255,150),1,40,0",         0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt40,(255,150),1,40,0",         0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt40,(255,50),1,40,0",          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R22379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt40,(255,50),1,40,0",          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R22379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wt1040,(255,150),1,1040,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "iw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(255,150),1,0,-1",          0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1040,(255,150),1,1040,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "iw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(255,150),1,0,-1",          0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(255,150),1,0,-1",          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R22379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(255,150),1,0,-1",          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R22379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and dispatch it when the pipe is unwritable.
-   {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(655,150),1,0,0",           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(655,150),1,0,0",           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt18,(255,150),1,18,0",         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt28720,(255,150),1,28720,0",   0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R22379",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt18,(255,150),1,18,0",         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt28720,(255,150),1,28720,0",   0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R22379",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(255,150),1,0,-1",          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt20,(255,150),0,20,0",         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R22379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(255,150),1,0,-1",          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "cw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt20,(255,150),0,20,0",         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R22379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wt28720,(250,1500),1,28720,0",  0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt28,(255,150),1,28,0",         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R22379",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt28720,(250,1500),1,28720,0",  0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt28,(255,150),1,28,0",         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R22379",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, NVEC,  "" },
+ {L_, "wt28720,(255,150),1,28720,0",   0,   0,    0,    0,    0, e_NVEC,  "" },
    {L_, "wt18,(255,150),1,18,0,{wb4,1,4,0; wt11,(5,150),0,11,0,{wb9,1,9,0}}",
-                                         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt2,(255,150),1,2,0",           0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R22379",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    3,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    2,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+                                       0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt2,(255,150),1,2,0",           0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R22379",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    3,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    2,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)    // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wt40,(225,150),1,40,0",         0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt40,(225,150),1,40,0",         0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt40,(255,50),1,40,0",          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R729",                          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt40,(255,50),1,40,0",          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R729",                          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wt140,(255,150),1,140,0",       0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "iw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(265,150),1,0,-1",          0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt140,(255,150),1,140,0",       0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "iw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(265,150),1,0,-1",          0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt30,(655,150),1,0,-1",         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R729",                          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt30,(655,150),1,0,-1",         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R729",                          0,   2,    1,    2,    1, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and dispatch it when the pipe is unwritable.
-   {L_, "wt1024,(255,150),1,1024,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt8020,(665,150),1,3072,0",     0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1024,(255,150),1,1024,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt8020,(665,150),1,3072,0",     0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wt140,(255,150),1,140,0",       0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "cS",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(265,150),1,-3,0",          0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt140,(255,150),1,140,0",       0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "cS",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(265,150),1,-3,0",          0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt18,(265,150),1,18,0",         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt1020,(675,150),1,1020,0",     0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R829",                          0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
+ {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt18,(265,150),1,18,0",         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt1020,(675,150),1,1020,0",     0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R829",                          0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
 
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R520",                          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R1020",                         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R520",                          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R1020",                         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt30,(265,150),1,0,-1",         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt512,(275,150),0,512,0",       0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R1020",                         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt30,(265,150),1,0,-1",         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "cw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt512,(275,150),0,512,0",       0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R1020",                         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wt1020,(250,1500),1,1020,0",    0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt28,(260,150),1,28,0",         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R729",                          0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1020,(250,1500),1,1020,0",    0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt28,(260,150),1,28,0",         0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R729",                          0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during dispatch the first time.
-   {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt1120,(565,150),1,1120,0",     0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R829",                          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R829",                          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt1120,(565,150),1,1120,0",     0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R829",                          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R829",                          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, NVEC,  "" },
+ {L_, "wt1020,(255,150),1,1020,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
    {L_, "wt18,(265,150),1,18,0,{wb4,1,4,0; wt11,(265,150),0,11,0,{wb9,1,9,0}}",
-                                         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt2,(265,150),1,2,0",           0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R729",                          0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    3,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    2,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+                                       0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt2,(265,150),1,2,0",           0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R729",                          0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    3,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    2,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wt40,(20,150),1,40,0",          0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt40,(20,150),1,40,0",          0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt40,(200,50),1,40,0",          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt40,(200,50),1,40,0",          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "iw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,0,-1",            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "iw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,0,-1",            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,0,-1",            0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,0,-1",            0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and dispatch it when the pipe is unwritable.
-   {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,0,0",             0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt16383,(5,150),1,16383,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,0,0",             0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "cS",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,-3,0",            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "cS",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,-3,0",            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  }, /*
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wt65536,(20,150),1,65536,0",    0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt16384,(20,150),1,16384,0",    0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt73728,(20,150),1,73728,0",    0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R40960",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R81920",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt65536,(20,150),1,65536,0",    0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt16384,(20,150),1,16384,0",    0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt73728,(20,150),1,73728,0",    0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R40960",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R81920",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(20,150),1,0,-1",           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt20,(20,150),0,20,0",          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(20,150),1,0,-1",           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "cw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt20,(20,150),0,20,0",          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wt16383,(1500,1500),1,16383,0", 0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt16383,(1500,1500),1,16383,0", 0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt28,(1050,150),1,28,0",        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt16383,(1500,1500),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt16383,(1500,1500),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt28,(1050,150),1,28,0",        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  }, /*
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during dispatch the first time.
-   {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt73680,(90,150),1,73680,0",    0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R65536",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R65536",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt73680,(90,150),1,73680,0",    0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R65536",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R65536",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-  {L_, "wt73728,(20,150),1,73728,0",     0,   0,    0,    0,    0, NVEC,  "" },
+{L_, "wt73728,(20,150),1,73728,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
    {L_, "wt18,(20,150),1,18,0,{wb4,1,4,0; wt11,(20,150),0,11,0,{wb9,1,9,0}}",
-                                         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt2,(20,150),1,2,0",            0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R56384",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    3,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    2,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+                                       0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt2,(20,150),1,2,0",            0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R56384",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    3,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    2,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  */
 
  #else                                   // sun test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wt40,(20,150),1,40,0",          0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt40,(20,150),1,40,0",          0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wt73728,(5,150),1,73728,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt40,(5,50),1,40,0",            0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(5,150),1,73728,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt40,(5,50),1,40,0",            0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "iw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,0,-1",            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "iw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,0,-1",            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wt73728,(5,150),1,73728,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,0,-1",            0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(5,150),1,73728,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,0,-1",            0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and dispatch it when the pipe is unwritable.
-   {L_, "wt73728,(5,150),1,73728,0",     0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,0,0",             0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(5,150),1,73728,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,0,0",             0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "cS",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(5,150),1,-3,0",            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "dw0",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt1040,(5,150),1,1040,0",       0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "cS",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(5,150),1,-3,0",            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "dw0",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  }, /*
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wt65536,(20,150),1,65536,0",    0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt16384,(20,150),1,16384,0",    0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt73728,(20,150),1,73728,0",    0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R40960",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R81920",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt65536,(20,150),1,65536,0",    0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt16384,(20,150),1,16384,0",    0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt73728,(20,150),1,73728,0",    0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R40960",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R81920",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt3,(20,150),1,0,-1",           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "cw",                            0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt20,(20,150),0,20,0",          0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt3,(20,150),1,0,-1",           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "cw",                            0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt20,(20,150),0,20,0",          0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wt73728,(1500,1500),1,73728,0", 0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt28,(1050,150),1,28,0",        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R52379",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(1500,1500),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt28,(1050,150),1,28,0",        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wb30,1,30,0",                   0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R52379",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  }, /*
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during dispatch the first time.
-   {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, NVEC,  "" },
-   {L_, "wt73680,(90,150),1,73680,0",    0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R65536",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "R65536",                        0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+ {L_, "wt73728,(20,150),1,73728,0",    0,   0,    0,    0,    0, e_NVEC,  "" },
+ {L_, "wt73680,(90,150),1,73680,0",    0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R65536",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "R65536",                        0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-  {L_, "wt73728,(20,150),1,73728,0",     0,   0,    0,    0,    0, NVEC,  "" },
+{L_, "wt73728,(20,150),1,73728,0",     0,   0,    0,    0,    0, e_NVEC,  "" },
    {L_, "wt18,(20,150),1,18,0,{wb4,1,4,0; wt11,(20,150),0,11,0,{wb9,1,9,0}}",
-                                         0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "wt2,(20,150),1,2,0",            0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "R56384",                        0,   2,    2,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    3,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    2,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   2,    1,    2,    1, NVEC,  "" },
-   {L_, "dw1",                           0,   1,    1,    1,    0, NVEC,  "" },
-   {L_, "dw1",                           0,   0,    0,    0,    0, NVEC,  "" },
-   {L_,  0,                              0,   0,    0,    0,    0, NVEC,  "" }
+                                       0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "wt2,(20,150),1,2,0",            0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "R56384",                        0,   2,    2,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    3,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    2,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   2,    1,    2,    1, e_NVEC,  "" },
+ {L_, "dw1",                           0,   1,    1,    1,    0, e_NVEC,  "" },
+ {L_, "dw1",                           0,   0,    0,    0,    0, e_NVEC,  "" },
+  {L_,  0,                              0,   0,    0,    0,    0, e_NVEC,  "" }
  },
  */
  #endif
@@ -6061,7 +6061,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -6081,7 +6081,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             // LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -6091,7 +6091,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             //LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -6105,7 +6105,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -6188,7 +6188,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -6251,7 +6251,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'write'"
                           << "\n===============" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -6280,342 +6280,342 @@ int main(int argc, char *argv[])
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w40,1,40,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w40,1,40,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "w29720,1,29720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w20,1,20,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w28720,1,28720,0",        0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R4379",                   0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
+   {L_, "w29720,1,29720,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w20,1,20,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w28720,1,28720,0",        0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R4379",                   0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
 
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w20,0,20,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w20,0,20,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "w28720,1,28720,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "w18,1,18,0,{wb4,1,4,0; w11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w40,1,40,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w40,1,40,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "w140,1,140,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w140,1,140,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w30,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w30,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "w140,1,140,0",            0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,-3,0",               0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w140,1,140,0",            0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,-3,0",               0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w1220,1,1220,0",          0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w1220,1,1220,0",          0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },/*
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w30,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w512,0,512,0",            0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R1020",                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w30,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w512,0,512,0",            0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R1020",                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, /*
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during the first dispatch.
-   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w1120,1,1120,0",          0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w1120,1,1120,0",          0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "w1020,1,1020,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "w18,1,18,0,{wb4,1,4,0; w11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w20000,1,20000,0",        0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R40960",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w20000,1,20000,0",        0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R40960",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,-3,0",               0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,-3,0",               0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   //{L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   //{L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w20,0,20,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w20,0,20,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "R32000",                  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "R32000",                  0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during the first dispatch.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w20000,1,20000,0",        0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w20000,1,20000,0",        0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16383,1,16383,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "w18,1,18,0,{wb4,1,4,0; w11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #else                                  // sun test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w40,1,40,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "w65536,1,65536,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w16384,1,16384,0",        0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R40960",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w65536,1,65536,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w16384,1,16384,0",        0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R40960",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,-3,0",               0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w1040,1,1040,0",          0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,-3,0",               0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "w73728,1,73728,0",        0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w18,1,18,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "w73728,1,73728,0",        0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w20,0,20,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w3,1,0,-1",               0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w20,0,20,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w28,1,28,0",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't finish the specified
    // length of data during the first dispatch.
-   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "w73680,1,73680,0",        0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "w73680,1,73680,0",        0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "w73728,1,73728,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "w18,1,18,0,{wb4,1,4,0; w11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #endif
 };
@@ -6630,7 +6630,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -6654,7 +6654,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -6737,7 +6737,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -6800,7 +6800,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'timedWriteRaw'"
                           << "\n=======================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -6829,370 +6829,370 @@ int main(int argc, char *argv[])
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt40,(5,200),1,40,0",        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt40,(5,200),1,40,0",        0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R22379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,0,-1",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "iw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,0,-1",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,0,-1",        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,0,-1",        0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R22379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
    // work.
-   {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,0,0",         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,0,0",         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt18,(20,100),1,18,0",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt40,(20,100),1,40,0",       0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt18,(20,100),1,18,0",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt40,(20,100),1,40,0",       0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R22379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,0,-1",        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt20,(20,100),0,20,0",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,0,-1",        0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "cw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt20,(20,100),0,20,0",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R22379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt28,(20,100),1,28,0",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt28,(20,100),1,28,0",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R22379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wrt28720,(15,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt29720,(5,10),1,29720,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt28720,(15,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt29720,(5,10),1,29720,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R22379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, NVEC,   ""  },
+ {L_, "wrt28720,(20,100),1,28720,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wrt18,(20,100),1,18,0,{wr4,1,4,0; wrt11,(20,100),0,11,0,{wb9,1,9,0}}",
-                                       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt2,(20,100),1,2,0",         0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R22379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+                                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt2,(20,100),1,2,0",         0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R22379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    3,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    2,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
   // Try writing 0 bytes.
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wrt1020,(15,100),1,1020,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt42,(525,200),1,42,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R1000",                       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1020,(15,100),1,1020,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt42,(525,200),1,42,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R1000",                       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wrt140,(20,100),1,140,0",     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,0,-1",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt140,(20,100),1,140,0",     0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "iw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,0,-1",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wrt1024,(20,100),1,1024,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt30,(20,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R500",                        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1024,(20,100),1,1024,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt30,(20,100),1,0,-1",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R500",                        0,   2,    1,    2,    1, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wrt140,(20,100),1,140,0",     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,-3,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt140,(20,100),1,140,0",     0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "cS",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,-3,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
    // work.
-   {L_, "wrt1024,(20,100),1,1024,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt30,(20,100),1,0,0",        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1024,(20,100),1,1024,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt30,(20,100),1,0,0",        0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wrt1020,(15,100),1,1020,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt18,(200,100),1,18,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt40,(205,100),1,40,0",      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R900",                        0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1020,(15,100),1,1020,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt18,(200,100),1,18,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt40,(205,100),1,40,0",      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R900",                        0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wrt1020,(265,100),1,1020,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt32,(250,100),1,0,-1",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt512,(275,100),0,512,0",    0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R1020",                       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1020,(265,100),1,1020,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt32,(250,100),1,0,-1",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "cw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt512,(275,100),0,512,0",    0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R1020",                       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt1020,(250,100),1,1020,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt28,(255,100),1,28,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R500",                        0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1020,(250,100),1,1020,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt28,(255,100),1,28,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R500",                        0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wrt1020,(255,100),1,1020,0",  0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt1120,(265,10),1,1024,0",   0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R500",                        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1020,(255,100),1,1020,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt1120,(265,10),1,1024,0",   0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R500",                        0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt1020,(255,100),1,1020,0",  0,   0,    0,    0,    0, NVEC,   ""  },
+ {L_, "wrt1020,(255,100),1,1020,0",  0,   0,    0,    0,    0, e_NVEC,   ""  },
  {L_, "wrt18,(265,100),1,18,0,{wr4,1,4,0; wrt11,(245,100),0,11,0,{wb9,1,9,0}}",
-                                       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt2,(275,100),1,2,0",        0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R500",                        0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+                                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt2,(275,100),1,2,0",        0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R500",                        0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    3,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    2,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt40,(265,200),1,40,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt40,(265,200),1,40,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(255,100),1,0,-1",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "iw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(255,100),1,0,-1",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(200,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(200,100),1,0,-1",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,-3,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "cS",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,-3,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
    // work.
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(200,100),1,0,0",        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "R52379",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "R52379",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(200,100),1,0,0",        0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt18,(800,100),1,18,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt40,(800,100),1,40,0",      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt18,(800,100),1,18,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt40,(800,100),1,40,0",      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(250,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt20,(500,100),0,20,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(250,100),1,0,-1",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "cw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt20,(500,100),0,20,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt28,(500,100),1,28,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(20,100),1,16383,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt28,(500,100),1,28,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wrt16383,(250,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(250,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt33000,(250,10),1,16383,0", 0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt16383,(250,100),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(250,100),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt33000,(250,10),1,16383,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt16383,(500,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt16383,(500,100),1,16383,0",0,   0,    0,    0,    0, NVEC,   ""  },
+ {L_, "wrt16383,(500,100),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt16383,(500,100),1,16383,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
   {L_, "wrt18,(500,100),1,18,0,{wr4,1,4,0; wrt11,(20,100),0,11,0,{wb9,1,9,0}}",
-                                       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt2,(500,100),1,2,0",        0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+                                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt2,(500,100),1,2,0",        0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    3,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    2,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #else                                  // sun test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt40,(20,100),1,40,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt40,(265,200),1,40,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt40,(265,200),1,40,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(255,100),1,0,-1",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "iw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(255,100),1,0,-1",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(200,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(200,100),1,0,-1",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(20,100),1,-3,0",        0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt1040,(20,100),1,1040,0",   0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "cS",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(20,100),1,-3,0",        0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "dw0",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, try dispatching when non-writeable, so timeout will
    // work.
-   {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(200,100),1,0,0",        0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(200,100),1,0,0",        0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt18,(200,100),1,18,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt40,(200,100),1,40,0",      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt18,(200,100),1,18,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt40,(200,100),1,40,0",      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt3,(250,100),1,0,-1",       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "cw",                          0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt20,(250,100),0,20,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt3,(250,100),1,0,-1",       0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "cw",                          0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt20,(250,100),0,20,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt28,(250,100),1,28,0",      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt73728,(20,100),1,73728,0", 0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt28,(250,100),1,28,0",      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wb30,1,30,0",                 0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wrt73728,(250,100),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wrt73680,(250,10),1,57344,0", 0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+ {L_, "wrt73728,(250,100),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
+ {L_, "wrt73680,(250,10),1,57344,0", 0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wrt73728,(200,100),1,73728,0",0,   0,    0,    0,    0, NVEC,   ""  },
+ {L_, "wrt73728,(200,100),1,73728,0",0,   0,    0,    0,    0, e_NVEC,   ""  },
   {L_, "wrt18,(250,100),1,18,0,{wr4,1,4,0; wrt11,(20,100),0,11,0,{wb9,1,9,0}}",
-                                       0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "wrt2,(250,100),1,2,0",        0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "R52379",                      0,   2,    2,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    3,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   2,    1,    2,    1, NVEC,   ""  },
-   {L_, "dw1",                         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                            0,   0,    0,    0,    0, NVEC,   ""  }
+                                     0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "wrt2,(250,100),1,2,0",        0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "R52379",                      0,   2,    2,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    3,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    2,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   2,    1,    2,    1, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   1,    1,    1,    0, e_NVEC,   ""  },
+ {L_, "dw1",                         0,   0,    0,    0,    0, e_NVEC,   ""  },
+  {L_,  0,                            0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #endif
 };
@@ -7207,7 +7207,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -7242,7 +7242,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             // LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -7252,7 +7252,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             //LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -7266,7 +7266,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -7349,7 +7349,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -7412,7 +7412,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'writeRaw'"
                           << "\n==================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -7441,338 +7441,338 @@ int main(int argc, char *argv[])
  #if defined(BSLS_PLATFORM_OS_WINDOWS) // windows test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr220,1,220,0",           0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr220,1,220,0",           0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr30,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr30,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr29720,1,29720,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr29720,1,29720,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wr28720,1,28720,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wr18,1,18,0,{wr4,1,4,0; wr11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R22379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R22379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
 
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wr140,1,140,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr140,1,140,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr30,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr30,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wr140,1,140,0",           0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,-3,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr140,1,140,0",           0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,-3,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, /* 2 of 1000 fail: dw1
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr30,1,0,-1",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr30,1,0,-1",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  }, */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },/*
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr1120,1,1024,0",         0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr1120,1,1024,0",         0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },  */
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wr1020,1,1020,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wr18,1,18,0,{wr4,1,4,0; wr11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R500",                    0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R500",                    0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
 
  #elif BSLS_PLATFORM_OS_LINUX
 
   // Try writing 0 bytes.
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,-3,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,-3,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr33000,1,16384,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr33000,1,16384,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr16383,1,16383,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wr18,1,18,0,{wr4,1,4,0; wr11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #else                                  // sun test data
 
   // Try writing 0 bytes.
  { // Issue 1 request, which should be finished without being enqueued.
-   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr40,1,40,0",             0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request, then dispatch.
-   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr40,1,40,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr40,1,40,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "iw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "iw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request without being dispatched.
-   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Invalidate the channel, then issue 1 request and try dispatching.
-   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "cS",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,-3,0",              0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "dw0",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr1040,1,1040,0",         0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "cS",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,-3,0",              0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "dw0",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, enqueue the last request directly, then dispatch.
-   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr18,1,18,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr40,1,40,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 1 request and later cancel it, then enqueue a new request and
    // dispatch.
-   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "cw",                      0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr3,1,0,-1",              0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "cw",                      0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr20,0,20,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr28,1,28,0",             0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wb30,1,30,0",             0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests, make the second one couldn't extract the specified
    // length of data during dispatch.
-   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_, "wr73680,1,57344,0",       0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_, "wr73680,1,57344,0",       0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  { // Enqueue 2 requests of different write event types, and dispatch.
-   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, NVEC,   ""  },
+   {L_, "wr73728,1,73728,0",       0,   0,    0,    0,    0, e_NVEC,   ""  },
    {L_, "wr18,1,18,0,{wr4,1,4,0; wr11,0,11,0,{wb9,1,9,0}}",
-                                   0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "R52379",                  0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    3,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    2,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   1,    1,    1,    0, NVEC,   ""  },
-   {L_, "dw1",                     0,   0,    0,    0,    0, NVEC,   ""  },
-   {L_,  0,                        0,   0,    0,    0,    0, NVEC,   ""  }
+                                   0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "wr2,1,2,0",               0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "R52379",                  0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    3,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    2,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   1,    1,    1,    0, e_NVEC,   ""  },
+   {L_, "dw1",                     0,   0,    0,    0,    0, e_NVEC,   ""  },
+   {L_,  0,                        0,   0,    0,    0,    0, e_NVEC,   ""  }
  },
  #endif
 };
@@ -7787,7 +7787,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
@@ -7811,7 +7811,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, cSocket);
 
             btlso::TcpTimerEventManager eveManager(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             {
@@ -7894,7 +7894,7 @@ int main(int argc, char *argv[])
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -7956,7 +7956,7 @@ int main(int argc, char *argv[])
         //   int timedReadvRaw();
         // -----------------------------------------------------------------
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         if (verbose) cout << endl
                           << "\nTESTING 'timedReadv' METHOD"
@@ -7989,112 +7989,112 @@ int main(int argc, char *argv[])
  //------  -----               ----- ----- ----- ------ ----- ----   ------
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "ir",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt6,(200,100),0,-1,0", 0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "dr0",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "ir",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt6,(200,100),0,-1,0", 0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "dr0",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be dispatched
    // due to timeout properly when no data in the pipe.
-   {L_, "rvrt2,(200,100),0,0,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "rvrt2,(200,100),0,0,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "123"    },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W4",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt2,(200,100),0,3,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W4",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt2,(200,100),0,3,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "123"    },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W3",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt2,(200,100),0,3,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W3",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt2,(200,100),0,3,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "123"    },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt3,(200,100),0,7,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt3,(200,100),0,7,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "1234567"},
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when it can't be done once and so this request need to be
    // dispatched again.
-   {L_, "W20",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt4,(200,100),0,13,0", 1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
+ {L_, "W20",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt4,(200,100),0,13,0", 1,    2,    0,   2,    1,  e_NVEC,  ""       },
+   {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC,
                                                           "1234567890abcd"   },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Test if a channel can still work correctly for new read request.after the
    // previous reads are canceled.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt4,(200,100),0,0,-1", 1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "cr",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt3,(200,100),1,7,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt4,(200,100),0,0,-1", 1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "cr",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt3,(200,100),1,7,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "1234567"},
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rb2,0,2,0",              1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
-   {L_, "rvrt3,(255,100),0,7,0",  0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "dr0",                    0,    0,    0,   0,    0,  IOVEC, "4567890"},
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rb2,0,2,0",              1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "123"    },
+ {L_, "rvrt3,(255,100),0,7,0",  0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "dr0",                    0,    0,    0,   0,    0,  e_IOVEC, "4567890"},
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 #ifndef BSLS_PLATFORM_OS_LINUX
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt3,(255,100),0,7,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "rvrt2,(255,100),0,3,0",  2,    2,    0,   2,    1,  NVEC,  ""       },
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt3,(255,100),0,7,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "rvrt2,(255,100),0,3,0",  2,    2,    0,   2,    1,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "1234567"},
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "890"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
    // read buffer.
-   {L_, "W5",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt2,(255,20),0,3,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "rvrt3,(255,10),0,2,0",   2,    2,    0,   2,    1,  NVEC,  ""       },
+ {L_, "W5",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt2,(255,20),0,3,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "rvrt3,(255,10),0,2,0",   2,    2,    0,   2,    1,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "123"    },
 
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "45"     },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 #endif
  { // Enqueue 2 requests, then dispatch: test if the different type of read
    // requests can be finished properly in a channel.
-   {L_, "W3",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvrt2,(200,100),0,3,0",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "rb5,0,5,0",              2,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "123"    },
-   {L_, "W5",                     1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "12345"  },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W3",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvrt2,(200,100),0,3,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "rb5,0,5,0",              2,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_IOVEC, "123"    },
+ {L_, "W5",                     1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "12345"  },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 #ifndef BSLS_PLATFORM_OS_LINUX
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_, "W10",                    0,    0,    0,   0,    0,  NVEC,  ""       },
+ {L_, "W10",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
    {L_, "rvrt2,(250,100),0,3,0,{rvrt3,(250,100),1,7,0}",
-                                  1,    2,    0,   2,    1,  NVEC,  ""       },
+                                1,    2,    0,   2,    1,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "123"    },
    {L_, "rvrt2,(250,100),1,3,0,{r4,0,4,0; rvrt4,(250,100),1,13,0}",
-                                  2,    2,    0,   2,    1,  NVEC,  ""       },
+                                2,    2,    0,   2,    1,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "4567890"},
-   {L_, "W20",                    1,    2,    0,   2,    1,  NVEC,  ""       },
+ {L_, "W20",                    1,    2,    0,   2,    1,  e_NVEC,  ""       },
    {L_, "dr1",                    2,    1,    0,   1,    0,  IOVEC, "123"    },
-   {L_, "dr1",                    1,    2,    0,   2,    1,  NVEC,  "4567"   },
+ {L_, "dr1",                    1,    2,    0,   2,    1,  e_NVEC,  "4567"   },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
                                                            "890abcdefghij"   },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 #endif
 };
@@ -8108,7 +8108,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -8206,12 +8206,12 @@ int main(int argc, char *argv[])
                         P_(buf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -8273,7 +8273,7 @@ int main(int argc, char *argv[])
         //   int readvRaw();
         // -----------------------------------------------------------------
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         if (verbose) cout << endl
                           << "\nTESTING 'readv' METHOD"
@@ -8306,102 +8306,102 @@ int main(int argc, char *argv[])
  //------  -----               ----- ----- ----- ------ ----- ----   ------
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "ir",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr6,0,-1,0",            0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "dr0",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "ir",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr6,0,-1,0",            0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "dr0",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W4",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W4",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W3",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W3",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr3,0,7,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr3,0,7,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when enough data in the pipe.
-   {L_, "W20",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr4,0,13,0",            1,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W20",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr4,0,13,0",            1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
                                                           "1234567890abcd"   },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Test if a channel can still work correctly for new read request after the
    // previous reads are canceled.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr4,0,0,-1",            1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "cr",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr3,1,7,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr4,0,0,-1",            1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "cr",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr3,1,7,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rb2,0,2,0",              1,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rb2,0,2,0",              1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
-   {L_, "rvr3,0,7,0",             0,    0,    0,   0,    0,  NVEC,  ""       },
+ {L_, "rvr3,0,7,0",             0,    0,    0,   0,    0,  e_NVEC,  ""       },
    {L_, "dr0",                    0,    0,    0,   0,    0,  IOVEC, "4567890"},
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr3,0,7,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "rvr2,0,3,0",             2,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr3,0,7,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "rvr2,0,3,0",             2,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "1234567"},
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "890"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
    // read buffer.
-   {L_, "W5",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "rvr3,0,2,0",             2,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W5",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "rvr3,0,2,0",             2,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "123"    },
 
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "45"     },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch: test if the different type of read
    // requests can be finished properly in the channel.
-   {L_, "W3",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "rb5,0,5,0",              2,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W3",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "rb5,0,5,0",              2,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "123"    },
-   {L_, "W5",                     1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "12345"  },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W5",                     1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "12345"  },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_, "W10",                    0,    0,    0,   0,    0,  NVEC,  ""       },
+ {L_, "W10",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
    {L_, "rvr2,0,3,0,{rvr3,1,7,0}",
-                                  1,    1,    0,   1,    0,  NVEC,  ""       },
+                                1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "123"    },
    {L_, "rvr2,1,3,0,{r4,0,4,0; rvr4,1,13,0}",
-                                  2,    1,    0,   1,    0,  NVEC,  ""       },
+                                2,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "4567890"},
-   {L_, "W20",                    1,    1,    0,   1,    0,  NVEC,  ""       },
+ {L_, "W20",                    1,    1,    0,   1,    0,  e_NVEC,  ""       },
    {L_, "dr1",                    2,    1,    0,   1,    0,  IOVEC, "123"    },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  NVEC,  "4567"   },
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_NVEC,  "4567"   },
    {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
                                                            "890abcdefghij"   },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 };
 
@@ -8411,7 +8411,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -8514,7 +8514,7 @@ int main(int argc, char *argv[])
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -8574,7 +8574,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'timedBufferedReadRaw'"
                           << "\n=============================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -8602,107 +8602,107 @@ int main(int argc, char *argv[])
  //------  -----               ----- ----- ----- ------ ----- ----   ------
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "ir",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt6,(20,100),0,-1,0",  0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "dr0",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "ir",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt6,(20,100),0,-1,0",  0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "dr0",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W4",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt4,(20,100),0,4,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j123"   },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W4",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt4,(20,100),0,4,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "j123"   },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W4",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt3,(20,100),0,3,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j12"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W4",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt3,(20,100),0,3,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "j12"    },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt2,(20,100),0,2,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j1"     },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt2,(20,100),0,2,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "j1"     },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when no enough data in the pipe.
-   {L_, "W4",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt5,(20,100),0,4,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j123"   },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W4",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt5,(20,100),0,4,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "j123"   },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Test if a channel can still work correctly for new read request after the
    // previous reads are canceled.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt4,(20,100),0,0,-1",  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "cr",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt3,(20,100),1,3,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j12"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt4,(20,100),0,0,-1",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "cr",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt3,(20,100),1,3,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "j12"    },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt2,(20,100),0,2,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j1"     },
-   {L_, "rbrt5,(20,100),0,5,0",   0,    0,    0,   0,    0,  NVEC,  "23456"  },
-   {L_, "dr0",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt2,(20,100),0,2,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "j1"     },
+ {L_, "rbrt5,(20,100),0,5,0",   0,    0,    0,   0,    0,  e_NVEC,  "23456"  },
+ {L_, "dr0",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
-   {L_, "rbrt2,(20,100),0,0,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt5,(20,100),0,0,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "rbrt2,(20,100),0,0,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt5,(20,100),0,0,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
-   {L_, "W11",                    0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt4,(50,100),0,4,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "rbrt3,(5,200),0,3,0",    2,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "456"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt4,(50,100),0,4,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "rbrt3,(5,200),0,3,0",    2,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "456"    },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
    // read buffer.
-   {L_, "W5",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbt2,(5,200),0,2,0",     1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "rbt5,(5,200),0,5,0",     2,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    1,    2,    0,   2,    1,  NVEC,  "j1"     },
-   {L_, "W2",                     1,    2,    0,   2,    1,  NVEC,   ""      },
+ {L_, "W5",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbt2,(5,200),0,2,0",     1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "rbt5,(5,200),0,5,0",     2,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    1,    2,    0,   2,    1,  e_NVEC,  "j1"     },
+ {L_, "W2",                     1,    2,    0,   2,    1,  e_NVEC,   ""      },
 
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "234j1"  },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "234j1"  },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 
  { // Enqueue 2 requests, then dispatch: test if the different type of read
    // requests can be finished properly in a channel.
-   {L_, "W3",                     0,    0,    0,   0,    0,  NVEC,  ""       },
-   {L_, "rbrt3,(50,200),0,3,0",   1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "r5,0,5,0",               2,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  NVEC,  "j12"    },
-   {L_, "W5",                     1,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "j1234"  },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+ {L_, "W3",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
+ {L_, "rbrt3,(50,200),0,3,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "r5,0,5,0",               2,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_NVEC,  "j12"    },
+ {L_, "W5",                     1,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "j1234"  },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_, "W10",                    0,    0,    0,   0,    0,  NVEC,  ""       },
+ {L_, "W10",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
    {L_, "rbrt3,(20,100),0,3,0,{rbrt2,(200,200),1,2,0}",
-                                  1,    2,    0,   2,    1,  NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "34"     },
+                                1,    2,    0,   2,    1,  e_NVEC,  ""       },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "34"     },
    {L_, "rbrt2,(500,200),1,2,0,{r4,0,4,0; rbrt3,(30,200),1,3,0}",
-                                  2,    1,    0,   1,    0,  NVEC,  "789"    },
-   {L_, "W4",                     2,    1,    0,   1,    0,  NVEC,  ""       },
-   {L_, "dr1",                    1,    2,    0,   2,    1,  NVEC,  "789j"   },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  NVEC,  "123"    },
-   {L_,  0,                       0,    0,    0,   0,    0,  NVEC,  ""       }
+                                2,    1,    0,   1,    0,  e_NVEC,  "789"    },
+ {L_, "W4",                     2,    1,    0,   1,    0,  e_NVEC,  ""       },
+ {L_, "dr1",                    1,    2,    0,   2,    1,  e_NVEC,  "789j"   },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "123"    },
+  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 };
 
@@ -8714,7 +8714,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -8798,12 +8798,12 @@ int main(int argc, char *argv[])
                         P_(buf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -8862,7 +8862,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'bufferedReadRaw'"
                           << "\n=========================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -8891,95 +8891,95 @@ int main(int argc, char *argv[])
   // Try reading 0 bytes.
  { // Invalidate the channel, enter 1 request, then try dispatching: test
    // if any read request can be issued after the invalidation.
-   {L_, "W11",                    0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "ir",                     0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "rbr6,0,-1,0",            0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "dr0",                    0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,   ""       }
+ {L_, "W11",                    0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "ir",                     0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "rbr6,0,-1,0",            0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "dr0",                    0,   0,    0,   0,    0,  e_NVEC,   ""       },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,   ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W4",                     0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "rbr4,0,4,0",             1,   1,    0,   1,    0,  NVEC,   ""       },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "j123"    },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,   ""       }
+ {L_, "W4",                     0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "rbr4,0,4,0",             1,   1,    0,   1,    0,  e_NVEC,   ""       },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,  "j123"    },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,   ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W4",                     0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "rbr3,0,3,0",             1,   1,    0,   1,    0,  NVEC,   ""       },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,   "j12"    },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,   ""       }
+ {L_, "W4",                     0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "rbr3,0,3,0",             1,   1,    0,   1,    0,  e_NVEC,   ""       },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,   "j12"    },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,   ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   {L_, "W11",                    0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  NVEC,   ""       },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,   "j1"     },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,    ""      }
+ {L_, "W11",                    0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC,   ""       },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,   "j1"     },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,    ""      }
  },
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when no enough data in the pipe.
-   {L_, "W4",                     0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "rbr5,0,4,0",             1,   1,    0,   1,    0,  NVEC,   ""       },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,   "j123"   },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,   ""       }
+ {L_, "W4",                     0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "rbr5,0,4,0",             1,   1,    0,   1,    0,  e_NVEC,   ""       },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,   "j123"   },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,   ""       }
  },
  { // Test if a channel can still work correctly for new read request.after the
    // previous reads are canceled.
-   {L_, "W11",                    0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "rbr4,0,0,-1",            1,   1,    0,   1,    0,  NVEC,   ""       },
-   {L_, "cr",                     0,   0,    0,   0,    0,  NVEC,   ""       },
-   {L_, "rbr3,1,3,0",             1,   1,    0,   1,    0,  NVEC,   ""       },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,   "j12"    },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,   ""       }
+ {L_, "W11",                    0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "rbr4,0,0,-1",            1,   1,    0,   1,    0,  e_NVEC,   ""       },
+ {L_, "cr",                     0,   0,    0,   0,    0,  e_NVEC,   ""       },
+ {L_, "rbr3,1,3,0",             1,   1,    0,   1,    0,  e_NVEC,   ""       },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,   "j12"    },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,   ""       }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
-   {L_, "W11",                    0,   0,    0,   0,    0,  NVEC,  ""        },
-   {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "j1"      },
-   {L_, "rb5,0,5,0",              0,   0,    0,   0,    0,  NVEC,  "23456"   },
-   {L_, "dr0",                    0,   0,    0,   0,    0,  NVEC,  ""        },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,  ""        }
+ {L_, "W11",                    0,   0,    0,   0,    0,  e_NVEC,  ""        },
+ {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,  "j1"      },
+ {L_, "rb5,0,5,0",              0,   0,    0,   0,    0,  e_NVEC,  "23456"   },
+ {L_, "dr0",                    0,   0,    0,   0,    0,  e_NVEC,  ""        },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,  ""        }
  },
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
-   {L_, "W11",                    0,   0,    0,   0,    0,  NVEC,  ""        },
-   {L_, "rbr4,0,4,0",             1,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_, "rbr3,0,3,0",             2,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "456"     },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,  ""        }
+ {L_, "W11",                    0,   0,    0,   0,    0,  e_NVEC,  ""        },
+ {L_, "rbr4,0,4,0",             1,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_, "rbr3,0,3,0",             2,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,  "456"     },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,  ""        }
  },
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
    // read buffer.
-   {L_, "W5",                     0,   0,    0,   0,    0,  NVEC,  ""        },
-   {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_, "rbr5,0,3,0",             2,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "234"     },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,  ""        }
+ {L_, "W5",                     0,   0,    0,   0,    0,  e_NVEC,  ""        },
+ {L_, "rbr2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_, "rbr5,0,3,0",             2,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,  "234"     },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,  ""        }
  },
  { // Enqueue 2 requests, then dispatch: test if the different type of read
    // requests can be finished properly in a channel.
-   {L_,  "W3",                    0,   0,    0,   0,    0,  NVEC,  ""        },
-   {L_,  "rbr3,0,3,0",            1,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_,  "r5,0,5,0",              2,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC,  "j12"     },
-   {L_,  "W5",                    1,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC,  "j1234"   },
-   {L_,   0,                      0,   0,    0,   0,    0,  NVEC,  ""        }
+ {L_,  "W3",                    0,   0,    0,   0,    0,  e_NVEC,  ""        },
+ {L_,  "rbr3,0,3,0",            1,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_,  "r5,0,5,0",              2,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC,  "j12"     },
+ {L_,  "W5",                    1,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC,  "j1234"   },
+  {L_,   0,                      0,   0,    0,   0,    0,  e_NVEC,  ""        }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_, "W10",                    0,   0,    0,   0,    0,  NVEC,  ""        },
+ {L_, "W10",                    0,   0,    0,   0,    0,  e_NVEC,  ""        },
    {L_, "rbr3,0,3,0,{rbr2,1,2,0}",
-                                  1,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "34"      },
+                                1,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,  "34"      },
    {L_, "rbr2,1,2,0,{r4,0,4,0; rbr3,1,3,0}",
-                                  2,   1,    0,   1,    0,  NVEC,  "789"     },
-   {L_, "W4",                     2,   1,    0,   1,    0,  NVEC,  ""        },
-   {L_, "dr1",                    1,   1,    0,   1,    0,  NVEC,  "789j"    },
-   {L_, "dr1",                    0,   0,    0,   0,    0,  NVEC,  "123"     },
-   {L_,  0,                       0,   0,    0,   0,    0,  NVEC,  ""        }
+                                2,   1,    0,   1,    0,  e_NVEC,  "789"     },
+ {L_, "W4",                     2,   1,    0,   1,    0,  e_NVEC,  ""        },
+ {L_, "dr1",                    1,   1,    0,   1,    0,  e_NVEC,  "789j"    },
+ {L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC,  "123"     },
+  {L_,  0,                       0,   0,    0,   0,    0,  e_NVEC,  ""        }
    },
 };
 
@@ -8991,7 +8991,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -9075,12 +9075,12 @@ int main(int argc, char *argv[])
                         P_(buf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -9139,7 +9139,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'timedBufferedRead'"
                           << "\n===========================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -9167,120 +9167,120 @@ int main(int argc, char *argv[])
  //------  -----               ----- ----- ----- ------ ----- ----   ------
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "ir",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt6,(20,100),0,-1,0",  0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "ir",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt6,(20,100),0,-1,0",  0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "dr0",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   { L_,   "W4",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   "rbt4,(20,100),0,4,0",  1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,   "dr1",                  0,   0,    0,   0,    0,  NVEC, "j123"    },
-   { L_,    0,                     0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,   "W4",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,   "rbt4,(20,100),0,4,0",  1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,   "dr1",                  0,   0,    0,   0,    0,  e_NVEC, "j123"    },
+  { L_,    0,                     0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   { L_,   "W4",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   "rbt3,(20,100),0,3,0",  1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,   "dr1",                  0,   0,    0,   0,    0,  NVEC, "j12"     },
-   { L_,    0,                     0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,   "W4",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,   "rbt3,(20,100),0,3,0",  1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,   "dr1",                  0,   0,    0,   0,    0,  e_NVEC, "j12"     },
+  { L_,    0,                     0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt2,(20,100),0,2,0",   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt2,(20,100),0,2,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when it can't be done once and so this request need to be
    // dispatched again.
-   { L_,  "W4",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt5,(20,100),0,5,0",   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "W2",                    1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j123j"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W4",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt5,(20,100),0,5,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "W2",                    1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j123j"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Test if a channel can still work correctly for new read request.after the
    // previous reads are canceled.
-   {L_,  "W11",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   {L_,  "rbt4,(20,100),0,0,-1",   1,   2,    0,   2,    1,  NVEC, ""        },
-   {L_,  "cr",                     0,   0,    0,   0,    0,  NVEC, ""        },
-   {L_,  "rbt3,(20,100),1,3,0",    1,   2,    0,   2,    1,  NVEC, ""        },
-   {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "j12"     },
-   {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+ {L_,  "W11",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ {L_,  "rbt4,(20,100),0,0,-1",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ {L_,  "cr",                     0,   0,    0,   0,    0,  e_NVEC, ""        },
+ {L_,  "rbt3,(20,100),1,3,0",    1,   2,    0,   2,    1,  e_NVEC, ""        },
+ {L_,  "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "j12"     },
+  {L_,   0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt2,(20,100),0,2,0",   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_,  "rbt5,(20,100),0,5,0",   0,   0,    0,   0,    0,  NVEC, "23456"   },
-   { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt2,(20,100),0,2,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+ { L_,  "rbt5,(20,100),0,5,0",   0,   0,    0,   0,    0,  e_NVEC, "23456"   },
+ { L_,  "dr0",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Issue 2 requests, then dispatch: test if a request can be dispatched only
    // due to timeout, without retrieving any data.
-   { L_,  "rbt2,(200,10),0,0,0",   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt5,(200,10),0,0,0",   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "rbt2,(200,10),0,0,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt5,(200,10),0,0,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt4,(50,100),0,4,0",   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "rbt3,(5,200),0,3,0",    2,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "456"     },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt4,(50,100),0,4,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "rbt3,(5,200),0,3,0",    2,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "456"     },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
    // read buffer.
-   { L_,  "W5",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt2,(5,200),0,2,0",    1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "rbt5,(5,200),0,5,0",    2,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   1,   2,    0,   2,    1,  NVEC, "j1"      },
-   { L_,  "W2",                    1,   2,    0,   2,    1,  NVEC, ""        },
+ { L_,  "W5",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt2,(5,200),0,2,0",    1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "rbt5,(5,200),0,5,0",    2,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   2,    0,   2,    1,  e_NVEC, "j1"      },
+ { L_,  "W2",                    1,   2,    0,   2,    1,  e_NVEC, ""        },
 
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "234j1"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "234j1"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Fill readBuffer in the channel but not enough data, then issue 1 request
    // and try dispatching.  This request need to be dequeued and the timer
    // should be deregistered subsequentially.
-   { L_, "W7",                     0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_, "rbt6,(50,200),0,6,0",    1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_, "rb2,0,2,0",              2,   2,    0,   2,    1,  NVEC, ""        },
-   { L_, "dr1",                    1,   1,    0,   1,    0,  NVEC, "j12345"  },
-   { L_, "W3",                     1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_, "dr1",                    0,   0,    0,   0,    0,  NVEC, "6j"      },
-   { L_,  0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_, "W7",                     0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_, "rbt6,(50,200),0,6,0",    1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_, "rb2,0,2,0",              2,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_, "dr1",                    1,   1,    0,   1,    0,  e_NVEC, "j12345"  },
+ { L_, "W3",                     1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "6j"      },
+  { L_,  0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch: test if a different type of read
    // requests can be finished properly in a channel after the first request.
-   { L_,  "W3",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rbt3,(50,200),0,3,0",   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "r5,0,5,0",              2,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, "j12"     },
-   { L_,  "W5",                    1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1234"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W3",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rbt3,(50,200),0,3,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "r5,0,5,0",              2,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC, "j12"     },
+ { L_,  "W5",                    1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1234"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   { L_,  "W10",                   0,   0,    0,   0,    0,  NVEC, ""        },
+ { L_,  "W10",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
    { L_,  "rbt3,(250,100),0,3,0,{rbt2,(200,200),1,2,0}",
-                                   1,   2,    0,   2,    1,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "34"      },
+                                 1,   2,    0,   2,    1,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "34"      },
    { L_,  "rbt2,(500,200),1,2,0,{r4,0,4,0; rbt3,(100,200),1,3,0}",
-                                   2,   1,    0,   1,    0,  NVEC, "789"     },
-   { L_,  "W4",                    2,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   1,   2,    0,   2,    1,  NVEC, "789j"    },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "123"     },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+                                 2,   1,    0,   1,    0,  e_NVEC, "789"     },
+ { L_,  "W4",                    2,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   2,    0,   2,    1,  e_NVEC, "789j"    },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "123"     },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
 };
 
@@ -9295,7 +9295,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -9379,12 +9379,12 @@ int main(int argc, char *argv[])
                         P_(buf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -9443,7 +9443,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'bufferedRead'"
                           << "\n======================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -9471,114 +9471,114 @@ int main(int argc, char *argv[])
  //------  -----               ----- ----- ----- ------ ----- ----   ------
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "ir",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb6,0,-1,0",            0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "ir",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb6,0,-1,0",            0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "dr0",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   { L_,   "W4",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   "rb4,0,4,0",            1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,   "dr1",                  0,   0,    0,   0,    0,  NVEC, "j123"    },
-   { L_,    0,                     0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,   "W4",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,   "rb4,0,4,0",            1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,   "dr1",                  0,   0,    0,   0,    0,  e_NVEC, "j123"    },
+  { L_,    0,                     0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   { L_,   "W4",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   "rb3,0,3,0",            1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,   "dr1",                  0,   0,    0,   0,    0,  NVEC, "j12"     },
-   { L_,    0,                     0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,   "W4",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,   "rb3,0,3,0",            1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,   "dr1",                  0,   0,    0,   0,    0,  e_NVEC, "j12"     },
+  { L_,    0,                     0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
 
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when it can't be done once and so this request need to be
    // dispatched again.
-   { L_,  "W4",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb5,0,5,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "W2",                    1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j123j"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W4",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb5,0,5,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "W2",                    1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j123j"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Test if a channel can still work correctly for new read request after
    // previous reads are canceled.
-   {L_,  "W11",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   {L_,  "rb4,0,0,-1",             1,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "cr",                     0,   0,    0,   0,    0,  NVEC, ""        },
-   {L_,  "rb3,1,3,0",              1,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "j12"     },
-   {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+ {L_,  "W11",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ {L_,  "rb4,0,0,-1",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "cr",                     0,   0,    0,   0,    0,  e_NVEC, ""        },
+ {L_,  "rb3,1,3,0",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "j12"     },
+  {L_,   0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_,  "rb5,0,5,0",             0,   0,    0,   0,    0,  NVEC, "23456"   },
-   { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+ { L_,  "rb5,0,5,0",             0,   0,    0,   0,    0,  e_NVEC, "23456"   },
+ { L_,  "dr0",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  }, /*  1 of 1000 fail: strncmp("456",;;;)
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb4,0,4,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "rb3,0,3,0",             2,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "456"     },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb4,0,4,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "rb3,0,3,0",             2,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "456"     },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  }, */
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
    // read buffer.
-   { L_,  "W5",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "rb5,0,5,0",             2,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, "j1"      },
-   { L_,  "W2",                    1,   1,    0,   1,    0,  NVEC, ""        },
+ { L_,  "W5",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "rb5,0,5,0",             2,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC, "j1"      },
+ { L_,  "W2",                    1,   1,    0,   1,    0,  e_NVEC, ""        },
 
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "234j1"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "234j1"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
 
  { // Fill readBuffer in the channel but not enough data, then issue 1 request
    // and try dispatching.  This request need to be dequeued and the timer
    // should be registered at the same time.
-   { L_, "W7",                     0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_, "rb6,0,6,0",              1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_, "rb2,0,2,0",              2,   1,    0,   1,    0,  NVEC, ""        },
-   { L_, "dr1",                    1,   1,    0,   1,    0,  NVEC, "j12345"  },
-   { L_, "W3",                     1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_, "dr1",                    0,   0,    0,   0,    0,  NVEC, "6j"      },
-   { L_,  0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_, "W7",                     0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_, "rb6,0,6,0",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_, "rb2,0,2,0",              2,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_, "dr1",                    1,   1,    0,   1,    0,  e_NVEC, "j12345"  },
+ { L_, "W3",                     1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "6j"      },
+  { L_,  0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch: test if the different type of read
    // requests can be finished properly in a channel.
-   { L_,  "W3",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb3,0,3,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "r5,0,5,0",              2,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, "j12"     },
-   { L_,  "W5",                    1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1234"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W3",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb3,0,3,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "r5,0,5,0",              2,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC, "j12"     },
+ { L_,  "W5",                    1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1234"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_,  "W10",                    0,   0,    0,   0,    0,  NVEC, ""        },
+ {L_,  "W10",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
    {L_,  "rb3,0,3,0,{rb2,1,2,0}",
-                                   1,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "34"      },
+                                 1,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "34"      },
    {L_,  "rb2,1,2,0,{r4,0,4,0; rb3,1,3,0}",
-                                   2,   1,    0,   1,    0,  NVEC, "789"     },
-   {L_,  "W4",                     2,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "dr1",                    1,   1,    0,   1,    0,  NVEC, "789j"    },
-   {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "123"     },
-   {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+                                 2,   1,    0,   1,    0,  e_NVEC, "789"     },
+ {L_,  "W4",                     2,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "dr1",                    1,   1,    0,   1,    0,  e_NVEC, "789j"    },
+ {L_,  "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "123"     },
+  {L_,   0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
 };
 
@@ -9593,7 +9593,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -9677,12 +9677,12 @@ int main(int argc, char *argv[])
                         P_(buf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -9744,7 +9744,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'timedReadRaw'"
                             << "\n====================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -9773,131 +9773,131 @@ int main(int argc, char *argv[])
    // Try reading 0 bytes.
  { // Invalidate the channel, enter 1 request, then try dispatching: test
    // if any read request can be issued after the invalidation.
-   {L_, "W11",                     0,   0,    0,    0,    0,  NVEC,  ""      },
-   {L_, "ir",                      0,   0,    0,    0,    0,  NVEC,  ""      },
-   {L_, "rrt6,(200,2000),0,-1,0",  0,   0,    0,    0,    0,  NVEC,  ""      },
-   {L_, "dr0",                     0,   0,    0,    0,    0,  NVEC,  ""      },
-   {L_,  0,                        0,   0,    0,    0,    0,  NVEC,  ""      }
+ {L_, "W11",                     0,   0,    0,    0,    0,  e_NVEC,  ""      },
+ {L_, "ir",                      0,   0,    0,    0,    0,  e_NVEC,  ""      },
+ {L_, "rrt6,(200,2000),0,-1,0",  0,   0,    0,    0,    0,  e_NVEC,  ""      },
+ {L_, "dr0",                     0,   0,    0,    0,    0,  e_NVEC,  ""      },
+  {L_,  0,                        0,   0,    0,    0,    0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W5",                      0,   0,    0,    0,    0,  NVEC,  ""      },
-   {L_, "rrt4,(200,2000),0,4,0",   1,   2,    0,    2,    1,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,    0,    0,  NVEC,  "j123"  },
-   {L_,  0,                        0,   0,    0,    0,    0,  NVEC,  ""      }
+ {L_, "W5",                      0,   0,    0,    0,    0,  e_NVEC,  ""      },
+ {L_, "rrt4,(200,2000),0,4,0",   1,   2,    0,    2,    1,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,    0,    0,  e_NVEC,  "j123"  },
+  {L_,  0,                        0,   0,    0,    0,    0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W8",                      0,   0,    0,    0,    0,  NVEC,  ""      },
-   {L_, "rrt4,(200,200),0,4,0",    1,   2,    0,    2,    1,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,    0,    0,  NVEC,  "j123"  },
-   {L_,  0,                        0,   0,    0,    0,    0,  NVEC,  ""      }
+ {L_, "W8",                      0,   0,    0,    0,    0,  e_NVEC,  ""      },
+ {L_, "rrt4,(200,200),0,4,0",    1,   2,    0,    2,    1,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,    0,    0,  e_NVEC,  "j123"  },
+  {L_,  0,                        0,   0,    0,    0,    0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly, dispatch to test the timeout.
-   {L_, "rrt4,(200,100),0,0,0",    1,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "rrt4,(200,100),0,0,0",    1,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly when no enough data in the pipe.  The request should be finished
    // successfully after more data is available.
-   {L_, "W5",                      0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "rrt6,(300,200),0,5,0",    1,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "j1234" },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "W5",                      0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "rrt6,(300,200),0,5,0",    1,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "j1234" },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Fill the readBuffer in the channel first, then issue 1 request and try
    // dispatching properly.
-   {L_, "W7",                      0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "rb2,0,2,0",               1,    1,   0,    1,     0, NVEC,  ""      },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "j1"    },
-   {L_, "rrt4,(200,1),0,4,0",      0,    0,   0,    0,     0, NVEC,  "2345"  },
-   {L_, "dr0",                     0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "W7",                      0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               1,    1,   0,    1,     0, e_NVEC,  ""      },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "j1"    },
+ {L_, "rrt4,(200,1),0,4,0",      0,    0,   0,    0,     0, e_NVEC,  "2345"  },
+ {L_, "dr0",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Fill readBuffer in the channel but not enough data, then issue 1 request
    // and try dispatching properly.
-   { L_, "W5",                     0,    0,   0,    0,     0, NVEC,  ""      },
-   { L_, "rb2,0,2,0",              1,    1,   0,    1,     0, NVEC,  ""      },
-   { L_, "dr1",                    0,    0,   0,    0,     0, NVEC,  "j1"    },
-   { L_, "rrt6,(250,20),0,3,0",    1,    2,   0,    2,     1, NVEC,  "234"   },
-   { L_, "dr1",                    0,    0,   0,    0,     0, NVEC,  "234"   },
-   { L_,  0,                       0,    0,   0,    0,     0, NVEC,  ""      }
+ { L_, "W5",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
+ { L_, "rb2,0,2,0",              1,    1,   0,    1,     0, e_NVEC,  ""      },
+ { L_, "dr1",                    0,    0,   0,    0,     0, e_NVEC,  "j1"    },
+ { L_, "rrt6,(250,20),0,3,0",    1,    2,   0,    2,     1, e_NVEC,  "234"   },
+ { L_, "dr1",                    0,    0,   0,    0,     0, e_NVEC,  "234"   },
+  { L_,  0,                       0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the timed request can be
    // registered correctly.
-   {L_, "W7",                      0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "r3,0,3,0",                1,    1,   0,    1,     0, NVEC,  ""      },
-   {L_, "rrt4,(200,20),0,4,0",     2,    1,   0,    1,     0, NVEC,  ""      },
-   {L_, "dr1",                     1,    2,   0,    2,     1, NVEC,  "j12"   },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "3456"  },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "W7",                      0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "r3,0,3,0",                1,    1,   0,    1,     0, e_NVEC,  ""      },
+ {L_, "rrt4,(200,20),0,4,0",     2,    1,   0,    1,     0, e_NVEC,  ""      },
+ {L_, "dr1",                     1,    2,   0,    2,     1, e_NVEC,  "j12"   },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "3456"  },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the timer can be deregistered
    // properly while other requests exist on the queue.
-   {L_, "W7",                      0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "rrt4,(221,200),0,4,0",    1,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "r3,0,3,0",                2,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     1,    1,   0,    1,     0, NVEC,  "j123"  },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "456"   },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "W7",                      0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "rrt4,(221,200),0,4,0",    1,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "r3,0,3,0",                2,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     1,    1,   0,    1,     0, e_NVEC,  "j123"  },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "456"   },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
    // properly after dispatching other request which consumed all data in the
    // pipe.
-   {L_, "W3",                      0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "r3,0,3,0",                1,    1,   0,    1,     0, NVEC,  ""      },
-   {L_, "rrt4,(600,200),0,0,0",    2,    1,   0,    1,     0, NVEC,  ""      },
-   {L_, "dr1",                     1,    2,   0,    2,     1, NVEC,  "j12"   },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "W3",                      0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "r3,0,3,0",                1,    1,   0,    1,     0, e_NVEC,  ""      },
+ {L_, "rrt4,(600,200),0,0,0",    2,    1,   0,    1,     0, e_NVEC,  ""      },
+ {L_, "dr1",                     1,    2,   0,    2,     1, e_NVEC,  "j12"   },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if different requests can be
    // dispatched properly by registering correct events.
-   {L_, "W11",                     0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "rrt6,(250,200),0,6,0",    1,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "rb3,0,3,0",               2,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     1,    1,   0,    1,     0, NVEC,  "j12345"},
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "678"   },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "W11",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "rrt6,(250,200),0,6,0",    1,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "rb3,0,3,0",               2,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     1,    1,   0,    1,     0, e_NVEC,  "j12345"},
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "678"   },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Enqueue 3 requests, then dispatch: test if every request can be
    // dispatched in the right order.
-   {L_, "W11",                     0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "rrt3,(200,1),0,3,0",      1,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "rb2,0,2,0",               2,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "rrt6,(200,2),0,6,0",      3,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     2,    1,   0,    1,     0, NVEC,  "j12"   },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "567890"},
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "W11",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "rrt3,(200,1),0,3,0",      1,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               2,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "rrt6,(200,2),0,6,0",      3,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     2,    1,   0,    1,     0, e_NVEC,  "j12"   },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "567890"},
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Enqueue 3 requests, then dispatch: test if every request can be
    // dispatched in the right order.
-   {L_, "W11",                     0,    0,   0,    0,     0, NVEC,  ""      },
-   {L_, "rrt3,(200,1),0,3,0",      1,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "rrt6,(400,2),0,6,0",      2,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "rb2,0,2,0",               3,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     2,    2,   0,    2,     1, NVEC,  "j12"   },
+ {L_, "W11",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
+ {L_, "rrt3,(200,1),0,3,0",      1,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "rrt6,(400,2),0,6,0",      2,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               3,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     2,    2,   0,    2,     1, e_NVEC,  "j12"   },
 
-   {L_, "dr1",                     1,    1,   0,    1,     0, NVEC,  "345678"},
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "90"    },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "dr1",                     1,    1,   0,    1,     0, e_NVEC,  "345678"},
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "90"    },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_, "W11",                     0,    0,   0,    0,     0, NVEC,  ""      },
+ {L_, "W11",                     0,    0,   0,    0,     0, e_NVEC,  ""      },
    {L_, "rrt3,(300,2),0,3,0,{rrt2,(40,2),1,2,0}",
-                                   1,    2,   0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     1,    2,   0,    2,     1, NVEC,  "j12"   },
-   {L_, "W4",                      1,    2,   0,    2,     1, NVEC,  ""      },
+                                 1,    2,   0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     1,    2,   0,    2,     1, e_NVEC,  "j12"   },
+ {L_, "W4",                      1,    2,   0,    2,     1, e_NVEC,  ""      },
    {L_, "rrt1,(260,2),1,1,0,{rb5,0,5,0; rt3,(100,2),1,3,0}",
-                                   2,    2,   0,    2,     1, NVEC,  ""      },
+                                 2,    2,   0,    2,     1, e_NVEC,  ""      },
 
-   {L_, "dr1",                     1,    2,   0,    2,     1, NVEC,  "34"    },
-   {L_, "dr1",                     2,    1,   0,    1,     0, NVEC,  "5"     },
-   {L_, "dr1",                     0,    0,   0,    0,     0, NVEC,  "j12"   },
-   {L_,  0,                        0,    0,   0,    0,     0, NVEC,  ""      }
+ {L_, "dr1",                     1,    2,   0,    2,     1, e_NVEC,  "34"    },
+ {L_, "dr1",                     2,    1,   0,    1,     0, e_NVEC,  "5"     },
+ {L_, "dr1",                     0,    0,   0,    0,     0, e_NVEC,  "j12"   },
+  {L_,  0,                        0,    0,   0,    0,     0, e_NVEC,  ""      }
  },
 };
 
@@ -9909,7 +9909,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -9998,7 +9998,7 @@ int main(int argc, char *argv[])
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -10061,7 +10061,7 @@ int main(int argc, char *argv[])
           if (verbose) cout << "\nTesting 'readRaw'"
                             << "\n=================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -10089,117 +10089,117 @@ int main(int argc, char *argv[])
  //------ -----                ----- ----- ----- ------ ----- ---- ------
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   {L_, "W11",                     0,   0,    0,   0,    0,  NVEC,  ""      },
-   {L_, "ir",                      0,   0,    0,   0,    0,  NVEC,  ""      },
-   {L_, "rr6,0,-1,0",              0,   0,    0,   0,    0,  NVEC,  ""      },
-   {L_, "dr0",                     0,   0,    0,   0,    0,  NVEC,  ""      },
-   {L_,  0,                        0,   0,    0,   0,    0,  NVEC,  ""      }
+  {L_, "W11",                     0,   0,    0,   0,    0,  e_NVEC,  ""      },
+  {L_, "ir",                      0,   0,    0,   0,    0,  e_NVEC,  ""      },
+  {L_, "rr6,0,-1,0",              0,   0,    0,   0,    0,  e_NVEC,  ""      },
+  {L_, "dr0",                     0,   0,    0,   0,    0,  e_NVEC,  ""      },
+   {L_,  0,                        0,   0,    0,   0,    0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W4",                      0,   0,    0,   0,    0,  NVEC,  ""      },
-   {L_, "rr4,0,4,0",               1,   1,    0,   1,    0,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,    0,  NVEC,  "j123"  },
-   {L_,  0,                        0,   0,    0,   0,    0,  NVEC,  ""      }
+  {L_, "W4",                      0,   0,    0,   0,    0,  e_NVEC,  ""      },
+  {L_, "rr4,0,4,0",               1,   1,    0,   1,    0,  e_NVEC,  ""      },
+  {L_, "dr1",                     0,   0,    0,   0,    0,  e_NVEC,  "j123"  },
+   {L_,  0,                        0,   0,    0,   0,    0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W8",                      0,   0,    0,   0,     0, NVEC,   ""      },
-   {L_, "rr4,0,4,0",               1,   1,    0,   1,     0, NVEC,   ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,   "j123"  },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,   ""      }
+ {L_, "W8",                      0,   0,    0,   0,     0, e_NVEC,   ""      },
+ {L_, "rr4,0,4,0",               1,   1,    0,   1,     0, e_NVEC,   ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,   "j123"  },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,   ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W4",                      0,   0,    0,   0,     0, NVEC,   ""      },
-   {L_, "rr8,0,4,0",               1,   1,    0,   1,     0, NVEC,   ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,   "j123"  },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,   ""      }
+ {L_, "W4",                      0,   0,    0,   0,     0, e_NVEC,   ""      },
+ {L_, "rr8,0,4,0",               1,   1,    0,   1,     0, e_NVEC,   ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,   "j123"  },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,   ""      }
  },
  { // Fill the readBuffer in the channel first, then issue 1 request and try
    // dispatching properly.
-   {L_, "W7",                      0,   0,    0,   0,     0, NVEC,   ""      },
-   {L_, "rb2,0,2,0",               1,   1,    0,   1,     0, NVEC,   ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,   "j1"    },
-   {L_, "rr4,0,4,0",               0,   0,    0,   0,     0, NVEC,   "2345"  },
-   {L_, "dr0",                     0,   0,    0,   0,     0, NVEC,   ""      },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,   ""      }
+ {L_, "W7",                      0,   0,    0,   0,     0, e_NVEC,   ""      },
+ {L_, "rb2,0,2,0",               1,   1,    0,   1,     0, e_NVEC,   ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,   "j1"    },
+ {L_, "rr4,0,4,0",               0,   0,    0,   0,     0, e_NVEC,   "2345"  },
+ {L_, "dr0",                     0,   0,    0,   0,     0, e_NVEC,   ""      },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,   ""      }
  },
  { // Fill readBuffer in the channel but not enough data, then issue 1 request
    // and try dispatching properly.
-   {L_, "W5",                      0,   0,    0,   0,     0, NVEC,   ""      },
-   {L_, "rb2,0,2,0",               1,   1,    0,   1,     0, NVEC,   ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,   "j1"    },
-   {L_, "rr6,0,4,0",               1,   1,    0,   1,     0, NVEC,   "234"   },
-   {L_, "W1",                      1,   1,    0,   1,     0, NVEC,   ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,   "234j"  },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,   ""      }
+ {L_, "W5",                      0,   0,    0,   0,     0, e_NVEC,   ""      },
+ {L_, "rb2,0,2,0",               1,   1,    0,   1,     0, e_NVEC,   ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,   "j1"    },
+ {L_, "rr6,0,4,0",               1,   1,    0,   1,     0, e_NVEC,   "234"   },
+ {L_, "W1",                      1,   1,    0,   1,     0, e_NVEC,   ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,   "234j"  },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,   ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the timer can be deregistered
    // properly while other requests exist on the queue.
-   {L_, "W7",                      0,   0,    0,   0,     0, NVEC,  ""       },
-   {L_, "rr4,0,4,0",               1,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "rb3,0,3,0",               2,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "dr1",                     1,   1,    0,   1,     0, NVEC,  "j123"   },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,  "456"    },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,  ""       }
+ {L_, "W7",                      0,   0,    0,   0,     0, e_NVEC,  ""       },
+ {L_, "rr4,0,4,0",               1,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "rb3,0,3,0",               2,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "dr1",                     1,   1,    0,   1,     0, e_NVEC,  "j123"   },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,  "456"    },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
    // properly after dispatching other request which consumed all data in the
    // pipe.
-   {L_, "W3",                      0,   0,    0,   0,     0, NVEC,  ""       },
-   {L_, "r3,0,3,0",                1,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "rr4,0,4,0",               2,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "dr1",                     1,   1,    0,   1,     0, NVEC,  "j12"    },
-   {L_, "W4",                      1,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,  ""       },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,  "j123"   }
+ {L_, "W3",                      0,   0,    0,   0,     0, e_NVEC,  ""       },
+ {L_, "r3,0,3,0",                1,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "rr4,0,4,0",               2,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "dr1",                     1,   1,    0,   1,     0, e_NVEC,  "j12"    },
+ {L_, "W4",                      1,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,  ""       },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,  "j123"   }
  },
  { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
    // properly after dispatching other request which consumed all data in the
    // pipe.
-   {L_, "W7",                      0,   0,    0,   0,     0, NVEC,  ""       },
-   {L_, "r3,0,3,0",                1,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "rt4,(50,1),0,4,0",        2,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "dr1",                     1,   2,    0,   2,     1, NVEC,  "j12"    },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,  "3456"   },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,  ""       }
+ {L_, "W7",                      0,   0,    0,   0,     0, e_NVEC,  ""       },
+ {L_, "r3,0,3,0",                1,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "rt4,(50,1),0,4,0",        2,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "dr1",                     1,   2,    0,   2,     1, e_NVEC,  "j12"    },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,  "3456"   },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,  ""       }
  },
  { // Enqueue 3 requests, then dispatch: test if every request can be
    // dispatched in the right order.
-   {L_, "W11",                     0,   0,    0,   0,     0, NVEC,  ""       },
-   {L_, "rr3,0,3,0",               1,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "rb2,0,2,0",               2,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "rr6,0,6,0",               3,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "dr1",                     2,   1,    0,   1,     0, NVEC,  "j12"    },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC,  "567890" },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,  ""       }
+ {L_, "W11",                     0,   0,    0,   0,     0, e_NVEC,  ""       },
+ {L_, "rr3,0,3,0",               1,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "rb2,0,2,0",               2,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "rr6,0,6,0",               3,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "dr1",                     2,   1,    0,   1,     0, e_NVEC,  "j12"    },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC,  "567890" },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,  ""       }
  },
  { // Enqueue 3 requests, then dispatch: test if every request can be
    // dispatched in the right order.
-   {L_, "W11",                     0,   0,    0,   0,     0, NVEC,  ""       },
-   {L_, "rr3,0,3,0",               1,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "rr6,0,6,0",               2,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "rb2,0,2,0",               3,   1,    0,   1,     0, NVEC,  ""       },
-   {L_, "dr1",                     2,   1,    0,   1,     0, NVEC,  "j12"    },
-   {L_, "dr1",                     1,   1,    0,   1,     0, NVEC,  "345678" },
-   {L_, "dr1",                     0,   0,    0,   0,     0, NVEC, "90"      },
-   {L_,  0,                        0,   0,    0,   0,     0, NVEC,  ""       }
+ {L_, "W11",                     0,   0,    0,   0,     0, e_NVEC,  ""       },
+ {L_, "rr3,0,3,0",               1,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "rr6,0,6,0",               2,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "rb2,0,2,0",               3,   1,    0,   1,     0, e_NVEC,  ""       },
+ {L_, "dr1",                     2,   1,    0,   1,     0, e_NVEC,  "j12"    },
+ {L_, "dr1",                     1,   1,    0,   1,     0, e_NVEC,  "345678" },
+ {L_, "dr1",                     0,   0,    0,   0,     0, e_NVEC, "90"      },
+  {L_,  0,                        0,   0,    0,   0,     0, e_NVEC,  ""       }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_, "W11",                     0,   0,    0,    0,     0, NVEC,  ""      },
+ {L_, "W11",                     0,   0,    0,    0,     0, e_NVEC,  ""      },
    {L_, "rr3,0,3,0,{rt2,(40,2),1,2,0}",
-                                   1,   1,    0,    1,     0, NVEC,  ""      },
-   {L_, "dr1",                     1,   2,    0,    2,     1, NVEC,  "j12"   },
-   {L_, "W4",                      1,   2,    0,    2,     1, NVEC,  ""      },
+                                 1,   1,    0,    1,     0, e_NVEC,  ""      },
+ {L_, "dr1",                     1,   2,    0,    2,     1, e_NVEC,  "j12"   },
+ {L_, "W4",                      1,   2,    0,    2,     1, e_NVEC,  ""      },
    {L_, "rt1,(60,2),1,1,0,{rr5,0,5,0; rb3,1,3,0}",
-                                   2,   2,    0,    2,     1, NVEC,  ""      },
-   {L_, "dr1",                     1,   2,    0,    2,     1, NVEC,  "34"    },
-   {L_, "dr1",                     2,   1,    0,    1,     0, NVEC,  "5"     },
-   {L_, "dr1",                     1,   1,    0,    1,     0, NVEC,  "67890" },
-   {L_, "dr1",                     0,   0,    0,    0,     0, NVEC,  "j12"   },
-   {L_,  0,                        0,   0,    0,    0,     0, NVEC,  ""      }
+                                 2,   2,    0,    2,     1, e_NVEC,  ""      },
+ {L_, "dr1",                     1,   2,    0,    2,     1, e_NVEC,  "34"    },
+ {L_, "dr1",                     2,   1,    0,    1,     0, e_NVEC,  "5"     },
+ {L_, "dr1",                     1,   1,    0,    1,     0, e_NVEC,  "67890" },
+ {L_, "dr1",                     0,   0,    0,    0,     0, e_NVEC,  "j12"   },
+  {L_,  0,                        0,   0,    0,    0,     0, e_NVEC,  ""      }
  },
 };
 
@@ -10215,7 +10215,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -10304,7 +10304,7 @@ int main(int argc, char *argv[])
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -10367,7 +10367,7 @@ int main(int argc, char *argv[])
           if (verbose) cout << "\nTesting 'timedRead'"
                             << "\n===================" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -10395,151 +10395,151 @@ int main(int argc, char *argv[])
  //------  -----                ----- ----- ----- ------ ----- ---- ------
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   {L_,  "W11",                    0,   0,    0,   0,    0,   NVEC,  ""      },
-   {L_,  "ir",                     0,   0,    0,   0,    0,   NVEC,  ""      },
-   {L_,  "rt6,(20,2000),0,-1,0",   0,   0,    0,   0,    0,   NVEC,  ""      },
-   {L_,  "dr0",                    0,   0,    0,   0,    0,   NVEC,  ""      },
-   {L_,   0,                       0,   0,    0,   0,    0,   NVEC,  ""      }
+ {L_,  "W11",                    0,   0,    0,   0,    0,   e_NVEC,  ""      },
+ {L_,  "ir",                     0,   0,    0,   0,    0,   e_NVEC,  ""      },
+ {L_,  "rt6,(20,2000),0,-1,0",   0,   0,    0,   0,    0,   e_NVEC,  ""      },
+ {L_,  "dr0",                    0,   0,    0,   0,    0,   e_NVEC,  ""      },
+  {L_,   0,                       0,   0,    0,   0,    0,   e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W4",                      0,   0,    0,   0,    0,   NVEC,  ""      },
-   {L_, "rt4,(90,2000),0,4,0",     1,   2,    0,   2,    1,   NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,    0,   NVEC,  "j123"  },
-   {L_,  0,                        0,   0,    0,   0,    0,   NVEC,  ""      }
+ {L_, "W4",                      0,   0,    0,   0,    0,   e_NVEC,  ""      },
+ {L_, "rt4,(90,2000),0,4,0",     1,   2,    0,   2,    1,   e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,    0,   e_NVEC,  "j123"  },
+  {L_,  0,                        0,   0,    0,   0,    0,   e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "W8",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rt4,(100,20),0,4,0",      1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "j123"  },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W8",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rt4,(100,20),0,4,0",      1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "j123"  },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly.
-   {L_, "rt4,(200,10),0,0,0",      1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "rt4,(200,10),0,0,0",      1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  ""      },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly when no enough data in the pipe.  The request should be finished
    // successfully after more data is available.
-   {L_, "W4",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rt6,(100,200),0,6,0",     1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     1,   2,    0,   2,     1,  NVEC,  "j123"  },
-   {L_, "W2",                      1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC, "j123j1" },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W4",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rt6,(100,200),0,6,0",     1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     1,   2,    0,   2,     1,  e_NVEC,  "j123"  },
+ {L_, "W2",                      1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC, "j123j1" },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Enqueue 1 request, then dispatch: test if the request can be queued
    // properly when no enough data in the pipe.
-   {L_, "W4",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rt6,(50,2),0,4,0",        1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     1,   2,    0,   2,     1,  NVEC,  "j123"  },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "j123"  },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W4",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rt6,(50,2),0,4,0",        1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     1,   2,    0,   2,     1,  e_NVEC,  "j123"  },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "j123"  },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Fill the readBuffer in the channel first, then issue 1 request and try
    // dispatching properly.
-   {L_, "W7",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rb2,0,2,0",               1,   1,    0,   1,     0,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "j1"    },
-   {L_, "rt4,(650,20),0,4,0",      0,   0,    0,   0,     0,  NVEC,  "2345"  },
-   {L_, "dr0",                     0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W7",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               1,   1,    0,   1,     0,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "j1"    },
+ {L_, "rt4,(650,20),0,4,0",      0,   0,    0,   0,     0,  e_NVEC,  "2345"  },
+ {L_, "dr0",                     0,   0,    0,   0,     0,  e_NVEC,  ""      },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Fill readBuffer in the channel but not enough data, then issue 1 request
    // and try dispatching properly.
-   {L_, "W5",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rb2,0,2,0",               1,   1,    0,   1,     0,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "j1"    },
-   {L_, "rt6,(50,200),0,6,0",      1,   2,    0,   2,     1,  NVEC,  "234"   },
-   {L_, "W3",                      1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "234j12"},
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W5",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               1,   1,    0,   1,     0,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "j1"    },
+ {L_, "rt6,(50,200),0,6,0",      1,   2,    0,   2,     1,  e_NVEC,  "234"   },
+ {L_, "W3",                      1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "234j12"},
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Fill readBuffer in the channel but not enough data, and no more data
    // filled the pipe later, issue 1 request and try dispatching properly.
-   {L_, "W5",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rb2,0,2,0",               1,   1,    0,   1,     0,  NVEC,  ""      },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "j1"    },
-   {L_, "rt6,(50,1),0,3,0",        1,   2,    0,   2,     1,  NVEC,  "234"   },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "234"   },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W5",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               1,   1,    0,   1,     0,  e_NVEC,  ""      },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "j1"    },
+ {L_, "rt6,(50,1),0,3,0",        1,   2,    0,   2,     1,  e_NVEC,  "234"   },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "234"   },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the timed request can be
    // registered correctly.
-   {L_, "W7",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "r3,0,3,0",                1,   1,    0,   1,     0,  NVEC,  ""      },
-   {L_, "rt4,(1,2000),0,4,0",      2,   1,    0,   1,     0,  NVEC,  ""      },
-   {L_, "dr1",                     1,   2,    0,   2,     1,  NVEC,  "j12"   },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "3456"  },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W7",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "r3,0,3,0",                1,   1,    0,   1,     0,  e_NVEC,  ""      },
+ {L_, "rt4,(1,2000),0,4,0",      2,   1,    0,   1,     0,  e_NVEC,  ""      },
+ {L_, "dr1",                     1,   2,    0,   2,     1,  e_NVEC,  "j12"   },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "3456"  },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the timer can be deregistered
    // properly while other requests exist on the queue.
-   {L_, "W7",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rt4,(250,20),0,4,0",      1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "r3,0,3,0",                2,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     1,   1,    0,   1,     0,  NVEC,  "j123"  },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "456"   },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W7",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rt4,(250,20),0,4,0",      1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "r3,0,3,0",                2,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     1,   1,    0,   1,     0,  e_NVEC,  "j123"  },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "456"   },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
    // properly after dispatching other request which consumed all data in the
    // pipe.
-   {L_, "W3",                      0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "r3,0,3,0",                1,   1,    0,   1,     0,  NVEC,  ""      },
-   {L_, "rt4,(0,2000),0,0,0",      2,   1,    0,   1,     0,  NVEC,  ""      },
-   {L_, "dr1",                     1,   2,    0,   2,     1,  NVEC,  "j12"   },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W3",                      0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "r3,0,3,0",                1,   1,    0,   1,     0,  e_NVEC,  ""      },
+ {L_, "rt4,(0,2000),0,0,0",      2,   1,    0,   1,     0,  e_NVEC,  ""      },
+ {L_, "dr1",                     1,   2,    0,   2,     1,  e_NVEC,  "j12"   },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  ""      },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Enqueue 2 requests, then dispatch: test if the request can be dispatched
    // properly after dispatching other request which consumed all data in the
    // pipe.
-   {L_, "W11",                     0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rt6,(50,2000),0,6,0",     1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "rb3,0,3,0",               2,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     1,   1,    0,   1,     0,  NVEC,  "j12345"},
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "678"   },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W11",                     0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rt6,(50,2000),0,6,0",     1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "rb3,0,3,0",               2,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     1,   1,    0,   1,     0,  e_NVEC,  "j12345"},
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "678"   },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  }, /*
  { // Enqueue 3 requests, then dispatch: test if every request can be
    // dispatched in the right order.
-   {L_, "W11",                     0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rt3,(0,1),0,3,0",         1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "rb2,0,2,0",               2,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "rt6,(0,2),0,6,0",         3,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     2,   1,    0,   1,     0,  NVEC,  "j12"   },
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "567890"},
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W11",                     0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rt3,(0,1),0,3,0",         1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               2,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "rt6,(0,2),0,6,0",         3,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     2,   1,    0,   1,     0,  e_NVEC,  "j12"   },
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "567890"},
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  }, */
  { // Enqueue 3 requests, then dispatch: test if every request can be
    // dispatched in the right order.
-   {L_, "W11",                     0,   0,    0,   0,     0,  NVEC,  ""      },
-   {L_, "rt3,(80,1),0,3,0",        1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "rt6,(40,2),0,6,0",        2,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "rb2,0,2,0",               3,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_, "dr1",                     2,   2,    0,   2,     1,  NVEC,  "j12"   },
-   {L_, "dr1",                     1,   1,    0,   1,     0,  NVEC,  "345678"},
-   {L_, "dr1",                     0,   0,    0,   0,     0,  NVEC,  "90"    },
-   {L_,  0,                        0,   0,    0,   0,     0,  NVEC,  ""      }
+ {L_, "W11",                     0,   0,    0,   0,     0,  e_NVEC,  ""      },
+ {L_, "rt3,(80,1),0,3,0",        1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "rt6,(40,2),0,6,0",        2,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "rb2,0,2,0",               3,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_, "dr1",                     2,   2,    0,   2,     1,  e_NVEC,  "j12"   },
+ {L_, "dr1",                     1,   1,    0,   1,     0,  e_NVEC,  "345678"},
+ {L_, "dr1",                     0,   0,    0,   0,     0,  e_NVEC,  "90"    },
+  {L_,  0,                        0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_,  "W11",                    0,   0,    0,   0,     0,  NVEC,  ""      },
+ {L_,  "W11",                    0,   0,    0,   0,     0,  e_NVEC,  ""      },
    {L_,  "rt3,(30,2),0,3,0,{rt2,(40,2),1,2,0}",
-                                   1,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_,  "dr1",                    1,   2,    0,   2,     1,  NVEC,  "j12"   },
-   {L_,  "W4",                     1,   2,    0,   2,     1,  NVEC,  ""      },
+                                 1,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_,  "dr1",                    1,   2,    0,   2,     1,  e_NVEC,  "j12"   },
+ {L_,  "W4",                     1,   2,    0,   2,     1,  e_NVEC,  ""      },
    {L_,  "rt1,(60,2),1,1,0,{r5,0,5,0; rt3,(10,2),1,3,0}",
-                                   2,   2,    0,   2,     1,  NVEC,  ""      },
-   {L_,  "dr1",                    1,   2,    0,   2,     1,  NVEC,  "34"    },
-   {L_,  "dr1",                    2,   1,    0,   1,     0,  NVEC,  "5"     },
-   {L_,  "dr1",                    1,   2,    0,   2,     1,  NVEC,  "67890" },
-   {L_,  "dr1",                    0,   0,    0,   0,     0,  NVEC,  "j12"   },
-   {L_,   0,                       0,   0,    0,   0,     0,  NVEC,  ""      }
+                                 2,   2,    0,   2,     1,  e_NVEC,  ""      },
+ {L_,  "dr1",                    1,   2,    0,   2,     1,  e_NVEC,  "34"    },
+ {L_,  "dr1",                    2,   1,    0,   1,     0,  e_NVEC,  "5"     },
+ {L_,  "dr1",                    1,   2,    0,   2,     1,  e_NVEC,  "67890" },
+ {L_,  "dr1",                    0,   0,    0,   0,     0,  e_NVEC,  "j12"   },
+  {L_,   0,                       0,   0,    0,   0,     0,  e_NVEC,  ""      }
  },
 };
 
@@ -10554,7 +10554,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -10643,7 +10643,7 @@ int main(int argc, char *argv[])
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -10706,7 +10706,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'read'"
                           << "\n==============" << endl;
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -10734,115 +10734,115 @@ int main(int argc, char *argv[])
  //------  -----               ----- ----- ----- ------ ----- ----   ------
  { // Enqueue 1 request, then dispatch: test if the request can be queued Try
    // reading 0 bytes. properly.
-   { L_,   "W5",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   "r4,0,4,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,   "dr1",                  0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,    0,                     0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,   "W5",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,   "r4,0,4,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,   "dr1",                  0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,    0,                     0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   { L_,   "W4",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   "r3,0,3,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,   "dr1",                  0,   0,    0,   0,    0,  NVEC, "j12"     },
-   { L_,    0,                     0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,   "W4",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,   "r3,0,3,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,   "dr1",                  0,   0,    0,   0,    0,  e_NVEC, "j12"     },
+  { L_,    0,                     0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "r2,0,2,0",              1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "r2,0,2,0",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Invalidate the channel, enter 1 request, then try dispatching: test if
    // any read request can be issued after the invalidation.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "ir",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "r6,0,-1,0",             0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "ir",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "r6,0,-1,0",             0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "dr0",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when it can't be done once and so this request need to be
    // dispatched again.
-   { L_,  "W4",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "r5,0,5,0",              1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, "j123"    },
-   { L_,  "W2",                    1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j123j"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W4",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "r5,0,5,0",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC, "j123"    },
+ { L_,  "W2",                    1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j123j"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch: test if a request can be done right
    // away when there is enough data in the channel's read buffer.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_,  "r5,0,5,0",              0,   0,    0,   0,    0,  NVEC, "23456"   },
-   { L_,  "dr0",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+ { L_,  "r5,0,5,0",              0,   0,    0,   0,    0,  e_NVEC, "23456"   },
+ { L_,  "dr0",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Fill readBuffer in the channel but not enough data, then issue 1 request
    // and try dispatching properly.
-   { L_, "W5",                     0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_, "rb2,0,2,0",              1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_, "dr1",                    0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_, "r6,0,6,0",               1,   1,    0,   1,    0,  NVEC, "234"     },
-   { L_, "W3",                     1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_, "dr1",                    0,   0,    0,   0,    0,  NVEC, "234j12"  },
-   { L_,  0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_, "W5",                     0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_, "rb2,0,2,0",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+ { L_, "r6,0,6,0",               1,   1,    0,   1,    0,  e_NVEC, "234"     },
+ { L_, "W3",                     1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_, "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "234j12"  },
+  { L_,  0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch: test if a request can be done right
    // away when there isn't enough data in the channel's read buffer.  This
    // request need to be dequeued then.
-   { L_,  "W5",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "j1"      },
-   { L_,  "r5,0,5,0",              1,   1,    0,   1,    0,  NVEC, "234"     },
-   { L_,  "W2",                    1,   1,    0,   1,    0,  NVEC, "234"     },
+ { L_,  "W5",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "rb2,0,2,0",             1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "j1"      },
+ { L_,  "r5,0,5,0",              1,   1,    0,   1,    0,  e_NVEC, "234"     },
+ { L_,  "W2",                    1,   1,    0,   1,    0,  e_NVEC, "234"     },
 
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "234j1"   },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "234j1"   },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "r4,0,4,0",              1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "r3,0,3,0",              2,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, "j123"    },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "456"     },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "r4,0,4,0",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "r3,0,3,0",              2,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC, "j123"    },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "456"     },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
  { // Enqueue 2 requests, then dispatch: test if the different type of read
    // requests can be finished properly in a channel.
-   { L_,  "W11",                   0,   0,    0,   0,    0,  NVEC, ""        },
-   { L_,  "r5,0,5,0",              1,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "rb2,0,2,0",             2,   1,    0,   1,    0,  NVEC, ""        },
-   { L_,  "dr1",                   1,   1,    0,   1,    0,  NVEC, "j1234"   },
-   { L_,  "dr1",                   0,   0,    0,   0,    0,  NVEC, "56"      },
-   { L_,  "r4,0,4,0",              0,   0,    0,   0,    0,  NVEC, "7890"    },
-   { L_,   0,                      0,   0,    0,   0,    0,  NVEC, ""        }
+ { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
+ { L_,  "r5,0,5,0",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "rb2,0,2,0",             2,   1,    0,   1,    0,  e_NVEC, ""        },
+ { L_,  "dr1",                   1,   1,    0,   1,    0,  e_NVEC, "j1234"   },
+ { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, "56"      },
+ { L_,  "r4,0,4,0",              0,   0,    0,   0,    0,  e_NVEC, "7890"    },
+  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  }, /* 1 of 1000 got error for strncmp ("j12"....)
  { // Test if a channel can still work correctly for new read request.after the
    // previous reads are canceled.
-   {L_,  "W11",                    0,   0,    0,   0,    0,  NVEC, ""        },
-   {L_,  "r4,0,0,-1",              1,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "cr",                     0,   0,    0,   0,    0,  NVEC, ""        },
-   {L_,  "r3,1,3,0",               1,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "j12"     },
-   {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+ {L_,  "W11",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
+ {L_,  "r4,0,0,-1",              1,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "cr",                     0,   0,    0,   0,    0,  e_NVEC, ""        },
+ {L_,  "r3,1,3,0",               1,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "j12"     },
+  {L_,   0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  }, */
  { // Concern: if this channel can work correctly for new read requests from
    // the user-installed callback function.
-   {L_,  "W11",                    0,   0,    0,   0,    0,  NVEC, ""        },
+ {L_,  "W11",                    0,   0,    0,   0,    0,  e_NVEC, ""        },
    {L_,  "r3,0,3,0,{r2,1,2,0}",
-                                   1,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "dr1",                    1,   1,    0,   1,    0,  NVEC, "j12"     },
-   {L_,  "W4",                     1,   1,    0,   1,    0,  NVEC, ""        },
+                                 1,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "dr1",                    1,   1,    0,   1,    0,  e_NVEC, "j12"     },
+ {L_,  "W4",                     1,   1,    0,   1,    0,  e_NVEC, ""        },
    {L_,  "r1,1,1,0,{r5,0,5,0; r3,1,3,0}",
-                                   2,   1,    0,   1,    0,  NVEC, ""        },
-   {L_,  "dr1",                    1,   1,    0,   1,    0,  NVEC, "34"      },
-   {L_,  "dr1",                    2,   1,    0,   1,    0,  NVEC, "5"       },
-   {L_,  "dr1",                    1,   1,    0,   1,    0,  NVEC, "67890"   },
-   {L_,  "dr1",                    0,   0,    0,   0,    0,  NVEC, "j12"     },
-   {L_,   0,                       0,   0,    0,   0,    0,  NVEC, ""        }
+                                 2,   1,    0,   1,    0,  e_NVEC, ""        },
+ {L_,  "dr1",                    1,   1,    0,   1,    0,  e_NVEC, "34"      },
+ {L_,  "dr1",                    2,   1,    0,   1,    0,  e_NVEC, "5"       },
+ {L_,  "dr1",                    1,   1,    0,   1,    0,  e_NVEC, "67890"   },
+ {L_,  "dr1",                    0,   0,    0,   0,    0,  e_NVEC, "j12"     },
+  {L_,   0,                       0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
 };
 
@@ -10857,7 +10857,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
@@ -10946,7 +10946,7 @@ int main(int argc, char *argv[])
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
@@ -10999,21 +10999,21 @@ int main(int argc, char *argv[])
         {
             btlso::SocketHandle::Handle sock0[2], sock1[2], sock2[2], sock3[2];
             btlso::TcpTimerEventManager
-                           rManager0(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager0(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           rManager1(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager1(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           rManager2(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager2(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           rManager3(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager3(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           wManager0(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          wManager0(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           wManager1(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          wManager1(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           wManager2(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          wManager2(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           wManager3(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          wManager3(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             struct {
@@ -11032,7 +11032,7 @@ int main(int argc, char *argv[])
            {L_,   sock3,   &rManager3,  &wManager3,  &rManager3,   &wManager3},
         };
 
-        enum { NON_VEC = 0, OVECTOR, IOVECTOR };
+        enum { e_NON_VEC = 0, e_OVECTOR, e_IOVECTOR };
 
         struct {
             int         d_line;    // line number
@@ -11143,7 +11143,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_OBJS; ++i) {
                 int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      OBJECTS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
                 LOOP_ASSERT(i, 0 == ret);
 
                 ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[0],
@@ -11270,13 +11270,13 @@ int main(int argc, char *argv[])
         {
             btlso::SocketHandle::Handle socket[2];
             btlso::TcpTimerEventManager
-                           rManager0(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager0(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           rManager1(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager1(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           rManager2(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager2(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
-                           rManager3(btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                          rManager3(btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
             struct {
@@ -11294,7 +11294,7 @@ int main(int argc, char *argv[])
               {L_,    &rManager3,  &rManager3,   &rManager3,    &rManager3},
             };
 
-            enum { NON_VEC = 0, OVECTOR, IOVECTOR };
+            enum { e_NON_VEC = 0, e_OVECTOR, e_IOVECTOR };
         struct {
             int         d_line;    // line number
             const char *d_cmd;     // the command to be executed on a channel
@@ -11642,7 +11642,7 @@ int main(int argc, char *argv[])
 
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      socket,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             ASSERT(0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(socket[0],
@@ -11682,7 +11682,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(socket[0],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             // LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(socket[1],
@@ -11692,7 +11692,7 @@ int main(int argc, char *argv[])
 
             ret = btlso::SocketOptUtil::setOption(socket[1],
                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                      btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
+                     btlso::SocketOptUtil::BTESO_RECEIVELOWATER, READLOWWATER);
             //LOOP_ASSERT(i, 0 == ret);
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
@@ -11851,16 +11851,16 @@ int main(int argc, char *argv[])
 
         btlso::SocketHandle::Handle sock0[2], sock2[2];
         btlso::TcpTimerEventManager rManager0(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
                                    rManager1(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
                                    rManager2(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
                                    rManager3(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
         struct {
@@ -11878,7 +11878,7 @@ int main(int argc, char *argv[])
           {L_,    sock2,       0,      &rManager1, &rManager0,   &rManager1 },
         };
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -12133,7 +12133,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_OBJS; ++i) {
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      OBJECTS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(OBJECTS[i].d_handle[0],
@@ -12315,16 +12315,16 @@ int main(int argc, char *argv[])
 
         btlso::SocketHandle::Handle sock0[2], sock1[2], sock2[2], sock3[2];
         btlso::TcpTimerEventManager rManager0(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
                                    rManager1(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
                                    rManager2(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator),
                                    rManager3(
-                                     btlso::TcpTimerEventManager::BTESO_NO_HINT,
+                                    btlso::TcpTimerEventManager::BTESO_NO_HINT,
                                      &testAllocator);
 
         struct {
@@ -12344,7 +12344,7 @@ int main(int argc, char *argv[])
            {L_,     sock3,    &rManager3,   0,     &rManager3,   &rManager3 },
         };
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
 
         struct {
             int         d_line;    // line number
@@ -12374,171 +12374,171 @@ int main(int argc, char *argv[])
 
    // Issue 1 request, which should be finished without being enqueued.  Issue
    // 1 request, which should be finished without being enqueued.
-   {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "w28720,0,28720,0",               2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rt4,(50,200),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt23720,(50,100),0,0,0",         3,   4,   1,    4,    2,  NVEC, "" },
+ {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "w28720,0,28720,0",               2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rt4,(50,200),0,0,-1",            3,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt23720,(50,100),0,0,0",         3,   4,   1,    4,    2,  e_NVEC, "" },
 
          // Make sure the write is not affected by cancelRead() by dispatching
          // a write request. test cancel when the current request pointer is
          // null.
-   {L_, "wt23720,(20,100),0,0,-1",        3,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "dw1",                            0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "wt220,(50,100),0,0,-1",           0,   2,   1,    2,    1,  NVEC, ""},
+ {L_, "wt23720,(20,100),0,0,-1",        3,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "cr",                             0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "dw1",                            0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "wt220,(50,100),0,0,-1",           0,   2,   1,    2,    1,  e_NVEC, ""},
 
-   {L_, "cw",                             0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "rt4,(0,2000),0,4,0",             1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt29720,(20,100),0,29720,0",     1,   4,   1,    4,    2,  NVEC, "" },
-   {L_, "wt5,(50,100),1,0,0",             1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "R28729",                         1,   4,   2,    4,    2,  NVEC, "" },
+ {L_, "cw",                             0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "rt4,(0,2000),0,4,0",             1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt29720,(20,100),0,29720,0",     1,   4,   1,    4,    2,  e_NVEC, "" },
+ {L_, "wt5,(50,100),1,0,0",             1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "R28729",                         1,   4,   2,    4,    2,  e_NVEC, "" },
 
-   {L_, "dr1",                            1,   4,   1,    4,    2,  NVEC, "" },
-   {L_, "W220",                           1,   4,   1,    4,    2,  NVEC, "" },
-   {L_, "dr1",                            0,   2,   1,    2,    1,  NVEC, "" },
-   {L_, "dr1",                            0,   0,   0,    0,    0,  NVEC, "" },
-   {L_,  0,                               0,   0,   0,    0,    0,  NVEC, "" }
+ {L_, "dr1",                            1,   4,   1,    4,    2,  e_NVEC, "" },
+ {L_, "W220",                           1,   4,   1,    4,    2,  e_NVEC, "" },
+ {L_, "dr1",                            0,   2,   1,    2,    1,  e_NVEC, "" },
+ {L_, "dr1",                            0,   0,   0,    0,    0,  e_NVEC, "" },
+  {L_,  0,                               0,   0,   0,    0,    0,  e_NVEC, "" }
 
  #elif defined(BSLS_PLATFORM_OS_AIX)   // ibm test data
-   {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
+ {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  e_NVEC, "" },
    // Issue 1 request, which should be finished without being enqueued.
-   {L_, "w1024,0,1024,0",                 2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt720,(360,100),0,720,0",        3,   4,   1,    4,    2,  NVEC, "" },
+ {L_, "w1024,0,1024,0",                 2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt720,(360,100),0,720,0",        3,   4,   1,    4,    2,  e_NVEC, "" },
 
          // Make sure the write is not affected by cancelRead() by dispatching
          // a write request. test cancel when the current request pointer is
          // null.
-   {L_, "wt2000,(20,100),0,0,-1",         3,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R529",                           0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R529",                           0,   2,   3,    2,    1,  NVEC, "" },
+ {L_, "wt2000,(20,100),0,0,-1",         3,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "cr",                             0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R529",                           0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R529",                           0,   2,   3,    2,    1,  e_NVEC, "" },
 
-   {L_, "dw1",                            0,   2,   2,    2,    1,  NVEC, "" },
-   {L_, "rt4,(255,20),0,4,0",             1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "cw",                             1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt1020,(465,10),0,1020,0",       1,   4,   1,    4,    2,  NVEC, "" },
-   {L_, "w5,1,5,0",                       1,   4,   2,    4,    2,  NVEC, "" },
+ {L_, "dw1",                            0,   2,   2,    2,    1,  e_NVEC, "" },
+ {L_, "rt4,(255,20),0,4,0",             1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "cw",                             1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt1020,(465,10),0,1020,0",       1,   4,   1,    4,    2,  e_NVEC, "" },
+ {L_, "w5,1,5,0",                       1,   4,   2,    4,    2,  e_NVEC, "" },
 
-   {L_, "R729",                           1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "R1020",                          1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "dr1",                            1,   3,   1,    3,    1,  NVEC, "" },
-   {L_, "R128",                           1,   3,   1,    3,    1,  NVEC, "" },
-   {L_, "W220",                           1,   3,   1,    3,    1,  NVEC, "" },
-   {L_, "dr2",                            0,   0,   0,    0,    0,  NVEC, "" },
-   {L_,  0,                               0,   0,   0,    0,    0,  NVEC, "" }
+ {L_, "R729",                           1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "R1020",                          1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "dr1",                            1,   3,   1,    3,    1,  e_NVEC, "" },
+ {L_, "R128",                           1,   3,   1,    3,    1,  e_NVEC, "" },
+ {L_, "W220",                           1,   3,   1,    3,    1,  e_NVEC, "" },
+ {L_, "dr2",                            0,   0,   0,    0,    0,  e_NVEC, "" },
+  {L_,  0,                               0,   0,   0,    0,    0,  e_NVEC, "" }
 
  #elif defined(BSLS_PLATFORM_OS_LINUX)
 
    // Issue 1 request, which should be finished without being enqueued.
-   {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "w16383,0,16383,0",               2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "w16383,0,16383,0",               2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt2000,(2000,100),0,2000,0",     3,   4,   1,    4,    2,  NVEC, "" },
+ {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "w16383,0,16383,0",               2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "w16383,0,16383,0",               2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt2000,(2000,100),0,2000,0",     3,   4,   1,    4,    2,  e_NVEC, "" },
 
          // Make sure the write is not affected by cancelRead() by dispatching
          // a write request. test cancel when the current request pointer is
          // null.
-   {L_, "wt12000,(31,100),0,0,-1",        3,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "w200,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R20000",                         0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R20000",                         0,   2,   3,    2,    1,  NVEC, "" },
+ {L_, "wt12000,(31,100),0,0,-1",        3,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "w200,0,0,-1",                    3,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "cr",                             0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R20000",                         0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R20000",                         0,   2,   3,    2,    1,  e_NVEC, "" },
 
-   {L_, "dw1",                            0,   2,   2,    2,    1,  NVEC, "" },
-   {L_, "rt8193,(100,2000),0,8193,0",     1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "cw",                             1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "R20000",                         1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "R20000",                         1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "W8193",                          1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "dr1",                            0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "R20000",                         0,   0,   0,    0,    0,  NVEC, "" },
+ {L_, "dw1",                            0,   2,   2,    2,    1,  e_NVEC, "" },
+ {L_, "rt8193,(100,2000),0,8193,0",     1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "cw",                             1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "R20000",                         1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "R20000",                         1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "W8193",                          1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "dr1",                            0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "R20000",                         0,   0,   0,    0,    0,  e_NVEC, "" },
 
    // test cancel when the current request pointer is not null.
 
-   {L_, "rbt1,(50,100),1,1,0,{cr}",       1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
+ {L_, "rbt1,(50,100),1,1,0,{cr}",       1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  e_NVEC, "" },
    {L_, "wt34000,(2000,100),0,34000,0,{cw}",
-                                          2,   4,   1,    4,    2,  NVEC, "" },
-   {L_, "w221,0,0,-1",                    2,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "rbt1,(35,100),0,0,-1",           3,   4,   2,    4,    2,  NVEC, "" },
+                                        2,   4,   1,    4,    2,  e_NVEC, "" },
+ {L_, "w221,0,0,-1",                    2,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "rbt1,(35,100),0,0,-1",           3,   4,   2,    4,    2,  e_NVEC, "" },
 
-   {L_, "wt223,(15,150),0,0,-1",          3,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     4,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "W20",                            4,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "dr2",                            0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R52729",                         0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R52729",                         0,   2,   3,    2,    1,  NVEC, "" },
+ {L_, "wt223,(15,150),0,0,-1",          3,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     4,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "W20",                            4,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "dr2",                            0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R52729",                         0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R52729",                         0,   2,   3,    2,    1,  e_NVEC, "" },
 
-   {L_, "dw1",                            0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "R32729",                         0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "R32729",                         0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "wt2000,(900,150),0,2000,0",      0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "rb400,1,400,0",                  1,   1,   0,    1,    0,  NVEC, "" },
-   {L_, "W400",                           1,   1,   0,    1,    0,  NVEC, "" },
-   {L_, "dr1",                            0,   0,   0,    0,    0,  NVEC, "" },
+ {L_, "dw1",                            0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "R32729",                         0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "R32729",                         0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "wt2000,(900,150),0,2000,0",      0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "rb400,1,400,0",                  1,   1,   0,    1,    0,  e_NVEC, "" },
+ {L_, "W400",                           1,   1,   0,    1,    0,  e_NVEC, "" },
+ {L_, "dr1",                            0,   0,   0,    0,    0,  e_NVEC, "" },
 
-   {L_,  0,                               0,   0,   0,    0,    0,  NVEC, "" }
+  {L_,  0,                               0,   0,   0,    0,    0,  e_NVEC, "" }
 
  #else                                  // sun test data
 
    // Issue 1 request, which should be finished without being enqueued.
-   {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "w73720,0,73720,0",               2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt33720,(455,100),0,33720,0",    3,   4,   1,    4,    2,  NVEC, "" },
+ {L_, "rbt1,(20,100),0,0,-1",           1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "w73720,0,73720,0",               2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rt4,(0,2000),0,0,-1",            3,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt33720,(455,100),0,33720,0",    3,   4,   1,    4,    2,  e_NVEC, "" },
 
          // Make sure the write is not affected by cancelRead() by dispatching
          // a write request. test cancel when the current request pointer is
          // null.
-   {L_, "wt23720,(31,100),0,0,-1",        3,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "cr",                             0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R52729",                         0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R52729",                         0,   2,   3,    2,    1,  NVEC, "" },
+ {L_, "wt23720,(31,100),0,0,-1",        3,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "w220,0,0,-1",                    3,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "cr",                             0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R52729",                         0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R52729",                         0,   2,   3,    2,    1,  e_NVEC, "" },
 
-   {L_, "dw1",                            0,   2,   2,    2,    1,  NVEC, "" },
-   {L_, "rt4,(50,2000),0,4,0",            1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "cw",                             1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt53720,(95,100),0,53720,0",     1,   4,   1,    4,    2,  NVEC, "" },
-   {L_, "w5,1,5,0",                       1,   4,   2,    4,    2,  NVEC, "" },
+ {L_, "dw1",                            0,   2,   2,    2,    1,  e_NVEC, "" },
+ {L_, "rt4,(50,2000),0,4,0",            1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "cw",                             1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt53720,(95,100),0,53720,0",     1,   4,   1,    4,    2,  e_NVEC, "" },
+ {L_, "w5,1,5,0",                       1,   4,   2,    4,    2,  e_NVEC, "" },
 
-   {L_, "R52729",                         1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "R52729",                         1,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "dr1",                            1,   3,   1,    3,    1,  NVEC, "" },
-   {L_, "W220",                           1,   3,   1,    3,    1,  NVEC, "" },
-   {L_, "dr2",                            0,   0,   0,    0,    0,  NVEC, "" },
+ {L_, "R52729",                         1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "R52729",                         1,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "dr1",                            1,   3,   1,    3,    1,  e_NVEC, "" },
+ {L_, "W220",                           1,   3,   1,    3,    1,  e_NVEC, "" },
+ {L_, "dr2",                            0,   0,   0,    0,    0,  e_NVEC, "" },
 
    // test cancel when the current request pointer is not null.
 
-   {L_, "rbt1,(50,100),1,1,0,{cr}",       1,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  NVEC, "" },
-   {L_, "wt74720,(17,100),0,74720,0,{cw}",2,   4,   1,    4,    2,  NVEC, "" },
-   {L_, "w221,0,0,-1",                    2,   4,   2,    4,    2,  NVEC, "" },
-   {L_, "rbt1,(35,100),0,0,-1",           3,   4,   2,    4,    2,  NVEC, "" },
+ {L_, "rbt1,(50,100),1,1,0,{cr}",       1,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     2,   2,   0,    2,    1,  e_NVEC, "" },
+ {L_, "wt74720,(17,100),0,74720,0,{cw}",2,   4,   1,    4,    2,  e_NVEC, "" },
+ {L_, "w221,0,0,-1",                    2,   4,   2,    4,    2,  e_NVEC, "" },
+ {L_, "rbt1,(35,100),0,0,-1",           3,   4,   2,    4,    2,  e_NVEC, "" },
 
-   {L_, "wt223,(15,150),0,0,-1",          3,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "rb4,1,0,-1",                     4,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "W20",                            4,   4,   3,    4,    2,  NVEC, "" },
-   {L_, "dr1",                            0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R52729",                         0,   2,   3,    2,    1,  NVEC, "" },
-   {L_, "R52729",                         0,   2,   3,    2,    1,  NVEC, "" },
+ {L_, "wt223,(15,150),0,0,-1",          3,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "rb4,1,0,-1",                     4,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "W20",                            4,   4,   3,    4,    2,  e_NVEC, "" },
+ {L_, "dr1",                            0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R52729",                         0,   2,   3,    2,    1,  e_NVEC, "" },
+ {L_, "R52729",                         0,   2,   3,    2,    1,  e_NVEC, "" },
 
-   {L_, "dw1",                            0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "R32729",                         0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "wt20,(15,150),0,20,0",           0,   0,   0,    0,    0,  NVEC, "" },
-   {L_, "rb400,1,400,0",                  1,   1,   0,    1,    0,  NVEC, "" },
-   {L_, "W400",                           1,   1,   0,    1,    0,  NVEC, "" },
-   {L_, "dr1",                            0,   0,   0,    0,    0,  NVEC, "" },
+ {L_, "dw1",                            0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "R32729",                         0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "wt20,(15,150),0,20,0",           0,   0,   0,    0,    0,  e_NVEC, "" },
+ {L_, "rb400,1,400,0",                  1,   1,   0,    1,    0,  e_NVEC, "" },
+ {L_, "W400",                           1,   1,   0,    1,    0,  e_NVEC, "" },
+ {L_, "dr1",                            0,   0,   0,    0,    0,  e_NVEC, "" },
 
-   {L_,  0,                               0,   0,   0,    0,    0,  NVEC, "" }
+  {L_,  0,                               0,   0,   0,    0,    0,  e_NVEC, "" }
 
  #endif
 };
@@ -12552,7 +12552,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_OBJS; ++i) {
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      OBJECTS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             adjustBufferSizes(OBJECTS[i].d_handle[0], BUF_LIMIT, 1);
@@ -12690,7 +12690,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[j].d_expData);
                     }
-                    else if (SCRIPTS[j].d_operationType == NVEC) {
+                    else if (SCRIPTS[j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[j].d_expData,
                                              strlen(SCRIPTS[j].d_expData)));
@@ -12749,7 +12749,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
            {L_,   sock0,    &rManager0, &rManager1 },
         };
 
-        enum { NVEC = 0, OVEC, IOVEC };
+        enum { e_NVEC = 0, e_OVEC, e_IOVEC };
         struct {
             int         d_line;    // line number
             const char *d_cmd;     // the command to be executed on a channel
@@ -12783,37 +12783,37 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
    // ----      ---         ----- ----- ----- ------ --  -- ---- ---------
  {
    {
-     { L_, "rbrt3,(50,6),0,3,0",1,   2,   0,    0,   1,  0, NVEC, ""        },
-     { L_, "r4,1,4,0",          2,   2,   0,    0,   1,  0, NVEC, ""        },
-     { L_, "rbrt3,(50,6),0,3,0",3,   2,   0,    0,   1,  0, NVEC, ""        },
-     { L_, "W10",               3,   2,   0,    0,   1,  0, NVEC, ""        },
-     { L_, "dr1",               0,   0,   0,    0,   0,  0, NVEC, "890"     },
+    { L_, "rbrt3,(50,6),0,3,0",1,   2,   0,    0,   1,  0, e_NVEC, ""        },
+    { L_, "r4,1,4,0",          2,   2,   0,    0,   1,  0, e_NVEC, ""        },
+    { L_, "rbrt3,(50,6),0,3,0",3,   2,   0,    0,   1,  0, e_NVEC, ""        },
+    { L_, "W10",               3,   2,   0,    0,   1,  0, e_NVEC, ""        },
+    { L_, "dr1",               0,   0,   0,    0,   0,  0, e_NVEC, "890"     },
 
-     { L_, "r4,1,4,0",          1,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "rb5,1,5,0",         2,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "rrt7,(50,1),1,7,0", 3,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "rvr2,1,3,0",        4,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "rb8,1,8,0",         5,   1,   0,    0,   0,  0, NVEC, ""        },
+    { L_, "r4,1,4,0",          1,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "rb5,1,5,0",         2,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "rrt7,(50,1),1,7,0", 3,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "rvr2,1,3,0",        4,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "rb8,1,8,0",         5,   1,   0,    0,   0,  0, e_NVEC, ""        },
 
-     { L_, "rv4,1,13,0",        6,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "rrt5,(50,1),1,5,0", 7,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "W5",                7,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "dr1",               6,   1,   0,    0,   0,  0, NVEC, "1234"    },
-     { L_, "dr1",               6,   1,   0,    0,   0,  0, NVEC, ""        },
+    { L_, "rv4,1,13,0",        6,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "rrt5,(50,1),1,5,0", 7,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "W5",                7,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "dr1",               6,   1,   0,    0,   0,  0, e_NVEC, "1234"    },
+    { L_, "dr1",               6,   1,   0,    0,   0,  0, e_NVEC, ""        },
 
-     { L_, "W8",                6,   1,   0,    0,   0,  0, NVEC, ""        },
+    { L_, "W8",                6,   1,   0,    0,   0,  0, e_NVEC, ""        },
      // the data will be mixed b/w "rb5,1,5,0" (should be "51234") and
      // "rr7,1,7,0" if the same readBuf is used, the first "5678" is read for
      // "rr7,1,7,0"......
-     { L_, "dr1",               5,   2,   0,    0,   1,  0, NVEC, "56784"   },
-     { L_, "W7",                5,   2,   0,    0,   1,  0, NVEC, ""        },
-     { L_, "dr1",               4,   1,   0,    0,   0,  0, NVEC, "5678123" },
+    { L_, "dr1",               5,   2,   0,    0,   1,  0, e_NVEC, "56784"   },
+    { L_, "W7",                5,   2,   0,    0,   1,  0, e_NVEC, ""        },
+    { L_, "dr1",               4,   1,   0,    0,   0,  0, e_NVEC, "5678123" },
      { L_, "dr1",               3,   1,   0,    0,   0,  0, IOVEC,"456"     },
 
-     { L_, "W20",               3,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "W20",               3,   1,   0,    0,   0,  0, NVEC, ""        },
-     { L_, "dr1",               0,   0,   0,    0,   0,  0, NVEC, ""        },
-     { L_,  0,                  0,   0,   0,    0,   0,  0, NVEC, ""        }
+    { L_, "W20",               3,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "W20",               3,   1,   0,    0,   0,  0, e_NVEC, ""        },
+    { L_, "dr1",               0,   0,   0,    0,   0,  0, e_NVEC, ""        },
+     { L_,  0,                  0,   0,   0,    0,   0,  0, e_NVEC, ""        }
    },
  };
  // The normal alignment should be as the following statement:
@@ -12824,7 +12824,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
         for (int i = 0; i < NUM_CHANNELS; ++i) {
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      CHANNELS[i].d_handle,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
             LOOP_ASSERT(i, 0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(CHANNELS[i].d_handle[0],
@@ -12949,7 +12949,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
                     }
-                    else if (SCRIPTS[i][j].d_operationType == NVEC) {
+                    else if (SCRIPTS[i][j].d_operationType == e_NVEC) {
                         LOOP_ASSERT(LINE, 0 == strncmp(buffer.d_readBuf,
                                              SCRIPTS[i][j].d_expData,
                                              strlen(SCRIPTS[i][j].d_expData)));
