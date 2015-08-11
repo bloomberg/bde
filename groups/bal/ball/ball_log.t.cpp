@@ -12,7 +12,6 @@
 #include <ball_record.h>
 #include <ball_testobserver.h>
 
-#include <btlb_blob.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
@@ -204,18 +203,18 @@ int veryVeryVerbose;
 // The following example demonstrates using rules and attributes to
 // conditionally enable logging particular messages.
 //
-// We start by defining a function, 'processData', that is passed a data
-// blob and information about the user who sent the data.  This example
-// function performs no actual processing, but does log a single message at
-// the 'ball::Severity::DEBUG' threshold level.  The 'processData' function also
-// adds the user information passed to this function to the thread's attribute
-// context.  We will use these attributes later, to create a logging rule that
-// enables verbose logging only for a particular user.
+// We start by defining a function, 'processData', that is passed data in a
+// 'vector<char>' and information about the user who sent the data.  This
+// example function performs no actual processing, but does log a single
+// message at the 'ball::Severity::DEBUG' threshold level.  The 'processData'
+// function also adds the user information passed to this function to the
+// thread's attribute context.  We will use these attributes later, to create a
+// logging rule that enables verbose logging only for a particular user.
 //..
-  void processData(int               uuid,
-                   int               luw,
-                   int               terminalNumber,
-                   const btlb::Blob& data)
+  void processData(int                      uuid,
+                   int                      luw,
+                   int                      terminalNumber,
+                   const bsl::vector<char>& data)
       // Process the specified 'data' associated with the specified bloomberg
       // 'uuid', 'luw', and 'terminalNumber'.
   {
@@ -932,7 +931,7 @@ int main(int argc, char *argv[])
 
     BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 
-    btlb::Blob message;
+    bsl::vector<char> message;
 
     BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END;
     processData(3938908, 2, 9001, message);

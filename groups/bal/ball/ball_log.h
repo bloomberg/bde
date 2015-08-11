@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides preprocessor macros and utility
 // functions to facilitate use of the 'ball_loggermanager' component.  In
 // particular, the macros defined herein greatly simplify the mechanics of
-// generating log records.  The utility functions are only intended for use
 // by the macros and should *not* be called directly.
+// generating log records.  The utility functions are only intended for use
 //
 ///Thread-Safety
 ///-------------
@@ -370,20 +370,20 @@ BSLS_IDENT("$Id: $")
 // The following example demonstrates the use of attributes and rules to
 // conditionally enable logging.
 //
-// We start by defining a function, 'processData', that is supplied a data
-// blob and information about the user who sent the data.  This example
-// function performs no actual processing, but does log a single message at
-// the 'ball::Severity::DEBUG' threshold level.  The 'processData' function also
-// adds the user information passed to the function to the thread's attribute
-// context.  We will later use these attributes to create a rule that enable
-// verbose logging for a particular user.
+// We start by defining a function, 'processData', that is passed data in a
+// 'vector<char>' and information about the user who sent the data.  This
+// example function performs no actual processing, but does log a single
+// message at the 'ball::Severity::DEBUG' threshold level.  The 'processData'
+// function also adds the user information passed to this function to the
+// thread's attribute context.  We will use these attributes later, to create a
+// logging rule that enables verbose logging only for a particular user.
 //..
-//  void processData(int               uuid,
-//                   int               luw,
-//                   int               firmNumber,
-//                   const bdlmca::Blob& data)
+//  void processData(int                      uuid,
+//                   int                      luw,
+//                   int                      terminalNumber,
+//                   const bsl::vector<char>& data)
 //      // Process the specified 'data' associated with the specified bloomberg
-//      // 'uuid', 'luw', and 'firmNumber'.
+//      // 'uuid', 'luw', and 'terminalNumber'.
 //  {
 //..
 // We create a generic "default" attribute container to hold our attributes.
@@ -395,7 +395,8 @@ BSLS_IDENT("$Id: $")
 //      ball::DefaultAttributeContainer attributes;
 //      attributes.addAttribute(ball::Attribute("uuid", uuid));
 //      attributes.addAttribute(ball::Attribute("luw", luw));
-//      attributes.addAttribute(ball::Attribute("firmNumber", firmNumber);
+//      attributes.addAttribute(ball::Attribute("terminalNumber",
+//                                              terminalNumber);
 //
 //      ball::AttributeContext *context = ball::AttributeContext::getContext();
 //      ball::AttributeContext::iterator it =
@@ -433,7 +434,7 @@ BSLS_IDENT("$Id: $")
 //
 //  BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //
-//  bdlmca::Blob message;
+//  bsl::vector<char> message;
 //
 //  BALL_LOG_ERROR << "Processing the first message." << BALL_LOG_END;
 //  processData(3938908, 2, 9001, message);

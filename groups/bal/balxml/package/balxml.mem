@@ -1,7 +1,6 @@
 balxml_configschema
 balxml_decoder
 balxml_decoderoptions
-balxml_element
 balxml_elementattribute
 balxml_encoder
 balxml_encoderoptions
