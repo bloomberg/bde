@@ -73,7 +73,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] virtual int isInvalid()
 // [ 3] int numChannels() const;
 //-----------------------------------------------------------------------------
-// [10] USAGE example
+// [ 7] USAGE example
 // [ 1] Breathing test
 //=============================================================================
 
@@ -294,10 +294,11 @@ extern "C" {
 static void signalHandler(int sig)
     // The signal handler does nothing.
 {
-     if (veryVerbose) {
-         write(2,"caught signal\n", sizeof(" caught signal\n"));
-     }
-     return;
+    (void)sig;
+    if (veryVerbose) {
+        write(2,"caught signal\n", sizeof(" caught signal\n"));
+    }
+    return;
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
@@ -482,19 +483,32 @@ int processTest(
     return ret;
 }
 
-void generatePattern(char *buffer, int length)
-    // Load into the specified 'buffer' a generated data pattern of the
-    // specified 'length'.
-{
-    if (buffer) {
-        #ifdef BSLS_PLATFORM_OS_UNIX
-        snprintf(buffer, length, "%d", length);
-        #else
-        _snprintf(buffer, length, "%d", length);
-        #endif
-    }
-    return;
-}
+///Usage
+///-----
+// The following usage example shows a possible implementation of an echo
+// client.  (See 'btlsos_tcpacceptor' for an echo server.)  An echo server
+// accepts a connection and sends any received data back to the client (until
+// the connection is terminated).  The echo client demonstrated in this usage
+// example creates a packet with a pre-determined data pattern, sends it to the
+// server, waits for a response and then verifies that the received data is the
+// same (as was send).  The operation will be repeated for a certain number of
+// packets and then exit.  Without going into details of a pattern, let's
+// suppose that there is a function that generates the pattern into a buffer:
+//..
+      void generatePattern(char *buffer, int length)
+          // Load into the specified 'buffer' a generated data pattern of the
+          // specified 'length'.
+      {
+          if (buffer) {
+              #ifdef BSLS_PLATFORM_OS_UNIX
+                  snprintf(buffer, length, "%d", length);
+              #else
+                  _snprintf(buffer, length, "%d", length);
+              #endif
+          }
+          return;
+      }
+//..
 
 //=============================================================================
 //                      MAIN PROGRAM
@@ -525,7 +539,7 @@ int main(int argc, char *argv[]) {
     #endif
 
     switch (test) { case 0:
-      case 24: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   This test is really just to make sure the syntax is correct.
@@ -542,95 +556,93 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
-        {
-            btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            enum { k_ECHO_PORT = 1888 };
-            enum {
-                k_NUM_PACKETS = 5,
-                k_PACKET_SIZE = 10
-            }; // TCP/IP over Ethernet
 
-            const char *serverIP = 0;
-            if (argc > 2) {
-                    serverIP = argv[2];
-                    // veryVeryVerbose = 0; globalVeryVeryVerbose =
-                    // veryVeryVerbose;
-            }
-            else {
-                serverIP = "127.0.0.1";        // assume local host
-            }
+// First, create a concrete socket factory that is used to manage stream
+// sockets:
+//..
+    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
+//..
+// Second, define configuration parameters for the connector:
+//..
+    enum { k_ECHO_PORT = 1888 };
+    enum {
+        k_NUM_PACKETS =  5,
+        k_PACKET_SIZE = 10
+    }; // TCP/IP over Ethernet
 
-            btlso::IPv4Address serverAddress(serverIP, k_ECHO_PORT);
+    const char *serverIP = "127.0.0.1";  // assume local host
 
-            bsls::TimeInterval connectTimeout(120, 0);   // 2 minutes
-            btlsos::TcpConnector connector(&factory);//Use default allocator
-            ASSERT(0 == connector.isInvalid());
-            connector.setPeer(serverAddress);    // 'serverAddress' is valid.
+    btlso::IPv4Address serverAddress(serverIP, k_ECHO_PORT);
 
-            ASSERT(0 == connector.isInvalid());
-            enum { k_READ_SIZE = 10 };               // only for demo
-            bsls::TimeInterval readTimeout(1.0);     // 1 second
-            bsls::TimeInterval writeTimeout(30.0);   // 30 seconds
-            char controlPacket[k_PACKET_SIZE];
-            char inputPacket[k_PACKET_SIZE];
-            generatePattern(inputPacket, k_PACKET_SIZE);
-            memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
-            int status;
-            btlsc::TimedChannel *channel = connector.allocateTimed(&status);
+    bsls::TimeInterval connectTimeout(120, 0);  // 2 minutes
+//..
+// Now, create a connector and set the configuration parameters:
+//..
+    btlsos::TcpConnector connector(&factory);  // Use default allocator
+    ASSERT(0 == connector.isInvalid());
+    connector.setPeer(serverAddress);
+    ASSERT(0 == connector.isInvalid());  // 'serverAddress' is valid
+//..
+// Set communication parameters for the channel:
+//..
+    enum { k_READ_SIZE = 10 };               // only for demo
 
-            if (!channel) {
-                ASSERT(0 >= status);    // Async interrupts are *not* enabled.
-                if (verbose) bsl::cout << "Failed to connect to the peer."
-                                       << bsl::endl;
-                // In any case, invalidate the allocator, and exit.
-                connector.invalidate();
-                return -1;
-            }
-            else {
-                if (verbose) {
-                    cout << " A channel is established." << endl;
-                }
-            }
-            ASSERT(0 == channel->isInvalid());
-            char receivedPacket[k_PACKET_SIZE];
-            for (int i = 0; i < k_NUM_PACKETS; ++i) {
-                 // Request/response mechanism
-                int writeStatus =
-                   channel->timedWrite(
+    bsls::TimeInterval readTimeout(1.0);     // 1 second
+    bsls::TimeInterval writeTimeout(30.0);   // 30 seconds
+//..
+// Prepare the "input" packet that will be sent on every iteration, and save it
+// as a "control" packet:
+//..
+    char controlPacket[k_PACKET_SIZE];
+    char inputPacket[k_PACKET_SIZE];
+    generatePattern(inputPacket, k_PACKET_SIZE);
+    memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
+//..
+// Establish a connection with the echo server:
+//..
+    int                  status;
+    btlsc::TimedChannel *channel = connector.allocateTimed(&status);
+    if (!channel) {
+        ASSERT(0 >= status);  // Async interrupts are *not* enabled.
+        bsl::cout << "Failed to connect to the peer." << bsl::endl;
+        // In any case, invalidate the allocator, and exit.
+        connector.invalidate();
+        return -1;
+    }
+//..
+// Send 'NUM_PACKETS' packets to the server, wait for the response for each,
+// and verify that the received packet is correct:
+//..
+    ASSERT(0 == channel->isInvalid());
+    char receivedPacket[k_PACKET_SIZE];
+    for (int i = 0; i < k_NUM_PACKETS; ++i) {
+        // Request/response mechanism
+        int writeStatus = channel->timedWrite(
                                       inputPacket,
                                       k_PACKET_SIZE,
                                       bdlt::CurrentTime::now() + writeTimeout);
-                if (k_PACKET_SIZE != writeStatus) {
-                  if (verbose) cout << "Failed to send data, writeStatus =  "
-                                    << writeStatus << bsl::endl;
-                    break;
-                }
-                else {
-                    if (verbose) cout << "writeStatus =  "
-                                      << writeStatus << endl;
-                }
-
-                int readStatus = channel->timedRead(
+        if (k_PACKET_SIZE != writeStatus) {
+            bsl::cout << "Failed to send data, writeStatus =  "
+                      << writeStatus << bsl::endl;
+            break;
+        }
+        int readStatus = channel->timedRead(
                                        receivedPacket,
                                        k_PACKET_SIZE,
                                        bdlt::CurrentTime::now() + readTimeout);
-                if (k_PACKET_SIZE != readStatus) {
-                    if (verbose) cout << "Failed to read data, readStatus = "
-                                      << readStatus << bsl::endl;
-                    break;
-                }
-                else {
-                    if (verbose) cout << "readStatus = " << readStatus << endl;
-                }
-              ASSERT(0 == memcmp(receivedPacket, controlPacket,k_PACKET_SIZE));
-            }
-
-            // Perform proper shut down procedure
-            channel->invalidate();
-            connector.deallocate(channel);
+        if (k_PACKET_SIZE != readStatus) {
+            bsl::cout << "Failed to read data, readStatus = "
+                      << readStatus << bsl::endl;
+            break;
         }
-      } break;
+        ASSERT(0 == memcmp(receivedPacket, controlPacket, k_PACKET_SIZE));
+    }
 
+    // Perform proper shut down procedure
+    channel->invalidate();
+    connector.deallocate(channel);
+//..
+      } break;
       case 6: {
           // ----------------------------------------------------------------
           // TESTING MANIPULATOR METHODS:
@@ -845,12 +857,12 @@ int main(int argc, char *argv[]) {
                           PT(connector.numChannels());
                       }
                       factory.deallocate(serverSocket);
-                  }
-                  length = connList.size();
-                  for (int j = 0; j < length; ++j) {
-                      factory.deallocate(connList[j]);
-                  }
-                  connList.clear();
+                 }
+                 length = static_cast<int>(connList.size());
+                 for (int j = 0; j < length; ++j) {
+                     factory.deallocate(connList[j]);
+                 }
+                 connList.clear();
               }
           }
       } break;
@@ -1038,7 +1050,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1105,7 +1117,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 testing 'allocateTimed' method:");
@@ -1158,7 +1170,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 3: channels.size() = ");
                           PT(channels.size());
@@ -1208,7 +1220,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
@@ -1266,7 +1278,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 5: channels.size() = ");
                           PT(channels.size());
@@ -1274,7 +1286,7 @@ int main(int argc, char *argv[]) {
                   }
                   channels.clear();
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
                   if (verbose) {
                       PT(connList.size());
                   }
@@ -1470,7 +1482,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1538,7 +1550,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 for testing 'allocate' method:");
@@ -1590,7 +1602,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 3: channels.size() = ");
                           PT(channels.size());
@@ -1639,7 +1651,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
@@ -1696,7 +1708,7 @@ int main(int argc, char *argv[]) {
                                                    signals,
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 5: channels.size() = ");
                           PT(channels.size());
@@ -1704,7 +1716,7 @@ int main(int argc, char *argv[]) {
                   }
                   channels.clear();
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
                   if (verbose) {
                       QT(connList.size());
                   }
@@ -1815,7 +1827,7 @@ int main(int argc, char *argv[]) {
                                                    expNumChannels,
                                                    VALUES[i].d_queueSize));
 
-                  int length = connList.size();
+                  int length = static_cast<int>(connList.size());
                   if (veryVerbose) {
                       PT(channels.size());
                   }
@@ -1968,7 +1980,7 @@ int main(int argc, char *argv[]) {
                                                signals,
                                                expNumChannels,
                                                QUEUE_SIZE));
-                  int length = channels.size();
+                  int length = static_cast<int>(channels.size());
                   if (veryVerbose) {
                       PT(channels.size());
                   }
@@ -2014,9 +2026,10 @@ int main(int argc, char *argv[]) {
 
                   connector.setPeer(serverAddress);
                   ASSERT(0 == connector.isInvalid());
-                  int status = 0;
 
 #if 0
+                  int status = 0;
+
                   btlsc::Channel *newChannel = connector.allocate(&status);
                   ASSERT(0 == newChannel);
                   ASSERT(e_FAILED == status);

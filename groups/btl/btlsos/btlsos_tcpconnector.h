@@ -47,92 +47,105 @@ BSLS_IDENT("$Id: $")
 // packets and then exit.  Without going into details of a pattern, let's
 // suppose that there is a function that generates the pattern into a buffer:
 //..
-//    void generatePattern(char *buffer, int length);
+//    void generatePattern(char *buffer, int length)
 //        // Load into the specified 'buffer' a generated data pattern of the
 //        // specified 'length'.
+//    {
+//        if (buffer) {
+//            #ifdef BSLS_PLATFORM_OS_UNIX
+//                snprintf(buffer, length, "%d", length);
+//            #else
+//                _snprintf(buffer, length, "%d", length);
+//            #endif
+//        }
+//        return;
+//    }
 //..
-//
 // First, create a concrete socket factory that is used to manage stream
 // sockets:
 //..
-//    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
+//  btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
 //..
 // Second, define configuration parameters for the connector:
 //..
-//    enum { k_ECHO_PORT = 1888 };
-//    enum {
-//        k_NUM_PACKETS = 5,
-//        k_PACKET_SIZE = 10
-//    }; // TCP/IP over Ethernet
+//  enum { k_ECHO_PORT = 1888 };
+//  enum {
+//      k_NUM_PACKETS =  5,
+//      k_PACKET_SIZE = 10
+//  }; // TCP/IP over Ethernet
 //
-//    const char *SERVER_IP = "127.0.0.1";           // assume local host
-//    btlso::IPv4Address serverAddress(SERVER_IP, k_ECHO_PORT);
+//  const char *serverIP = "127.0.0.1";  // assume local host
 //
-//    bsls::TimeInterval connectTimeout(120, 0);      // 2 minutes
+//  btlso::IPv4Address serverAddress(serverIP, k_ECHO_PORT);
+//
+//  bsls::TimeInterval connectTimeout(120, 0);  // 2 minutes
 //..
 // Now, create a connector and set the configuration parameters:
 //..
-//   btlsos::TcpConnector connector(&factory); // Use default allocator
-//   assert(0 == connector.isInvalid());
-//   assert(0 == connector.setPeer(serverAddress));// 'serverAddress' is valid.
-//   assert(0 == connector.isInvalid());
+//  btlsos::TcpConnector connector(&factory);  // Use default allocator
+//  assert(0 == connector.isInvalid());
+//  connector.setPeer(serverAddress);
+//  assert(0 == connector.isInvalid());  // 'serverAddress' is valid
 //..
 // Set communication parameters for the channel:
 //..
-//   enum { k_READ_SIZE = 10 };               // only for demo
-//   bsls::TimeInterval readTimeout(1.0);     // 1 second
-//   bsls::TimeInterval writeTimeout(30.0);   // 30 seconds
+//  enum { k_READ_SIZE = 10 };               // only for demo
+//
+//  bsls::TimeInterval readTimeout(1.0);     // 1 second
+//  bsls::TimeInterval writeTimeout(30.0);   // 30 seconds
 //..
 // Prepare the "input" packet that will be sent on every iteration, and save it
 // as a "control" packet:
 //..
-//   char controlPacket[k_PACKET_SIZE];
-//   char inputPacket[k_PACKET_SIZE];
-//   generatePattern(inputPacket, k_PACKET_SIZE);
-//   memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
+//  char controlPacket[k_PACKET_SIZE];
+//  char inputPacket[k_PACKET_SIZE];
+//  generatePattern(inputPacket, k_PACKET_SIZE);
+//  memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
 //..
 // Establish a connection with the echo server:
 //..
-//   int status;
-//   btlsc::TimedChannel *channel = connector.allocateTimed(&status);
-//   if (!channel) {
-//       assert(0 >= status);     // Async.  interrupts are *not* enabled.
-//       bsl::cout << "Failed to connect to the peer." << bsl::endl;
-//       // In any case, invalidate the allocator, and exit.
-//       connector.invalidate();
-//       return -1;
-//   }
+//  int                  status;
+//  btlsc::TimedChannel *channel = connector.allocateTimed(&status);
+//  if (!channel) {
+//      assert(0 >= status);  // Async interrupts are *not* enabled.
+//      bsl::cout << "Failed to connect to the peer." << bsl::endl;
+//      // In any case, invalidate the allocator, and exit.
+//      connector.invalidate();
+//      return -1;
+//  }
 //..
 // Send 'NUM_PACKETS' packets to the server, wait for the response for each,
 // and verify that the received packet is correct:
 //..
-//   assert(0 == channel->isInvalid());
-//   char receivePacket[k_PACKET_SIZE];
-//   for (int i = 0; i < k_NUM_PACKETS; ++i) {
-//       // Request/response mechanism
-//       int writeStatus = channel->timedWrite(
+//  assert(0 == channel->isInvalid());
+//  char receivedPacket[k_PACKET_SIZE];
+//  for (int i = 0; i < k_NUM_PACKETS; ++i) {
+//      // Request/response mechanism
+//      int writeStatus = channel->timedWrite(
 //                                    inputPacket,
 //                                    k_PACKET_SIZE,
 //                                    bdlt::CurrentTime::now() + writeTimeout);
-//       if (k_PACKET_SIZE != writeStatus) {
-//           bsl::cout << "Failed to send data." << bsl::endl;
-//           break;
-//       }
-//       int readStatus = channel->timedRead(
-//                                     receivePacket,
+//      if (k_PACKET_SIZE != writeStatus) {
+//          bsl::cout << "Failed to send data, writeStatus =  "
+//                    << writeStatus << bsl::endl;
+//          break;
+//      }
+//      int readStatus = channel->timedRead(
+//                                     receivedPacket,
 //                                     k_PACKET_SIZE,
 //                                     bdlt::CurrentTime::now() + readTimeout);
-//       if (k_PACKET_SIZE != readStatus) {
-//           bsl::cout << "Failed to read data" << bsl::endl;
-//           break;
-//       }
-//       assert(0 == memcmp(receivedPacket, controlPacket k_PACKET_SIZE);
-//   }
+//      if (k_PACKET_SIZE != readStatus) {
+//          bsl::cout << "Failed to read data, readStatus = "
+//                    << readStatus << bsl::endl;
+//          break;
+//      }
+//      assert(0 == memcmp(receivedPacket, controlPacket, k_PACKET_SIZE));
+//  }
 //
-//   // Perform proper shut down procedure
-//   channel->invalidate();
-//   connector.deallocate(channel);
-//....
+//  // Perform proper shut down procedure
+//  channel->invalidate();
+//  connector.deallocate(channel);
+//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

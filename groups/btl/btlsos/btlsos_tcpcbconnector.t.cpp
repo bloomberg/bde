@@ -560,12 +560,12 @@ struct TestCommand {
         // for test.
     {
         if (validChannel) {
-            ASSERT (channel);
+            ASSERT(channel);
         }
         else {
-            ASSERT (0 == channel);
+            ASSERT(0 == channel);
         }
-        ASSERT (status == expStatus);
+        ASSERT(status == expStatus);
 
         if (0 == channel) {
         }

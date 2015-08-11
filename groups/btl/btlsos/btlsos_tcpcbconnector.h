@@ -440,12 +440,12 @@ BSLS_IDENT("$Id: $")
 //      // for test.
 //  {
 //      if (validChannel) {
-//          assert (channel);
+//          assert(channel);
 //      }
 //      else {
-//          assert (0 == channel);
+//          assert(0 == channel);
 //      }
-//      assert (status == expStatus);
+//      assert(status == expStatus);
 //
 //      if (0 == channel) {
 //      }
