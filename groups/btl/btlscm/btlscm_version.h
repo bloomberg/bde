@@ -64,9 +64,15 @@ struct Version {
     static const char *s_timestamp;
     static const char *s_sourceControlInfo;
 
+    // CLASS METHODS
     static const char *version();
 };
 
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+// CLASS METHODS
 inline
 const char *Version::version()
 {
@@ -81,15 +87,15 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           btlscm_version_assertion,
                                           btlscm::Version::s_version);
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
