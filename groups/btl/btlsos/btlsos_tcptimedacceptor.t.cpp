@@ -206,14 +206,16 @@ volatile sig_atomic_t syncWithSigHandler = 0;
 static void signalHandler(int sig)
     // The signal handler does nothing.
 {
-     // this is NOT SIGNAL SAFE, but it should not matter if the asser is true
-     ASSERT(syncWithSigHandler == 0);
+    (void)sig;
 
-     if (veryVerbose) {
-         write(1, " caught signal\n", sizeof(" caught signal\n"));
-     }
-     ++syncWithSigHandler;
-     return;
+    // this is NOT SIGNAL SAFE, but it should not matter if the assert is true
+    ASSERT(syncWithSigHandler == 0);
+
+    if (veryVerbose) {
+        write(1, " caught signal\n", sizeof(" caught signal\n"));
+    }
+    ++syncWithSigHandler;
+    return;
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
@@ -333,7 +335,7 @@ void* threadAsClient(void *arg)
     }
 
     // cleanup
-    int length = clients.size();
+    int length = static_cast<int>(clients.size());
     for (int i = 0; i < length; ++i) {
         factory.deallocate(clients[i]);
     }
@@ -559,7 +561,6 @@ int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -588,87 +589,110 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
-        {
-            btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            enum {
-                k_ECHO_PORT = 1888,
-                k_QUEUE_SIZE = 32
-            };
-            btlso::IPv4Address serverAddress;
-            serverAddress.setPortNumber(k_ECHO_PORT);
-            bsls::TimeInterval acceptTimeout(120, 0);
-            btlsos::TcpTimedAcceptor acceptor(&factory); // default allocator.
-            ASSERT(0 == acceptor.isInvalid());
-            if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
-               if (verbose) {
-                   cout << "Can't open listening socket" << bsl::endl;
-               }
-               break; // return -1;
-            }
-            ASSERT(acceptor.address() == serverAddress);
-            enum { k_READ_SIZE = 8 };
-            // Note: this is OK *if and only if* it is in the 'main' function.
-            bsls::TimeInterval readTimeout(30, 0);  // 30 seconds
-            bsls::TimeInterval writeTimeout(0.5);  // 0.5 seconds
-            while (0 == acceptor.isInvalid()) {
-                int status;
-                btlsc::TimedChannel *channel =
-                    acceptor.timedAllocateTimed(
+///Usage
+///-----
+// The following usage example shows a possible implementation of a single-user
+// echo server.  An echo server accepts a connection and sends back any
+// received data back to the client (until the connection is terminated).  This
+// server requires that data is read from an accepted connection within certain
+// time interval and be dropped on timeout.
+//
+// First, create a concrete socket factory that is used to manage stream
+// sockets:
+//..
+    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
+//..
+// Second, define configuration parameters for the acceptor:
+//..
+    enum {
+        k_ECHO_PORT  = 1888,
+        k_QUEUE_SIZE =   32
+    };
+    btlso::IPv4Address serverAddress;
+    serverAddress.setPortNumber(k_ECHO_PORT);
+    bsls::TimeInterval acceptTimeout(120, 0);  // 2 minutes
+//..
+// Now, create an acceptor and prepare it for accepting connections:
+//..
+    btlsos::TcpTimedAcceptor acceptor(&factory);  // uses default allocator
+    ASSERT(0 == acceptor.isInvalid());
+    if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
+        bsl::cout << "Can't open listening socket" << bsl::endl;
+        return -1;
+    }
+    ASSERT(acceptor.address() == serverAddress);
+//..
+// Set communication parameters for a channel:
+//..
+    enum { k_READ_SIZE = 8 };
+    // Note: this is OK *if and only if* it is in the 'main' function.
+    bsls::TimeInterval readTimeout(30, 0);  // 30 seconds
+    bsls::TimeInterval writeTimeout(0.5);   // 0.5 seconds
+//..
+// Go into "infinite" loop, accepting connections and servicing user requests:
+//..
+    while (0 == acceptor.isInvalid()) {
+        int status;
+        btlsc::TimedChannel *channel = acceptor.timedAllocateTimed(
                                      &status,
                                      bdlt::CurrentTime::now() + acceptTimeout);
-                if (channel) {
-                    while (1) {
-                         const char * result;
-                         int readStatus =
-                             channel->timedBufferedReadRaw(
+        if (channel) {
+            while (1) {
+                const char * result;
+                int readStatus = channel->timedBufferedReadRaw(
                                        &result,
                                        k_READ_SIZE,
                                        bdlt::CurrentTime::now() + readTimeout);
-                         if (0 >= readStatus) {
-                             if (verbose) {
-                                 cout << "Failed to read data, readStatus = "
-                                      << readStatus << endl;
-                             }
-                             break;
-                         }
-                         else {
-                             if (verbose) {
-                                 cout << "readStatus = " << readStatus << endl;
-                             }
-                         }
-                         int ws =
-                             channel->timedWrite(
+                if (0 >= readStatus) {
+                    if (verbose) {
+                        bsl::cout << "Failed to read data, readStatus = "
+                                  << readStatus << bsl::endl;
+                    }
+                    break;
+                }
+                else {
+                    if (verbose) {
+                        bsl::cout << "readStatus = "
+                                  << readStatus
+                                  << bsl::endl;
+                    }
+                }
+                int ws = channel->timedWrite(
                                       result,
                                       readStatus,
                                       bdlt::CurrentTime::now() + writeTimeout);
-                         if (readStatus != ws) {
-                             if (verbose) {
-                                 cout << "Failed to send data, writeStatus = "
-                                      << ws << endl;
-                             }
-                             break;
-                         }
-                         else {
-                             if (verbose) {
-                                 cout << "writeStatus = " << ws << endl;
-                             }
-                         }
+                if (readStatus != ws) {
+                    if (verbose) {
+                        bsl::cout << "Failed to send data, writeStatus = "
+                                  << ws << bsl::endl;
                     }
-                    acceptor.deallocate(channel);
+                    break;
                 }
                 else {
-                     ASSERT(status <= 0);   // Interrupts are not enabled.
-                     if (0 == status) {
-                         if (verbose) {
-                             cout << "Timed out accepting a connection"
-                                  << endl;
-                         }
-                     }
+                    if (verbose) {
+                        bsl::cout << "writeStatus = " << ws << bsl::endl;
+                    }
                 }
             }
-            ASSERT(acceptor.isInvalid());
-            ASSERT(0 == acceptor.close());
+            acceptor.deallocate(channel);
         }
+        else {
+            ASSERT(status <= 0);  // Interrupts are not enabled.
+            if (0 == status) {
+                if (verbose) {
+                    bsl::cout << "Timed out accepting a connection"
+                              << bsl::endl;
+                }
+            }
+        }
+    }
+//..
+// At this point, acceptor became invalid.  The server port must be closed
+// explicitly:
+//..
+    ASSERT(acceptor.isInvalid());
+    ASSERT(0 == acceptor.close());
+//..
       } break;
       case 9: {
           // ----------------------------------------------------------------
@@ -995,7 +1019,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                  existing = channels.size();
+                  existing = static_cast<int>(channels.size());
                   if (veryVerbose) {
                       PT(channels.size());
                   }
@@ -1042,7 +1066,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -1085,7 +1109,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -1282,7 +1306,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1340,7 +1364,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
 
                   if (verbose) {
@@ -1450,7 +1474,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }
@@ -1649,7 +1673,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1707,7 +1731,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 for testing 'timedAllocate' method:");
@@ -1814,7 +1838,7 @@ int main(int argc, char *argv[]) {
                       if (veryVerbose) {
                           QT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }
@@ -2065,7 +2089,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -2126,7 +2150,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
 
                   if (verbose) {
@@ -2238,7 +2262,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }
@@ -2492,7 +2516,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -2555,7 +2579,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 for testing 'allocate' method:");
@@ -2666,7 +2690,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }

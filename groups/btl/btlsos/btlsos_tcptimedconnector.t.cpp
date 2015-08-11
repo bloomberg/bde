@@ -474,19 +474,32 @@ int processTest(
     return ret;
 }
 
-void generatePattern(char *buffer, int length)
-    // Load into the specified 'buffer' a generated data pattern of the
-    // specified 'length'.
-{
-    if (buffer) {
-        #ifdef BSLS_PLATFORM_OS_UNIX
-        snprintf(buffer, length, "%d", length);
-        #else
-        _snprintf(buffer, length, "%d", length);
-        #endif
+///Usage
+///-----
+// The following usage example shows a possible implementation of an echo
+// client (see 'btlsos_tcptimedacceptor' for an echo server).  An echo server
+// accepts a connection and sends any received data back to the client (until
+// the connection is terminated).  The echo client demonstrated in this usage
+// example creates a packet with a pre-determined data pattern, sends it to the
+// server, waits for a response and then verifies that the received data is the
+// same (as was send).  The operation will be repeated for a certain number of
+// packets and then exit.  Without going into details of a pattern, let's
+// suppose that there is a function that generates the pattern into a buffer:
+//..
+    void generatePattern(char *buffer, int length)
+        // Load into the specified 'buffer' a generated data pattern of the
+        // specified 'length'.
+    {
+        if (buffer) {
+            #ifdef BSLS_PLATFORM_OS_UNIX
+                snprintf(buffer, length, "%d", length);
+            #else
+                _snprintf(buffer, length, "%d", length);
+            #endif
+        }
+        return;
     }
-    return;
-}
+//..
 
 //=============================================================================
 //                      MAIN PROGRAM
@@ -527,85 +540,100 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
-        {
-            btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            enum { k_ECHO_PORT = 1888 };
-            enum {
-                k_NUM_PACKETS = 5,
-                k_PACKET_SIZE = 10
-            }; // TCP/IP over Ethernet
 
-            const char *SERVER_IP = "127.0.0.1";        // assume local host
-            btlso::IPv4Address serverAddress(SERVER_IP, k_ECHO_PORT);
+// First, create a concrete socket factory that is used to manage stream
+// sockets:
+//..
+    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
+//..
+// Second, define configuration parameters for the connector:
+//..
+    enum { k_ECHO_PORT = 1888 };
+    enum {
+        k_NUM_PACKETS =  5,
+        k_PACKET_SIZE = 10
+    }; // TCP/IP over Ethernet
 
-            bsls::TimeInterval connectTimeout(120, 0);  // 2 minutes
-            btlsos::TcpTimedConnector connector(&factory);
-                                                       // Use default allocator
-            ASSERT(0 == connector.isInvalid());
-            connector.setPeer(serverAddress);        // 'serverAddress' is
-                                                     // valid
-            ASSERT(0 == connector.isInvalid());
+    const char *SERVER_IP = "127.0.0.1";  // assume local host
+    btlso::IPv4Address serverAddress(SERVER_IP, k_ECHO_PORT);
 
-            bsls::TimeInterval readTimeout(1.0);     // 1 second
-            bsls::TimeInterval writeTimeout(30.0);   // 30 seconds
-            char controlPacket[k_PACKET_SIZE];
-            char inputPacket[k_PACKET_SIZE];
-            generatePattern(inputPacket, k_PACKET_SIZE);
-            memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
-            int status;
-            btlsc::TimedChannel *channel =
+    bsls::TimeInterval connectTimeout(120, 0);  // 2 minutes
+//..
+// Now, create a connector and set the configuration parameters:
+//..
+    btlsos::TcpTimedConnector connector(&factory);  // Use default allocator
+    ASSERT(0 == connector.isInvalid());
+    connector.setPeer(serverAddress);
+    ASSERT(0 == connector.isInvalid());  // 'serverAddress' is valid
+//..
+// Set communication parameters for the channel:
+//..
+    bsls::TimeInterval readTimeout(1.0);    // 1 second
+    bsls::TimeInterval writeTimeout(30.0);  // 30 seconds
+//..
+// Prepare the "input" packet that will be sent on every iteration, and save it
+// as a "control" packet:
+//..
+    char controlPacket[k_PACKET_SIZE];
+    char inputPacket[k_PACKET_SIZE];
+    generatePattern(inputPacket, k_PACKET_SIZE);
+    memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
+//..
+// Establish a connection with the echo server:
+//..
+    int status;
+    btlsc::TimedChannel *channel =
                     connector.timedAllocateTimed(
                                     &status,
                                     bdlt::CurrentTime::now() + connectTimeout);
-            if (!channel) {
-                ASSERT(0 >= status);    // Async interrupts are *not* enabled.
-                if (status) {
-                    if (verbose) bsl::cout << "Failed to connect to the peer."
-                                           << bsl::endl;
-                }
-                else {
-                    if (verbose) {
-                        bsl::cout << "Connection attempt has timed out."
-                                  << bsl::endl;
-                    }
-                }
-                // In any case, invalidate the allocator, and exit.
-                connector.invalidate();
-                return -1;
-            }
-            ASSERT(0 == channel->isInvalid());
-            char receivedPacket[k_PACKET_SIZE];
-            for (int i = 0; i < k_NUM_PACKETS; ++i) {
-                 // Request/response mechanism
-                int writeStatus = channel->timedWrite(
+    if (!channel) {
+        ASSERT(0 >= status);  // Async interrupts are *not* enabled.
+        if (status) {
+            bsl::cout << "Failed to connect to the peer."
+                      << bsl::endl;
+        }
+        else {
+            bsl::cout << "Connection attempt has timed out."
+                      << bsl::endl;
+        }
+        // In any case, invalidate the allocator, and exit.
+        connector.invalidate();
+        return -1;
+    }
+//..
+// Send 'k_NUM_PACKETS' packets to the server, wait for the response for each,
+// and verify that the received packet is correct:
+//..
+    ASSERT(0 == channel->isInvalid());
+    char receivedPacket[k_PACKET_SIZE];
+    for (int i = 0; i < k_NUM_PACKETS; ++i) {
+        // Request/response mechanism
+        int writeStatus = channel->timedWrite(
                                       inputPacket,
                                       k_PACKET_SIZE,
                                       bdlt::CurrentTime::now() + writeTimeout);
-                if (k_PACKET_SIZE != writeStatus) {
-                    if (verbose) bsl::cout << "Failed to send data."
-                                           << bsl::endl;
-                    break;
-                }
-                int readStatus = channel->timedRead(
+        if (k_PACKET_SIZE != writeStatus) {
+            bsl::cout << "Failed to send data." << bsl::endl;
+            break;
+        }
+        int readStatus = channel->timedRead(
                                        receivedPacket,
                                        k_PACKET_SIZE,
                                        bdlt::CurrentTime::now() + readTimeout);
-                if (k_PACKET_SIZE != readStatus) {
-                    if (verbose) cout << "Failed to read data"
-                                      << bsl::endl;
-                    break;
-                }
-                ASSERT(0 == memcmp(receivedPacket,
-                                   controlPacket,
-                                   k_PACKET_SIZE));
-            }
-
-            // Perform proper shut down procedure
-            channel->invalidate();
-            connector.deallocate(channel);
+        if (k_PACKET_SIZE != readStatus) {
+            cout << "Failed to read data" << bsl::endl;
+            break;
         }
-      } break;
+        ASSERT(0 == memcmp(receivedPacket,
+                           controlPacket,
+                           k_PACKET_SIZE));
+    }
 
+    // Perform proper shut down procedure
+    channel->invalidate();
+    connector.deallocate(channel);
+//..
+      } break;
       case 8: {
           // ----------------------------------------------------------------
           // TESTING MANIPULATOR METHODS:

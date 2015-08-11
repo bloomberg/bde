@@ -62,82 +62,98 @@ BSLS_IDENT("$Id: $")
 // First, create a concrete socket factory that is used to manage stream
 // sockets:
 //..
-//    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
+//  btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
 //..
 // Second, define configuration parameters for the acceptor:
 //..
-//    enum {
-//        k_ECHO_PORT  = 1888,
-//        k_QUEUE_SIZE =   32
-//    };
-//    btlso::IPv4Address serverAddress;
-//    serverAddress.setPort(k_ECHO_PORT);
-//    bsls::TimeInterval acceptTimeout(120, 0);     // 2 minutes
+//  enum {
+//      k_ECHO_PORT  = 1888,
+//      k_QUEUE_SIZE =   32
+//  };
+//  btlso::IPv4Address serverAddress;
+//  serverAddress.setPortNumber(k_ECHO_PORT);
+//  bsls::TimeInterval acceptTimeout(120, 0);  // 2 minutes
 //..
 // Now, create an acceptor and prepare it for accepting connections:
 //..
-//   btlsos::TcpTimedAcceptor acceptor(&factory);   // Uses default allocator.
-//   assert(0 == acceptor.isInvalid());
-//   if (0 != acceptor.open(serverAddress)) {
+//  btlsos::TcpTimedAcceptor acceptor(&factory);  // uses default allocator
+//  assert(0 == acceptor.isInvalid());
+//  if (0 != acceptor.open(serverAddress, k_QUEUE_SIZE)) {
 //      bsl::cout << "Can't open listening socket" << bsl::endl;
-//      return;
-//   }
-//   assert(acceptor.address() == serverAddress);
+//      return -1;
+//  }
+//  assert(acceptor.address() == serverAddress);
 //..
 // Set communication parameters for a channel:
 //..
-//   enum { k_READ_SIZE = 10 };
-//   // Note: this is OK *if and only if* it is in the 'main' function.
-//   bdlt::TimeInverval readTimeout(30, 0);  // 30 seconds
-//   bsls::TimeInterval writeTimeout(0.5);   // 0.5 seconds
+//  enum { k_READ_SIZE = 8 };
+//  // Note: this is OK *if and only if* it is in the 'main' function.
+//  bsls::TimeInterval readTimeout(30, 0);  // 30 seconds
+//  bsls::TimeInterval writeTimeout(0.5);   // 0.5 seconds
 //..
 // Go into "infinite" loop, accepting connections and servicing user requests:
 //..
-//   while (0 == acceptor.isInvalid()) {
-//       int status;
-//       btlsc::TimedChannel *channel =
-//           acceptor.timedAllocateTimed(
+//  while (0 == acceptor.isInvalid()) {
+//      int status;
+//      btlsc::TimedChannel *channel = acceptor.timedAllocateTimed(
 //                                   &status,
-//                                   bdesu::SystemTime::now() + acceptTimeout);
-//       if (channel) {
-//           while (1) {
-//                char *result;
-//                int readStatus =
-//                    channel->timedBufferedReadRaw(
+//                                   bdlt::CurrentTime::now() + acceptTimeout);
+//      if (channel) {
+//          while (1) {
+//              const char * result;
+//              int readStatus = channel->timedBufferedReadRaw(
 //                                     &result,
 //                                     k_READ_SIZE,
-//                                     bdesu::SystemTime::now() + readTimeout);
-//                if (0 >= readStatus) {
-//                    bsl::cout << "Failed to read data." << bsl::endl;
-//                    break;
-//                }
-//                int ws =
-//                    channel->timedWrite(
+//                                     bdlt::CurrentTime::now() + readTimeout);
+//              if (0 >= readStatus) {
+//                  if (verbose) {
+//                      bsl::cout << "Failed to read data, readStatus = "
+//                                << readStatus << bsl::endl;
+//                  }
+//                  break;
+//              }
+//              else {
+//                  if (verbose) {
+//                      bsl::cout << "readStatus = "
+//                                << readStatus
+//                                << bsl::endl;
+//                  }
+//              }
+//              int ws = channel->timedWrite(
 //                                    result,
 //                                    readStatus,
-//                                    bdesu::SystemTime::now() + writeTimeout);
-//                if (readStatus != ws) {
-//                    bsl::cout << "Failed to send data." << bsl::endl;
-//                    break;
-//                }
-//           }
-//
-//           acceptor.deallocate(channel);
-//       }
-//       else {
-//            assert(status <= 0);   // Interrupts are not enabled.
-//            if (0 == status) {
-//                bsl::cout << "Timed out accepting a connection."
-//                          << bsl::endl;
-//            }
-//       }
-//   }
+//                                    bdlt::CurrentTime::now() + writeTimeout);
+//              if (readStatus != ws) {
+//                  if (verbose) {
+//                      bsl::cout << "Failed to send data, writeStatus = "
+//                                << ws << bsl::endl;
+//                  }
+//                  break;
+//              }
+//              else {
+//                  if (verbose) {
+//                      bsl::cout << "writeStatus = " << ws << bsl::endl;
+//                  }
+//              }
+//          }
+//          acceptor.deallocate(channel);
+//      }
+//      else {
+//          assert(status <= 0);  // Interrupts are not enabled.
+//          if (0 == status) {
+//              if (verbose) {
+//                  bsl::cout << "Timed out accepting a connection"
+//                            << bsl::endl;
+//              }
+//          }
+//      }
+//  }
 //..
 // At this point, acceptor became invalid.  The server port must be closed
 // explicitly:
 //..
-//   assert(acceptor.isInvalid());
-//   assert(0 == acceptor.close());
+//  assert(acceptor.isInvalid());
+//  assert(0 == acceptor.close());
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION
