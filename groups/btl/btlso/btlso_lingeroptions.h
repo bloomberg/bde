@@ -117,14 +117,6 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -168,13 +160,6 @@ class LingerOptions {
     BSLALG_DECLARE_NESTED_TRAITS(LingerOptions,
                                  bslalg::TypeTraitBitwiseMoveable);
 
-    // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     // CREATORS
     LingerOptions();
         // Create a 'LingerOptions' object having the (default) attribute
@@ -210,21 +195,6 @@ class LingerOptions {
         // Set the 'lingerFlag' attribute of this object to the specified
         // 'value'.
 
-                                  // Aspects
-
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' contains invalid
-        // data or becomes invalid during this operation, this object is valid,
-        // but its value is undefined.  If 'version' is not supported, 'stream'
-        // is marked invalid and this object is unaltered.  Note that no
-        // version is read from 'stream'.  See the 'bdex' package-level
-        // documentation for more information on 'bdex' streaming of
-        // value-semantic types and containers.
-
     // ACCESSORS
     bool lingerFlag() const;
         // Return the value of the 'lingerFlag' attribute of this object.
@@ -234,16 +204,6 @@ class LingerOptions {
         // that '0 <= timeout()'.
 
                                   // Aspects
-
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, 'stream' is
-        // invalidated.  Note that 'version' is not written to 'stream'.  See
-        // the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -296,13 +256,6 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
                        // class LingerOptions
                        // -------------------------
 
-// CLASS METHODS
-inline
-int LingerOptions::maxSupportedBdexVersion()
-{
-    return 1;  // versions start at 1.
-}
-
 // CREATORS
 inline
 LingerOptions::LingerOptions()
@@ -324,31 +277,6 @@ LingerOptions::~LingerOptions()
     BSLS_ASSERT_SAFE(0 <= d_timeout);
 }
 
-// MANIPULATORS
-template <class STREAM>
-STREAM& LingerOptions::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_timeout,    1);
-            bdex_InStreamFunctions::streamIn(stream, d_lingerFlag, 1);
-
-            if (!stream || d_timeout < 0) {
-                d_timeout    = 0;
-                d_lingerFlag = 0;
-
-                stream.invalidate();
-            }
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
-
 inline
 void LingerOptions::setTimeout(int value)
 {
@@ -364,23 +292,6 @@ void LingerOptions::setLingerFlag(bool value)
 }
 
 // ACCESSORS
-template <class STREAM>
-STREAM& LingerOptions::bdexStreamOut(STREAM& stream, int version) const
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-            bdex_OutStreamFunctions::streamOut(stream, d_timeout, 1);
-            bdex_OutStreamFunctions::streamOut(stream, d_lingerFlag, 1);
-          } break;
-          default: {
-            stream.invalidate();
-          }
-        }
-    }
-    return stream;
-}
-
 inline
 int LingerOptions::timeout() const
 {

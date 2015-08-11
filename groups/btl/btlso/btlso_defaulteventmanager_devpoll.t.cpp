@@ -167,7 +167,7 @@ genericCb(btlso::EventType::Type event, btlso::SocketHandle::Handle socket,
     };
 
     switch (event) {
-      case btlso::EventType::BTESO_READ: {
+      case btlso::EventType::e_READ: {
           ASSERT(0 < bytes);
           char buffer[MAX_READ_SIZE];
 
@@ -175,7 +175,7 @@ genericCb(btlso::EventType::Type event, btlso::SocketHandle::Handle socket,
           ASSERT(0 < rc);
 
       } break;
-      case btlso::EventType::BTESO_WRITE: {
+      case btlso::EventType::e_WRITE: {
           char wBuffer[MAX_WRITE_SIZE];
           ASSERT(0 < bytes);
           ASSERT(MAX_WRITE_SIZE >= bytes);
@@ -183,12 +183,12 @@ genericCb(btlso::EventType::Type event, btlso::SocketHandle::Handle socket,
           int rc = btlso::SocketImpUtil::write(socket, &wBuffer, bytes, 0);
           ASSERT(0 < rc);
       } break;
-      case btlso::EventType::BTESO_ACCEPT: {
+      case btlso::EventType::e_ACCEPT: {
           int errCode;
           int rc = btlso::SocketImpUtil::close(socket, &errCode);
           ASSERT(0 == rc);
       } break;
-      case btlso::EventType::BTESO_CONNECT: {
+      case btlso::EventType::e_CONNECT: {
           int errCode = 0;
           btlso::SocketImpUtil::close(socket, &errCode);
            ASSERT(0 == errCode);
@@ -218,13 +218,13 @@ int main(int argc, char *argv[]) {
 
     int controlFlag = 0;
     if (veryVeryVerbose) {
-        controlFlag |= btlso::EventManagerTester::BTESO_VERY_VERY_VERBOSE;
+        controlFlag |= btlso::EventManagerTester::k_VERY_VERY_VERBOSE;
     }
     if (veryVerbose) {
-        controlFlag |= btlso::EventManagerTester::BTESO_VERY_VERBOSE;
+        controlFlag |= btlso::EventManagerTester::k_VERY_VERBOSE;
     }
     if (verbose) {
-        controlFlag |= btlso::EventManagerTester::BTESO_VERBOSE;
+        controlFlag |= btlso::EventManagerTester::k_VERBOSE;
     }
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -232,8 +232,8 @@ int main(int argc, char *argv[]) {
     btlso::SocketImpUtil::startup();
     bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
-    btlso::TimeMetrics timeMetric(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                 btlso::TimeMetrics::BTESO_CPU_BOUND);
+    btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                 btlso::TimeMetrics::e_CPU_BOUND);
 
     switch (test) { case 0:
       case 13: {
@@ -254,100 +254,100 @@ int main(int argc, char *argv[]) {
                           << "\n=====================" << endl;
         {
             btlso::TimeMetrics timeMetric(
-                                   btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                   btlso::TimeMetrics::BTESO_CPU_BOUND);
+                                   btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+                                   btlso::TimeMetrics::e_CPU_BOUND);
             btlso::DefaultEventManager<btlso::Platform::DEVPOLL> mX(&timeMetric);
 
             btlso::SocketHandle::Handle socket[2];
 
             int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                      socket, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                      socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
 
             ASSERT(0 == rc);
             int numBytes = 5;
             btlso::EventManager::Callback readCb(
                     bdlf::BindUtil::bind( &genericCb
-                                       , btlso::EventType::BTESO_READ
+                                       , btlso::EventType::e_READ
                                        , socket[0]
                                        , numBytes
                                        , &mX));
 
-            mX.registerSocketEvent(socket[0], btlso::EventType::BTESO_READ,
+            mX.registerSocketEvent(socket[0], btlso::EventType::e_READ,
                                    readCb);
 
             numBytes = 25;
             btlso::EventManager::Callback writeCb1(
                     bdlf::BindUtil::bind( &genericCb
-                                       , btlso::EventType::BTESO_WRITE
+                                       , btlso::EventType::e_WRITE
                                        , socket[0]
                                        , numBytes
                                        , &mX));
 
-            mX.registerSocketEvent(socket[0], btlso::EventType::BTESO_WRITE,
+            mX.registerSocketEvent(socket[0], btlso::EventType::e_WRITE,
                                    writeCb1);
 
             numBytes = 15;
             btlso::EventManager::Callback writeCb2(
                     bdlf::BindUtil::bind( &genericCb
-                                       , btlso::EventType::BTESO_WRITE
+                                       , btlso::EventType::e_WRITE
                                        , socket[1]
                                        , numBytes
                                        , &mX));
 
-            mX.registerSocketEvent(socket[1], btlso::EventType::BTESO_WRITE,
+            mX.registerSocketEvent(socket[1], btlso::EventType::e_WRITE,
                                    writeCb2);
 
             ASSERT(3 == mX.numEvents());
             ASSERT(2 == mX.numSocketEvents(socket[0]));
             ASSERT(1 == mX.numSocketEvents(socket[1]));
             ASSERT(1 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(0 == mX.isRegistered(socket[1],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(1 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
             ASSERT(1 == mX.isRegistered(socket[1],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
             int flags = 0;
             bsls::TimeInterval deadline(bdlt::CurrentTime::now());
             deadline += 5;    // timeout 5 seconds from now.
             rc = mX.dispatch(deadline, flags);   ASSERT(2 == rc);
-            mX.deregisterSocketEvent(socket[0], btlso::EventType::BTESO_WRITE);
+            mX.deregisterSocketEvent(socket[0], btlso::EventType::e_WRITE);
             ASSERT(2 == mX.numEvents());
             ASSERT(1 == mX.numSocketEvents(socket[0]));
             ASSERT(1 == mX.numSocketEvents(socket[1]));
             ASSERT(1 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(0 == mX.isRegistered(socket[1],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(0 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
             ASSERT(1 == mX.isRegistered(socket[1],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
             ASSERT(1 == mX.deregisterSocket(socket[1]));
             ASSERT(1 == mX.numEvents());
             ASSERT(1 == mX.numSocketEvents(socket[0]));
             ASSERT(0 == mX.numSocketEvents(socket[1]));
             ASSERT(1 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(0 == mX.isRegistered(socket[1],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(0 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
             ASSERT(0 == mX.isRegistered(socket[1],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
             mX.deregisterAll();
             ASSERT(0 == mX.numEvents());
             ASSERT(0 == mX.numSocketEvents(socket[0]));
             ASSERT(0 == mX.numSocketEvents(socket[1]));
             ASSERT(0 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(0 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_READ));
+                                        btlso::EventType::e_READ));
             ASSERT(0 == mX.isRegistered(socket[0],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
             ASSERT(0 == mX.isRegistered(socket[1],
-                                        btlso::EventType::BTESO_WRITE));
+                                        btlso::EventType::e_WRITE));
         }
       } break;
 
@@ -394,23 +394,23 @@ int main(int argc, char *argv[]) {
         btlso::SocketHandle::Handle socket[2];
 
         int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                             socket, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                             socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
         bdlf::Function<void (*)()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
-                                           btlso::EventType::BTESO_READ,
+                                           btlso::EventType::e_READ,
                                            deregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[0],
-                                           btlso::EventType::BTESO_WRITE,
+                                           btlso::EventType::e_WRITE,
                                            deregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[1],
-                                           btlso::EventType::BTESO_READ,
+                                           btlso::EventType::e_READ,
                                            deregisterCallback));
         ASSERT(0 == mX.registerSocketEvent(socket[1],
-                                           btlso::EventType::BTESO_WRITE,
+                                           btlso::EventType::e_WRITE,
                                            deregisterCallback));
 
         char wBuffer[NUM_BYTES];
@@ -993,7 +993,7 @@ int main(int argc, char *argv[]) {
                 deadline.addNanoseconds(i % 1000);
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(deadline,
-                    bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                    bteso_Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval now = bdlt::CurrentTime::now();
                 LOOP_ASSERT(i, deadline <= now);
@@ -1013,7 +1013,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < NUM_ATTEMPTS; i += 11) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
-                                       btlso::EventType::BTESO_READ,
+                                       btlso::EventType::e_READ,
                                        nullFunctor);
 
                 bsls::TimeInterval start    = bdlt::CurrentTime::now();
@@ -1021,7 +1021,7 @@ int main(int argc, char *argv[]) {
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
                                            deadline,
-                                           bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                                           bteso_Flag::k_ASYNC_INTERRUPT));
 
                 bsls::TimeInterval finish = bdlt::CurrentTime::now();
                 LOOP2_ASSERT(i, (finish - start).totalSecondsAsDouble(),
@@ -1105,12 +1105,12 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < NUM_DEREGISTERS; ++i) {
                 int fd = socket(PF_INET, SOCK_STREAM, 0);
                 BSLS_ASSERT(fd != -1);
-                mX.registerSocketEvent(fd, btlso::EventType::BTESO_READ, cb);
+                mX.registerSocketEvent(fd, btlso::EventType::e_READ, cb);
                 mX.deregisterSocket(fd);
                 close(fd);
             }
             int fd = socket(PF_INET, SOCK_STREAM, 0);
-            mX.registerSocketEvent(fd, btlso::EventType::BTESO_READ, cb);
+            mX.registerSocketEvent(fd, btlso::EventType::e_READ, cb);
             bsls::TimeInterval timeout = bdlt::CurrentTime::now();
             timeout.addMilliseconds(200);
             ASSERT(0 == mX.dispatch(timeout, 0));
@@ -1200,12 +1200,12 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < NUM_DEREGISTERS; ++i) {
                 int fd = socket(PF_INET, SOCK_STREAM, 0);
                 BSLS_ASSERT(fd != -1);
-                mX.registerSocketEvent(fd, btlso::EventType::BTESO_READ, cb);
-                mX.deregisterSocketEvent(fd, btlso::EventType::BTESO_READ);
+                mX.registerSocketEvent(fd, btlso::EventType::e_READ, cb);
+                mX.deregisterSocketEvent(fd, btlso::EventType::e_READ);
                 close(fd);
             }
             int fd = socket(PF_INET, SOCK_STREAM, 0);
-            mX.registerSocketEvent(fd, btlso::EventType::BTESO_READ, cb);
+            mX.registerSocketEvent(fd, btlso::EventType::e_READ, cb);
             bsls::TimeInterval timeout = bdlt::CurrentTime::now();
             timeout.addMilliseconds(200);
             ASSERT(0 == mX.dispatch(timeout, 0));
@@ -1244,10 +1244,10 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == fails);
 
             if (verbose) {
-                P(timeMetric.percentage(btlso::TimeMetrics::BTESO_CPU_BOUND));
+                P(timeMetric.percentage(btlso::TimeMetrics::e_CPU_BOUND));
             }
             ASSERT(100 == timeMetric.percentage(
-                                          btlso::TimeMetrics::BTESO_CPU_BOUND));
+                                          btlso::TimeMetrics::e_CPU_BOUND));
         }
 
         if (verbose)
@@ -1295,10 +1295,10 @@ int main(int argc, char *argv[]) {
                 }
             }
             if (verbose) {
-                P(timeMetric.percentage(btlso::TimeMetrics::BTESO_CPU_BOUND));
+                P(timeMetric.percentage(btlso::TimeMetrics::e_CPU_BOUND));
             }
             ASSERT(100 == timeMetric.percentage(
-                                          btlso::TimeMetrics::BTESO_CPU_BOUND));
+                                          btlso::TimeMetrics::e_CPU_BOUND));
         }
 
       } break;
@@ -1343,10 +1343,10 @@ int main(int argc, char *argv[]) {
                                                                 controlFlag);
             ASSERT(0 == fails);
             if (verbose) {
-                P(timeMetric.percentage(btlso::TimeMetrics::BTESO_CPU_BOUND));
+                P(timeMetric.percentage(btlso::TimeMetrics::e_CPU_BOUND));
             }
             ASSERT(100 == timeMetric.percentage(
-                                          btlso::TimeMetrics::BTESO_CPU_BOUND));
+                                          btlso::TimeMetrics::e_CPU_BOUND));
         }
       } break;
       case 2: {

@@ -169,11 +169,11 @@ BSLS_IDENT("$Id: $")
 //         Register a socket event,
 //                <FD> : an index into the array 'fds' of socket pairs
 //         <RW_EVENT> : ( r | w )
-//                       'r' => btlso::EventType::BTESO_READ
-//                       'w' => btlso::EventType::BTESO_WRITE
+//                       'r' => btlso::EventType::e_READ
+//                       'w' => btlso::EventType::e_WRITE
 //         <AC_EVENT> : ( a | c )
-//                       'a' => btlso::EventType::BTESO_ACCEPT
-//                       'c' => btlso::EventType::BTESO_CONNECT
+//                       'a' => btlso::EventType::e_ACCEPT
+//                       'c' => btlso::EventType::e_CONNECT
 //                 <N> : the optional number of bytes for 'r'ead or 'w'rite
 //                       operation on the observed socket ('fds[fd]').
 //            <SCRIPT> : the optional test script to be executed by the
@@ -185,10 +185,10 @@ BSLS_IDENT("$Id: $")
 //     socket pair fds[<FD>],
 //               <FD>:  the index into the array 'fds' of socket pairs
 //           <EVENT> := 'a'|'c'|'r'|'w' :
-//                      'a' => btlso::EventType::BTESO_ACCEPT
-//                      'c' => btlso::EventType::BTESO_CONNECT
-//                      'r' => btlso::EventType::BTESO_READ
-//                      'w' => btlso::EventType::BTESO_WRITE
+//                      'a' => btlso::EventType::e_ACCEPT
+//                      'c' => btlso::EventType::e_CONNECT
+//                      'r' => btlso::EventType::e_READ
+//                      'w' => btlso::EventType::e_WRITE
 //
 //  4. '-'<FD>
 //     Deregister all events associated with the observed socket in the
@@ -201,14 +201,14 @@ BSLS_IDENT("$Id: $")
 //  6. 'D'<I>,<RC>
 //     Dispatch events without specifying a timeout value,
 //           <I> = 'n' | 'i' : 'n' => flags = 0
-//                             'i' => flags = bteso_Flag::BTESO_ASYNC_INTERRUPT
+//                             'i' => flags = bteso_Flag::k_ASYNC_INTERRUPT
 //           <RC> : the expected return value from the 'dispatch' method.
 //
 //  7. 'D'<I><MILLISECOND>,<RC>
 //     Dispatch events with the specified 'millisecond' timeout value,
 //     where <I> = 'n' | 'i' :
 //                             'n' => flags = 0
-//                             'i' => flags = bteso_Flag::BTESO_ASYNC_INTERRUPT
+//                             'i' => flags = bteso_Flag::k_ASYNC_INTERRUPT
 //           <MILLISECOND>   : a relative timeout in milliseconds
 //                             (negative and zero values are also allowed)
 //           <RC>            : the expected return value of the dispatch
@@ -219,10 +219,10 @@ BSLS_IDENT("$Id: $")
 //           <FD>    :  the index into the array 'fds' of socket pairs
 //
 //           <EVENT> := 'a'|'c'|'r'|'w'|'rw'|'wr' :
-//                'a' => btlso::EventType::BTESO_ACCEPT
-//                'c' => btlso::EventType::BTESO_CONNECT
-//                'r' => btlso::EventType::BTESO_READ
-//                'w' => btlso::EventType::BTESO_WRITE
+//                'a' => btlso::EventType::e_ACCEPT
+//                'c' => btlso::EventType::e_CONNECT
+//                'r' => btlso::EventType::e_READ
+//                'w' => btlso::EventType::e_WRITE
 //                'rw' = 'r' and 'w'
 //                'wr' = 'r' and 'w'
 //  9. 'R'<FD>,<N>
@@ -273,7 +273,7 @@ BSLS_IDENT("$Id: $")
 //       there should be 1 event to be dispatched.
 // "Di100,2"
 //    -- Call dispatch on the event manager under test with flags set to
-//       bteso_Flag::BTESO_ASYNC_INTERRUPT, the timeout value for the dispatch
+//       bteso_Flag::k_ASYNC_INTERRUPT, the timeout value for the dispatch
 //       is 100 milliseconds, there are 2 events to be dispatched.
 // "E1a"
 //    -- Verify that an "ACCEPT" event has been registered for the observed
@@ -355,11 +355,11 @@ BSLS_IDENT("$Id: $")
 //..
 //      Enumerator
 //      ----------
-//      BTESO_VERBOSE
-//      BTESO_VERY_VERBOSE
-//      BTESO_VERY_VERY_VERBOSE
-//      BTESO_ABORT
-//      BTESO_DRY_RUN
+//      k_VERBOSE
+//      k_VERY_VERBOSE
+//      k_VERY_VERY_VERBOSE
+//      k_ABORT
+//      k_DRY_RUN
 //..
 // The three 'BTESOVERBOSE' flags indicate increasing amounts of diagnostic
 // printout during the test method operation.  The 'ABORT' flag indicates that
@@ -385,8 +385,8 @@ BSLS_IDENT("$Id: $")
 // appropriate utility function to perform the test:
 //..
 //  int ctrlFlag = 0;
-//  ctrlFlag |= btlso::EventManagerTester::BTESO_VERY_VERBOSE;
-//  ctrlFlag |= btlso::EventManagerTester::BTESO_ABORT;
+//  ctrlFlag |= btlso::EventManagerTester::k_VERY_VERBOSE;
+//  ctrlFlag |= btlso::EventManagerTester::k_ABORT;
 //  btlso::EventManagerTester::testRegisterSocketEvent(&mX, ctrlFlag);
 //..
 ///USAGE 2
@@ -415,8 +415,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  my_FastEventManager mX1;
 //  int ctrlFlag = 0;
-//  ctrlFlag |= btlso::EventManagerTester::BTESO_VERBOSE;
-//  ctrlFlag |= btlso::EventManagerTester::BTESO_ABORT;    // abort on failure
+//  ctrlFlag |= btlso::EventManagerTester::k_VERBOSE;
+//  ctrlFlag |= btlso::EventManagerTester::k_ABORT;    // abort on failure
 //  int failures = btlso::EventManagerTester::gg(&mX1, socketPairs,
 //                                              LINE, script, ctrlFlag);
 //  assert(0 == failures);
@@ -539,32 +539,35 @@ struct EventManagerTester {
     // interpreting function, gg(), every function in an event manager can be
     // tested.
 
-    enum { BTESO_VERBOSE           = 1, // If this flag is on, print the name
-                                        // of functions under test.
+    enum {
+        k_VERBOSE           = 1  // If this flag is on, print the name of
+                                 // functions under test.
 
-           BTESO_VERY_VERBOSE      = 2, // If this flag is on, print the test
-                                        // script to be executed and execution
-                                        // results after executing each command
-                                        // of the test script.
+      , k_VERY_VERBOSE      = 2  // If this flag is on, print the test script
+                                 // to be executed and execution results after
+                                 // executing each command of the test script.
 
-           BTESO_VERY_VERY_VERBOSE = 4, // If this flag is on, print all values
-                                        // after executing each command of a
-                                        // test script.
+      , k_VERY_VERY_VERBOSE = 4  // If this flag is on, print all values after
+                                 // executing each command of a test script.
 
-           BTESO_ABORT             = 8, // If this flag is on, the test will be
-                                        // aborted upon an error.
+      , k_ABORT             = 8  // If this flag is on, the test will be
+                                 // aborted upon an error.
 
-           BTESO_DRY_RUN           = 16 // If this flag is on, the test will
-                                        // not execute the test script, but
-                                        // only parse the test script to the
-                                        // standard output.
+      , k_DRY_RUN           = 16 // If this flag is on, the test will not
+                                 // execute the test script, but only parse the
+                                 // test script to the standard output.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , VERBOSE           = BTESO_VERBOSE
-      , VERY_VERBOSE      = BTESO_VERY_VERBOSE
-      , VERY_VERY_VERBOSE = BTESO_VERY_VERY_VERBOSE
-      , ABORT             = BTESO_ABORT
-      , DRY_RUN           = BTESO_DRY_RUN
+      , BTESO_VERBOSE           = k_VERBOSE
+      , BTESO_VERY_VERBOSE      = k_VERY_VERBOSE
+      , BTESO_VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
+      , BTESO_ABORT             = k_ABORT
+      , BTESO_DRY_RUN           = k_DRY_RUN
+      , VERBOSE           = k_VERBOSE
+      , VERY_VERBOSE      = k_VERY_VERBOSE
+      , VERY_VERY_VERBOSE = k_VERY_VERY_VERBOSE
+      , ABORT             = k_ABORT
+      , DRY_RUN           = k_DRY_RUN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

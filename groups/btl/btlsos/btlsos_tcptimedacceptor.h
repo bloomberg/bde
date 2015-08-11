@@ -263,9 +263,49 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
     // MANIPULATORS
     btlsc::Channel *allocate(int *status, int flags = 0);
         // Allocate a stream-based channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
-        // "asynchronous events" are permitted to interrupt this operation; by
-        // default, such events are ignored.  Return the address of a channel
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // events" are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return the address of a channel on success, and
+        // 0 otherwise.  On an unsuccessful allocation, load the specified
+        // 'status' with a positive value if an asynchronous event interrupted
+        // the allocation, and a negative value (indicating an error)
+        // otherwise; 'status' is not modified on success.  A channel address
+        // will remain valid until deallocated explicitly (see 'deallocate').
+        // An allocation that fails with a positive status is likely to succeed
+        // if retried.  An allocation error does not *necessarily* invalidate
+        // this allocator, and so subsequent allocations *may* succeed.  Use
+        // the 'isInvalid' method for more information on the state of this
+        // allocator.  Note that -2 is loaded into 'status' if a listening
+        // socket is not established (see 'open').
+
+    btlsc::Channel *timedAllocate(int                     *status,
+                                 const bsls::TimeInterval& timeout,
+                                 int                      flags = 0);
+        // Allocate a stream-based channel or interrupt after the specified
+        // absolute 'timeout' time is reached.  If the optionally specified
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // events" are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return the address of a callback channel on
+        // success, and 0 otherwise.  On an unsuccessful allocation, load the
+        // specified 'status' with 0 if 'timeout' interrupted this operation, a
+        // positive value if the interruption is due to an asynchronous event,
+        // and a negative value (indicating an error) otherwise; 'status' is
+        // not modified on success.  A channel address will remain valid until
+        // deallocated explicitly (see 'deallocate').  An allocation that fails
+        // with a non-negative status is likely to succeed if retried.  An
+        // allocation error does not *necessarily* invalidate this allocator,
+        // and so subsequent allocations *may* succeed.  Use the 'isInvalid'
+        // method for more information on the state of this allocator.  Note
+        // that if the specified 'timeout' value has already passed, the
+        // allocation will still be attempted, but the attempt will not block.
+        // Also note that -2 is loaded into 'status' if a listening socket is
+        // not established (see 'open').
+
+    btlsc::TimedChannel *allocateTimed(int *status, int flags = 0);
+        // Allocate a stream-based timed channel.  If the optionally specified
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // events" are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return the address of a timed callback channel
         // on success, and 0 otherwise.  On an unsuccessful allocation, load
         // the specified 'status' with a positive value if an asynchronous
         // event interrupted the allocation, and a negative value (indicating
@@ -278,53 +318,12 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // information on the state of this allocator.  Note that -2 is loaded
         // into 'status' if a listening socket is not established (see 'open').
 
-    btlsc::Channel *timedAllocate(int                     *status,
-                                 const bsls::TimeInterval& timeout,
-                                 int                      flags = 0);
-        // Allocate a stream-based channel or interrupt after the specified
-        // absolute 'timeout' time is reached.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
-        // "asynchronous events" are permitted to interrupt this operation; by
-        // default, such events are ignored.  Return the address of a callback
-        // channel on success, and 0 otherwise.  On an unsuccessful allocation,
-        // load the specified 'status' with 0 if 'timeout' interrupted this
-        // operation, a positive value if the interruption is due to an
-        // asynchronous event, and a negative value (indicating an error)
-        // otherwise; 'status' is not modified on success.  A channel address
-        // will remain valid until deallocated explicitly (see 'deallocate').
-        // An allocation that fails with a non-negative status is likely to
-        // succeed if retried.  An allocation error does not *necessarily*
-        // invalidate this allocator, and so subsequent allocations *may*
-        // succeed.  Use the 'isInvalid' method for more information on the
-        // state of this allocator.  Note that if the specified 'timeout' value
-        // has already passed, the allocation will still be attempted, but the
-        // attempt will not block.  Also note that -2 is loaded into 'status'
-        // if a listening socket is not established (see 'open').
-
-    btlsc::TimedChannel *allocateTimed(int *status, int flags = 0);
-        // Allocate a stream-based timed channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
-        // "asynchronous events" are permitted to interrupt this operation; by
-        // default, such events are ignored.  Return the address of a timed
-        // callback channel on success, and 0 otherwise.  On an unsuccessful
-        // allocation, load the specified 'status' with a positive value if an
-        // asynchronous event interrupted the allocation, and a negative value
-        // (indicating an error) otherwise; 'status' is not modified on
-        // success.  A channel address will remain valid until deallocated
-        // explicitly (see 'deallocate').  An allocation that fails with a
-        // positive status is likely to succeed if retried.  An allocation
-        // error does not *necessarily* invalidate this allocator, and so
-        // subsequent allocations *may* succeed.  Use the 'isInvalid' method
-        // for more information on the state of this allocator.  Note that -2
-        // is loaded into 'status' if a listening socket is not established
-        // (see 'open').
-
     btlsc::TimedChannel *timedAllocateTimed(int                     *status,
                                            const bsls::TimeInterval& timeout,
                                            int                      flags = 0);
         // Allocate a stream-based timed channel or interrupt after the
         // specified absolute 'timeout' time is reached.  If the optionally
-        // specified 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a timed
         // callback channel on success, and 0 otherwise.  On an unsuccessful

@@ -16,13 +16,13 @@ bsl::ostream& balber::operator<<(bsl::ostream&               stream,
                          BerConstants::TagClass tagClass)
 {
     switch (tagClass) {
-      case BerConstants::BDEM_UNIVERSAL:
+      case BerConstants::e_UNIVERSAL:
           return stream << "UNIVERSAL";
-      case BerConstants::BDEM_APPLICATION:
+      case BerConstants::e_APPLICATION:
           return stream << "APPLICATION";
-      case BerConstants::BDEM_CONTEXT_SPECIFIC:
+      case BerConstants::e_CONTEXT_SPECIFIC:
           return stream << "CONTEXT_SPECIFIC";
-      case BerConstants::BDEM_PRIVATE:
+      case BerConstants::e_PRIVATE:
           return stream << "PRIVATE";
     }
 
@@ -35,9 +35,9 @@ bsl::ostream& balber::operator<<(bsl::ostream&              stream,
                          BerConstants::TagType tagType)
 {
     switch (tagType) {
-      case BerConstants::BDEM_PRIMITIVE:
+      case BerConstants::e_BDEM_PRIMITIVE:
           return stream << "PRIMITIVE";
-      case BerConstants::BDEM_CONSTRUCTED:
+      case BerConstants::e_BDEM_CONSTRUCTED:
           return stream << "CONSTRUCTED";
     }
 

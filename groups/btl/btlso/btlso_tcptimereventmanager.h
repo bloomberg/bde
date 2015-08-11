@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      btlso::SocketHandle::Handle handles[2];
 //      ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>
-//                        (handles, btlso::SocketImpUtil::BTESO_SOCKET_STREAM));
+//                        (handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
 //
 //      d_client = handles[0];
 //      d_server = handles[1];
@@ -197,14 +197,14 @@ BSLS_IDENT("$Id: $")
 //      bdlf::Function<void (*)()> functor(
 //              bdlf::MemFnUtil::memFn(&my_CommandMediator::readCb, this),
 //              basicAllocator);
-//      d_manager_p->registerSocketEvent(d_server, btlso::EventType::BTESO_READ,
+//      d_manager_p->registerSocketEvent(d_server, btlso::EventType::e_READ,
 //                                       functor);
 //  }
 //
 //  inline
 //  my_CommandMediator::~my_CommandMediator() {
 //      d_manager_p->deregisterSocketEvent(d_server,
-//                                         btlso::EventType::BTESO_READ);
+//                                         btlso::EventType::e_READ);
 //      ASSERT(0 == d_manager_p->numSocketEvents(d_server));
 //      btlso::SocketImpUtil::close(d_client);
 //      btlso::SocketImpUtil::close(d_server);
@@ -277,13 +277,13 @@ class TcpTimerEventManager : public TimerEventManager
 
   public:
     enum Hint {
-        BTESO_NO_HINT,                 // the registrations may be frequent
-
-        BTESO_INFREQUENT_REGISTRATION  // the (de)registrations will be
-                                       // infrequent
+        e_NO_HINT                  // the registrations may be frequent
+      , e_INFREQUENT_REGISTRATION  // the (de)registrations will be infrequent
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , NO_HINT                 = BTESO_NO_HINT
-      , INFREQUENT_REGISTRATION = BTESO_INFREQUENT_REGISTRATION
+      , BTESO_NO_HINT                 = e_NO_HINT
+      , BTESO_INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
+      , NO_HINT                 = e_NO_HINT
+      , INFREQUENT_REGISTRATION = e_INFREQUENT_REGISTRATION
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -305,7 +305,7 @@ class TcpTimerEventManager : public TimerEventManager
     // CREATORS
     TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
         // Create an event manager with timer support optimized for frequent
-        // registrations ('BTESO_NO_HINT').  Optionally specify a
+        // registrations ('e_NO_HINT').  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
@@ -338,18 +338,18 @@ class TcpTimerEventManager : public TimerEventManager
         // this timer event manager.  If no event is pending, wait until either
         // (1) at least one event occurs (in which case the corresponding
         // callback(s) is invoked), (2) a timer expires or (3) provided that
-        // the specified 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT',
+        // the specified 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT',
         // an underlying system call is interrupted by a signal.  If no socket
         // and no timer is registered with this event manager, this call will
         // return (with 0) immediately.  Return the number of dispatched
         // callbacks on success, and a negative value otherwise; -1 is reserved
         // to indicate that an underlying system call was interrupted.  When
         // such an interruption occurs this method will return -1 if 'flags'
-        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT' and otherwise will
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise will
         // automatically restart (i.e., reissue the identical system call).
         // Note that the order of invocation, relative to the order of
         // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.
         // Calling this method from a callback invoked through this method will
         // result in undefined behavior.
 

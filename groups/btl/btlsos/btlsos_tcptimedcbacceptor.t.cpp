@@ -1012,8 +1012,8 @@ int main(int argc, char *argv[])
 
             const int portNumber = argc > 2 ? atoi(argv[2]) : k_DEFAULT_PORT;
 
-            btlso::IPv4Address address(btlso::IPv4Address::BTESO_ANY_ADDRESS,
-                                      portNumber);
+            btlso::IPv4Address address(btlso::IPv4Address::k_ANY_ADDRESS,
+                                       portNumber);
             btlso::TcpTimerEventManager sem;           // concrete manager
             btlso::InetStreamSocketFactory<btlso::IPv4Address> sf;
                                                       // concrete factory
@@ -1028,7 +1028,7 @@ int main(int argc, char *argv[])
             my_TickReporter reporter(bsl::cout, &acceptor, &sem);
 
             while (0 != sem.numEvents()) {
-                sem.dispatch(bteso_Flag::BTESO_ASYNC_INTERRUPT);
+                sem.dispatch(bteso_Flag::k_ASYNC_INTERRUPT);
             }
         }
       } break;
@@ -1057,10 +1057,10 @@ int main(int argc, char *argv[])
                     factory(&testAllocator);
 
                 btlso::TcpTimerEventManager::Hint hint
-                     = btlso::TcpTimerEventManager::BTESO_NO_HINT;
+                     = btlso::TcpTimerEventManager::e_NO_HINT;
                 if (atoi(argv[2])) {
                     hint =
-                    btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
+                    btlso::TcpTimerEventManager::e_INFREQUENT_REGISTRATION;
                 }
                 btlso::TcpTimerEventManager   manager(hint, &testAllocator);
                 my_EchoServer echoServer(&factory, &manager, &testAllocator);

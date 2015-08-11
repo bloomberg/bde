@@ -9,7 +9,7 @@ BSLS_IDENT_RCSID(bdlf_bind_cpp,"$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

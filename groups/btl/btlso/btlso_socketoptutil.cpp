@@ -26,8 +26,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 {
     if (!options.debugFlag().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_DEBUGINFO,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_DEBUGINFO,
                                  (int) options.debugFlag().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -36,8 +36,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.allowBroadcasting().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_BROADCAST,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_BROADCAST,
                                  (int) options.allowBroadcasting().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -46,8 +46,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.reuseAddress().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_REUSEADDRESS,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_REUSEADDRESS,
                                  (int) options.reuseAddress().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -56,8 +56,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.keepAlive().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_KEEPALIVE,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_KEEPALIVE,
                                  (int) options.keepAlive().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -66,8 +66,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.bypassNormalRouting().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_DONTROUTE,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_DONTROUTE,
                                  (int) options.bypassNormalRouting().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -83,8 +83,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
         lingerData.l_linger = lingerOptions.timeout();
 
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_LINGER,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_LINGER,
                                  lingerData);
         if (rc) {
             return rc;                                                // RETURN
@@ -94,8 +94,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
     if (!options.leaveOutOfBandDataInline().isNull()) {
         const int rc = setOption(
                               handle,
-                              SocketOptUtil::BTESO_SOCKETLEVEL,
-                              SocketOptUtil::BTESO_OOBINLINE,
+                              SocketOptUtil::k_SOCKETLEVEL,
+                              SocketOptUtil::k_OOBINLINE,
                              (int) options.leaveOutOfBandDataInline().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -104,8 +104,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.sendBufferSize().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_SENDBUFFER,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_SENDBUFFER,
                                  options.sendBufferSize().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -114,8 +114,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.receiveBufferSize().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_RECEIVEBUFFER,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_RECEIVEBUFFER,
                                  options.receiveBufferSize().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -124,8 +124,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.minimumSendBufferSize().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_SENDLOWATER,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_SENDLOWATER,
                                  options.minimumSendBufferSize().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -134,8 +134,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.minimumReceiveBufferSize().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_RECEIVELOWATER,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_RECEIVELOWATER,
                                  options.minimumReceiveBufferSize().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -144,8 +144,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.sendTimeout().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_SENDTIMEOUT,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_SENDTIMEOUT,
                                  options.sendTimeout().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -154,8 +154,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.receiveTimeout().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_SOCKETLEVEL,
-                                 SocketOptUtil::BTESO_RECEIVETIMEOUT,
+                                 SocketOptUtil::k_SOCKETLEVEL,
+                                 SocketOptUtil::k_RECEIVETIMEOUT,
                                  options.receiveTimeout().value());
         if (rc) {
             return rc;                                                // RETURN
@@ -164,8 +164,8 @@ int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
 
     if (!options.tcpNoDelay().isNull()) {
         const int rc = setOption(handle,
-                                 SocketOptUtil::BTESO_TCPLEVEL,
-                                 SocketOptUtil::BTESO_TCPNODELAY,
+                                 SocketOptUtil::k_TCPLEVEL,
+                                 SocketOptUtil::k_TCPNODELAY,
                                  (int) options.tcpNoDelay().value());
         if (rc) {
             return rc;                                                // RETURN

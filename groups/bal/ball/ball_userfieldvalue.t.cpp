@@ -225,12 +225,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator("breathing", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
-
-        const Type::Enum        TYPEA = Type::e_INT64;
-        const int64_t           VALUEA  = 5;
-
-        const Type::Enum        TYPEB = Type::e_STRING;
-        const bsl::string       VALUEB("foo");
+        const Type::Enum        TYPEA = Type::e_STRING;
+        const bsl::string       VALUEA("foo");
 
         const bdlt::DatetimeTz  DATE(bdlt::Datetime(1999,1,1), 0);
 
@@ -239,13 +235,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
                              "\t\t{ w:0             }" << endl;
 
-        Obj mW(VALUEA);  const Obj& W = mW;
+        Obj mW;  const Obj& W = mW;
 
         if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(TYPEA   == W.type());
-        ASSERT(VALUEA  == W.theInt64());
+        ASSERT(Type::e_VOID   == W.type());
 
         if (veryVerbose) cout <<
                           "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -263,9 +258,7 @@ int main(int argc, char *argv[])
                                 "\ta. Check the initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(TYPEA   == X.type());
-        ASSERT(VALUEA  == X.theInt64());
-
+        ASSERT(Type::e_VOID   == W.type());
 
         if (veryVerbose) cout <<
                      "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -278,13 +271,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
                              "\t\t{ w:0 x:A         }" << endl;
 
-        mX.setValue(VALUEB);
+        mX.setValue(VALUEA);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(TYPEB  == X.type());
-        ASSERT(VALUEB == X.theString());
+        ASSERT(TYPEA  == X.type());
+        ASSERT(VALUEA == X.theString());
 
         if (veryVerbose) cout <<
                      "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -297,14 +290,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 4. Create an object 'y' and set to 'A'."
                              "\t\t{ w:0 x:A y:A     }" << endl;
 
-        Obj mY(VALUEA);  const Obj& Y = mY;
-        mY.setValue(VALUEB);
+        Obj mY;  const Obj& Y = mY;
+        mY.setValue(VALUEA);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ P(Y) }
 
-        ASSERT(TYPEB  == Y.type());
-        ASSERT(VALUEB == Y.theString());
+        ASSERT(TYPEA  == Y.type());
+        ASSERT(VALUEA == Y.theString());
 
         if (veryVerbose) cout <<
                 "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'." << endl;
@@ -323,8 +316,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
-        ASSERT(TYPEB  == Z.type());
-        ASSERT(VALUEB == Z.theString());
+        ASSERT(TYPEA  == Z.type());
+        ASSERT(VALUEA == Z.theString());
 
 
         if (veryVerbose) cout <<
@@ -340,14 +333,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 6. Set 'z' to 0 (the default value)."
                              "\t\t\t{ w:0 x:A y:A z:0 }" << endl;
 
-        mZ.setValue(VALUEA);
+        mZ.reset();
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
-        ASSERT(TYPEA  == Z.type());
-        ASSERT(VALUEA == Z.theInt64());
-
+        ASSERT(Type::e_VOID   == Z.type());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -367,8 +358,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(TYPEB  == W.type());
-        ASSERT(VALUEB == W.theString());
+        ASSERT(TYPEA  == W.type());
+        ASSERT(VALUEA == W.theString());
 
 
         if (veryVerbose) cout <<
@@ -389,9 +380,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(TYPEA  == Z.type());
-        ASSERT(VALUEA == Z.theInt64());
-
+        ASSERT(Type::e_VOID   == Z.type());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -411,8 +400,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(TYPEB  == X.type());
-        ASSERT(VALUEB == X.theString());
+        ASSERT(TYPEA  == X.type());
+        ASSERT(VALUEA == X.theString());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

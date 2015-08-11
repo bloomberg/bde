@@ -67,13 +67,13 @@ void JournalHeader::init(int headerSize,
 {
     BSLS_ASSERT(d_persistent_p);
 
-    d_persistent_p->d_magic               = BAECS_JOURNAL_MAGIC_NUMBER;
-    d_persistent_p->d_version             = BAECS_JOURNAL_VERSION_CURRENT;
+    d_persistent_p->d_magic               = k_JOURNAL_MAGIC_NUMBER;
+    d_persistent_p->d_version             = k_JOURNAL_VERSION_CURRENT;
     d_persistent_p->d_headerSize          = headerSize;
     d_persistent_p->d_blockSize           = param.blockSize();
     d_persistent_p->d_freeBlockThreshold  = param.freeBlockThreshold();
     d_persistent_p->d_blocksPerPage       = bsl::min(param.blocksPerPage(),
-            (int)JournalPageHeader::BAECS_MAX_BLOCKS_PER_PAGE);
+            (int)JournalPageHeader::k_MAX_BLOCKS_PER_PAGE);
     d_persistent_p->d_pagesPerSet         = param.pagesPerSet();
     d_persistent_p->d_pageHeaderSize      = pageHeaderSize;
     d_persistent_p->d_pageDataSize        = pageDataSize;
@@ -82,7 +82,7 @@ void JournalHeader::init(int headerSize,
     d_persistent_p->d_userDataSize        = userDataSize;
     d_activeStateIndex    = 0;
 
-    for (int wi=0; wi < OnDisk::BAECS_NUM_STATES; wi++) {
+    for (int wi=0; wi < OnDisk::k_NUM_STATES; wi++) {
         HeaderState *state = &d_persistent_p->d_state[wi];
         state->d_committedTransactionId.setValue(wi);
         state->d_numPages = 0;
@@ -114,7 +114,7 @@ void JournalHeader::commitCurrentTransaction()
 int JournalHeader::recoverTransaction(bool offset)
 {
     BSLS_ASSERT(d_persistent_p);
-    bsls::Types::Int64 tid[OnDisk::BAECS_NUM_STATES];
+    bsls::Types::Int64 tid[OnDisk::k_NUM_STATES];
 
     if (d_persistent_p->d_state[0].d_committedTransactionId.getValue(tid+0)) {
         return 1;
@@ -208,13 +208,13 @@ bsl::ostream& JournalHeader::print(bsl::ostream& stream) const
 unsigned JournalHeaderPageList::addPage(unsigned page)
 {
     unsigned last = d_last;
-    if (d_last == BAECS_INVALID_PAGE) {
-        BSLS_ASSERT(d_firstPage == BAECS_INVALID_PAGE);
+    if (d_last == k_INVALID_PAGE) {
+        BSLS_ASSERT(d_firstPage == k_INVALID_PAGE);
         BSLS_ASSERT(d_numElements == 0);
         d_firstPage = page;
         d_last  = page;
     } else {
-        BSLS_ASSERT(d_firstPage != BAECS_INVALID_PAGE);
+        BSLS_ASSERT(d_firstPage != k_INVALID_PAGE);
         BSLS_ASSERT(d_numElements > 0);
         if (d_numElements == 1) {
             BSLS_ASSERT(d_firstPage == d_last);

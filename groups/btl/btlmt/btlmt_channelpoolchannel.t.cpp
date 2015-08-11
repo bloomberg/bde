@@ -358,7 +358,7 @@ void DataReader::blobBasedReadCb(int         state,
                << " with state: " << state << MTENDL;
     }
 
-    if (btlmt::AsyncChannel::BTEMT_SUCCESS != state) {
+    if (btlmt::AsyncChannel::e_SUCCESS != state) {
         return;                                                       // RETURN
     }
 
@@ -488,7 +488,7 @@ void my_Server::channelStateCb(int   channelId,
     ChannelMap::iterator iter = d_channelMap.find(channelId);
 
     switch (state) {
-      case btlmt::ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case btlmt::ChannelPool::e_CHANNEL_DOWN: {
         if (iter == d_channelMap.end()) {
             if (veryVerbose) {
                 MTCOUT << "Channel Id: " << channelId
@@ -498,14 +498,14 @@ void my_Server::channelStateCb(int   channelId,
         }
       } break;
 
-      case btlmt::ChannelPool::BTEMT_CHANNEL_UP: {
+      case btlmt::ChannelPool::e_CHANNEL_UP: {
         if (iter != d_channelMap.end()) {
             if (veryVerbose) {
                 MTCOUT << "Channel Id: " << channelId
                        << " already exists" << MTENDL;
             }
             d_channelPool_p->shutdown(channelId,
-                                      btlmt::ChannelPool::BTEMT_IMMEDIATE);
+                                      btlmt::ChannelPool::e_IMMEDIATE);
             return;                                                   // RETURN
         }
 

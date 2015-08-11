@@ -671,11 +671,11 @@ int TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
                                             sizeof(char),
                                             &errorNumber);
 
-            if (rc < 0 && btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != rc) {
+            if (rc < 0 && btlso::SocketHandle::e_ERROR_INTERRUPTED != rc) {
                 --d_numPendingRequests;
                 return rc;                                            // RETURN
             }
-        } while (btlso::SocketHandle::BTESO_ERROR_INTERRUPTED == rc);
+        } while (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc);
         if (rc >= 0) {
             return rc;
         }
@@ -712,7 +712,7 @@ int TcpTimerEventManager_ControlChannel::open()
 #else
     int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      fds,
-                                     btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                     btlso::SocketImpUtil::k_SOCKET_STREAM);
 
 #endif
 
@@ -727,11 +727,11 @@ int TcpTimerEventManager_ControlChannel::open()
     }
 
     btlso::IoUtil::setBlockingMode(fds[1],
-                                  btlso::IoUtil::BTESO_NONBLOCKING,
+                                  btlso::IoUtil::e_NONBLOCKING,
                                   0);
     btlso::SocketOptUtil::setOption(fds[0],
-                                   btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                   btlso::SocketOptUtil::BTESO_TCPNODELAY,
+                                   btlso::SocketOptUtil::k_TCPLEVEL,
+                                   btlso::SocketOptUtil::k_TCPNODELAY,
                                    1);
 
     d_fds[0] = static_cast<int>(fds[0]);
@@ -922,7 +922,7 @@ void TcpTimerEventManager::controlCb()
 void TcpTimerEventManager::dispatchThreadEntryPoint()
 {
     if (d_collectMetrics) {
-        d_metrics.switchTo(btlso::TimeMetrics::BTESO_CPU_BOUND);
+        d_metrics.switchTo(btlso::TimeMetrics::e_CPU_BOUND);
     }
 
     bsl::vector<bdlf::Function<void (*)()> > *requestsPtr
@@ -1013,7 +1013,7 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
         {
             if (d_terminateThread.loadRelaxed()) {  // it is volatile
                 if (d_collectMetrics) {
-                    d_metrics.switchTo(btlso::TimeMetrics::BTESO_IO_BOUND);
+                    d_metrics.switchTo(btlso::TimeMetrics::e_IO_BOUND);
                 }
                 BSLS_ASSERT(0 == d_requestQueue.queue().length());
                 BSLS_ASSERT(BTEMT_ENABLED == d_state);
@@ -1044,7 +1044,7 @@ int TcpTimerEventManager::reinitializeControlChannel()
                   d_allocator_p);
 
     rc = d_manager_p->registerSocketEvent(d_controlChannel_p->serverFd(),
-                                          btlso::EventType::BTESO_READ,
+                                          btlso::EventType::e_READ,
                                           cb);
     if (rc) {
         printf("%s(%d): Failed to register controlChannel for READ events"
@@ -1080,8 +1080,8 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            btlso::TimeMetrics::BTESO_IO_BOUND,
+, d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+            btlso::TimeMetrics::e_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(true)
 , d_numTotalSocketEvents(0)
@@ -1101,8 +1101,8 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            btlso::TimeMetrics::BTESO_IO_BOUND,
+, d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+            btlso::TimeMetrics::e_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
@@ -1123,8 +1123,8 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
-, d_metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            btlso::TimeMetrics::BTESO_IO_BOUND,
+, d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+            btlso::TimeMetrics::e_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
@@ -1144,8 +1144,8 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            btlso::TimeMetrics::BTESO_IO_BOUND,
+, d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+            btlso::TimeMetrics::e_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(true)
 , d_numTotalSocketEvents(0)
@@ -1166,8 +1166,8 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            btlso::TimeMetrics::BTESO_IO_BOUND,
+, d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+            btlso::TimeMetrics::e_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
@@ -1189,8 +1189,8 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_state(BTEMT_DISABLED)
 , d_terminateThread(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
-, d_metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            btlso::TimeMetrics::BTESO_IO_BOUND,
+, d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+            btlso::TimeMetrics::e_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
@@ -1212,8 +1212,8 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_manager_p(rawEventManager)
 , d_isManagedFlag(0)
 , d_timerQueue(threadSafeAllocator)
-, d_metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-            btlso::TimeMetrics::BTESO_IO_BOUND,
+, d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+            btlso::TimeMetrics::e_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(false)
 , d_numTotalSocketEvents(0)
@@ -1342,7 +1342,7 @@ int TcpTimerEventManager::enable(const bdlqq::ThreadAttributes& attr)
 
         int rc = d_manager_p->registerSocketEvent(
                                                 d_controlChannel_p->serverFd(),
-                                                btlso::EventType::BTESO_READ,
+                                                btlso::EventType::e_READ,
                                                 cb);
         if (rc) {
             printf("%s(%d): Failed to register controlChannel for READ events"

@@ -391,7 +391,7 @@ BSLS_IDENT("$Id: $")
 //  btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&testAllocator);
 //
 //  btlso::TcpTimerEventManager::Hint hint
-//                                = btlso::TcpTimerEventManager::BTESO_NO_HINT;
+//                                = btlso::TcpTimerEventManager::e_NO_HINT;
 //
 //  btlso::TcpTimerEventManager manager(hint, &testAllocator);
 //  my_EchoServer               echoServer(&factory, &manager, &testAllocator);
@@ -560,7 +560,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'callback' will not be
@@ -583,7 +583,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt the allocation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case

@@ -175,8 +175,8 @@ static int verbose;
 // static int veryVerbose;      // not used
 // static int veryVeryVerbose;  // not used
 
-#define  ASYNCH  btlso::IoUtil::BTESO_ASYNCHRONOUS
-#define  SYNCH  btlso::IoUtil::BTESO_SYNCHRONOUS
+#define  ASYNCH  btlso::IoUtil::e_ASYNCHRONOUS
+#define  SYNCH  btlso::IoUtil::e_SYNCHRONOUS
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -275,7 +275,7 @@ void* thread_as_udp_client(THREAD_PARAM arg)
     ASSERT(0 == errorCode);
     btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                     &sendSocket,
-                                    btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM,
+                                    btlso::SocketImpUtil::k_SOCKET_DATAGRAM,
                                     &errorCode);
     ASSERT(0 == errorCode);
 
@@ -293,7 +293,7 @@ void* thread_as_udp_client(THREAD_PARAM arg)
     int ret, errCode=0;
     btlso::IoUtil::AsyncMode result;
     ret = btlso::IoUtil::setAsync(sendSocket,
-                                 btlso::IoUtil::BTESO_SYNCHRONOUS,
+                                 btlso::IoUtil::e_SYNCHRONOUS,
                                  &errCode);
     ret = btlso::IoUtil::getAsync(&result,
                                  sendSocket,
@@ -331,7 +331,7 @@ void* thread_as_tcp_client(THREAD_PARAM arg)
 
     btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &sendSocket,
-                                      btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &errorCode);
     ASSERT(0 == errorCode);
 
@@ -386,7 +386,7 @@ unsigned __stdcall thread_win_udp_client(THREAD_PARAM arg)
     ASSERT(0 == errorCode);
     btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                     &sendSocket,
-                                    btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM,
+                                    btlso::SocketImpUtil::k_SOCKET_DATAGRAM,
                                     &errorCode);
     ASSERT(0 == errorCode);
 
@@ -432,7 +432,7 @@ unsigned __stdcall thread_win_tcp_client(THREAD_PARAM arg)
 
     btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &sendSocket,
-                                      btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &errorCode);
     ASSERT(0 == errorCode);
     if (verbose) {
@@ -499,13 +499,13 @@ int main(int argc, char *argv[])
 
             btlso::SocketHandle::Handle socketHandle;
             btlso::IoUtil::BlockingMode option =
-                                              btlso::IoUtil::BTESO_NONBLOCKING;
+                                              btlso::IoUtil::e_NONBLOCKING;
             int nativeErrNo=0, s;
             btlso::IoUtil::BlockingMode result;
 
             btlso::SocketImpUtil::open<btlso::IPv4Address>(
                              &socketHandle,
-                             btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                             btlso::SocketImpUtil::k_SOCKET_STREAM,
                              &nativeErrNo);
             ASSERT(0 == nativeErrNo);
             // Set blocking mode.
@@ -520,13 +520,13 @@ int main(int argc, char *argv[])
                                                   socketHandle,
                                                   &nativeErrNo);
                 ASSERT(0 == s);
-                ASSERT(btlso::IoUtil::BTESO_NONBLOCKING == result);
+                ASSERT(btlso::IoUtil::e_NONBLOCKING == result);
                 ASSERT(0 == nativeErrNo);
             }
             #endif
 
             // Set the flag back.
-            option = btlso::IoUtil::BTESO_BLOCKING;
+            option = btlso::IoUtil::e_BLOCKING;
             s = btlso::IoUtil::setBlockingMode(socketHandle, option,
                                               &nativeErrNo);
             ASSERT(0 == s);   ASSERT(0 == nativeErrNo);
@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
                 s = btlso::IoUtil::getBlockingMode(&result,
                                                   socketHandle,
                                                   &nativeErrNo);
-                ASSERT(0 == s); ASSERT(btlso::IoUtil::BTESO_BLOCKING == result);
+                ASSERT(0 == s); ASSERT(btlso::IoUtil::e_BLOCKING == result);
                 ASSERT(0 == nativeErrNo);
             }
             #endif
@@ -568,8 +568,8 @@ int main(int argc, char *argv[])
             int ret=0, errCode=0;
             btlso::SocketImpUtil::Type tcp, udp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) {
                 QT("Testing 'getSetAsync' method");
@@ -585,10 +585,10 @@ int main(int argc, char *argv[])
             //line    type            option            expMode
             //----    ----            ------            -------
             {
-              { L_,    tcp,   btlso::IoUtil::BTESO_SYNCHRONOUS,     SYNCH  },
-              { L_,    tcp,   btlso::IoUtil::BTESO_ASYNCHRONOUS,    ASYNCH },
-              { L_,    udp,   btlso::IoUtil::BTESO_SYNCHRONOUS,     SYNCH  },
-              { L_,    udp,   btlso::IoUtil::BTESO_ASYNCHRONOUS,    ASYNCH }
+              { L_,    tcp,   btlso::IoUtil::e_SYNCHRONOUS,     SYNCH  },
+              { L_,    tcp,   btlso::IoUtil::e_ASYNCHRONOUS,    ASYNCH },
+              { L_,    udp,   btlso::IoUtil::e_SYNCHRONOUS,     SYNCH  },
+              { L_,    udp,   btlso::IoUtil::e_ASYNCHRONOUS,    ASYNCH }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -682,16 +682,16 @@ int main(int argc, char *argv[])
             //line              type                        option  expMode
             //----              ----                        ------  -------
             {
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_STREAM,   INT_MIN,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_STREAM,        -1,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_STREAM,         1,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_STREAM,   INT_MAX,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_STREAM,         0,  0 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM, INT_MIN,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM,      -1,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM,       1,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM, INT_MIN,  1 },
-              { L_,  btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM,       0,  0 }
+              { L_,  btlso::SocketImpUtil::k_SOCKET_STREAM,   INT_MIN,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_STREAM,        -1,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_STREAM,         1,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_STREAM,   INT_MAX,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_STREAM,         0,  0 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_DATAGRAM, INT_MIN,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_DATAGRAM,      -1,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_DATAGRAM,       1,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_DATAGRAM, INT_MIN,  1 },
+              { L_,  btlso::SocketImpUtil::k_SOCKET_DATAGRAM,       0,  0 }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -764,8 +764,8 @@ int main(int argc, char *argv[])
             btlso::IoUtil::BlockingMode result;
             btlso::SocketImpUtil::Type tcp, udp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
             if (verbose) {
                 QT("Testing 'getBlockingMode' method");
                 QT("================================");
@@ -780,10 +780,10 @@ int main(int argc, char *argv[])
             //line    type          option            expMode
             //----    ----          ------            -------
             {
-              { L_,    tcp,    btlso::IoUtil::BTESO_NONBLOCKING,      1 },
-              { L_,    tcp,    btlso::IoUtil::BTESO_BLOCKING,         0 },
-              { L_,    udp,    btlso::IoUtil::BTESO_NONBLOCKING,      1 },
-              { L_,    udp,    btlso::IoUtil::BTESO_BLOCKING,         0 }
+              { L_,    tcp,    btlso::IoUtil::e_NONBLOCKING,      1 },
+              { L_,    tcp,    btlso::IoUtil::e_BLOCKING,         0 },
+              { L_,    udp,    btlso::IoUtil::e_NONBLOCKING,      1 },
+              { L_,    udp,    btlso::IoUtil::e_BLOCKING,         0 }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -893,8 +893,8 @@ int main(int argc, char *argv[])
             const int    RECEIVE_SIZE = 32;
             btlso::SocketImpUtil::Type tcp, udp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) {
                 QT("Testing 'setAsync' method");
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
             //line         type                   option
             //----         ----                   ------
             {
-              { L_,         udp,        btlso::IoUtil::BTESO_ASYNCHRONOUS }
+              { L_,         udp,        btlso::IoUtil::e_ASYNCHRONOUS }
             };
 
             char         readBuffer[RECEIVE_SIZE];
@@ -989,8 +989,8 @@ int main(int argc, char *argv[])
                 //line      type                 option
                 //----      ----                 ------
                 {
-                  { L_,      tcp,        btlso::IoUtil::BTESO_SYNCHRONOUS },
-                  { L_,      udp,        btlso::IoUtil::BTESO_SYNCHRONOUS }
+                  { L_,      tcp,        btlso::IoUtil::e_SYNCHRONOUS },
+                  { L_,      udp,        btlso::IoUtil::e_SYNCHRONOUS }
                 };
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[])
 
                     ret = btlso::IoUtil::setAsync(
                                               serverSocket[i],
-                                              btlso::IoUtil::BTESO_ASYNCHRONOUS,
+                                              btlso::IoUtil::e_ASYNCHRONOUS,
                                               &errCode);
                     LOOP_ASSERT(i, 0 == errCode);  LOOP_ASSERT(i, 0 == ret);
 
@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
 
                     ret = btlso::IoUtil::setAsync(
                                               serverSocket[i],
-                                              btlso::IoUtil::BTESO_ASYNCHRONOUS,
+                                              btlso::IoUtil::e_ASYNCHRONOUS,
                                               &errCode);
                     LOOP_ASSERT(i, 0 == errCode);
                     LOOP_ASSERT(i, 0 == ret);
@@ -1106,7 +1106,7 @@ int main(int argc, char *argv[])
 
             const int RECEIVE_SIZE = 32;
             btlso::SocketImpUtil::Type udp;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) {
                 QT("Testing 'setAsync' method");
@@ -1121,7 +1121,7 @@ int main(int argc, char *argv[])
             //line          type               option
             //----          ----               ------
             {
-              { L_,          udp,        btlso::IoUtil::BTESO_ASYNCHRONOUS }
+              { L_,          udp,        btlso::IoUtil::e_ASYNCHRONOUS }
             };
 
             char readBuffer[RECEIVE_SIZE];
@@ -1186,7 +1186,7 @@ int main(int argc, char *argv[])
                     // Set back to synchronous mode.
                     ret = btlso::IoUtil::setAsync(
                                               serverSocket[i],
-                                              btlso::IoUtil::BTESO_ASYNCHRONOUS,
+                                              btlso::IoUtil::e_ASYNCHRONOUS,
                                               &errCode);
                     ret = btlso::IoUtil::getAsync(&result,
                                                  serverSocket[i],
@@ -1230,7 +1230,7 @@ int main(int argc, char *argv[])
             const int BACKLOG = 32;
             btlso::SocketImpUtil::Type tcp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
 
             if (verbose) {
                 QT("Testing 'setAsync' method");
@@ -1245,7 +1245,7 @@ int main(int argc, char *argv[])
             //  line         type                option
             //  ----         ----                ------
             {
-              {   L_,         tcp,        btlso::IoUtil::BTESO_ASYNCHRONOUS }
+              {   L_,         tcp,        btlso::IoUtil::e_ASYNCHRONOUS }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -1347,7 +1347,7 @@ int main(int argc, char *argv[])
             const int    BACKLOG      = 32;
             btlso::SocketImpUtil::Type tcp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
 
             if (verbose) {
                 QT("Testing 'setAsync' method");
@@ -1362,7 +1362,7 @@ int main(int argc, char *argv[])
             //  line     type                  option
             //  ----     ----                  ------
             {
-              {   L_,     tcp,        btlso::IoUtil::BTESO_SYNCHRONOUS}
+              {   L_,     tcp,        btlso::IoUtil::e_SYNCHRONOUS}
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -1469,8 +1469,8 @@ int main(int argc, char *argv[])
 
             btlso::SocketImpUtil::Type tcp, udp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             struct {
               int                       d_lineNum;
@@ -1580,8 +1580,8 @@ int main(int argc, char *argv[])
             int ret=0, errCode = 0, *errNull = NULL;
             btlso::SocketImpUtil::Type tcp, udp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) {
                 QT("Testing 'setCloseOnExec' method");
@@ -1818,7 +1818,7 @@ int main(int argc, char *argv[])
 
             const int    RECEIVE_SIZE = 32;
             btlso::SocketImpUtil::Type udp;
-            udp = btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM;
+            udp = btlso::SocketImpUtil::k_SOCKET_DATAGRAM;
 
             if (verbose) {
                 QT("Testing 'setBlockingMode' method");
@@ -1839,7 +1839,7 @@ int main(int argc, char *argv[])
                 //line          type               option
                 //----          ----               ------
                 {
-                  { L_,          udp,         btlso::IoUtil::BTESO_NONBLOCKING}
+                  { L_,          udp,         btlso::IoUtil::e_NONBLOCKING}
                 };
 
                 char         readBuffer[RECEIVE_SIZE];
@@ -1890,7 +1890,7 @@ int main(int argc, char *argv[])
             //line              type                     option
             //----              ----                     ------
             {
-              { L_,              udp,        btlso::IoUtil::BTESO_BLOCKING }
+              { L_,              udp,        btlso::IoUtil::e_BLOCKING }
             };
 
             char         readBuffer[RECEIVE_SIZE];
@@ -1983,7 +1983,7 @@ int main(int argc, char *argv[])
                 //line            type                       option
                 //----            ----                       ------
                 {
-                  { L_,            udp,       btlso::IoUtil::BTESO_NONBLOCKING }
+                  { L_,            udp,       btlso::IoUtil::e_NONBLOCKING }
                 };
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -2015,7 +2015,7 @@ int main(int argc, char *argv[])
 
                     ret = btlso::IoUtil::setBlockingMode(
                                                   serverSocket[i],
-                                                  btlso::IoUtil::BTESO_BLOCKING,
+                                                  btlso::IoUtil::e_BLOCKING,
                                                   &errCode);
                     LOOP_ASSERT(i, 0 == errCode);  LOOP_ASSERT(i, 0 == ret);
 
@@ -2044,7 +2044,7 @@ int main(int argc, char *argv[])
 
                     ret = btlso::IoUtil::setBlockingMode(
                                                   serverSocket[i],
-                                                  btlso::IoUtil::BTESO_BLOCKING,
+                                                  btlso::IoUtil::e_BLOCKING,
                                                   &errCode);
                     LOOP_ASSERT(i, 0 == errCode);  LOOP_ASSERT(i, 0 == ret);
 
@@ -2147,7 +2147,7 @@ int main(int argc, char *argv[])
             const int BACKLOG = 32;
             btlso::SocketImpUtil::Type tcp;
 
-            tcp = btlso::SocketImpUtil::BTESO_SOCKET_STREAM;
+            tcp = btlso::SocketImpUtil::k_SOCKET_STREAM;
 
             if (verbose) {
                 QT("Testing 'setBlockingMode' method");
@@ -2166,7 +2166,7 @@ int main(int argc, char *argv[])
                 //  line         type      option
                 //  ----         ----      ------
                 {
-                  {   L_,        tcp,      btlso::IoUtil::BTESO_NONBLOCKING }
+                  {   L_,        tcp,      btlso::IoUtil::e_NONBLOCKING }
                 };
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -2230,7 +2230,7 @@ int main(int argc, char *argv[])
                 //  line         type       option
                 //  ----         ----       ------
                 {
-                  {   L_,        tcp,       btlso::IoUtil::BTESO_BLOCKING }
+                  {   L_,        tcp,       btlso::IoUtil::e_BLOCKING }
                 };
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -2329,7 +2329,7 @@ int main(int argc, char *argv[])
                 //line            type                       option
                 //----            ----                       ------
                 {
-                  { L_,            tcp,       btlso::IoUtil::BTESO_NONBLOCKING }
+                  { L_,            tcp,       btlso::IoUtil::e_NONBLOCKING }
                 };
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
@@ -2357,7 +2357,7 @@ int main(int argc, char *argv[])
 
                     ret = btlso::IoUtil::setBlockingMode(
                                                   serverSocket[i],
-                                                  btlso::IoUtil::BTESO_BLOCKING,
+                                                  btlso::IoUtil::e_BLOCKING,
                                                   &errCode);
                     LOOP_ASSERT(i, 0 == errCode);  LOOP_ASSERT(i, 0 == ret);
 
@@ -2378,7 +2378,7 @@ int main(int argc, char *argv[])
 
                     ret = btlso::IoUtil::setBlockingMode(
                                                   serverSocket[i],
-                                                  btlso::IoUtil::BTESO_BLOCKING,
+                                                  btlso::IoUtil::e_BLOCKING,
                                                   &errCode);
                     LOOP_ASSERT(i, 0 == errCode);  LOOP_ASSERT(i, 0 == ret);
 
@@ -2432,7 +2432,7 @@ int main(int argc, char *argv[])
             // ----------------------------------------------------------------
             btlso::SocketHandle::Handle socketHandle;
             btlso::IoUtil::BlockingMode option =
-                                               btlso::IoUtil::BTESO_NONBLOCKING;
+                                               btlso::IoUtil::e_NONBLOCKING;
             btlso::IoUtil::BlockingMode result;
             int errCode=0, retCode=0;
 
@@ -2443,7 +2443,7 @@ int main(int argc, char *argv[])
 
             btlso::SocketImpUtil::open<btlso::IPv4Address>(
                              &socketHandle,
-                             btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                             btlso::SocketImpUtil::k_SOCKET_STREAM,
                              &errCode);
             ASSERT(0 == errCode);
 
@@ -2461,7 +2461,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == errCode);
 
             // Set the flag back.
-            option = btlso::IoUtil::BTESO_BLOCKING;
+            option = btlso::IoUtil::e_BLOCKING;
             retCode = btlso::IoUtil::setBlockingMode(socketHandle, option,
                                                     &errCode);
             ASSERT(0 == retCode);   ASSERT(0 == errCode);

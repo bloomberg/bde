@@ -1,6 +1,6 @@
-// bdlc_idxclerk.t.cpp                                                -*-C++-*-
+// bdlc_indexclerk.t.cpp                                              -*-C++-*-
 
-#include <bdlc_idxclerk.h>
+#include <bdlc_indexclerk.h>
 
 #include <bslx_outstreamfunctions.h>            // for testing only
 #include <bslx_testoutstream.h>                 // for testing only
@@ -29,26 +29,26 @@ using namespace bsl;  // automatically added by script
 //                                 Overview
 //                                 --------
 // The component under test implements a value-semantic, non-templated
-// container type 'bdlc::IdxClerk' (and an associated index iterator,
-// 'bdlc::IdxClerkIter') that manages (and provides sequential, read-only
+// container type 'bdlc::IndexClerk' (and an associated index iterator,
+// 'bdlc::IndexClerkIter') that manages (and provides sequential, read-only
 // access to) a collection of reusable indices.  An index-clerk object issues
-// integer indices on request, beginning with { 0, 1, 2 ... }.  Indices that
+// integer indices on request, beginning with '0, 1, 2, ...'.  Indices that
 // are no longer needed may be "decommissioned" (i.e., returned for reuse).
 //
-// Our primary (logical) concern is that every 'bdlc::IdxClerk' issues a
+// Our primary (logical) concern is that every 'bdlc::IndexClerk' issues a
 // proper sequence of indices:
 //  - Indices that are returned are re-issued before issuing any new ones.
 //  - That indices are returned in LIFO order (even though it's not specified).
 //
-// Since the functionality of 'bdlc::IdxClerk' is implemented almost entirely
+// Since the functionality of 'bdlc::IndexClerk' is implemented almost entirely
 // in terms of an 'bsl::vector' (to manage the stack of decommissioned
 // indices), we want to focus our testing effort on making sure that this
 // underlying container is used properly:
 //  - Memory allocators are propagated correctly at construction.
-//  - 'bdlc::IdxClerkIter' operate correctly on the underlying 'bsl::vector'.
+//  - 'bdlc::IndexClerkIter' operate correctly on the underlying 'bsl::vector'.
 //  - 'bdex' streaming is implemented correctly (in an exception-neutral way).
 //
-// The white-box state of a 'bdlc::IdxClerk' is represented by the next new
+// The white-box state of a 'bdlc::IndexClerk' is represented by the next new
 // index to be issued and a stack of returned indices.  We have chosen our
 // *primary* *manipulators* to be
 //
@@ -57,7 +57,7 @@ using namespace bsl;  // automatically added by script
 //
 // which together, in conjunction with the default constructor,
 //
-//  o bdlc::IdxClerk(bslma::Allocator *ba = 0);
+//  o bdlc::IndexClerk(bslma::Allocator *ba = 0);
 //
 // are sufficient to attain any achievable state.
 //
@@ -65,22 +65,22 @@ using namespace bsl;  // automatically added by script
 // the maximal set of accessors that have "direct" contact with the physical
 // state of the object):
 //
-//  o bdlc::IdxClerkIter begin() const;
-//  o bdlc::IdxClerkIter end() const;
+//  o bdlc::IndexClerkIter begin() const;
+//  o bdlc::IndexClerkIter end() const;
 //  o int numCommissionedIndices() const;
 //  o int numDecommissionedIndices() const;
 //  o int nextNewIndex() const;
-//  o class bdlc::IdxClerkIter;
+//  o class bdlc::IndexClerkIter;
 //
-// Note that the class 'bdlc::IdxClerkIter' is also a member of this set
+// Note that the class 'bdlc::IndexClerkIter' is also a member of this set
 // because it provides *direct* access to the internal stack of
 // "decommissioned" indices.
 //
 // As a convenient testing aid, we will create a primitive generator function
 // 'gg' that will be implemented in terms of the primary manipulators (above)
 // to parse a string from a simple test language and correspondingly bring an
-// unmodified 'bdlc::IdxClerk' to one of a suitable subset of arbitrary values
-// sufficient for thorough testing.
+// unmodified 'bdlc::IndexClerk' to one of a suitable subset of arbitrary
+// values sufficient for thorough testing.
 //
 // Finally, we will make heavy use of the 'bslma::TestAllocator' to ensure that
 // (1) object memory is not leaked (i.e., is returned upon object destruction),
@@ -94,22 +94,22 @@ using namespace bsl;  // automatically added by script
 // purposes.
 //-----------------------------------------------------------------------------
 //
-//                          //---------------
-//                          // bdlc::IdxClerk
-//                          //---------------
+//                          // ----------
+//                          // IndexClerk
+//                          // ----------
 //
 // CLASS METHODS
 // [10] static int maxSupportedBdexVersion();
 //
 // CREATORS
-// [ 2] bdlc::IdxClerk(bslma::Allocator *ba = 0);
-// [ 8] bdlc::IdxClerk(const bdlc::IdxClerk&, bslma::Allocator *ba = 0);
+// [ 2] bdlc::IndexClerk(bslma::Allocator *ba = 0);
+// [ 8] bdlc::IndexClerk(const IndexClerk&, bslma::Allocator *ba = 0);
 //          // The use of default allocator is tested indirectly through return
 //          // by value from 'g'.
-// [ 2] ~bdlc::IdxClerk();
+// [ 2] ~bdlc::IndexClerk();
 //
 // MANIPULATORS
-// [ 9] bdlc::IdxClerk& operator=(const bdlc::IdxClerk& rhs);
+// [ 9] bdlc::IndexClerk& operator=(const bdlc::IndexClerk& rhs);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [ 2] int getIndex();
 // [ 2] void putIndex(int index);
@@ -117,8 +117,8 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [ 4] bdlc::IdxClerkIter begin() const;
-// [ 4] bdlc::IdxClerkIter end() const;
+// [ 4] bdlc::IndexClerkIter begin() const;
+// [ 4] bdlc::IndexClerkIter end() const;
 // [13] bool isInUse(int index) const;
 // [ 4] int numCommissionedIndices() const;
 // [ 4] int numDecommissionedIndices() const;
@@ -126,41 +126,41 @@ using namespace bsl;  // automatically added by script
 // [12] bsl::ostream& print(bsl::ostream& stream, int lvl, int sp) const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const bdlc::IdxClerk& l, const bdlc::IdxClerk& r);
-// [ 6] bool operator!=(const bdlc::IdxClerk& l, const bdlc::IdxClerk& r);
-// [ 5] bsl::ostream& operator<<(bsl::ostream&, const bdlc::IdxClerk&);
+// [ 6] bool operator==(const IndexClerk& l, const IndexClerk& r);
+// [ 6] bool operator!=(const IndexClerk& l, const IndexClerk& r);
+// [ 5] bsl::ostream& operator<<(bsl::ostream&, const IndexClerk&);
 //
 //                         //-------------------
-//                         // bdlc::IdxClerkIter
+//                         // bdlc::IndexClerkIter
 //                         //-------------------
 //
 // CREATORS
-// [ 4] bdlc::IdxClerkIter();
-// [14] bdlc::IdxClerkIter(const int *index);
-// [14] bdlc::IdxClerkIter(const bdlc::IdxClerkIter& original);
+// [ 4] bdlc::IndexClerkIter();
+// [14] bdlc::IndexClerkIter(const int *index);
+// [14] bdlc::IndexClerkIter(const bdlc::IndexClerkIter& original);
 //
 // MANIPULATORS
-// [ 4] bdlc::IdxClerkIter& operator=(const bdlc::IdxClerkIter& rhs);
-// [ 4] bdlc::IdxClerkIter& operator++();
-// [14] bdlc::IdxClerkIter& operator--();
+// [ 4] bdlc::IndexClerkIter& operator=(const bdlc::IndexClerkIter& rhs);
+// [ 4] bdlc::IndexClerkIter& operator++();
+// [14] bdlc::IndexClerkIter& operator--();
 //
 // ACCESSORS
 // [ 4] int operator*() const;
 //
 // FREE OPERATORS
-// [ 4] bool operator==(const bdlc::IdxClerkIter&, const bdlc::IdxClerkIter&);
-// [ 4] bool operator!=(const bdlc::IdxClerkIter&, const bdlc::IdxClerkIter&);
+// [ 4] bool operator==(const IndexClerkIter&, const IndexClerkIter&);
+// [ 4] bool operator!=(const IndexClerkIter&, const IndexClerkIter&);
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [15] USAGE EXAMPLE
 // [ 3] int ggg(Obj *object, const char *spec, int vF = 1);
-// [ 3] bdlc::IdxClerk& gg(bdlc::IdxClerk *object, const char *spec);
-// [ 8] bdlc::IdxClerk   g(const char *spec);
-// [ 7] bdlc::IdxClerk(const bdlc::IdxClerk&, bslma::Allocator *ba);
+// [ 3] bdlc::IndexClerk& gg(bdlc::IndexClerk *object, const char *spec);
+// [ 8] bdlc::IndexClerk   g(const char *spec);
+// [ 7] bdlc::IndexClerk(const bdlc::IndexClerk&, bslma::Allocator *ba);
 // [  ] CONCERN: Object memory is never leaked by the index clerk.
 // [  ] CONCERN: Any function-local memory comes from the default allocator.
-//==========================================================================
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
@@ -220,8 +220,8 @@ static void aSsErT(int c, const char *s, int i)
 //                    GLOBAL TYPEDEFS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlc::IdxClerk     Obj;
-typedef bdlc::IdxClerkIter Iter;
+typedef bdlc::IndexClerk     Obj;
+typedef bdlc::IndexClerkIter Iter;
 
 //=============================================================================
 //            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
@@ -456,10 +456,10 @@ class Security {
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// A 'bdlc::IdxClerk' is commonly used in conjunction with an array to enable
+// A 'bdlc::IndexClerk' is commonly used in conjunction with an array to enable
 // machine-address-independent referencing.  Rather than dynamically allocating
 // an object and holding its address, the object is stored in the array at the
-// next position dispensed by its associated 'bdlc::IdxClerk', and that index
+// next position dispensed by its associated 'bdlc::IndexClerk', and that index
 // becomes an identifier (Id) for the new object.  Instead of destroying an
 // unneeded object, its Id is merely returned to the clerk.
 //
@@ -473,7 +473,7 @@ class Security {
 // following two functions:
 //..
     int addSecurity(bsl::vector<Security> *securityArray,
-                    bdlc::IdxClerk        *securityClerk,
+                    bdlc::IndexClerk      *securityClerk,
                     const Security&        newSecurity)
         // Add a copy of the specified 'newSecurity' to the specified
         // 'securityArray' at the index dispensed by the specified
@@ -496,7 +496,7 @@ class Security {
     }
 
     void removeSecurity(bsl::vector<Security> *securityArray,
-                        bdlc::IdxClerk        *securityClerk,
+                        bdlc::IndexClerk      *securityClerk,
                         int                    securityId)
         // Remove the security object identified by the specified 'securityId'
         // from the specified 'securityArray', and update the specified
@@ -534,8 +534,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator.
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
                                   << "==================" << endl;
 
         bsl::vector<Security> securityArray;
-        bdlc::IdxClerk        indexClerk;
+        bdlc::IndexClerk        indexClerk;
 
         int id0 = addSecurity(&securityArray, &indexClerk, Security(0));
         ASSERT(0 == id0);
@@ -604,42 +604,42 @@ int main(int argc, char *argv[])
       case 14: {
         // --------------------------------------------------------------------
         // ITERATOR TEST:
-        //   The methods of 'bdlc::IdxClerkIter' not tested under the basic
+        //   The methods of 'bdlc::IndexClerkIter' not tested under the basic
         //   accessors test should be tested in this method.
         //
         // Concerns:
         //   1. That 'operator--' can be invoked, moving the
-        //      'bdlc::IdxClerkIter' to point to a previous index.
+        //      'bdlc::IndexClerkIter' to point to a previous index.
         //   2. That 'operator--' returns a reference to the iterator.
-        //   3. That a valid 'bdlc::IdxClerkIter' can be constructed from an
+        //   3. That a valid 'bdlc::IndexClerkIter' can be constructed from an
         //      integer pointer.
-        //   4. That a valid 'bdlc::IdxClerkIter' can be constructed from
-        //      another 'bdlc::IdxClerkIter'.
+        //   4. That a valid 'bdlc::IndexClerkIter' can be constructed from
+        //      another 'bdlc::IndexClerkIter'.
         //
         // Plan:
-        //   For concern 1, we first create a 'bdlc::IdxClerk' with several
+        //   For concern 1, we first create a 'bdlc::IndexClerk' with several
         //   decommissioned indices.  Then, using 'operator*', we can verify
         //   that the index pointed to by the iterator is properly modified
         //   after invoking 'operator--'.
         //
         //   For concern 2, we first create an array of integers.  Then, we
-        //   construct a 'bdlc::IdxClerkIter' using the state constructor.  To
-        //   verify validity of the iterator, we invoke the tested 'operator++'
-        //   and 'operator--', and invoke 'operator*' to compare against the
-        //   expected value.
+        //   construct a 'bdlc::IndexClerkIter' using the state constructor.
+        //   To verify validity of the iterator, we invoke the tested
+        //   'operator++' and 'operator--', and invoke 'operator*' to compare
+        //   against the expected value.
         //
-        //   For concern 3, we first create a 'bdlc::IdxClerk'.  We then obtain
-        //   two iterators by invoking 'begin'.  We then copy construct a
-        //   third iterator from the second iterator.  Iterate through
+        //   For concern 3, we first create a 'bdlc::IndexClerk'.  We then
+        //   obtain two iterators by invoking 'begin'.  We then copy construct
+        //   a third iterator from the second iterator.  Iterate through
         //   the list of decommissioned index to verify the copy constructed
         //   iterator is valid.  Further assert that the iterator used as a
         //   parameter for copy construction is not modified by comparing it
         //   with the first (unused) iterator.
         //
         // Testing:
-        //  [13] bdlc::IdxClerkIter& operator--();
-        //  [13] bdlc::IdxClerkIter(const int *index);
-        //  [13] bdlc::IdxClerkIter(const bdlc::IdxClerkIter& original);
+        //  [13] bdlc::IndexClerkIter& operator--();
+        //  [13] bdlc::IndexClerkIter(const int *index);
+        //  [13] bdlc::IndexClerkIter(const bdlc::IndexClerkIter& original);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "ITERATOR TEST" << endl
@@ -647,10 +647,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting the 'operator--()' method." << endl;
         {
-            bdlc::IdxClerk idxClerk(g("135,9"), &objectAllocator);
+            bdlc::IndexClerk idxClerk(g("135,9"), &objectAllocator);
 
-            bdlc::IdxClerkIter  itr     = idxClerk.end();
-            bdlc::IdxClerkIter *address = &itr;
+            bdlc::IndexClerkIter  itr     = idxClerk.end();
+            bdlc::IndexClerkIter *address = &itr;
 
             ASSERT(address == &--itr);
             if (veryVerbose) { T_ P(*itr) }
@@ -669,7 +669,7 @@ int main(int argc, char *argv[])
         {
             static const int INDICES[5] = { 0, 1, 2, 3, 4 };
 
-            bdlc::IdxClerkIter itr(&INDICES[3]);
+            bdlc::IndexClerkIter itr(&INDICES[3]);
 
             if (veryVerbose) { T_ P(*itr) }
             ++itr;                  ASSERT(1 == *itr);
@@ -698,12 +698,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting the copy constructor." << endl;
         {
-            bdlc::IdxClerk idxClerk(g("135,9"), &objectAllocator);
+            bdlc::IndexClerk idxClerk(g("135,9"), &objectAllocator);
 
-            bdlc::IdxClerkIter itrA = idxClerk.begin();
-            bdlc::IdxClerkIter itrB = idxClerk.begin();
+            bdlc::IndexClerkIter itrA = idxClerk.begin();
+            bdlc::IndexClerkIter itrB = idxClerk.begin();
 
-            bdlc::IdxClerkIter itrC(itrA);
+            bdlc::IndexClerkIter itrC(itrA);
 
             if (veryVerbose) { T_ P_(*itrA) P_(*itrB) P(*itrC) }
             ASSERT(itrB == itrC);   ASSERT(itrA == itrC);
@@ -729,10 +729,10 @@ int main(int argc, char *argv[])
         //   'true' for indices in use.
         //
         // Plan:
-        //   First create a 'bdlc::IdxClerk' using the generator function 'g'.
-        //   Then using the loop-based technique, invoke 'putIndex' to return
-        //   indices to the index clerk, and verify that 'isInUse' return
-        //   'false' for the indices returned and 'true' otherwise.
+        //   First create a 'bdlc::IndexClerk' using the generator function
+        //   'g'.  Then using the loop-based technique, invoke 'putIndex' to
+        //   return indices to the index clerk, and verify that 'isInUse'
+        //   return 'false' for the indices returned and 'true' otherwise.
         //
         // Testing:
         //   bool isInUse(int index) const;
@@ -886,16 +886,16 @@ int main(int argc, char *argv[])
         // 'removeAll' TEST:
         //
         // Concerns:
-        //   1. That invoking 'removeAll' should reset the 'bdlc::IdxClerk' to
-        //      its default constructed state.
+        //   1. That invoking 'removeAll' should reset the 'bdlc::IndexClerk'
+        //      to its default constructed state.
         //   2. That invoking 'removeAll' on default constructed
-        //      'bdlc::IdxClerk' should have no effect.
+        //      'bdlc::IndexClerk' should have no effect.
         //
         // Plan:
         //   For concern 1, using the array-driven technique, construct a
         //   representative set of specs S for objects having substantial and
         //   varied differences in value.  For each spec in S, generate two
-        //   identical 'bdlc::IdxClerk' objects using the generator function
+        //   identical 'bdlc::IndexClerk' objects using the generator function
         //   'g'.  Invoke 'removeAll' on the first object and verify that the
         //   object is reset to its default constructed state.
         //
@@ -1037,7 +1037,7 @@ int main(int argc, char *argv[])
         //   CORRUPTED DATA
         //     Use the underlying stream package to simulate an instance of
         //     a typical valid (control) stream and verify that it can be
-        //     streamed in successfully.  A corrupted 'bdlc::IdxClerk' is an
+        //     streamed in successfully.  A corrupted 'bdlc::IndexClerk' is an
         //     index clerk that has a next new index less than 0, has any
         //     decommissioned indices greater than the next new index, has
         //     negative decommissioned indices, or duplicate decommissioned
@@ -1109,8 +1109,8 @@ int main(int argc, char *argv[])
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
                     if (veryVerbose) { T_ T_ P(j) }
@@ -1150,9 +1150,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
-                // Ensure that reading from an empty or invalid input
-                // stream leaves the stream invalid and the target object
-                // unchanged.
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
 
                 const Obj X(VALUES[i], &objectAllocator);
                 Obj t(X, &objectAllocator);
@@ -1204,7 +1203,7 @@ int main(int argc, char *argv[])
                       if (0 == i) {
                           LOOP_ASSERT(i, W1 == t1);
                       }
-                      // Verify that we still have a valid 'bdlc::IdxClerk'.
+                      // Verify that we still have a valid 'bdlc::IndexClerk'.
                       else {
                           Iter itr = t1.begin();
                           for (int j = 0; j < t1.numDecommissionedIndices();
@@ -1272,10 +1271,10 @@ int main(int argc, char *argv[])
         }
 
         // There are three types of corrupted data:
-        // 1. Next new index less than 0.
-        // 2. Any of the decommissioned indices is greater than the next new
-        //    index.
-        // 3. Bad version numbers.
+        // 1.  Next new index less than 0.
+        // 2.  Any of the decommissioned indices is greater than the next new
+        //     index.
+        // 3.  Bad version numbers.
 
         if (verbose) cout << "\tOn corrupted data." << endl;
 
@@ -1324,7 +1323,7 @@ int main(int argc, char *argv[])
                                  "next new index." << endl;
         {
             const int id = 3;
-            // Pushing in '3' makes this an invalid 'bdlc::IdxClerk'.
+            // Pushing in '3' makes this an invalid 'bdlc::IndexClerk'.
             bsl::vector<int> stack; stack.push_back(2);
             stack.push_back(3); stack.push_back(0);
 
@@ -1346,7 +1345,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Negative decommissioned indices" << endl;
         {
             const int id = 4;
-            // Pushing in '-3' makes this an invalid 'bdlc::IdxClerk'.
+            // Pushing in '-3' makes this an invalid 'bdlc::IndexClerk'.
             bsl::vector<int> stack; stack.push_back(2);
             stack.push_back(-3); stack.push_back(0);
 
@@ -1368,7 +1367,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Duplicate decommissioned indices" << endl;
         {
             const int id = 4;
-            // Pushing in '2' twice makes this an invalid 'bdlc::IdxClerk'.
+            // Pushing in '2' twice makes this an invalid 'bdlc::IndexClerk'.
             bsl::vector<int> stack; stack.push_back(2);
             stack.push_back(2); stack.push_back(0);
 
@@ -1464,7 +1463,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that 'w == u'.
         //
         // Testing:
-        //   bdlc::IdxClerk& operator=(const bdlc::IdxClerk& rhs);
+        //   bdlc::IndexClerk& operator=(const bdlc::IndexClerk& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING ASSIGNMENT OPERATOR" << endl
@@ -1568,8 +1567,8 @@ int main(int argc, char *argv[])
         //   implicitly tests copy construction.
         //
         // Testing:
-        //   bdlc::IdxClerk g(const char *spec);
-        //   bdlc::IdxClerk(const bdlc::IdxClerk&, bslma::Allocator *ba = 0);
+        //   bdlc::IndexClerk g(const char *spec);
+        //   bdlc::IndexClerk(const IndexClerk&, bslma::Allocator *ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1660,7 +1659,7 @@ int main(int argc, char *argv[])
         //   same value as W.
         //
         // Testing:
-        //   bdlc::IdxClerk(const bdlc::IdxClerk&, bslma::Allocator *ba);
+        //   bdlc::IndexClerk(const bdlc::IndexClerk&, bslma::Allocator *ba);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1736,8 +1735,8 @@ int main(int argc, char *argv[])
         //   correctness.
         //
         // Testing:
-        //   bool operator==(const bdlc::IdxClerk& l, const bdlc::IdxClerk& r);
-        //   bool operator!=(const bdlc::IdxClerk& l, const bdlc::IdxClerk& r);
+        //   bool operator==(const IndexClerk& l, const IndexClerk& r);
+        //   bool operator!=(const IndexClerk& l, const IndexClerk& r);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING EQUALITY OPERATORS" << endl
@@ -1819,7 +1818,7 @@ int main(int argc, char *argv[])
         //   'ostrstream' object with the expected output.
         //
         // Testing:
-        //   bsl::ostream& operator<<(bsl::ostream& output, const bdecs::Idx&);
+        //   bsl::ostream& operator<<(bsl::ostream& output, const IndexClerk&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING OUTPUT (<<) OPERATOR" << endl
@@ -1895,16 +1894,16 @@ int main(int argc, char *argv[])
         //   returns the correct value.
         //
         // Testing:
-        //   bdlc::IdxClerkIter begin() const;
-        //   bdlc::IdxClerkIter end() const;
+        //   bdlc::IndexClerkIter begin() const;
+        //   bdlc::IndexClerkIter end() const;
         //   int numCommissionedIndices() const;
         //   int numDecommissionedIndices() const;
         //   int nextNewIndex() const;
-        //   bdlc::IdxClerkIter();
-        //   bdlc::IdxClerkIter& operator++();
+        //   bdlc::IndexClerkIter();
+        //   bdlc::IndexClerkIter& operator++();
         //   int operator*() const;
-        //   operator==(const bdlc::IdxClerkIter&, const bdlc::IdxClerkIter&);
-        //   operator!=(const bdlc::IdxClerkIter&, const bdlc::IdxClerkIter&);
+        //   operator==(const IndexClerkIter&, const IndexClerkIter&);
+        //   operator!=(const IndexClerkIter&, const IndexClerkIter&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING BASIC ACCESSORS" << endl
@@ -2053,8 +2052,8 @@ int main(int argc, char *argv[])
         //   to the first offending character is returned.
         //
         // Testing:
-        //   bdlc::IdxClerk& gg(bdlc::IdxClerk *object, const char *spec);
-        //   int ggg(bdlc::IdxClerk *object, const char *spec, int vF = 1);
+        //   bdlc::IndexClerk& gg(bdlc::IndexClerk *object, const char *spec);
+        //   int ggg(bdlc::IndexClerk *object, const char *spec, int vF = 1);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2254,7 +2253,7 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS:
         //
         // Concerns:
-        //   1. The default constructor creates a 'bdlc::IdxClerk' that will
+        //   1. The default constructor creates a 'bdlc::IndexClerk' that will
         //      issues index 0 as the next index, and has no decommissioned
         //      indices.
         //   2. 'getIndex' returns the next newest index.
@@ -2264,8 +2263,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   a. Using brute force, enumerate a sequence of independent tests,
-        //      ordered by increasing next new index value of 'bdlc::IdxClerk'
-        //      object:
+        //      ordered by increasing next new index value of
+        //      'bdlc::IndexClerk' object:
         //
         //                Decommissioned  Next new
         //                indices         index
@@ -2307,7 +2306,7 @@ int main(int argc, char *argv[])
         //
         //   c. Verify the correctness of the above functions using the basic
         //      accessors 'numCommissionedIndices', 'numDecommissionIndices',
-        //      'nextNewIndex', and the iterator, 'bdlc::IdxClerkIter'.
+        //      'nextNewIndex', and the iterator, 'bdlc::IndexClerkIter'.
         //
         //   d. The destructor is exercised on each configuration as the object
         //      under test leaves scope.
@@ -2319,15 +2318,15 @@ int main(int argc, char *argv[])
         //   f. Then, using the loop-based technique, interleave 'getIndex' and
         //      'putIndex' calls, and verify that the value returned by
         //      'getIndex' and also (using the basic accessors) that the
-        //      internal state of the 'bdlc::IdxClerk' is correct.
+        //      internal state of the 'bdlc::IndexClerk' is correct.
         //
-        //   g. Finally, default construct a 'bdlc::IdxClerk', invoke
+        //   g. Finally, default construct a 'bdlc::IndexClerk', invoke
         //      'getIndex' and 'putIndex' on the index clerk, then verify that
         //      memory is supplied by only the default allocator.
         //
         // Testing:
-        //   bdlc::IdxClerk(bslma::Allocator *ba);
-        //   ~bdlc::IdxClerk();
+        //   bdlc::IndexClerk(bslma::Allocator *ba);
+        //   ~bdlc::IndexClerk();
         //   int getIndex(void);
         //   void putIndex(int index);
         // --------------------------------------------------------------------
@@ -2930,23 +2929,23 @@ int main(int argc, char *argv[])
         {
 
             // Now, using the loop-based technique, construct a
-            // 'bdlc::IdxClerk' in each iteration and put it in a state where
+            // 'bdlc::IndexClerk' in each iteration and put it in a state where
             // the value returned by 'nextNewIndex' equals to the loop index.
-            // This defines the baseline state of the 'bdlc::IdxClerk' in that
-            // iteration.
+            // This defines the baseline state of the 'bdlc::IndexClerk' in
+            // that iteration.
 
             const int MAX_TRIALS = 10;
 
             const int CO_PRIME   = 11;  // this number has to be coprime with
-                                        // 'MAX_TRAILS' to properly execute
-                                        // the last inner loop below.
+                                        // 'MAX_TRAILS' to properly execute the
+                                        // last inner loop below.
 
             for (int size = 0; size < MAX_TRIALS; ++size) {
                 if (veryVerbose) { T_ P(size) }
 
                 Obj mC(&objectAllocator);       const Obj& C = mC;
 
-                // Set the state of 'bdlc::IdxClerk' to the baseline state by
+                // Set the state of 'bdlc::IndexClerk' to the baseline state by
                 // constantly calling 'getIndex' until the value returned by
                 // 'nextNewIndex' equals to the loop index.
 
@@ -3271,10 +3270,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -2588,7 +2588,6 @@ struct UsesBslmaAllocator<bdlc::PackedIntArray<TYPE> > : bsl::true_type {};
 }  // close enterprise namespace
 
 #endif
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

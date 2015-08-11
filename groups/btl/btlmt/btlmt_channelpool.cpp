@@ -619,16 +619,16 @@ inline
 void Channel::deregisterSocketRead(ChannelHandle)
 {
     d_eventManager_p->deregisterSocketEvent(this->socket()->handle(),
-                                            btlso::EventType::BTESO_READ);
+                                            btlso::EventType::e_READ);
 }
 
 inline
 void Channel::deregisterSocketWrite(ChannelHandle)
 {
     if (d_eventManager_p->isRegistered(socket()->handle(),
-                                       btlso::EventType::BTESO_WRITE)) {
+                                       btlso::EventType::e_WRITE)) {
         d_eventManager_p->deregisterSocketEvent(socket()->handle(),
-                                                btlso::EventType::BTESO_WRITE);
+                                                btlso::EventType::e_WRITE);
     }
 }
 
@@ -1107,10 +1107,10 @@ void Channel::invokeChannelDown(ChannelHandle              self,
 
     if (ChannelPool::e_CHANNEL_DOWN_READ == type) {
         if (d_eventManager_p->isRegistered(socket()->handle(),
-                                           btlso::EventType::BTESO_READ)) {
+                                           btlso::EventType::e_READ)) {
             d_eventManager_p->deregisterSocketEvent(
                                                  socket()->handle(),
-                                                 btlso::EventType::BTESO_READ);
+                                                 btlso::EventType::e_READ);
         }
     }
     else if (ChannelPool::e_CHANNEL_DOWN == type) {
@@ -1159,16 +1159,16 @@ void Channel::notifyChannelDown(ChannelHandle            self,
         // No support for half-open connections, simply shut down, irrespective
         // of 'type'.
 
-        type = bteso_Flag::BTESO_SHUTDOWN_BOTH;
+        type = bteso_Flag::e_SHUTDOWN_BOTH;
     }
 
     // Determine mask to apply to channel down flag.
 
     int channelDownMask = CLOSED_BOTH_MASK;
-    if (bteso_Flag::BTESO_SHUTDOWN_RECEIVE == type) {
+    if (bteso_Flag::e_SHUTDOWN_RECEIVE == type) {
         channelDownMask = CLOSED_RECEIVE_MASK;
     }
-    if (bteso_Flag::BTESO_SHUTDOWN_SEND == type) {
+    if (bteso_Flag::e_SHUTDOWN_SEND == type) {
         channelDownMask = CLOSED_SEND_MASK;
     }
 
@@ -1371,7 +1371,7 @@ void Channel::readCb(ChannelHandle self)
         readRet = this->socket()->readv(d_ivecs, d_numUsedIVecs);
 
         if (readRet < 0) {
-            if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == readRet) {
+            if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == readRet) {
                 // No more data to read, we can exit, knowing that 'readCb'
                 // will be called again by event manager if data becomes
                 // available again.  Reschedule a timeout from the time of the
@@ -1381,9 +1381,9 @@ void Channel::readCb(ChannelHandle self)
             }
 
             BSLS_ASSERT(
-                      btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != readRet);
+                      btlso::SocketHandle::e_ERROR_INTERRUPTED != readRet);
 
-            notifyChannelDown(self, bteso_Flag::BTESO_SHUTDOWN_RECEIVE);
+            notifyChannelDown(self, bteso_Flag::e_SHUTDOWN_RECEIVE);
             return;                                                   // RETURN
         }
 
@@ -1504,7 +1504,7 @@ void Channel::registerWriteCb(ChannelHandle self)
 
     int rCode = d_eventManager_p->registerSocketEvent(
                                                  this->socket()->handle(),
-                                                 btlso::EventType::BTESO_WRITE,
+                                                 btlso::EventType::e_WRITE,
                                                  writeFunctor);
 
     if (0 != rCode) {
@@ -1514,7 +1514,7 @@ void Channel::registerWriteCb(ChannelHandle self)
                              d_userData);
         }
         else {
-            notifyChannelDown(self, bteso_Flag::BTESO_SHUTDOWN_SEND);
+            notifyChannelDown(self, bteso_Flag::e_SHUTDOWN_SEND);
         }
     }
     // We simply wait until the socket calls us back.
@@ -1582,7 +1582,7 @@ void Channel::writeCb(ChannelHandle self)
 
         int writeRet = this->socket()->writev(d_ovecs, numVecs);
 
-        if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == writeRet) {
+        if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == writeRet) {
             // In theory, this is the only writing thread so if 'writeCb' we
             // should never get 'EWOULDBLOCK'.  But there is little harm.
             // Let's just wait until this function is called again.  Note that
@@ -1597,7 +1597,7 @@ void Channel::writeCb(ChannelHandle self)
 
         if (writeRet <= 0) {
             BSLS_ASSERT(
-                     btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != writeRet);
+                     btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
 
             if (isChannelDown(CLOSED_SEND_MASK)) {
                 d_channelStateCb(d_channelId, d_sourceId,
@@ -1605,7 +1605,7 @@ void Channel::writeCb(ChannelHandle self)
                                  d_userData);
             }
             else {
-                notifyChannelDown(self, bteso_Flag::BTESO_SHUTDOWN_SEND);
+                notifyChannelDown(self, bteso_Flag::e_SHUTDOWN_SEND);
             }
             return;                                                   // RETURN
         }
@@ -1747,7 +1747,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 {
     BSLS_ASSERT(d_socket);
 
-    d_socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
+    d_socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
     d_socket->peerAddress(&d_peerAddress);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -1841,7 +1841,7 @@ int Channel::initiateReadSequence(ChannelHandle self)
 
     int rCode = d_eventManager_p->registerSocketEvent(
                                                   this->socket()->handle(),
-                                                  btlso::EventType::BTESO_READ,
+                                                  btlso::EventType::e_READ,
                                                   readFunctor);
 
     if (0 == rCode) {
@@ -1858,7 +1858,7 @@ int Channel::initiateReadSequence(ChannelHandle self)
         }
     }
     else {
-        notifyChannelDown(self, bteso_Flag::BTESO_SHUTDOWN_RECEIVE);
+        notifyChannelDown(self, bteso_Flag::e_SHUTDOWN_RECEIVE);
     }
 
     return rCode;
@@ -1985,7 +1985,7 @@ int Channel::writeMessage(const MessageType&   msg,
 
             d_numBytesWritten += writeRet;
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == writeRet) {
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == writeRet) {
             // In case writeRet < 0, then either the socket is dead, or would
             // block if in non-blocking mode.  In the latter case, we proceed
             // to enqueue message and will retry later with writev().  For good
@@ -1998,9 +1998,9 @@ int Channel::writeMessage(const MessageType&   msg,
 
             // The socket is dead: close this channel for write.
             BSLS_ASSERT(
-                     btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != writeRet);
+                     btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
 
-            notifyChannelDown(self, bteso_Flag::BTESO_SHUTDOWN_SEND, false);
+            notifyChannelDown(self, bteso_Flag::e_SHUTDOWN_SEND, false);
             return CHANNEL_DOWN;                                      // RETURN
         }
 
@@ -2299,8 +2299,8 @@ void ChannelPool::acceptCb(int                          serverId,
 
     int status = server->d_socket_p->accept(&connection);
     if (status) {
-        if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK != status &&
-            btlso::SocketHandle::BTESO_ERROR_INTERRUPTED != status) {
+        if (btlso::SocketHandle::e_ERROR_WOULDBLOCK != status &&
+            btlso::SocketHandle::e_ERROR_INTERRUPTED != status) {
             // Deregister the socket event to avoid spewing and spinning.
 
             bdlqq::LockGuard<bdlqq::Mutex> aGuard(&d_acceptorsLock);
@@ -2314,7 +2314,7 @@ void ChannelPool::acceptCb(int                          serverId,
 
             server->d_manager_p->deregisterSocketEvent(
                                                server->d_socket_p->handle(),
-                                               btlso::EventType::BTESO_ACCEPT);
+                                               btlso::EventType::e_ACCEPT);
             aGuard.release()->unlock();
 
             bdlf::Function<void (*)()> acceptRetryFunctor(
@@ -2471,7 +2471,7 @@ void ChannelPool::acceptRetryCb(int                          serverId,
 
     if (0 != server->d_manager_p->registerSocketEvent(
                                                 server->d_socket_p->handle(),
-                                                btlso::EventType::BTESO_ACCEPT,
+                                                btlso::EventType::e_ACCEPT,
                                                 acceptFunctor)) {
         close(serverId);
 
@@ -2586,8 +2586,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     // 'serverSocket' (in dtor of 'ss') and also deallocates 'ss'.
 
     btlso::IPv4Address serverAddress;
-    if (0 != serverSocket->setOption(btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                     btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+    if (0 != serverSocket->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_REUSEADDRESS,
                                      !!reuseAddress)) {
         return SET_OPTION_FAILED;                                     // RETURN
     }
@@ -2622,7 +2622,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
         // mode will force subsequent 'accept' calls to return
         // WSAEWOULDBLOCK *even when connection is present*.
 
-    if (0 != serverSocket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE))
+    if (0 != serverSocket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE))
     {
         return SET_NONBLOCKING_FAILED;                                // RETURN
     }
@@ -2662,7 +2662,7 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
               , server));
 
     if (0 != manager->registerSocketEvent(serverSocket->handle(),
-                                          btlso::EventType::BTESO_ACCEPT,
+                                          btlso::EventType::e_ACCEPT,
                                           acceptFunctor))
     {
         d_acceptors.erase(idx);
@@ -2833,7 +2833,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
         if (connectionSocket) {
             if (0 == connectionSocket->setBlockingMode(
-                                         bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+                                         bteso_Flag::e_NONBLOCKING_MODE)) {
 
                 typedef btlso::StreamSocketFactory<btlso::IPv4Address> Factory;
                 cs.d_socket.reset(connectionSocket,
@@ -2912,7 +2912,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                 return;                                               // RETURN
             }
         }
-        else if (btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK == retCode) {
+        else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == retCode) {
           bdlf::Function<void (*)()> connectEventFunctor(bdlf::BindUtil::bindA(
                         d_allocator_p
                       , &ChannelPool::connectEventCb
@@ -2923,7 +2923,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
 
             cs.d_inProgress = true;
             manager->registerSocketEvent(socket->handle(),
-                                         btlso::EventType::BTESO_CONNECT,
+                                         btlso::EventType::e_CONNECT,
                                          connectEventFunctor);
 
             // Note: continueFlag still equals true.
@@ -3415,7 +3415,7 @@ int ChannelPool::connect(
     BSLS_ASSERT(bsls::TimeInterval(0) < interval || 1 == numAttempts);
 
     if (0 != socket
-     && 0 != (*socket)->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+     && 0 != (*socket)->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE)) {
         return SET_NONBLOCKING_FAILED;                                // RETURN
     }
 
@@ -3446,7 +3446,7 @@ int ChannelPool::connect(
     BSLS_ASSERT(bsls::TimeInterval(0) < interval || 1 == numAttempts);
 
     if (0 != socket
-     && 0 != (*socket)->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+     && 0 != (*socket)->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE)) {
         return SET_NONBLOCKING_FAILED;                                // RETURN
     }
 
@@ -3729,7 +3729,7 @@ int ChannelPool::import(
 
 int ChannelPool::shutdown(int channelId, ShutdownMode how)
 {
-    return shutdown(channelId, bteso_Flag::BTESO_SHUTDOWN_BOTH, how);
+    return shutdown(channelId, bteso_Flag::e_SHUTDOWN_BOTH, how);
 }
 
 int ChannelPool::shutdown(int                      channelId,
@@ -3751,10 +3751,10 @@ int ChannelPool::shutdown(int                      channelId,
     BSLS_ASSERT(channelHandle);
 
     ChannelDownMask channelDownMask = CLOSED_BOTH_MASK;
-    if (bteso_Flag::BTESO_SHUTDOWN_RECEIVE == type) {
+    if (bteso_Flag::e_SHUTDOWN_RECEIVE == type) {
         channelDownMask = CLOSED_RECEIVE_MASK;
     }
-    else if (bteso_Flag::BTESO_SHUTDOWN_SEND == type) {
+    else if (bteso_Flag::e_SHUTDOWN_SEND == type) {
         channelDownMask = CLOSED_SEND_MASK;
     }
 

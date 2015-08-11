@@ -7,26 +7,27 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of data types for a log-user attribute.
+//@PURPOSE: Enumerate the set of data types for a user supplied attribute.
 //
 //@CLASSES:
-//  ball::UserFieldType: namespace for an enum of log-user attribute types
+//  ball::UserFieldType: namespace for an enum of user supplied attribute types
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type,
 // 'ball::UserFieldType::Enum', that enumerates the set of types a user
-// defined log-user attribute may have
+// defined log attribute may have.
 //
 ///Enumerators
 ///-----------
 //..
 //  Name                           Description
 //  -------------------            ----------------------------------
+//  e_VOID                         Enumerator representing an unset value
 //  e_INT64                        Enumerator representing an integral value
 //  e_DOUBLE                       Enumerator representing an double value
 //  e_STRING                       Enumerator representing a string value
-//  e_DATETIMETZ                   Enumerator representing a date value
+//  e_DATETIMETZ                   Enumerator representing a DatetimeTz value
 //..
 //
 ///Usage
@@ -86,10 +87,12 @@ struct UserFieldType {
     enum Enum {
         // Define the list of month-of-year values.
 
+        e_VOID,
         e_INT64,
         e_DOUBLE,
         e_STRING,
-        e_DATETIMETZ
+        e_DATETIMETZ,
+
     };
 
     // CLASS METHODS

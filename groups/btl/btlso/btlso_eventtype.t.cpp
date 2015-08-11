@@ -20,11 +20,11 @@ using namespace BloombergLP;
 // defined and accessible with the proper names as advertised in the
 // component-level documentation.
 //-----------------------------------------------------------------------------
-// [1] btlso::EventType::BTESO_ACCEPT
-// [1] btlso::EventType::BTESO_CONNECT
-// [1] btlso::EventType::BTESO_READ
-// [1] btlso::EventType::BTESO_WRITE
-// [1] btlso::EventType::BTESO_LENGTH
+// [1] btlso::EventType::e_ACCEPT
+// [1] btlso::EventType::e_CONNECT
+// [1] btlso::EventType::e_READ
+// [1] btlso::EventType::e_WRITE
+// [1] btlso::EventType::k_LENGTH
 //=============================================================================
 
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -78,11 +78,11 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        ASSERT( 0 == btlso::EventType::BTESO_ACCEPT );
-        ASSERT( 1 == btlso::EventType::BTESO_CONNECT );
-        ASSERT( 2 == btlso::EventType::BTESO_READ );
-        ASSERT( 3 == btlso::EventType::BTESO_WRITE );
-        ASSERT( 4 == btlso::EventType::BTESO_LENGTH );
+        ASSERT( 0 == btlso::EventType::e_ACCEPT );
+        ASSERT( 1 == btlso::EventType::e_CONNECT );
+        ASSERT( 2 == btlso::EventType::e_READ );
+        ASSERT( 3 == btlso::EventType::e_WRITE );
+        ASSERT( 4 == btlso::EventType::k_LENGTH );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       } break;

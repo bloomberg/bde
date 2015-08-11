@@ -33,6 +33,7 @@ bsl::ostream& UserFieldType::print(bsl::ostream&     stream,
 const char *UserFieldType::toAscii(UserFieldType::Enum value)
 {
     switch (value) {
+      case(e_VOID) : return "VOID";                                   // RETURN
       case(e_INT64) : return "INT64";                                 // RETURN
       case(e_DOUBLE) : return "DOUBLE";                               // RETURN
       case(e_STRING) : return "STRING";                               // RETURN

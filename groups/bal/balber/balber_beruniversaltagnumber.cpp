@@ -24,14 +24,14 @@ const char *BerUniversalTagNumber::toString(
 #define CASE(VALUE, STRING) case(VALUE): return #STRING;
 
     switch (value) {
-      CASE(BDEM_BER_BOOL,           BOOL)
-      CASE(BDEM_BER_INT,            INT)
-      CASE(BDEM_BER_OCTET_STRING,   OCTET_STRING)
-      CASE(BDEM_BER_REAL,           REAL)
-      CASE(BDEM_BER_ENUMERATION,    ENUMERATION)
-      CASE(BDEM_BER_UTF8_STRING,    UTF8_STRING)
-      CASE(BDEM_BER_SEQUENCE,       SEQUENCE)
-      CASE(BDEM_BER_VISIBLE_STRING, VISIBLE_STRING)
+      CASE(e_BER_BOOL,           BOOL)
+      CASE(e_BER_INT,            INT)
+      CASE(e_BER_OCTET_STRING,   OCTET_STRING)
+      CASE(e_BER_REAL,           REAL)
+      CASE(e_BER_ENUMERATION,    ENUMERATION)
+      CASE(e_BER_UTF8_STRING,    UTF8_STRING)
+      CASE(e_BER_SEQUENCE,       SEQUENCE)
+      CASE(e_BER_VISIBLE_STRING, VISIBLE_STRING)
       default: {
       } break;
     }
@@ -56,14 +56,14 @@ int BerUniversalTagNumber::fromString(
             return BDEM_SUCCESS;                                             \
         }
 
-    CHECK(BOOL,           BDEM_BER_BOOL)
-    CHECK(INT,            BDEM_BER_INT)
-    CHECK(OCTET_STRING,   BDEM_BER_OCTET_STRING)
-    CHECK(REAL,           BDEM_BER_REAL)
-    CHECK(ENUMERATION,    BDEM_BER_ENUMERATION)
-    CHECK(UTF8_STRING,    BDEM_BER_UTF8_STRING)
-    CHECK(SEQUENCE,       BDEM_BER_SEQUENCE)
-    CHECK(VISIBLE_STRING, BDEM_BER_VISIBLE_STRING)
+    CHECK(BOOL,           e_BER_BOOL)
+    CHECK(INT,            e_BER_INT)
+    CHECK(OCTET_STRING,   e_BER_OCTET_STRING)
+    CHECK(REAL,           e_BER_REAL)
+    CHECK(ENUMERATION,    e_BER_ENUMERATION)
+    CHECK(UTF8_STRING,    e_BER_UTF8_STRING)
+    CHECK(SEQUENCE,       e_BER_SEQUENCE)
+    CHECK(VISIBLE_STRING, e_BER_VISIBLE_STRING)
 
     return BDEM_NOT_FOUND;
 }

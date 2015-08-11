@@ -28,8 +28,6 @@ using namespace bsl;
 // The setters and getters are used to verify the functionality of this type,
 // and 'bslma::TestAllocator' is used to check proper allocator use.
 //
-// BDEX streaming is not provided for this type.
-//
 //-----------------------------------------------------------------------------
 // CREATORS
 // [2] btls5::DetailedStatus(Allocator *a = 0);

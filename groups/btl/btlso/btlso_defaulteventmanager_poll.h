@@ -104,14 +104,14 @@ BSLS_IDENT("$Id: $")
 // 'btlso::DefaultEventManager<btlso::Platform::POLL>' object; also create a
 // (locally-connected) socket pair:
 //..
-//  btlso::TimeMetrics timeMetric(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-//                               btlso::TimeMetrics::BTESO_CPU_BOUND);
+//  btlso::TimeMetrics timeMetric(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+//                               btlso::TimeMetrics::e_CPU_BOUND);
 //  btlso::DefaultEventManager<btlso::Platform::POLL> mX(&timeMetric);
 //
 //  btlso::SocketHandle::Handle socket[2];
 //
 //  int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-//                           socket, btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+//                           socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
 //
 //  assert(0 == rc);
 //..
@@ -122,30 +122,30 @@ BSLS_IDENT("$Id: $")
 //..
 //  int numBytes = 5;
 //  btlso::EventManager::Callback readCb(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::BTESO_READ,
+//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_READ,
 //                              socket[0], numBytes, &mX));
-//  mX.registerSocketEvent(socket[0], btlso::EventType::BTESO_READ, readCb);
+//  mX.registerSocketEvent(socket[0], btlso::EventType::e_READ, readCb);
 //
 //  numBytes = 25;
 //  btlso::EventManager::Callback writeCb1(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::BTESO_WRITE,
+//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
 //                              socket[0], numBytes, &mX));
-//  mX.registerSocketEvent(socket[0], btlso::EventType::BTESO_WRITE, writeCb1);
+//  mX.registerSocketEvent(socket[0], btlso::EventType::e_WRITE, writeCb1);
 //
 //  numBytes = 15;
 //  btlso::EventManager::Callback writeCb2(
-//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::BTESO_WRITE,
+//          bdlf::BindUtil::bind(&genericCb, btlso::EventType::e_WRITE,
 //                              socket[1], numBytes, &mX));
-//  mX.registerSocketEvent(socket[1], btlso::EventType::BTESO_WRITE, writeCb2);
+//  mX.registerSocketEvent(socket[1], btlso::EventType::e_WRITE, writeCb2);
 //
 //
 //  assert(3 == mX.numEvents());
 //  assert(2 == mX.numSocketEvents(socket[0]));
 //  assert(1 == mX.numSocketEvents(socket[1]));
-//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::BTESO_READ));
-//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::BTESO_READ));
-//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::BTESO_WRITE));
-//  assert(1 == mX.isRegistered(socket[1], btlso::EventType::BTESO_WRITE));
+//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::e_READ));
+//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+//  assert(1 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
 //..
 // Next, we try to execute the requests by calling the 'dispatch' function with
 // a timeout (5 seconds from now) requirement and verify the result.  The two
@@ -162,14 +162,14 @@ BSLS_IDENT("$Id: $")
 // Now we try to remove the write request of 'socket[0]' from the event manager
 // by calling 'deregisterSocketEvent()' and verify the state:
 //..
-//  mX.deregisterSocketEvent(socket[0], btlso::EventType::BTESO_WRITE);
+//  mX.deregisterSocketEvent(socket[0], btlso::EventType::e_WRITE);
 //  assert(2 == mX.numEvents());
 //  assert(1 == mX.numSocketEvents(socket[0]));
 //  assert(1 == mX.numSocketEvents(socket[1]));
-//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::BTESO_READ));
-//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::BTESO_READ));
-//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::BTESO_WRITE));
-//  assert(1 == mX.isRegistered(socket[1], btlso::EventType::BTESO_WRITE));
+//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::e_READ));
+//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+//  assert(1 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
 //..
 // We then try to remove all registrations associated with 'socket[1]' by
 // calling 'deregisterSocket()' and verify the state:
@@ -178,10 +178,10 @@ BSLS_IDENT("$Id: $")
 //  assert(1 == mX.numEvents());
 //  assert(1 == mX.numSocketEvents(socket[0]));
 //  assert(0 == mX.numSocketEvents(socket[1]));
-//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::BTESO_READ));
-//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::BTESO_READ));
-//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::BTESO_WRITE));
-//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::BTESO_WRITE));
+//  assert(1 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::e_READ));
+//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
 //..
 // Finally, we remove all registrations by calling 'deregisterAll()' and verify
 // the state again:
@@ -190,10 +190,10 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == mX.numEvents());
 //  assert(0 == mX.numSocketEvents(socket[0]));
 //  assert(0 == mX.numSocketEvents(socket[1]));
-//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::BTESO_READ));
-//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::BTESO_READ));
-//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::BTESO_WRITE));
-//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::BTESO_WRITE));
+//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
+//  assert(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
+//  assert(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
 //..
 // The following snippets of code show what a 'genericCb' may look like:
 //..
@@ -210,14 +210,14 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //      switch (event) {
-//        case btlso::EventType::BTESO_READ: {
+//        case btlso::EventType::e_READ: {
 //            assert(0 < bytes);
 //            char buffer[MAX_READ_SIZE];
 //
 //            int rc = btlso::SocketImpUtil::read(buffer, socket, bytes, 0);
 //            assert(0 < rc);
 //        } break;
-//        case btlso::EventType::BTESO_WRITE: {
+//        case btlso::EventType::e_WRITE: {
 //            char wBuffer[MAX_WRITE_SIZE];
 //            assert(0 < bytes);
 //            assert(MAX_WRITE_SIZE >= bytes);
@@ -365,36 +365,36 @@ class DefaultEventManager<Platform::POLL>
         // until either (1) at least one event occurs (in which case the
         // corresponding callback(s) is invoked), (2) the specified absolute
         // 'timeout' is reached, or (3) provided that the specified 'flags'
-        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system
         // call is interrupted by a signal.  Return the number of dispatched
         // callbacks on success, 0 if 'timeout' is reached, and a negative
         // value otherwise; -1 is reserved to indicate that an underlying
         // system call was interrupted.  When such an interruption occurs this
         // method will return -1 if 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', and otherwise will
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', and otherwise will
         // automatically restart (i.e., reissue the identical system call).
         // Note that all callbacks are invoked in the same thread that invokes
         // 'dispatch', and the order of invocation, relative to the order of
         // registration, is unspecified.  Also note that -1 is never returned
-        // unless 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // unless 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
         // registered with this event manager.  If no event is pending, wait
         // until either (1) at least one event occurs (in which case the
         // corresponding callback(s) is invoked) or (2) provided that the
-        // specified 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an
+        // specified 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT', an
         // underlying system call is interrupted by a signal.  Return the
         // number of dispatched callbacks on success, and a negative value
         // otherwise; -1 is reserved to indicate that an underlying system call
         // was interrupted.  When such an interruption occurs this method will
-        // return -1 if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'
+        // return -1 if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'
         // and otherwise will automatically restart (i.e., reissue the
         // identical system call).  Note that all callbacks are invoked in the
         // same thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
         // that -1 is never returned unless 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // 'bteso_Flag::k_ASYNC_INTERRUPT'.
 
     int registerSocketEvent(const SocketHandle::Handle&   handle,
                             const EventType::Type         event,
@@ -403,8 +403,8 @@ class DefaultEventManager<Platform::POLL>
         // invoked when the specified 'event' occurs on the specified socket
         // 'handle'.  Each socket event registration stays in effect until it
         // is subsequently deregistered; the callback is invoked each time the
-        // corresponding event is detected.  'EventType::BTESO_READ' and
-        // 'EventType::BTESO_WRITE' are the only events that can be
+        // corresponding event is detected.  'EventType::e_READ' and
+        // 'EventType::e_WRITE' are the only events that can be
         // registered simultaneously for a socket.  If a registration attempt
         // is made for an event that is already registered, the callback
         // associated with this event will be overwritten with the new one.

@@ -121,11 +121,11 @@ static btlmt::ChannelPool::ConnectResolutionMode mapResolutionMode(
                                btlmt::SessionPool::ConnectResolutionMode mode)
 {
     if (mode == btlmt::SessionPool::RESOLVE_AT_EACH_ATTEMPT) {
-        return btlmt::ChannelPool::BTEMT_RESOLVE_AT_EACH_ATTEMPT;     // RETURN
+        return btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT;     // RETURN
     }
 
     BSLS_ASSERT(mode == btlmt::SessionPool::RESOLVE_ONCE);
-    return btlmt::ChannelPool::BTEMT_RESOLVE_ONCE;
+    return btlmt::ChannelPool::e_RESOLVE_ONCE;
 }
 
                           // -----------------
@@ -141,7 +141,7 @@ void SessionPool::channelStateCb(int   channelId,
     using namespace bdlf::PlaceHolders;
 
     switch(state) {
-      case ChannelPool::BTEMT_CHANNEL_DOWN: {
+      case ChannelPool::e_CHANNEL_DOWN: {
           if (0 == userData) {
               break;
           }
@@ -175,13 +175,13 @@ void SessionPool::channelStateCb(int   channelId,
           d_handles.remove(handleId);
       } break;
 
-      case ChannelPool::BTEMT_CHANNEL_UP: {
+      case ChannelPool::e_CHANNEL_UP: {
           HandlePtr handle;
           if (d_handles.find(sourceId, &handle)) {
               // Handle not found, don't know this source
 
               d_channelPool_p->shutdown(channelId,
-                                        ChannelPool::BTEMT_IMMEDIATE);
+                                        ChannelPool::e_IMMEDIATE);
               return;
           }
           if (SessionPool_Handle::LISTENER == handle->d_type) {
@@ -216,7 +216,7 @@ void SessionPool::channelStateCb(int   channelId,
               // We raced against 'closeHandle()'.
 
               d_channelPool_p->shutdown(channelId,
-                                        ChannelPool::BTEMT_IMMEDIATE);
+                                        ChannelPool::e_IMMEDIATE);
               return;                                                 // RETURN
           }
 
@@ -244,7 +244,7 @@ void SessionPool::channelStateCb(int   channelId,
                    bdlf::BindUtil::bind(&SessionPool::sessionAllocationCb,
                                        this, _1, _2, handle->d_handleId));
       } break;
-      case ChannelPool::BTEMT_WRITE_CACHE_LOWWAT: {
+      case ChannelPool::e_WRITE_CACHE_LOWWAT: {
           if (0 == userData) {
               break;
           }
@@ -255,7 +255,7 @@ void SessionPool::channelStateCb(int   channelId,
                                        handle->d_userData_p);
           }
       } break;
-      case ChannelPool::BTEMT_WRITE_CACHE_HIWAT: {
+      case ChannelPool::e_WRITE_CACHE_HIWAT: {
           if (0 == userData) {
               break;
           }
@@ -300,7 +300,7 @@ void SessionPool::blobBasedReadCb(int          *numNeeded,
                               handle->d_channel_p->channelId() != channelId)) {
 
         d_channelPool_p->shutdown(channelId,
-                                  ChannelPool::BTEMT_IMMEDIATE);
+                                  ChannelPool::e_IMMEDIATE);
         *numNeeded   = 1;
         return;
     }
@@ -362,7 +362,7 @@ void SessionPool::handleDeleter(SessionPool_Handle *handle)
 void SessionPool::poolStateCb(int state, int source, int)
 {
     switch(state) {
-      case ChannelPool::BTEMT_ERROR_ACCEPTING: {
+      case ChannelPool::e_ERROR_ACCEPTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
             return;
@@ -378,9 +378,9 @@ void SessionPool::poolStateCb(int state, int source, int)
         d_poolStateCB(ACCEPT_FAILED, source, handle->d_userData_p);
       } break;
 
-      case ChannelPool::BTEMT_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
-      case ChannelPool::BTEMT_ERROR_SETTING_OPTIONS:          // FALL THROUGH
-      case ChannelPool::BTEMT_ERROR_CONNECTING: {
+      case ChannelPool::e_ERROR_BINDING_CLIENT_ADDR:      // FALL THROUGH
+      case ChannelPool::e_ERROR_SETTING_OPTIONS:          // FALL THROUGH
+      case ChannelPool::e_ERROR_CONNECTING: {
         HandlePtr handle;
         if (d_handles.find(source, &handle)) {
             return;
@@ -417,7 +417,7 @@ void SessionPool::poolStateCb(int state, int source, int)
         }
       } break;
 
-      case ChannelPool::BTEMT_CHANNEL_LIMIT: {
+      case ChannelPool::e_CHANNEL_LIMIT: {
         d_poolStateCB(SESSION_LIMIT_REACHED, 0, 0);
       } break;
     }
@@ -774,7 +774,7 @@ int SessionPool::connect(
                                        handleId,
                                        mapResolutionMode(resolutionMode),
                                        false,
-                                       ChannelPool::BTEMT_CLOSE_BOTH,
+                                       ChannelPool::e_CLOSE_BOTH,
                                        socketOptions,
                                        localAddress);
     if (ret) {
@@ -814,7 +814,7 @@ int SessionPool::connect(
                                        interval,
                                        handleId,
                                        false,
-                                       ChannelPool::BTEMT_CLOSE_BOTH,
+                                       ChannelPool::e_CLOSE_BOTH,
                                        socketOptions,
                                        localAddress);
     if (ret) {
@@ -858,7 +858,7 @@ int SessionPool::connect(
                                        socket,
                                        mapResolutionMode(resolutionMode),
                                        false,
-                                       ChannelPool::BTEMT_CLOSE_BOTH);
+                                       ChannelPool::e_CLOSE_BOTH);
     if (ret) {
         HandlePtr handle;
         int rc = d_handles.remove(handleId, &handle);
@@ -897,7 +897,7 @@ int SessionPool::connect(
                                        handleId,
                                        socket,
                                        false,
-                                       ChannelPool::BTEMT_CLOSE_BOTH);
+                                       ChannelPool::e_CLOSE_BOTH);
     if (ret) {
         HandlePtr handle;
         d_handles.remove(handleId, &handle);

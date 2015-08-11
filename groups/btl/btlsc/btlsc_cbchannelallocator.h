@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 // to return, if possible, with an "interrupted" status (leaving the factory
 // unaffected) upon the occurrence of an AE.  Such authorizations are made
 // explicitly by incorporating into the optional (trailing) integer 'flags'
-// argument to a method call the 'btesc_Flag::BTESC_ASYNC_INTERRUPT' value.
+// argument to a method call the 'btesc_Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Usage
 ///-----
@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  static void myPrintTick(bsl::ostream& stream, const char *buffer);
 //      // Print the value of the specified 'buffer' interpreted as a
-//      // 'bdex' byte-stream representation of a 'my_Tick' value, to the
+//      // BDEX byte-stream representation of a 'my_Tick' value, to the
 //      // specified 'stream' or report an error to 'stream' if 'buffer' is
 //      // determined *not* to hold an encoding of a valid 'my_Tick' value.
 //..
@@ -187,21 +187,23 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this server object.
 //  };
 //
+//  #define VERSION_SELECTOR 20140601
+//
 //  const double ACCEPT_TIME_LIMIT = 300;               // 5 minutes
 //  const double   READ_TIME_LIMIT =  60;               // 1 minutes
 //
 //  static int calculateMyTickMessageSize()
-//      // Calculate and return the number of bytes in a 'bdex' byte-stream
+//      // Calculate and return the number of bytes in a BDEX byte-stream
 //      // encoding of a (dummy) 'my_Tick' value (called just once, see below).
 //  {
 //      my_Tick dummy;
-//      bdlxxxx::ByteOutStream bos;
+//      bslx::ByteOutStream bos(VERSION_SELECTOR);
 //      bos << dummy;
 //      return bos.length();
 //  }
 //
 //  static int myTickMessageSize()
-//      // Return the number of bytes in a 'bdex' byte-stream encoding
+//      // Return the number of bytes in a BDEX byte-stream encoding
 //      // of a 'my_Tick' value without creating a runtime-initialized
 //      // file-scope static variable (which is link-order dependent).
 //  {
@@ -523,7 +525,7 @@ BSLS_IDENT("$Id: $")
 //                                         const my_Tick&       tick)
 //  {
 //      if (serverChannel) {     // Successfully created a connection.
-//          bdlxxxx::ByteOutStream bos;
+//          bslx::ByteOutStream bos(VERSION_SELECTOR);
 //          bos << tick;
 //          int msgSize = bos.length();
 //
@@ -784,7 +786,7 @@ class CbChannelAllocator
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'callback' will not be
@@ -808,7 +810,7 @@ class CbChannelAllocator
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt the allocation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case

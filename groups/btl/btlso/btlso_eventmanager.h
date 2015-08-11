@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //              bdlf::BindUtil::bind(function, sockets[i]));
 //
 //          if (manager->registerSocketEvent(sockets[i],
-//                                           btlso::EventType::BTESO_READ,
+//                                           btlso::EventType::e_READ,
 //                                           callback))
 //          {
 //              // For cleanliness, when a registration fails, we will cancel
@@ -131,16 +131,16 @@ class EventManager {
         // event is pending, wait until either (1) at least one event occurs
         // (in which case the corresponding callback(s) is invoked) or (2)
         // provided that the specified 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system call is
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call is
         // interrupted by a signal.  Return the number of dispatched callbacks
         // on success, and a negative value otherwise; -1 is reserved to
         // indicate that an underlying system call was interrupted.  When such
         // an interruption occurs this method will return -1 if 'flags'
-        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT' and otherwise will
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise will
         // automatically restart (i.e., reissue the identical system call).
         // Note that the order of invocation, relative to the order of
         // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.  Also
+        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also
         // note that the behavior of this method may be undefined if the number
         // of registered sockets is 0.
 
@@ -151,16 +151,16 @@ class EventManager {
         // (in which case the corresponding callback(s) is invoked), (2) the
         // specified relative 'timeout' interval is exceeded, or (3) provided
         // that the specified 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system call is
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call is
         // interrupted by a signal.  Return the number of dispatched callbacks
         // on success, 0 on timeout, and a negative value otherwise; -1 is
         // reserved to indicate that an underlying system call was interrupted.
         // When such an interruption occurs this method will return -1 if
-        // 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT' and otherwise
+        // 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise
         // will automatically restart (i.e., reissue the identical system
         // call).  Note that the order of invocation, relative to the order of
         // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.  Also
+        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also
         // note that the behavior of this method may be undefined if the number
         // of registered sockets is 0.
 
@@ -174,8 +174,8 @@ class EventManager {
         // success and a non-zero value otherwise.  Socket event registrations
         // stay in effect until they are subsequently deregistered; the
         // callback is invoked each time the specified 'event' is seen.
-        // Typically, 'EventType::BTESO_READ' and
-        // 'EventType::BTESO_WRITE' are the only events that can be
+        // Typically, 'EventType::e_READ' and
+        // 'EventType::e_WRITE' are the only events that can be
         // registered simultaneously for a socket.  Simultaneously registering
         // for incompatible events for the same socket 'handle' may result in
         // undefined behavior.  If a registration attempt is made for an event

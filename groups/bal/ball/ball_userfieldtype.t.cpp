@@ -101,7 +101,7 @@ typedef Obj::Enum           Enum;
 //                       GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-const int NUM_ENUMERATORS = 4;
+const int NUM_ENUMERATORS = 5;
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
@@ -231,6 +231,7 @@ if (veryVerbose)
         } DATA[] = {
             // line   enumerator value                       expected output
             // ----   ----------------                       ---------------
+            {  L_,    Obj::e_VOID,                           "VOID"         },
             {  L_,    Obj::e_INT64,                          "INT64"         },
             {  L_,    Obj::e_DOUBLE,                         "DOUBLE"        },
             {  L_,    Obj::e_STRING,                         "STRING"        },
@@ -360,6 +361,7 @@ if (veryVerbose)
 #define NL "\n"
             //line level spl    enumerator value          expected result
             //---- ----- --- ----------------------       -----------------
+            { L_,    0,   4, Obj::e_VOID,                  "VOID" NL         },
             { L_,    0,   4, Obj::e_INT64,                "INT64" NL         },
             { L_,    0,   4, Obj::e_DOUBLE,               "DOUBLE" NL        },
             { L_,    0,   4, Obj::e_STRING,               "STRING" NL        },
@@ -495,6 +497,7 @@ if (veryVerbose)
         } DATA[] = {
             // line   enumerator value                       expected output
             // ----   ----------------                       ---------------
+            {  L_,    Obj::e_VOID,                            "VOID"         },
             {  L_,    Obj::e_INT64,                          "INT64"         },
             {  L_,    Obj::e_DOUBLE,                         "DOUBLE"        },
             {  L_,    Obj::e_STRING,                         "STRING"        },

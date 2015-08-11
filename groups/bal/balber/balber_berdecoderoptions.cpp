@@ -36,28 +36,28 @@ const int balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE = 8388608;
 
 const bdeat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
-        ATTRIBUTE_ID_MAX_DEPTH,
+        e_ATTRIBUTE_ID_MAX_DEPTH,
         "MaxDepth",             // name
         sizeof("MaxDepth") - 1, // name length
         "maximum recursion depth",  // annotation
         bdeat_FormattingMode::BDEAT_DEC // formatting mode
     },
     {
-        ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
+        e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS,
         "SkipUnknownElements",             // name
         sizeof("SkipUnknownElements") - 1, // name length
         "Option to skip unknown elements",  // annotation
         bdeat_FormattingMode::BDEAT_TEXT // formatting mode
     },
     {
-        ATTRIBUTE_ID_TRACE_LEVEL,
+        e_ATTRIBUTE_ID_TRACE_LEVEL,
         "TraceLevel",             // name
         sizeof("TraceLevel") - 1, // name length
         "trace (verbosity) level",  // annotation
         bdeat_FormattingMode::BDEAT_DEC // formatting mode
     },
     {
-        ATTRIBUTE_ID_MAX_SEQUENCE_SIZE,
+        e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE,
         "MaxSequenceSize",             // name
         sizeof("MaxSequenceSize") - 1, // name length
         "maximum sequence size",  // annotation
@@ -83,7 +83,7 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[6])=='T'
              && bdlb::CharType::toUpper(name[7])=='H')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH];
             }
         } break;
         case 10: {
@@ -98,7 +98,7 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[8])=='E'
              && bdlb::CharType::toUpper(name[9])=='L')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL];
             }
         } break;
         case 15: {
@@ -118,7 +118,7 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[13])=='Z'
              && bdlb::CharType::toUpper(name[14])=='E')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
             }
         } break;
         case 19: {
@@ -142,7 +142,7 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
              && bdlb::CharType::toUpper(name[17])=='T'
              && bdlb::CharType::toUpper(name[18])=='S')
             {
-                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
+                return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
             }
         } break;
     }
@@ -152,14 +152,14 @@ const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
 const bdeat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
 {
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH];
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
-      case ATTRIBUTE_ID_TRACE_LEVEL:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL];
-      case ATTRIBUTE_ID_MAX_SEQUENCE_SIZE:
-        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
+      case e_ATTRIBUTE_ID_MAX_DEPTH:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH];
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
+      case e_ATTRIBUTE_ID_TRACE_LEVEL:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL];
+      case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
       default:
         return 0;
     }

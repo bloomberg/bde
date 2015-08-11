@@ -237,7 +237,7 @@ static int registerReadCb(ReadCallback                         callback,
         readCb = bdlf::BindUtil::bind(callback, negotiation);
     int rc = negotiation->d_eventManager_p->registerSocketEvent(
                                                    negotiation->d_handle,
-                                                   btlso::EventType::BTESO_READ,
+                                                   btlso::EventType::e_READ,
                                                    readCb);
     if (rc < 0) {
         terminate(negotiation,
@@ -482,7 +482,7 @@ static void methodCallback(btls5::Negotiator::NegotiationHandle negotiation)
 
     negotiation->d_eventManager_p->deregisterSocketEvent(
                                                   negotiation->d_handle,
-                                                  btlso::EventType::BTESO_READ);
+                                                  btlso::EventType::e_READ);
     MethodResponsePkt pkt;
     int rc = negotiation->d_socket_p->read(
                                   reinterpret_cast<char *>(&pkt),

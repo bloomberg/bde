@@ -670,10 +670,10 @@ void *connectFunction(void *args)
     do {
         int rc = socket->read(buffer.data(), numRemaining);
         if (rc < 0) {
-            if (rc == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            if (rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
                 continue;
             }
-            socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             return 0;                                                 // RETURN
         }
 
@@ -683,7 +683,7 @@ void *connectFunction(void *args)
             rc = socket->write(buffer.data(), numRemaining);
 
             if (rc < 0) {
-                socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+                socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
                 return 0;                                             // RETURN
             }
 
@@ -723,7 +723,7 @@ void *listenFunction(void *args)
     btlso::StreamSocket<btlso::IPv4Address> *acceptSocket;
     ASSERT(!serverSocket->accept(&acceptSocket));
     ASSERT(0 ==
-            acceptSocket->setBlockingMode(bteso_Flag::BTESO_BLOCKING_MODE));
+            acceptSocket->setBlockingMode(bteso_Flag::e_BLOCKING_MODE));
 
     bsl::vector<char> buffer(NUM_BYTES);
 
@@ -731,10 +731,10 @@ void *listenFunction(void *args)
     do {
         int rc = acceptSocket->read(buffer.data(), numRemaining);
         if (rc < 0) {
-            if (rc == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            if (rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
                 continue;
             }
-            acceptSocket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+            acceptSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
             return 0;                                                 // RETURN
         }
 
@@ -744,7 +744,7 @@ void *listenFunction(void *args)
             rc = acceptSocket->write(buffer.data(), numRemaining);
 
             if (rc < 0) {
-                acceptSocket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+                acceptSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
                 return 0;                                             // RETURN
             }
 
@@ -1317,7 +1317,7 @@ Tester::Tester(int                        mode,
 : d_config()
 , d_sessionPool_p()
 , d_sessionFactory(mode, barrier, basicAllocator)
-, d_portNumber(btlso::IPv4Address::BTESO_ANY_PORT)
+, d_portNumber(btlso::IPv4Address::k_ANY_PORT)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_config.setMaxThreads(4);                  // 4 I/O threads
@@ -2015,7 +2015,7 @@ int main(int argc, char *argv[])
         btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
 
         btlso::IPv4Address address("127.0.0.1",
-                                  btlso::IPv4Address::BTESO_ANY_PORT);
+                                  btlso::IPv4Address::k_ANY_PORT);
 
         bdlqq::Barrier barrier(3);
 
@@ -2043,7 +2043,7 @@ int main(int argc, char *argv[])
             MTCOUT << "Bringing down the channel" << MTENDL;
         }
 
-        socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 
         factory.deallocate(socket);
 
@@ -2917,7 +2917,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == socket->connect(ADDRESS));
 
-        socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
+        socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
 
         barrier.wait();
       } break;

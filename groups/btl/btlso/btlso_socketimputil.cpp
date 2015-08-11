@@ -143,7 +143,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
 
         case WSAEWOULDBLOCK:
         case WSAEINPROGRESS:
-             return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+             return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 
         case WSAECONNABORTED:
         case WSAECONNREFUSED:
@@ -157,10 +157,10 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
         case WSAENOTCONN:
         case WSAEREFUSED:
         case WSAETIMEDOUT:
-             return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+             return btlso::SocketHandle::e_ERROR_CONNDEAD;
 
         case WSAEINTR:
-             return btlso::SocketHandle::BTESO_ERROR_INTERRUPTED;
+             return btlso::SocketHandle::e_ERROR_INTERRUPTED;
 
         case WSAEACCES:
         case WSAEADDRINUSE:
@@ -173,7 +173,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
         case WSAESTALE:
         case WSANOTINITIALISED:
         case WSASYSNOTREADY:
-             return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+             return btlso::SocketHandle::e_ERROR_NORESOURCES;
 
         case WSAEAFNOSUPPORT:
         case WSAEALREADY:
@@ -207,28 +207,28 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
         case WSAVERNOTSUPPORTED:
         case WSA_E_CANCELLED:
         case WSA_E_NO_MORE:
-             return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+             return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #else
     switch (BSLS_PERFORMANCEHINT_PREDICT_EXPECT(errorNumber, EAGAIN)) {
 #if EAGAIN!=EWOULDBLOCK
      case EAGAIN:
 #endif
      case EWOULDBLOCK:
-         return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+         return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 
 #ifdef EACCES
         case EACCES:
           // Search permission is denied for a component of the path prefix of
           // the pathname in name.
 
-          return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+          return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef EADDRINUSE
         case EADDRINUSE:
            // The address is already in use.
 
-         return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+         return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef EADDRNOTAVAIL
@@ -236,7 +236,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The specified address is not available on the remote
            // machine.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef EAFNOSUPPORT
@@ -244,7 +244,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // Addresses in the specified address family cannot be
            // used with this socket.
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef EALREADY
@@ -252,21 +252,21 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The socket is non-blocking and a previous connection
            // attempt has not yet been completed.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef EBADF
         case EBADF:
            // The descriptor is invalid.
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ECONNREFUSED
         case ECONNREFUSED:
            // The attempt to connect was forcefully rejected.
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef EINPROGRESS
@@ -274,20 +274,20 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The socket is non-blocking and the connection cannot be completed
            // immediately.
 
-           return btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK;
+           return btlso::SocketHandle::e_ERROR_WOULDBLOCK;
 #endif
 
         case EINTR:
            // The operation was interrupted by the delivery of a signal.
 
-           return btlso::SocketHandle::BTESO_ERROR_INTERRUPTED;
+           return btlso::SocketHandle::e_ERROR_INTERRUPTED;
 
 #ifdef EIO
         case EIO:
            // An I/O error occurred while reading from or writing to the file
            // system.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef EINVAL
@@ -295,14 +295,14 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // tolen is not the size of a valid address for the specified
            // address family.
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef EISCONN
         case EISCONN:
            // The socket is already connected.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef ELOOP
@@ -310,14 +310,14 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // Too many symbolic links were encountered in translating the
            // pathname in name.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef ENETUNREACH
         case ENETUNREACH:
            // The network is not reachable from this host.
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef EMSGSIZE
@@ -325,14 +325,14 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The socket requires that message be sent atomically, and the
            // message was too long.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef EMFILE
         case EMFILE:
            // The per-process descriptor table is full.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef ENFILE
@@ -340,7 +340,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The maximum number of file descriptors in the system are already
            // open.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef ENODEV
@@ -348,7 +348,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The protocol family and type corresponding to s could not be
            // found in the netconfig file.
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ENOMEM
@@ -356,7 +356,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // There was insufficient user memory available to complete the
            // operation.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef ENOSR
@@ -364,7 +364,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // There were insufficient STREAMS resources available to complete
            // the operation.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef ENOENT
@@ -372,34 +372,34 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // A component of the path prefix of the pathname in name does not
            // exist.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef ENXIO
      case ENXIO:
            //  The server exited before the connection was complete.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
      case ETIMEDOUT:
            // Connection establishment timed out without establishing a
            // connection.
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 
 #ifdef ENOTSOCK
      case ENOTSOCK:
            // The descriptor does not reference a socket.
 
-          return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+          return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #ifdef EOPNOTSUPP
      case EOPNOTSUPP:
            // The referenced socket is not of type SOCK_STREAM.
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef EOPNOSUPPORT
@@ -407,7 +407,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The specified protocol does not support creation of socket
            // pairs.
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef EPIPE
@@ -418,7 +418,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // to the process.  The process dies unless special provisions were
            // taken to catch or ignore the signal.
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef EPROTONOSUPPORT
@@ -426,133 +426,133 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
            // The specified protocol is not supported on this
            // machine.
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef EPROTO
      case EPROTO:
            // A protocol error has occurred;
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ECONNABORTED
      case ECONNABORTED:
            // Software caused connection abort
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef ECONNRESET
      case ECONNRESET:
            // Connection reset by peer
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef EDESTADDRREQ
      case EDESTADDRREQ:
            // Destination address required
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef EHOSTDOWN
      case EHOSTDOWN:
            // Host is down
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef EHOSTUNREACH
      case EHOSTUNREACH:
            // No route to host
 
-          return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+          return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef ENETDOWN
      case ENETDOWN:
            // Network is down
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef ENETRESET
      case ENETRESET:
            // Network dropped connection because
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef ENOBUFS
      case ENOBUFS:
            // No buffer space available
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ENOPROTOOPT
      case ENOPROTOOPT:
            // Protocol not available
 
-           return  btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return  btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ENOTCONN
      case ENOTCONN:
            // Socket is not connected
 
-           return btlso::SocketHandle::BTESO_ERROR_CONNDEAD;
+           return btlso::SocketHandle::e_ERROR_CONNDEAD;
 #endif
 
 #ifdef EPFNOSUPPORT
      case EPFNOSUPPORT:
            // Protocol family not supported
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef EPROTOTYPE
      case EPROTOTYPE:
            // Protocol wrong type for socket
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ESHUTDOWN
      case ESHUTDOWN:
            // Cant send after socket shutdown
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ESOCKTNOSUPPORT
      case ESOCKTNOSUPPORT:
            // Socket type not supported
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ETOOMANYREFS
      case ETOOMANYREFS:
            // Too many references: cant splice
 
-           return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+           return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
 #endif
 
 #ifdef ESTALE
      case ESTALE:
            // A stale NFS file handle exists.
 
-           return btlso::SocketHandle::BTESO_ERROR_NORESOURCES;
+           return btlso::SocketHandle::e_ERROR_NORESOURCES;
 #endif
 
 #endif
 
      case 0: return 0;
 
-     default: return btlso::SocketHandle::BTESO_ERROR_UNCLASSIFIED;
+     default: return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;
     }
 
     BSLS_ASSERT_OPT("Unreachable" && 0);
@@ -698,12 +698,12 @@ int btlso::SocketImpUtil::shutDown(const btlso::SocketHandle::Handle& socket,
                                   int                              *errorCode)
 {
     int rc;
-    BSLMF_ASSERT(BTESO_SHUTDOWN_RECEIVE == 0 &&
-                 BTESO_SHUTDOWN_SEND == 1 &&
-                 BTESO_SHUTDOWN_BOTH == 2);
+    BSLMF_ASSERT(e_SHUTDOWN_RECEIVE == 0 &&
+                 e_SHUTDOWN_SEND == 1 &&
+                 e_SHUTDOWN_BOTH == 2);
 
-    BSLS_ASSERT((int) how >= BTESO_SHUTDOWN_RECEIVE
-             && (int) how <= BTESO_SHUTDOWN_BOTH);
+    BSLS_ASSERT((int) how >= e_SHUTDOWN_RECEIVE
+             && (int) how <= e_SHUTDOWN_BOTH);
 
     rc = ::shutdown(socket, (int) how);
     int errorNumber = rc >= 0 ? 0 : SocketImpUtil_Util::getErrorCode();
@@ -723,12 +723,12 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
     BSLS_ASSERT(newSockets);
 
     // Validate the parameters
-    if (type != btlso::SocketImpUtil::BTESO_SOCKET_STREAM
-    &&  type != btlso::SocketImpUtil::BTESO_SOCKET_DATAGRAM) {
+    if (type != btlso::SocketImpUtil::k_SOCKET_STREAM
+    &&  type != btlso::SocketImpUtil::k_SOCKET_DATAGRAM) {
         return -1;
     }
 
-    if (type == btlso::SocketImpUtil::BTESO_SOCKET_STREAM) {
+    if (type == btlso::SocketImpUtil::k_SOCKET_STREAM) {
         // A pair of TCP sockets are created each connected to
         // each other via the loopback address and an anonymous
         // port.
@@ -744,7 +744,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
 
         // Bind to localhost and anon port.
         btlso::IPv4Address localAnonAddress("127.0.0.1",
-                                           btlso::IPv4Address::BTESO_ANY_PORT);
+                                           btlso::IPv4Address::k_ANY_PORT);
         classification = btlso::SocketImpUtil::bind(listenSocket,
                                                    localAnonAddress,
                                                    errorCode);
@@ -842,7 +842,7 @@ int btlso::SocketImpUtil_Imp<btlso::IPv4Address>::socketPair(
 
         // Bind to localhost and anon port.
         btlso::IPv4Address localAnonAddress("127.0.0.1",
-                                           btlso::IPv4Address::BTESO_ANY_PORT);
+                                           btlso::IPv4Address::k_ANY_PORT);
         classification = btlso::SocketImpUtil::bind(clientSocket,
                                                    localAnonAddress,
                                                    errorCode);

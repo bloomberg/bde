@@ -501,54 +501,54 @@ static int buildChannelHelper(
 {
     int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      socketPair,
-                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::k_SOCKET_STREAM);
     ASSERT(0 == ret);
 
     ret = btlso::SocketOptUtil::setOption(socketPair[0],
-                                         btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                        btlso::SocketOptUtil::BTESO_TCPNODELAY,
+                                         btlso::SocketOptUtil::k_TCPLEVEL,
+                                        btlso::SocketOptUtil::k_TCPNODELAY,
                                          1);
     ASSERT(0 == ret);
 
     ret = btlso::SocketOptUtil::setOption(socketPair[1],
-                                         btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                                        btlso::SocketOptUtil::BTESO_TCPNODELAY,
+                                         btlso::SocketOptUtil::k_TCPLEVEL,
+                                        btlso::SocketOptUtil::k_TCPNODELAY,
                                          1);
     ASSERT(0 == ret);
 
     ret = btlso::SocketOptUtil::setOption(socketPair[0],
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SENDBUFFER,
                                         BUF_LIMIT);
     ASSERT(0 == ret);
 
     ret = btlso::SocketOptUtil::setOption(socketPair[0],
-                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                     btlso::SocketOptUtil::BTESO_RECEIVEBUFFER,
+                                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_RECEIVEBUFFER,
                                       BUF_LIMIT);
     ASSERT(0 == ret);
 
     ret = btlso::SocketOptUtil::setOption(socketPair[1],
-                                       btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                        btlso::SocketOptUtil::BTESO_SENDBUFFER,
+                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                        btlso::SocketOptUtil::k_SENDBUFFER,
                                         BUF_LIMIT);
     ASSERT(0 == ret);
 
     ret = btlso::SocketOptUtil::setOption(socketPair[1],
-                                      btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                     btlso::SocketOptUtil::BTESO_RECEIVEBUFFER,
+                                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                     btlso::SocketOptUtil::k_RECEIVEBUFFER,
                                       BUF_LIMIT);
     ASSERT(0 == ret);
     int sndBufferSize = 0, rcvBufferSize = 0;
     ret = btlso::SocketOptUtil::getOption(&sndBufferSize, socketPair[0],
-            btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-            btlso::SocketOptUtil::BTESO_SENDBUFFER);
+            btlso::SocketOptUtil::k_SOCKETLEVEL,
+            btlso::SocketOptUtil::k_SENDBUFFER);
     if (0 != ret) {
         return ret;
     }
     ret = btlso::SocketOptUtil::getOption(&rcvBufferSize, socketPair[1],
-            btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-            btlso::SocketOptUtil::BTESO_RECEIVEBUFFER);
+            btlso::SocketOptUtil::k_SOCKETLEVEL,
+            btlso::SocketOptUtil::k_RECEIVEBUFFER);
     if (0 != ret) {
         return ret;
     }
@@ -1048,23 +1048,23 @@ int main(int argc, char *argv[]) {
             btlso::SocketHandle::Handle handles[2];
             int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                                      handles,
-                                    btlso::SocketImpUtil::BTESO_SOCKET_STREAM);
+                                    btlso::SocketImpUtil::k_SOCKET_STREAM);
             ASSERT(0 == ret);
             // The following socket options are set only if necessary.
 
             ret = btlso::SocketOptUtil::setOption(handles[0],
-                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                        btlso::SocketOptUtil::BTESO_SENDBUFFER, 8192);
+                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                        btlso::SocketOptUtil::k_SENDBUFFER, 8192);
             ASSERT(0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                        btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                        btlso::SocketOptUtil::BTESO_RECEIVEBUFFER, 8192);
+                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+                        btlso::SocketOptUtil::k_RECEIVEBUFFER, 8192);
             ASSERT(0 == ret);
 
             ret = btlso::SocketOptUtil::setOption(handles[1],
-                            btlso::SocketOptUtil::BTESO_TCPLEVEL,
-                            btlso::SocketOptUtil::BTESO_TCPNODELAY, 1);
+                            btlso::SocketOptUtil::k_TCPLEVEL,
+                            btlso::SocketOptUtil::k_TCPNODELAY, 1);
             ASSERT(0 == ret);
             btlso::InetStreamSocketFactory<btlso::IPv4Address>
                                                   factory(&testAllocator);

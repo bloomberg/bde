@@ -58,8 +58,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Second, create a 'btlso::TimeMetrics' to give to the event manager:
 //..
-//  btlso::TimeMetrics metrics(btlso::TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-//                            btlso::TimeMetrics::BTESO_CPU_BOUND);
+//  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+//                            btlso::TimeMetrics::e_CPU_BOUND);
 //..
 // Now, create a default event manager (using 'btlso::EventMgr') that uses this
 // 'metrics':
@@ -188,16 +188,16 @@ class DefaultEventManager : public EventManager {
         // event is pending, wait until either (1) at least one event occurs
         // (in which case the corresponding callback(s) is invoked) or (2)
         // provided that the specified 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system call is
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call is
         // interrupted by a signal.  Return the number of dispatched callbacks
         // on success, and a negative value otherwise; -1 is reserved to
         // indicate that an underlying system call was interrupted.  When such
         // an interruption occurs this method will return -1 if 'flags'
-        // contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT' and otherwise will
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT' and otherwise will
         // automatically restart (i.e., reissue the identical system call).
         // Note that the order of invocation, relative to the order of
         // registration, is unspecified and that -1 is never returned if
-        // 'flags' does not contain 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.  Also
+        // 'flags' does not contain 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also
         // note that the behavior of this method may be undefined if the number
         // of registered sockets is 0.
 
@@ -208,17 +208,17 @@ class DefaultEventManager : public EventManager {
         // (in which case the corresponding callback(s) are invoked), (2) the
         // specified absolute 'timeout' interval is reached, or (3) provided
         // that the specified 'flags' contains
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', an underlying system call is
+        // 'bteso_Flag::k_ASYNC_INTERRUPT', an underlying system call is
         // interrupted by a signal.  Return the number of dispatched callbacks
         // on success, 0 if 'timeout' is reached, and a negative value
         // otherwise; -1 is reserved to indicate that an underlying system call
         // was interrupted.  When such an interruption occurs this method will
-        // return -1 if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'
+        // return -1 if 'flags' contains 'bteso_Flag::k_ASYNC_INTERRUPT'
         // and otherwise will automatically restart (i.e., reissue the
         // identical system call).  Note that the order of invocation, relative
         // to the order of registration, is unspecified and that -1 is never
         // returned if 'flags' does not contain
-        // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.  Also note that the behavior of
+        // 'bteso_Flag::k_ASYNC_INTERRUPT'.  Also note that the behavior of
         // this method may be undefined if the number of registered sockets is
         // 0.
 
@@ -231,8 +231,8 @@ class DefaultEventManager : public EventManager {
         // success and a non-zero value otherwise.  Socket event registrations
         // stay in effect until they are subsequently deregistered; the
         // callback is invoked each time the specified 'event' is seen.
-        // Typically, 'EventType::BTESO_READ' and
-        // 'EventType::BTESO_WRITE' are the only events that can be
+        // Typically, 'EventType::e_READ' and
+        // 'EventType::e_WRITE' are the only events that can be
         // registered simultaneously for a socket.  Simultaneously registering
         // for incompatible events for the same socket 'handle' may result in
         // undefined behavior.  If a registration attempt is made for an event

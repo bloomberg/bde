@@ -274,12 +274,12 @@ void TcpCbAcceptor::acceptCb() {
         }
     }
     else {  // Existing connection - find out what happened
-        if (status == btlso::SocketHandle::BTESO_ERROR_INTERRUPTED &&
-            d_currentRequest_p->flags() & btesc_Flag::BTESC_ASYNC_INTERRUPT) {
-            d_currentRequest_p->invoke(btesc_Flag::BTESC_ASYNC_INTERRUPT);
+        if (status == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
+            d_currentRequest_p->flags() & btesc_Flag::k_ASYNC_INTERRUPT) {
+            d_currentRequest_p->invoke(btesc_Flag::k_ASYNC_INTERRUPT);
         }
         else {
-            if (status != btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            if (status != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
                 d_currentRequest_p->invoke(status);
             }
             else {
@@ -300,7 +300,7 @@ void TcpCbAcceptor::acceptCb() {
             // socket was deallocated, and 'd_serverSocket_p' is NULL.
 
             d_manager_p->deregisterSocketEvent(d_serverSocket_p->handle(),
-                                               btlso::EventType::BTESO_ACCEPT);
+                                               btlso::EventType::e_ACCEPT);
         }
     }
 
@@ -425,7 +425,7 @@ int TcpCbAcceptor::allocate(const Callback& callback, int flags)
     if (1 == d_callbacks.size()) {
         if (0 != d_manager_p->registerSocketEvent(
                                                 d_serverSocket_p->handle(),
-                                                btlso::EventType::BTESO_ACCEPT,
+                                                btlso::EventType::e_ACCEPT,
                                                 d_acceptFunctor)) {
             d_callbacks.pop_back();
             cb->invoke(e_CANCELLED);
@@ -458,7 +458,7 @@ int TcpCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
     d_callbacks.push_front(cb);
     if (1 == d_callbacks.size()) {
         if (0 != d_manager_p->registerSocketEvent(d_serverSocket_p->handle(),
-                                         btlso::EventType::BTESO_ACCEPT,
+                                         btlso::EventType::e_ACCEPT,
                                          d_acceptFunctor)) {
             d_callbacks.pop_back();
             cb->invoke(e_CANCELLED);
@@ -497,7 +497,7 @@ void TcpCbAcceptor::cancelAll()
         int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_manager_p->deregisterSocketEvent(d_serverSocket_p->handle(),
-                                               btlso::EventType::BTESO_ACCEPT);
+                                               btlso::EventType::e_ACCEPT);
         }
 
         while (--numToCancel >= 0) {
@@ -555,8 +555,8 @@ int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
     }
 
     if (0 !=
-          d_serverSocket_p->setOption(btlso::SocketOptUtil::BTESO_SOCKETLEVEL,
-                                      btlso::SocketOptUtil::BTESO_REUSEADDRESS,
+          d_serverSocket_p->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
+                                      btlso::SocketOptUtil::k_REUSEADDRESS,
                                       !!reuseAddress))
     {
         d_factory_p->deallocate(d_serverSocket_p);
@@ -587,7 +587,7 @@ int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
     // connection is present*.
 
     if (0 != d_serverSocket_p->setBlockingMode(
-                                         bteso_Flag::BTESO_NONBLOCKING_MODE)) {
+                                         bteso_Flag::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
         return e_BLOCKMODE_FAILED;

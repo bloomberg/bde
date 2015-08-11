@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 // to return, if such occurrence is detected, a "partial result" upon
 // occurrence of an AE.  Such authorizations are made explicitly by
 // incorporating into the optional (trailing) integer 'flags' argument to a
-// method call the 'btesc_Flag::BTESC_ASYNC_INTERRUPT' value.
+// method call the 'btesc_Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Timeouts
 ///- - - -
@@ -257,7 +257,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Each of these methods supports the specification of a flag
 //..
-//                  btesc_Flag::BTESC_ASYNC_INTERRUPT
+//                  btesc_Flag::k_ASYNC_INTERRUPT
 //..
 // supplied in an optional trailing integer to enable "asynchronous events" to
 // cause partial results; by default, such events are ignored.
@@ -457,7 +457,7 @@ class TimedChannel : public Channel
                      int   flags = 0) = 0;
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -487,7 +487,7 @@ class TimedChannel : public Channel
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -518,7 +518,7 @@ class TimedChannel : public Channel
         // the specified 'numBuffers', the respective numbers of bytes as
         // specified in each corresponding 'btls::Iovec' buffer.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a partial result.  Return 'numBytes'
@@ -550,7 +550,7 @@ class TimedChannel : public Channel
         // specified in each corresponding 'btls::Iovec' buffer, or interrupted
         // after the specified absolute 'timeout' time is reached.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -581,7 +581,7 @@ class TimedChannel : public Channel
                         int   flags = 0) = 0;
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -613,7 +613,7 @@ class TimedChannel : public Channel
         // *Atomically* read from this channel into the specified 'buffer' *at*
         // *most* the specified 'numBytes' or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -646,7 +646,7 @@ class TimedChannel : public Channel
         // 'buffers' of the specified 'numBuffers', *at* *most* the respective
         // numbers of bytes as specified in each corresponding 'btls::Iovec'
         // buffer.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -679,7 +679,7 @@ class TimedChannel : public Channel
         // numbers of bytes as specified in each corresponding 'btls::Iovec'
         // buffer, or interrupted after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -713,7 +713,7 @@ class TimedChannel : public Channel
         // Read from this channel into a channel-supplied buffer, identified
         // via the specified 'buffer', the specified 'numBytes'.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -745,7 +745,7 @@ class TimedChannel : public Channel
         // via the specified 'buffer', the specified 'numBytes', or interrupt
         // after the specified absolute 'timeout' time is reached.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -776,7 +776,7 @@ class TimedChannel : public Channel
         // *Atomically* read from this channel into a channel-supplied buffer,
         // identified via the specified 'buffer', *at* *most* the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -809,7 +809,7 @@ class TimedChannel : public Channel
         // identified via the specified 'buffer', *at* *most* the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -841,7 +841,7 @@ class TimedChannel : public Channel
                       int         flags = 0) = 0;
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -869,7 +869,7 @@ class TimedChannel : public Channel
         // Write to this channel from the specified 'buffer' the specified
         // 'numBytes' or interrupt after the specified absolute 'timeout' time
         // is reached.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Return 'numBytes' on success, a negative value on error,
         // and the number of bytes newly written from 'buffer' (indicating a
@@ -895,7 +895,7 @@ class TimedChannel : public Channel
                          int         flags = 0) = 0;
         // *Atomically* write to this channel from the specified 'buffer' *at*
         // *most* the specified 'numBytes'.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -925,7 +925,7 @@ class TimedChannel : public Channel
         // *Atomically* write to this channel from the specified 'buffer' *at*
         // *most* the specified 'numBytes', or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Optionally specify (as a
         // *leading* argument) 'augStatus' to receive status specific to a
@@ -964,7 +964,7 @@ class TimedChannel : public Channel
         // specified sequence length 'numBuffers', the respective numbers of
         // bytes as specified in each corresponding 'btls::Ovec ' (or
         // 'btls::Iovec') buffer.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a partial result.  Return
@@ -1003,7 +1003,7 @@ class TimedChannel : public Channel
         // bytes specified in each 'btls::Ovec' (or 'btls::Iovec') buffer, or
         // interrupted after the specified absolute 'timeout' time is reached.
         // If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous events" are
+        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
         // permitted to interrupt this operation; by default, such events are
         // ignored.  Optionally specify (as a *leading* argument) 'augStatus'
         // to receive status specific to a "partial result".  Return 'numBytes'
@@ -1040,7 +1040,7 @@ class TimedChannel : public Channel
         // 'buffers' of specified sequence length 'numBuffers', *at* *most* the
         // respective numbers of bytes as specified in each 'btls::Ovec' (or
         // 'btls::Iovec') buffer.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".
@@ -1081,7 +1081,7 @@ class TimedChannel : public Channel
         // respective numbers of bytes specified in each 'btls::Ovec' (or
         // 'btls::Iovec') buffer, or interrupted after the specified absolute
         // 'timeout' time is reached.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::BTESC_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Optionally specify (as a *leading* argument)
         // 'augStatus' to receive status specific to a "partial result".

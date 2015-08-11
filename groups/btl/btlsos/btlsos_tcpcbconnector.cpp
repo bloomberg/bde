@@ -253,7 +253,7 @@ int TcpCbConnector::initiateConnection(
     }
 
     if (0 != d_connectingSocket_p->
-                           setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE))
+                           setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE))
     {
         d_factory_p->deallocate(d_connectingSocket_p);
         d_connectingSocket_p = NULL;
@@ -262,9 +262,9 @@ int TcpCbConnector::initiateConnection(
     }
     int s = d_connectingSocket_p->connect(d_peerAddress);
 
-    if ( s == btlso::SocketHandle::BTESO_ERROR_WOULDBLOCK ||
-        (s == btlso::SocketHandle::BTESO_ERROR_INTERRUPTED &&
-         0 == (flags & btesc_Flag::BTESC_ASYNC_INTERRUPT)))
+    if ( s == btlso::SocketHandle::e_ERROR_WOULDBLOCK ||
+        (s == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
+         0 == (flags & btesc_Flag::k_ASYNC_INTERRUPT)))
     {
         if (createRequest) {
             TcpCbConnector_Reg *cb =
@@ -274,7 +274,7 @@ int TcpCbConnector::initiateConnection(
         }
         if (0 != d_manager_p->registerSocketEvent(
                                          d_connectingSocket_p->handle(),
-                                         btlso::EventType::BTESO_CONNECT,
+                                         btlso::EventType::e_CONNECT,
                                          d_connectFunctor)){
             callback(0, e_CANCELLED);
             TcpCbConnector_Reg *cb = d_callbacks.back();
@@ -297,8 +297,8 @@ int TcpCbConnector::initiateConnection(
         callback(channel, 0);
         return 0;
     }
-    if (s == btlso::SocketHandle::BTESO_ERROR_INTERRUPTED) {
-        BSLS_ASSERT(btesc_Flag::BTESC_ASYNC_INTERRUPT & flags);
+    if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
+        BSLS_ASSERT(btesc_Flag::k_ASYNC_INTERRUPT & flags);
         callback(NULL, 1);
         return 0;
     }
@@ -316,7 +316,7 @@ void TcpCbConnector::connectCb()
     BSLS_ASSERT(d_connectingSocket_p);
 
     d_manager_p->deregisterSocketEvent(d_connectingSocket_p->handle(),
-                                       btlso::EventType::BTESO_CONNECT);
+                                       btlso::EventType::e_CONNECT);
 
     int s = d_connectingSocket_p->connectionStatus();
     d_currentRequest_p = d_callbacks.back();
@@ -541,7 +541,7 @@ void TcpCbConnector::cancelAll()
         if (numToCancel) {
             d_manager_p->deregisterSocketEvent(
                                               d_connectingSocket_p->handle(),
-                                              btlso::EventType::BTESO_CONNECT);
+                                              btlso::EventType::e_CONNECT);
 
             d_factory_p->deallocate(d_connectingSocket_p);
         }

@@ -135,7 +135,7 @@ class IPv4Address {
     // decimal notation is valid before it is used to create or modify an IPv4
     // address object.  More generally, this class supports a complete set of
     // *value* *semantic* operations, including copy construction, assignment,
-    // equality comparison, 'ostream' printing, and 'bdex' serialization.  (A
+    // equality comparison, 'ostream' printing, and BDEX serialization.  (A
     // precise operational definition of when two instances have the same value
     // can be found in the description of 'operator==' for the class.)  This
     // class is *exception* *neutral* with no guarantee of rollback: if an
@@ -148,7 +148,7 @@ class IPv4Address {
     int            d_address;
     unsigned short d_portNumber;    // Note that the port number is internally
                                     // represented as an 'unsigned' 'short'.
-                                    // This ensures that during 'bdex' stream
+                                    // This ensures that during BDEX stream
                                     // operations, when the stream becomes
                                     // invalid, the port number is still valid,
                                     // i.e., it is in the range [0, 65535],
@@ -174,16 +174,18 @@ class IPv4Address {
 
     // TYPES
     enum {
-        BTESO_ANY_ADDRESS = 0,      // Indicate that it is up to the service
-                                    // provider to assign an appropriate IP.
-                                    // Note that a local platform usually
-                                    // defines 'INADDR_ANY' to have value 0
-                                    // for the same implication.
-        BTESO_ANY_PORT    = 0       // Indicate that it is up to the service
-                                    // provider to assign an appropriate port.
+        k_ANY_ADDRESS = 0  // Indicate that it is up to the service provider to
+                           // assign an appropriate IP.  Note that a local
+                           // platform usually defines 'INADDR_ANY' to have
+                           // value 0 for the same implication.
+
+      , k_ANY_PORT    = 0  // Indicate that it is up to the service provider to
+                           // assign an appropriate port.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ANY_ADDRESS = BTESO_ANY_ADDRESS
-      , ANY_PORT    = BTESO_ANY_PORT
+      , BTESO_ANY_ADDRESS = k_ANY_ADDRESS
+      , BTESO_ANY_PORT    = k_ANY_PORT
+      , ANY_ADDRESS = k_ANY_ADDRESS
+      , ANY_PORT    = k_ANY_PORT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -221,7 +223,7 @@ class IPv4Address {
     // CREATORS
     IPv4Address();
         // Create a 'IPv4Address' object having an IP of
-        // 'BTESO_ANY_ADDRESS' value and a port number of 'BTESO_ANY_PORT'
+        // 'k_ANY_ADDRESS' value and a port number of 'k_ANY_PORT'
         // value.
 
     IPv4Address(const char *address, int portNumber);
@@ -269,14 +271,15 @@ class IPv4Address {
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this
+        // object is unaltered and 'stream' is invalidated but otherwise
+        // unmodified.  If 'version' is supported but 'stream' becomes
+        // invalid during this operation, this object has an undefined, but
+        // valid, state.  Note that no version is read from 'stream'.  See
+        // the 'bslx' package-level documentation for more information on
+        // BDEX streaming of value-semantic types and containers.
 
     // ACCESSORS
     int loadIpAddress(char *result) const;
@@ -301,17 +304,29 @@ class IPv4Address {
     int portNumber() const;
         // Return the port number of this object.
 
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that the 'versionSelector' is expected to be formatted
+        // as 'yyyymmdd', a date representation.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
+        // Return the most current BDEX streaming version number supported by
         // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+        // information on BDEX streaming of container types.)
 
     static int maxSupportedVersion();
-        // Return the most current 'bdex' streaming version number supported by
+        // Return the most current BDEX streaming version number supported by
         // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+        // information on BDEX streaming of container types.)
         //
         // DEPRECATED: replaced by 'maxSupportedBdexVersion()'
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     bsl::ostream& streamOut(bsl::ostream& stream) const;
         // Write the specified IPv4 'address' value to the specified 'output'
@@ -319,12 +334,16 @@ class IPv4Address {
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this
+        // object is unaltered and 'stream' is invalidated but otherwise
+        // unmodified.  If 'version' is supported but 'stream' becomes
+        // invalid during this operation, this object has an undefined, but
+        // valid, state.  Note that no version is read from 'stream'.  See
+        // the 'bslx' package-level documentation for more information on
+        // BDEX streaming of value-semantic types and containers.
 };
 
 // FREE OPERATORS
@@ -371,8 +390,8 @@ bool IPv4Address::isValidAddress(const char *address)
 // CREATORS
 inline
 IPv4Address::IPv4Address()
-: d_address(BTESO_ANY_ADDRESS)
-, d_portNumber(BTESO_ANY_PORT)
+: d_address(k_ANY_ADDRESS)
+, d_portNumber(k_ANY_PORT)
 {
 }
 
@@ -451,16 +470,26 @@ int IPv4Address::portNumber() const
 }
 
 inline
-int IPv4Address::maxSupportedBdexVersion()
+int IPv4Address::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;
+}
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+inline
+int IPv4Address::maxSupportedBdexVersion()
+{
+    return maxSupportedBdexVersion(0);
 }
 
 inline
 int IPv4Address::maxSupportedVersion()
 {
-    return maxSupportedBdexVersion();
+    return maxSupportedBdexVersion(0);
 }
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class STREAM>
 STREAM& IPv4Address::bdexStreamOut(STREAM& stream, int version) const
@@ -474,6 +503,9 @@ STREAM& IPv4Address::bdexStreamOut(STREAM& stream, int version) const
         stream.putUint8(ip[3]);
         stream.putUint16(d_portNumber);
       } break;
+      default: {
+        stream.invalidate();
+      }
     }
     return stream;
 }

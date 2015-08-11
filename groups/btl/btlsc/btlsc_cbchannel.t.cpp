@@ -321,7 +321,7 @@ int main(int argc, char *argv[]) {
             btlsc::CbChannel::WriteCallback myWrCb(&myWrCbFn);
 
             // Flags to indicate that async interrupts are allowed.
-            const int myFlags = btesc_Flag::BTESC_ASYNC_INTERRUPT;
+            const int myFlags = btesc_Flag::k_ASYNC_INTERRUPT;
 
             ASSERT(0 == myC.flags());
 

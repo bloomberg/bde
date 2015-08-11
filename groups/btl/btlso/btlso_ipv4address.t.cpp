@@ -2,13 +2,13 @@
 
 #include <btlso_ipv4address.h>
 
-#include <bdlxxxx_instreamfunctions.h>      // for testing only
-#include <bdlxxxx_outstreamfunctions.h>     // for testing only
-#include <bdlxxxx_testinstream.h>           // for testing only
-#include <bdlxxxx_testoutstream.h>          // for testing only
-#include <bdlxxxx_testinstreamexception.h>  // for testing only
-#include <bdlxxxx_byteoutstream.h>          // for testing only
-#include <bdlxxxx_byteinstream.h>           // for testing only
+#include <bslx_instreamfunctions.h>      // for testing only
+#include <bslx_outstreamfunctions.h>     // for testing only
+#include <bslx_testinstream.h>           // for testing only
+#include <bslx_testoutstream.h>          // for testing only
+#include <bslx_testinstreamexception.h>  // for testing only
+#include <bslx_byteoutstream.h>          // for testing only
+#include <bslx_byteinstream.h>           // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
@@ -48,16 +48,16 @@ using namespace bsl;  // automatically added by script
 // [ 2] int setIpAddress(const char *address);
 // [ 2] void setIpAddress(int address);
 // [ 2] void setPortNumber(int portNumber);
-// [10] bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream);
-// [10] bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream, int version);
+// [10] bslx::InStream& bdexStreamIn(bslx::InStream& stream);
+// [10] bslx::InStream& bdexStreamIn(bslx::InStream& stream, int version);
 // ACCESSORS
 // [ 4] int loadIpAddress(const char result[16]) const;
 // [ 4] int formatIpAddress(const char result[22]) const;
 // [ 4] int ipAddress() const;
 // [ 4] int portNumber() const;
-// [10] int maxSupportedBdexVersion() const;
-// [10] bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream) const;
-// [10] bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream, int version) const;
+// [10] int maxSupportedBdexVersion(int) const;
+// [10] bslx::OutStream& bdexStreamOut(bslx::OutStream& stream) const;
+// [10] bslx::OutStream& bdexStreamOut(bslx::OutStream& stream, int version) const;
 // FREE OPERATORS
 // [ 6] bool operator==(const bteso::IPv4Addr& lhs, const bteso::IPv4Addr& rhs);
 // [ 6] bool operator!=(const bteso::IPv4Addr& lhr, const bteso::IPv4Addr& rhs);
@@ -120,8 +120,10 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef btlso::IPv4Address  Obj;
-typedef bdlxxxx::TestInStream  In;
-typedef bdlxxxx::TestOutStream Out;
+typedef bslx::TestInStream  In;
+typedef bslx::TestOutStream Out;
+
+#define VERSION_SELECTOR 20140601
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -437,21 +439,21 @@ int main(int argc, char *argv[])
         } break;
         case 10: {
             // ----------------------------------------------------------------
-            // TESTING 'bdex' STREAMING FUNCTIONALITY:
-            //   The 'bdex' streaming concerns for this component are
+            // TESTING BDEX STREAMING FUNCTIONALITY:
+            //   The BDEX streaming concerns for this component are
             //   absolutely standard.  We first probe the member functions
             //   'outStream' and 'inStream' in the manner of a "breathing test"
             //   to verify basic functionality, then we thoroughly test that
-            //   functionality using the available bdex functions which
+            //   functionality using the available BDEX functions which
             //   forward appropriate calls to the member functions.  We next
             //   step through the sequence of possible stream states (valid,
             //   empty, invalid, incomplete, and corrupted), appropriately
             //   selecting data sets as described below.  In all cases,
             //   exception neutrality is confirmed using the specially
-            //   instrumented 'bdlxxxx::TestInStream' and a pair of standard
-            //   macros, 'BEGIN_BDEX_EXCEPTION_TEST' and
-            //   'END_BDEX_EXCEPTION_TEST', which configure the
-            //   'bdlxxxx::TestInStream' object appropriately in a loop.
+            //   instrumented 'bslx::TestInStream' and a pair of standard
+            //   macros, 'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
+            //   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
+            //   'bslx::TestInStream' object appropriately in a loop.
             //
             // Plan:
             //   PRELIMINARY MEMBER FUNCTION TEST
@@ -494,10 +496,10 @@ int main(int argc, char *argv[])
             //
             // Testing:
             //   int maxSupportedBdexVersion() const;
-            //   bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream);
-            //   bdlxxxx::InStream& streamIn(bdlxxxx::InStream& stream, int version);
-            //   bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream) const;
-            //   bdlxxxx::OutStream& streamOut(bdlxxxx::OutStream& stream, int) const;
+            //   bslx::InStream& streamIn(bslx::InStream& stream);
+            //   bslx::InStream& streamIn(bslx::InStream& stream, int version);
+            //   bslx::OutStream& streamOut(bslx::OutStream& stream) const;
+            //   bslx::OutStream& streamOut(bslx::OutStream& stream, int) const;
             // ----------------------------------------------------------------
 
             if (verbose) cout << "\nTesting Streaming Functionality"
@@ -536,22 +538,24 @@ int main(int argc, char *argv[])
             "\nTesting 'streamOut' and (valid) 'streamIn' functionality."
                               << endl;
 
-            const int VERSION = Obj::maxSupportedBdexVersion();
+            const int VERSION = Obj::maxSupportedBdexVersion(0);
             if (verbose) cout << "\nDirect initial trial of 'streamOut' and"
                            " (valid) 'streamIn' functionality." << endl;
             {
+                using bslx::InStreamFunctions::bdexStreamIn;
+                using bslx::OutStreamFunctions::bdexStreamOut;
+
                 const Obj X(VC);
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
+                Out out(VERSION_SELECTOR);
+                bdexStreamOut(out, X, VERSION);
 
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
                 In in(OD, LOD);
-                in.setSuppressVersionCheck(1);
                 ASSERT(in);                             ASSERT(!in.isEmpty());
 
                 Obj t(VA);  const Obj& T = t;           ASSERT(X != T);
-                bdex_InStreamFunctions::streamIn(in,  t, VERSION);
+                bdexStreamIn(in,  t, VERSION);
                 ASSERT(X == T);
                 ASSERT(in);                             ASSERT(in.isEmpty());
             }
@@ -559,10 +563,13 @@ int main(int argc, char *argv[])
             if (verbose) cout <<
             "\nThorough test of stream operators ('<<' and '>>')." << endl;
             {
+                using bslx::InStreamFunctions::bdexStreamIn;
+                using bslx::OutStreamFunctions::bdexStreamOut;
+
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     const Obj X(VALUES[i]);
-                    Out out;
-                    bdex_OutStreamFunctions::streamOut(out, X, VERSION);
+                    Out out(VERSION_SELECTOR);
+                    bdexStreamOut(out, X, VERSION);
                     const char *const OD  = out.data();
                     const int         LOD = out.length();
 
@@ -570,16 +577,15 @@ int main(int argc, char *argv[])
                     // and that the input stream is emptied, but remains valid.
 
                     for (int j = 0; j < NUM_VALUES; ++j) {
-                        In in(OD, LOD);  In &testInStream = in;
-                        in.setSuppressVersionCheck(1);
+                        In in(OD, LOD);
                         LOOP2_ASSERT(i, j, in);
                         LOOP2_ASSERT(i, j, !in.isEmpty());
 
                         Obj t(VALUES[j]);
-                      BEGIN_BDEX_EXCEPTION_TEST { in.reset();
+                      BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
                         LOOP2_ASSERT(i, j, X == t == (i == j));
-                        bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                      } END_BDEX_EXCEPTION_TEST;
+                        bdexStreamIn(in, t, VERSION);
+                      } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
                         LOOP2_ASSERT(i, j, X == t);
                         LOOP2_ASSERT(i, j, in);
                         LOOP2_ASSERT(i, j, in.isEmpty());
@@ -592,14 +598,15 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tOn empty and invalid streams." << endl;
             {
-                Out out;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                Out out(VERSION_SELECTOR);
                 const char *const  OD = out.data();
                 const int         LOD = out.length();
                 ASSERT(0 == LOD);
 
                 for (int i = 0; i < NUM_VALUES; ++i) {
-                    In in(OD, LOD);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
+                    In in(OD, LOD);
                     LOOP_ASSERT(i, in);           LOOP_ASSERT(i, in.isEmpty());
 
                     // Ensure that reading from an empty or invalid input
@@ -607,68 +614,70 @@ int main(int argc, char *argv[])
                     // unchanged.
 
                     const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    bdex_InStreamFunctions::streamIn(in, t, VERSION);
+                  BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
+                    bdexStreamIn(in, t, VERSION);
                     LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-                    bdex_InStreamFunctions::streamIn(in, t, VERSION);
+                    bdexStreamIn(in, t, VERSION);
                     LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-                    } END_BDEX_EXCEPTION_TEST;
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
                 }
             }
 
             if (verbose) cout <<
             "\tOn incomplete (but otherwise valid) data." << endl;
             {
+                using bslx::InStreamFunctions::bdexStreamIn;
+                using bslx::OutStreamFunctions::bdexStreamOut;
+
                 const Obj W1 = VA, X1 = VB, Y1 = VC;
                 const Obj W2 = VB, X2 = VC, Y2 = VD;
                 const Obj W3 = VC, X3 = VD, Y3 = VE;
 
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
+                Out out(VERSION_SELECTOR);
+                bdexStreamOut(out, X1, VERSION);
                 const int LOD1 = out.length();
-                bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
+                bdexStreamOut(out, X2, VERSION);
                 const int LOD2 = out.length();
-                bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
+                bdexStreamOut(out, X3, VERSION);
                 const int LOD  = out.length();
                 const char *const OD = out.data();
 
                 for (int i = 0; i < LOD; ++i) {
-                    In in(OD, i);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
+                    In in(OD, i);
+                  BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
                     LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
                     Obj t1(W1), t2(W2), t3(W3);
 
                     if (i < LOD1) {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                        bdexStreamIn(in, t1, VERSION);
                         LOOP_ASSERT(i, !in);
                         if (0 == i)    LOOP_ASSERT(i, W1 == t1);
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                        bdexStreamIn(in, t2, VERSION);
                         LOOP_ASSERT(i, !in);
                                        LOOP_ASSERT(i, W2 == t2);
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                        bdexStreamIn(in, t3, VERSION);
                         LOOP_ASSERT(i, !in);
                                        LOOP_ASSERT(i, W3 == t3);
                     }
                     else if (i < LOD2) {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                        bdexStreamIn(in, t1, VERSION);
                         LOOP_ASSERT(i,  in);
                                        LOOP_ASSERT(i, X1 == t1);
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                        bdexStreamIn(in, t2, VERSION);
                         LOOP_ASSERT(i, !in);
                         if (LOD1 == i) LOOP_ASSERT(i, W2 == t2);
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                        bdexStreamIn(in, t3, VERSION);
                         LOOP_ASSERT(i, !in);
                                        LOOP_ASSERT(i, W3 == t3);
                     }
                     else {
-                        bdex_InStreamFunctions::streamIn(in, t1, VERSION);
+                        bdexStreamIn(in, t1, VERSION);
                         LOOP_ASSERT(i,  in);
                                        LOOP_ASSERT(i, X1 == t1);
-                        bdex_InStreamFunctions::streamIn(in, t2, VERSION);
+                        bdexStreamIn(in, t2, VERSION);
                         LOOP_ASSERT(i,  in);
                                        LOOP_ASSERT(i, X2 == t2);
-                        bdex_InStreamFunctions::streamIn(in, t3, VERSION);
+                        bdexStreamIn(in, t3, VERSION);
                         LOOP_ASSERT(i, !in);
                         if (LOD2 == i) LOOP_ASSERT(i, W3 == t3);
                     }
@@ -681,7 +690,7 @@ int main(int argc, char *argv[])
 
                                        LOOP_ASSERT(i, Y3 != t3);
                     t3 = Y3;           LOOP_ASSERT(i, Y3 == t3);
-                  } END_BDEX_EXCEPTION_TEST;
+                  } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
                 }
             }
 
@@ -692,7 +701,9 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t\tGood stream (for control)." << endl;
             {
-                Out out;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                Out out(VERSION_SELECTOR);
                 const unsigned char *ip = (const unsigned char *) &IPB;
                 out.putUint8(ip[0]);
                 out.putUint8(ip[1]);
@@ -704,8 +715,7 @@ int main(int argc, char *argv[])
 
                 Obj t(X);       ASSERT(X == t); ASSERT(Y != t);
                 In in(OD, LOD); ASSERT(in);
-                in.setSuppressVersionCheck(1);
-                bdex_InStreamFunctions::streamIn(in,  t, VERSION);
+                bdexStreamIn(in,  t, VERSION);
                 ASSERT(in);
                                 ASSERT(X != t); ASSERT(Y == t);
             }
@@ -713,9 +723,11 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t\tBad version." << endl;
             if (verbose) cout << "\t\t\tVersion too small." <<endl;
             {
+                using bslx::InStreamFunctions::bdexStreamIn;
+
                 const char version = 0; // too small ('version' >= 1)
 
-                Out out;
+                Out out(VERSION_SELECTOR);
                 const unsigned char *ip = (const unsigned char *) &IPB;
                 out.putUint8(ip[0]);
                 out.putUint8(ip[1]);
@@ -728,18 +740,19 @@ int main(int argc, char *argv[])
 
                 Obj t(X);       ASSERT(X == t); ASSERT(Y != t);
                 In in(OD, LOD); ASSERT(in);
-                in.setSuppressVersionCheck(1);
                 in.setQuiet(!veryVerbose);
-                bdex_InStreamFunctions::streamIn(in,  t, version);
+                bdexStreamIn(in,  t, version);
                 ASSERT(!in);
                                 ASSERT(X == t); ASSERT(Y != t);
             }
 
             if (verbose) cout << "\t\t\tVersion too big." << endl;
             {
+                using bslx::InStreamFunctions::bdexStreamIn;
+
                 const char version = 5; // too large (current versions = 1)
 
-                Out out;
+                Out out(VERSION_SELECTOR);
                 const unsigned char *ip = (const unsigned char *) &IPB;
                 out.putUint8(ip[0]);
                 out.putUint8(ip[1]);
@@ -752,18 +765,17 @@ int main(int argc, char *argv[])
 
                 Obj t(X);       ASSERT(X == t); ASSERT(Y != t);
                 In in(OD, LOD); ASSERT(in);
-                in.setSuppressVersionCheck(1);
                 in.setQuiet(!veryVerbose);
-                bdex_InStreamFunctions::streamIn(in,  t, version);
+                bdexStreamIn(in,  t, version);
                 ASSERT(!in);
                                 ASSERT(X == t); ASSERT(Y != t);
             }
 
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
+            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion'."
                               << endl;
             {
                 const Obj X;
-                ASSERT(1 == X.maxSupportedBdexVersion());
+                ASSERT(1 == X.maxSupportedBdexVersion(0));
             }
 
             if (verbose) cout << "\nWire format direct tests." << endl;
@@ -795,7 +807,8 @@ int main(int argc, char *argv[])
 
                     Obj mX;  const Obj& X = mX;
                     mX.setIpAddress(IP);  mX.setPortNumber(PORT);
-                    bdlxxxx::ByteOutStream out;  X.bdexStreamOut(out, VERSION);
+                    bslx::ByteOutStream out(VERSION_SELECTOR);
+                    X.bdexStreamOut(out, VERSION);
 
                     LOOP_ASSERT(LINE, LEN == out.length());
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(),
@@ -819,13 +832,13 @@ int main(int argc, char *argv[])
 
                     Obj mY;  const Obj& Y = mY;
                     if (LEN) { // version is supported
-                        bdlxxxx::ByteInStream in(out.data(),
+                        bslx::ByteInStream in(out.data(),
                                              out.length());
                         mY.bdexStreamIn(in, VERSION);
                     }
                     else { // version is not supported
                         mY = X;
-                        bdlxxxx::ByteInStream in;
+                        bslx::ByteInStream in;
                         mY.bdexStreamIn(in, VERSION);
                         LOOP_ASSERT(LINE, !in);
                     }

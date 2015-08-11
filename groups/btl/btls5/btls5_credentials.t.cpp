@@ -23,8 +23,6 @@ using namespace bsl;
 // accessors access each individually.  The test exercises each public
 // interface, using the accessors to verify the state set by the manipulators.
 //
-// BDEX streaming is not yet implemented for this component.
-//
 //-----------------------------------------------------------------------------
 // CREATORS
 // [2] explicit btls5::Credentials(bslma::Allocator *basicAllocator = 0);

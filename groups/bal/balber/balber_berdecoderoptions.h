@@ -41,12 +41,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
-#include <bdlxxxx_instreamfunctions.h>
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include <bslx_instreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BDLXXXX_OUTSTREAMFUNCTIONS
-#include <bdlxxxx_outstreamfunctions.h>
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BDLB_PRINTMETHODS
@@ -80,29 +80,47 @@ class BerDecoderOptions {
   public:
     // TYPES
     enum {
-        NUM_ATTRIBUTES = 4  // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 4  // the number of attributes in this class
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_INDEX_MAX_DEPTH = 0,
+        e_ATTRIBUTE_INDEX_MAX_DEPTH             = 0
             // index for "MaxDepth" attribute
-        ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 1,
+      , e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 1
             // index for "SkipUnknownElements" attribute
-        ATTRIBUTE_INDEX_TRACE_LEVEL = 2,
+      , e_ATTRIBUTE_INDEX_TRACE_LEVEL           = 2
             // index for "TraceLevel" attribute
-        ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE = 3
+      , e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     = 3
             // index for "MaxSequenceSize" attribute
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_INDEX_MAX_DEPTH             = e_ATTRIBUTE_INDEX_MAX_DEPTH
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
+      , ATTRIBUTE_INDEX_TRACE_LEVEL           = e_ATTRIBUTE_INDEX_TRACE_LEVEL
+      , ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     enum {
-        ATTRIBUTE_ID_MAX_DEPTH = 0,
+        e_ATTRIBUTE_ID_MAX_DEPTH             = 0
             // id for "MaxDepth" attribute
-        ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 1,
+      , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 1
             // id for "SkipUnknownElements" attribute
-        ATTRIBUTE_ID_TRACE_LEVEL = 2,
+      , e_ATTRIBUTE_ID_TRACE_LEVEL           = 2
             // id for "TraceLevel" attribute
-        ATTRIBUTE_ID_MAX_SEQUENCE_SIZE = 3
+      , e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = 3
             // id for "MaxSequenceSize" attribute
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , ATTRIBUTE_ID_MAX_DEPTH             = e_ATTRIBUTE_ID_MAX_DEPTH
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
+      , ATTRIBUTE_ID_TRACE_LEVEL           = e_ATTRIBUTE_ID_TRACE_LEVEL
+      , ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
   public:
@@ -127,11 +145,26 @@ class BerDecoderOptions {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+    static int maxSupportedBdexVersion();
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
         // Return attribute information for the attribute indicated by the
@@ -166,14 +199,15 @@ class BerDecoderOptions {
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     void reset();
         // Reset this object to the default value (i.e., its value upon
@@ -242,12 +276,14 @@ class BerDecoderOptions {
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write the value of this object to the specified output 'stream'
-        // using the specified 'version' format and return a reference to the
-        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
-        // unmodified.  Note that 'version' is not written to 'stream'.
-        // See the 'bdex' package-level documentation for more information
-        // on 'bdex' streaming of value-semantic types and containers.
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
@@ -334,10 +370,20 @@ namespace balber {
 
 // CLASS METHODS
 inline
-int BerDecoderOptions::maxSupportedBdexVersion()
+int BerDecoderOptions::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;  // versions start at 1
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+inline
+int BerDecoderOptions::maxSupportedBdexVersion()
+{
+    return maxSupportedBdexVersion(0);
+}
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 // CREATORS
 inline
@@ -357,10 +403,10 @@ STREAM& BerDecoderOptions::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_maxDepth, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_skipUnknownElements, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_traceLevel, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_maxSequenceSize, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_maxDepth, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_skipUnknownElements, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_traceLevel, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_maxSequenceSize, 1);
           } break;
           default: {
             stream.invalidate();
@@ -386,25 +432,25 @@ int BerDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
     int ret;
 
     ret = manipulator(&d_maxDepth,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_traceLevel,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(&d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -417,31 +463,31 @@ inline
 int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator,
                                                 int          id)
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
         return manipulator(&d_maxDepth,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
         return manipulator(&d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TRACE_LEVEL: {
+      case e_ATTRIBUTE_ID_TRACE_LEVEL: {
         return manipulator(&d_traceLevel,
-                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
+      case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
         return manipulator(&d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
                                                                       // RETURN
       } break;
       default:
-        return BDEM_NOT_FOUND;
+        return k_BDEM_NOT_FOUND;
     }
 }
 
@@ -452,12 +498,12 @@ int BerDecoderOptions::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-        return BDEM_NOT_FOUND;                                        // RETURN
+        return k_BDEM_NOT_FOUND;                                        // RETURN
     }
 
     return manipulateAttribute(manipulator, attributeInfo->d_id);
@@ -495,10 +541,13 @@ STREAM& BerDecoderOptions::bdexStreamOut(STREAM& stream,
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_maxDepth, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_skipUnknownElements, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_traceLevel, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_maxSequenceSize, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_maxDepth, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_skipUnknownElements, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_traceLevel, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_maxSequenceSize, 1);
+      } break;
+      default: {
+        stream.invalidate();
       } break;
     }
     return stream;
@@ -511,25 +560,25 @@ int BerDecoderOptions::accessAttributes(ACCESSOR& accessor) const
     int ret;
 
     ret = accessor(d_maxDepth,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_traceLevel,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = accessor(d_maxSequenceSize,
-                   ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -541,31 +590,31 @@ template <class ACCESSOR>
 inline
 int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     switch (id) {
-      case ATTRIBUTE_ID_MAX_DEPTH: {
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
         return accessor(d_maxDepth,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DEPTH]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
         return accessor(d_skipUnknownElements,
-                  ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_TRACE_LEVEL: {
+      case e_ATTRIBUTE_ID_TRACE_LEVEL: {
         return accessor(d_traceLevel,
-                        ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_TRACE_LEVEL]);
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL]);
                                                                       // RETURN
       } break;
-      case ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
+      case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE: {
         return accessor(d_maxSequenceSize,
-                      ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
                                                                       // RETURN
       } break;
       default:
-        return BDEM_NOT_FOUND;
+        return k_BDEM_NOT_FOUND;
     }
 }
 
@@ -576,12 +625,12 @@ int BerDecoderOptions::accessAttribute(
         const char *name,
         int         nameLength) const
 {
-    enum { BDEM_NOT_FOUND = -1 };
+    enum { k_BDEM_NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);
     if (0 == attributeInfo) {
-       return BDEM_NOT_FOUND;                                         // RETURN
+       return k_BDEM_NOT_FOUND;                                         // RETURN
     }
 
     return accessAttribute(accessor, attributeInfo->d_id);

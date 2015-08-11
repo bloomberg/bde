@@ -65,7 +65,7 @@ typedef socklen_t ADDRLEN_T;
 //-----------------------------------------------------------------------------
 typedef bsl::pair<const btlso::IPv4Address, const char *> ClientData;
 
-void serverFunction(const btlso::IPv4Address& IP_ADDR, 
+void serverFunction(const btlso::IPv4Address& IP_ADDR,
                     bdlqq::Barrier *barrier)
 {
      btlso::SocketHandle::Handle serverSocket, sessionSocket;
@@ -77,7 +77,7 @@ void serverFunction(const btlso::IPv4Address& IP_ADDR,
      rc = btlso::SocketImpUtil::startup(&errCode);      ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &serverSocket,
-                                      btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &errCode);
      ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
@@ -88,7 +88,7 @@ void serverFunction(const btlso::IPv4Address& IP_ADDR,
                                       BACKLOG,
                                       &errCode);       ASSERT(0 == rc);
 
-     barrier->wait();                                                       
+     barrier->wait();
 
      rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&sessionSocket,
                                                          serverSocket,
@@ -108,7 +108,7 @@ void serverFunction(const btlso::IPv4Address& IP_ADDR,
          }
      } while (rc > 0);
      rc = btlso::SocketImpUtil::shutDown(sessionSocket,
-                                      btlso::SocketImpUtil::BTESO_SHUTDOWN_BOTH,
+                                      btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
                                       &errCode);       ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::close(sessionSocket,
                                      &errCode);        ASSERT(0 == rc);
@@ -130,7 +130,7 @@ void clientFunction(const ClientData& clientData)
      rc = btlso::SocketImpUtil::startup(&errorCode);       ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
                                       &sendSocket,
-                                      btlso::SocketImpUtil::BTESO_SOCKET_STREAM,
+                                      btlso::SocketImpUtil::k_SOCKET_STREAM,
                                       &errorCode);
                                                           ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::connect<btlso::IPv4Address>(sendSocket,
@@ -150,7 +150,7 @@ void clientFunction(const ClientData& clientData)
 
      rc = btlso::SocketImpUtil::shutDown(
                                       sendSocket,
-                                      btlso::SocketImpUtil::BTESO_SHUTDOWN_BOTH,
+                                      btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
                                       &errorCode);      ASSERT(0 == rc);
      rc = btlso::SocketImpUtil::close(sendSocket,
                                      &errorCode);         ASSERT(0 == rc);
@@ -301,8 +301,8 @@ int main(int argc, char *argv[])
      bdlqq::ThreadUtil::Handle stid, ctid;
 
      bdlqq::Barrier barrier(2);
-     bdlqq::ThreadUtil::create(&stid, 
-                              bdlf::BindUtil::bind(&serverFunction, 
+     bdlqq::ThreadUtil::create(&stid,
+                              bdlf::BindUtil::bind(&serverFunction,
                                                   IP_ADDR,
                                                   &barrier));
      barrier.wait();
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
         int initialSockets = countSockets(0, 20);
         s[0] = -1;                             // set socket var
         s[1] = -1;                             // set socket var
-        typ = T::BTESO_SOCKET_STREAM;                  // set socket type;
+        typ = T::k_SOCKET_STREAM;                  // set socket type;
         rc = T::socketPair<A>(s, typ);              // open a socket
         ASSERT(0 == rc);                    // verify success
 
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "socketPair(BTESO_SOCKET_DATAGRAM)" << endl;
         s[0] = -1;                             // set socket var
         s[1] = -1;                             // set socket var
-        typ = T::BTESO_SOCKET_DATAGRAM;                  // set socket type;
+        typ = T::k_SOCKET_DATAGRAM;                  // set socket type;
         rc = T::socketPair<A>(s, typ);              // open a socket
         ASSERT(0 == rc);                    // verify success
 
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "socketPair(BTESO_SOCKET_RAW)" << endl;
         s[0] = -1;                             // set socket var
         s[1] = -1;                             // set socket var
-        typ = T::BTESO_SOCKET_RAW;                  // set socket type;
+        typ = T::k_SOCKET_RAW;                  // set socket type;
         rc = T::socketPair<A>(s, typ);              // open a socket
         ASSERT(0 != rc);                    // verify failure
 
