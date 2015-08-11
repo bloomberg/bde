@@ -1,6 +1,6 @@
-// bdlmca_blobstreambuf.h                                              -*-C++-*-
-#ifndef INCLUDED_BDLMCA_BLOBSTREAMBUF
-#define INCLUDED_BDLMCA_BLOBSTREAMBUF
+// btlb_blobstreambuf.h                                              -*-C++-*-
+#ifndef INCLUDED_BTLB_BLOBSTREAMBUF
+#define INCLUDED_BTLB_BLOBSTREAMBUF
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,32 +10,32 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide blob implementing the 'streambuf' interface.
 //
 //@CLASSES:
-// bdlmca::InBlobStreamBuf: 'bdlmca::Blob' input 'streambuf'
-// bdlmca::OutBlobStreamBuf: 'bdlmca::Blob' output 'streambuf'
+// btlb::InBlobStreamBuf: 'btlb::Blob' input 'streambuf'
+// btlb::OutBlobStreamBuf: 'btlb::Blob' output 'streambuf'
 //
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
-//@SEE_ALSO: bdlmca_blob
+//@SEE_ALSO: btlb_blob
 //
 //@DESCRIPTION: This component implements the input and output
-// 'bsl::basic_streambuf' protocol using a user-supplied 'bdlmca::Blob'.  Method
+// 'bsl::basic_streambuf' protocol using a user-supplied 'btlb::Blob'.  Method
 // names necessarily correspond to the protocol-specified method names.  Refer
 // to the C++ Standard, Section 27.5.2, for a full specification of the
 // interface.
 //
-// A 'bdlmca::Blob' is an indexed sequence of 'bdlmca::BlobBuffer' of potentially
+// A 'btlb::Blob' is an indexed sequence of 'btlb::BlobBuffer' of potentially
 // different sizes.  The number of buffers in the sequence can increase or
 // decrease, but the order of the buffers cannot change.  Therefore, the blob
-// behaves logically as a single indexed buffer.  'bdlmca::InBlobStreamBuf' and
-// 'bdlmca::OutBlobStreamBuf' can therefore respectively read from and write to
+// behaves logically as a single indexed buffer.  'btlb::InBlobStreamBuf' and
+// 'btlb::OutBlobStreamBuf' can therefore respectively read from and write to
 // this buffer as if there were a single continuous index.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -56,22 +56,22 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmca { class Blob; }
+namespace btlb { class Blob; }
 
-namespace bdlmca {
+namespace btlb {
                         // ===========================
                         // class InBlobStreamBuf
                         // ===========================
 
 class InBlobStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
-    // protocol, using a client-supplied 'bdlmca::Blob'.
+    // protocol, using a client-supplied 'btlb::Blob'.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;
 
     // DATA
-    const bdlmca::Blob *d_blob_p;                 // "streamed" blob (held)
+    const btlb::Blob *d_blob_p;                 // "streamed" blob (held)
     int               d_getBufferIndex;         // index of current buffer
     int               d_previousBuffersLength;  // length of buffers before
                                                 // the current one
@@ -146,14 +146,14 @@ class InBlobStreamBuf : public bsl::streambuf {
 
   public:
     // CREATORS
-    explicit InBlobStreamBuf(const bdlmca::Blob *blob);
+    explicit InBlobStreamBuf(const btlb::Blob *blob);
         // Create a 'BlobStreamBuf' using the specified 'blob'.
 
     ~InBlobStreamBuf();
         // Destroy this stream buffer.
 
     // MANIPULATORS
-    void reset(const bdlmca::Blob *blob = 0);
+    void reset(const btlb::Blob *blob = 0);
         // Reset the get areas.  Optionally set the underlying blob to the
         // specified 'blob' if 'blob' is not 0.
 
@@ -162,7 +162,7 @@ class InBlobStreamBuf : public bsl::streambuf {
         // Return the index of the current buffer.  The behavior is undefined
         // unless the the "streamed" blob has at least one buffer.
 
-    const bdlmca::Blob *data() const;
+    const btlb::Blob *data() const;
         // Return the address of the blob held by this stream buffer.
 
     int previousBuffersLength() const;
@@ -177,13 +177,13 @@ class InBlobStreamBuf : public bsl::streambuf {
 
 class OutBlobStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
-    // protocol, using a client-supplied 'bdlmca::Blob'.
+    // protocol, using a client-supplied 'btlb::Blob'.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;
 
     // DATA
-    bdlmca::Blob *d_blob_p;                 // "streamed" blob (held)
+    btlb::Blob *d_blob_p;                 // "streamed" blob (held)
     int         d_putBufferIndex;         // index of current buffer
     int         d_previousBuffersLength;  // length of buffers before
 
@@ -253,7 +253,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
 
   public:
     // CREATORS
-    explicit OutBlobStreamBuf(bdlmca::Blob *blob);
+    explicit OutBlobStreamBuf(btlb::Blob *blob);
         // Create a 'OutBlobStreamBuf' using the specified 'blob', and
         // set the location at which the next write operation will occur to
         // 'blob->length()'.
@@ -262,10 +262,10 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Destroy this stream buffer.
 
     // MANIPULATORS
-    bdlmca::Blob *data();
+    btlb::Blob *data();
         // Return the address of the blob held by this stream buffer.
 
-    void reset(bdlmca::Blob *blob = 0);
+    void reset(btlb::Blob *blob = 0);
         // Reset the get and put areas.  Optionally set the underlying blob to
         // the specified 'blob' if 'blob' is not 0.
 
@@ -274,7 +274,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Return the index of the current buffer.  The behavior is undefined
         // unless the the "streamed" blob has at least one buffer.
 
-    const bdlmca::Blob *data() const;
+    const btlb::Blob *data() const;
         // Return the address of the blob held by this stream buffer.
 
     int previousBuffersLength() const;
@@ -293,7 +293,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
 
 // MANIPULATORS
 inline
-void InBlobStreamBuf::reset(const bdlmca::Blob *blob)
+void InBlobStreamBuf::reset(const btlb::Blob *blob)
 {
     if (blob) {
         d_blob_p = blob;
@@ -316,7 +316,7 @@ int InBlobStreamBuf::currentBufferIndex() const
 }
 
 inline
-const bdlmca::Blob *InBlobStreamBuf::data() const
+const btlb::Blob *InBlobStreamBuf::data() const
 {
     return d_blob_p;
 }
@@ -333,13 +333,13 @@ int InBlobStreamBuf::previousBuffersLength() const
 
 // MANIPULATORS
 inline
-bdlmca::Blob *OutBlobStreamBuf::data()
+btlb::Blob *OutBlobStreamBuf::data()
 {
     return d_blob_p;
 }
 
 inline
-void OutBlobStreamBuf::reset(bdlmca::Blob *blob)
+void OutBlobStreamBuf::reset(btlb::Blob *blob)
 {
     if (blob) {
         d_blob_p = blob;
@@ -362,7 +362,7 @@ int OutBlobStreamBuf::currentBufferIndex() const
 }
 
 inline
-const bdlmca::Blob *OutBlobStreamBuf::data() const
+const btlb::Blob *OutBlobStreamBuf::data() const
 {
     return d_blob_p;
 }

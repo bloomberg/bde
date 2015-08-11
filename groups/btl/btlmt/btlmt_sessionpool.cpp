@@ -10,7 +10,7 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 
 #include <btlso_socketoptions.h>
 
-#include <bdlmca_pooledblobbufferfactory.h>
+#include <btlb_pooledblobbufferfactory.h>
 #include <bdlqq_mutex.h>
 #include <bdlqq_lockguard.h>
 
@@ -282,7 +282,7 @@ void SessionPool::connectAbortTimerCb(
 }
 
 void SessionPool::blobBasedReadCb(int          *numNeeded,
-                                  bdlmca::Blob *data,
+                                  btlb::Blob *data,
                                   int           channelId,
                                   void         *userData)
 {
@@ -438,7 +438,7 @@ void SessionPool::init()
 
     if (!d_blobBufferFactory) {
         d_blobBufferFactory.load(
-                     new (*d_allocator_p) bdlmca::PooledBlobBufferFactory(
+                     new (*d_allocator_p) btlb::PooledBlobBufferFactory(
                                              d_config.maxIncomingMessageSize(),
                                              d_allocator_p),
                      d_allocator_p);
@@ -532,7 +532,7 @@ SessionPool::SessionPool(const ChannelPoolConfiguration&  config,
     init();
 }
 
-SessionPool::SessionPool(bdlmca::BlobBufferFactory       *blobBufferFactory,
+SessionPool::SessionPool(btlb::BlobBufferFactory       *blobBufferFactory,
                          const ChannelPoolConfiguration&  config,
                          const SessionPoolStateCallback&  poolStateCallback,
                          bslma::Allocator                *allocator)

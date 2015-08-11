@@ -21,15 +21,15 @@ BSLS_IDENT("$Id: $")
 // buffers, including 'scatter'-ing ('gather'-ing) a single continuous buffer
 // into (from) a sequence of buffers, computing the total length of a sequence
 // of buffers, and rewriting the data from a sequence of buffers into a
-// 'bdlmca::Blob' object.
+// 'btlb::Blob' object.
 //
 ///Thread-safety
 ///-------------
 // It is safe to invoke methods of this utility with distinct instances of
-// their arguments in different threads.  It is safe to access a 'bdlmca::Blob'
+// their arguments in different threads.  It is safe to access a 'btlb::Blob'
 // object within different methods of this utility from different threads if no
 // method modifies the contents of that object.  It is not safe to access or
-// modify a 'bdlmca::Blob' object from any method of this utility while a
+// modify a 'btlb::Blob' object from any method of this utility while a
 // method modifies the content of this object.
 //
 ///Performance
@@ -59,8 +59,8 @@ namespace BloombergLP {
 
 namespace bslma  { class Allocator; }
 
-namespace bdlmca { class Blob; }
-namespace bdlmca { class BlobBufferFactory; }
+namespace btlb { class Blob; }
+namespace btlb { class BlobBufferFactory; }
 
 namespace btls {
 
@@ -69,13 +69,13 @@ struct IovecUtil {
     // manipulating 'Iovecs', including scatter/gather from a single continuous
     // buffer into an iovec structure, computing the length of an iovec
     // structure, and rewriting the data in an iovec structure into a
-    // 'bdlmca::Blob'.
+    // 'btlb::Blob'.
 
-    static void appendToBlob(bdlmca::Blob *blob,
+    static void appendToBlob(btlb::Blob *blob,
                              const Iovec  *buffers,
                              int           numBuffers,
                              int           offset = 0);
-    static void appendToBlob(bdlmca::Blob *blob,
+    static void appendToBlob(btlb::Blob *blob,
                              const Ovec   *buffers,
                              int           numBuffers,
                              int           offset = 0);
@@ -93,16 +93,16 @@ struct IovecUtil {
         // created with a blob buffer factory where 'totalDataSize' represents
         // the total size of the data in 'buffers'.
 
-    static bdlmca::Blob *blob(const Iovec               *buffers,
+    static btlb::Blob *blob(const Iovec               *buffers,
                               int                        numBuffers,
-                              bdlmca::BlobBufferFactory *factory,
+                              btlb::BlobBufferFactory *factory,
                               bslma::Allocator          *basicAllocator = 0);
-    static bdlmca::Blob *blob(const Iovec               *buffers,
+    static btlb::Blob *blob(const Iovec               *buffers,
                               int                        numBuffers,
                               int                        offset,
-                              bdlmca::BlobBufferFactory *factory,
+                              btlb::BlobBufferFactory *factory,
                               bslma::Allocator          *basicAllocator = 0);
-        // Create a 'bdlmca::Blob' object allocated using the specified
+        // Create a 'btlb::Blob' object allocated using the specified
         // 'factory' and containing data from the specified sequence of
         // 'buffers' of the specified 'numBuffers' length.  Optionally specify
         // an 'offset' (in bytes) in the data contained in the 'buffers' to
@@ -174,9 +174,9 @@ struct IovecUtil {
                         // ---------------
 
 inline
-bdlmca::Blob *IovecUtil::blob(const Iovec               *vecs,
+btlb::Blob *IovecUtil::blob(const Iovec               *vecs,
                               int                        numVecs,
-                              bdlmca::BlobBufferFactory *factory,
+                              btlb::BlobBufferFactory *factory,
                               bslma::Allocator          *basicAllocator)
 {
     return blob(vecs, numVecs, 0, factory, basicAllocator);

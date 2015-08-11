@@ -6,8 +6,8 @@
 #include <btlmt_channelpool.h>
 #include <btlmt_session.h>
 
-#include <bdlmca_blob.h>
-#include <bdlmca_blobutil.h>
+#include <btlb_blob.h>
+#include <btlb_blobutil.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadutil.h>
@@ -163,7 +163,7 @@ static bdlqq::Mutex  coutMutex;
 
 void readCb(int            result,
             int           *numNeeded,
-            bdlmca::Blob  *blob,
+            btlb::Blob  *blob,
             int            channelId,
             const string&  s)
 {
@@ -199,7 +199,7 @@ class DataReader {
     // MANIPULATORS
     void blobBasedReadCb(int         state,
                          int        *numNeeded,
-                         bdlmca::Blob *msg,
+                         btlb::Blob *msg,
                          int         channelId);
         // Blob based read callback.
 
@@ -247,7 +247,7 @@ class my_Server {
                                                            // this server
                                                            // is listening
 
-    bdlmca::PooledBlobBufferFactory  d_blobBufferFactory;  // blob buffer
+    btlb::PooledBlobBufferFactory  d_blobBufferFactory;  // blob buffer
                                                            // factory
 
     bdlma::ConcurrentPoolAllocator   d_spAllocator;        // smart pointers
@@ -265,7 +265,7 @@ class my_Server {
         // Wrapper for channel pool's channel callback state callback.
 
     void blobBasedReadCb(int        *numNeeded,
-                         bdlmca::Blob *msg,
+                         btlb::Blob *msg,
                          int         channelId,
                          void       *userData);
         // Channel pool's blob based read callback.
@@ -287,7 +287,7 @@ class my_Server {
     my_Server(const btlmt::ChannelPoolConfiguration&  config,
               bslma::Allocator                       *basicAllocator = 0);
         // Construct this server configured by the specified 'config' using
-        // 'bdlmca::Blob' for data reads.  Optionally specify 'basicAllocator'
+        // 'btlb::Blob' for data reads.  Optionally specify 'basicAllocator'
         // used to allocate memory.
 
     ~my_Server();
@@ -349,7 +349,7 @@ DataReader::~DataReader()
 // MANIPULATORS
 void DataReader::blobBasedReadCb(int         state,
                                  int        *numNeeded,
-                                 bdlmca::Blob *msg,
+                                 btlb::Blob *msg,
                                  int         channelId)
 {
     if (veryVerbose) {
@@ -392,7 +392,7 @@ void DataReader::blobBasedReadCb(int         state,
 
         bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, dataPtr);
         ASSERT(0 <= d_msgId);
-        bdlmca::BlobUtil::erase(msg, 0, INT_SIZE);
+        btlb::BlobUtil::erase(msg, 0, INT_SIZE);
         if (0 == msg->length()) {
             *numNeeded = INT_SIZE;
             return;                                                   // RETURN
@@ -419,7 +419,7 @@ void DataReader::blobBasedReadCb(int         state,
 
         bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength, dataPtr);
         ASSERT(0 <= d_msgLength);
-        bdlmca::BlobUtil::erase(msg, 0, INT_SIZE);
+        btlb::BlobUtil::erase(msg, 0, INT_SIZE);
 
         if (0 == msg->length()) {
             *numNeeded = d_msgLength;
@@ -436,7 +436,7 @@ void DataReader::blobBasedReadCb(int         state,
     msgData.append(msg->buffer(numDataBufs - 1).data(),
                    msg->lastDataBufferLength());
 
-    bdlmca::BlobUtil::erase(msg, 0, msg->length());
+    btlb::BlobUtil::erase(msg, 0, msg->length());
     d_data.append(msgData);
     const int numRemaining = d_msgLength - d_data.size();
     *numNeeded = numRemaining <= 0 ? 0 : numRemaining;
@@ -535,7 +535,7 @@ void my_Server::poolStateCb(int reason, int source, int)
 }
 
 void my_Server::blobBasedReadCb(int        *numNeeded,
-                                bdlmca::Blob *msg,
+                                btlb::Blob *msg,
                                 int         channelId,
                                 void       *userData)
 {
@@ -709,7 +709,7 @@ int main(int argc, char *argv[])
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
             btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
 
-            bdlmca::PooledBlobBufferFactory  pbbf(1024);
+            btlb::PooledBlobBufferFactory  pbbf(1024);
 
             bslma::TestAllocator ca;
             bdlma::ConcurrentPoolAllocator pa(&ca);

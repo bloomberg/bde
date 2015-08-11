@@ -1,12 +1,12 @@
-// bdlmca_pooledblobbufferfactory.cpp        -*-C++-*-
-#include <bdlmca_pooledblobbufferfactory.h>
+// btlb_pooledblobbufferfactory.cpp        -*-C++-*-
+#include <btlb_pooledblobbufferfactory.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(btlb_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace btlb {
                      // -----------------------------------
                      // class PooledBlobBufferFactory
                      // -----------------------------------

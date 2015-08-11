@@ -345,7 +345,7 @@ BSLS_IDENT("$Id: $")
 //          // specify a context, so the value will be 0.
 //
 //      void dataCb(int           *numNeeded,
-//                  bdlmca::Blob  *msg,
+//                  btlb::Blob  *msg,
 //                  int            channelId
 //                  void          *context);
 //          // Echo the specified 'msg' to the client on the channel
@@ -478,7 +478,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  void my_EchoServer::dataCb(int          *numNeeded,
-//                             bdlmca::Blob *msg,
+//                             btlb::Blob *msg,
 //                             int           channelId,
 //                             void         *context)
 //  {
@@ -567,16 +567,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectcatalog.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOLEDBLOBBUFFERFACTORY
-#include <bdlmca_pooledblobbufferfactory.h>
+#ifndef INCLUDED_BTLB_POOLEDBLOBBUFFERFACTORY
+#include <btlb_pooledblobbufferfactory.h>
 #endif
 
 #ifndef INCLUDED_bdlqq_MUTEX
@@ -742,14 +742,14 @@ class ChannelPool {
         //                            void *context);
         //..
 
-    typedef bdlf::Function<void (*)(int *, bdlmca::Blob *, int, void *)>
+    typedef bdlf::Function<void (*)(int *, btlb::Blob *, int, void *)>
                                                          BlobBasedReadCallback;
         // The callback of this type is invoked every time there is a
         // sufficiently large amount of data read from a channel.  The second
         // argument to this callback is passed the data read from the channel
-        // in the form of a modifiable 'bdlmca::Blob'.  The channel pool
+        // in the form of a modifiable 'btlb::Blob'.  The channel pool
         // expects that clients take ownership of some of the data in the
-        // passed 'bdlmca::Blob' and readjust the 'bdlmca::Blob' accordingly.
+        // passed 'btlb::Blob' and readjust the 'btlb::Blob' accordingly.
         // The third argument specifies the channel ID.  The fourth and last
         // parameter is passed the user-specified channel context (set using
         // 'setChannelContext()') or '(void *)0' if no context was specified.
@@ -760,7 +760,7 @@ class ChannelPool {
         // prototype for a data callback might look like:
         //..
         //  void blobDataCallback(int          *numNeeded,
-        //                        bdlmca::Blob *message,
+        //                        btlb::Blob *message,
         //                        int           channelId,
         //                        void         *context);
         //..
@@ -971,9 +971,9 @@ class ChannelPool {
     mutable bdlqq::Mutex                d_acceptorsLock;
 
     bdlma::ConcurrentPoolAllocator      d_sharedPtrRepAllocator;
-    bslma::ManagedPtr<bdlmca::BlobBufferFactory>
+    bslma::ManagedPtr<btlb::BlobBufferFactory>
                                         d_writeBlobFactory;
-    bslma::ManagedPtr<bdlmca::BlobBufferFactory>
+    bslma::ManagedPtr<btlb::BlobBufferFactory>
                                         d_readBlobFactory;
 
     bdlqq::Mutex                        d_timersLock;
@@ -1297,7 +1297,7 @@ class ChannelPool {
         // the type definitions of the 'ChannelStateChangeCallback',
         // 'BlobBasedReadCallback', and 'PoolStateChangeCallback'.
 
-    ChannelPool(bdlmca::BlobBufferFactory       *blobBufferFactory,
+    ChannelPool(btlb::BlobBufferFactory       *blobBufferFactory,
                 ChannelStateChangeCallback       channelStateCb,
                 BlobBasedReadCallback            blobBasedReadCb,
                 PoolStateChangeCallback          poolStateCb,
@@ -1725,13 +1725,13 @@ class ChannelPool {
 
                                   // *** Incoming messages ***
 
-    bdlmca::BlobBufferFactory *incomingBlobBufferFactory();
+    btlb::BlobBufferFactory *incomingBlobBufferFactory();
         // Return the address of the pooled blob buffer factory used by this
         // channel pool to produce blobs for incoming messages.
 
                                   // *** Outgoing messages ***
 
-    bdlmca::BlobBufferFactory *outboundBlobBufferFactory();
+    btlb::BlobBufferFactory *outboundBlobBufferFactory();
         // Return the address of the blob buffer factory used by this channel
         // pool to produce blobs for outbound messages.
         //
@@ -1740,9 +1740,9 @@ class ChannelPool {
         // 'outboundBlobBufferFactory()', than to create data messages using
         // 'outboundBufferFactory()'.
 
-    int write(int channelId, const bdlmca::Blob& message);
+    int write(int channelId, const btlb::Blob& message);
     int write(int                 channelId,
-              const bdlmca::Blob& message,
+              const btlb::Blob& message,
               int                 enqueueWatermark);
         // Enqueue a request to write the specified 'message' into the channel
         // having the specified 'channelId'.  Optionally specify an
@@ -2148,7 +2148,7 @@ struct ChannelPool_MessageUtil {
     // CLASS METHODS
     template <typename IOVEC>
     static bsls::Types::Int64 length(const ChannelPool_IovecArray<IOVEC>& msg);
-    static bsls::Types::Int64 length(const bdlmca::Blob& msg);
+    static bsls::Types::Int64 length(const btlb::Blob& msg);
         // Return the length of the specified 'msg'.
 
     template <typename IOVEC>
@@ -2157,24 +2157,24 @@ struct ChannelPool_MessageUtil {
                      const ChannelPool_IovecArray<IOVEC>&     msg);
     static int write(btlso::StreamSocket<btlso::IPv4Address> *socket,
                      btls::Iovec                             *temp,
-                     const bdlmca::Blob&                      msg);
+                     const btlb::Blob&                      msg);
         // Write, to the specified 'socket', the buffers in the specified
         // 'msg', up to 'e_MAX_IOVEC_SIZE' buffers, using the specified 'temp'
         // array of iovec objects as a (temporary) intermediary for
         // 'StreamSocket::writev' (if required).  Return the return value from
         // 'StreamSocket::writev'.
 
-    static int loadIovec(btls::Iovec *dest, const bdlmca::Blob& msg);
+    static int loadIovec(btls::Iovec *dest, const btlb::Blob& msg);
         // Load into the specified 'dest' iovec the data buffers from the
         // specified 'msg', up to 'e_MAX_IOVEC_SIZE' buffers.  Return the
         // number of buffers loaded into 'dest'.
 
     template <typename IOVEC>
-    static int loadBlob(bdlmca::Blob                         *dest,
+    static int loadBlob(btlb::Blob                         *dest,
                         const ChannelPool_IovecArray<IOVEC>&  msg,
                         int                                   msgOffset);
-    static int loadBlob(bdlmca::Blob        *dest,
-                        const bdlmca::Blob&  msg,
+    static int loadBlob(btlb::Blob        *dest,
+                        const btlb::Blob&  msg,
                         int                  msgOffset);
         // Load into the specified 'dest' the data in the specified 'msg'
         // starting at the specified 'msgOffset'.  For performance reasons the
@@ -2184,10 +2184,10 @@ struct ChannelPool_MessageUtil {
         // is undefined unless 'dest' is empty.
 
     template <typename IOVEC>
-    static void appendToBlob(bdlmca::Blob                         *dest,
+    static void appendToBlob(btlb::Blob                         *dest,
                              const ChannelPool_IovecArray<IOVEC>&  msg);
-    static void appendToBlob(bdlmca::Blob        *dest,
-                             const bdlmca::Blob&  msg);
+    static void appendToBlob(btlb::Blob        *dest,
+                             const btlb::Blob&  msg);
         // Append, to the specified 'dest' blob, the data buffers in the
         // specified 'msg'.  The behavior is undefined unless the last buffer
         // in 'dest' is trimmed.
@@ -2216,7 +2216,7 @@ int ChannelPool::findChannelHandle(ChannelHandle *handle, int channelId) const
 
 // MANIPULATORS
 inline
-int ChannelPool::write(int channelId, const bdlmca::Blob& message)
+int ChannelPool::write(int channelId, const btlb::Blob& message)
 {
     return write(channelId, message, 0x7FFFFFFF);
 }
@@ -2268,13 +2268,13 @@ int ChannelPool::connect(const char                 *hostname,
 }
 
 inline
-bdlmca::BlobBufferFactory *ChannelPool::incomingBlobBufferFactory()
+btlb::BlobBufferFactory *ChannelPool::incomingBlobBufferFactory()
 {
     return d_readBlobFactory.ptr();
 }
 
 inline
-bdlmca::BlobBufferFactory *ChannelPool::outboundBlobBufferFactory()
+btlb::BlobBufferFactory *ChannelPool::outboundBlobBufferFactory()
 {
     return d_writeBlobFactory.ptr();
 }
@@ -2366,7 +2366,7 @@ int ChannelPool_IovecArray<IOVEC>::numIovecs() const
 // CLASS METHODS
 inline
 bsls::Types::Int64
-ChannelPool_MessageUtil::length(const bdlmca::Blob& msg)
+ChannelPool_MessageUtil::length(const btlb::Blob& msg)
 {
     return msg.length();
 }
@@ -2398,7 +2398,7 @@ inline
 int ChannelPool_MessageUtil::write(
                                btlso::StreamSocket<btlso::IPv4Address> *socket,
                                btls::Iovec                             *temp,
-                               const bdlmca::Blob&                      msg)
+                               const btlb::Blob&                      msg)
 {
     int numVecs = loadIovec(temp, msg);
     BSLS_ASSERT(0 < numVecs);
@@ -2408,7 +2408,7 @@ int ChannelPool_MessageUtil::write(
 template <typename IOVEC>
 inline
 int ChannelPool_MessageUtil::loadBlob(
-                               bdlmca::Blob                         *dest,
+                               btlb::Blob                         *dest,
                                const ChannelPool_IovecArray<IOVEC>&  msg,
                                int                                   msgOffset)
 {
@@ -2421,7 +2421,7 @@ int ChannelPool_MessageUtil::loadBlob(
 template <typename IOVEC>
 inline
 void ChannelPool_MessageUtil::appendToBlob(
-                                    bdlmca::Blob                         *dest,
+                                    btlb::Blob                         *dest,
                                     const ChannelPool_IovecArray<IOVEC>&  msg)
 {
     btls::IovecUtil::appendToBlob(dest, msg.iovecs(), msg.numIovecs());

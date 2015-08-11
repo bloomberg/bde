@@ -1,5 +1,5 @@
-// bdlmca_blob.t.cpp                                                   -*-C++-*-
-#include <bdlmca_blob.h>
+// btlb_blob.t.cpp                                                   -*-C++-*-
+#include <btlb_blob.h>
 
 #include <bdlt_datetimeutil.h>                     // for testing only
 #include <bdlt_currenttime.h>                   // for testing only
@@ -32,19 +32,19 @@ using bsl::cerr;
 //--------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver verifies many claims about 'bdlmca::Blob's which are made in
+// This test driver verifies many claims about 'btlb::Blob's which are made in
 // the component-level and class-level documentation, as well as the individual
 // contracts of each function, namely:
-// - that 'bdlmca::BlobBuffer' is an in-core value-semantic type containing a
+// - that 'btlb::BlobBuffer' is an in-core value-semantic type containing a
 //   memory buffer and length with shared ownership.
-// - that 'bdlmca::Blob' is an in-core exception-neutral value-semantic type
+// - that 'btlb::Blob' is an in-core exception-neutral value-semantic type
 //   representing a non-contiguous sequence of bytes stored in a sequence of
-//   'bdlmca::BlobBuffer's.
+//   'btlb::BlobBuffer's.
 // We do not provide a full value-semantic type test driver, since it is more
 // appropriate here to focus on the way blobs can be created: using 'setLength'
 // (which can be considered the primary manipulator) with a blob buffer factory
 // passed to the constructor, or by inserting/prepending/appending/removing
-// buffers.  The main concerns about 'bdlmca::Blob' have to do with the automatic
+// buffers.  The main concerns about 'btlb::Blob' have to do with the automatic
 // maintenance of the data length, number of buffers and of data buffers, and
 // length of the last data buffer (all of them could be considered primary
 // accessors) in a sequence of manipulators.  For this, we consider blobs
@@ -63,26 +63,26 @@ using bsl::cerr;
 // account, and run bdema exception test loops around all these.  With this
 // test driver, there is almost no room for a bug in the component.
 //--------------------------------------------------------------------------
-// [ 2] bdlmca::Blob(allocator);
-// [ 2] bdlmca::Blob(factory, allocator);
-// [ 2] bdlmca::Blob(buffers, numBuffers, allocator);
-// [ 3] void bdlmca::Blob::setLength(newLength);
-// [ 3] int bdlmca::Blob::buffer(index);
-// [ 3] int bdlmca::Blob::length();
-// [ 3] int bdlmca::Blob::numBuffers();
-// [ 4] void bdlmca::Blob::trimLastDataBuffer();
-// [ 4] int bdlmca::Blob::lastDataBufferLength();
-// [ 4] int bdlmca::Blob::numDataBuffers();
-// [ 5] void bdlmca::Blob::insertBuffer(index, buffer);
-// [ 6] void bdlmca::Blob::appendBuffer(buffer);
-// [ 7] void bdlmca::Blob::removeAll();
-// [ 7] void bdlmca::Blob::removeBuffer(index);
-// [ 8] void bdlmca::Blob::prependDataBuffer(buffer);
-// [ 8] void bdlmca::Blob::appendDataBuffer(buffer)
-// [ 9] void bdlmca::Blob::moveBuffers(bdlmca::Blob *srcBlob);
-// [11] void bdlmca::Blob::moveDataBuffers(bdlmca::Blob *srcBlob);
-// [11] void bdlmca::Blob::moveAndAppendDataBuffers(bdlmca::Blob *srcBlob);
-// [10] void bdlmca::Blob::swapBufferRaw(int index, bdlmca::BlobBuffer *srcBuffer);
+// [ 2] btlb::Blob(allocator);
+// [ 2] btlb::Blob(factory, allocator);
+// [ 2] btlb::Blob(buffers, numBuffers, allocator);
+// [ 3] void btlb::Blob::setLength(newLength);
+// [ 3] int btlb::Blob::buffer(index);
+// [ 3] int btlb::Blob::length();
+// [ 3] int btlb::Blob::numBuffers();
+// [ 4] void btlb::Blob::trimLastDataBuffer();
+// [ 4] int btlb::Blob::lastDataBufferLength();
+// [ 4] int btlb::Blob::numDataBuffers();
+// [ 5] void btlb::Blob::insertBuffer(index, buffer);
+// [ 6] void btlb::Blob::appendBuffer(buffer);
+// [ 7] void btlb::Blob::removeAll();
+// [ 7] void btlb::Blob::removeBuffer(index);
+// [ 8] void btlb::Blob::prependDataBuffer(buffer);
+// [ 8] void btlb::Blob::appendDataBuffer(buffer)
+// [ 9] void btlb::Blob::moveBuffers(btlb::Blob *srcBlob);
+// [11] void btlb::Blob::moveDataBuffers(btlb::Blob *srcBlob);
+// [11] void btlb::Blob::moveAndAppendDataBuffers(btlb::Blob *srcBlob);
+// [10] void btlb::Blob::swapBufferRaw(int index, btlb::BlobBuffer *srcBuffer);
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] CONCERN: BUFFER ALIASING
@@ -164,7 +164,7 @@ void unknownFactoryHandler(const char *, const char *, int) {
     throw UnknownFactoryException("Oops!");
 }
 
-void checkNoAliasedBlobBuffers(const bdlmca::Blob& blob)
+void checkNoAliasedBlobBuffers(const btlb::Blob& blob)
     // This function checks that all buffers are valid for write, and that no
     // two buffers are aliased.
 {
@@ -189,7 +189,7 @@ void checkNoAliasedBlobBuffers(const bdlmca::Blob& blob)
     }
 }
 
-void checkBlobBuffers(const bdlmca::Blob& blob)
+void checkBlobBuffers(const btlb::Blob& blob)
     // This function checks that all buffers are valid for write.  Buffers can
     // be aliased.
 {
@@ -203,7 +203,7 @@ void checkBlobBuffers(const bdlmca::Blob& blob)
     }
 }
 
-bool checkTotalSize(const bdlmca::Blob& blob)
+bool checkTotalSize(const btlb::Blob& blob)
     // check d_totalSize is accurate and sane
 {
     int total = 0;
@@ -215,7 +215,7 @@ bool checkTotalSize(const bdlmca::Blob& blob)
     return blob.totalSize() == total;
 }
 
-void loadBlob(bdlmca::Blob *blob, bsl::string& dataString)
+void loadBlob(btlb::Blob *blob, bsl::string& dataString)
 {
     const char *data = dataString.data();
     const int NUM_DATA_BUFFERS = blob->numDataBuffers();
@@ -227,7 +227,7 @@ void loadBlob(bdlmca::Blob *blob, bsl::string& dataString)
     int dataCharIdx = 0;
 
     for ( ; bufferIdx < NUM_DATA_BUFFERS; ++bufferIdx) {
-        const bdlmca::BlobBuffer& buffer = blob->buffer(bufferIdx);
+        const btlb::BlobBuffer& buffer = blob->buffer(bufferIdx);
         for (char *pc = buffer.data(), *end = pc + buffer.size();
                   pc < end && dataCharIdx < DATA_LENGTH; ++pc, ++dataCharIdx) {
             *pc = data[dataCharIdx];
@@ -235,7 +235,7 @@ void loadBlob(bdlmca::Blob *blob, bsl::string& dataString)
     }
 }
 
-void blobToStr(bsl::string * str, const bdlmca::Blob& blob) {
+void blobToStr(bsl::string * str, const btlb::Blob& blob) {
     const int NUM_PRE_DATA_BUFFERS = blob.numDataBuffers() - 1;
     const int DATA_LENGTH          = blob.length();
 
@@ -248,17 +248,17 @@ void blobToStr(bsl::string * str, const bdlmca::Blob& blob) {
     int bufferIdx = 0;
 
     for ( ; bufferIdx < NUM_PRE_DATA_BUFFERS; ++bufferIdx) {
-        const bdlmca::BlobBuffer& buffer = blob.buffer(bufferIdx);
+        const btlb::BlobBuffer& buffer = blob.buffer(bufferIdx);
         str->append(buffer.data(), buffer.size());
     }
 
-    const bdlmca::BlobBuffer& buffer = blob.buffer(bufferIdx);
+    const btlb::BlobBuffer& buffer = blob.buffer(bufferIdx);
     int toAppend = DATA_LENGTH - str->length();
     ASSERT(toAppend <= buffer.size());
     str->append(buffer.data(), toAppend);
 }
 
-bool checkBlob(const bdlmca::Blob& blob, const bsl::string& dataString)
+bool checkBlob(const btlb::Blob& blob, const bsl::string& dataString)
 {
     if (blob.length() != (int) dataString.length()) {
         return false;
@@ -272,7 +272,7 @@ bool checkBlob(const bdlmca::Blob& blob, const bsl::string& dataString)
     int dataCharIdx = 0;
 
     for ( ; bufferIdx < NUM_DATA_BUFFERS; ++bufferIdx) {
-        const bdlmca::BlobBuffer& buffer = blob.buffer(bufferIdx);
+        const btlb::BlobBuffer& buffer = blob.buffer(bufferIdx);
         for (char *pc = buffer.data(), *end = pc + buffer.size();
                   pc < end && dataCharIdx < DATA_LENGTH; ++pc, ++dataCharIdx) {
             if (*pc != data[dataCharIdx]) {
@@ -284,7 +284,7 @@ bool checkBlob(const bdlmca::Blob& blob, const bsl::string& dataString)
     return false;
 }
 
-void populateBuffersWithData(bdlmca::Blob *blob, int numBuffers, char value)
+void populateBuffersWithData(btlb::Blob *blob, int numBuffers, char value)
     // Populate the specified 'numBuffers' in the specified 'blob' with the
     // specified 'value'.
 {
@@ -296,7 +296,7 @@ void populateBuffersWithData(bdlmca::Blob *blob, int numBuffers, char value)
     }
 }
 
-bool compareBlobBufferData(const bdlmca::BlobBuffer& blobBuffer, char value)
+bool compareBlobBufferData(const btlb::BlobBuffer& blobBuffer, char value)
     // Return 'true' if each char in the specified 'buffer' has the specified
     // 'value', and 'false' otherwise.
 {
@@ -310,7 +310,7 @@ bool compareBlobBufferData(const bdlmca::BlobBuffer& blobBuffer, char value)
     return true;
 }
 
-bool compareBuffersData(const bdlmca::Blob& blob,
+bool compareBuffersData(const btlb::Blob& blob,
                         int               numBuffers,
                         char              value,
                         int               exceptIdx = -1)
@@ -338,7 +338,7 @@ bool compareBuffersData(const bdlmca::Blob& blob,
                          // class TestBlobBufferFactory
                          // ===========================
 
-class TestBlobBufferFactory : public bdlmca::BlobBufferFactory
+class TestBlobBufferFactory : public btlb::BlobBufferFactory
 {
     // This class constructs buffers with a size growing in a geometric series
     // or ratio 2, starting with a size specified at construction.
@@ -360,7 +360,7 @@ class TestBlobBufferFactory : public bdlmca::BlobBufferFactory
     ~TestBlobBufferFactory();
 
     // MANIPULATORS
-    void allocate(bdlmca::BlobBuffer *buffer);
+    void allocate(btlb::BlobBuffer *buffer);
     void setGrowFlag(bool growFlag);
 
     // ACCESSORS
@@ -381,7 +381,7 @@ TestBlobBufferFactory::~TestBlobBufferFactory()
 {
 }
 
-void TestBlobBufferFactory::allocate(bdlmca::BlobBuffer *buffer)
+void TestBlobBufferFactory::allocate(btlb::BlobBuffer *buffer)
 {
 
     bsl::shared_ptr<char> shptr(
@@ -426,7 +426,7 @@ class NullDeleter {
                          // class SimpleBlobBufferFactory
                          // =============================
 
-class SimpleBlobBufferFactory : public bdlmca::BlobBufferFactory
+class SimpleBlobBufferFactory : public btlb::BlobBufferFactory
 {
     // This factory creates blob buffers of a fixed size specified at
     // construction.  It is part of the usage example.
@@ -446,7 +446,7 @@ class SimpleBlobBufferFactory : public bdlmca::BlobBufferFactory
     ~SimpleBlobBufferFactory();
 
     // MANIPULATORS
-    void allocate(bdlmca::BlobBuffer *buffer);
+    void allocate(btlb::BlobBuffer *buffer);
 };
 
 SimpleBlobBufferFactory::SimpleBlobBufferFactory(
@@ -461,7 +461,7 @@ SimpleBlobBufferFactory::~SimpleBlobBufferFactory()
 {
 }
 
-void SimpleBlobBufferFactory::allocate(bdlmca::BlobBuffer *buffer)
+void SimpleBlobBufferFactory::allocate(btlb::BlobBuffer *buffer)
 {
 
     bsl::shared_ptr<char> shptr(
@@ -474,13 +474,13 @@ void SimpleBlobBufferFactory::allocate(bdlmca::BlobBuffer *buffer)
 ///Simple blob usage
 ///- - - - - - - - -
 // Blobs can be created just by passing a factory that is responsible to
-// allocate the 'bdlmca::BlobBuffer'.  The following simple program illustrate
+// allocate the 'btlb::BlobBuffer'.  The following simple program illustrate
 // how.
 //..
 void  usageExample() {
     SimpleBlobBufferFactory myFactory(1024);
 
-    bdlmca::Blob blob(&myFactory);
+    btlb::Blob blob(&myFactory);
     ASSERT(0    == blob.length());
     ASSERT(0    == blob.totalSize());
 
@@ -499,15 +499,15 @@ void  usageExample() {
     ASSERT(sizeof data == blob.length());
     ASSERT(       1024 == blob.totalSize());
 //..
-// A 'bdlmca::BlobBuffer' can easily be re-assigned from one blob to another with
+// A 'btlb::BlobBuffer' can easily be re-assigned from one blob to another with
 // no copy.  In that case, the memory held by the buffer will be returned to
 // its factory when the last blob referencing the buffer is destroyed.  For the
 // following example, a blob will be created using the default constructor.  In
-// this case, the 'bdlmca::Blob' object will not able to grow on its own.
+// this case, the 'btlb::Blob' object will not able to grow on its own.
 // Calling 'setLength' for a number equal or greater than 'totalSize()' will
 // result in undefined behavior.
 //..
-    bdlmca::Blob dest;
+    btlb::Blob dest;
     ASSERT(   0 == dest.length());
     ASSERT(   0 == dest.totalSize());
 
@@ -518,7 +518,7 @@ void  usageExample() {
 //..
 // Note that at this point, the logical length (returned by 'length') of this
 // object has not changed.  'setLength' must be called explicitly by the user
-// if the logical length of the 'bdlmca::Blob' should be changed:
+// if the logical length of the 'btlb::Blob' should be changed:
 //..
     dest.setLength(dest.buffer(0).size());
     ASSERT(1024 == dest.length());
@@ -535,7 +535,7 @@ void  usageExample() {
                                 blob.buffer(0).data() + 10);
         // 'shptr' is now an alias of 'blob.buffer(0).buffer()'.
 
-    bdlmca::BlobBuffer partialBuffer(shptr, 6);
+    btlb::BlobBuffer partialBuffer(shptr, 6);
     dest.appendBuffer(partialBuffer);
         // The last buffer of 'dest' contains only bytes 11-16 from
         // 'blob.buffer(0)'.
@@ -550,17 +550,17 @@ void  usageExample() {
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
 //..
-void prependProlog(bdlmca::Blob          *blob,
+void prependProlog(btlb::Blob          *blob,
                    const bsl::string&   prolog,
                    bslma::Allocator    *allocator = 0);
     // Prepend the specified 'prolog' to the specified 'blob', using the
     // specified 'allocator' to supply any memory (or the currently
     // installed default allocator if 'allocator' is 0).  The behavior is
-    // undefined unless 'blob' points to an initialized 'bdlmca::Blob'
+    // undefined unless 'blob' points to an initialized 'btlb::Blob'
     // instance.
 
 template <class DELETER>
-void composeMessage(bdlmca::Blob          *blob,
+void composeMessage(btlb::Blob          *blob,
                     const bsl::string&   prolog,
                     char * const        *vectors,
                     const int           *vectorSizes,
@@ -577,21 +577,21 @@ void composeMessage(bdlmca::Blob          *blob,
     // composing the message is not longer in 'blob' after composing the
     // message.  Note also that 'blob' need not have been created with a
     // blob buffer factory.  The behavior is undefined unless 'blob' points
-    // to an initialized 'bdlmca::Blob' instance.
+    // to an initialized 'btlb::Blob' instance.
 
-int timestampMessage(bdlmca::Blob          *blob,
+int timestampMessage(btlb::Blob          *blob,
                      bslma::Allocator    *allocator = 0);
     // Insert a timestamp data buffer immediately after the prolog buffer
     // and prior to any payload buffer.  Return the number of bytes
     // inserted.  Use the specified 'allocator' to supply memory, or the
     // currently installed default allocator if 'allocator' is 0.  The
     // behavior is undefined unless 'blob' points to an initialized
-    // 'bdlmca::Blob' instance with at least one data buffer.
+    // 'btlb::Blob' instance with at least one data buffer.
 //..
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
 //..
-void prependProlog(bdlmca::Blob          *blob,
+void prependProlog(btlb::Blob          *blob,
                    const bsl::string&   prolog,
                    bslma::Allocator    *)
 {
@@ -599,7 +599,7 @@ void prependProlog(bdlmca::Blob          *blob,
 
     int prologLength = prolog.length();
     SimpleBlobBufferFactory fa(prologLength + sizeof(int));
-    bdlmca::BlobBuffer prologBuffer;
+    btlb::BlobBuffer prologBuffer;
     fa.allocate(&prologBuffer);
 
     bdlxxxx::ByteStreamImpUtil::putInt32(prologBuffer.data(), prologLength);
@@ -627,7 +627,7 @@ void prependProlog(bdlmca::Blob          *blob,
 // The 'composeMessage' implementation is simplified by using 'prependProlog':
 //..
 template <class DELETER>
-void composeMessage(bdlmca::Blob         *blob,
+void composeMessage(btlb::Blob         *blob,
                     const bsl::string&  prolog,
                     char * const       *vectors,
                     const int          *vectorSizes,
@@ -644,7 +644,7 @@ void composeMessage(bdlmca::Blob         *blob,
 
     for (int i = 0; i < numVectors; ++i) {
         bsl::shared_ptr<char> shptr(vectors[i], deleter, allocator);
-        bdlmca::BlobBuffer partialBuffer(shptr, vectorSizes[i]);
+        btlb::BlobBuffer partialBuffer(shptr, vectorSizes[i]);
         blob->appendDataBuffer(partialBuffer);
             // The last buffer of 'dest' contains only bytes 11-16 from
             // 'blob.buffer(0)'.
@@ -659,17 +659,17 @@ void composeMessage(bdlmca::Blob         *blob,
 // that in usual messages, timestamps would be part of the prolog itself, so
 // this is a somewhat constrained example for exposition only.
 //..
-int timestampMessage(bdlmca::Blob          *blob,
+int timestampMessage(btlb::Blob          *blob,
                      bslma::Allocator    *allocator)
 {
     ASSERT(blob);
     ASSERT(0 < blob->numDataBuffers());
 
-    bdlmca::BlobBuffer buffer;
+    btlb::BlobBuffer buffer;
     bdlt::Datetime now = bdlt::CurrentTime::utc();
 
     SimpleBlobBufferFactory fa(128, allocator);
-    bdlmca::BlobBuffer timestampBuffer;
+    btlb::BlobBuffer timestampBuffer;
     fa.allocate(&timestampBuffer);
 
     bdlxxxx::ByteOutStreamRaw bdexStream(timestampBuffer.data(), 128);
@@ -709,8 +709,8 @@ void usageExample2()
     bslma::TestAllocator ta;
     SimpleBlobBufferFactory fa(1024);
 
-    bdlmca::Blob blob(&ta);
-    bdlmca::BlobBuffer buffer;
+    btlb::Blob blob(&ta);
+    btlb::BlobBuffer buffer;
     fa.allocate(&buffer); blob.appendBuffer(buffer);
     fa.allocate(&buffer); blob.appendBuffer(buffer);
     ASSERT(0 == blob.length());
@@ -824,13 +824,13 @@ int main(int argc, char *argv[])
 
 //          bslma::Allocator *allocator = bslma::Default::allocator();
             bslma::Allocator *allocator = &ta;
-//          bdlmca::PooledBlobBufferFactory factory(1024);
+//          btlb::PooledBlobBufferFactory factory(1024);
             SimpleBlobBufferFactory       factory(1024, allocator);
-            bdlmca::Blob blob(&factory);
+            btlb::Blob blob(&factory);
             blob.setLength(1);
             bsl::shared_ptr<char> buf((char*) allocator->allocate(4),
                                       allocator);
-            bdlmca::BlobBuffer blobBuffer(buf, 4);
+            btlb::BlobBuffer blobBuffer(buf, 4);
             blob.appendDataBuffer(blobBuffer);
             blob.setLength(blob.length() + 1);
 
@@ -840,17 +840,17 @@ int main(int argc, char *argv[])
         SimpleBlobBufferFactory sbbf(1024, &ta);
 
         {
-            bdlmca::Blob blob(&sbbf, &ta);
+            btlb::Blob blob(&sbbf, &ta);
             blob.setLength(4);
             ASSERT(1024 == blob.buffer(0).size());
             ASSERT(1024 == blob.totalSize());
             ASSERT(4    == blob.length());
             for (int i = 0; i < 3; ++i) {
-                bdlmca::BlobBuffer bb;
+                btlb::BlobBuffer bb;
                 sbbf.allocate(&bb);
                 blob.appendBuffer(bb);
             }
-            bdlmca::BlobBuffer bb;
+            btlb::BlobBuffer bb;
             sbbf.allocate(&bb);
             blob.appendDataBuffer(bb);
             ASSERT(1028 == blob.length());
@@ -864,13 +864,13 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlmca::Blob blob(&sbbf, &ta);
+            btlb::Blob blob(&sbbf, &ta);
             for (int i = 0; i < 3; ++i) {
-                bdlmca::BlobBuffer bb;
+                btlb::BlobBuffer bb;
                 sbbf.allocate(&bb);
                 blob.appendBuffer(bb);
             }
-            bdlmca::BlobBuffer bb;
+            btlb::BlobBuffer bb;
             sbbf.allocate(&bb);
             blob.appendDataBuffer(bb);
             ASSERT(1024 == blob.length());
@@ -887,10 +887,10 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlmca::Blob blob(&sbbf, &ta);
+            btlb::Blob blob(&sbbf, &ta);
             ASSERT(0 == blob.totalSize());
             ASSERT(0 == blob.numBuffers());
-            bdlmca::BlobBuffer bb;
+            btlb::BlobBuffer bb;
             sbbf.allocate(&bb);
             blob.appendDataBuffer(bb);
             ASSERT(1024 == blob.length());
@@ -902,12 +902,12 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlmca::Blob blob(&sbbf);
+            btlb::Blob blob(&sbbf);
             blob.setLength(1);
             ASSERT(1024 == blob.totalSize());
 
             bsl::shared_ptr<char> buf((char*) ta.allocate(4), &ta);
-            bdlmca::BlobBuffer blobBuffer(buf, 4);
+            btlb::BlobBuffer blobBuffer(buf, 4);
             blob.appendDataBuffer(blobBuffer);
             blob.setLength(blob.length() + 1);
             ASSERT(3 == blob.numBuffers());
@@ -917,14 +917,14 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlmca::Blob blob(&sbbf);
+            btlb::Blob blob(&sbbf);
             blob.setLength(1025);
             ASSERT(2048 == blob.totalSize());
             blob.setLength(1024);
             ASSERT(2048 == blob.totalSize());
             ASSERT(1024 == blob.lastDataBufferLength());
             bsl::shared_ptr<char> buf((char*) ta.allocate(4), &ta);
-            bdlmca::BlobBuffer blobBuffer(buf, 4);
+            btlb::BlobBuffer blobBuffer(buf, 4);
             blob.appendDataBuffer(blobBuffer);
             blob.setLength(blob.length() + 1);
             LOOP_ASSERT(blob.numBuffers(), 3 == blob.numBuffers());
@@ -965,7 +965,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator& testAllocator = ta;
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
-            typedef bdlmca::Blob Obj;
+            typedef btlb::Blob Obj;
             const int BUFFER_SIZE = 4;
 
             SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
@@ -1036,8 +1036,8 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   void moveDataBuffers(bdlmca::Blob *srcBlob);
-        //   void moveAndAppendDataBuffers(bdlmca::Blob *srcBlob);
+        //   void moveDataBuffers(btlb::Blob *srcBlob);
+        //   void moveAndAppendDataBuffers(btlb::Blob *srcBlob);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1049,7 +1049,7 @@ int main(int argc, char *argv[])
         bsl::string data1 = "abcdefghijklmnopqrstuvwzyz";
         bsl::string data2 = "01234567890`~!@#$%^&*()_-+";
 
-        typedef bdlmca::Blob Obj;
+        typedef btlb::Blob Obj;
         bslma::TestAllocator defaultAlloc(veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&defaultAlloc);
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -1264,7 +1264,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bdlmca::Blob::swapBufferRaw(int index, BlobBuffer *src);
+        //   btlb::Blob::swapBufferRaw(int index, BlobBuffer *src);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1299,7 +1299,7 @@ int main(int argc, char *argv[])
                     T_(); P_(EXP_LENGTH);  P(EXP_NUM_BUFFERS);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -1307,7 +1307,7 @@ int main(int argc, char *argv[])
                 mX.setLength(EXP_TOTAL_SIZE);  // set up capacity
                 mX.setLength(EXP_LENGTH);
                 for (int i = 0; i < numBuffers; ++i) {
-                    bdlmca::BlobBuffer src;
+                    btlb::BlobBuffer src;
                     fa.allocate(&src);
                     ASSERT(BUFFER_SIZE == src.size());
 
@@ -1349,14 +1349,14 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   void moveBuffers(bdlmca::Blob *srcBlob);
+        //   void moveBuffers(btlb::Blob *srcBlob);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING: moveBuffers" << endl
                           << "====================" << endl;
 
-        typedef bdlmca::Blob Obj;
+        typedef btlb::Blob Obj;
         bslma::TestAllocator defaultAlloc(veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&defaultAlloc);
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -1444,9 +1444,9 @@ int main(int argc, char *argv[])
         //   throwing the exception).
         //
         // Testing:
-        //   bdlmca::Blob::prependDataBuffer(bdlmca::BlobBuffer);
-        //   bdlmca::Blob::appendDataBuffer(bdlmca::BlobBuffer);
-        //   bdlmca::Blob::setLength(int) in the presence of 0-sized buffers
+        //   btlb::Blob::prependDataBuffer(btlb::BlobBuffer);
+        //   btlb::Blob::appendDataBuffer(btlb::BlobBuffer);
+        //   btlb::Blob::setLength(int) in the presence of 0-sized buffers
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1484,7 +1484,7 @@ int main(int argc, char *argv[])
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -1497,7 +1497,7 @@ int main(int argc, char *argv[])
                 ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
 
                 SimpleBlobBufferFactory ifa(PREPEND_BUFFER_SIZE, &ta);
-                bdlmca::BlobBuffer buffer;
+                btlb::BlobBuffer buffer;
                 ifa.allocate(&buffer);
                 ASSERT(PREPEND_BUFFER_SIZE == buffer.size());
 
@@ -1581,7 +1581,7 @@ int main(int argc, char *argv[])
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -1594,7 +1594,7 @@ int main(int argc, char *argv[])
                 ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
 
                 SimpleBlobBufferFactory ifa(APPEND_BUFFER_SIZE, &ta);
-                bdlmca::BlobBuffer buffer;
+                btlb::BlobBuffer buffer;
                 ifa.allocate(&buffer);
                 ASSERT(APPEND_BUFFER_SIZE == buffer.size());
 
@@ -1645,8 +1645,8 @@ int main(int argc, char *argv[])
         //   throwing the exception).
         //
         // Testing:
-        //   bdlmca::Blob::removeBuffer(int);
-        //   bdlmca::Blob::removeAll();
+        //   btlb::Blob::removeBuffer(int);
+        //   btlb::Blob::removeAll();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1685,7 +1685,7 @@ int main(int argc, char *argv[])
                           P(EXP_LAST_DB_LENGTH);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -1762,7 +1762,7 @@ int main(int argc, char *argv[])
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -1814,7 +1814,7 @@ int main(int argc, char *argv[])
         //   throwing the exception).
         //
         // Testing:
-        //   bdlmca::Blob::appendBuffer(bdlmca::BlobBuffer);
+        //   btlb::Blob::appendBuffer(btlb::BlobBuffer);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1850,7 +1850,7 @@ int main(int argc, char *argv[])
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -1863,7 +1863,7 @@ int main(int argc, char *argv[])
                 ASSERT(EXP_LAST_DB_LENGTH   == X.lastDataBufferLength());
 
                 SimpleBlobBufferFactory ifa(APPEND_BUFFER_SIZE, &ta);
-                bdlmca::BlobBuffer buffer;
+                btlb::BlobBuffer buffer;
                 ifa.allocate(&buffer);
                 ASSERT(APPEND_BUFFER_SIZE == buffer.size());
 
@@ -1913,8 +1913,8 @@ int main(int argc, char *argv[])
         //   destructor upon throwing the exception).
         //
         // Testing:
-        //   bdlmca::Blob::insertBuffer(int, bdlmca::BlobBuffer);
-        //   bdlmca::Blob::setLength(int) in the presence of 0-sized buffers
+        //   btlb::Blob::insertBuffer(int, btlb::BlobBuffer);
+        //   btlb::Blob::setLength(int) in the presence of 0-sized buffers
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1953,7 +1953,7 @@ int main(int argc, char *argv[])
                           P(EXP_LAST_DB_LENGTH);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -1967,7 +1967,7 @@ int main(int argc, char *argv[])
                 checkNoAliasedBlobBuffers(X);
 
                 SimpleBlobBufferFactory ifa(INSERT_BUFFER_SIZE, &ta);
-                bdlmca::BlobBuffer buffer;
+                btlb::BlobBuffer buffer;
                 ifa.allocate(&buffer);
                 ASSERT(INSERT_BUFFER_SIZE == buffer.size());
 
@@ -2022,9 +2022,9 @@ int main(int argc, char *argv[])
         //   thrown while running those functions.
         //
         // Testing:
-        //   void bdlmca::Blob::trimLastDataBuffer();
-        //   int bdlmca::Blob::lastDataBufferLength() const;
-        //   int bdlmca::Blob::numDataBuffers() const;
+        //   void btlb::Blob::trimLastDataBuffer();
+        //   int btlb::Blob::lastDataBufferLength() const;
+        //   int btlb::Blob::numDataBuffers() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2055,7 +2055,7 @@ int main(int argc, char *argv[])
                                                          P(EXP_LAST_DB_LENGTH);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -2141,10 +2141,10 @@ int main(int argc, char *argv[])
         //   and appending empty data buffers).
         //
         // Testing:
-        //   bdlmca::Blob::setLength(newLength);
-        //   bdlmca::Blob::length();
-        //   bdlmca::Blob::numBuffers();
-        //   bdlmca::Blob::totalSize();
+        //   btlb::Blob::setLength(newLength);
+        //   btlb::Blob::length();
+        //   btlb::Blob::numBuffers();
+        //   btlb::Blob::totalSize();
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2177,7 +2177,7 @@ int main(int argc, char *argv[])
                     T_(); P_(EXP_LENGTH);  P(EXP_NUM_BUFFERS);
                 }
 
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -2260,7 +2260,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&ta);
             {
-                typedef bdlmca::Blob Obj;
+                typedef btlb::Blob Obj;
                 TestBlobBufferFactory fa(&ta, 1);
 
                 Obj mX(&fa, &ta);   const Obj& X = mX;
@@ -2295,11 +2295,11 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //  bdlmca::Blob(allocator);
-        //  bdlmca::Blob(factory, allocator);
-        //  bdlmca::Blob(buffers, numBuffers, factory, allocator);
-        //  bdlmca::Blob(original, allocator);
-        //  bdlmca::Blob(original, factory, allocator);
+        //  btlb::Blob(allocator);
+        //  btlb::Blob(factory, allocator);
+        //  btlb::Blob(buffers, numBuffers, factory, allocator);
+        //  btlb::Blob(original, allocator);
+        //  btlb::Blob(original, factory, allocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2326,7 +2326,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
-            typedef bdlmca::Blob Obj;
+            typedef btlb::Blob Obj;
             Obj mX(&ta);  const Obj& X = mX;
 
             try {
@@ -2359,7 +2359,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
-            typedef bdlmca::Blob Obj;
+            typedef btlb::Blob Obj;
             SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
             // Create X, with a factory.
@@ -2438,28 +2438,28 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
-            typedef bdlmca::Blob Obj;
+            typedef btlb::Blob Obj;
             SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
             NullDeleter deleter;
             char buffer[BUFFER_SIZE - 1];
             bsl::shared_ptr<char> shptr1(buffer, &deleter, &ta);
-            bdlmca::BlobBuffer b1(shptr1, BUFFER_SIZE - 1);
+            btlb::BlobBuffer b1(shptr1, BUFFER_SIZE - 1);
 
             bsl::shared_ptr<char> shptr2((char *)ta.allocate(BUFFER_SIZE + 1),
                                          &ta, &ta);
-            bdlmca::BlobBuffer b2(shptr2, BUFFER_SIZE + 1);
+            btlb::BlobBuffer b2(shptr2, BUFFER_SIZE + 1);
 
             SimpleBlobBufferFactory fa3(BUFFER_SIZE - 2, &ta);
-            bdlmca::BlobBuffer b3; fa3.allocate(&b3);
+            btlb::BlobBuffer b3; fa3.allocate(&b3);
 
             SimpleBlobBufferFactory fa4(BUFFER_SIZE + 2, &ta);
-            bdlmca::BlobBuffer b4; fa4.allocate(&b4);
+            btlb::BlobBuffer b4; fa4.allocate(&b4);
 
             const int NUM_BUFFERS = 4;
             const int DATA_LENGTH = 4 * BUFFER_SIZE;
             const int TOTAL_SIZE  = 4 * BUFFER_SIZE;
-            const bdlmca::BlobBuffer BUFFERS[NUM_BUFFERS] = { b1, b2, b3, b4 };
+            const btlb::BlobBuffer BUFFERS[NUM_BUFFERS] = { b1, b2, b3, b4 };
 
             Obj mX(BUFFERS, NUM_BUFFERS, &ta);   const Obj& X = mX;
             ASSERT(DATA_LENGTH == X.length());
@@ -2492,28 +2492,28 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
 
-            typedef bdlmca::Blob Obj;
+            typedef btlb::Blob Obj;
             SimpleBlobBufferFactory fa(BUFFER_SIZE, &ta);
 
             NullDeleter deleter;
             char buffer[BUFFER_SIZE - 1];
             bsl::shared_ptr<char> shptr1(buffer, &deleter, &ta);
-            bdlmca::BlobBuffer b1(shptr1, BUFFER_SIZE - 1);
+            btlb::BlobBuffer b1(shptr1, BUFFER_SIZE - 1);
 
             bsl::shared_ptr<char> shptr2((char *) ta.allocate(BUFFER_SIZE + 1),
                                          &ta, &ta);
-            bdlmca::BlobBuffer b2(shptr2, BUFFER_SIZE + 1);
+            btlb::BlobBuffer b2(shptr2, BUFFER_SIZE + 1);
 
             SimpleBlobBufferFactory fa3(BUFFER_SIZE - 2, &ta);
-            bdlmca::BlobBuffer b3; fa3.allocate(&b3);
+            btlb::BlobBuffer b3; fa3.allocate(&b3);
 
             SimpleBlobBufferFactory fa4(BUFFER_SIZE + 2, &ta);
-            bdlmca::BlobBuffer b4; fa4.allocate(&b4);
+            btlb::BlobBuffer b4; fa4.allocate(&b4);
 
             const int NUM_BUFFERS = 4;
             const int DATA_LENGTH = 4 * BUFFER_SIZE;
             const int TOTAL_SIZE  = 4 * BUFFER_SIZE;
-            const bdlmca::BlobBuffer BUFFERS[NUM_BUFFERS] = { b1, b2, b3, b4 };
+            const btlb::BlobBuffer BUFFERS[NUM_BUFFERS] = { b1, b2, b3, b4 };
 
             Obj mX(BUFFERS, NUM_BUFFERS, &fa, &ta);  const Obj& X = mX;
             ASSERT(0           == X.length());
@@ -2542,12 +2542,12 @@ int main(int argc, char *argv[])
         //   Developers' Sandbox.
         //
         // Concerns:
-        //   - That 'bdlmca::BlobBuffer' is an in-core value type.
-        //   - That 'bdlmca::Blob' basic manipulation does what is expected.
+        //   - That 'btlb::BlobBuffer' is an in-core value type.
+        //   - That 'btlb::Blob' basic manipulation does what is expected.
         //
         // Plan:
-        //   Do a mini value-semantic 10 case driver for 'bdlmca::BlobBuffer'.
-        //   Manipulate 'bdlmca::Blob' using a non-fixed size blob buffer factory
+        //   Do a mini value-semantic 10 case driver for 'btlb::BlobBuffer'.
+        //   Manipulate 'btlb::Blob' using a non-fixed size blob buffer factory
         //   with 'setLength', 'insertBuffer', 'removeBuffer', and
         //   'appendBuffer'.  For each blob, assert the state is as expected
         //   and check the validity of the buffers.
@@ -2566,7 +2566,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting bcema_BlobBuffer." << endl;
         {
-            typedef bdlmca::BlobBuffer Obj;
+            typedef btlb::BlobBuffer Obj;
             bsl::shared_ptr<char> shptrA((char *) 0, &deleter, &ta);
             Obj mVA(shptrA, 1); const Obj& VA = mVA;
 
@@ -2813,7 +2813,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting bcema_Blob." << endl;
         {
-            typedef bdlmca::Blob Obj;
+            typedef btlb::Blob Obj;
             TestBlobBufferFactory fa(&ta);
 
             Obj mX(&fa, &ta);  const Obj& X = mX;
@@ -2962,7 +2962,7 @@ int main(int argc, char *argv[])
             ASSERT(64  == X.buffer(3).size());
             checkNoAliasedBlobBuffers(X);
 
-            bdlmca::BlobBuffer buf;
+            btlb::BlobBuffer buf;
             fa.allocate(&buf);
             ASSERT(128 == buf.size());
             mX.appendBuffer(buf);

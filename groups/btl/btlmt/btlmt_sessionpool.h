@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //     // PRIVATE MANIPULATORS
 //     void readCb(int           result,
 //                 int          *numNeeded,
-//                 bdlmca::Blob *blob,
+//                 btlb::Blob *blob,
 //                 int           channelId);
 //         // Read callback for session pool.
 //
@@ -159,7 +159,7 @@ BSLS_IDENT("$Id: $")
 //  // PRIVATE MANIPULATORS
 //  void my_EchoSession::readCb(int           result,
 //                              int          *numNeeded,
-//                              bdlmca::Blob *blob,
+//                              btlb::Blob *blob,
 //                              int           channelId)
 //  {
 //      if (result) {
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: $")
 //      ASSERT(0 == d_channel_p->write(*blob));
 //
 //      *numNeeded   = 1;
-//      bdlmca::BlobUtil::erase(blob, 0, blob->length());
+//      btlb::BlobUtil::erase(blob, 0, blob->length());
 //
 //      d_channel_p->close(); // close connection.
 //  }
@@ -488,8 +488,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -687,7 +687,7 @@ class SessionPool {
     bdlma::ConcurrentPoolAllocator  d_spAllocator;        // smart pointers
                                                           // allocators
 
-    bslma::ManagedPtr<bdlmca::BlobBufferFactory>
+    bslma::ManagedPtr<btlb::BlobBufferFactory>
                                     d_blobBufferFactory;  // blob buffer
                                                           // factory
 
@@ -713,7 +713,7 @@ class SessionPool {
         // specified 'handle'.
 
     void blobBasedReadCb(int          *numNeeded,
-                         bdlmca::Blob *msg,
+                         btlb::Blob *msg,
                          int           channelId,
                          void         *userData);
         // Channel pool's blob based read callback.
@@ -762,12 +762,12 @@ class SessionPool {
     SessionPool(const ChannelPoolConfiguration&  config,
                 const SessionPoolStateCallback&  poolStateCallback,
                 bslma::Allocator                *basicAllocator = 0);
-    SessionPool(bdlmca::BlobBufferFactory       *blobBufferFactory,
+    SessionPool(btlb::BlobBufferFactory       *blobBufferFactory,
                 const ChannelPoolConfiguration&  config,
                 const SessionPoolStateCallback&  poolStateCallback,
                 bslma::Allocator                *basicAllocator = 0);
         // Create a new session pool according to the specified 'config' that
-        // uses 'bdlmca::Blob's for reading data and invokes the specified
+        // uses 'btlb::Blob's for reading data and invokes the specified
         // 'poolStateCallback' when the pool state changes.  Use the specified
         // 'blobBufferFactory' to supply buffers for the blobs used for reading
         // data.  Optionally specify 'basicAllocator' used to supply memory.

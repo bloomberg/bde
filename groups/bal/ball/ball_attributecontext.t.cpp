@@ -8,7 +8,6 @@
 #include <ball_defaultobserver.h>
 #include <ball_testobserver.h>            // for testing only
 
-#include <bdlmca_blob.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_mutex.h>
 

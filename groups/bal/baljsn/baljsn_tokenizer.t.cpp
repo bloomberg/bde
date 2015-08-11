@@ -17,10 +17,6 @@
 #include <bdlsb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>        // for testing only
 
-#include <bdlmca_blob.h>                       // for testing only
-#include <bdlmca_pooledblobbufferfactory.h>    // for testing only
-#include <bdlmca_blobstreambuf.h>              // for testing only
-
 using namespace BloombergLP;
 using namespace bsl;
 using bsl::cout;
@@ -931,28 +927,6 @@ int main(int argc, char *argv[])
                                       NAVAIL,
                                       EXPECTED,
                                       EMPTY);
-            }
-
-            // 'bdlmca::InBlobStreamBuf'
-            {
-                bdlmca::PooledBlobBufferFactory factory(5);
-                bdlmca::Blob                    blob(&factory);
-                bdlmca::OutBlobStreamBuf        osb(&blob);
-                bsl::ostream                  os(&osb);
-
-                os << TEXT;
-
-                osb.pubsync();
-
-                bdlmca::InBlobStreamBuf isb(osb.data());
-
-                confirmStreamBufReset(&isb,
-                                      LINE,
-                                      NADV,
-                                      NAVAIL,
-                                      EXPECTED,
-                                      EMPTY,
-                                      false);
             }
         }
       } break;

@@ -2,7 +2,7 @@
 
 #include <btlmt_asyncchannel.h>
 
-#include <bdlmca_blob.h>
+#include <btlb_blob.h>
 #include <bsls_timeinterval.h>
 #include <bslma_testallocator.h>
 
@@ -27,7 +27,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] ~btlmt::AsyncChannel(...);
 // [ 1] int read(...);
 // [ 1] int timedRead(...);
-// [ 1] int write(const bdlmca::Blob&, int);
+// [ 1] int write(const btlb::Blob&, int);
 // [ 1] void cancelRead()
 // [ 1] void close()
 // [ 1] btlso::IPv4Address localAddress() const;
@@ -144,7 +144,7 @@ class TestAsyncChannel : public btlmt::AsyncChannel {
         return 0;
     }
 
-    int write(const bdlmca::Blob&, int)
+    int write(const btlb::Blob&, int)
     {
         *d_funcCode_p = 6;
         return 0;
@@ -181,7 +181,7 @@ class TestAsyncChannel : public btlmt::AsyncChannel {
 
 void myBlobBasedReadCallback(int,
                              int *,
-                             bdlmca::Blob *,
+                             btlb::Blob *,
                              int)
 {
 }
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
                                   blobCallback);
            ASSERT(5 == opCode);
 
-           asyncChannel.write(bdlmca::Blob());
+           asyncChannel.write(btlb::Blob());
            ASSERT(6 == opCode);
 
            asyncChannel.setSocketOption(1, 2, 3);

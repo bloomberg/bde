@@ -1,8 +1,8 @@
-// bdlmca_blobutil.cpp                                                 -*-C++-*-
-#include <bdlmca_blobutil.h>
+// btlb_blobutil.cpp                                                 -*-C++-*-
+#include <btlb_blobutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_blobutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(btlb_blobutil_cpp,"$Id$ $CSID$")
 
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
@@ -20,7 +20,7 @@ namespace BloombergLP {
 namespace {
 // HELPER FUNCTION
 void copyFromPlace(char               *dstBuffer,
-                   const bdlmca::Blob&   srcBlob,
+                   const btlb::Blob&   srcBlob,
                    bsl::pair<int, int> place,
                    int                 length)
     // Copy the specified 'length' bytes, starting at the specified
@@ -39,7 +39,7 @@ void copyFromPlace(char               *dstBuffer,
 
     int copied = 0;
     do {
-        const bdlmca::BlobBuffer& buf = srcBlob.buffer(place.first);
+        const btlb::BlobBuffer& buf = srcBlob.buffer(place.first);
         int toCopy = bsl::min(length - copied, buf.size() - place.second);
         bsl::memcpy(dstBuffer + copied, buf.data() + place.second, toCopy);
         copied += toCopy;
@@ -50,7 +50,7 @@ void copyFromPlace(char               *dstBuffer,
 
 } // close unnamed namespace
 
-namespace bdlmca {
+namespace btlb {
                            // ---------------------
                            // struct BlobUtil
                            // ---------------------

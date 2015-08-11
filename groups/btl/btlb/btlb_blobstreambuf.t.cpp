@@ -1,7 +1,7 @@
-// bdlmca_blobstreambuf.t.cpp -*-C++-*-
-#include <bdlmca_blobstreambuf.h>
+// btlb_blobstreambuf.t.cpp -*-C++-*-
+#include <btlb_blobstreambuf.h>
 
-#include <bdlmca_blob.h>
+#include <btlb_blob.h>
 
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
@@ -101,7 +101,7 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_() cout << '\t' << flush;
 
-class testBlobBufferFactory : public bdlmca::BlobBufferFactory
+class testBlobBufferFactory : public btlb::BlobBufferFactory
 {
     bslma::Allocator *d_allocator_p;
     bsl::size_t       d_currentBufferSize;
@@ -119,7 +119,7 @@ class testBlobBufferFactory : public bdlmca::BlobBufferFactory
     ~testBlobBufferFactory();
 
     // MANIPULATORS
-    void allocate(bdlmca::BlobBuffer *buffer);
+    void allocate(btlb::BlobBuffer *buffer);
     void setGrowFlag(bool growFlag);
 
     // ACCESSORS
@@ -139,7 +139,7 @@ testBlobBufferFactory::~testBlobBufferFactory()
 {
 }
 
-void testBlobBufferFactory::allocate(bdlmca::BlobBuffer *buffer)
+void testBlobBufferFactory::allocate(btlb::BlobBuffer *buffer)
 {
 
     bsl::shared_ptr<char> shptr(
@@ -195,15 +195,15 @@ int main(int argc, char *argv[])
         // Plan:
         //   Iterate over a set of test vectors varying in buffer size and
         //   length of data to write.  For each test vector, instantiate a
-        //   'bdlmca::PooledBufferChainFactory', 'mF', allocate a
-        //   'bdlmca::PooledBufferChain', 'mC', and use 'mC' to instantiate a
+        //   'btlb::PooledBufferChainFactory', 'mF', allocate a
+        //   'btlb::PooledBufferChain', 'mC', and use 'mC' to instantiate a
         //   'bcema::PooledBufferChainStreamBuf', 'mX'.  Write the specified
         //   number of bytes to 'mX' using 'sputn', and verify the length of
         //   'mC'.  Read the specified number of buffers from 'mX', and verify
         //   the result, and the get area offset of 'mX'.
         //
-        //   Instantiate a 'bdlmca::PooledBufferChainFactory', 'mF', allocate a
-        //   'bdlmca::PooledBufferChain', 'mC', and use 'mC' to instantiate a
+        //   Instantiate a 'btlb::PooledBufferChainFactory', 'mF', allocate a
+        //   'btlb::PooledBufferChain', 'mC', and use 'mC' to instantiate a
         //   'bcema::PooledBufferChainStreamBuf, 'mX'.  Iterate over an input
         //   buffer whose length is more than the size of 'mC', but less
         //   than twice the size of 'mC'.  On each iteration, write the input
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
             const bsl::ios_base::seekdir  CUR     = bsl::ios_base::cur;
             const bsl::ios_base::openmode OUT1    = bsl::ios_base::out;
             const bsl::ios_base::openmode IN1     = bsl::ios_base::in;
-            const int EOF_VAL = bdlmca::InBlobStreamBuf::traits_type::eof();
+            const int EOF_VAL = btlb::InBlobStreamBuf::traits_type::eof();
 
             for (int i = 0; i < DATA_SIZE; ++i) {
                 const int LINE        = DATA[i].d_line;
@@ -256,10 +256,10 @@ int main(int argc, char *argv[])
                 testBlobBufferFactory fa(&ta, BUFFER_SIZE);
                 fa.setGrowFlag(false);
 
-                bdlmca::Blob blob(&fa, &ta);
+                btlb::Blob blob(&fa, &ta);
                 {
-                    bdlmca::InBlobStreamBuf  in(&blob);
-                    bdlmca::OutBlobStreamBuf out(&blob);
+                    btlb::InBlobStreamBuf  in(&blob);
+                    btlb::OutBlobStreamBuf out(&blob);
                     char *EOFS = (char *)ta.allocate(DATA_LENGTH);
                     bsl::memset(EOFS, EOF_VAL, DATA_LENGTH);
 
@@ -301,10 +301,10 @@ int main(int argc, char *argv[])
             bsl::memset(data, '*', DATA_LENGTH);
 
             for (int i = 0; i < DATA_LENGTH; ++i) {
-                bdlmca::Blob blob(&fa, &ta);
+                btlb::Blob blob(&fa, &ta);
                 {
-                    bdlmca::InBlobStreamBuf  in(&blob);
-                    bdlmca::OutBlobStreamBuf out(&blob);
+                    btlb::InBlobStreamBuf  in(&blob);
+                    btlb::OutBlobStreamBuf out(&blob);
                     data[i] = EOF_VAL;
                     LOOP_ASSERT(i, DATA_LENGTH ==
                                                  out.sputn(data, DATA_LENGTH));
@@ -343,8 +343,8 @@ int main(int argc, char *argv[])
         // Plan:
         //   Iterate over a set of test vectors varying in buffer size and
         //   length of data to write.  For each test vector, instantiate a
-        //   'bdlmca::PooledBufferChainFactory', 'mF', allocate a
-        //   'bdlmca::PooledBufferChain', 'mC', and use 'mC' to instantiate a
+        //   'btlb::PooledBufferChainFactory', 'mF', allocate a
+        //   'btlb::PooledBufferChain', 'mC', and use 'mC' to instantiate a
         //   'bcema::PooledBufferChainStreamBuf', 'mX'.  Write the specified
         //   number of bytes to 'mX' using 'sputn', and verify the length of
         //   'mC'.  Read the specified number of buffers from 'mX', and verify
@@ -398,10 +398,10 @@ int main(int argc, char *argv[])
                 testBlobBufferFactory fa(&ta, BUFFER_SIZE);
                 fa.setGrowFlag(false);
 
-                bdlmca::Blob blob(&fa, &ta);
+                btlb::Blob blob(&fa, &ta);
                 {
-                    bdlmca::InBlobStreamBuf  in(&blob);
-                    bdlmca::OutBlobStreamBuf out(&blob);
+                    btlb::InBlobStreamBuf  in(&blob);
+                    btlb::OutBlobStreamBuf out(&blob);
                     char *HASHMARKS = (char *)ta.allocate(DATA_LENGTH);
                     bsl::memset(HASHMARKS, '#', DATA_LENGTH);
 
@@ -442,8 +442,8 @@ int main(int argc, char *argv[])
         //     resets the get and put areas.
         //
         // Plan:
-        //   Create two modifiable 'bdlmca::PooledBufferChain' objects, 'mCa'
-        //   and 'mCb'.  Create a modifiable 'bdlmca::PooledBufferChainStreamBuf'
+        //   Create two modifiable 'btlb::PooledBufferChain' objects, 'mCa'
+        //   and 'mCb'.  Create a modifiable 'btlb::PooledBufferChainStreamBuf'
         //   'mX', instantiated with 'mCa', and a non-modifiable reference to
         //   'mX' named 'X'.  Using 'X', verify that 'mX' is supported by
         //   'mCa'.  Adjust the get and put areas by calling 'pubseekpos' on
@@ -454,7 +454,7 @@ int main(int argc, char *argv[])
         //   reset.  Additionally verify that 'mX' is not supported by 'mCb'.
         //
         // Testing:
-        //   void reset(bdlmca::PooledBufferChain *pooledBufferChain);
+        //   void reset(btlb::PooledBufferChain *pooledBufferChain);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -474,13 +474,13 @@ int main(int argc, char *argv[])
 
             testBlobBufferFactory factoryA(&ta, BUFFER_SIZE_A);
             factoryA.setGrowFlag(false);
-            bdlmca::Blob mCaI(&factoryA, &ta); bdlmca::Blob* mCa = &mCaI;
+            btlb::Blob mCaI(&factoryA, &ta); btlb::Blob* mCa = &mCaI;
             ASSERT(0 == mCa->length());
             ASSERT(0 == mCa->numBuffers());
 
             testBlobBufferFactory factoryB(&ta, BUFFER_SIZE_B);
             factoryB.setGrowFlag(false);
-            bdlmca::Blob mCbI(&factoryB, &ta); bdlmca::Blob* mCb = &mCbI;
+            btlb::Blob mCbI(&factoryB, &ta); btlb::Blob* mCb = &mCbI;
             ASSERT(0 == mCb->length());
             ASSERT(0 == mCb->numBuffers());
 
@@ -488,8 +488,8 @@ int main(int argc, char *argv[])
             const bsl::ios_base::openmode OUT1 = bsl::ios_base::out;
 
             {
-                bdlmca::OutBlobStreamBuf mX(mCa);
-                const bdlmca::OutBlobStreamBuf& X = mX;
+                btlb::OutBlobStreamBuf mX(mCa);
+                const btlb::OutBlobStreamBuf& X = mX;
                 ASSERT(X.data() == mCa);
                 ASSERT(X.data() != mCb);
                 ASSERT(0 == mX.pubseekoff(0, CUR, OUT1));
@@ -550,13 +550,13 @@ int main(int argc, char *argv[])
 
             testBlobBufferFactory factoryA(&ta, BUFFER_SIZE_A);
             factoryA.setGrowFlag(false);
-            bdlmca::Blob mCaI(&factoryA, &ta); bdlmca::Blob* mCa = &mCaI;
+            btlb::Blob mCaI(&factoryA, &ta); btlb::Blob* mCa = &mCaI;
             ASSERT(0 == mCa->length());
             ASSERT(0 == mCa->numBuffers());
 
             testBlobBufferFactory factoryB(&ta, BUFFER_SIZE_B);
             factoryB.setGrowFlag(false);
-            bdlmca::Blob mCbI(&factoryB, &ta); bdlmca::Blob* mCb = &mCbI;
+            btlb::Blob mCbI(&factoryB, &ta); btlb::Blob* mCb = &mCbI;
             ASSERT(0 == mCb->length());
             ASSERT(0 == mCb->numBuffers());
 
@@ -567,8 +567,8 @@ int main(int argc, char *argv[])
                 mCa->setLength(10); bsl::memset(mCa->buffer(0).data(), 1, 10);
                 mCb->setLength(10); bsl::memset(mCb->buffer(0).data(), 2, 10);
 
-                bdlmca::InBlobStreamBuf mX(mCa);
-                const bdlmca::InBlobStreamBuf& X = mX;
+                btlb::InBlobStreamBuf mX(mCa);
+                const btlb::InBlobStreamBuf& X = mX;
                 ASSERT(X.data() == mCa);
                 ASSERT(X.data() != mCb);
                 ASSERT(0 == mX.pubseekoff(0, CUR, IN1));
@@ -615,28 +615,28 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   * That it is possible to instantiate a
-        //     'bdlmca::PooledBufferChainStreamBuf' object with a variety of
-        //     'bdlmca::PooledBufferChain' parameters.
+        //     'btlb::PooledBufferChainStreamBuf' object with a variety of
+        //     'btlb::PooledBufferChain' parameters.
         //
         //   * That 'sync' and 'overflow' update the chain length.
         //
         // Plan:
         //   Iterate over a set of test vectors varying in buffer size.  For
         //   each test vector, instantiate a modifiable
-        //   'bdlmca::PooledBufferChainStreamBuf', 'mX', and a non-modifiable
+        //   'btlb::PooledBufferChainStreamBuf', 'mX', and a non-modifiable
         //   reference to 'mX' named 'X'.  Write data of length 3 times the
         //   specified buffer size to 'mX' in chunks of buffer size, 'sync'ing
         //   'mX' after each write, and verifying the chain length and number
         //   of buffers using 'X'.
         //
         // Testing:
-        //   bdlmca::PooledBufferChainStreamBuf(
-        //                         bdlmca::PooledBufferChain *pooledBufferChain);
-        //   ~bdlmca::PooledBufferChainStreamBuf();
+        //   btlb::PooledBufferChainStreamBuf(
+        //                         btlb::PooledBufferChain *pooledBufferChain);
+        //   ~btlb::PooledBufferChainStreamBuf();
         //   int_type overflow(int_type c =
         //                                 bsl::streambuf::traits_type::eof());
         //   int sync();
-        //   const bdlmca::PooledBufferChain *data() const;
+        //   const btlb::PooledBufferChain *data() const;
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -669,9 +669,9 @@ int main(int argc, char *argv[])
                 testBlobBufferFactory fa(&ta, BUFFER_SIZE);
                 fa.setGrowFlag(false);
 
-                bdlmca::Blob blob(&fa, &ta);
-                bdlmca::OutBlobStreamBuf mX(&blob);
-                const bdlmca::OutBlobStreamBuf&         X = mX;
+                btlb::Blob blob(&fa, &ta);
+                btlb::OutBlobStreamBuf mX(&blob);
+                const btlb::OutBlobStreamBuf&         X = mX;
                 const bsl::string  HASHMARKS(BUFFER_SIZE, '#');
 
                 if (verbose) {
@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
         {
-            typedef bdlmca::InBlobStreamBuf Obj;
+            typedef btlb::InBlobStreamBuf Obj;
 
             enum { MAX_BUFFER_SIZE = 20 };
             for(int i = 0; i < MAX_BUFFER_SIZE; ++i) {
@@ -737,7 +737,7 @@ int main(int argc, char *argv[])
                 testBlobBufferFactory fa(&ta, BUFFER_SIZE);
                 //fa.setGrowFlag(false);
 
-                bdlmca::Blob blob(&fa, &ta);
+                btlb::Blob blob(&fa, &ta);
                 {
                     Obj mX(&blob); const Obj&    X = mX;
                     bsl::istream stream(&mX);
@@ -838,11 +838,11 @@ int main(int argc, char *argv[])
                 testBlobBufferFactory fa(&ta, BUFFER_SIZE);
                 //fa.setGrowFlag(false);
 
-                bdlmca::Blob blob(&fa, &ta);
+                btlb::Blob blob(&fa, &ta);
                 {
-                    bdlmca::OutBlobStreamBuf outbuf(&blob);
+                    btlb::OutBlobStreamBuf outbuf(&blob);
                     bsl::ostream ostream(&outbuf);
-                    bdlmca::InBlobStreamBuf inbuf(&blob);
+                    btlb::InBlobStreamBuf inbuf(&blob);
                     bsl::istream istream(&inbuf);
 
                     if (verbose) {
