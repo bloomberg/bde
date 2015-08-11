@@ -1,4 +1,4 @@
-// btls_iovec.h                 -*-C++-*-
+// btls_iovec.h                                                       -*-C++-*-
 #ifndef INCLUDED_BTLS_IOVEC
 #define INCLUDED_BTLS_IOVEC
 
@@ -23,22 +23,20 @@ BSLS_IDENT("$Id: $")
 // pointer to the data buffer and therefore will not allocate or deallocate the
 // data buffer.
 //
-// For operations that modify the contents of the data buffer
-// 'btls::Iovec' should be used.  This includes scatter/gather read or
-// receive operations.
+// For operations that modify the contents of the data buffer 'btls::Iovec'
+// should be used.  This includes scatter/gather read or receive operations.
 //
 // For operations that do not modify the contents of the data buffer either
-// 'btls::Iovec' or 'btls::Ovec' may be used.  This includes
-// scatter/gather write or send operations.
+// 'btls::Iovec' or 'btls::Ovec' may be used.  This includes scatter/gather
+// write or send operations.
 //
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use 'btls::Iovec' with
 // platform dependent scatter/gather operations.  Typically, an array of
 // structures is created with each element containing a pointer to a buffer.
-// A pointer to the array of 'btls::Ovec' or 'btls::Iovec' is
-// passed to the IO operation.  In this example an array of 3 buffer pointers
-// is created.
+// A pointer to the array of 'btls::Ovec' or 'btls::Iovec' is passed to the IO
+// operation.  In this example an array of 3 buffer pointers is created.
 //..
 // char buf1[10];
 // char buf2[4];
@@ -48,10 +46,10 @@ BSLS_IDENT("$Id: $")
 // vector[1].setBuffer(buf2, 4);
 // vector[2].setBuffer(buf3, 7);
 //..
-// On UNIX-like systems the internal structure of 'btls::Iovec' and 'btls::Ovec'
-// use the 'iovec' 'struct'.  This structure is used for the 'writev' and
-// 'readv' scatter/gather read/write operations or within the 'msgbuf' 'struct'
-// used by 'sendmsg' and 'readmsg' socket operations.
+// On UNIX-like systems the internal structure of 'btls::Iovec' and
+// 'btls::Ovec' use the 'iovec' 'struct'.  This structure is used for the
+// 'writev' and 'readv' scatter/gather read/write operations or within the
+// 'msgbuf' 'struct' used by 'sendmsg' and 'readmsg' socket operations.
 //..
 // int writeCount = ::writev(socket, (struct iovec *) vector, 3);
 //..
@@ -75,6 +73,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDLIB
+#include <bsl_cstdlib.h>
+#endif
+
 #ifdef BSLS_PLATFORM_CMP_MSVC
 #if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(_WINSOCK2API_)
     #ifndef INCLUDED_WINSOCK2
@@ -94,26 +96,26 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
-                        // ================
-                        // class btls::Iovec
-                        // ================
+                                // ===========
+                                // class Iovec
+                                // ===========
 
 namespace BloombergLP {
+namespace btls {
 
+class Ovec;
 
-namespace btls {class Ovec;
 class Iovec {
     // This class provides a platform-independent data structure for
-    // scatter/gather IO implemented as a structure that contains a pointer
-    // to a data buffer and the buffer's length.  The implementation of
-    // this structure contains platform dependent fields and therefore must
-    // only be modified and accessed via the manipulators and accessors.
-    // This class holds but does not own the pointer to the data buffer
-    // and therefore will not allocate or deallocate the data buffer.
-    // 'Iovec' may be used for operations that modify the
-    // contents of the data buffer.  This includes scatter/gather read or
-    // receive operations in addition to write or send operations which do
-    // not modify the data buffer.
+    // scatter/gather IO implemented as a structure that contains a pointer to
+    // a data buffer and the buffer's length.  The implementation of this
+    // structure contains platform dependent fields and therefore must only be
+    // modified and accessed via the manipulators and accessors.  This class
+    // holds but does not own the pointer to the data buffer and therefore will
+    // not allocate or deallocate the data buffer.  'Iovec' may be used for
+    // operations that modify the contents of the data buffer.  This includes
+    // scatter/gather read or receive operations in addition to write or send
+    // operations which do not modify the data buffer.
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
     // For Windows (Winsock2) platforms only.
@@ -154,8 +156,8 @@ class Iovec {
         // return a reference to this modifiable object.
 
     void setBuffer(void *buffer, int length);
-        // Replace the pointer to and the length of the writable buffer
-        // with the specified 'buffer' and 'length'.
+        // Replace the pointer to and the length of the writable buffer with
+        // the specified 'buffer' and 'length'.
 
     // ACCESSORS
     void *buffer() const;
@@ -165,21 +167,20 @@ class Iovec {
         // Return the length of the writable buffer.
 };
 
-                        // ===============
-                        // class Ovec
-                        // ===============
+                                // ==========
+                                // class Ovec
+                                // ==========
 
 class Ovec {
     // This class provides a platform-independent data structure for
-    // scatter/gather IO implemented as a structure that contains a pointer
-    // to a data buffer and the buffer's length.  The implementation of
-    // this structure contains platform dependent fields and therefore must
-    // only be modified and accessed via the manipulators and accessors.
-    // This class holds but does not own the pointer to the data buffer
-    // and therefore will not allocate or deallocate the data buffer.
-    // 'Ovec' may only be used for operations that do not
-    // modify the contents of the data buffer.  This includes
-    // scatter/gather write or send operations.
+    // scatter/gather IO implemented as a structure that contains a pointer to
+    // a data buffer and the buffer's length.  The implementation of this
+    // structure contains platform dependent fields and therefore must only be
+    // modified and accessed via the manipulators and accessors.  This class
+    // holds but does not own the pointer to the data buffer and therefore will
+    // not allocate or deallocate the data buffer.  'Ovec' may only be used for
+    // operations that do not modify the contents of the data buffer.  This
+    // includes scatter/gather write or send operations.
 
     // DATA
     Iovec::BUFFER d_buffer;
@@ -190,16 +191,16 @@ class Ovec {
 
     // CREATORS
     Ovec(const void *buffer, int length);
-        // Create an 'Ovec' with a pointer to a non writeable buffer with
-        // the specified 'buffer' and 'length'.
+        // Create an 'Ovec' with a pointer to a non writeable buffer with the
+        // specified 'buffer' and 'length'.
 
     Ovec(const Ovec & original);
         // Create an 'Ovec' object having the value of the specified
         // 'original'.
 
     Ovec(const Iovec & original);
-        // Create an 'Ovec' object having the value of the specified
-        // 'original' 'Iovec'.
+        // Create an 'Ovec' object having the value of the specified 'original'
+        // 'Iovec'.
 
     Ovec();
         // Create an 'Ovec' where the values of the buffer and length are
@@ -224,29 +225,33 @@ class Ovec {
         // Return the length of the non writable buffer.
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
-                        // ----------------
-                        // class Iovec
-                        // ----------------
+                                // -----------
+                                // class Iovec
+                                // -----------
 
 // CREATORS
-inline Iovec::Iovec()
+inline
+Iovec::Iovec()
 {
 }
 
-inline Iovec::~Iovec()
+inline
+Iovec::~Iovec()
 {
 }
 
-inline Iovec::Iovec(const Iovec& iovec)
+inline
+Iovec::Iovec(const Iovec& original)
 {
-    d_buffer = iovec.d_buffer;
+    d_buffer = original.d_buffer;
 }
 
-inline Iovec::Iovec(void *buffer, int length)
+inline
+Iovec::Iovec(void *buffer, int length)
 {
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     d_buffer.buf = (char FAR *) buffer;
@@ -262,7 +267,8 @@ inline Iovec::Iovec(void *buffer, int length)
 
 // MANIPULATORS
 
-inline Iovec& Iovec::operator=(const Iovec& rhs)
+inline
+Iovec& Iovec::operator=(const Iovec& rhs)
 {
     if (this != &rhs) {
         d_buffer = rhs.d_buffer;
@@ -270,7 +276,8 @@ inline Iovec& Iovec::operator=(const Iovec& rhs)
     return *this;
 }
 
-inline void Iovec::setBuffer(void *buffer, int length)
+inline
+void Iovec::setBuffer(void *buffer, int length)
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
@@ -286,7 +293,8 @@ inline void Iovec::setBuffer(void *buffer, int length)
 
 // ACCESSORS
 
-inline void * Iovec::buffer() const
+inline
+void * Iovec::buffer() const
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.buf;
@@ -295,7 +303,8 @@ inline void * Iovec::buffer() const
 #endif
 }
 
-inline int Iovec::length() const
+inline
+int Iovec::length() const
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.len;
@@ -304,26 +313,31 @@ inline int Iovec::length() const
 #endif
 }
 
-                        // ---------------
-                        // class Ovec
-                        // ---------------
+                                // ----------
+                                // class Ovec
+                                // ----------
 
 // CREATORS
-inline Ovec::Ovec() { }
+inline
+Ovec::Ovec() { }
 
-inline Ovec::~Ovec() { }
+inline
+Ovec::~Ovec() { }
 
-inline Ovec::Ovec(const Iovec& iovec)
+inline
+Ovec::Ovec(const Iovec& original)
 {
-    d_buffer = iovec.d_buffer;
+    d_buffer = original.d_buffer;
 }
 
-inline Ovec::Ovec(const Ovec& iovec)
+inline
+Ovec::Ovec(const Ovec& original)
 {
-    d_buffer = iovec.d_buffer;
+    d_buffer = original.d_buffer;
 }
 
-inline Ovec::Ovec(const void *buffer, int length)
+inline
+Ovec::Ovec(const void *buffer, int length)
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
@@ -338,7 +352,8 @@ inline Ovec::Ovec(const void *buffer, int length)
 }
 
 // MANIPULATORS
-inline Ovec& Ovec::operator=(const Ovec& rhs)
+inline
+Ovec& Ovec::operator=(const Ovec& rhs)
 {
     if (this != &rhs) {
         d_buffer = rhs.d_buffer;
@@ -346,7 +361,8 @@ inline Ovec& Ovec::operator=(const Ovec& rhs)
     return *this;
 }
 
-inline void Ovec::setBuffer(const void *buffer, int length)
+inline
+void Ovec::setBuffer(const void *buffer, int length)
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC
     d_buffer.buf = (char FAR *) buffer;
@@ -361,7 +377,8 @@ inline void Ovec::setBuffer(const void *buffer, int length)
 }
 
 // ACCESSORS
-inline const void *Ovec::buffer() const
+inline
+const void *Ovec::buffer() const
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.buf;
@@ -370,7 +387,8 @@ inline const void *Ovec::buffer() const
 #endif
 }
 
-inline int Ovec::length() const
+inline
+int Ovec::length() const
 {
 #ifdef BSLS_PLATFORM_CMP_MSVC
     return d_buffer.len;
@@ -378,17 +396,24 @@ inline int Ovec::length() const
     return (int)d_buffer.iov_len;
 #endif
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // closeenterprise  namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
