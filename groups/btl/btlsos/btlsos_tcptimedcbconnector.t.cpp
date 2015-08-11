@@ -25,10 +25,8 @@
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
-#include <bdlxxxx_instreamfunctions.h>
-#include <bdlxxxx_outstreamfunctions.h>
-#include <bdlxxxx_byteinstream.h>
-#include <bdlxxxx_byteoutstream.h>
+#include <bslx_byteinstream.h>
+#include <bslx_byteoutstream.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
@@ -844,8 +842,10 @@ class my_Tick {
     my_Tick(const char *ticker, double bestBid, double bestOffer);
     ~my_Tick() { ASSERT (d_bestBid > 0); };
 
-    static int maxSupportedBdexVersion() { return 1; }
-    static int maxSupportedVersion() { return maxSupportedBdexVersion(); }
+    static int maxSupportedBdexVersion(int versionSelector) {
+        (void)versionSelector;
+        return 1;
+    }
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -953,9 +953,8 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
     // to hold an encoding of a valid 'my_Tick' value.
 {
     my_Tick tick;
-    bdlxxxx::ByteInStream input(buffer, len);
+    bslx::ByteInStream input(buffer, len);
     input >> tick;
-
     stream << tick;
 }
 #endif
@@ -1052,14 +1051,10 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
                               ticks[i % NUM_TICKS].d_bestBid,
                               ticks[i % NUM_TICKS].d_bestOffer);
 
-                 bdlxxxx::ByteOutStream bos;
+                 bslx::ByteOutStream bos(20150811);
+                 bos << tick;
 
-                 bdex_OutStreamFunctions::streamOut(
-                                           bos,
-                                           tick,
-                                           my_Tick::maxSupportedBdexVersion());
-
-                 int msgSize = bos.length();
+                 int msgSize = static_cast<int>(bos.length());
 
                  btlsc::TimedCbChannel::WriteCallback functor(
                          bdlf::BindUtil::bind(
@@ -1153,8 +1148,8 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         else if (0 <= status) {   // Tick message timed out.
 
             ASSERT(0 == asyncStatus // only form of partial-write authorized
-                   || 0 >  asyncStatus // This operations was dequeued due to
-                   && 0 == status); // a previous partial write operation.
+                   || (0 >  asyncStatus // This operations was dequeued due to
+                       && 0 == status)); // a previous partial write operation.
             if (0 < asyncStatus) {
                 d_console << "The request is interrupted." << bsl::endl;
             }
@@ -1202,8 +1197,8 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         bsls::TimeInterval now = bdlt::CurrentTime::now();
 
         bsls::TimeInterval timePeriod = now - lastTime;
-        double numSeconds = timePeriod.seconds() +
-                            (double) timePeriod.nanoseconds() / 1000000000;
+        double numSeconds = static_cast<double>(timePeriod.seconds()) +
+                  static_cast<double>(timePeriod.nanoseconds()) / 1000000000.0;
         cout << numTicks <<" ticks were sent in "
              << numSeconds << " seconds." << endl;
 
@@ -1721,7 +1716,7 @@ int main(int argc, char *argv[])
                         ASSERT(i + 1 == connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of established channels: ");
                     PT(length);
@@ -1909,7 +1904,7 @@ int main(int argc, char *argv[])
                         }
                         ++j;
                     }
-                    int length = connList.size();
+                    int length = static_cast<int>(connList.size());
                     if (veryVerbose) {
                         QT("The total number of established channels: ");
                         PT(length);
@@ -2073,7 +2068,7 @@ int main(int argc, char *argv[])
                 }
                 bdlqq::ThreadUtil::join(threadHandle);
 
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of established channels: ");
                     PT(length);
@@ -2401,7 +2396,7 @@ int main(int argc, char *argv[])
                 }
                 bdlqq::ThreadUtil::join(threadHandle);
 
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of established channels: ");
                     PT(length);
@@ -2565,7 +2560,7 @@ int main(int argc, char *argv[])
                         PT(connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of established channels: ");
                     PT(length);
@@ -2731,7 +2726,7 @@ int main(int argc, char *argv[])
                         PT(connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of established channels: ");
                     PT(length);
@@ -2898,7 +2893,7 @@ int main(int argc, char *argv[])
                         PT(connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of established channels: ");
                     PT(length);
@@ -2981,7 +2976,7 @@ int main(int argc, char *argv[])
                         ASSERT(i + 1 == connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of established channels: ");
                     PT(length);

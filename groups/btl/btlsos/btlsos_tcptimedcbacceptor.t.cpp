@@ -24,10 +24,8 @@
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
-#include <bdlxxxx_instreamfunctions.h>
-#include <bdlxxxx_outstreamfunctions.h>
-#include <bdlxxxx_byteoutstream.h>
-#include <bdlxxxx_byteinstream.h>
+#include <bslx_byteoutstream.h>
+#include <bslx_byteinstream.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
@@ -371,9 +369,12 @@ void my_EchoServer::readCb(int status, int asyncStatus,
     }
 }
 
-void my_EchoServer::writeCb(int status, int asyncStatus,
-                            btlsc::TimedCbChannel *channel, int numBytes)
+void my_EchoServer::writeCb(int                    status,
+                            int                    asyncStatus,
+                            btlsc::TimedCbChannel *channel,
+                            int                    numBytes)
 {
+    (void)asyncStatus;
     if (status != numBytes) {
         cout << "Failed to send data." << endl;
         channel->invalidate();
@@ -420,8 +421,10 @@ class my_Tick {
     my_Tick(const char *ticker);
     my_Tick(const char *ticker, double bestBid, double bestOffer);
 
-    static int maxSupportedBdexVersion() { return 1; }
-    static int maxSupportedVersion() { return maxSupportedBdexVersion(); }
+    static int maxSupportedBdexVersion(int versionSelector) {
+        (void)versionSelector;
+        return 1;
+    }
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -505,8 +508,9 @@ STREAM& my_Tick::bdexStreamIn(STREAM& stream, int version)
       case 1: {
           bsl::string temp1;
           stream.getString(temp1);
-          int maxLen = sizeof (d_name) - 1, // the valid name length
-              len = temp1.length();
+          int maxLen = static_cast<int>(sizeof(d_name)) - 1;  // the valid name
+                                                              // length
+          int len = static_cast<int>(temp1.length());
           if (len < maxLen) {
               strcpy(d_name, temp1.c_str());
           }
@@ -529,10 +533,8 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
     // to hold an encoding of a valid 'my_Tick' value.
 {
     my_Tick tick;
-    bdlxxxx::ByteInStream input(buffer, len);
-    bdex_InStreamFunctions::streamIn(input,
-                                     tick,
-                                     my_Tick::maxSupportedBdexVersion());
+    bslx::ByteInStream input(buffer, len);
+    input >> tick;
     stream << tick;
 }
 
@@ -599,12 +601,9 @@ static int calculateMyTickMessageSize()
     double bid = 0, offer = 0;
     my_Tick dummy("dummy", bid, offer);
 
-    //typedef bdlxxxx::ByteOutSTREAM bdlxxxx::ByteOutStream;
-    bdlxxxx::ByteOutStream bos;
-    bdex_OutStreamFunctions::streamOut(bos,
-                                       dummy,
-                                       my_Tick::maxSupportedBdexVersion());
-    return bos.length();
+    bslx::ByteOutStream bos(20150811);
+    bos << dummy;
+    return static_cast<int>(bos.length());
 }
 
 static int myTickMessageSize()
@@ -760,8 +759,8 @@ void my_TickReporter::timeCb(int                lastNumTicks,
     bsls::TimeInterval now = bdlt::CurrentTime::now();
 
     bsls::TimeInterval timePeriod = now - lastTime;
-    double numSeconds = timePeriod.seconds() +
-                            (double) timePeriod.nanoseconds() / 1000000000;
+    double numSeconds = static_cast<double>(timePeriod.seconds())
+                + static_cast<double>(timePeriod.nanoseconds()) / 1000000000.0;
     cout << numTicks <<" ticks were sent in "
          << numSeconds << " seconds." << endl;
 
@@ -913,7 +912,7 @@ static void *threadToConnect(void *arg)
             }
         }
     }
-    int length = clients.size();
+    int length = static_cast<int>(clients.size());
 
     for (int i = 0; i < length; ++i) {
         factory.deallocate(clients[i]);
