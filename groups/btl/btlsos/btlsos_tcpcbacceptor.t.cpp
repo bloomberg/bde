@@ -144,257 +144,339 @@ enum {
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-///  Usage example
 
-class my_EchoServer {
-    enum {
-        k_READ_SIZE = 200,
-        k_DEFAULT_PORT_NUMBER = 9234,   // As specified by RFC
-        k_QUEUE_SIZE = 16
+///Usage
+///-----
+// The following usage example shows a possible implementation of a multi-user
+// echo server.  An echo server accepts connections and, for every connection,
+// sends any received data back to the client (until the connection is
+// terminated).  This server requires that data is read from an accepted
+// connection within a certain time interval or else the connection is dropped
+// on timeout.  The echo server is implemented as a separate class
+// ('my_EchoServer') that owns the timed callback acceptor.  Various
+// configuration parameters such as the timeout values, the queue size and
+// input buffer size, and the default port number (as mandated by RFC 862) are
+// constants within this class.
+//..
+    class my_EchoServer {
+        // This class implements a simple multi-user echo server as
+        // specified by the RFC 862.
+
+        enum {
+            k_READ_SIZE           =  200,  // The number of bytes to be read
+                                           // can be changed, but a larger
+                                           // 'k_READ_SIZE' will require the
+                                           // client to input more data to be
+                                           // echoed.
+            k_DEFAULT_PORT_NUMBER = 9234,  // As specified by the RFC 862
+            k_QUEUE_SIZE          =   16
+        };
+
+        btlsos::TcpCbAcceptor  d_allocator;
+        bsls::TimeInterval     d_acceptTimeout;
+        bsls::TimeInterval     d_readTimeout;
+        bsls::TimeInterval     d_writeTimeout;
+
+        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                                                             d_allocateFunctor;
+                                           // Cached callback functor.
+
+        bslma::Allocator      *d_allocator_p;
+        char                   d_buffer[k_READ_SIZE];
+
+      private:
+        // Callbacks
+        void allocateCb(btlsc::TimedCbChannel *channel, int status);
+            // Invoked from the socket event manager when a connection is
+            // allocated (i.e., accepted) or an error occurs when allocating.
+            // [...]
+
+        void bufferedReadCb(const char            *buffer,
+                            int                    status,
+                            int                    asyncStatus,
+                            btlsc::TimedCbChannel *channel);
+            // Invoked from the socket event manager when data is read from a
+            // channel.  [...]
+
+        void readCb(int                    status,
+                    int                    asyncStatus,
+                    btlsc::TimedCbChannel *channel);
+            // Invoked from the socket event manager when data is read from a
+            // channel.  [...]
+
+        void writeCb(int                    status,
+                     int                    asyncStatus,
+                     btlsc::TimedCbChannel *channel,
+                     int                    numBytes);
+            // Invoked from the socket event manager when data is written
+            // into a channel.  [...]
+
+      private:
+        // Not implemented:
+        my_EchoServer(const my_EchoServer&);
+        my_EchoServer& operator=(const my_EchoServer&);
+
+      public:
+        // CREATORS
+        my_EchoServer(
+               btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+               btlso::TimerEventManager                       *manager,
+               bslma::Allocator                               *basicAllocator);
+            // Create an echo server that uses the specified stream socket
+            // 'factory' for the system sockets and the specified socket event
+            // 'manager' to multiplex the events on these sockets.  The
+            // behavior is undefined if either 'factory' or 'manager' is 0.
+
+        ~my_EchoServer();
+            // Destroy this server.  The behavior is undefined unless the
+            // server is shut down properly (i.e., via 'close').
+
+        // MANIPULATORS
+        int open(int portNumber = k_DEFAULT_PORT_NUMBER);
+            // Establish a listening socket on the specified 'portNumber';
+            // return 0 on success, and a non-zero value otherwise.  The
+            // behavior is undefined unless 0 <= portNumber and the listening
+            // port is not currently open.
+
+        int close();
+            // Close the listening socket; return 0 on success and a non-zero
+            // value otherwise.  The behavior is undefined unless the listening
+            // socket is currently open.
     };
-    btlsos::TcpCbAcceptor        d_allocator;
-    bsls::TimeInterval           d_acceptTimeout;
-    bsls::TimeInterval           d_readTimeout;
-    bsls::TimeInterval           d_writeTimeout;
-
-    bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-                                d_allocateFunctor;
-
-    bslma::Allocator           *d_allocator_p;
-    char                        d_buffer[k_READ_SIZE];
-
-    void allocateCb(btlsc::TimedCbChannel *channel, int status);
-         // Invoked by the socket event manager when a connection is accepted.
-
-    void bufferedReadCb(const char *buffer, int status, int asyncStatus,
-                        btlsc::TimedCbChannel *channel);
-
-    void readCb(int status, int asyncStatus,
-                btlsc::TimedCbChannel *channel);
-
-    void writeCb(int status, int asyncStatus, btlsc::TimedCbChannel *channel,
-                 int numBytes);
-  private:
-    my_EchoServer(const my_EchoServer&);    // Not implemented.
-    my_EchoServer&
-        operator=(const my_EchoServer&);    // Not implemented.
-  public:
+//..
+// The implementation of the public methods of 'my_EchoServer' is trivial.  For
+// the constructor, the socket factory and socket event manager are passed to
+// the acceptor, and the allocate callback and (three) event timeouts are
+// initialized.  The 'open' and 'close' methods just invoke appropriate methods
+// of the acceptor.  The destructor ensures that the state of the acceptor is
+// valid:
+//..
     // CREATORS
-    my_EchoServer(
-                 btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                 btlso::TimerEventManager                      *manager,
-                 bslma::Allocator                             *basicAllocator);
-    ~my_EchoServer();
+    my_EchoServer::my_EchoServer(
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                bslma::Allocator                               *basicAllocator)
+    : d_allocator(factory, manager, basicAllocator)
+    , d_acceptTimeout(120, 0)
+    , d_readTimeout(5, 0)
+    , d_writeTimeout(5.0)
+    , d_allocator_p(basicAllocator)
+    {
+        ASSERT(factory);
+        ASSERT(manager);
+        d_allocateFunctor
+            = bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(
+                      bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this),
+                      basicAllocator);
+    }
 
-    //  MANIPULATORS
-    int open(int portNumber = k_DEFAULT_PORT_NUMBER);
-    int close();
-};
+    my_EchoServer::~my_EchoServer() {
+    }
 
-// CREATORS
-my_EchoServer::my_EchoServer(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        btlso::TimerEventManager                      *manager,
-        bslma::Allocator                             *basicAllocator)
-: d_allocator(factory, manager, basicAllocator)
-, d_acceptTimeout(120, 0)
-, d_readTimeout(5, 0)
-, d_writeTimeout(5.0)
-, d_allocator_p(basicAllocator)
-{
-    ASSERT(factory);
-    ASSERT(manager);
-    d_allocateFunctor
-        = bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(
-                bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this),
-                basicAllocator);
-}
-
-my_EchoServer::~my_EchoServer() {
-
-}
-
-// MANIPULATORS
-void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
-    if (channel) {
-        // Accepted a connection.  Issue a read raw request.
-        bdlf::Function<void (*)(int, int)> callback(
-                bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this)
-                  , _1, _2
-                  , channel));
-
-        if (channel->timedReadRaw(d_buffer, k_READ_SIZE,
-                bdlt::CurrentTime::now() + d_readTimeout, callback))
-        {
-            cout << "Failed to enqueue buffered read request." << endl;
-            d_allocator.deallocate(channel);
+    // MANIPULATORS
+    int my_EchoServer::open(int portNumber) {
+        btlso::IPv4Address serverAddress;
+        serverAddress.setPortNumber(portNumber);
+        int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
+        if (s) {
+            cout << "Failed to open listening port." << endl;
+            return s;
         }
-        if (d_allocator.allocateTimed(d_allocateFunctor))
-        {
+        cout << "server's socket: " << d_allocator.address() << endl;
+        ASSERT(0 == d_allocator.isInvalid());
+        s = d_allocator.allocateTimed(d_allocateFunctor);
+        if (s) {
+            cout << "Can't enqueue an allocation request." << endl;
+            ASSERT(d_allocator.isInvalid());
             d_allocator.close();
+            return s;
         }
-        return;
+        return 0;
     }
-    ASSERT(0 >= status);    // Interrupts are not enabled.
-    if (0 == status) {
-        // Re-register the functor
-        if (d_allocator.allocateTimed(d_allocateFunctor))
-        {
-            d_allocator.close();
-        }
-    }
-    else if (-1 == status) {
-        cout << "Allocation request was dequeued." << endl;
-    }
-    else {
-        // Hard-error accepting a connection, invalidate the allocator.
-        cout << "Hard error while accepting a connection: " << status
-             << endl;
-        d_allocator.invalidate();
-    }
-}
 
-void my_EchoServer::bufferedReadCb(const char *buffer, int status,
-                                   int asyncStatus,
-                                   btlsc::TimedCbChannel *channel)
-{
-    cout << "my_EchoServer::bufferedReadCb: "
-         << " read " << status << " bytes." << endl;
-    ASSERT(channel);
-    if (0 < status) {
-        bdlf::Function<void (*)(int, int)> callback(
-                bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this)
-                  , _1, _2
-                  , channel
-                  , status));
+    int my_EchoServer::close() {
+        return d_allocator.close();
+    }
+//..
+// All the work of accepting connections and reading/writing the data is done
+// in the (private) callback methods of 'my_EchoServer'.  When the connection
+// is established and the 'allocateCb' method is invoked, the buffered read
+// with timeout is initiated on the channel and another allocation request is
+// enqueued.  If any error occurs while allocating, the acceptor is shut down.
+// If any error, including timeout, occurs while reading or writing data, the
+// channel is shut down.  Note that the allocation functor is cached to improve
+// performance:
+//..
+    void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel,
+                                   int                    status) {
+        if (channel) {
+            // Accepted a connection.  Issue a read raw request.
+            bdlf::Function<void (*)(int, int)> callback(bdlf::BindUtil::bindA(
+                          d_allocator_p,
+                          bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this),
+                          _1,
+                          _2,
+                          channel));
 
-        if (channel->timedBufferedWrite(buffer, status,
-                bdlt::CurrentTime::now() + d_writeTimeout, callback))
-        {
-            cout << "Failed to enqueue write request" << endl;
-            d_allocator.deallocate(channel);
+            if (channel->timedReadRaw(d_buffer,
+                                      k_READ_SIZE,
+                                      bdlt::CurrentTime::now()
+                                                  + d_readTimeout, callback)) {
+                cout << "Failed to enqueue buffered read request." << endl;
+                d_allocator.deallocate(channel);
+            }
+            if (d_allocator.allocateTimed(d_allocateFunctor)) {
+                d_allocator.close();
+            }
             return;
         }
-        // Re-register read request
-        bdlf::Function<void (*)(const char *, int, int)> readCallback(
-                bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , bdlf::MemFnUtil::memFn(&my_EchoServer::bufferedReadCb,
-                                           this)
-                  , _1, _2, _3
-                  , channel));
-
-        if (channel->timedBufferedRead(k_READ_SIZE,
-                bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
-            cout << "Failed to enqueue read request." << endl;
-            d_allocator.deallocate(channel);
+        ASSERT(0 >= status);    // Interrupts are not enabled.
+        if (0 == status) {
+            // Re-register the functor
+            if (d_allocator.allocateTimed(d_allocateFunctor)) {
+                d_allocator.close();
+            }
         }
-    }
-    else if (0 == status) {
-        if (0 > asyncStatus) {
-            cout << "Callback dequeued" << endl;
+        else if (-1 == status) {
+            cout << "Allocation request was dequeued." << endl;
         }
         else {
-            cout << "Timed out on read" << endl;
-            d_allocator.deallocate(channel);
+            // Hard-error accepting a connection, invalidate the allocator.
+            cout << "Hard error while accepting a connection: " << status
+                 << endl;
+            d_allocator.invalidate();
         }
     }
-    else {
-        // Either time out or an error on the channel
-        cout << "Failed to read data." << endl;
-        d_allocator.deallocate(channel);
-    }
-}
 
-void my_EchoServer::readCb(int status, int asyncStatus,
-                           btlsc::TimedCbChannel *channel)
-{
-    cout << "my_EchoServer::readCb: "
-         << " read " << status << " bytes." << endl;
-    ASSERT(channel);
-    if (0 < status) {
-        bdlf::Function<void (*)(int, int)> callback(
+    void my_EchoServer::bufferedReadCb(const char *buffer, int status,
+                                       int asyncStatus,
+                                       btlsc::TimedCbChannel *channel)
+    {
+        cout << "my_EchoServer::bufferedReadCb: "
+             << " read " << status << " bytes." << endl;
+        ASSERT(channel);
+        if (0 < status) {
+            bdlf::Function<void (*)(int, int)> callback(bdlf::BindUtil::bindA(
+                         d_allocator_p,
+                         bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this),
+                         _1,
+                         _2,
+                         channel,
+                         status));
+
+            if (channel->timedBufferedWrite(buffer,
+                                            status,
+                                            bdlt::CurrentTime::now()
+                                                 + d_writeTimeout, callback)) {
+                cout << "Failed to enqueue write request" << endl;
+                d_allocator.deallocate(channel);
+                return;
+            }
+            // Re-register read request
+            bdlf::Function<void (*)(const char *, int, int)> readCallback(
                 bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this)
-                  , _1, _2
-                  , channel
-                  , status));
+                         d_allocator_p,
+                         bdlf::MemFnUtil::memFn(&my_EchoServer::bufferedReadCb,
+                                                this),
+                         _1,
+                         _2,
+                         _3,
+                         channel));
 
-        if (channel->timedBufferedWrite(d_buffer, status,
-                bdlt::CurrentTime::now() + d_writeTimeout, callback))
-        {
-            cout << "Failed to enqueue write request" << endl;
-            d_allocator.deallocate(channel);
-            return;
+            if (channel->timedBufferedRead(k_READ_SIZE,
+                     bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
+                cout << "Failed to enqueue read request." << endl;
+                d_allocator.deallocate(channel);
+            }
         }
-        // Re-register read request
-        bdlf::Function<void (*)(int, int)> readCallback(
-                bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this)
-                  , _1, _2
-                  , channel));
-
-        if (channel->timedReadRaw(d_buffer, k_READ_SIZE,
-                bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
-            cout << "Failed to enqueue read request." << endl;
-            d_allocator.deallocate(channel);
-        }
-    }
-    else if (0 == status) {
-        if (0 > asyncStatus) {
-            cout << "Callback dequeued" << endl;
+        else if (0 == status) {
+            if (0 > asyncStatus) {
+                cout << "Callback dequeued" << endl;
+            }
+            else {
+                cout << "Timed out on read" << endl;
+                d_allocator.deallocate(channel);
+            }
         }
         else {
-            cout << "Timed out on read" << endl;
+            // Either time out or an error on the channel
+            cout << "Failed to read data." << endl;
             d_allocator.deallocate(channel);
         }
     }
-    else {
-        // Either time out or an error on the channel
-        cout << "Failed to read data." << endl;
-        d_allocator.deallocate(channel);
-    }
-}
 
-void my_EchoServer::writeCb(int status, int asyncStatus,
-                            btlsc::TimedCbChannel *channel, int numBytes)
-{
-    if (status != numBytes) {
-        cout << "Failed to send data." << endl;
-        channel->invalidate();
-        d_allocator.deallocate(channel);
-    }
-}
+    void my_EchoServer::readCb(int                    status,
+                               int                    asyncStatus,
+                               btlsc::TimedCbChannel *channel)
+    {
+        cout << "my_EchoServer::readCb: "
+             << " read " << status << " bytes." << endl;
+        ASSERT(channel);
+        if (0 < status) {
+            bdlf::Function<void (*)(int, int)> callback(
+                bdlf::BindUtil::bindA(
+                         d_allocator_p,
+                         bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this),
+                         _1,
+                         _2,
+                         channel,
+                         status));
 
-int my_EchoServer::open(int portNumber) {
-    btlso::IPv4Address serverAddress;
-    serverAddress.setPortNumber(portNumber);
-    int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
-    if (s) {
-        cout << "Failed to open listening port." << endl;
-        return s;
-    }
-    cout << "server's socket: " << d_allocator.address() << endl;
-    ASSERT(0 == d_allocator.isInvalid());
-    s = d_allocator.allocateTimed(d_allocateFunctor);
-    if (s) {
-        cout << "Can't enqueue an allocation request." << endl;
-        ASSERT(d_allocator.isInvalid());
-        d_allocator.close();
-        return s;
-    }
-    return 0;
-}
+            if (channel->timedBufferedWrite(d_buffer,
+                                            status,
+                                            bdlt::CurrentTime::now()
+                                                   + d_writeTimeout, callback))
+                {
+                    cout << "Failed to enqueue write request" << endl;
+                    d_allocator.deallocate(channel);
+                    return;
+                }
+            // Re-register read request
+            bdlf::Function<void (*)(int, int)> readCallback(
+                  bdlf::BindUtil::bindA(
+                          d_allocator_p,
+                          bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this),
+                          _1,
+                          _2,
+                          channel));
 
-int my_EchoServer::close() {
-    return d_allocator.close();
-}
+            if (channel->timedReadRaw(d_buffer, k_READ_SIZE,
+                                      bdlt::CurrentTime::now()
+                                              + d_readTimeout, readCallback)) {
+                cout << "Failed to enqueue read request." << endl;
+                d_allocator.deallocate(channel);
+            }
+        }
+        else if (0 == status) {
+            if (0 > asyncStatus) {
+                cout << "Callback dequeued" << endl;
+            }
+            else {
+                cout << "Timed out on read" << endl;
+                d_allocator.deallocate(channel);
+            }
+        }
+        else {
+            // Either time out or an error on the channel
+            cout << "Failed to read data." << endl;
+            d_allocator.deallocate(channel);
+        }
+    }
+
+    void my_EchoServer::writeCb(int                    status,
+                                int                    asyncStatus,
+                                btlsc::TimedCbChannel *channel,
+                                int                    numBytes)
+    {
+        (void)asyncStatus;
+        if (status != numBytes) {
+            cout << "Failed to send data." << endl;
+            channel->invalidate();
+            d_allocator.deallocate(channel);
+        }
+    }
+//..
+
 //-----------------------------------------------------------------------------
 /// Usage example: Tick publisher (see 'btesc_timedcballocator.h')
 
@@ -734,7 +816,7 @@ void *threadToConnect(void *arg)
             }
         }
     }
-    int length = clients.size();
+    int length = static_cast<int>(clients.size());
 
     for (int i = 0; i < length; ++i) {
         factory.deallocate(clients[i]);
@@ -824,41 +906,40 @@ int main(int argc, char *argv[])
           //   USAGE EXAMPLE // TBD.
           // ----------------------------------------------------------------
 
-          if (verbose) cout << "\nTesting Usage Example: Echo Server"
-                            << "\n==================================" << endl;
-          {
-                bslma::TestAllocator testAllocator;
-                testAllocator.setNoAbort(1);
+          if (verbose) cout << "\nTesting Usage Example"
+                            << "\n=====================" << endl;
 
-                btlso::InetStreamSocketFactory<btlso::IPv4Address>
-                    factory(&testAllocator);
+// Finally, we define the 'main' function, which will create the concrete
+// socket factory and concrete socket event manager, create 'my_EchoServer' as
+// required, and go into "infinite" loop dispatching registered callbacks:
+//..
+    bslma::TestAllocator testAllocator;
+    testAllocator.setNoAbort(1);
 
-                btlso::TcpTimerEventManager::Hint hint
-                     = btlso::TcpTimerEventManager::BTESO_NO_HINT;
-                if (atoi(argv[2])) {
-                    hint =
-                    btlso::TcpTimerEventManager::BTESO_INFREQUENT_REGISTRATION;
-                }
-                btlso::TcpTimerEventManager   manager(hint, &testAllocator);
-                my_EchoServer echoServer(&factory, &manager, &testAllocator);
+    btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&testAllocator);
 
-                if (echoServer.open()) {
-                    cout << "Can't open listening socket." << endl;
-                    break; // return -1;
-                }
+    btlso::TcpTimerEventManager::Hint hint
+                                  = btlso::TcpTimerEventManager::BTESO_NO_HINT;
 
-                for (int i = 0; i < 100; ++i) {
-                    // Do it for the finite number of times.
-                    int cbs = manager.dispatch(0);
-                    LOOP_ASSERT(i, 0 < cbs);
-                }
-                echoServer.close();
-                // We need another round of dispatch for cleaning things up.
-                int cbs = manager.dispatch(0);
-                ASSERT(0 < cbs);
-                ASSERT(0 == testAllocator.numMismatches());
-            }
+    btlso::TcpTimerEventManager manager(hint, &testAllocator);
+    my_EchoServer               echoServer(&factory, &manager, &testAllocator);
 
+    if (echoServer.open()) {
+        cout << "Can't open listening socket." << endl;
+        break; // return -1;
+    }
+
+    for (int i = 0; i < 100; ++i) {
+        // Do it for the finite number of times.
+        int cbs = manager.dispatch(0);
+        ASSERT(0 < cbs);
+    }
+    echoServer.close();
+    // We need another round of dispatch for cleaning things up.
+    int cbs = manager.dispatch(0);
+    ASSERT(0 < cbs);
+    ASSERT(0 == testAllocator.numMismatches());
+//..
         } break;
         case 7: {
             // ----------------------------------------------------------------

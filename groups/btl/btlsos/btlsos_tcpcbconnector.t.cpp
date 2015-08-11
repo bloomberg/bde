@@ -169,387 +169,414 @@ struct TestCommand {
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-///Usage example 1
-///---------------
 
-class my_EchoClient {
-    enum {
-        k_BUFFER_SIZE     = 100
+///Usage
+///-----
+//
+///Example 1: An example echo client
+///- - - - - - - - - -  - - - - - -
+// The following usage example shows a possible implementation of an echo
+// client.  An echo client sends connection requests to an echo server, and for
+// every connection, sends and receives data.  Various configuration parameters
+// such as the timeout values, the number of connections, the port number, and
+// the number of messages to be sent should be passed into a client object.
+//..
+    class my_EchoClient {
+        enum {
+            k_BUFFER_SIZE = 100
+        };
+
+        btlsos::TcpCbConnector d_allocator;
+        bsls::TimeInterval     d_readTimeout;
+        bsls::TimeInterval     d_writeTimeout;
+        char                   d_controlBuffer[k_BUFFER_SIZE];
+        int                    d_numConnections;
+        int                    d_maxConnections;
+        int                    d_numMessages;
+
+        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                                                             d_allocateFunctor;
+
+        void allocateCb(btlsc::TimedCbChannel *channel, int status);
+            // Invoked by the socket event manager when a connection is
+            // accepted.
+
+        void bufferedReadCb(const char            *buffer,
+                            int                    status,
+                            int                    asyncStatus,
+                            btlsc::TimedCbChannel *channel,
+                            int                    sequence);
+
+        void writeCb(int                    status,
+                     int                    asyncStatus,
+                     btlsc::TimedCbChannel *channel,
+                     int                    numBytes);
+
+      private:
+        // Not implemented:
+        my_EchoClient(const my_EchoClient&);
+        my_EchoClient& operator=(const my_EchoClient&);
+
+      public:
+        // CREATORS
+        my_EchoClient(
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           int                                             maxConnections,
+           int                                             numMessages,
+           bslma::Allocator                               *basicAllocator = 0);
+
+        ~my_EchoClient();
+
+        //  MANIPULATORS
+        int setPeer(const btlso::IPv4Address& address);
+            // Set the address of the echo server to the specified 'address',
+            // and start sending messages to the server.
     };
 
-    btlsos::TcpCbConnector  d_allocator;
-    bsls::TimeInterval      d_readTimeout;
-    bsls::TimeInterval      d_writeTimeout;
-    char                   d_controlBuffer[k_BUFFER_SIZE];
-    int                    d_numConnections;
-    int                    d_maxConnections;
-    int                    d_numMessages;
-
-    bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> d_allocateFunctor;
-
-    void allocateCb(btlsc::TimedCbChannel *channel, int status);
-         // Invoked by the socket event manager when a connection is accepted.
-
-    void bufferedReadCb(const char *buffer, int status, int asyncStatus,
-                        btlsc::TimedCbChannel *channel, int sequence);
-
-    void writeCb(int status, int asyncStatus, btlsc::TimedCbChannel *channel,
-                 int numBytes);
-  private:
-    my_EchoClient(const my_EchoClient&);    // Not implemented.
-    my_EchoClient&
-        operator=(const my_EchoClient&);    // Not implemented.
-  public:
     // CREATORS
-    my_EchoClient(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  btlso::TimerEventManager                      *manager,
-                  int                                    maxConnections,
-                  int                                       numMessages,
-                  bslma::Allocator *basicAllocator = 0);
-    ~my_EchoClient();
+    my_EchoClient::my_EchoClient(
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                int                                             numConnections,
+                int                                             numMessages,
+                bslma::Allocator                               *basicAllocator)
+    : d_allocator(factory, manager, basicAllocator)
+    , d_readTimeout(20.0)
+    , d_writeTimeout(5,0)
+    , d_numConnections(0)
+    , d_maxConnections(numConnections)
+    , d_numMessages(numMessages)
+    {
+        ASSERT(factory);
+        ASSERT(manager);
+        d_allocateFunctor = bdlf::MemFnUtil::memFn(&my_EchoClient::allocateCb,
+                                                   this);
+        memset(d_controlBuffer, 'A', k_BUFFER_SIZE);
+    }
 
-    //  MANIPULATORS
-    int setPeer(const btlso::IPv4Address& address);
-        // Set the address of the echo server to the specified 'address', and
-        // start sending messages to the server.
-};
-
-// CREATORS
-my_EchoClient::my_EchoClient(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        btlso::TimerEventManager                *manager,
-        int                                     numConnections,
-        int                                     numMessages,
-        bslma::Allocator                       *basicAllocator)
-: d_allocator(factory, manager, basicAllocator)
-, d_readTimeout(20.0)
-, d_writeTimeout(5,0)
-, d_numConnections(0)
-, d_maxConnections(numConnections)
-, d_numMessages(numMessages)
-{
-    ASSERT(factory);
-    ASSERT(manager);
-    d_allocateFunctor = bdlf::MemFnUtil::memFn(&my_EchoClient::allocateCb,
-                                              this);
-    memset(d_controlBuffer, 'A', k_BUFFER_SIZE);
-}
-
-my_EchoClient::~my_EchoClient() {
-
-}
-
-// MANIPULATORS
-void my_EchoClient::allocateCb(btlsc::TimedCbChannel *channel, int status) {
-    if (channel) {
+    my_EchoClient::~my_EchoClient() {
+    }
+//..
+// All the work of accepting connections and reading/writing the data is done
+// in the (private) callback methods of 'my_EchoClient'.  When the connection
+// is established and the 'allocateCb' method is invoked, the buffered write
+// with timeout is initiated on the channel and another allocation request is
+// enqueued.  If any error occurs while allocating, the acceptor is shut down.
+// If any error, including timeout, occurs while reading or writing data, the
+// channel is shut down.  Note that the allocation functor is cached to improve
+// performance:
+//..
+    // MANIPULATORS
+    void my_EchoClient::allocateCb(btlsc::TimedCbChannel *channel, int status)
+    {
+        if (channel) {
             // Connected to a server.  Issue a buffered write request.
-        if (globalVeryVerbose) {
-            cout << "my_EchoClient::allocateCb: Channel allocated." << endl;
-        }
-        bdlf::Function<void (*)(int, int)> callback(
-                bdlf::BindUtil::bind(
-                    bdlf::MemFnUtil::memFn(&my_EchoClient::writeCb, this)
-                  , _1, _2
-                  , channel
-                  , 0));
-        if (channel->timedBufferedWrite(
-                                     d_controlBuffer,
-                                     k_BUFFER_SIZE,
-                                     bdlt::CurrentTime::now() + d_writeTimeout,
-                                     callback))
-        {
-            cout << "Failed to enqueue write request." << endl;
-            ASSERT(channel->isInvalidWrite());
-            d_allocator.deallocate(channel);
-        }
-
-        if (d_maxConnections > ++d_numConnections) {
-            int s = d_allocator.allocateTimed(d_allocateFunctor);
-            ASSERT(0 == s);
-        }
-        return;
-    }
-
-    ASSERT(0 >= status);    // Interrupts are not enabled.
-    if (0 == status) {
-        cerr << "Timed out connecting to the server." << endl;
-    }
-    else {
-            // Hard-error accepting a connection, invalidate the allocator.
-        cerr << "Non-recoverable error connecting to the server " << endl;
-        d_allocator.invalidate();
-        return;
-    }
-    // In any case, except for hard error on allocator, enqueue another connect
-    // request
-    if (d_maxConnections > ++d_numConnections) {
-        int s = d_allocator.allocateTimed(d_allocateFunctor);
-        ASSERT(0 == s);
-    }
-}
-
-void my_EchoClient::bufferedReadCb(const char *buffer, int status,
-                                   int asyncStatus,
-                                   btlsc::TimedCbChannel *channel,
-                                   int sequence)
-{
-   cout << "my_EchoClient::bufferedReadCb: Read " << status
-        << " bytes from server." << endl;
-
-   if (globalVeryVeryVerbose) {
-        cout << "my_EchoClient::bufferedReadCb: Read " << status
-             << " bytes from server." << endl;
-    }
-    ASSERT(channel);
-    if (0 < status) {
-        ASSERT(k_BUFFER_SIZE == status);
-        ASSERT(0 == memcmp(buffer, d_controlBuffer, k_BUFFER_SIZE));
-
-        // If we're not done -- enqueue another request
-        if (sequence < d_numMessages) {
             bdlf::Function<void (*)(int, int)> callback(
-                    bdlf::BindUtil::bind(
-                        bdlf::MemFnUtil::memFn(&my_EchoClient::writeCb, this)
-                      , _1, _2
-                      , channel
-                      , sequence + 1));
+                         bdlf::BindUtil::bind(
+                                bdlf::MemFnUtil::memFn(&my_EchoClient::writeCb,
+                                                       this),
+                                _1,
+                                _2,
+                                channel,
+                                0));
             if (channel->timedBufferedWrite(
                                      d_controlBuffer,
                                      k_BUFFER_SIZE,
                                      bdlt::CurrentTime::now() + d_writeTimeout,
-                                     callback))
-            {
+                                     callback)) {
                 cout << "Failed to enqueue write request." << endl;
                 ASSERT(channel->isInvalidWrite());
                 d_allocator.deallocate(channel);
             }
+
+            if (d_maxConnections > ++d_numConnections) {
+                int s = d_allocator.allocateTimed(d_allocateFunctor);
+                ASSERT(0 == s);
+            }
+
+            return;
+        }
+
+        ASSERT(0 >= status);    // Interrupts are not enabled.
+        if (0 == status) {
+            cerr << "Timed out connecting to the server." << endl;
         }
         else {
-            cout << "Done transferring data on a channel. " << endl;
-            d_allocator.deallocate(channel);
+            // Hard-error accepting a connection, invalidate the allocator.
+            cerr << "Non-recoverable error connecting to the server " << endl;
+            d_allocator.invalidate();
+            return;
         }
-    }
-    else if (0 == status) {
-        if (0 > asyncStatus) {
-            cout << "Callback dequeued" << endl;
-        }
-        else {
-            cerr << "Timed out on read" << endl;
-            d_allocator.deallocate(channel);
-        }
-    }
-    else {
-        cerr << "Failed to read data: non-recoverable error on channel."
-             << endl;
-        d_allocator.deallocate(channel);
-    }
-}
 
-void my_EchoClient::writeCb(int status, int asyncStatus,
-                            btlsc::TimedCbChannel *channel, int sequence)
-{
-    cout << "my_EchoClient::writeCb: Send " << status
-         << " bytes to server." << endl;
-
-    if (globalVeryVeryVerbose) {
-        cout << "my_EchoClient::writeCb: Send " << status
-             << " bytes to server." << endl;
-    }
-    if (0 < status) {
-        if (status != k_BUFFER_SIZE) {
-            d_allocator.deallocate(channel);
-            ASSERT("Failed to send data to the server" && 0);
-
+        // In any case, except for hard error on allocator, enqueue another
+        // connect request.
+        if (d_maxConnections > ++d_numConnections) {
+            int s = d_allocator.allocateTimed(d_allocateFunctor);
+            ASSERT(0 == s);
         }
-        else {
-            bdlf::Function<void (*)(const char *, int, int)> callback(
-                bdlf::BindUtil::bind(
-                   bdlf::MemFnUtil::memFn(&my_EchoClient::bufferedReadCb, this)
-                  , _1, _2, _3
-                  , channel
-                  , sequence));
-            if (channel->timedBufferedRead(
-                                      k_BUFFER_SIZE,
-                                      bdlt::CurrentTime::now() + d_readTimeout,
-                                      callback))
-            {
-                ASSERT(channel->isInvalidRead());
+    }
+
+    void my_EchoClient::bufferedReadCb(const char            *buffer,
+                                       int                    status,
+                                       int                    asyncStatus,
+                                       btlsc::TimedCbChannel *channel,
+                                       int                    sequence)
+    {
+        ASSERT(channel);
+        if (0 < status) {
+            ASSERT(k_BUFFER_SIZE == status);
+            ASSERT(0 == memcmp(buffer, d_controlBuffer, k_BUFFER_SIZE));
+
+            // If we're not done -- enqueue another request
+            if (sequence < d_numMessages) {
+                bdlf::Function<void (*)(int, int)> callback(
+                        bdlf::BindUtil::bind(
+                                bdlf::MemFnUtil::memFn(&my_EchoClient::writeCb,
+                                                       this),
+                                _1,
+                                _2,
+                                channel,
+                                sequence + 1));
+                if (channel->timedBufferedWrite(
+                                     d_controlBuffer,
+                                     k_BUFFER_SIZE,
+                                     bdlt::CurrentTime::now() + d_writeTimeout,
+                                     callback))
+                    {
+                        cout << "Failed to enqueue write request." << endl;
+                        ASSERT(channel->isInvalidWrite());
+                        d_allocator.deallocate(channel);
+                    }
+            }
+            else {
+                cout << "Done transferring data on a channel. " << endl;
                 d_allocator.deallocate(channel);
-                ASSERT("Failed to enqueue read request" && 0);
             }
         }
+        else if (0 == status) {
+            if (0 > asyncStatus) {
+                cout << "Callback dequeued" << endl;
+            }
+            else {
+                cerr << "Timed out on read" << endl;
+                d_allocator.deallocate(channel);
+            }
+        }
+        else {
+            cerr << "Failed to read data: non-recoverable error on channel."
+                 << endl;
+            d_allocator.deallocate(channel);
+        }
     }
-    else if (0 == status) {
-        if (0 > asyncStatus) {
-            cout << "Request dequeued." << endl;
+
+    void my_EchoClient::writeCb(int                    status,
+                                int                    asyncStatus,
+                                btlsc::TimedCbChannel *channel,
+                                int                    sequence)
+    {
+        if (0 < status) {
+            if (status != k_BUFFER_SIZE) {
+                d_allocator.deallocate(channel);
+                ASSERT("Failed to send data to the server" && 0);
+            }
+            else {
+                bdlf::Function<void (*)(const char *, int, int)> callback(
+                      bdlf::BindUtil::bind(
+                         bdlf::MemFnUtil::memFn(&my_EchoClient::bufferedReadCb,
+                                                this),
+                         _1,
+                         _2,
+                         _3,
+                         channel,
+                         sequence));
+                if (channel->timedBufferedRead(
+                                      k_BUFFER_SIZE,
+                                      bdlt::CurrentTime::now() + d_readTimeout,
+                                      callback)) {
+                    ASSERT(channel->isInvalidRead());
+                    d_allocator.deallocate(channel);
+                    ASSERT("Failed to enqueue read request" && 0);
+                }
+            }
+        }
+        else if (0 == status) {
+            if (0 > asyncStatus) {
+                cout << "Request dequeued." << endl;
+            }
+            else {
+                d_allocator.deallocate(channel);
+                ASSERT("Timed out sending data to the server" && 0);
+            }
         }
         else {
             d_allocator.deallocate(channel);
-            ASSERT("Timed out sending data to the server" && 0);
+            ASSERT("Failed to send data: non-recoverable error on the channel"
+                   && 0);
         }
     }
-    else {
-        d_allocator.deallocate(channel);
-        ASSERT("Failed to send data: non-recoverable error on the channel"
-               && 0);
+
+    int my_EchoClient::setPeer(const btlso::IPv4Address& address) {
+        d_allocator.setPeer(address);
+        return d_allocator.allocateTimed(d_allocateFunctor);
     }
-}
+//..
+///Example 2: Dual control and data channels
+///- - - - - - - - - - - - - - - - - - - - -
+// The following usage example shows a possible implementation of a client-side
+// communication layer where two communication channels are established for a
+// server: one is for control messages and another for the data stream.  The
+// client is implemented as a separate class that owns the connector and uses a
+// socket event manager and (corresponding) stream socket factory installed at
+// creation.  Various configuration parameters such as the timeout values, the
+// queue size, and input buffer size are constants within this class.
+//..
+    class my_DataStream {
+        enum {
+            k_DEFAULT_PORT_NUMBER = 1234,
+            k_QUEUE_SIZE = 16
+        };
 
-int my_EchoClient::setPeer(const btlso::IPv4Address& address) {
-    d_allocator.setPeer(address);
-    return d_allocator.allocateTimed(d_allocateFunctor);
-}
+        btlsos::TcpCbConnector  d_allocator;
+        bsls::TimeInterval      d_connectTimeout;
+        btlsc::TimedCbChannel  *d_controlChannel;
+        btlsc::TimedCbChannel  *d_dataChannel;
 
-///Usage example 2
-///---------------
-class my_DataStream {
-  enum {
-      k_DEFAULT_PORT_NUMBER = 1234,
-      k_QUEUE_SIZE = 16
-  };
-  btlsos::TcpCbConnector  d_allocator;
-  bsls::TimeInterval           d_connectTimeout;
-
-  btlsc::TimedCbChannel       *d_controlChannel;
-  btlsc::TimedCbChannel       *d_dataChannel;
-
-  private:
-    // Callbacks
-    void allocateCb(btlsc::TimedCbChannel *channel, int status,
+      private:
+        // Callbacks
+        void allocateCb(btlsc::TimedCbChannel  *channel,
+                        int                     status,
                         btlsc::TimedCbChannel **cachedChannel);
-        // Invoked from the socket event manager when a connection is allocated
-        // (i.e., established) or an error occurs when allocating.  ...
+            // Invoked from the socket event manager when a connection is
+            // allocated (i.e., established) or an error occurs when
+            // allocating.
 
-    private:
-      my_DataStream(const my_DataStream&);    // Not implemented.
-      my_DataStream&
-            operator=(const my_DataStream&);    // Not implemented.
-    public:
-      // CREATORS
-      my_DataStream(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                      btlso::TimerEventManager                *manager,
-                      const btlso::IPv4Address&                   peerAddress);
-          // Create a controlled data stream that uses the specified stream
-          // socket 'factory' for system sockets, uses the specified socket
-          // event 'manager' to multiplex events on these sockets, and attempts
-          // to connect to the server at the specified 'peerAddress'.  The
-          // behavior is undefined if either 'factory' or 'manager' is 0.
+      private:
+        // Not implemented:
+        my_DataStream(const my_DataStream&);
+        my_DataStream& operator=(const my_DataStream&);
 
-      ~my_DataStream();
-          // Destroy this server.
+      public:
+        // CREATORS
+        my_DataStream(
+                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                  btlso::TimerEventManager                       *manager,
+                  const btlso::IPv4Address&                       peerAddress);
+            // Create a controlled data stream that uses the specified stream
+            // socket 'factory' for system sockets, uses the specified socket
+            // event 'manager' to multiplex events on these sockets, and
+            // attempts to connect to the server at the specified
+            // 'peerAddress'.  The behavior is undefined if either 'factory' or
+            // 'manager' is 0.
 
-      // MANIPULATORS
-      int setUpCallbacks();
-          // Register callbacks as required for establishing communication
-          // channels.  Return 0 on success, and a non-zero value otherwise, in
-          // which case all further registration attempts will fail (and the
-          // object can be only destroyed).
-};
+        ~my_DataStream();
+            // Destroy this server.
 
-my_DataStream::my_DataStream(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            btlso::TimerEventManager                      *manager,
-            const btlso::IPv4Address&                      peerAddress)
-: d_allocator(factory, manager)
-, d_connectTimeout(120, 0)
-, d_controlChannel(NULL)
-, d_dataChannel(NULL)
-{
-    ASSERT(factory);
-    ASSERT(manager);
-    d_allocator.setPeer(peerAddress);
-}
-
-my_DataStream::~my_DataStream() {
-    // ASSERT(0 == d_allocator.numChannels());
-}
-
-int my_DataStream::setUpCallbacks() {
-    if (globalVerbose) {
-        cout << " The first channel request. " << endl;
+        // MANIPULATORS
+        int setUpCallbacks();
+            // Register callbacks as required for establishing communication
+            // channels.  Return 0 on success, and a non-zero value otherwise,
+            // in which case all further registration attempts will fail (and
+            // the object can be only destroyed).
+    };
+//..
+// The implementation of the public methods of 'my_DataStream' is trivial.  For
+// the constructor, the socket factory and socket event manager are passed to
+// the connector, and the allocate callback and (three) event timeouts are
+// initialized; the peer address is passed to the connector.  The destructor
+// verifies that the state of the connector is valid:
+//..
+    my_DataStream::my_DataStream(
+                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                   btlso::TimerEventManager                       *manager,
+                   const btlso::IPv4Address&                       peerAddress)
+        : d_allocator(factory, manager)
+        , d_connectTimeout(120, 0)
+        , d_controlChannel(NULL)
+        , d_dataChannel(NULL)
+    {
+        ASSERT(factory);
+        ASSERT(manager);
+        d_allocator.setPeer(peerAddress);
     }
 
-    bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> callback(
+    my_DataStream::~my_DataStream() {
+        ASSERT(0 == d_allocator.numChannels());
+    }
+
+    int my_DataStream::setUpCallbacks() {
+        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> callback(
             bdlf::BindUtil::bind(
-                bdlf::MemFnUtil::memFn(&my_DataStream::allocateCb, this)
-              , _1, _2
-              , &d_controlChannel));
+                             bdlf::MemFnUtil::memFn(&my_DataStream::allocateCb,
+                                                    this),
+                             _1,
+                             _2,
+                             &d_controlChannel));
 
-    if (d_allocator.allocateTimed(callback)) {
-        return -1;
+        if (d_allocator.allocateTimed(callback)) {
+            return -1;
+        }
+
+        callback = bdlf::BindUtil::bind(
+                             bdlf::MemFnUtil::memFn(&my_DataStream::allocateCb,
+                                                    this),
+                             _1,
+                             _2,
+                             &d_dataChannel);
+
+        return d_allocator.allocateTimed(callback);
     }
-    if (globalVerbose) {
-        cout << " The second channel request. " << endl;
-    }
+//..
+// The allocate callback will cache the newly-allocated channel for future use:
+//..
+    void my_DataStream::allocateCb(btlsc::TimedCbChannel  *channel,
+                                   int                     status,
+                                   btlsc::TimedCbChannel **cachedChannel) {
+        ASSERT(cachedChannel);
 
-    callback = bdlf::BindUtil::bind(
-                    bdlf::MemFnUtil::memFn(&my_DataStream::allocateCb, this)
-                  , _1, _2
-                  , &d_dataChannel);
-
-    return d_allocator.allocateTimed(callback);
-}
-
-void my_DataStream::allocateCb(btlsc::TimedCbChannel *channel, int status,
-                               btlsc::TimedCbChannel **cachedChannel) {
-     ASSERT(cachedChannel);
-
-     if (channel) {
-         if (globalVerbose) {
-             cout << "One channel is established." << endl;
-         }
-         *cachedChannel = channel;
-         if (d_controlChannel && d_dataChannel) {
-             // Ready to do data processing ...
-             if (globalVerbose) {
-                 cout << "both channels are established." << endl;
-             }
+        if (channel) {
+            *cachedChannel = channel;
+            if (d_controlChannel && d_dataChannel) {
+                // Ready to do data processing ...
+            }
+        }
+        else {
+            cout << "not valid channel: status: " << status << endl;
         }
     }
-    else {
-        cout << "not valid channel: status: " << status << endl;
-    }
-}
 
-static void connectCb(btlsc::CbChannel            *channel,
-                      int                         status,
-                      btlsos::TcpCbConnector *connector,
-                      int                        *numConnections,
-                      int                         validChannel,
-                      int                         expStatus,
-                      int                         cancelFlag)
-    // Verify the result of an "ACCEPT" request by comparing against the
-    // expected values: If the specified 'validChannel' is nonzero, a new
-    // channel should be established; the return 'status' should be the same as
-    // the specified 'expStatus'.  If the specified 'cancelFlag' is nonzero,
-    // invoke the 'cancelAll()' on the specified 'acceptor' for test.
-{
-    if (validChannel) {
-        ASSERT (channel);
-    }
-    else {
-        ASSERT (0 == channel);
-    }
-    ASSERT (status == expStatus);
+    static void connectCb(btlsc::CbChannel       *channel,
+                          int                     status,
+                          btlsos::TcpCbConnector *connector,
+                          int                    *numConnections,
+                          int                     validChannel,
+                          int                     expStatus,
+                          int                     cancelFlag)
+        // Verify the result of an "ACCEPT" request by comparing against the
+        // expected values: If the specified 'validChannel' is nonzero, a new
+        // channel should be established; the return 'status' should be the
+        // same as the specified 'expStatus'.  If the specified 'cancelFlag'
+        // is nonzero, invoke the 'cancelAll()' on the specified 'acceptor'
+        // for test.
+    {
+        if (validChannel) {
+            ASSERT (channel);
+        }
+        else {
+            ASSERT (0 == channel);
+        }
+        ASSERT (status == expStatus);
 
-    if (0 == channel) {
-        if (globalVeryVerbose) {
-            PT(status);
+        if (0 == channel) {
+        }
+        else {
+            ++(*numConnections);
+        }
+        if (cancelFlag) {
+            connector->cancelAll();
         }
     }
-    else {
-        ++(*numConnections);
-        if (globalVeryVerbose) {
-            QT("Created a channel. ");
-        }
-    }
-    if (cancelFlag) {
-        if (globalVeryVerbose) {
-            QT("User's callback function invokes cancelAll()");
-        }
-        connector->cancelAll();
-    }
-}
+//..
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -1059,7 +1086,7 @@ int main(int argc, char *argv[])
                         ASSERT(i + 1 == connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of channels established:");
                     PT(connList.size());
@@ -1246,7 +1273,7 @@ int main(int argc, char *argv[])
                         }
                         ++j;
                     }
-                    int length = connList.size();
+                    int length = static_cast<int>(connList.size());
                     if (veryVerbose) {
                         QT("The total number of channels established:");
                         PT(connector.numChannels());
@@ -1412,7 +1439,7 @@ int main(int argc, char *argv[])
                 }
                 bdlqq::ThreadUtil::join(threadHandle);
 
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of channels established:");
                     PT(connector.numChannels());
@@ -1576,7 +1603,7 @@ int main(int argc, char *argv[])
                         PT(connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of channels established:");
                     PT(connector.numChannels());
@@ -1741,7 +1768,7 @@ int main(int argc, char *argv[])
                         PT(connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of channels established:");
                     PT(connector.numChannels());
@@ -1907,7 +1934,7 @@ int main(int argc, char *argv[])
                         PT(connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of channels established:");
                     PT(connector.numChannels());
@@ -1990,7 +2017,7 @@ int main(int argc, char *argv[])
                         ASSERT(i + 1 == connector.numChannels());
                     }
                 }
-                int length = connList.size();
+                int length = static_cast<int>(connList.size());
                 if (veryVerbose) {
                     QT("The total number of channels established:");
                     PT(connList.size());
