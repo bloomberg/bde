@@ -2,6 +2,8 @@
 
 #include <bdlc_indexclerk.h>
 
+#include <bdls_testutil.h>
+
 #include <bslx_outstreamfunctions.h>            // for testing only
 #include <bslx_testoutstream.h>                 // for testing only
 #include <bslx_testinstream.h>                  // for testing only
@@ -23,9 +25,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                                TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The component under test implements a value-semantic, non-templated
@@ -92,7 +94,7 @@ using namespace bsl;  // automatically added by script
 // testing (fully) value-semantic types that require manipulation after default
 // construction to achieve every attainable state required for testing
 // purposes.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 //                          // ----------
 //                          // IndexClerk
@@ -130,9 +132,9 @@ using namespace bsl;  // automatically added by script
 // [ 6] bool operator!=(const IndexClerk& l, const IndexClerk& r);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const IndexClerk&);
 //
-//                         //-------------------
-//                         // bdlc::IndexClerkIter
-//                         //-------------------
+//                         // --------------
+//                         // IndexClerkIter
+//                         // --------------
 //
 // CREATORS
 // [ 4] bdlc::IndexClerkIter();
@@ -151,7 +153,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] bool operator==(const IndexClerkIter&, const IndexClerkIter&);
 // [ 4] bool operator!=(const IndexClerkIter&, const IndexClerkIter&);
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [15] USAGE EXAMPLE
 // [ 3] int ggg(Obj *object, const char *spec, int vF = 1);
@@ -160,72 +162,61 @@ using namespace bsl;  // automatically added by script
 // [ 7] bdlc::IndexClerk(const bdlc::IndexClerk&, bslma::Allocator *ba);
 // [  ] CONCERN: Object memory is never leaked by the index clerk.
 // [  ] CONCERN: Any function-local memory comes from the default allocator.
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
-
-//=============================================================================
+// ============================================================================
 //                    GLOBAL TYPEDEFS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef bdlc::IndexClerk     Obj;
 typedef bdlc::IndexClerkIter Iter;
 
-//=============================================================================
+// ============================================================================
 //            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.
 //
@@ -267,7 +258,7 @@ typedef bdlc::IndexClerkIter Iter;
 //  "87,12"        7, 8                                12
 //  ",354"                                            354
 //  "543210,6"     0, 1, 2, 3, 4, 5                     6
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int ggg(Obj *object, const char *spec, int vF = 1)
     // Configure the specified (initially empty) 'object' according to the
@@ -425,9 +416,9 @@ Obj g(const char *spec)
     return gg(&object, spec);
 }
 
-//=============================================================================
+// ============================================================================
 //           Additional Functionality Needed to Complete Usage Test Case
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #if defined(BDE_BUILD_TARGET_SAFE)
 const bool safe = true;
@@ -453,9 +444,9 @@ class Security {
         // Return this security's identifier.
 };
 
-//=============================================================================
+// ============================================================================
 //                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // A 'bdlc::IndexClerk' is commonly used in conjunction with an array to enable
 // machine-address-independent referencing.  Rather than dynamically allocating
 // an object and holding its address, the object is stored in the array at the
@@ -520,9 +511,9 @@ class Security {
     }
 //..
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

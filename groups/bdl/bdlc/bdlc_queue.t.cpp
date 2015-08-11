@@ -2,6 +2,8 @@
 
 #include <bdlc_queue.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlma_bufferedsequentialallocator.h>
 
 #include <bslma_testallocator.h>                // for testing only
@@ -26,9 +28,9 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // This test plan follows the standard approach for components implementing
@@ -48,7 +50,7 @@ using namespace bsl;  // automatically added by script
 //
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] bdlc::Queue(bslma::Allocator *ba = 0);
 // [11] bdlc::Queue(unsigned int iLen, *ba = 0);
 // [11] bdlc::Queue(int iLen, double iVal, *ba = 0);
@@ -92,7 +94,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] operator==(const bdlc::Queue&, const bdlc::Queue&);
 // [ 6] operator!=(const bdlc::Queue&, const bdlc::Queue&);
 // [ 5] operator<<(ostream&, const bdlc::Queue&);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLE
 // [ 2] BOOTSTRAP: void popFront();
@@ -107,63 +109,53 @@ using namespace bsl;  // automatically added by script
 // [ 3] bdlc::Queue& gg(bdlc::Queue* object, const char *spec);
 // [ 8] bdlc::Queue   g(const char *spec);
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 class FussyDouble {
     double d_data;
@@ -214,9 +206,9 @@ const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 typedef FussyDouble Element2;
 typedef bdlc::Queue<Element2> Obj2;
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class T>
 inline
@@ -263,9 +255,9 @@ void stretchRemoveAll(T *object, int size)
     ASSERT(0 == object->length());
 }
 
-//=============================================================================
+// ============================================================================
 //              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.  Uppercase
 // letters 'A - E' correspond to arbitrary (but unique) double values to be
@@ -328,7 +320,7 @@ void stretchRemoveAll(T *object, int size)
 //              positions 3, 4, and 5), and append three values corresponding
 //              to A, B, C.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class T>
 int ggg(T *object, const char *spec, int verboseFlag = 1)
@@ -447,9 +439,9 @@ inline EqualityTester::~EqualityTester()
         ASSERT(*A == *B);
 }
 
-//=============================================================================
+// ============================================================================
 //                              TEST CASES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
@@ -5846,7 +5838,7 @@ DEFINE_TEST_CASE(10) {
             ASSERT(in);
             ASSERT(W != t);    ASSERT(X != t);      ASSERT(Y == t);
         }
-        /* TBD double has no version...
+#if 0  // TBD double has no version...
         if (verbose) cout << "\t\tBad version." << endl;
         {
             const char version = 0; // too small
@@ -5866,7 +5858,7 @@ DEFINE_TEST_CASE(10) {
             ASSERT(in); in >> t; ASSERT(!in);
             ASSERT(W != t);    ASSERT(X == t);      ASSERT(Y != t);
         }
-        */
+#endif
       }
 
 DEFINE_TEST_CASE(9) {
@@ -8027,9 +8019,9 @@ DEFINE_TEST_CASE(1) {
         ASSERT(X4 == X4 == 1);          ASSERT(X4 != X4 == 0);
       }
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
