@@ -1,4 +1,4 @@
-// btlscm_versiontag.t.cpp    -*-C++-*-
+// btlscm_versiontag.t.cpp                                            -*-C++-*-
 
 #include <btlscm_versiontag.h>
 
@@ -6,6 +6,7 @@
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstdio.h>
+
 using namespace BloombergLP;
 
 //==========================================================================
@@ -84,11 +85,11 @@ int main(int argc, char *argv[])
         if (verbose) bsl::printf("\nTEST USAGE EXAMPLE"
                                  "\n==================\n");
 
-    #if BTE_VERSION > BSL_MAKE_VERSION(1, 2)
-        // Call 'newFunction' for BTE version 1.2 and later:
+    #if BTL_VERSION > BSL_MAKE_VERSION(1, 3)
+        // Call 'newFunction' for BTL version 1.3 and later:
         int result = newFunction();
     #else
-        // Call 'oldFunction' for BTE older than version 1.2:
+        // Call 'oldFunction' for BTL older than version 1.3:
         int result = oldFunction();
     #endif
 
@@ -100,29 +101,27 @@ int main(int argc, char *argv[])
         // TEST VERSION CONSISTENCY
         //
         // Concerns:
-        //   That BTE_VERSION corresponds to the three components,
-        //   BTE_VERSION_MAJOR, BTE_VERSION_MINOR, and BTE_VERSION_PATCH.
+        //   That BTL_VERSION is made up of BTL_VERSION_MAJOR and
+        //   BTL_VERSION_MINOR.
         //
         // Plan:
-        //   Decompose BTE_VERSION into its three components and verify
+        //   Decompose BTL_VERSION into its two components and verify
         //   that they correspond to the defined macros.
         //
         // Testing:
-        //   BTE_VERSION
-        //   BTE_VERSION_MAJOR
-        //   BTE_VERSION_MINOR
-        //   BTE_VERSION_PATCH
+        //   BTL_VERSION
+        //   BTL_VERSION_MAJOR
+        //   BTL_VERSION_MINOR
         //--------------------------------------------------------------------
 
         if (verbose) bsl::printf("\nTEST VERSION CONSISTENCY"
                                  "\n========================\n");
 
-        int major = (BTE_VERSION / 10000) % 100;
-        int minor = (BTE_VERSION / 100) % 100;
-        int patch = BTE_VERSION % 100;
+        int major = (BTL_VERSION / 10000) % 100;
+        int minor = (BTL_VERSION / 100) % 100;
 
-        ASSERT(BTE_VERSION_MAJOR == major);
-        ASSERT(BTE_VERSION_MINOR == minor);
+        ASSERT(BTL_VERSION_MAJOR == major);
+        ASSERT(BTL_VERSION_MINOR == minor);
 
       } break;
 
@@ -141,7 +140,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2006
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
