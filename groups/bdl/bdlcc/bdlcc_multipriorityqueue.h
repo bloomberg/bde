@@ -763,7 +763,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
                                               int  *itemPriority,
                                               bool  blockFlag)
 {
-    enum { e_SUCCESS = 0, k_FAILURE = -1 };
+    enum { e_SUCCESS = 0, e_FAILURE = -1 };
 
     Node *condemned;
     int priority;
@@ -784,7 +784,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
                 d_notEmptyCondition.wait(&d_mutex);
             }
             else {
-                return k_FAILURE;                                     // RETURN
+                return e_FAILURE;                                     // RETURN
             }
         }
 

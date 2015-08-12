@@ -710,17 +710,17 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // easily.
 
         k_ROUNDED_NUM_OBJECTS = (sizeof(TYPE) + sizeof(ObjectNode) - 1) /
-                                                             sizeof(ObjectNode)
+                                                            sizeof(ObjectNode),
                                      // number of 'ObjectNode' needed to
                                      // contain an object of 'TYPE' (rounded up
                                      // to the next integer)
 
-      , k_NUM_OBJECTS_PER_FRAME = 1 + k_ROUNDED_NUM_OBJECTS
+        k_NUM_OBJECTS_PER_FRAME = 1 + k_ROUNDED_NUM_OBJECTS,
                                      // number of 'ObjectNode' equivalent (in
                                      // size) to a frame (object node followed
                                      // by 'TYPE')
 
-      , k_MAX_NUM_OBJECTS_PER_FRAME = (INT_MAX / sizeof(ObjectNode) - 1) /
+        k_MAX_NUM_OBJECTS_PER_FRAME = (INT_MAX / sizeof(ObjectNode) - 1) /
                                                         k_NUM_OBJECTS_PER_FRAME
                                      // 'N' must be less than this
                                      // 'k_MAX_NUM_OBJECTS_PER_FRAME' so that
@@ -734,13 +734,13 @@ class ObjectPool : public bdlma::Factory<TYPE> {
         // Default configuration parameters.  Adjust these to tune up
         // performance of 'ObjectPool'.
 
-        k_GROW_FACTOR           =   2  // multiplicative factor to grow
-                                          // capacity
+        k_GROW_FACTOR           =   2,  // multiplicative factor to grow
+                                        // capacity
 
-      , k_MAX_NUM_OBJECTS       = -32  // minimum 'd_numReplenishObjects'
-                                          // value beyond which
-                                          // 'd_numReplenishObjects' becomes
-                                          // positive
+        k_MAX_NUM_OBJECTS       = -32   // minimum 'd_numReplenishObjects'
+                                        // value beyond which
+                                        // 'd_numReplenishObjects' becomes
+                                        // positive
     };
 
     // DATA

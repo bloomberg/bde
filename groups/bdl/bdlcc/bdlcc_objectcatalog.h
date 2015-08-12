@@ -382,10 +382,10 @@ class ObjectCatalog {
         // Masks used for breaking up a handle.  Note: a handle (of type int)
         // is always 4 bytes, even on 64 bit modes.
 
-        k_INDEX_MASK      = 0x007fffff
-      , k_BUSY_INDICATOR  = 0x00800000
-      , k_GENERATION_INC  = 0x01000000
-      , k_GENERATION_MASK = 0xff000000
+        k_INDEX_MASK      = 0x007fffff,
+        k_BUSY_INDICATOR  = 0x00800000,
+        k_GENERATION_INC  = 0x01000000,
+        k_GENERATION_MASK = 0xff000000
     };
 
     struct Node {
