@@ -18,10 +18,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// 'baesu::StackTraceResolver<Elf>', that, given a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set, resolves
-// all other fields in those frames.  The Elf object file format is used on
-// Linux, Solaris, and HP-UX platforms.  The Elf format is described by
+// 'balst::StackTraceResolver<Elf>', that, given a vector of
+// 'balst::StackTraceFrame's that have only their 'address' fields set,
+// resolves all other fields in those frames.  The Elf object file format is
+// used on Linux, Solaris, and HP-UX platforms.  The Elf format is described by
 // documents at:
 //: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
 //: o 'http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf'
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -67,8 +67,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
-
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
 
 namespace balst {template <typename RESOLVER_POLICY>
 class StackTraceResolverImpl;
@@ -99,7 +98,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
                                             // segments)
 
     // DATA
-    StackTrace  *d_stackTrace_p;      // pointer to stack trace object.
+    StackTrace        *d_stackTrace_p;      // pointer to stack trace object.
                                             // The frames contained in this
                                             // have their 'address' fields and
                                             // nothing else initialized upon
@@ -122,13 +121,12 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
   private:
     // NOT IMPLEMENTED
     StackTraceResolverImpl(const StackTraceResolverImpl&);
-    StackTraceResolverImpl& operator=(
-                                          const StackTraceResolverImpl&);
+    StackTraceResolverImpl& operator=(const StackTraceResolverImpl&);
 
   private:
     // PRIVATE CREATORS
     StackTraceResolverImpl(StackTrace *stackTrace,
-                                 bool              demanglingPreferredFlag);
+                           bool        demanglingPreferredFlag);
         // Create an stack trace reolver that can populate other fields of the
         // specified '*stackTrace' object given previously populated 'address'
         // fields.  Specify 'demangle', which indicates whether demangling of
@@ -167,7 +165,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
   public:
     // CLASS METHOD
     static int resolve(StackTrace *stackTrace,
-                       bool              demanglingPreferredFlag);
+                       bool        demanglingPreferredFlag);
         // Populate information for the specified '*stackTrace', which contains
         // a sequence of randomly-accessible stack trace frames.  Specify
         // 'demanglingPreferredFlag', to determine whether demangling is to
@@ -193,19 +191,20 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // not to be called by external users of this component, it is only
         // public so a static routine in the implementation file can call it.
 };
+
 }  // close package namespace
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

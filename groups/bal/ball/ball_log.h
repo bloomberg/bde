@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //      established by the 'BALL_LOG_SET_CATEGORY' (or
 //      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 //..
-#warning TBD:FIX blmxxx references
+// TBD:FIX blmxxx references
 // Seven other macros based on C++ streams, similar to 'BALL_LOG_TRACE', etc.,
 // allow the caller to specify a "callback" function which is passed the
 // 'bdlmxxx::List *' used to represent the user fields of a log record.  The

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a single function to perform and print a stack trace.
 //
 //@CLASSES:
-//  balst::StackTracePrintUtil: namespace for functions that print a stack trace
+//  balst::StackTracePrintUtil: namespace for functions to print a stack trace
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
@@ -182,8 +182,7 @@ struct StackTracePrintUtil_Test {
 
 // CLASS METHOD
 inline
-void StackTracePrintUtil_Test::printStackTraceToString(
-                                                           bsl::string *string)
+void StackTracePrintUtil_Test::printStackTraceToString(bsl::string *string)
 {
     bslma::Allocator *a = string->get_allocator().mechanism();
     bslma::DefaultAllocatorGuard guard(a);
@@ -192,9 +191,9 @@ void StackTracePrintUtil_Test::printStackTraceToString(
     StackTracePrintUtil::printStackTrace(os);
     *string = os.str();
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

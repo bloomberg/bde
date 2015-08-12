@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_ELF
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
 
 #include <balst_stacktraceresolver_filehelper.h>
 
@@ -16,12 +16,14 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cerrno.h>
 #include <bsl_cstring.h>
+#include <bsl_climits.h>
 #include <bsl_vector.h>
 
 #include <elf.h>
-#include <errno.h>
-#include <limits.h>
 #include <unistd.h>
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
@@ -89,7 +91,7 @@ void zprintf(const char *, ...)
 // Each ELF object file or executable starts with an ELF header that specifies
 // how many segments are provided in the file.  The ELF header looks as
 // follows:
-//
+//..
 // typedef struct {
 //     unsigned char e_ident[EI_NIDENT];    //  ident bytes
 //     Elf32_Half    e_type;                //  file type
@@ -106,11 +108,11 @@ void zprintf(const char *, ...)
 //     Elf32_Half    e_shnum;               //  number of section headers
 //     Elf32_Half    e_shstrndx;            //  shdr string index
 // } Elf32_Ehdr;
-//
+//..
 // Each segment is described by a program header that is an array of
 // structures, each describing a segment or other information the system needs
 // to prepare the program for execution, and typically looks as follows:
-//
+//..
 // typedef struct {
 //     Elf32_Word p_type;                   //  entry type
 //     Elf32_Off  p_offset;                 //  file offset
@@ -121,12 +123,12 @@ void zprintf(const char *, ...)
 //     Elf32_Word p_flags;                  //  entry flags
 //     Elf32_Word p_align;                  //  memory/file alignment
 // } Elf32_Phdr;
-//
+//..
 // An object file segment contains one or more sections.  The string table
 // provides the names of the various sections corresponding to the integral
 // 'sh_name'.  An elf file will typically contain sections such as '.text',
 // '.data', '.bss' etc.
-//
+//..
 // typedef struct {
 //     Elf32_Word sh_name;                  //  section name
 //     Elf32_Word sh_type;                  //  SHT_...
@@ -149,7 +151,7 @@ void zprintf(const char *, ...)
 //     unsigned char st_other;              //  Symbol visibility
 //     Elf32_Section st_shndx;              //  Section index - 16-bit
 // } Elf32_Sym;
-//
+//..
 // Below we explain the strategies to resolve symbols on the various platforms
 // that we support.
 //
@@ -158,7 +160,7 @@ void zprintf(const char *, ...)
 //
 // The _DYNAMIC symbol references a _dynamic structure that refers to the
 // linked symbols:
-//
+//..
 // typedef struct {
 //     Elf32_Sword d_tag;                   //  how to interpret value
 //     union {
@@ -167,9 +169,9 @@ void zprintf(const char *, ...)
 //         Elf32_Off  d_off;
 //     } d_un;
 // } Elf32_Dyn;
-//
+//..
 // Tag values
-//
+//..
 // #define    DT_NULL      0                //  last entry in list
 // #define    DT_DEBUG    21                //  pointer to r_debug structure
 //
@@ -183,9 +185,9 @@ void zprintf(const char *, ...)
 //     rd_event_e     r_rdevent;            //  debug event
 //     rd_flags_e     r_flags;              //  misc flags.
 // };
-//
+//..
 // The link_map is a chain of loaded object.
-//
+//..
 // struct link_map {
 //
 //     unsigned long  l_addr;               // address at which object is
@@ -200,10 +202,10 @@ void zprintf(const char *, ...)
 //     Link_map     *l_prev;                //  previous link object
 //     char         *l_refname;             //  filters reference name
 // };
-//
+//..
 // Linux:
 // -----
-//
+//..
 // int dl_iterate_phdr(int (*callback) (struct dl_phdr_info *info,
 //                                      size_t               size,
 //                                      void                *data),
@@ -231,10 +233,10 @@ void zprintf(const char *, ...)
 //     //  Incremented when an object may have been removed.
 //     unsigned long long int dlpi_subs;
 // };
-//
+//..
 // HPUX:
 // ----
-//
+//..
 // struct shl_descriptor {
 //     unsigned long  tstart;                   // start address of the shared
 //                                              // library text segment
@@ -262,9 +264,10 @@ void zprintf(const char *, ...)
 //     // appeared on the command line.  Return 0 on success and a non-zero
 //     // value otherwise.  Note that an 'index' value of 0 refers to the main
 //     // program itself and -1 refers to the dynamic loader.
+//..
 
 // ----------------------------------------------------------------------------
-// Mine:
+// Bill's:
 // IMPLEMENTATION NOTES:
 //
 // The following 'struct' definitions describing the Elf format are modified
@@ -279,7 +282,7 @@ void zprintf(const char *, ...)
 // Each ELF object file or executable starts with an ELF header that specifies
 // how many segments are provided in the file.  The ELF header looks as
 // follows:
-//
+//..
 // typedef struct {
 //     unsigned char e_ident[EI_NIDENT];    //  ident bytes
 //     UintPtr       e_phoff;               //  program header file offset
@@ -288,23 +291,23 @@ void zprintf(const char *, ...)
 //     short         e_shnum;               //  number of section headers
 //     short         e_shstrndx;            //  shdr string index
 // } local::ElfHeader;
-//
+//..
 // Each segment is described by a program header that is an array of
 // structures, each describing a segment or other information the system needs
 // to prepare the program for execution, and typically looks as follows:
-//
+//..
 // typedef struct {
 //     unsigned int p_type;                   //  entry type
 //     UintPtr      p_offset;                 //  file offset
 //     unsigned int p_vaddr;                  //  virtual address
 //     unsigned int p_memsz;                  //  memory size
 // } local::ElfProgramHeader;
-//
+//..
 // An object file segment contains one or more sections.  The string table
 // provides the names of the various sections corresponding to the integral
 // 'sh_name'.  An elf file will typically contain sections such as '.text',
 // '.data', '.bss' etc.
-//
+//..
 // typedef struct {
 //     unsigned int sh_name;                  //  section name
 //     unsigned int sh_type;                  //  SHT_...
@@ -319,7 +322,7 @@ void zprintf(const char *, ...)
 //     unsigned int  st_size;               //  Symbol size
 //     unsigned char st_info;               //  Symbol type and binding
 // } local::ElfSymbol;
-//
+//..
 // ----------------------------------------------------------------------------
 // The above definitions describe the data within one file.  However, if the
 // executable is dynamically linked, that usually being the case, multiple
@@ -331,7 +334,7 @@ void zprintf(const char *, ...)
 // -------
 //
 // The link_map is a node in a chain, each representing a loaded object.
-//
+//..
 // struct link_map {
 //     unsigned long        l_addr;         // address at which object is
 //                                          // mapped
@@ -358,7 +361,7 @@ void zprintf(const char *, ...)
 //
 // #define    DT_NULL      0                //  last entry in list
 // #define    DT_DEBUG    21                //  pointer to 'r_debug' structure
-//
+//..
 // The '_DYNAMIC' symbol is the address of the beginning of an array of objects
 // of type 'local::ElfDynamic', one of which contains a pointer to the
 // 'r_debug' object, which contains a pointer to the linked list of 'link_map'
@@ -366,7 +369,7 @@ void zprintf(const char *, ...)
 //
 // Linux:
 // -----
-//
+//..
 // int dl_iterate_phdr(int (*callback) (struct dl_phdr_info *info,
 //                                      size_t               size,
 //                                      void                *data),
@@ -383,10 +386,10 @@ void zprintf(const char *, ...)
 //                                                     // headers
 //     short                             dlpi_phnum;   // base address
 // };
-//
+//..
 // HPUX:
 // ----
-//
+//..
 // struct shl_descriptor {
 //     unsigned long  tstart;                   // start address of the shared
 //                                              // library text segment
@@ -404,6 +407,7 @@ void zprintf(const char *, ...)
 //     // appeared on the command line.  Return 0 on success and a non-zero
 //     // value otherwise.  Note that an 'index' value of 0 refers to the main
 //     // program itself and -1 refers to the dynamic loader.
+//..
 
 namespace BloombergLP {
 
@@ -419,17 +423,17 @@ typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
                             // --------------------------
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
-enum { IS_LINUX = 1 };
+enum { e_IS_LINUX = 1 };
 #else
-enum { IS_LINUX = 0 };
+enum { e_IS_LINUX = 0 };
 #endif
 
 #if   defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
-enum { IS_BIG_ENDIAN = 1,
-       IS_LITTLE_ENDIAN = 0 };
+enum { e_IS_BIG_ENDIAN = 1,
+       e_IS_LITTLE_ENDIAN = 0 };
 #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
-enum { IS_BIG_ENDIAN = 0,
-       IS_LITTLE_ENDIAN = 1 };
+enum { e_IS_BIG_ENDIAN = 0,
+       e_IS_LITTLE_ENDIAN = 1 };
 #else
 # error endianness is undefined
 #endif
@@ -439,11 +443,11 @@ enum { IS_BIG_ENDIAN = 0,
                                    // ---------
 
 enum {
-    SCRATCH_BUF_LEN = 32 * 1024 - 64,  // length in bytes of d_scratchBuf_p,
-                                       // 32K minus a little so we don't waste
-                                       // a page
+    k_SCRATCH_BUF_LEN = 32 * 1024 - 64,    // length in bytes of
+                                           // d_scratchBuf_p, 32K minus a
+                                           // little so we don't waste a page
 
-    SYMBOL_BUF_LEN  = SCRATCH_BUF_LEN  // length in bytes of d_symbolBuf_p
+    k_SYMBOL_BUF_LEN  = k_SCRATCH_BUF_LEN  // length in bytes of d_symbolBuf_p
 };
 
                                 // ---------------
@@ -484,6 +488,8 @@ typedef SPLICE(Sym)     ElfSymbol;         // Describes one symbol in the
 
 }  // close namespace local
 
+typedef bsl::size_t size_t;
+
 }  // close unnamed namespace
 
                               // ----------------
@@ -492,28 +498,27 @@ typedef SPLICE(Sym)     ElfSymbol;         // Describes one symbol in the
 
 static
 int checkElfHeader(local::ElfHeader *elfHeader)
-    // Return 0 if the magic numbers in the elf header are correct and a
-    // non-zero value otherwise.
+    // Return 0 if the magic numbers in the specified 'elfHeader' are correct
+    // and a non-zero value otherwise.
 {
-    if (elfHeader->e_ident[EI_MAG0] != ELFMAG0 ||
-        elfHeader->e_ident[EI_MAG1] != ELFMAG1 ||
-        elfHeader->e_ident[EI_MAG2] != ELFMAG2 ||
-        elfHeader->e_ident[EI_MAG3] != ELFMAG3)
-    {
+    if   (ELFMAG0 != elfHeader->e_ident[EI_MAG0]
+       || ELFMAG1 != elfHeader->e_ident[EI_MAG1]
+       || ELFMAG2 != elfHeader->e_ident[EI_MAG2]
+       || ELFMAG3 != elfHeader->e_ident[EI_MAG3]) {
         return -1;                                                    // RETURN
     }
 
     // this code can only read native-endian ELF files
 
-    if (elfHeader->e_ident[EI_DATA] !=
-                          (local::IS_BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB)) {
+    if ((local::e_IS_BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB) !=
+                                                 elfHeader->e_ident[EI_DATA]) {
         return -1;                                                    // RETURN
     }
 
     // this code can only read native-sized ELF files
 
-    if (elfHeader->e_ident[EI_CLASS] !=
-                             (sizeof(void *) == 4 ? ELFCLASS32 : ELFCLASS64)) {
+    if ((sizeof(void *) == 4 ? ELFCLASS32 : ELFCLASS64) !=
+                                                elfHeader->e_ident[EI_CLASS]) {
         return -1;                                                    // RETURN
     }
 
@@ -525,8 +530,8 @@ int checkElfHeader(local::ElfHeader *elfHeader)
                   // -----------------------------------------
 
 struct local::StackTraceResolver::CurrentSegment {
-    // This 'struct' contains all fields of this resolver that are local
-    // to the current segment.  The resolver iterates over multiple segments,
+    // This 'struct' contains all fields of this resolver that are local to the
+    // current segment.  The resolver iterates over multiple segments,
     // resolving symbols within one at a time.
 
     // TYPES
@@ -537,37 +542,33 @@ struct local::StackTraceResolver::CurrentSegment {
 
     // DATA
     balst::StackTraceResolver_FileHelper
-                  *d_helper_p;          // file helper associated with
-                                        // current segment
+                  *d_helper_p;          // file helper associated with current
+                                        // segment
 
     balst::StackTraceFrame
                  **d_framePtrs_p;       // array of pointers into
-                                        // 'd_stackTrace_p' referring
-                                        // only to those frames whose
-                                        // 'address' fields point into
-                                        // the current segment
+                                        // 'd_stackTrace_p' referring only to
+                                        // those frames whose 'address' fields
+                                        // point into the current segment
 
-    const void   **d_addresses_p;       // array of the 'address' fields
-                                        // from 'd_framePtrs', put into
-                                        // a separate array as a
-                                        // performance optimization
+    const void   **d_addresses_p;       // array of the 'address' fields from
+                                        // 'd_framePtrs', put into a separate
+                                        // array as a performance optimization
 
-    int            d_numAddresses;      // length of both
-                                        // 'd_framePtrs' and
-                                        // 'd_addresses', note both
-                                        // arrays are allocated to have
-                                        // 'd_numOutAllFrames' (worst
-                                        // case) length
+    int            d_numAddresses;      // length of both 'd_framePtrs' and
+                                        // 'd_addresses', note both arrays are
+                                        // allocated to have
+                                        // 'd_numOutAllFrames' (worst case)
+                                        // length
 
     UintPtr        d_adjustment;        // adjustment between addresses
-                                        // expressed in object file and
-                                        // actual addresses in memory
-                                        // for current segment
+                                        // expressed in object file and actual
+                                        // addresses in memory for current
+                                        // segment
 
-    UintPtr        d_symTableOffset;    // symbol table offset (symbol
-                                        // table does not contain symbol
-                                        // names, just offsets into
-                                        // string table) from the
+    UintPtr        d_symTableOffset;    // symbol table offset (symbol table
+                                        // does not contain symbol names, just
+                                        // offsets into string table) from the
                                         // beginning of the executable or
                                         // library file
 
@@ -579,28 +580,33 @@ struct local::StackTraceResolver::CurrentSegment {
     UintPtr        d_stringTableSize;   // size in bytes of string table
 
     bool           d_isMainExecutable;  // 'true' if in main executable
-                                        // segment, as opposed to a
-                                        // shared library
+                                        // segment, as opposed to a shared
+                                        // library
 
     const int      d_numFrames;         // not really local to the segment,
                                         // number of stack frames in
                                         // '*resolver.d_stackTrace_p'
 
+  private:
+    // NOT IMPLEMENTED
+    CurrentSegment(const CurrentSegment&);
+    CurrentSegment& operator=(const CurrentSegment&);
+
+  public:
     // CREATORS
     CurrentSegment(int numFrames, bslma::Allocator *basicAllocator);
-        // Create this 'Seg' object, using the specified 'basicAllocator'
-        // to allocate the arrays 'd_framePtrs_p' and 'd_addresses_p' to
-        // have the specified 'numFrames' elements, initialize
-        // 'd_numFrames' to 'numFrames', and initialize all other fields to
-        // 0.
+        // Create this 'Seg' object, using the specified 'basicAllocator' to
+        // allocate the arrays 'd_framePtrs_p' and 'd_addresses_p' to have the
+        // specified 'numFrames' elements, initialize 'd_numFrames' to
+        // 'numFrames', and initialize all other fields to 0.
 
     // MANIPULATORS
     void reset();
-        // Zero the contents of the arrays 'd_framePtrs_p' and
-        // 'd_addresses_p' and all fields of this 'Seg' object other than
-        // 'd_isMainExecutable' and the pointers to those two arrays.  Note
-        // that this action is not necessary, it's just conceptually clean
-        // to be starting out with a fairly blank slate.
+        // Zero the contents of the arrays 'd_framePtrs_p' and 'd_addresses_p'
+        // and all fields of this 'Seg' object other than 'd_isMainExecutable'
+        // and the pointers to those two arrays.  Note that this action is not
+        // necessary, it's just conceptually clean to be starting out with a
+        // fairly blank slate.
 };
 
 // CREATORS
@@ -624,10 +630,11 @@ local::StackTraceResolver::CurrentSegment::CurrentSegment(
     // 'resolveSegment', the contents of both of these arrays are zeroed, and
     // only first N elements will be populated, where 'N <= d_numFrames.
 
-    const int bytesToAllocate = numFrames * (int) sizeof(void *);
-    d_framePtrs_p = (balst::StackTraceFrame **)
-                                    basicAllocator->allocate(bytesToAllocate);
-    d_addresses_p = (const void **) basicAllocator->allocate(bytesToAllocate);
+    const int bytesToAllocate = numFrames * static_cast<int>(sizeof(void *));
+    d_framePtrs_p = static_cast<balst::StackTraceFrame **>(
+                                    basicAllocator->allocate(bytesToAllocate));
+    d_addresses_p =
+         static_cast<const void **>(basicAllocator->allocate(bytesToAllocate));
 }
 
 // MANIPULATORS
@@ -641,7 +648,7 @@ void local::StackTraceResolver::CurrentSegment::reset()
     d_stringTableOffset = 0;
     d_stringTableSize   = 0;
 
-    const int bytesToZero = d_numFrames * (int) sizeof(void *);
+    const int bytesToZero = d_numFrames * static_cast<int>(sizeof(void *));
     bsl::memset(d_framePtrs_p, 0, bytesToZero);
     bsl::memset(d_addresses_p, 0, bytesToZero);
 }
@@ -653,16 +660,18 @@ void local::StackTraceResolver::CurrentSegment::reset()
 
 // PRIVATE CREATORS
 local::StackTraceResolver::StackTraceResolverImpl(
-                                     balst::StackTrace *stackTrace,
-                                     bool              demanglingPreferredFlag)
+                                    balst::StackTrace *stackTrace,
+                                    bool               demanglingPreferredFlag)
 : d_stackTrace_p(stackTrace)
 , d_scratchBuf_p(0)
 , d_symbolBuf_p(0)
 , d_demangle(demanglingPreferredFlag)
 , d_hbpAlloc()
 {
-    d_scratchBuf_p = (char *) d_hbpAlloc.allocate(local::SCRATCH_BUF_LEN);
-    d_symbolBuf_p  = (char *) d_hbpAlloc.allocate(local::SYMBOL_BUF_LEN);
+    d_scratchBuf_p = static_cast<char *>(
+                                d_hbpAlloc.allocate(local::k_SCRATCH_BUF_LEN));
+    d_symbolBuf_p  = static_cast<char *>(
+                                 d_hbpAlloc.allocate(local::k_SYMBOL_BUF_LEN));
     d_seg_p        = new (d_hbpAlloc) CurrentSegment(stackTrace->length(),
                                                      &d_hbpAlloc);
 }
@@ -683,14 +692,14 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
             libraryFileName,
             segmentBaseAddress,
             segmentPtr,
-            (char *) segmentPtr + segmentSize);
+            static_cast<char *>(segmentPtr) + segmentSize);
 
     int numSegEntries = 0;
-    for (int i = 0; i < (int) d_stackTrace_p->length(); ++i) {
+    for (int i = 0; i < static_cast<int>(d_stackTrace_p->length()); ++i) {
         const void *address = (*d_stackTrace_p)[i].address();
 
         if (segmentPtr <= address && address <
-                                           (char *) segmentPtr + segmentSize) {
+                               static_cast<char *>(segmentPtr) + segmentSize) {
             zprintf("address %p MATCH\n", address);
             d_seg_p->d_framePtrs_p[numSegEntries] = &(*d_stackTrace_p)[i];
             d_seg_p->d_addresses_p[numSegEntries] = address;
@@ -722,7 +731,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
         return -1;                                                    // RETURN
     }
 
-    d_seg_p->d_adjustment = (UintPtr) segmentBaseAddress;
+    d_seg_p->d_adjustment = reinterpret_cast<UintPtr>(segmentBaseAddress);
 
     // find the section headers we're interested in, that is, .symtab and
     // .strtab, or, if the file was stripped, .dynsym and .dynstr
@@ -733,21 +742,21 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     bsl::memset(&dynSymHdr, 0, sizeof(local::ElfSectionHeader));
     bsl::memset(&dynStrHdr, 0, sizeof(local::ElfSectionHeader));
 
-    // Possible speedup: read all the section headers at once instead of one
-    // at a time.
+    // Possible speedup: read all the section headers at once instead of one at
+    // a time.
 
-    int numSections = elfHeader.e_shnum;
+    int     numSections = elfHeader.e_shnum;
     UintPtr sectionHeaderSize = elfHeader.e_shentsize;
     UintPtr sectionHeaderOffset = elfHeader.e_shoff;
-    if (local::SCRATCH_BUF_LEN < sectionHeaderSize) {
+    if (local::k_SCRATCH_BUF_LEN < sectionHeaderSize) {
         return -1;                                                    // RETURN
     }
-    local::ElfSectionHeader *sec =
-                           (local::ElfSectionHeader *) (void *) d_scratchBuf_p;
+    local::ElfSectionHeader *sec = static_cast<local::ElfSectionHeader *>(
+                                          static_cast<void *>(d_scratchBuf_p));
 
-    // read the string table which is usef for section names
+    // read the string table that is used for section names
 
-    int stringSectionIndex = elfHeader.e_shstrndx;
+    int     stringSectionIndex = elfHeader.e_shstrndx;
     UintPtr stringSectionHeaderOffset =
                   sectionHeaderOffset + stringSectionIndex * sectionHeaderSize;
     if (0 != d_seg_p->d_helper_p->readExact(sec,
@@ -832,19 +841,19 @@ int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
 int local::StackTraceResolver::loadSymbols()
 {
-    const int symSize = sizeof(local::ElfSymbol);
-    const UintPtr maxSymbolsPerPass = local::SYMBOL_BUF_LEN / symSize;
+    const int     symSize = static_cast<int>(sizeof(local::ElfSymbol));
+    const UintPtr maxSymbolsPerPass = local::k_SYMBOL_BUF_LEN / symSize;
     const UintPtr numSyms = d_seg_p->d_symTableSize / symSize;
-    UintPtr sourceFileNameOffset = (UintPtr) -1;
+    UintPtr       sourceFileNameOffset = ~static_cast<UintPtr>(0);
 
-    UintPtr numSymsThisTime;
+    UintPtr      numSymsThisTime;
     for (UintPtr symIndex = 0; symIndex < numSyms;
                                                  symIndex += numSymsThisTime) {
         numSymsThisTime = bsl::min(numSyms - symIndex, maxSymbolsPerPass);
 
         const UintPtr offsetToRead = d_seg_p->d_symTableOffset +
                                                             symIndex * symSize;
-        int rc = d_seg_p->d_helper_p->readExact(d_symbolBuf_p,
+        int           rc = d_seg_p->d_helper_p->readExact(d_symbolBuf_p,
                                                 numSymsThisTime * symSize,
                                                 offsetToRead);
         if (rc) {
@@ -855,8 +864,8 @@ int local::StackTraceResolver::loadSymbols()
             return -1;                                                // RETURN
         }
 
-        const local::ElfSymbol *symBufStart =
-                                   (local::ElfSymbol *) (void *) d_symbolBuf_p;
+        const local::ElfSymbol *symBufStart = static_cast<local::ElfSymbol *>(
+                                           static_cast<void *>(d_symbolBuf_p));
         const local::ElfSymbol *symBufEnd   = symBufStart + numSymsThisTime;
         for (const local::ElfSymbol *sym = symBufStart; sym < symBufEnd;
                                                                        ++sym) {
@@ -865,11 +874,12 @@ int local::StackTraceResolver::loadSymbols()
                 sourceFileNameOffset = sym->st_name;
               } break;
               case STT_FUNC: {
-                if (sym->st_shndx != SHN_UNDEF) {
-                    const void *symbolAddress =
-                              (void *) (sym->st_value + d_seg_p->d_adjustment);
-                    const void *endSymbolAddress
-                        = (const char *) symbolAddress + sym->st_size;
+                if (SHN_UNDEF != sym->st_shndx) {
+                    const void *symbolAddress = reinterpret_cast<void *>(
+                                        sym->st_value + d_seg_p->d_adjustment);
+                    const void *endSymbolAddress =
+                                     static_cast<const char *>(symbolAddress) +
+                                                                  sym->st_size;
                     for (int i = 0; i < d_seg_p->d_numAddresses; ++i) {
                         const void *address = d_seg_p->d_addresses_p[i];
                         if (symbolAddress <= address
@@ -877,15 +887,16 @@ int local::StackTraceResolver::loadSymbols()
                             balst::StackTraceFrame& frame =
                                                     *d_seg_p->d_framePtrs_p[i];
 
-                            frame.setOffsetFromSymbol((const char *) address
-                                               - (const char *) symbolAddress);
+                            frame.setOffsetFromSymbol(
+                                  static_cast<const char *>(address)
+                                   - static_cast<const char *>(symbolAddress));
 
                             frame.setMangledSymbolName(
                                   d_seg_p->d_helper_p->loadString(
                                             d_seg_p->d_stringTableOffset +
                                                                   sym->st_name,
                                             d_scratchBuf_p,
-                                            local::SCRATCH_BUF_LEN,
+                                            local::k_SCRATCH_BUF_LEN,
                                             &d_hbpAlloc));
                             if (frame.isMangledSymbolNameKnown()) {
                                 setFrameSymbolName(&frame);
@@ -901,7 +912,7 @@ int local::StackTraceResolver::loadSymbols()
                                             d_seg_p->d_stringTableOffset +
                                                           sourceFileNameOffset,
                                             d_scratchBuf_p,
-                                            local::SCRATCH_BUF_LEN,
+                                            local::k_SCRATCH_BUF_LEN,
                                             &d_hbpAlloc));
                             }
                         }
@@ -932,14 +943,14 @@ int local::StackTraceResolver::processLoadedImage(
 #else
     const char *name = 0;
     if (fileName && fileName[0]) {
-        if (local::IS_LINUX) {
+        if (local::e_IS_LINUX) {
             d_seg_p->d_isMainExecutable = false;
         }
 
         name = fileName;
     }
     else {
-        if (local::IS_LINUX) {
+        if (local::e_IS_LINUX) {
             d_seg_p->d_isMainExecutable = true;
         }
 
@@ -947,11 +958,11 @@ int local::StackTraceResolver::processLoadedImage(
         // executable file, but those platforms have a standard virtual symlink
         // that points to the executable file name.
 
-        bsl::memset(d_scratchBuf_p, 0, local::SCRATCH_BUF_LEN);
+        bsl::memset(d_scratchBuf_p, 0, local::k_SCRATCH_BUF_LEN);
         if (0 < readlink("/proc/self/exe",
                          d_scratchBuf_p,
-                         local::SCRATCH_BUF_LEN)) {
-            d_scratchBuf_p[local::SCRATCH_BUF_LEN - 1] = 0;
+                         local::k_SCRATCH_BUF_LEN)) {
+            d_scratchBuf_p[local::k_SCRATCH_BUF_LEN - 1] = 0;
             name = d_scratchBuf_p;
         }
         else {
@@ -963,33 +974,33 @@ int local::StackTraceResolver::processLoadedImage(
 
     zprintf("processing loaded image: fn:\"%s\", name:\"%s\" main:%d\n",
                         fileName ? fileName : "(null)", name ? name : "(null)",
-                                            (int) d_seg_p->d_isMainExecutable);
+                                static_cast<int>(d_seg_p->d_isMainExecutable));
 
     balst::StackTraceResolver_FileHelper helper(name);
     d_seg_p->d_helper_p = &helper;
 
     for (int i = 0; i < numProgramHeaders; ++i) {
         const local::ElfProgramHeader *ph =
-                          (const local::ElfProgramHeader *) programHeaders + i;
+              static_cast<const local::ElfProgramHeader *>(programHeaders) + i;
         // if (ph->p_type == PT_LOAD && ph->p_offset == 0) {
 
-        if    (ph->p_type == PT_LOAD) {
-            // on Linux, textSegPtr will be 0, on Solaris && HPUX,
-            // baseAddress will be 0.  We will always have 1 of the two, and
-            // since they differ by ph->p_vaddr, we can always calculate the
-            // one we don't have f
+        if    (PT_LOAD == ph->p_type) {
+            // on Linux, textSegPtr will be 0, on Solaris && HPUX, baseAddress
+            // will be 0.  We will always have 1 of the two, and since they
+            // differ by ph->p_vaddr, we can always calculate the one we don't
+            // have.
 
             if (textSegPtr) {
                 BSLS_ASSERT(0 == baseAddress);
 
                 // calculating baseAddress from textSegPtr
 
-                baseAddress = (char *) textSegPtr - ph->p_vaddr;
+                baseAddress = static_cast<char *>(textSegPtr) - ph->p_vaddr;
             }
             else {
                 // or the other way around
 
-                textSegPtr = (char *) baseAddress + ph->p_vaddr;
+                textSegPtr = static_cast<char *>(baseAddress) + ph->p_vaddr;
             }
             int rc = resolveSegment(baseAddress,    // base address
                                     textSegPtr,     // seg ptr
@@ -1008,16 +1019,16 @@ int local::StackTraceResolver::processLoadedImage(
 
 // PRIVATE ACCESSORS
 void local::StackTraceResolver::setFrameSymbolName(
-                                            balst::StackTraceFrame *frame) const
+                                           balst::StackTraceFrame *frame) const
 {
 #if !defined(BSLS_PLATFORM_OS_SOLARIS)                                        \
  || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     // Linux or Sun g++ or HPUX
 
-    int status = -1;
+    int   status = -1;
     char *demangledSymbol = 0;
     if (d_demangle) {
-        // note the demangler uses malloc to allocate its result
+        // note the demangler uses 'malloc' to allocate its result
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
         demangledSymbol = __cxa_demangle(frame->mangledSymbolName().c_str(),
@@ -1041,7 +1052,7 @@ void local::StackTraceResolver::setFrameSymbolName(
         frame->setSymbolName(frame->mangledSymbolName());
     }
     if (demangledSymbol) {
-        free(demangledSymbol);
+        bsl::free(demangledSymbol);
     }
 #endif
 #if defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
@@ -1078,11 +1089,12 @@ int linkmapCallback(struct dl_phdr_info *info,
     // here the base address is known and text segment loading address is
     // unknown
 
-    int rc = resolver->processLoadedImage(info->dlpi_name,
-                                          info->dlpi_phdr,
-                                          info->dlpi_phnum,
-                                          0,
-                                          (void *) info->dlpi_addr);
+    int rc = resolver->processLoadedImage(
+                                    info->dlpi_name,
+                                    info->dlpi_phdr,
+                                    info->dlpi_phnum,
+                                    0,
+                                    reinterpret_cast<void *>(info->dlpi_addr));
     if (rc) {
         return -1;                                                    // RETURN
     }
@@ -1104,8 +1116,8 @@ extern "C" void *_DYNAMIC;    // global pointer that leads to the link map
 
 // CLASS METHODS
 int local::StackTraceResolver::resolve(
-                                     balst::StackTrace *stackTrace,
-                                     bool              demanglingPreferredFlag)
+                                    balst::StackTrace *stackTrace,
+                                    bool               demanglingPreferredFlag)
 {
 #if defined(BSLS_PLATFORM_OS_HPUX)
 
@@ -1157,9 +1169,9 @@ int local::StackTraceResolver::resolve(
 
             numProgramHeaders = elfHeader.e_phnum;
             if (numProgramHeaders > maxNumProgramHeaders) {
-                programHeaders =
-                  (local::ElfProgramHeader *) resolver.d_hbpAlloc.allocate(
-                          numProgramHeaders * sizeof(local::ElfProgramHeader));
+                programHeaders = static_cast<local::ElfProgramHeader *>(
+                       resolver.d_hbpAlloc.allocate(
+                         numProgramHeaders * sizeof(local::ElfProgramHeader)));
                 maxNumProgramHeaders = numProgramHeaders;
             }
 
@@ -1176,7 +1188,7 @@ int local::StackTraceResolver::resolve(
                                    desc.filename,
                                    programHeaders,
                                    numProgramHeaders,
-                                   (void *) desc.tstart,
+                                   static_cast<void *>(desc.tstart),
                                    0);
         if (rc) {
             return -1;                                                // RETURN
@@ -1213,14 +1225,16 @@ int local::StackTraceResolver::resolve(
         // This method was adopted as superior to the above (commented out)
         // method.
 
-        local::ElfDynamic *dynamic = (local::ElfDynamic *) &_DYNAMIC;
+        local::ElfDynamic *dynamic = reinterpret_cast<local::ElfDynamic *>(
+                                                                    &_DYNAMIC);
         if (0 == dynamic) {
             return -1;                                                // RETURN
         }
 
         while (true) {
             if (DT_DEBUG == dynamic->d_tag) {
-                r_debug *rdb = (r_debug *) dynamic->d_un.d_ptr;
+                r_debug *rdb = reinterpret_cast<r_debug *>(
+                                                          dynamic->d_un.d_ptr);
                 if (rdb) {
                     linkMap = rdb->r_map;
                     break;
@@ -1240,15 +1254,16 @@ int local::StackTraceResolver::resolve(
     }
 
     for (int i = 0; linkMap; ++i, linkMap = linkMap->l_next) {
-        local::ElfHeader *elfHeader = (local::ElfHeader *) linkMap->l_addr;
+        local::ElfHeader *elfHeader = reinterpret_cast<local::ElfHeader *>(
+                                                              linkMap->l_addr);
 
         if (0 != checkElfHeader(elfHeader)) {
             return -1;
         }
 
         local::ElfProgramHeader *programHeaders =
-                        (local::ElfProgramHeader *) (void *)
-                                     ((char *) elfHeader + elfHeader->e_phoff);
+                 reinterpret_cast<local::ElfProgramHeader *>(
+                     reinterpret_cast<char *>(elfHeader) + elfHeader->e_phoff);
         int numProgramHeaders = elfHeader->e_phnum;
 
         resolver.d_seg_p->d_isMainExecutable = (0 == i);
@@ -1260,7 +1275,7 @@ int local::StackTraceResolver::resolve(
         int rc = resolver.processLoadedImage(linkMap->l_name,
                                              programHeaders,
                                              numProgramHeaders,
-                                             (void *) elfHeader,
+                                             static_cast<void *>(elfHeader),
                                              0);
         if (rc) {
             return -1;                                                // RETURN
@@ -1274,15 +1289,15 @@ int local::StackTraceResolver::resolve(
     return 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

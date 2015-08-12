@@ -18,7 +18,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -444,6 +444,10 @@ int main(int argc, char *argv[])
             balst::StackTrace stackTrace;
             stackTrace.resize(6);
 
+            if (veryVerbose) {
+                cout << "Pass " << (int) demangle << endl;
+            }
+
             // Global symbol in this file
 
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
@@ -483,7 +487,7 @@ int main(int argc, char *argv[])
             // Global inline in another file
 
             stackTrace[5].setAddress(addFixedOffset((UintPtr)
-                                                &bdlt::DateUtil::nextDayOfWeek));
+                                              &bdlt::DateUtil::nextDayOfWeek));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
@@ -507,8 +511,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             if (veryVerbose) {
-                cout << "Pass " << (int) demangle << endl;
-
                 for (int i = 0; i < stackTrace.length(); ++i) {
                     cout << '(' << i << "): " << stackTrace[i] << endl;
                 }
@@ -614,7 +616,7 @@ int main(int argc, char *argv[])
                 const char *name4 = stackTrace[4].symbolName().c_str();
                 LOOP2_ASSERT(name4, resName,
                                           safeCmp(name4, resName, resNameLen));
-                resName = "BloombergLP::bdlt::DateUtil:nextDayOfWeek(";
+                resName = "BloombergLP::bdlt::DateUtil::nextDayOfWeek(";
                 resNameLen = (int) bsl::strlen(resName);
                 const char *name5 = stackTrace[5].symbolName().c_str();
                 LOOP2_ASSERT(name5, resName,

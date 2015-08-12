@@ -16,12 +16,12 @@ namespace BloombergLP {
 
 namespace {
 
-struct StackTrace
+struct u_StackTrace
     // This 'struct' acts as a tag for the output operator below.
 {
 };
 
-bsl::ostream& operator<<(bsl::ostream& stream, const StackTrace&)
+bsl::ostream& operator<<(bsl::ostream& stream, const u_StackTrace&)
     // Print a stack trace to the specified 'stream'.
 {
     return balst::StackTraceUtil::hexStackTrace(stream);
@@ -44,8 +44,8 @@ bsls::AtomicOperations::AtomicTypes::Int s_severity = {
 namespace balst {
 // CLASS METHODS
 void AssertionLogger::assertionFailureHandler(const char *text,
-                                                    const char *file,
-                                                    int         line)
+                                              const char *file,
+                                              int         line)
 {
     LogSeverityCallback  callback;
     void                *closure;
@@ -69,7 +69,7 @@ void AssertionLogger::assertionFailureHandler(const char *text,
             << line
             << "\n"
             << "For stack trace, run 'showfunc.tsk <your_program_binary> "
-            << StackTrace()
+            << u_StackTrace()
             << "'\n"
         << BALL_LOG_END
     }
@@ -77,7 +77,7 @@ void AssertionLogger::assertionFailureHandler(const char *text,
 
 void
 AssertionLogger::getLogSeverityCallback(LogSeverityCallback  *callback,
-                                              void                **closure)
+                                        void                **closure)
 {
     BSLS_ASSERT(callback);
     BSLS_ASSERT(closure);
@@ -97,7 +97,7 @@ AssertionLogger::getLogSeverityCallback(LogSeverityCallback  *callback,
 
 void
 AssertionLogger::setLogSeverityCallback(LogSeverityCallback  callback,
-                                              void                *closure)
+                                        void                *closure)
 {
     bsls::AtomicOperations::setPtrRelease(&s_closure, closure);
 
@@ -127,11 +127,11 @@ ball::Severity::Level AssertionLogger::defaultLogSeverity()
 }  // close package namespace
 
 }  // close enterprise namespace
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2013
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

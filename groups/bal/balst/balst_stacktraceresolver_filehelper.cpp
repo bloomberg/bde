@@ -12,10 +12,12 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>
+
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-    defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+    defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
 namespace balst {
                     // -----------------------------------
@@ -62,18 +64,18 @@ char *StackTraceResolver_FileHelper::loadString(
     BSLS_ASSERT(scratchBufLength > 0);
 
     enum {
-        START_LEN = 256
+        k_START_LEN = 256
     };
 
     const int maxString = scratchBufLength - 1;
 
     int stringLen;
-    for (int readLen = START_LEN; true; readLen *= 4) {
+    for (int readLen = k_START_LEN; true; readLen *= 4) {
         if (readLen > maxString) {
             readLen = maxString;
         }
 
-        UintPtr bytes = readBytes(scratchBuf, readLen, offset);
+        int bytes = static_cast<int>(readBytes(scratchBuf, readLen, offset));
         if (0 == bytes) {
             // We can't read.  Return "".
 
@@ -81,11 +83,10 @@ char *StackTraceResolver_FileHelper::loadString(
             break;
         }
 
-        BSLS_ASSERT((int) bytes <= readLen);
+        BSLS_ASSERT(bytes <= readLen);
         scratchBuf[bytes] = 0;
-        stringLen = (int) bsl::strlen(scratchBuf);
-        if (stringLen < (int) bytes || (int) bytes < readLen ||
-                                                        maxString == readLen) {
+        stringLen = static_cast<int>(bsl::strlen(scratchBuf));
+        if (stringLen < bytes || bytes < readLen || maxString == readLen) {
             break;
         }
     }
@@ -101,27 +102,28 @@ bsls::Types::UintPtr StackTraceResolver_FileHelper::readBytes(
     BSLS_ASSERT(buf);
     BSLS_ASSERT(offset >= 0);
 
-    Offset seekDest = FilesystemUtil::seek(d_fd,
-                                     offset,
-                                     FilesystemUtil::e_SEEK_FROM_BEGINNING);
+    Offset seekDest = FilesystemUtil::seek(
+                                        d_fd,
+                                        offset,
+                                        FilesystemUtil::e_SEEK_FROM_BEGINNING);
     if (seekDest != offset) {
         return 0;                                                     // RETURN
     }
 
-    int res = FilesystemUtil::read(d_fd, buf, (int) numBytes);
+    int res = FilesystemUtil::read(d_fd, buf, static_cast<int>(numBytes));
     return (res <= 0 ? 0 : res);
 }
 }  // close package namespace
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

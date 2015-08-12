@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // 'ball::LoggerManagerConfiguration' class to simply the definition of some of
 // the attributes:
 //..
-#warning TBD: fix documentation xxxList
+// TBD: fix documentation xxxList
 //  TYPE                                         'typedef' alias
 //  ------------------------------------------   ------------------------------
 //  bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>

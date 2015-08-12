@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#warning TBD: Replace with bsl_cstdint.h
+// TBD: Replace with bsl_cstdint.h
 #ifndef INCLUDED_STDINT
 #include <stdint.h>
 #define INCLUDED_STDINT

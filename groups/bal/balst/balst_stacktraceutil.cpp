@@ -20,6 +20,7 @@ BSLS_IDENT_RCSID(balst_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_ios.h>
 #include <bsl_ostream.h>
@@ -34,10 +35,10 @@ BSLS_IDENT_RCSID(balst_stacktraceutil_cpp,"$Id$ $CSID$")
 static
 const char *findBasename(const char *pathName)
     // Find in the specified 'pathName' the first character following the last
-    // pathName separator character (i.e., '/' or '\\') and return its address.
-    // If there are no separator characters, return the address of the first
-    // character of 'pathName'.  If the last character of 'pathName' is a
-    // separator charactor, return the address of the terminating '\0'.
+    // 'pathName' separator character (i.e., '/' or '\\') and return its
+    // address.  If there are no separator characters, return the address of
+    // the first character of 'pathName'.  If the last character of 'pathName'
+    // is a separator charactor, return the address of the terminating '\0'.
 {
     const char *ptr = pathName + bsl::strlen(pathName);
 
@@ -57,7 +58,9 @@ const char *findBasename(const char *pathName)
 namespace BloombergLP {
 
 
-namespace balst {template <typename RESOLVER_POLICY>
+namespace balst {
+
+template <class RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
 template <>
@@ -67,7 +70,7 @@ class StackTraceResolverImpl<ObjectFileFormat::Dummy>
     // PUBLIC CLASS METHODS
     static
     int resolve(StackTrace *,    // 'stackTrace'
-                bool              )    // 'demangle'
+                bool        )    // 'demangle'
         // Populate information for the specified 'stackFrames', a vector of
         // stack trace frames in a stack trace object.  Specify 'demangle', to
         // determine whether demangling is to occur, and 'basicAllocator',
@@ -95,7 +98,7 @@ bsl::ostream& StackTraceUtil::hexStackTrace(bsl::ostream &stream)
     // non-optimized build, the '<<' call may be inlined.  Furthermore, in
     // Solaris optimized builds, the call to 'printHexStackTrace' is called
     // through chaining.  It is better to err on the side of printing too many
-    // than too few stack fraces.  So in optimized builds we will pass 0 to
+    // than too few stack frames.  So in optimized builds we will pass 0 to
     // 'additionalIgnoreFrames', and in debug builds we will pass 1.
 
 #if defined(BDE_BUILD_TARGET_OPT)
@@ -106,7 +109,7 @@ bsl::ostream& StackTraceUtil::hexStackTrace(bsl::ostream &stream)
 }
 
 int StackTraceUtil::loadStackTraceFromAddressArray(
-                                   StackTrace   *result,
+                                   StackTrace         *result,
                                    const void * const  addresses[],
                                    int                 numAddresses,
                                    bool                demanglingPreferredFlag)
@@ -129,13 +132,13 @@ int StackTraceUtil::loadStackTraceFromAddressArray(
 }
 
 int StackTraceUtil::loadStackTraceFromStack(
-                                     StackTrace *result,
-                                     int               maxFrames,
-                                     bool              demanglingPreferredFlag)
+                                           StackTrace *result,
+                                           int         maxFrames,
+                                           bool        demanglingPreferredFlag)
 {
     enum {
         DEFAULT_MAX_FRAMES = 1024,
-        IGNORE_FRAMES      = StackAddressUtil::BAESU_IGNORE_FRAMES + 1
+        IGNORE_FRAMES      = StackAddressUtil::k_IGNORE_FRAMES + 1
     };
 
     if (maxFrames < 0) {
@@ -169,9 +172,8 @@ int StackTraceUtil::loadStackTraceFromStack(
                                           demanglingPreferredFlag);
 }
 
-bsl::ostream& StackTraceUtil::printFormatted(
-                                            bsl::ostream&           stream,
-                                            const StackTrace& stackTrace)
+bsl::ostream& StackTraceUtil::printFormatted(bsl::ostream&     stream,
+                                             const StackTrace& stackTrace)
 {
     for (int i = 0; i < stackTrace.length(); ++i) {
         stream << '(' << i << "): ";
@@ -183,16 +185,15 @@ bsl::ostream& StackTraceUtil::printFormatted(
 }
 
 bsl::ostream& StackTraceUtil::printFormatted(
-                                  bsl::ostream&                stream,
-                                  const StackTraceFrame& stackTraceFrame)
+                                        bsl::ostream&          stream,
+                                        const StackTraceFrame& stackTraceFrame)
 {
-    enum { LIBRARY_NAME_LIMIT = 40 };   // Library file names longer than
-                                        // this are just printed as the
-                                        // basename, otherwise the full path is
-                                        // printed.
+    enum { LIBRARY_NAME_LIMIT = 40 };   // Library file names longer than this
+                                        // are just printed as the basename,
+                                        // otherwise the full path is printed.
 
-    // Choose from 'symbolName', 'mangledSymbolName', and "--unknown--",
-    // in that order, according to availablity.
+    // Choose from 'symbolName', 'mangledSymbolName', and "--unknown--", in
+    // that order, according to availability.
 
     const bool isnk  = stackTraceFrame.isSymbolNameKnown();
     const bool imsnk = stackTraceFrame.isMangledSymbolNameKnown();
@@ -212,7 +213,7 @@ bsl::ostream& StackTraceUtil::printFormatted(
     stream.flags(save);
 
     if (stackTraceFrame.isSourceFileNameKnown()) {
-        //  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+        //  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
         //      // source file info is only available for statics on Elf
         //
         //      stream << " static";
@@ -250,7 +251,7 @@ bsl::ostream& StackTraceUtil::printHexStackTrace(
     return stream;
 #else
     enum {
-        DEFAULT_MAX_FRAMES = 1024,
+        DEFAULT_MAX_FRAMES = 1024
     };
 
     if (maxFrames < 0) {
@@ -261,8 +262,8 @@ bsl::ostream& StackTraceUtil::printHexStackTrace(
     // be ignored because they contained function calls within the stack trace
     // facility.
 
-    const int ignoreFrames = StackAddressUtil::BAESU_IGNORE_FRAMES + 1 +
-                                                       additionalIgnoreFrames;
+    const int ignoreFrames = StackAddressUtil::k_IGNORE_FRAMES + 1 +
+                                                        additionalIgnoreFrames;
     maxFrames += ignoreFrames;
 
     bdlma::HeapBypassAllocator hbpAlloc;
@@ -303,9 +304,9 @@ bsl::ostream& StackTraceUtil::printHexStackTrace(
     return stream;
 #endif
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // NOTICE:

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Functions for resolving symbols in a stack trace using 'dladdr'.
+//@PURPOSE: Provide functions for resolving a stack trace using 'dladdr'.
 //
 //@CLASSES:
 //   balst::StackTraceResolverImpl<Dladdr>: symbol resolution using 'dladdr'
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// 'baesu::StackTraceResolver<Dladdr>', that, given a vector of
+// 'balst::StackTraceResolver<Dladdr>', that, given a vector of
 // 'balst::StackTraceFrame' objects that have only their 'address' fields set,
 // resolves some of the other fields in those frames.  This resolver will work
 // for any platform that supports the 'dladdr' function (e.g., Darwin and
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -72,7 +72,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 
 
 namespace balst {template <typename RESOLVER_POLICY>
@@ -150,11 +150,12 @@ class StackTraceResolverImpl<ObjectFileFormat::Dladdr> {
         // occur.  The behavior is undefined unless all the 'address' field in
         // '*stackTrace' are valid and other fields are invalid.
 };
+
 }  // close package namespace
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

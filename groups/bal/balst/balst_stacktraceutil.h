@@ -225,11 +225,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, the output appears as a collection of hex values streamed out
 // separated by spaces, which can be translated to symbol names using tools
-// outside of 'baesu':
+// outside of 'balst':
 //..
 // 0x804f806 0x804f7dc 0x804f7d5 0x804f7d5 0x804f7d5 0x804fbea 0x341e9c
 //..
-
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -248,8 +247,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace balst {
+
 struct StackTraceUtil {
     // This 'struct' serves as a namespace for a collection of functions that
     // are useful for initializing and printing a stack-trace object.
@@ -263,7 +262,7 @@ struct StackTraceUtil {
 
     static
     int loadStackTraceFromAddressArray(
-                           StackTrace   *result,
+                           StackTrace         *result,
                            const void * const  addresses[],
                            int                 numAddresses,
                            bool                demanglingPreferredFlag = true);
@@ -284,10 +283,9 @@ struct StackTraceUtil {
         // sometimes involves calling 'malloc'.
 
     static
-    int loadStackTraceFromStack(
-                             StackTrace *result,
-                             int               maxFrames = -1,
-                             bool              demanglingPreferredFlag = true);
+    int loadStackTraceFromStack(StackTrace *result,
+                                int         maxFrames = -1,
+                                bool        demanglingPreferredFlag = true);
         // Populate the specified 'result' object with information about the
         // current thread's program stack.  Optionally specify 'maxFrames' to
         // indicate the maximum number of frames to take from the top of the
@@ -304,14 +302,14 @@ struct StackTraceUtil {
         // Note that demangling may involve calling 'malloc'.
 
     static
-    bsl::ostream& printFormatted(bsl::ostream&           stream,
+    bsl::ostream& printFormatted(bsl::ostream&     stream,
                                  const StackTrace& stackTrace);
         // Stream the specified 'stackTrace' to the specified 'stream' in some
         // multi-line, human-readable format.  Note that this operation
         // attempts to avoid using the default allocator.
 
     static
-    bsl::ostream& printFormatted(bsl::ostream&                stream,
+    bsl::ostream& printFormatted(bsl::ostream&          stream,
                                  const StackTraceFrame& stackTraceFrame);
         // Write the value of the specified 'stackTraceFrame' to the specified
         // output 'stream' in some single-line, human-readable format and
@@ -345,17 +343,17 @@ struct StackTraceUtil {
         // bypass allocator will be used.  The behavior is undefined unless
         // 'delimiter != 0' and 'additionalIgnoreFrames >= 0'.
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

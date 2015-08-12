@@ -127,7 +127,7 @@ BSLS_IDENT("$Id: $")
 // zero-based 'index' attribute; in this example, the 'publish' implementation
 // will print a natural-number message count equal to index + 1:
 //..
-#warning TBD: fix bdlmxx references
+// TBD: fix bdlmxx references
 //     void recordPublisher()
 //     {
 //         my_OstreamObserver    myObserver(bsl::cout);
