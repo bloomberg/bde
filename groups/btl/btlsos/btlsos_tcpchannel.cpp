@@ -1466,8 +1466,7 @@ int TcpChannel::writev(int              *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
-                                                          // mode
+            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 return numBytesWritten;  // Return the total bytes written.
             }

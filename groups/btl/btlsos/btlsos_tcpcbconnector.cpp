@@ -523,7 +523,7 @@ void TcpCbConnector::cancelAll()
         d_callbacks.erase(d_callbacks.begin(),
                           d_callbacks.begin() + d_callbacks.size() - 1);
         BSLS_ASSERT(d_currentRequest_p == d_callbacks.back());
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         while (--numToCancel >= 0) {
             TcpCbConnector_Reg *reg = toBeCancelled[numToCancel];
             reg->invoke(-1);
@@ -537,7 +537,7 @@ void TcpCbConnector::cancelAll()
         bsl::deque<TcpCbConnector_Reg *>
                                      toBeCancelled(d_callbacks, d_allocator_p);
         d_callbacks.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_manager_p->deregisterSocketEvent(
                                               d_connectingSocket_p->handle(),
