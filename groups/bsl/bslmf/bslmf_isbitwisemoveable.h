@@ -587,7 +587,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_BUILTIN_TRAITS
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -595,7 +595,7 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_TYPE_TRAITS
 #include <type_traits>
 #endif
-#endif // BSLS_COMPILERFEATURES_SUPPORT_BUILTIN_TRAITS
+#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 namespace BloombergLP {
 
@@ -632,7 +632,7 @@ public:
     typedef bsl::integral_constant<bool, value> type;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) &&     \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_BUILTIN_TRAITS)
+    defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
     // In C++11 and beyond, we can accurately detect trivial-copiable types
     // without relying on the one-byte heuristic.  If we detect that this
     // trait yields true with the one-byte heuristic but false without it in
