@@ -1,6 +1,8 @@
-// btls_iovec.t.cpp    -*-C++-*-
+// btls_iovec.t.cpp                                                   -*-C++-*-
 
 #include <btls_iovec.h>
+
+#include <bdls_testutil.h>
 
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -10,47 +12,56 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-
-//==========================================================================
 //                             TEST PLAN
-//--------------------------------------------------------------------------
-// Verify the operations of 'btls::Iovec' and 'btls::Ovec'
-// and that the structures map correctly onto the platform specific
-// scatter/gather vectors.
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Verify the operations of 'btls::Iovec' and 'btls::Ovec' and that the
+// structures map correctly onto the platform specific scatter/gather vectors.
+//-----------------------------------------------------------------------------
 // [ 3] btls::Iovec::Iovec(const Iovec&)
 // [ 3] btls::Ovec::Ovec(const Ovec&)
 // [ 3] btls::Ovec::Ovec(const Iovec&)
@@ -63,7 +74,7 @@ static void aSsErT(int c, const char *s, int i)
 // [ 2] btls::Iovec::length()
 // [ 2] btls::Ovec::length()
 // [ 1] USAGE TEST
-//==========================================================================
+//=============================================================================
 
 int globalVerbose = 0;
 
@@ -92,12 +103,12 @@ static int TestWSASend(
 }
 #else
 // UNIX like systems - writev scatter/gather write function
-ssize_t writev(int fildes,  const  struct  iovec  *iov,  int iovcnt)
+ssize_t writev(int fildes, const struct iovec *iov, int iovcnt)
 {
     if (globalVerbose) P(iovcnt);
     int i;
     for (i = 0; i < iovcnt; ++i) {
-        const btls::Ovec * ovec = (const btls::Ovec *) iov;
+        const btls::Ovec *ovec = (const btls::Ovec *)iov;
         LOOP_ASSERT(i, ((void *) iov[i].iov_base) == ovec[i].buffer());
         LOOP_ASSERT(i, ((unsigned int) iov[i].iov_len) ==
                                               (unsigned int) ovec[i].length());
@@ -125,16 +136,16 @@ int main(int argc, char *argv[]) {
 
     switch (test) { case 0:
       case 3: {
-        // --------------------------------------------------------
+        // --------------------------------------------------------------------
         //   TEST COPY CONSTRUCTOR
-        // Verifies results of the copy constructor and that Ovec and
-        // Iovec have identical internal structure.
+        // Verifies results of the copy constructor and that Ovec and Iovec
+        // have identical internal structure.
         //
         // Testing:
         // btls::Iovec::Iovec(const Iovec&)
         // btls::Ovec::Ovec(const Ovec&)
         // btls::Ovec::Ovec(const Iovec&)
-        // --------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING COPY CONTRUCTOR" <<
                              endl << "-----------------------" << endl;
@@ -246,19 +257,19 @@ int main(int argc, char *argv[]) {
        }
       } break;
       case 2: {
-        // --------------------------------------------------------
+        // --------------------------------------------------------------------
         //  TESTING DEFAULT CONSTRUCTOR
         //
         // Testing:
-        // btls::Iovec::Iovec()
-        // btls::Ovec::Ovec()
-        // btls::Iovec::setBuffer()
-        // btls::Ovec::setBuffer()
-        // btls::Iovec::buffer()
-        // btls::Ovec::buffer()
-        // btls::Iovec::length()
-        // btls::Ovec::length()
-        // --------------------------------------------------------
+        //   btls::Iovec::Iovec()
+        //   btls::Ovec::Ovec()
+        //   btls::Iovec::setBuffer()
+        //   btls::Ovec::setBuffer()
+        //   btls::Iovec::buffer()
+        //   btls::Ovec::buffer()
+        //   btls::Iovec::length()
+        //   btls::Ovec::length()
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING DEFAULT CONTRUCTOR" <<
                              endl << "--------------------------" << endl;
@@ -277,7 +288,7 @@ int main(int argc, char *argv[]) {
         ASSERT(O.length() == 1);
       } break;
       case 1: {
-        // --------------------------------------------------------
+        // --------------------------------------------------------------------
         //  USAGE
         // Plan
         //   The usage case calls two different scatter/gather socket
@@ -285,7 +296,7 @@ int main(int argc, char *argv[]) {
         //   with test functions which validate the data passed.
         // Testing
         // USAGE
-        // --------------------------------------------------------
+        // --------------------------------------------------------------------
         char buf1[10];
         char buf2[4];
         char buf3[7];
@@ -319,11 +330,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

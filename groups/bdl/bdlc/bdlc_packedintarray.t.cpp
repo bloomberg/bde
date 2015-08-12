@@ -35,9 +35,9 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The component under test implements a (value-semantic) container class, and
@@ -215,9 +215,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-//=============================================================================
-// GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
 typedef bdlc::PackedIntArray<int64_t>                  Obj;
 typedef int64_t                                        Element;
@@ -246,9 +246,9 @@ typedef bslx::TestOutStream Out;
 
 #define SERIALIZATION_VERSION 20140601
 
-//=============================================================================
+// ============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -320,9 +320,9 @@ typedef bslx::TestOutStream Out;
     }
 //..
 
-//=============================================================================
-// GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+// ----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.
 //
@@ -560,9 +560,9 @@ OBJ& gg(OBJ *object, const char *spec)
     return *object;
 }
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -8096,6 +8096,7 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

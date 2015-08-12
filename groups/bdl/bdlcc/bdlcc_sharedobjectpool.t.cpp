@@ -5,9 +5,7 @@
 #include <bdls_testutil.h>
 
 #include <bdlcc_objectpool.h>
-#include <bdlmca_blob.h>
 #include <bdlma_concurrentpoolallocator.h>
-#include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadgroup.h>
@@ -21,6 +19,7 @@
 #include <bsl_iostream.h>
 #include <bsl_numeric.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -69,36 +68,41 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BDLS_TESTUTIL_L_  // current Line number
 
+typedef vector<char> CharArray;
+
 namespace {
 
    //Unnamed namespace scopes private classes and methods for testing
 
 bdlqq::SpinLock coutLock;
 
+
 template <class POOL>
 class TestRun
 {
-   bslma::Allocator *d_allocator_p; // held not owned
-   POOL     d_pool;   //held
-   vector<double> d_partialRates; //note: count / (time * d_numThread)
-   int      d_numThreads;
-   int      d_numBlobsPerIteration;
-   int      d_secondsToRun;
-   bool     d_run;  //has test been run yet
+   bslma::Allocator *d_allocator_p;   // held not owned
+   POOL              d_pool;          //held
+   vector<double>    d_partialRates;  //note: count / (time * d_numThread)
+   int               d_numThreads;
+   int               d_numCharArraysPerIteration;
+   int               d_secondsToRun;
+   bool              d_run;           //has test been run yet
 
    // Results:
-   double   d_ratePerThread;  //blobs acq/rel per sec per thread
+   double   d_ratePerThread;          //char arrays acq/rel per sec per thread
 
    void threadProc(int id);
 public:
 
-   TestRun(int numThreads, int numBlobsPerIteration,
-           int secondsToRun, bslma::Allocator *basicAllocator = 0)
+   TestRun(int numThreads,
+           int numCharArraysPerIteration,
+           int secondsToRun,
+           bslma::Allocator *basicAllocator = 0)
       : d_allocator_p(bslma::Default::allocator(basicAllocator)),
         d_pool(bslma::Default::allocator(basicAllocator)),
         d_partialRates(bslma::Default::allocator(basicAllocator)),
         d_numThreads(numThreads),
-        d_numBlobsPerIteration(numBlobsPerIteration),
+        d_numCharArraysPerIteration(numCharArraysPerIteration),
         d_secondsToRun(secondsToRun),
         d_run(false)
    {
@@ -127,14 +131,14 @@ void TestRun<POOL>::threadProc(int id)
    for (int count = 0; true; ++count) {
       double elapsed = timer.elapsedTime();
       if (elapsed < d_secondsToRun) {
-         vector<bsl::shared_ptr<bdlmca::Blob> > blobs(d_allocator_p);
-         blobs.resize(d_numBlobsPerIteration);
-         for (int i = 0; i < d_numBlobsPerIteration; ++i) {
-            d_pool.getBlob(&blobs[i]);
+         vector<bsl::shared_ptr<CharArray> > charArrays(d_allocator_p);
+         charArrays.resize(d_numCharArraysPerIteration);
+         for (int i = 0; i < d_numCharArraysPerIteration; ++i) {
+            d_pool.getCharArray(&charArrays[i]);
          }
       }
       else {
-         d_partialRates[id] = (double)(count * d_numBlobsPerIteration) /
+         d_partialRates[id] = (double)(count * d_numCharArraysPerIteration) /
             (elapsed * d_numThreads);
          if (veryVerbose) {
             coutLock.lock();
@@ -152,8 +156,7 @@ void TestRun<POOL>::run()
    bdlqq::ThreadGroup tg;
 
    for (int i = 0; i < d_numThreads; ++i) {
-      tg.addThread(bdlf::BindUtil::bind(&TestRun::threadProc,
-                                       this, i));
+      tg.addThread(bdlf::BindUtil::bind(&TestRun::threadProc, this, i));
    }
    tg.joinAll();
 
@@ -162,135 +165,124 @@ void TestRun<POOL>::run()
    d_run = true;
 }
 
-class SlowerBlobPool {
-    bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-    bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
-    bslma::Allocator             *d_allocator_p;  // allocator (held)
+class SlowerCharArrayPool {
+    bdlcc::ObjectPool<CharArray>  d_charArrayPool;  // supply charArrays
+    bslma::Allocator             *d_allocator_p;    // allocator (held)
 
-    enum { k_BUFFER_SIZE=65536 };
-
-    static void createBlob(void* address, bdlmca::BlobBufferFactory *factory,
-                           bslma::Allocator *allocator) {
-        new (address) bdlmca::Blob(factory, allocator);
+    static void createCharArray(void *address, bslma::Allocator *allocator)
+    {
+        new (address) CharArray(allocator);
     }
 
   public:
 
-    SlowerBlobPool(bslma::Allocator *basicAllocator = 0)
-      : d_blobFactory(k_BUFFER_SIZE, bslma::Default::allocator(basicAllocator))
-      , d_blobPool(bdlf::BindUtil::bind(
-                                    &SlowerBlobPool::createBlob,
+    SlowerCharArrayPool(bslma::Allocator *basicAllocator = 0)
+      : d_charArrayPool(bdlf::BindUtil::bind(
+                                    &SlowerCharArrayPool::createCharArray,
                                     bdlf::PlaceHolders::_1,
-                                    &d_blobFactory,
                                     bslma::Default::allocator(basicAllocator)),
-                   -1, basicAllocator)
+                        -1, basicAllocator)
       , d_allocator_p(bslma::Default::allocator(basicAllocator))
 
    {}
 
-   void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp) {
-       blob_sp->reset(d_blobPool.getObject(),
+   void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
+   {
+       charArray_sp->reset(d_charArrayPool.getObject(),
                       bdlf::MemFnUtil::memFn(
-                              &bdlcc::ObjectPool<bdlmca::Blob>::releaseObject,
-                              &d_blobPool),
+                              &bdlcc::ObjectPool<CharArray>::releaseObject,
+                              &d_charArrayPool),
                       d_allocator_p);
    }
 };
+
 
 ///Usage
 ///-----
 // This component is intended to improve the efficiency of code which provides
 // shared pointers to pooled objects.  As an example, consider a class which
-// maintains a pool of 'bdlmca::Blob' objects and provides shared pointers to
+// maintains a pool of 'vector<char>' objects and provides shared pointers to
 // them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
 //..
-    class SlowBlobPool {
-        bdlma::ConcurrentPoolAllocator  d_spAllocator;  // alloc. shared ptr.
-        bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-        bdlcc::ObjectPool<bdlmca::Blob> d_blobPool;     // supply blobs
 
-        enum { k_BUFFER_SIZE = 65536 };
+    class SlowCharArrayPool {
+        bdlma::ConcurrentPoolAllocator d_spAllocator;    // alloc. shared ptr.
+        bdlcc::ObjectPool<CharArray>   d_charArrayPool;  // supply charArrays
 
-        static void createBlob(void                      *address,
-                               bdlmca::BlobBufferFactory *factory,
-                               bslma::Allocator          *allocator) {
-            new (address) bdlmca::Blob(factory, allocator);
+        static void createCharArray(void *address, bslma::Allocator *allocator)
+        {
+            new (address) CharArray(allocator);
         }
 
-        static void resetAndReturnBlob(bdlmca::Blob                    *blob,
-                                       bdlcc::ObjectPool<bdlmca::Blob> *pool) {
-            blob->removeAll();
-            pool->releaseObject(blob);
+        static void resetAndReturnCharArray(
+                                       CharArray                    *charArray,
+                                       bdlcc::ObjectPool<CharArray> *pool)
+        {
+            charArray->clear();
+            pool->releaseObject(charArray);
         }
 
       public:
 
-        SlowBlobPool(bslma::Allocator *basicAllocator = 0)
+        SlowCharArrayPool(bslma::Allocator *basicAllocator = 0)
         : d_spAllocator(basicAllocator)
-        , d_blobFactory(k_BUFFER_SIZE, basicAllocator)
-        , d_blobPool(bdlf::BindUtil::bind(&SlowBlobPool::createBlob,
-                                          bdlf::PlaceHolders::_1,
-                                          &d_blobFactory,
-                                          basicAllocator),
-                     -1,
-                     basicAllocator)
+        , d_charArrayPool(bdlf::BindUtil::bind(
+                                           &SlowCharArrayPool::createCharArray,
+                                           bdlf::PlaceHolders::_1,
+                                           basicAllocator),
+                          -1,
+                          basicAllocator)
         {
         }
 
-        void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+        void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
         {
-            blob_sp->reset(
-                        d_blobPool.getObject(),
-                        bdlf::BindUtil::bind(&SlowBlobPool::resetAndReturnBlob,
-                                             bdlf::PlaceHolders::_1,
-                                             &d_blobPool),
-                        &d_spAllocator);
+            charArray_sp->reset(d_charArrayPool.getObject(),
+                                bdlf::BindUtil::bind(
+                                   &SlowCharArrayPool::resetAndReturnCharArray,
+                                   bdlf::PlaceHolders::_1,
+                                   &d_charArrayPool),
+                                &d_spAllocator);
         }
     };
 //..
-// Note that 'SlowBlobPool' must allocate the shared pointer itself from its
-// 'd_spAllocator' in addition to allocating the blob from its pool.  Moreover,
-// note that since the same function will handle resetting the object and
-// returning it to the pool, we must define a special function for that purpose
-// and bind its arguments.
+// Note that 'SlowCharArrayPool' must allocate the shared pointer itself from
+// its 'd_spAllocator' in addition to allocating the charArray from its pool.
+// Moreover, note that since the same function will handle resetting the object
+// and returning it to the pool, we must define a special function for that
+// purpose and bind its arguments.
 //
 // We can solve both of these issues by using 'bdlcc::SharedObjectPool'
 // instead:
 //..
-    class FastBlobPool {
+    class FastCharArrayPool {
         typedef bdlcc::SharedObjectPool<
-                 bdlmca::Blob,
-                 bdlcc::ObjectPoolFunctors::DefaultCreator,
-                 bdlcc::ObjectPoolFunctors::RemoveAll<bdlmca::Blob> > BlobPool;
+                CharArray,
+                bdlcc::ObjectPoolFunctors::DefaultCreator,
+                bdlcc::ObjectPoolFunctors::Clear<CharArray> > CharArrayPool;
 
-        bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
-        BlobPool                        d_blobPool;     // supply blobs
+        CharArrayPool d_charArrayPool;     // supply charArrays
 
-        enum { k_BUFFER_SIZE = 65536 };
-
-        static void createBlob(void                      *address,
-                               bdlmca::BlobBufferFactory *factory,
-                               bslma::Allocator          *allocator)
+        static void createCharArray(void *address, bslma::Allocator *allocator)
         {
-            new (address) bdlmca::Blob(factory, allocator);
+            new (address) CharArray(allocator);
         }
 
       public:
 
-        FastBlobPool(bslma::Allocator *basicAllocator = 0)
-        : d_blobFactory(k_BUFFER_SIZE, basicAllocator)
-        , d_blobPool(bdlf::BindUtil::bind(&FastBlobPool::createBlob,
-                                          bdlf::PlaceHolders::_1,
-                                          &d_blobFactory,
-                                          bdlf::PlaceHolders::_2),
-                     -1,
-                     basicAllocator)
+        FastCharArrayPool(bslma::Allocator *basicAllocator = 0)
+        : d_charArrayPool(bdlf::BindUtil::bind(
+                                           &FastCharArrayPool::createCharArray,
+                                           bdlf::PlaceHolders::_1,
+                                           bdlf::PlaceHolders::_2),
+                          -1,
+                          basicAllocator)
         {
         }
 
-        void getBlob(bsl::shared_ptr<bdlmca::Blob> *blob_sp)
+        void getCharArray(bsl::shared_ptr<CharArray> *charArray_sp)
         {
-            *blob_sp = d_blobPool.getObject();
+            *charArray_sp = d_charArrayPool.getObject();
         }
     };
 //..
@@ -859,18 +851,19 @@ int main(int argc, char *argv[])
             cout << "Thread safety test" << endl;
          }
 
+
          enum {
             k_NUM_THREADS=20,
-            k_NUM_BLOBS_PER_ITER=10000,
+            k_NUM_CHARARRAYS_PER_ITER=10000,
             k_SECONDS_TO_RUN=6
          };
 
          bslma::TestAllocator alloc;
          {
-            TestRun<FastBlobPool> test(k_NUM_THREADS,
-                                       k_NUM_BLOBS_PER_ITER,
-                                       k_SECONDS_TO_RUN,
-                                       &alloc);
+            TestRun<FastCharArrayPool> test(k_NUM_THREADS,
+                                            k_NUM_CHARARRAYS_PER_ITER,
+                                            k_SECONDS_TO_RUN,
+                                            &alloc);
             test.run();
 
             //sanity check, *not* performance check:
@@ -891,6 +884,7 @@ int main(int argc, char *argv[])
             cout << "Usage example test" << endl;
          }
 
+//..
 // Now the shared pointer and the object are allocated as one unit from the
 // same allocator.  In addition, the resetter method is a fully-inlined class
 // that is only responsible for resetting the object, improving efficiency and
@@ -899,13 +893,13 @@ int main(int argc, char *argv[])
 //..
     bslma::TestAllocator slowAllocator, fastAllocator;
     {
-        SlowBlobPool slowPool(&slowAllocator);
-        FastBlobPool fastPool(&fastAllocator);
+        SlowCharArrayPool slowPool(&slowAllocator);
+        FastCharArrayPool fastPool(&fastAllocator);
 
-        bsl::shared_ptr<bdlmca::Blob> blob_sp;
+        bsl::shared_ptr<CharArray> charArray_sp;
 
-        fastPool.getBlob(&blob_sp);
-        slowPool.getBlob(&blob_sp);  // throw away the first blob
+        fastPool.getCharArray(&charArray_sp);
+        slowPool.getCharArray(&charArray_sp);  // throw away the first array
     }
 
     ASSERT(2 == slowAllocator.numAllocations());
@@ -1108,7 +1102,7 @@ int main(int argc, char *argv[])
 
          struct Parameters {
             int d_numThreads;
-            int d_numBlobsPerIteration;
+            int d_numCharArraysPerIteration;
             int d_scalingFactor;
          } parameters[] = {
             {1, 1, 250000},
@@ -1128,12 +1122,12 @@ int main(int argc, char *argv[])
                cout << "==========================\n"
                     << "Test step: \n" << endl;
                P(p.d_numThreads);
-               P(p.d_numBlobsPerIteration);
+               P(p.d_numCharArraysPerIteration);
             }
 
-            TestRun<FastBlobPool> fastTest(p.d_numThreads,
-                                           p.d_numBlobsPerIteration,
-                                           k_SECONDS_TO_RUN);
+            TestRun<FastCharArrayPool> fastTest(p.d_numThreads,
+                                                p.d_numCharArraysPerIteration,
+                                                k_SECONDS_TO_RUN);
 
             fastTest.run();
             double fastResult = fastTest.getRatePerThread() /
@@ -1143,9 +1137,10 @@ int main(int argc, char *argv[])
             }
 
             if (runBaseTest) {
-               TestRun<SlowBlobPool> slowTest(p.d_numThreads,
-                                              p.d_numBlobsPerIteration,
-                                              k_SECONDS_TO_RUN);
+               TestRun<SlowCharArrayPool> slowTest(
+                                                 p.d_numThreads,
+                                                 p.d_numCharArraysPerIteration,
+                                                 k_SECONDS_TO_RUN);
 
                slowTest.run();
                double slowResult = slowTest.getRatePerThread() /
@@ -1155,9 +1150,10 @@ int main(int argc, char *argv[])
                }
                slowScore += slowResult;
 
-               TestRun<SlowerBlobPool> slowerTest(p.d_numThreads,
-                                                  p.d_numBlobsPerIteration,
-                                                  k_SECONDS_TO_RUN);
+               TestRun<SlowerCharArrayPool> slowerTest(
+                                                 p.d_numThreads,
+                                                 p.d_numCharArraysPerIteration,
+                                                 k_SECONDS_TO_RUN);
 
                slowerTest.run();
                double slowerResult = slowerTest.getRatePerThread() /
@@ -1173,8 +1169,9 @@ int main(int argc, char *argv[])
          if (runBaseTest) {
             cout
                << "\nOVERALL SCORES:"
-               << "\nOriginal blob pool: " << slowScore / numParameters
-               << "\nNon-Sp-Pooling blob pool: " << slowerScore / numParameters
+               << "\nOriginal charArray pool: " << slowScore / numParameters
+               << "\nNon-Sp-Pooling charArray pool: "
+               << slowerScore / numParameters
                << "\nSharedObjectPool: " << fastScore / numParameters
                << endl;
          }

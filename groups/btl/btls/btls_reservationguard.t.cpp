@@ -6,29 +6,35 @@
 
 #include <bdlqq_threadutil.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlt_currenttime.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_timeinterval.h>
 
+#include <bsl_climits.h>
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The component under test implements a mechanism.
 //
 // Primary Manipulators:
-// o 'submitReserved'
-// o 'cancelReserved'
+//: o 'submitReserved'
+//: o 'cancelReserved'
 //
 // Basic Accessors:
-// o 'ptr'
-// o 'unitsReserved'
+//: o 'ptr'
+//: o 'unitsReserved'
 //
 // This class also provides a value constructor capable of creating an object
 // having any parameters.
@@ -40,7 +46,7 @@ using namespace bsl;
 //
 // Global Assumptions:
 //: o ACCESSOR methods are 'const' thread-safe.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // CREATORS
 //  [4] ~btls::ReservationGuard();
@@ -53,70 +59,57 @@ using namespace bsl;
 // ACCESSORS
 //  [3] bsls::Types::Uint64 unitsReserved() const;
 //  [3] TYPE *ptr() const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [2] TEST APPARATUS
 // [7] USAGE EXAMPLE
 // [3] All accessor methods are declared 'const'.
 // [*] All creator/manipulator ptr./ref. parameters are 'const'.
-//=============================================================================
+// ============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
-
-//=============================================================================
-//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
-
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+}  // close unnamed namespace
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -125,9 +118,9 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 class my_Reserve {
     // This class provides a mock rate controllering mechanism which conforms
@@ -179,28 +172,28 @@ my_Reserve::my_Reserve()
 
 // MANIPULATORS
 inline
-void my_Reserve::reserve(bsls::Types::Uint64 numOfUnits)
+void my_Reserve::reserve(bsls::Types::Uint64 numUnits)
 {
-    d_unitsReserved += numOfUnits;
+    d_unitsReserved += numUnits;
 }
 
 inline
-void my_Reserve::submitReserved(bsls::Types::Uint64 numOfUnits)
+void my_Reserve::submitReserved(bsls::Types::Uint64 numUnits)
 {
-    if (numOfUnits < d_unitsReserved) {
-        d_unitsReserved -= numOfUnits;
+    if (numUnits < d_unitsReserved) {
+        d_unitsReserved -= numUnits;
     }
     else {
         d_unitsReserved = 0;
     }
-    d_unitsSubmitted += numOfUnits;
+    d_unitsSubmitted += numUnits;
 }
 
 inline
-void my_Reserve::cancelReserved(bsls::Types::Uint64 numOfUnits)
+void my_Reserve::cancelReserved(bsls::Types::Uint64 numUnits)
 {
-    if (numOfUnits < d_unitsReserved) {
-        d_unitsReserved -= numOfUnits;
+    if (numUnits < d_unitsReserved) {
+        d_unitsReserved -= numUnits;
     }
     else {
         d_unitsReserved = 0;
@@ -233,16 +226,16 @@ typedef bsls::TimeInterval                 Ti;
 typedef bsls::Types::Uint64               Uint64;
 typedef unsigned int                      uint;
 
-//=============================================================================
+// ============================================================================
 //                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Guarding units reservation in operations with btls::LeakyBucket
-///-------------------------------------------------------------------------
+///----------------------------------------------------------------------------
 // Suppose that we are limiting the rate of network traffic generation using a
 // 'btls::LeakyBucket' object.  We send data buffer over a network interface
 // using the 'mySendData' function:
@@ -266,29 +259,29 @@ static bsls::Types::Uint64 sendData(size_t dataSize)
 // sent to the leaky bucket.
 
 
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
     int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
-    // bool     veryVerbose = argc > 3;
-    // bool veryVeryVerbose = argc > 4;
+//  bool     veryVerbose = argc > 3;
+//  bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
       case 7: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
         //
         // Testing:
         //   USAGE EXAMPLE
-        //-----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
@@ -366,7 +359,7 @@ int main(int argc, char *argv[]) {
 //..
       } break;
       case 6: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // CLASS METHOD 'cancelReserved'
         //
         // Concerns:
@@ -379,7 +372,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   void cancelReserved(bsls::Types::Uint64 numOfUnits);
-        //-----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "CLASS METHOD 'cancelReserved'" << endl
@@ -460,7 +453,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 5: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // CLASS METHOD 'submitReserved'
         //
         // Concerns:
@@ -471,7 +464,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   void submitReserved(bsls::Types::Uint64 numOfUnits);
-        //-----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "CLASS METHOD 'submitReserved'" << endl
@@ -536,7 +529,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 4: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // DTOR
         //
         // Concerns:
@@ -550,7 +543,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   ~btls::ReservationGuard();
-        //-----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "DTOR" << endl
@@ -596,7 +589,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 3: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PRIMARY MANIPULATOR (BOOTSTRAP)
         //
         // Concerns:
@@ -619,7 +612,7 @@ int main(int argc, char *argv[]) {
         //                         bsls::Types::Uint64 numOfUnits);
         //   TYPE* ptr() const;
         //   bsls::Types::Uint64 unitsReserved() const;
-        //-----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATOR (BOOTSTRAP)" << endl
@@ -654,7 +647,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 2: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TEST APPARATUS
         //
         // Concerns:
@@ -683,7 +676,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   class 'my_Reserve'
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TEST APPARATUS" << endl
@@ -775,10 +768,17 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

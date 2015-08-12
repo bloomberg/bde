@@ -1,24 +1,24 @@
-// bdlmca_blobutil.h                                                   -*-C++-*-
-#ifndef INCLUDED_BDLMCA_BLOBUTIL
-#define INCLUDED_BDLMCA_BLOBUTIL
+// btlb_blobutil.h                                                   -*-C++-*-
+#ifndef INCLUDED_BTLB_BLOBUTIL
+#define INCLUDED_BTLB_BLOBUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a suite of utilities for I/O operations on 'bdlmca::Blob'.
+//@PURPOSE: Provide a suite of utilities for I/O operations on 'btlb::Blob'.
 //
 //@CLASSES:
-//  bdlmca::BlobUtil: suite of utilities on 'bdlmca::Blob'
+//  btlb::BlobUtil: suite of utilities on 'btlb::Blob'
 //
-//@SEE_ALSO: bdlmca_blob
+//@SEE_ALSO: btlb_blob
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides a variety of utilities for 'bdlmca::Blob'
+//@DESCRIPTION: This component provides a variety of utilities for 'btlb::Blob'
 // objects, such as I/O functions, comparison functions, and streaming
 // functions.
 //
@@ -55,8 +55,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace btlb {
                            // =====================
                            // struct BlobUtil
                            // =====================
@@ -543,13 +543,13 @@ BlobUtilAsciiDumper::BlobUtilAsciiDumper(const Blob *blob)
 
 // FREE OPERATORS
 inline
-bsl::ostream& bdlmca::operator<<(bsl::ostream&                    stream,
+bsl::ostream& btlb::operator<<(bsl::ostream&                    stream,
                          const BlobUtilAsciiDumper& rhs)
 {
     return BlobUtil::asciiDump(stream, *rhs.d_blob_p);
 }
 
-namespace bdlmca {
+namespace btlb {
                        // ------------------------------
                        // struct BlobUtilHexDumper
                        // ------------------------------
@@ -576,7 +576,7 @@ BlobUtilHexDumper::BlobUtilHexDumper(const Blob *blob,
 
 // FREE OPERATORS
 inline
-bsl::ostream& bdlmca::operator<<(bsl::ostream&                  stream,
+bsl::ostream& btlb::operator<<(bsl::ostream&                  stream,
                          const BlobUtilHexDumper& rhs)
 {
     return BlobUtil::hexDump(stream,

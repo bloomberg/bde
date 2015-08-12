@@ -13,14 +13,14 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <btlso_socketoptutil.h>
 
 #include <bdlma_concurrentpool.h>
-#include <bdlmca_blob.h>
-#include <bdlmca_pooledblobbufferfactory.h>
+#include <btlb_blob.h>
+#include <btlb_pooledblobbufferfactory.h>
 #include <bdlma_deleter.h>
 #include <bdlqq_lockguard.h>
 #include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
-#include <bdlmca_blobstreambuf.h>
+#include <btlb_blobstreambuf.h>
 
 #include <bdlt_currenttime.h>
 
@@ -103,7 +103,7 @@ enum {
 // handle to the channel) are:
 //..
 //  btlmt::Channel::readCb                     // registered to READ using
-//                                             // a 'bdlmca::Blob'
+//                                             // a 'btlb::Blob'
 //  btlmt::Channel::writeCb                    // registered to WRITE
 //..
 // Finally note that those functions *must* take the shared pointer by value
@@ -167,7 +167,7 @@ class Channel {
     // Reading from a channel is triggered by a registered socket event which
     // calls, when data is available for reading, calling 'readCb'.  This
     // method extracts the data from the socket, appends it into a
-    // 'bdlmca::Blob' and invokes the registered data callback as needed.
+    // 'btlb::Blob' and invokes the registered data callback as needed.
     //
     // Writing is done first in the calling thread, and if no more space is
     // available on the socket, is enqueued into the outgoing message, or if
@@ -294,20 +294,20 @@ class Channel {
                                             // write cache
 
     // DO NOT CHANGE THE ORDER OF THESE TWO DATA MEMBERS
-    bdlmca::BlobBufferFactory      *d_readBlobFactory_p;  // for d_blobReadData
-    bdlmca::Blob                    d_blobReadData;       // blob for read data
+    btlb::BlobBufferFactory      *d_readBlobFactory_p;  // for d_blobReadData
+    btlb::Blob                    d_blobReadData;       // blob for read data
 
     btlso::IPv4Address              d_peerAddress;        // peer address
 
     // Memory allocation section (pointers held, not owned)
-    bdlmca::BlobBufferFactory      *d_writeBlobFactory_p;
+    btlb::BlobBufferFactory      *d_writeBlobFactory_p;
                                             // for d_writeActiveData and
                                             // d_writeEnqueuedData
 
-    bsl::shared_ptr<bdlmca::Blob>   d_writeEnqueuedData;   // outgoing msgs,
+    bsl::shared_ptr<btlb::Blob>   d_writeEnqueuedData;   // outgoing msgs,
                                                            // concatenated
 
-    bsl::shared_ptr<bdlmca::Blob>   d_writeActiveData;     // first msg to go
+    bsl::shared_ptr<btlb::Blob>   d_writeActiveData;     // first msg to go
 
     int                             d_writeActiveDataCurrentBuffer;
 
@@ -469,8 +469,8 @@ class Channel {
             bool                             mode,
             ChannelStateChangeCallback       channelCb,
             BlobBasedReadCallback            blobBasedReadCb,
-            bdlmca::BlobBufferFactory       *writeBlobBufferPool,
-            bdlmca::BlobBufferFactory       *readBlobBufferPool,
+            btlb::BlobBufferFactory       *writeBlobBufferPool,
+            btlb::BlobBufferFactory       *readBlobBufferPool,
             TcpTimerEventManager            *eventManager,
             ChannelPool                     *channelPool,
             bdlma::ConcurrentPoolAllocator  *sharedPtrAllocator,
@@ -515,7 +515,7 @@ class Channel {
         // operation by holding the specified 'self' handle to this channel
         // pool.  Return 0 on success, or a negative value if the message could
         // not be enqueued.  The templatized type 'MessageType' must be support
-        // by the 'ChannelPool_MessageUtil' class (i.e.  'bdlmca::Blob' or
+        // by the 'ChannelPool_MessageUtil' class (i.e.  'btlb::Blob' or
         // 'ChannelPool_MessageUtil::IovecArray').  Note that the message may
         // not be enqueued if the number of bytes already enqueued for this
         // channel exceeds either the specified 'enqueueWaterMark' or the high
@@ -994,7 +994,7 @@ void Channel::allocateNextReadBuffers(int numBytes, int totalBufferSize)
     }
 
     for (int i = numAvailBuffers; i < d_numUsedIVecs; ++i) {
-        bdlmca::BlobBuffer buffer, newBuffer;
+        btlb::BlobBuffer buffer, newBuffer;
         d_readBlobFactory_p->allocate(&newBuffer);
 
         buffer.setSize(newBuffer.size());
@@ -1010,7 +1010,7 @@ void Channel::initDataBufferForReads()
     // Initializes incoming message: allocate just one buffer, and sets the
     // capacity (field 1).
 
-    bdlmca::BlobBuffer buffer, newBuffer;
+    btlb::BlobBuffer buffer, newBuffer;
     d_readBlobFactory_p->allocate(&newBuffer);
 
     buffer.setSize(newBuffer.size());
@@ -1034,7 +1034,7 @@ int Channel::populateIVecs()
 
     if (lastBufferLen
      && lastBufferLen < d_blobReadData.buffer(startIdx - 1).size()) {
-        const bdlmca::BlobBuffer& buffer = d_blobReadData.buffer(startIdx - 1);
+        const btlb::BlobBuffer& buffer = d_blobReadData.buffer(startIdx - 1);
         const int remainingBufferLen = buffer.size() - lastBufferLen;
 
         bsls::PerformanceHint::prefetchForWriting(buffer.data() +
@@ -1047,7 +1047,7 @@ int Channel::populateIVecs()
     }
 
     for (int i = 0; i < numIVecsToFill; ++i, ++ivec) {
-        const bdlmca::BlobBuffer& buffer = d_blobReadData.buffer(startIdx + i);
+        const btlb::BlobBuffer& buffer = d_blobReadData.buffer(startIdx + i);
         bsls::PerformanceHint::prefetchForWriting(buffer.data());
         ivec->setBuffer((void*)buffer.data(), buffer.size());
         totalBufferSize += buffer.size();
@@ -1570,7 +1570,7 @@ void Channel::writeCb(ChannelHandle self)
                bufSize - currentOffset);
 
         for (int i = currentBuffer + 1; numVecs < numMaxVecs; ++i, ++numVecs) {
-            const bdlmca::BlobBuffer& blobBuffer =
+            const btlb::BlobBuffer& blobBuffer =
                                                   d_writeActiveData->buffer(i);
             char *buf = blobBuffer.data();
             bsls::PerformanceHint::prefetchForReading(buf);
@@ -1702,8 +1702,8 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
                  bool                             mode,
                  ChannelStateChangeCallback       channelCb,
                  BlobBasedReadCallback            blobBasedReadCb,
-                 bdlmca::BlobBufferFactory       *writeBlobBufferPool,
-                 bdlmca::BlobBufferFactory       *readBlobBufferPool,
+                 btlb::BlobBufferFactory       *writeBlobBufferPool,
+                 btlb::BlobBufferFactory       *readBlobBufferPool,
                  TcpTimerEventManager            *eventManager,
                  ChannelPool                     *channelPool,
                  bdlma::ConcurrentPoolAllocator  *sharedPtrAllocator,
@@ -1951,7 +1951,7 @@ int Channel::writeMessage(const MessageType&   msg,
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
         // This message is the first and only in the outgoing queue.  Note that
-        // if 'blob' were a 'bsl::shared_ptr<bdlmca::Blob> msg' instead, we
+        // if 'blob' were a 'bsl::shared_ptr<btlb::Blob> msg' instead, we
         // could simply assign 'd_writeActiveData = msg' (which would assign
         // the shared pointer to the blob) but this would have the problem that
         // we could not know if the blob of 'msg' was created with the proper
@@ -2267,14 +2267,14 @@ void ChannelPool::init()
 
     if (!d_writeBlobFactory) {
         d_writeBlobFactory.load(
-           new (*d_allocator_p) bdlmca::PooledBlobBufferFactory(
+           new (*d_allocator_p) btlb::PooledBlobBufferFactory(
                                          d_config.maxOutgoingMessageSize(),
                                          d_allocator_p),
            d_allocator_p);
     }
     if (!d_readBlobFactory) {
         d_readBlobFactory.load(
-           new (*d_allocator_p) bdlmca::PooledBlobBufferFactory(
+           new (*d_allocator_p) btlb::PooledBlobBufferFactory(
                                          d_config.maxIncomingMessageSize(),
                                          d_allocator_p),
            d_allocator_p);
@@ -3201,7 +3201,7 @@ ChannelPool::ChannelPool(ChannelStateChangeCallback       channelStateCb,
     init();
 }
 
-ChannelPool::ChannelPool(bdlmca::BlobBufferFactory       *blobBufferFactory,
+ChannelPool::ChannelPool(btlb::BlobBufferFactory       *blobBufferFactory,
                          ChannelStateChangeCallback       channelStateCb,
                          BlobBasedReadCallback            blobBasedReadCb,
                          PoolStateChangeCallback          poolStateCb,
@@ -3933,7 +3933,7 @@ void ChannelPool::setChannelContext(int channelId, void *context)
 }
 
 int ChannelPool::write(int                 channelId,
-                       const bdlmca::Blob& blob,
+                       const btlb::Blob& blob,
                        int                 enqueueWatermark)
 {
     enum { NOT_FOUND = -5 };
@@ -4584,7 +4584,7 @@ const btlso::IPv4Address *ChannelPool::serverAddress(int serverId) const
 
 // CLASS METHODS
 int ChannelPool_MessageUtil::loadIovec(btls::Iovec         *dest,
-                                       const bdlmca::Blob&  msg)
+                                       const btlb::Blob&  msg)
 {
     int numVecs = 0;
     const int numDataBuffers = msg.numDataBuffers();
@@ -4602,8 +4602,8 @@ int ChannelPool_MessageUtil::loadIovec(btls::Iovec         *dest,
     return numVecs;
 }
 
-int ChannelPool_MessageUtil::loadBlob(bdlmca::Blob        *dest,
-                                      const bdlmca::Blob&  msg,
+int ChannelPool_MessageUtil::loadBlob(btlb::Blob        *dest,
+                                      const btlb::Blob&  msg,
                                       int                  msgOffset)
 {
     BSLS_ASSERT(0 == dest->length());
@@ -4638,8 +4638,8 @@ int ChannelPool_MessageUtil::loadBlob(bdlmca::Blob        *dest,
     return msgOffset - prefixSize;
 }
 
-void ChannelPool_MessageUtil::appendToBlob(bdlmca::Blob        *dest,
-                                           const bdlmca::Blob&  msg)
+void ChannelPool_MessageUtil::appendToBlob(btlb::Blob        *dest,
+                                           const btlb::Blob&  msg)
 {
     const int currentLength  = dest->length();
     const int numDataBuffers = msg.numDataBuffers();

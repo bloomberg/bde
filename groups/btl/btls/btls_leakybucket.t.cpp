@@ -4,10 +4,14 @@
 
 #include <bdlqq_threadutil.h>
 
+#include <bdls_testutil.h>
+
 #include <bdlt_currenttime.h>
 
 #include <bsls_asserttest.h>
 
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
 #include <bsl_c_math.h>
 #include <bsl_iostream.h>
 
@@ -28,11 +32,11 @@ using namespace bsl;
 //: o Value constructor
 //
 // Basic Accessors:
-// o 'rate'
-// o 'capacity'
-// o 'lastUpdateTime'
-// o 'unitsInBucket'
-// o 'unitsReserved'
+//: o 'rate'
+//: o 'capacity'
+//: o 'lastUpdateTime'
+//: o 'unitsInBucket'
+//: o 'unitsReserved'
 //
 // Global Concerns:
 //: o ACCESSOR methods are declared 'const'.
@@ -43,7 +47,7 @@ using namespace bsl;
 //: o ACCESSOR methods are 'const' thread-safe.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [17] static bsls::TimeInterval calculateTimeWindow(capacity, drainRate);
+// [17] static TimeInterval calculateTimeWindow(capacity, drainRate);
 // [16] static bsls::Types::Uint64 calculateCapacity(drainRate, timeWindow);
 // [14] calculateDrainTime(numOfUnits, drainRate, ceilFlag);
 //
@@ -68,7 +72,7 @@ using namespace bsl;
 // [ 4] bsls::Types::Uint64 unitsInBucket() const;
 // [ 4] bsls::Types::Uint64 unitsReserved() const;
 // [ 4] bsls::TimeInterval lastUpdateTime() const;
-// [11] void btls::LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
+// [11] void LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [19] USAGE EXAMPLE
@@ -171,7 +175,7 @@ mock_LB::mock_LB()
 
 inline
 mock_LB::mock_LB(bsls::TimeInterval submitInterval,
-               bsls::TimeInterval currentTime)
+                 bsls::TimeInterval currentTime)
 : d_unitsInBucket(0)
 , d_lastUpdateTime(currentTime)
 , d_submitInterval(submitInterval)
@@ -216,7 +220,8 @@ bool mock_LB::wouldOverflow(bsls::TimeInterval currentTime)
 }
 
 inline
-bsls::TimeInterval mock_LB::calculateTimeToSubmit(bsls::TimeInterval currentTime)
+bsls::TimeInterval mock_LB::calculateTimeToSubmit(
+                                                bsls::TimeInterval currentTime)
 {
     bsls::TimeInterval delta = currentTime - d_lastUpdateTime;
 
@@ -260,40 +265,49 @@ bsls::Types::Uint64 mock_LB::capacity() const
     return d_capacity;
 }
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  STANDARD BDE VARIADIC ASSERT TEST MACROS
@@ -442,8 +456,8 @@ int main(int argc, char *argv[])
 {
     int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
-    // bool     veryVerbose = argc > 3;
-    // bool veryVeryVerbose = argc > 4;
+//  bool     veryVerbose = argc > 3;
+//  bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -526,7 +540,7 @@ int main(int argc, char *argv[])
 //..
       } break;
       case 18: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // FUNCTIONALITY
         //   Ensure that 'btes::LeaktBucket' can keep the specified load
         //   rate when used in real application.
@@ -556,7 +570,7 @@ int main(int argc, char *argv[])
         //   void submit(unsigned int numOfUnits);
         //   bool wouldOverflow(currentTime);
         //   bsls::TimeInterval calculateTimeToSubmit(currentTime);
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "FUNCTIONALITY" << endl
@@ -665,7 +679,7 @@ int main(int argc, char *argv[])
         //:   invalid parameters (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
         //
         // Testing:
-        //   static bsls::TimeInterval calculateTimeWindow(capacity, drainRate);
+        //   static TimeInterval calculateTimeWindow(capacity, drainRate);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -676,8 +690,8 @@ int main(int argc, char *argv[])
         const Uint64 M     = 1000000;
         const Uint64 G     = 1000000000;
 
-        // Numbers of units to be consumed during different intervals
-        // at maximum rate.
+        // Numbers of units to be consumed during different intervals at
+        // maximum rate.
 
         const Uint64 U_NS   = MAX_R / G;
 
@@ -823,7 +837,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 15: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // 'calculateTimeToSubmit'
         //   Ensure that 'calculateTimeToSubmit' calculates wait interval,
         //   taking reserved units into account and correctly updates object
@@ -883,7 +897,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bsls::TimeInterval calculateTimeToSubmit(
         //                           const bsls::TimeInterval& currentTime);
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout <<
                          endl << "TESTING: 'calculateTimeToSubmit'" << endl
@@ -998,7 +1012,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   calculateDrainTime(numOfUnits, drainRate, ceilFlag);
         //   bsls::TimeInterval calculateTimeToSubmit(currentTime);
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "'calculateTimeToSubmit'" << endl
@@ -1011,8 +1025,8 @@ int main(int argc, char *argv[])
 
         const Ti MNS_T(0, 999999999);
 
-        // Numbers of units to be consumed during different intervals
-        // at maximum rate.
+        // Numbers of units to be consumed during different intervals at
+        // maximum rate.
         const Uint64 U_5NS  = (MAX_R / G) * 5 + ((MAX_R % G) * 5) / G;
         const Uint64 U_20NS = (MAX_R / G) * 20 + ((MAX_R % G) * 20) / G;
         const Uint64 U_MNS  = (MAX_R / G) * 999999999 +
@@ -1116,7 +1130,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 13: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // CLASS METHOD 'reset'
         //   Ensure that the 'reset' manipulator resets object to its initial
         //   state.
@@ -1162,7 +1176,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void reset(const bsls::TimeInterval& currentTime);
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "'reset'" << endl
@@ -1373,7 +1387,7 @@ int main(int argc, char *argv[])
         //:   are triggered for invalid parameters.
         //
         // Testing:
-        //   void btls::LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
+        //   void LeakyBucket::getStatistics(smtUnits, unusedUnits) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1389,8 +1403,8 @@ int main(int argc, char *argv[])
 
         const Ti MNS_T(0, 999999999);
 
-        // Numbers of units to be consumed during different intervals
-        // at maximum rate.
+        // Numbers of units to be consumed during different intervals at
+        // maximum rate.
 
         const Uint64 U_1S   = ULLONG_MAX;
         const Uint64 U_5NS  = (MAX_R / G) * 5 + ((MAX_R % G) * 5) / G;
@@ -1536,7 +1550,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 10: {
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // 'cancelReserved', 'submitReserved'
         //   Ensure that 'cancelReserved', 'submitReserved' manipulators
         //   correctly update 'unitsReserved' and 'unitsInBucket' attributes.
@@ -1586,7 +1600,7 @@ int main(int argc, char *argv[])
         // Testing:
         //    void submitReserved(bsls::Types::Unit64 numOfUnits);
         //    void cancelReserved(bsls::Types::Unit64 numOfUnits);
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "'submitReserved', 'cancelReserved'" << endl
@@ -1838,7 +1852,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //    bool wouldOverflow(numOfUnits, currentTime);
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "'wouldOverflow'" << endl
@@ -2058,8 +2072,7 @@ int main(int argc, char *argv[])
         {L_,        1,          1,   0,  Ti( 0),  Ti(0, 500),  G/500 -
          1,           1},
         {L_,        1,          1,   0,  Ti( 0),  Ti(0, 500),  G/500,       0},
-        // C-3
-        // Checking operation with short update intervals.
+        // C-3  Checking operation with short update intervals.
         {L_,  1000000,      1000, 1000,  Ti( 0),  Ti(  0, 1),  999,   1000},
         {L_,  1000000,      1000, 1000,  Ti( 0),  Ti(  0, 1), 1000,    999},
         {L_,  1000000,      1000, 1000,  Ti( 0),  Ti(  0, 1), 2000,    998}
@@ -2190,7 +2203,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //    void setRateAndCapacity(newRate, newCapacity);
-        // ----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "'setRateAndCapacity'" << endl
@@ -2964,11 +2977,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P.  (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

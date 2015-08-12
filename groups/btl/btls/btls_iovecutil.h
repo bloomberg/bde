@@ -16,20 +16,20 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: btls_iovec
 //
-//@DESCRIPTION:  This component provides a namespace for several utilities for
-// accessing and manipulating sequences of 'btls::Iovec' and 'btls::Ovec'
-// buffers, including 'scatter'-ing ('gather'-ing) a single continuous buffer
-// into (from) a sequence of buffers, computing the total length of a sequence
-// of buffers, and rewriting the data from a sequence of buffers into a
-// 'bdlmca::Blob' object.
+//@DESCRIPTION: This component provides a namespace 'btls::IovecUtil' for
+// several utilities for accessing and manipulating sequences of 'btls::Iovec'
+// and 'btls::Ovec' buffers, including 'scatter'-ing ('gather'-ing) a single
+// continuous buffer into (from) a sequence of buffers, computing the total
+// length of a sequence of buffers, and rewriting the data from a sequence of
+// buffers into a 'btlb::Blob' object.
 //
 ///Thread-safety
 ///-------------
 // It is safe to invoke methods of this utility with distinct instances of
-// their arguments in different threads.  It is safe to access a 'bdlmca::Blob'
+// their arguments in different threads.  It is safe to access a 'btlb::Blob'
 // object within different methods of this utility from different threads if no
 // method modifies the contents of that object.  It is not safe to access or
-// modify a 'bdlmca::Blob' object from any method of this utility while a
+// modify a 'btlb::Blob' object from any method of this utility while a
 // method modifies the content of this object.
 //
 ///Performance
@@ -59,8 +59,8 @@ namespace BloombergLP {
 
 namespace bslma  { class Allocator; }
 
-namespace bdlmca { class Blob; }
-namespace bdlmca { class BlobBufferFactory; }
+namespace btlb { class Blob; }
+namespace btlb { class BlobBufferFactory; }
 
 namespace btls {
 
@@ -69,16 +69,16 @@ struct IovecUtil {
     // manipulating 'Iovecs', including scatter/gather from a single continuous
     // buffer into an iovec structure, computing the length of an iovec
     // structure, and rewriting the data in an iovec structure into a
-    // 'bdlmca::Blob'.
+    // 'btlb::Blob'.
 
-    static void appendToBlob(bdlmca::Blob *blob,
-                             const Iovec  *buffers,
-                             int           numBuffers,
-                             int           offset = 0);
-    static void appendToBlob(bdlmca::Blob *blob,
-                             const Ovec   *buffers,
-                             int           numBuffers,
-                             int           offset = 0);
+    static void appendToBlob(btlb::Blob  *blob,
+                             const Iovec *buffers,
+                             int          numBuffers,
+                             int          offset = 0);
+    static void appendToBlob(btlb::Blob *blob,
+                             const Ovec *buffers,
+                             int         numBuffers,
+                             int         offset = 0);
         // Append to the specified 'blob' the data in the specified sequence of
         // 'buffers' of the specified 'numBuffers' length.  Optionally specify
         // an 'offset' (in bytes) in the data contained in the 'buffers' to
@@ -93,24 +93,24 @@ struct IovecUtil {
         // created with a blob buffer factory where 'totalDataSize' represents
         // the total size of the data in 'buffers'.
 
-    static bdlmca::Blob *blob(const Iovec               *buffers,
-                              int                        numBuffers,
-                              bdlmca::BlobBufferFactory *factory,
-                              bslma::Allocator          *basicAllocator = 0);
-    static bdlmca::Blob *blob(const Iovec               *buffers,
-                              int                        numBuffers,
-                              int                        offset,
-                              bdlmca::BlobBufferFactory *factory,
-                              bslma::Allocator          *basicAllocator = 0);
-        // Create a 'bdlmca::Blob' object allocated using the specified
-        // 'factory' and containing data from the specified sequence of
-        // 'buffers' of the specified 'numBuffers' length.  Optionally specify
-        // an 'offset' (in bytes) in the data contained in the 'buffers' to
-        // indicate the start of the copied data; if offset is not specified,
-        // then start at offset 0 (i.e., use all the 'buffers').  Optionally
-        // specify 'basicAllocator' used to supply memory.  If 'basicAllocator'
-        // is 0, the currently installed default allocator is used.  Return a
-        // pointer to the created blob.  The behavior is undefined unless
+    static btlb::Blob *blob(const Iovec             *buffers,
+                            int                      numBuffers,
+                            btlb::BlobBufferFactory *factory,
+                            bslma::Allocator        *basicAllocator = 0);
+    static btlb::Blob *blob(const Iovec             *buffers,
+                            int                      numBuffers,
+                            int                      offset,
+                            btlb::BlobBufferFactory *factory,
+                            bslma::Allocator        *basicAllocator = 0);
+        // Create a 'btlb::Blob' object allocated using the specified 'factory'
+        // and containing data from the specified sequence of 'buffers' of the
+        // specified 'numBuffers' length.  Optionally specify an 'offset' (in
+        // bytes) in the data contained in the 'buffers' to indicate the start
+        // of the copied data; if offset is not specified, then start at offset
+        // 0 (i.e., use all the 'buffers').  Optionally specify
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Return a pointer
+        // to the created blob.  The behavior is undefined unless
         // '0 <= offset < totalDataSize' where 'totalDataSize' represents the
         // total size of the data in 'buffers'.
 
@@ -166,33 +166,39 @@ struct IovecUtil {
 };
 
 //-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 //-----------------------------------------------------------------------------
 
-                        // ---------------
-                        // class IovecUtil
-                        // ---------------
+                            // ---------------
+                            // class IovecUtil
+                            // ---------------
 
 inline
-bdlmca::Blob *IovecUtil::blob(const Iovec               *vecs,
-                              int                        numVecs,
-                              bdlmca::BlobBufferFactory *factory,
-                              bslma::Allocator          *basicAllocator)
+btlb::Blob *IovecUtil::blob(const Iovec             *buffers,
+                            int                      numBuffers,
+                            btlb::BlobBufferFactory *factory,
+                            bslma::Allocator        *basicAllocator)
 {
-    return blob(vecs, numVecs, 0, factory, basicAllocator);
+    return blob(buffers, numBuffers, 0, factory, basicAllocator);
 }
 
 }  // close package namespace
-
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

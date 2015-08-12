@@ -1,5 +1,5 @@
-// bdlmca_pooledblobbufferfactory.t.cpp                                -*-C++-*-
-#include <bdlmca_pooledblobbufferfactory.h>
+// btlb_pooledblobbufferfactory.t.cpp                                -*-C++-*-
+#include <btlb_pooledblobbufferfactory.h>
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -64,17 +64,17 @@ static void aSsErT(int c, const char *s, int i) {
 //                               GLOBAL TYPEDEF
 //-----------------------------------------------------------------------------
 
-typedef bdlmca::PooledBlobBufferFactory Obj;
+typedef btlb::PooledBlobBufferFactory Obj;
 
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
 void checkBlob(int LINE, int bufferSize, int length, int maxLength,
-               bdlmca::Blob& mX)
+               btlb::Blob& mX)
 {
     const int NUM_BUFFERS = (0 < maxLength) ? 1+(maxLength-1)/bufferSize : 0;
-    const bdlmca::Blob& X = mX;
+    const btlb::Blob& X = mX;
 
     LOOP2_ASSERT(bufferSize, LINE, bufferSize*NUM_BUFFERS == X.totalSize());
     LOOP2_ASSERT(bufferSize, LINE, length == X.length());
@@ -107,8 +107,8 @@ int main(int argc, char *argv[]) {
         // BREATHING TEST
         //
         // Plan: Due to the amount of work needed to build a test driver, for
-        //   now, I simply copy the breathing test of a 'bdlmca_blob' but this
-        //   time using the 'bdlmca::PooledBlobBufferFactory' instead of the
+        //   now, I simply copy the breathing test of a 'btlb_blob' but this
+        //   time using the 'btlb::PooledBlobBufferFactory' instead of the
         //   (local) testing class 'TestBlobBufferFactory' in that component.
         //   In order to gain confidence against alignment and number of
         //   allocations, we try all buffer sizes in a reasonable range.
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
                 int maxLength = 0;
                 Obj fa(bufferSize, &ta);
 
-                bdlmca::Blob mX(&fa, &ta);  const bdlmca::Blob& X = mX;
+                btlb::Blob mX(&fa, &ta);  const btlb::Blob& X = mX;
                 ASSERT(0 == X.length());
                 ASSERT(0 == X.totalSize());
                 ASSERT(0 == X.numBuffers());
@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
                 mX.setLength(1);
                 checkBlob(L_, bufferSize, 1, maxLength, mX);
 
-                bdlmca::BlobBuffer buf;
+                btlb::BlobBuffer buf;
                 fa.allocate(&buf);
                 mX.appendBuffer(buf);
                 maxLength += bufferSize;

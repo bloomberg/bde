@@ -1,6 +1,6 @@
-// bdlmca_pooledblobbufferfactory.h  -*-C++-*-
-#ifndef INCLUDED_BDLMCA_POOLEDBLOBBUFFERFACTORY
-#define INCLUDED_BDLMCA_POOLEDBLOBBUFFERFACTORY
+// btlb_pooledblobbufferfactory.h  -*-C++-*-
+#ifndef INCLUDED_BTLB_POOLEDBLOBBUFFERFACTORY
+#define INCLUDED_BTLB_POOLEDBLOBBUFFERFACTORY
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -8,19 +8,19 @@
 BSLS_IDENT("$Id: $")
 
 
-//@PURPOSE: Provide a concrete implementation of 'bdlmca::BlobBufferFactory'.
+//@PURPOSE: Provide a concrete implementation of 'btlb::BlobBufferFactory'.
 //
 //@CLASSES:
-//  bdlmca::PooledBlobBufferFactory: mechanism for pooling 'bdlmca::BlobBuffer's
+//  btlb::PooledBlobBufferFactory: mechanism for pooling 'btlb::BlobBuffer's
 //
-//@SEE_ALSO: bdlmca_blob, bdlma_concurrentpool
+//@SEE_ALSO: btlb_blob, bdlma_concurrentpool
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides a mechanism for allocating
-// 'bdlmca::BlobBuffer' objects of a fixed specified size.  The size is passed at
-// construction of the 'bdlmca::PooledBlobBufferFactory' instance.  A
-// 'bdlmca::BlobBuffer' is basically a shared pointer to a buffer of 'char' of
+// 'btlb::BlobBuffer' objects of a fixed specified size.  The size is passed at
+// construction of the 'btlb::PooledBlobBufferFactory' instance.  A
+// 'btlb::BlobBuffer' is basically a shared pointer to a buffer of 'char' of
 // the prescribed size.  Thus it is generally more efficient to create them
 // with a uniform size, for the same reason as a pool is more efficient than a
 // general-purpose memory allocator.  In order to gain further efficiency, this
@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace btlb {
                      // ===================================
                      // class PooledBlobBufferFactory
                      // ===================================

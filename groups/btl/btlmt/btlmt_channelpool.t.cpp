@@ -19,7 +19,7 @@
 
 #include <bdlcc_queue.h>
 #include <bslma_testallocator.h>
-#include <bdlmca_blobutil.h>
+#include <btlb_blobutil.h>
 #include <bdlma_concurrentpool.h>
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
@@ -140,8 +140,8 @@ using namespace bdlf::PlaceHolders;
 // [26] static bsls::Types::Int64 length(...);
 // [26] static int write(btlso::StreamSocket<btlso::IPv4Address> *, ... )
 // [26] static int loadIovec(btls::Iovec *, ... );
-// [26] static int loadBlob(bdlmca::Blob *, ... );
-// [26] static void appendToBlob(bdlmca::Blob *, ... );
+// [26] static int loadBlob(btlb::Blob *, ... );
+// [26] static void appendToBlob(btlb::Blob *, ... );
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] CONCERN: Import half-closed socket pair
@@ -651,7 +651,7 @@ class ChannelPoolStateCbTester {
     { return d_lastChannelId; }
 };
 
-void populateMessage(bdlmca::Blob       *msg,
+void populateMessage(btlb::Blob       *msg,
                      int               length,
                      bslma::Allocator *allocator)
     // Populate the specified 'msg' with a buffer of the specified 'length'
@@ -669,7 +669,7 @@ void populateMessage(bdlmca::Blob       *msg,
     for (; c < end; ++c) {
         *c = value--;
     }
-    bdlmca::BlobBuffer blobBuffer(buffer, length);
+    btlb::BlobBuffer blobBuffer(buffer, length);
     msg->appendDataBuffer(blobBuffer);
 }
 
@@ -711,11 +711,11 @@ void channelStateCb(int             channelId,
 }
 
 void blobBasedReadCb(int            *needed,
-                     bdlmca::Blob   *msg,
+                     btlb::Blob   *msg,
                      int             channelId,
                      void           *,
                      bdlqq::Barrier *barrier,
-                     bdlmca::Blob   *savedMsg)
+                     btlb::Blob   *savedMsg)
 {
     if (veryVerbose) {
         bdlqq::LockGuard<bdlqq::Mutex> guard(&coutMutex);
@@ -763,7 +763,7 @@ class ReadServer
     enum { SERVER_ID = 1066 };
 
     int                      d_port;
-    bdlmca::Blob               d_lastMsg;
+    btlb::Blob               d_lastMsg;
     int                      d_msgSize;
     bslma::Allocator        *d_allocator_p;
     btlmt::ChannelPool      *d_cp_p;
@@ -776,7 +776,7 @@ class ReadServer
     void chanCB(int channelId, int serverId, int state, void *arg);
 
     void blobBasedReadCb(int        *numNeeded,
-                         bdlmca::Blob *msg,
+                         btlb::Blob *msg,
                          int         channelId,
                          void       *context);
         // Blob based read callback.
@@ -787,7 +787,7 @@ class ReadServer
 
   public:
     // CREATORS
-    ReadServer(bdlmca::BlobBufferFactory *factory,
+    ReadServer(btlb::BlobBufferFactory *factory,
                int                      msgSize,
                bslma::Allocator        *allocator = 0);
         // Create a server using the specified 'factory' for blob buffers
@@ -818,13 +818,13 @@ class ReadServer
         // Return the port number on the local host on which this server
         // listens to connections.
 
-    const bdlmca::Blob& lastMsg() {
+    const btlb::Blob& lastMsg() {
         return d_lastMsg;
     }
 };
 
 ReadServer::ReadServer(
-        bdlmca::BlobBufferFactory *factory,
+        btlb::BlobBufferFactory *factory,
         int                      msgSize,
         bslma::Allocator        *allocator)
 : d_port(0)
@@ -892,20 +892,20 @@ void ReadServer::chanCB(int channelId, int, int state, void *)
     }
 }
 
-void ReadServer::blobBasedReadCb(int *needed, bdlmca::Blob *msg, int, void *)
+void ReadServer::blobBasedReadCb(int *needed, btlb::Blob *msg, int, void *)
 {
     if (veryVerbose) {
         bsl::cout << "Blob Based Read Cb called with message of length: "
                   << msg->length() << bsl::endl;
     }
     if (veryVeryVerbose) {
-        bdlmca::BlobUtil::hexDump(bsl::cout, *msg);
+        btlb::BlobUtil::hexDump(bsl::cout, *msg);
     }
 
     ASSERT(needed);
     ASSERT(msg);
 
-    bdlmca::BlobUtil::append(&d_lastMsg, *msg);
+    btlb::BlobUtil::append(&d_lastMsg, *msg);
     msg->removeAll();
     *needed = bsl::max(1, d_msgSize - d_lastMsg.length());
 
@@ -970,7 +970,7 @@ void channelStateCb(int             channelId,
 }
 
 void blobBasedReadCb(int            *needed,
-                     bdlmca::Blob   *msg,
+                     btlb::Blob   *msg,
                      int             channelId,
                      void           *,
                      bdlqq::Barrier *)
@@ -1037,7 +1037,7 @@ void channelStateCb(int             channelId,
 }
 
 void blobBasedReadCb(int            *needed,
-                     bdlmca::Blob   *msg,
+                     btlb::Blob   *msg,
                      int             channelId,
                      void           *,
                      bdlqq::Barrier *)
@@ -1175,7 +1175,7 @@ void channelStateCb(int             channelId,
 }
 
 void blobBasedReadCb(int            *needed,
-                     bdlmca::Blob   *msg,
+                     btlb::Blob   *msg,
                      int             channelId,
                      void           *,
                      bdlqq::Barrier *barrier)
@@ -1259,7 +1259,7 @@ void channelStateCb(int             channelId,
 }
 
 void blobBasedReadCb(int            *needed,
-                     bdlmca::Blob   *msg,
+                     btlb::Blob   *msg,
                      int             channelId,
                      void           *,
                      string         *data,
@@ -1276,7 +1276,7 @@ void blobBasedReadCb(int            *needed,
     barrier->wait();
 
     ostringstream os;
-    bdlmca::BlobUtil::asciiDump(os, *msg);
+    btlb::BlobUtil::asciiDump(os, *msg);
     data->append(os.str());
 
     msg->removeAll();
@@ -1317,7 +1317,7 @@ struct WriteData {
     btlmt::ChannelPool                     *d_pool_p;
     int                                    d_channelId;
     btlso::StreamSocket<btlso::IPv4Address> *d_socket_p;
-    bdlmca::Blob                            *d_blob_p;
+    btlb::Blob                            *d_blob_p;
 };
 
 void *writeData(void *data)
@@ -1326,7 +1326,7 @@ void *writeData(void *data)
 
     btlmt::ChannelPool&  pool      = *td.d_pool_p;
     int                  channelId = td.d_channelId;;
-    bdlmca::Blob        *blob      = td.d_blob_p;
+    btlb::Blob        *blob      = td.d_blob_p;
 
     int curr = 0, max = 0;
     int rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
@@ -1411,7 +1411,7 @@ Obj       *channelPool;
 int        s_channelId;
 const int  CACHE_HI_WAT = 6000000;
 
-bdlmca::PooledBlobBufferFactory blobFactory(256);
+btlb::PooledBlobBufferFactory blobFactory(256);
 
 int delayBetweenWrites = 1000000;
 int maxWritesPerThread = 10000;
@@ -1460,7 +1460,7 @@ void channelStateCb(int             channelId,
 }
 
 void blobBasedReadCb(int          *needed,
-                     bdlmca::Blob *msg,
+                     btlb::Blob *msg,
                      int           channelId,
                      void         *)
 {
@@ -1478,12 +1478,12 @@ struct TestData {
     Obj            *d_pool_p;
     int             d_channelId;
     bdlqq::Barrier *d_barrier_p;
-    bdlmca::Blob   *d_blob_p;
+    btlb::Blob   *d_blob_p;
 };
 
 int write(int nBytes)
 {
-    bdlmca::Blob blob(&blobFactory);
+    btlb::Blob blob(&blobFactory);
     blob.setLength(nBytes);
     return channelPool->write(s_channelId, blob);
 }
@@ -1553,7 +1553,7 @@ void writerThread(unsigned threadIndex)
     int iter;
     int oldSignal = 0;
 
-    bdlmca::Blob blob(&blobFactory);
+    btlb::Blob blob(&blobFactory);
     for (iter = 0; iter < maxWritesPerThread &&
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
 
@@ -1588,7 +1588,7 @@ void success()
     _exit(0);
 }
 
-bdlmca::PooledBlobBufferFactory f(1024);
+btlb::PooledBlobBufferFactory f(1024);
 extern "C" void* threadFunctionCase36(void *data)
 {
     TestData       *testData = (TestData *) data;
@@ -1596,7 +1596,7 @@ extern "C" void* threadFunctionCase36(void *data)
     int             id       = testData->d_channelId;
     bdlqq::Barrier *barrier  = testData->d_barrier_p;;
 
-    bdlmca::Blob b(&f);
+    btlb::Blob b(&f);
     b.setLength(CACHE_HI_WAT);
 
     barrier->wait();
@@ -1652,7 +1652,7 @@ void channelStateCb(int   channelId,
 }
 
 void blobBasedReadCb(int          *needed,
-                     bdlmca::Blob *msg,
+                     btlb::Blob *msg,
                      int           channelId,
                      void         *,
                      int          *numTimesCbCalled)
@@ -1671,7 +1671,7 @@ void blobBasedReadCb(int          *needed,
     }
     *needed = 1;
 
-    bdlmca::BlobUtil::asciiDump(dataStream, *msg);
+    btlb::BlobUtil::asciiDump(dataStream, *msg);
     msg->removeAll();
 }
 
@@ -1730,7 +1730,7 @@ void channelStateCb(int              channelId,
 }
 
 void blobBasedReadCb(int             *needed,
-                     bdlmca::Blob    *msg,
+                     btlb::Blob    *msg,
                      int              channelId,
                      void            *,
                      int             *numTimesCbCalled,
@@ -1746,7 +1746,7 @@ void blobBasedReadCb(int             *needed,
     *needed = 1;
 
     ostringstream os;
-    bdlmca::BlobUtil::asciiDump(os, *msg);
+    btlb::BlobUtil::asciiDump(os, *msg);
     data->append(os.str());
 
     msg->removeAll();
@@ -1869,7 +1869,7 @@ void channelStateCb(int              channelId,
 }
 
 void blobBasedReadCb(int          *needed,
-                     bdlmca::Blob *msg,
+                     btlb::Blob *msg,
                      int           channelId,
                      void         *)
 {
@@ -2263,7 +2263,7 @@ class ReadServer
     void chanCB(int channelId, int serverId, int state, void *arg);
 
     void blobBasedReadCb(int          *numNeeded,
-                         bdlmca::Blob *msg,
+                         btlb::Blob *msg,
                          int           channelId,
                          void         *context);
         // Blob based read callback.
@@ -2384,7 +2384,7 @@ void ReadServer::chanCB(int channelId, int serverId, int state, void *)
 }
 
 void ReadServer::blobBasedReadCb(int          *needed,
-                                 bdlmca::Blob *msg,
+                                 btlb::Blob *msg,
                                  int           channelId,
                                  void         *)
 {
@@ -2403,7 +2403,7 @@ void ReadServer::blobBasedReadCb(int          *needed,
 
     if (veryVerbose) {
         bdlqq::LockGuard<bdlqq::Mutex> guard(d_coutMutex);
-        bdlmca::BlobUtil::hexDump(bsl::cout, *msg, 0, length);
+        btlb::BlobUtil::hexDump(bsl::cout, *msg, 0, length);
     }
 
     if (d_expDataSize != length) {
@@ -2412,14 +2412,14 @@ void ReadServer::blobBasedReadCb(int          *needed,
     }
 
     for (int i = 0; i < numBuffers - 1; ++i) {
-        const bdlmca::BlobBuffer& buffer = msg->buffer(i);
+        const btlb::BlobBuffer& buffer = msg->buffer(i);
         d_data.append(buffer.data(), buffer.size());
     }
 
-    const bdlmca::BlobBuffer& buffer = msg->buffer(numBuffers - 1);
+    const btlb::BlobBuffer& buffer = msg->buffer(numBuffers - 1);
     d_data.append(buffer.data(), msg->lastDataBufferLength());
 
-    bdlmca::BlobUtil::erase(msg, 0, length);
+    btlb::BlobUtil::erase(msg, 0, length);
 
     *needed = 1;
 }
@@ -2472,7 +2472,7 @@ class DataReader {
 
     // MANIPULATORS
     void blobBasedReadCb(int        *numNeeded,
-                         bdlmca::Blob *msg,
+                         btlb::Blob *msg,
                          int         channelId,
                          void       *context);
         // Blob based read callback.
@@ -2520,7 +2520,7 @@ class ReadServer
     void chanCB(int channelId, int serverId, int state, void *arg);
 
     void blobBasedReadCb(int        *numNeeded,
-                         bdlmca::Blob *msg,
+                         btlb::Blob *msg,
                          int         channelId,
                          void       *context);
         // Blob based read callback.
@@ -2655,7 +2655,7 @@ void ReadServer::chanCB(int channelId, int serverId, int state, void *)
 }
 
 void ReadServer::blobBasedReadCb(int             *needed,
-                                 bdlmca::Blob      *msg,
+                                 btlb::Blob      *msg,
                                  int              channelId,
                                  void            *arg)
 {
@@ -2782,7 +2782,7 @@ DataReader::~DataReader()
 
 // MANIPULATORS
 void DataReader::blobBasedReadCb(int          *numNeeded,
-                                 bdlmca::Blob *msg,
+                                 btlb::Blob *msg,
                                  int           channelId,
                                  void         *)
 {
@@ -2803,7 +2803,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
 
         bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgId, msg->buffer(0).data());
         ASSERT(0 <= d_msgId);
-        bdlmca::BlobUtil::erase(msg, 0, sizeof(int));
+        btlb::BlobUtil::erase(msg, 0, sizeof(int));
 
         if (0 == msg->length()) {
             *numNeeded = sizeof(int);
@@ -2820,7 +2820,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
         bdlxxxx::ByteStreamImpUtil::getInt32(&d_msgLength,
                                          msg->buffer(0).data());
         ASSERT(0 <= d_msgLength);
-        bdlmca::BlobUtil::erase(msg, 0, sizeof(int));
+        btlb::BlobUtil::erase(msg, 0, sizeof(int));
 
         if (0 == msg->length()) {
             *numNeeded = d_msgLength;
@@ -2837,7 +2837,7 @@ void DataReader::blobBasedReadCb(int          *numNeeded,
     msgData.append(msg->buffer(numDataBufs - 1).data(),
                    msg->lastDataBufferLength());
 
-    bdlmca::BlobUtil::erase(msg, 0, msg->length());
+    btlb::BlobUtil::erase(msg, 0, msg->length());
     d_data.append(msgData);
     *numNeeded = 1;
 }
@@ -2945,14 +2945,14 @@ void TestData::run()
 namespace TEST_CASE_BUSY_METRICS {
 
 void dummyDataCallbackWithDelay(int          *numNeeded,
-                                bdlmca::Blob *message,
+                                btlb::Blob *message,
                                 int           ,
                                 void         *,
                                 double        delayS)
 {
     bdlqq::ThreadUtil::sleep(bsls::TimeInterval(delayS));
     *numNeeded   = 1;
-    bdlmca::BlobUtil::erase(message, 0, message->length());
+    btlb::BlobUtil::erase(message, 0, message->length());
 }
 
 }  // namespace TEST_CASE_BUSY_METRICS
@@ -3004,7 +3004,7 @@ void loadIovecs(bsl::vector<IOVEC>                *iovecs,
     }
 }
 
-void loadBlob(bdlmca::Blob                       *blob,
+void loadBlob(btlb::Blob                       *blob,
               bsl::vector<bsl::vector<char> >&  data)
     // Load into the specified 'blob' the specified 'data' buffers.
 {
@@ -3013,7 +3013,7 @@ void loadBlob(bdlmca::Blob                       *blob,
         bsl::shared_ptr<char> sharedData(&srcIt->front(),
                                          bslstl::SharedPtrNilDeleter(),
                                          0);
-        bdlmca::BlobBuffer buffer(sharedData, srcIt->size());
+        btlb::BlobBuffer buffer(sharedData, srcIt->size());
         blob->appendDataBuffer(buffer);
     }
 }
@@ -3021,7 +3021,7 @@ void loadBlob(bdlmca::Blob                       *blob,
 bool isEqualByteSequence(
                 const bsl::vector<bsl::vector<char> >& expectedSequence,
                 int                                    expectedSequenceOffset,
-                const bdlmca::Blob&                      blob,
+                const btlb::Blob&                      blob,
                 int                                    blobStartOffset,
                 int                                    maximumLength = 0)
 
@@ -3067,7 +3067,7 @@ bool isEqualByteSequence(
 
     while (blobPosition < maximumOffset &&
            arrayIndex   < (int) expectedSequence.size()) {
-        const bdlmca::BlobBuffer&   buffer     = blob.buffer(blobIndex);
+        const btlb::BlobBuffer&   buffer     = blob.buffer(blobIndex);
         const char               *bufferData = buffer.buffer().get();
         const bsl::vector<char>&  array      = expectedSequence[arrayIndex];
 
@@ -3347,7 +3347,7 @@ void TestCase25ConcurrencyTest::executeTest()
            NUM_BYTES     = HI_WATERMARK * 25 };
 
     int rc = 0, totalBytesWritten = 0;
-    bdlmca::Blob oneByteMsg;
+    btlb::Blob oneByteMsg;
     populateMessage(&oneByteMsg, 1, bslma::Default::allocator(0));
 
     d_barrier.wait();
@@ -3440,7 +3440,7 @@ void testCase25ConcurrencyTest(btlmt::ChannelPool *pool,
            NUM_BYTES    = HI_WATERMARK * 10 };
 
     int rc = 0, totalBytesWritten = 0;
-    bdlmca::Blob oneByteMsg;
+    btlb::Blob oneByteMsg;
     populateMessage(&oneByteMsg, 1, bslma::Default::allocator(0));
 
     barrier->wait();
@@ -3623,7 +3623,7 @@ struct case22ThreadInfo {
     int                              d_totalAlloc;
     int                              d_numIters;
     char                             d_write;
-    bdlmca::PooledBlobBufferFactory *d_factory_p;
+    btlb::PooledBlobBufferFactory *d_factory_p;
     int                              d_messageLength;
     bslma::Allocator                *d_allocator_p;
 };
@@ -3660,9 +3660,9 @@ void * case22Thread(void * arg)
                             ? TOTAL_SIZE % BUF_SIZE
                             : BUF_SIZE;  // size of the last buffer
 
-    bdlmca::Blob blob(info->d_factory_p, info->d_allocator_p);
+    btlb::Blob blob(info->d_factory_p, info->d_allocator_p);
     for (int i = 0 ;i < numVecs; ++i) {
-        bdlmca::BlobUtil::append(&blob,
+        btlb::BlobUtil::append(&blob,
                                  buffer + i * BUF_SIZE,
                                  (i < numVecs-1) ? BUF_SIZE : LAST_VEC_SIZE);
     }
@@ -3897,7 +3897,7 @@ void case22ChannelStateCallback(int                 channelId,
 }
 
 void case22DataCallback(int                *numNeeded,
-                        bdlmca::Blob       *msg,
+                        btlb::Blob       *msg,
                         int                 channelId,
                         void               *,
                         case22CallbackInfo *info)
@@ -3923,7 +3923,7 @@ void case22DataCallback(int                *numNeeded,
     bsl::shared_ptr<char> buffer =
         bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(msg->length());
     char *dataBuffer = buffer.get();
-    bdlmca::BlobUtil::copy(dataBuffer, *msg, 0, msg->length());
+    btlb::BlobUtil::copy(dataBuffer, *msg, 0, msg->length());
 
     if (channelId == channelId1 || channelId == channelId2) {
         if (0 < info->d_msgSize) {
@@ -3981,7 +3981,7 @@ void case22DataCallback(int                *numNeeded,
                                           (int)dataBuffer[i]);
                         }
                         numConsumed += i;
-                        bdlmca::BlobUtil::erase(msg, 0, numConsumed);
+                        btlb::BlobUtil::erase(msg, 0, numConsumed);
                         return;                                       // RETURN
                     }
                 }
@@ -4014,7 +4014,7 @@ void case22DataCallback(int                *numNeeded,
                         PT3(__LINE__, (int)PAYLOAD_CHAR,
                                       (int)dataBuffer[i]);
                     }
-                    bdlmca::BlobUtil::erase(msg, 0, numConsumed);
+                    btlb::BlobUtil::erase(msg, 0, numConsumed);
                     return;                                           // RETURN
                 }
             }
@@ -4051,7 +4051,7 @@ void case22DataCallback(int                *numNeeded,
             }
         }
 
-        bdlmca::BlobUtil::erase(msg, 0, numConsumed);
+        btlb::BlobUtil::erase(msg, 0, numConsumed);
     }
 }
 
@@ -4143,7 +4143,7 @@ void runTestCase22(char                                           *,
                                 (maxOutgoingMessageSize + 1) / 2,
                                 maxOutgoingMessageSize);
 
-    bdlmca::PooledBlobBufferFactory bufferFactory(BUFFER_ALLOC, allocator);
+    btlb::PooledBlobBufferFactory bufferFactory(BUFFER_ALLOC, allocator);
 
     // Starting server.
     {
@@ -5002,11 +5002,11 @@ namespace TEST_CASE_20_NAMESPACE {
 
 static
 void case20DataCallback(int          *numNeeded,
-                        bdlmca::Blob *msg,
+                        btlb::Blob *msg,
                         int           ,
                         void         *)
 {
-    bdlmca::BlobUtil::erase(msg, 0, msg->length());
+    btlb::BlobUtil::erase(msg, 0, msg->length());
     *numNeeded = 1;
 
     // bdlqq::ThreadUtil::microSleep(1000);  // 1ms
@@ -5387,7 +5387,7 @@ namespace TEST_CASE_14_NAMESPACE {
 
 static
 void case14ChannelDataCallback(int               *numNeeded,
-                               bdlmca::Blob      *msg,
+                               btlb::Blob      *msg,
                                int                channelId,
                                void              *,
                                Obj              **channelPool_p,
@@ -5401,7 +5401,7 @@ void case14ChannelDataCallback(int               *numNeeded,
         *fail = 1;
     }
 
-    bdlmca::BlobUtil::erase(msg, 0, msg->length());
+    btlb::BlobUtil::erase(msg, 0, msg->length());
     *numNeeded = 1;
 }
 
@@ -5510,7 +5510,7 @@ void case12FlowControlChannelCallback(
                       bdlqq::Barrier                          *barrier,
                       int                                     *numBytesWritten,
                       const btlmt::ChannelPoolConfiguration&   ,
-                      bdlmca::PooledBlobBufferFactory         *factory,
+                      btlb::PooledBlobBufferFactory         *factory,
                       btlmt::ChannelPool                     **instance)
 {
     ASSERT(barrier);
@@ -5539,7 +5539,7 @@ void case12FlowControlChannelCallback(
 
 
 
-        bdlmca::Blob blob(factory);
+        btlb::Blob blob(factory);
         blob.setLength(factory->bufferSize());
         bsl::memset(blob.buffer(0).data(), 0xab, factory->bufferSize());
         while ((*instance)->write(channelId, blob) == 0) {
@@ -5906,7 +5906,7 @@ struct case9ThreadInfo2 {
     int                              d_bufferAlloc;
     int                              d_totalAlloc;
     bslma::Allocator                *d_allocator_p;
-    bdlmca::PooledBlobBufferFactory *d_factory_p;
+    btlb::PooledBlobBufferFactory *d_factory_p;
 };
 
 extern "C" {
@@ -5929,11 +5929,11 @@ void *case9Thread0(void *arg)
                             ? TOTAL_SIZE % BUF_SIZE
                             : BUF_SIZE;  // size of the last buffer
 
-    // Segment buffer into bdlmca::Blob of individual buffers of BUF_SIZE.
-    bdlmca::Blob blob(info->d_allocator_p);
+    // Segment buffer into btlb::Blob of individual buffers of BUF_SIZE.
+    btlb::Blob blob(info->d_allocator_p);
     for (int i = 0 ;i < numVecs; ++i) {
         bsl::shared_ptr<char> buf(sharedBuffer, buffer + i * BUF_SIZE);
-        blob.appendBuffer(bdlmca::BlobBuffer(buf,
+        blob.appendBuffer(btlb::BlobBuffer(buf,
                                            (i < numVecs-1) ? BUF_SIZE
                                                            : LAST_VEC_SIZE));
     }
@@ -6025,8 +6025,8 @@ void *case9Thread3(void *arg)
                             ? TOTAL_SIZE % BUF_SIZE
                             : BUF_SIZE;  // size of the last buffer
 
-    bdlmca::Blob blob(info->d_allocator_p);
-    bdlmca::Blob chain(info->d_allocator_p);
+    btlb::Blob blob(info->d_allocator_p);
+    btlb::Blob chain(info->d_allocator_p);
 
     btls::Iovec *vecs = (btls::Iovec *) info->d_allocator_p->allocate(
                                                 numVecs * sizeof(btls::Iovec));
@@ -6035,7 +6035,7 @@ void *case9Thread3(void *arg)
         switch (info->d_write % 2) {
           case 0: {
             bsl::shared_ptr<char> buf(sharedBuffer, buffer + i * BUF_SIZE);
-            blob.appendBuffer(bdlmca::BlobBuffer(buf,
+            blob.appendBuffer(btlb::BlobBuffer(buf,
                                                (i < numVecs-1) ? BUF_SIZE
                                                              : LAST_VEC_SIZE));
           } break;
@@ -6425,7 +6425,7 @@ void runTestCase9(char                                           *,
                                        1, SERVER_ID));
 
         ASSERT(-5 == mX.write(31312313, (btls::Iovec*)NULL, 0));
-        bdlmca::PooledBlobBufferFactory bufferFactory(BUFFER_ALLOC, &ta);
+        btlb::PooledBlobBufferFactory bufferFactory(BUFFER_ALLOC, &ta);
 
         if (veryVerbose)
             cout << "Writing using blobs\n"
@@ -7185,7 +7185,7 @@ private:
     // ChannelPool Callback Functions
     void poolCB(int state, int source, int severity);
     void chanCB(int channelId, int serverId, int state, void *arg);
-    void blobCB(int *numNeeded, bdlmca::Blob *msg, int channelId, void *arg);
+    void blobCB(int *numNeeded, btlb::Blob *msg, int channelId, void *arg);
 
     // Not Implemented
     vlm_EchoServer(const vlm_EchoServer&);
@@ -7284,7 +7284,7 @@ void vlm_EchoServer::chanCB(int channelId, int, int state, void *)
 }
 
 void vlm_EchoServer::blobCB(int          *numNeeded,
-                            bdlmca::Blob *msg,
+                            btlb::Blob *msg,
                             int           ,
                             void         *)
 {
@@ -7315,7 +7315,7 @@ void vlm_EchoServer::blobCB(int          *numNeeded,
     LOOP2_ASSERT(length, msg->length(),
                  length == (int)(msg->length() - INT_SIZE));
 
-    bdlmca::BlobUtil::erase(msg, 0, length + INT_SIZE);
+    btlb::BlobUtil::erase(msg, 0, length + INT_SIZE);
 //     d_cp_p->write(channelId, *msg);
 }
 
@@ -7328,7 +7328,7 @@ void vlm_EchoServer::blobCB(int          *numNeeded,
 namespace USAGE_EXAMPLE_2_NAMESPACE {
 
 static
-int parseMessages(int *numNeeded, bdlmca::Blob *blob)
+int parseMessages(int *numNeeded, btlb::Blob *blob)
 {
     ASSERT(numNeeded);
 
@@ -7365,7 +7365,7 @@ class my_QueueProcessor {
         SERVER_ID = 0x7A
     };
 
-    typedef bsl::pair<int, bdlmca::Blob> BlobTypeWithId;
+    typedef bsl::pair<int, btlb::Blob> BlobTypeWithId;
 
     btlmt::ChannelPoolConfiguration  d_config;          // pool's configuration
     btlmt::ChannelPool              *d_channelPool_p;   // managed pool
@@ -7383,7 +7383,7 @@ class my_QueueProcessor {
 
     void poolCb(int state, int source, int severity);
     void channelStateCb(int channelId, int sourceId, int state, void *context);
-    void blobCB(int *numNeeded, bdlmca::Blob *msg, int channelId, void *arg);
+    void blobCB(int *numNeeded, btlb::Blob *msg, int channelId, void *arg);
 
     // Not implemented:
 
@@ -7558,7 +7558,7 @@ void my_QueueProcessor::channelStateCb(int   channelId,
 }
 
 void my_QueueProcessor::blobCB(int          *numNeeded,
-                               bdlmca::Blob *msg,
+                               btlb::Blob *msg,
                                int           channelId,
                                void         *)
 {
@@ -7644,7 +7644,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
             // specify a context, so the value will be 0.
 
         void blobCB(int          *numNeeded,
-                    bdlmca::Blob *msg,
+                    btlb::Blob *msg,
                     int           channelId,
                     void         *arg);
             // Echo the specified 'msg' to the client on the channel identified
@@ -7775,7 +7775,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
     }
 
     void my_EchoServer::blobCB(int          *numNeeded,
-                               bdlmca::Blob *msg,
+                               btlb::Blob *msg,
                                int           channelId,
                                void         *)
     {
@@ -7784,7 +7784,7 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
         ASSERT(0 < msg->length());
 
         ASSERT(0 == d_channelPool_p->write(channelId, *msg));
-        bdlmca::BlobUtil::erase(msg, 0, msg->length());
+        btlb::BlobUtil::erase(msg, 0, msg->length());
         *numNeeded   = 1;
         MTCOUT << "Shutdown " << channelId << MTENDL;
         d_channelPool_p->shutdown(channelId,
@@ -7824,17 +7824,17 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
 
 namespace USAGE_EXAMPLE_M1_NAMESPACE {
 
-typedef bsl::pair<int, bdlmca::Blob> BlobTypeWithId;
+typedef bsl::pair<int, btlb::Blob> BlobTypeWithId;
 
 static void
-generateMessage(bdlmca::Blob& msg, bslma::Allocator *basicAllocator = 0)
+generateMessage(btlb::Blob& msg, bslma::Allocator *basicAllocator = 0)
 {
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     bdlxxxx::ByteOutStream stream(basicAllocator);
     bdex_OutStreamFunctions::streamOut(stream, now, 1);
     int streamedLength = stream.length();
     msg.setLength(sizeof(int) + streamedLength);
-    bdlmca::BlobUtil::append(&msg, stream.data(), sizeof(int), streamedLength);
+    btlb::BlobUtil::append(&msg, stream.data(), sizeof(int), streamedLength);
     char *buffer = msg.buffer(0).data();
     int tmp = htonl(streamedLength + sizeof(int));
     memcpy(buffer, &tmp, sizeof(int));
@@ -7857,7 +7857,7 @@ class my_QueueClient {
     bdlqq::ThreadUtil::Handle        d_processorHandle;
     bsls::AtomicOperations::AtomicTypes::Int
                                      d_runningFlag;
-    bdlmca::Blob                     d_initialMessage;
+    btlb::Blob                     d_initialMessage;
     btlso::IPv4Address               d_peer;
     int                              d_numConnections;
 
@@ -7865,7 +7865,7 @@ class my_QueueClient {
     // Callback functions:
     void poolStateCb(int state, int source, int severity);
     void channelStateCb(int channelId, int sourceId, int state, void *context);
-    void blobCB(int *numNeeded, bdlmca::Blob *msg, int channelId, void *);
+    void blobCB(int *numNeeded, btlb::Blob *msg, int channelId, void *);
 
     // Not implemented:
     my_QueueClient(const my_QueueClient& original);        // Not impl.
@@ -7877,7 +7877,7 @@ class my_QueueClient {
                    const char                   *hostname,
                    int                           portNumber,
                    int                           numConnections,
-                   const bdlmca::Blob&           initialMessage,
+                   const btlb::Blob&           initialMessage,
                    bslma::Allocator             *basicAllocator = 0);
 
     ~my_QueueClient();
@@ -7912,7 +7912,7 @@ my_QueueClient::my_QueueClient(bdlcc::Queue<BlobTypeWithId> *incomingQueue,
                                const char                   *hostname,
                                int                           portNumber,
                                int                           numConnections,
-                               const bdlmca::Blob&           initialMessage,
+                               const btlb::Blob&           initialMessage,
                                bslma::Allocator             *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_coutLock_p(coutLock)
@@ -8040,7 +8040,7 @@ void my_QueueClient::channelStateCb(int   channelId,
 }
 
 void my_QueueClient::blobCB(int          *numNeeded,
-                            bdlmca::Blob *msg,
+                            btlb::Blob *msg,
                             int           channelId,
                             void         *)
 {
@@ -8085,9 +8085,9 @@ void *usageExampleMinusOne(void *arg)
     }
     bdlcc::Queue<BlobTypeWithId> incoming, outgoing;
 
-    bdlmca::PooledBlobBufferFactory blobFactory(100, &ta);
-    bdlmca::Blob                    blob(&blobFactory);
-    bdlmca::Blob                    initialMessage(blob, &ta);
+    btlb::PooledBlobBufferFactory blobFactory(100, &ta);
+    btlb::Blob                    blob(&blobFactory);
+    btlb::Blob                    initialMessage(blob, &ta);
 
     generateMessage(initialMessage, &ta);
 
@@ -8344,7 +8344,7 @@ void TestDriver::testCase44()
     //:
     //
     // Testing:
-    //   btlmt::ChannelPool(bslma::ManagedPtr<bdlmca::BlobBufferFactory>*,
+    //   btlmt::ChannelPool(bslma::ManagedPtr<btlb::BlobBufferFactory>*,
     //                     ChannelStateChangeCallback,
     //                     BlobBasedReadCallback,
     //                     PoolStateChangeCallback,
@@ -8386,9 +8386,9 @@ void TestDriver::testCase44()
         const int SIZE = 4444;
         const char FILL = 0xBB;
         BSLS_ASSERT(0 == SIZE%2); // test invariant
-        bdlmca::PooledBlobBufferFactory factory(SIZE/2);
+        btlb::PooledBlobBufferFactory factory(SIZE/2);
 
-        bdlmca::Blob    blob;
+        btlb::Blob    blob;
         bdlqq::Barrier  dataCbBarrier(2);
 
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
@@ -8557,8 +8557,8 @@ void TestDriver::testCase43()
         bdlqq::ThreadUtil::microSleep(0, 2);
 
         const int NUM_BYTES = 1024 * 1024 * 10;
-        bdlmca::PooledBlobBufferFactory f(SIZE);
-        bdlmca::Blob                    b(&f);
+        btlb::PooledBlobBufferFactory f(SIZE);
+        btlb::Blob                    b(&f);
         b.setLength(NUM_BYTES);
 
         mapMutex.lock();
@@ -8668,8 +8668,8 @@ void TestDriver::testCase42()
         channelCbBarrier.wait();
 
         const int SIZE = 1024 * 1024 * 10;  // 10 MB
-        bdlmca::PooledBlobBufferFactory f(SIZE);
-        bdlmca::Blob                    b(&f);
+        btlb::PooledBlobBufferFactory f(SIZE);
+        btlb::Blob                    b(&f);
         b.setLength(SIZE);
 
         rc = pool.write(channelId, b);
@@ -8780,8 +8780,8 @@ void TestDriver::testCase41()
                                           bteso_Flag::e_NONBLOCKING_MODE));
 
         const int SIZE = 1000;
-        bdlmca::PooledBlobBufferFactory f(SIZE);
-        bdlmca::Blob                    b(&f);
+        btlb::PooledBlobBufferFactory f(SIZE);
+        btlb::Blob                    b(&f);
         b.setLength(SIZE * 10);
 
         WriteData wd;
@@ -9306,8 +9306,8 @@ void TestDriver::testCase34()
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
 
         const int SIZE = 1024;
-        bdlmca::PooledBlobBufferFactory f(SIZE);
-        bdlmca::Blob b(&f);
+        btlb::PooledBlobBufferFactory f(SIZE);
+        btlb::Blob b(&f);
         b.setLength(CACHE_HI_WAT);
 
         btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config);
@@ -10946,7 +10946,7 @@ void TestDriver::testCase28()
 
                 ChannelPoolStateCbTester mX(config, dataCb, poolCb, &ta);
                 Obj& pool = mX.pool(); const Obj& POOL = mX.pool();
-                bdlmca::PooledBlobBufferFactory outFactory(HI_WATERMARK / 64,
+                btlb::PooledBlobBufferFactory outFactory(HI_WATERMARK / 64,
                                                            &ta);
 
                 ASSERT(0 == pool.start());
@@ -11110,7 +11110,7 @@ void TestDriver::testCase27()
 
             ASSERT(0 == pool.import(serverSocket, &factory, 0));
 
-            bdlmca::Blob oneByteMsg(&ta);
+            btlb::Blob oneByteMsg(&ta);
             populateMessage(&oneByteMsg, 1, &ta);
             ASSERT(1 == oneByteMsg.length());
 
@@ -11204,7 +11204,7 @@ void TestDriver::testCase26()
         //        sizes that will be filled with arbitrary data.  For each
         //        test data point, create a series of buffers matching the
         //        test data point description, and use it to populate a
-        //        'IovecArray' ans a 'bdlmca::Blob'.  Then invoke the functions
+        //        'IovecArray' ans a 'btlb::Blob'.  Then invoke the functions
         //        defined in 'btlmt::ChannelPool_MessageUtil' on each of the
         //        three message container types.
         //
@@ -11236,18 +11236,18 @@ void TestDriver::testCase26()
         //  btlmt::ChannelPool_MessageUtil
         //  -----------------------------
         //   static bsls::Types::Int64 length(const IovecArray<IOVEC>& );
-        //   static bsls::Types::Int64 length(const bdlmca::Blob& );
+        //   static bsls::Types::Int64 length(const btlb::Blob& );
         //   static int write(btlso::StreamSocket<btlso::IPv4Address> *,
         //                   btls::Iovec                            *,
         //                   const IovecArray<IOVEC>&               );
         //   static int write(btlso::StreamSocket<btlso::IPv4Address> *,
         //                   btls::Iovec                            *,
-        //                  const bdlmca::Blob&                      );
-        //   static int loadIovec(btls::Iovec *, const bdlmca::Blob& );
+        //                  const btlb::Blob&                      );
+        //   static int loadIovec(btls::Iovec *, const btlb::Blob& );
         //   static int loadBlob(lob *, const IovecArray<IOVEC>&, int);
-        //   static int loadBlob(bdlmca::Blob *, const bdlmca::Blob&, int);
+        //   static int loadBlob(btlb::Blob *, const btlb::Blob&, int);
         //   static void appendToBlob(Blob *, const IovecArray<IOVEC>&);
-        //   static void appendToBlob(bdlmca::Blob *, const bdlmca::Blob&);
+        //   static void appendToBlob(btlb::Blob *, const btlb::Blob&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING: btlmt::ChannelPool_MessageUtil\n"
@@ -11308,7 +11308,7 @@ void TestDriver::testCase26()
 
         enum { BLOCK_SIZE = 64 };
 
-        bdlmca::PooledBlobBufferFactory blobFactory(BLOCK_SIZE, &ta);
+        btlb::PooledBlobBufferFactory blobFactory(BLOCK_SIZE, &ta);
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             // ------------------- Create Test Data ---------------------------
@@ -11326,8 +11326,8 @@ void TestDriver::testCase26()
             IovecArray mX(&iovecs.front(),iovecs.size());
             const IovecArray& MX = mX;
 
-            // Create a 'bdlmca::Blob', 'MY'.
-            bdlmca::Blob mY(&blobFactory, &ta); const bdlmca::Blob& MY = mY;
+            // Create a 'btlb::Blob', 'MY'.
+            btlb::Blob mY(&blobFactory, &ta); const btlb::Blob& MY = mY;
             loadBlob(&mY, data);
 
             // ------------- Test MessageHelper::length() ---------------------
@@ -11337,8 +11337,8 @@ void TestDriver::testCase26()
             // ------------- Test MessageHelper::loadBlob() -------------------
 
             for (int offset = 0; offset < LENGTH; ++offset) {
-                bdlmca::Blob cX(&blobFactory, &ta);const bdlmca::Blob& CX = cX;
-                bdlmca::Blob cY(&blobFactory, &ta);const bdlmca::Blob& CY = cY;
+                btlb::Blob cX(&blobFactory, &ta);const btlb::Blob& CX = cX;
+                btlb::Blob cY(&blobFactory, &ta);const btlb::Blob& CY = cY;
 
                 int rcX = Helper::loadBlob(&cX, MX, offset);
                 int rcY = Helper::loadBlob(&cY, MY, offset);
@@ -11382,8 +11382,8 @@ void TestDriver::testCase26()
                 const int PREFIX_LEN = createData(&prefixData,
                                                   VALUES[j].d_description);
 
-                bdlmca::Blob dX(&blobFactory, &ta);const bdlmca::Blob& DX = dX;
-                bdlmca::Blob dY(&blobFactory, &ta);const bdlmca::Blob& DY = dY;
+                btlb::Blob dX(&blobFactory, &ta);const btlb::Blob& DX = dX;
+                btlb::Blob dY(&blobFactory, &ta);const btlb::Blob& DY = dY;
 
                 loadBlob(&dX, prefixData);
                 loadBlob(&dY, prefixData);
@@ -11417,7 +11417,7 @@ void TestDriver::testCase26()
 
                 // To utilize the existing comparison operation, load the data
                 // into a blob
-                bdlmca::Blob bY(&blobFactory, &ta);const bdlmca::Blob& BY = bY;
+                btlb::Blob bY(&blobFactory, &ta);const btlb::Blob& BY = bY;
 
                 btls::IovecUtil::appendToBlob(&bY, dY, rY, 0);
 
@@ -11484,7 +11484,7 @@ void TestDriver::testCase26()
                     bytesX += rc;
                 }
 
-                // Send the 'bdlmca::Blob' message.
+                // Send the 'btlb::Blob' message.
                 int bytesY = 0;
                 ASSERT(LENGTHY == Helper::write(sndSocket, temp, MY));
                 while (bytesY < LENGTHY) {
@@ -11494,7 +11494,7 @@ void TestDriver::testCase26()
                 }
 
                 // Verify the correct data was received (load it into a
-                // 'bdlmca::Blob' to use the existing memory comparison
+                // 'btlb::Blob' to use the existing memory comparison
                 // function).
                 ASSERT(bytesX == LENGTHX);
                 ASSERT(bytesY == LENGTHY);
@@ -11504,11 +11504,11 @@ void TestDriver::testCase26()
                 bsl::shared_ptr<char> spY(&rcvBufferY.front(),
                                           bslstl::SharedPtrNilDeleter(), 0);
 
-                bdlmca::Blob bX(&blobFactory, &ta);const bdlmca::Blob& BX = bX;
-                bdlmca::Blob bY(&blobFactory, &ta);const bdlmca::Blob& BY = bY;
+                btlb::Blob bX(&blobFactory, &ta);const btlb::Blob& BX = bX;
+                btlb::Blob bY(&blobFactory, &ta);const btlb::Blob& BY = bY;
 
-                bX.appendDataBuffer(bdlmca::BlobBuffer(spX, bytesX));
-                bY.appendDataBuffer(bdlmca::BlobBuffer(spY, bytesY));
+                bX.appendDataBuffer(btlb::BlobBuffer(spX, bytesX));
+                bY.appendDataBuffer(btlb::BlobBuffer(spY, bytesY));
 
                 ASSERT(isEqualByteSequence(data, 0, BX, 0, LENGTHX));
                 ASSERT(isEqualByteSequence(data, 0, BY, 0, LENGTHY));
@@ -11619,7 +11619,7 @@ void TestDriver::testCase25()
 
             ASSERT(0 == pool.import(serverSocket, &factory, 0));
 
-            bdlmca::Blob oneByteMsg(&ta);
+            btlb::Blob oneByteMsg(&ta);
             populateMessage(&oneByteMsg, 1, &ta);
             ASSERT(1 == oneByteMsg.length());
 
@@ -14215,7 +14215,7 @@ void TestDriver::testCase12()
 
             // Do not overflow the stack.
 
-            bdlmca::PooledBlobBufferFactory outFactory(HI_WATERMARK/64, &ta);
+            btlb::PooledBlobBufferFactory outFactory(HI_WATERMARK/64, &ta);
 
             btlmt::ChannelPool *mX_p;
 
@@ -14901,7 +14901,7 @@ void TestDriver::testCase9()
         //   a callback, and that callback to schedule another one inside.
         //
         // Testing:
-        //   int btlmt::ChannelPool::write(bdlmca::Blob, ...);
+        //   int btlmt::ChannelPool::write(btlb::Blob, ...);
         //   int btlmt::ChannelPool::write(btes::Iovecs, ...);
         //   int btlmt::ChannelPool::write(btes::Ovecs, ...);
         // --------------------------------------------------------------------

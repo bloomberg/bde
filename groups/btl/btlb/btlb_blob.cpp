@@ -1,8 +1,8 @@
-// bdlmca_blob.cpp                                                     -*-C++-*-
-#include <bdlmca_blob.h>
+// btlb_blob.cpp                                                     -*-C++-*-
+#include <btlb_blob.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_blob_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(btlb_blob_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
@@ -22,14 +22,14 @@ namespace BloombergLP {
 
 namespace {
 
-typedef bsl::vector<bdlmca::BlobBuffer>::iterator       BlobBufferIterator;
-typedef bsl::vector<bdlmca::BlobBuffer>::const_iterator BlobBufferConstIterator;
+typedef bsl::vector<btlb::BlobBuffer>::iterator       BlobBufferIterator;
+typedef bsl::vector<btlb::BlobBuffer>::const_iterator BlobBufferConstIterator;
 
                        // ==============================
                        // class InvalidBlobBufferFactory
                        // ==============================
 
-class InvalidBlobBufferFactory : private bdlmca::BlobBufferFactory {
+class InvalidBlobBufferFactory : private btlb::BlobBufferFactory {
 
     // NOT IMPLEMENTED
     InvalidBlobBufferFactory(const InvalidBlobBufferFactory&);
@@ -50,12 +50,12 @@ class InvalidBlobBufferFactory : private bdlmca::BlobBufferFactory {
     }
 
     static
-    bdlmca::BlobBufferFactory *factory(bdlmca::BlobBufferFactory *basicFactory = 0)
+    btlb::BlobBufferFactory *factory(btlb::BlobBufferFactory *basicFactory = 0)
     {
         return basicFactory ? basicFactory : &singleton();
     }
 
-    virtual void allocate(bdlmca::BlobBuffer *)
+    virtual void allocate(btlb::BlobBuffer *)
     {
         BSLS_ASSERT_OPT(!"Invalid Blob Buffer Factory Used!");
     }
@@ -63,7 +63,7 @@ class InvalidBlobBufferFactory : private bdlmca::BlobBufferFactory {
 
 }  // close unnamed namespace
 
-namespace bdlmca {
+namespace btlb {
                            // ======================
                            // class BlobBuffer
                            // ======================
@@ -99,12 +99,12 @@ bsl::ostream& BlobBuffer::print(bsl::ostream& stream, int, int) const
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& bdlmca::operator<<(bsl::ostream& stream, const BlobBuffer& buffer)
+bsl::ostream& btlb::operator<<(bsl::ostream& stream, const BlobBuffer& buffer)
 {
     return buffer.print(stream, 0, -1);
 }
 
-namespace bdlmca {
+namespace btlb {
                         // =============================
                         // class BlobBufferFactory
                         // =============================
@@ -576,7 +576,7 @@ void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
 }  // close package namespace
 
 // FREE OPERATORS
-bool bdlmca::operator==(const Blob& lhs, const Blob& rhs)
+bool btlb::operator==(const Blob& lhs, const Blob& rhs)
 {
     return lhs.d_buffers            == rhs.d_buffers
         && lhs.d_totalSize          == rhs.d_totalSize
@@ -585,7 +585,7 @@ bool bdlmca::operator==(const Blob& lhs, const Blob& rhs)
         && lhs.d_preDataIndexLength == rhs.d_preDataIndexLength;
 }
 
-bool bdlmca::operator!=(const Blob& lhs, const Blob& rhs)
+bool btlb::operator!=(const Blob& lhs, const Blob& rhs)
 {
     return lhs.d_buffers            != rhs.d_buffers
         || lhs.d_totalSize          != rhs.d_totalSize

@@ -4,8 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btls_iovecutil_cpp,"$Id$ $CSID$")
 
-#include <bdlmca_blob.h>
-#include <bdlmca_pooledblobbufferfactory.h>
+#include <btlb_blob.h>
+#include <btlb_pooledblobbufferfactory.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
@@ -25,17 +25,17 @@ namespace {
                          // ------------------------
 
 template <class IOVEC>
-void genericAppendToBlob(bdlmca::Blob *blob,
-                         const IOVEC  *vecs,
-                         int           numVecs,
-                         int           offset)
+void genericAppendToBlob(btlb::Blob  *blob,
+                         const IOVEC *vecs,
+                         int          numVecs,
+                         int          offset)
 {
     BSLS_ASSERT(0 <= offset);
     BSLS_ASSERT(0 <  numVecs);
 
-    // Set up loop invariant stated below.  Note that if blobLength is 0,
-    // or if last data buffer is complete, the call 'blob->setLength(...)'
-    // below will create additional buffers as needed, so that the call to
+    // Set up loop invariant stated below.  Note that if blobLength is 0, or if
+    // last data buffer is complete, the call 'blob->setLength(...)' below will
+    // create additional buffers as needed, so that the call to
     // 'blob->buffer(currentBufIndex)' will always be legal.
 
     int currentBufIndex  = blob->numDataBuffers() - 1;
@@ -89,12 +89,12 @@ void genericAppendToBlob(bdlmca::Blob *blob,
 
     while (1) {
         // Invariants:
-        // 1. 0 <= currentVec < numVecs
-        // 2. 0 <= currentVecOffset < vecs[currentVec].length()
-        // 3. 0 <  currentVecAvailable
-        // 4. 0 <= currentBuf < blobs.numDataBuffers()
-        // 5. 0 <= currentBufOffset < blob->buffer(currentBuf).size()
-        // 6. 0 <  currentBufAvailable
+        // 1.  0 <= currentVec < numVecs
+        // 2.  0 <= currentVecOffset < vecs[currentVec].length()
+        // 3.  0 <  currentVecAvailable
+        // 4.  0 <= currentBuf < blobs.numDataBuffers()
+        // 5.  0 <= currentBufOffset < blob->buffer(currentBuf).size()
+        // 6.  0 <  currentBufAvailable
 
         int numBytesCopied = bsl::min(currentVecAvailable,
                                       currentBufAvailable);
@@ -244,32 +244,32 @@ int genericScatter(const IOVEC *buffers,
                          // class IovecUtil
                          // ---------------
 
-void IovecUtil::appendToBlob(bdlmca::Blob *blob,
-                             const Iovec  *vecs,
-                             int           numVecs,
-                             int           offset)
+void IovecUtil::appendToBlob(btlb::Blob  *blob,
+                             const Iovec *buffers,
+                             int          numBuffers,
+                             int          offset)
 {
-    genericAppendToBlob(blob, vecs, numVecs, offset);
+    genericAppendToBlob(blob, buffers, numBuffers, offset);
 }
 
-void IovecUtil::appendToBlob(bdlmca::Blob *blob,
-                             const Ovec   *vecs,
-                             int           numVecs,
-                             int           offset)
+void IovecUtil::appendToBlob(btlb::Blob *blob,
+                             const Ovec *buffers,
+                             int         numBuffers,
+                             int         offset)
 {
-    genericAppendToBlob(blob, vecs, numVecs, offset);
+    genericAppendToBlob(blob, buffers, numBuffers, offset);
 }
 
-bdlmca::Blob *IovecUtil::blob(const Iovec               *vecs,
-                              int                        numVecs,
-                              int                        offset,
-                              bdlmca::BlobBufferFactory *factory,
-                              bslma::Allocator          *basicAllocator)
+btlb::Blob *IovecUtil::blob(const Iovec             *buffers,
+                            int                      numBuffers,
+                            int                      offset,
+                            btlb::BlobBufferFactory *factory,
+                            bslma::Allocator        *basicAllocator)
 {
     bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
-    bdlmca::Blob     *blob = new (*allocator) bdlmca::Blob(factory, allocator);
+    btlb::Blob       *blob = new (*allocator) btlb::Blob(factory, allocator);
 
-    appendToBlob(blob, vecs, numVecs, offset);
+    appendToBlob(blob, buffers, numBuffers, offset);
     return blob;
 }
 
@@ -303,18 +303,18 @@ void IovecUtil::pivot(int         *bufferIdx,
                       int         *offset,
                       const Iovec *buffers,
                       int          numBuffers,
-                      int          length)
+                      int          position)
 {
-    genericPivot(bufferIdx, offset, buffers, numBuffers, length);
+    genericPivot(bufferIdx, offset, buffers, numBuffers, position);
 }
 
 void IovecUtil::pivot(int        *bufferIdx,
                       int        *offset,
                       const Ovec *buffers,
                       int         numBuffers,
-                      int         length)
+                      int         position)
 {
-    genericPivot(bufferIdx, offset, buffers, numBuffers, length);
+    genericPivot(bufferIdx, offset, buffers, numBuffers, position);
 }
 
 int IovecUtil::scatter(const Iovec *buffers,
@@ -334,14 +334,20 @@ int IovecUtil::scatter(const Ovec *buffers,
 }
 
 }  // close package namespace
+}  // close enterprise namespace
 
-}  // close namespace BloombergLP
-
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,10 +1,10 @@
-// bdlmca_blobstreambuf.cpp                                            -*-C++-*-
-#include <bdlmca_blobstreambuf.h>
+// btlb_blobstreambuf.cpp                                            -*-C++-*-
+#include <btlb_blobstreambuf.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_blobstreambuf_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(btlb_blobstreambuf_cpp,"$Id$ $CSID$")
 
-#include <bdlmca_blob.h>
+#include <btlb_blob.h>
 
 #include <bsls_assert.h>
 
@@ -20,7 +20,7 @@ BSLS_IDENT_RCSID(bdlmca_blobstreambuf_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace bdlmca {                        // ===========================
+namespace btlb {                        // ===========================
                         // class InBlobStreamBuf
                         // ===========================
 
@@ -293,7 +293,7 @@ bsl::streamsize InBlobStreamBuf::xsputn(const char_type *,
 }
 
 // CREATORS
-InBlobStreamBuf::InBlobStreamBuf(const bdlmca::Blob *blob)
+InBlobStreamBuf::InBlobStreamBuf(const btlb::Blob *blob)
 : d_blob_p(blob)
 , d_getBufferIndex(0)
 , d_previousBuffersLength(0)
@@ -324,7 +324,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
         // chance to actually initialize the streambuf pointers.
 
         BSLS_ASSERT(d_blob_p->numBuffers() != 0);
-        const bdlmca::BlobBuffer& buffer = d_blob_p->buffer(0);
+        const btlb::BlobBuffer& buffer = d_blob_p->buffer(0);
         setp(buffer.data(), buffer.data() + buffer.size());
     }
 
@@ -339,7 +339,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
         BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
         BSLS_ASSERT((position - d_previousBuffersLength) <=
                           (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
-        const bdlmca::BlobBuffer& buffer = d_blob_p->buffer(d_putBufferIndex);
+        const btlb::BlobBuffer& buffer = d_blob_p->buffer(d_putBufferIndex);
         setp(buffer.data(), buffer.data() + buffer.size());
         pbump(position - d_previousBuffersLength);
         return;
@@ -568,7 +568,7 @@ bsl::streamsize OutBlobStreamBuf::xsputn(const char_type *source,
 }
 
 // CREATORS
-OutBlobStreamBuf::OutBlobStreamBuf(bdlmca::Blob *blob)
+OutBlobStreamBuf::OutBlobStreamBuf(btlb::Blob *blob)
 : d_blob_p(blob)
 , d_putBufferIndex(0)
 , d_previousBuffersLength(0)

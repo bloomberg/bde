@@ -1,4 +1,4 @@
-// btls_ratelimiter.h                                              -*-C++-*-
+// btls_ratelimiter.h                                                 -*-C++-*-
 #ifndef INCLUDED_BTLS_RATELIMITER
 #define INCLUDED_BTLS_RATELIMITER
 
@@ -130,8 +130,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Monitoring Resource Usage
 ///-------------------------
-// A 'btls::LeakyBucket' provides methods to both submit units and reserve units
-// for future submission.  Submitting a unit indicates that it has been
+// A 'btls::LeakyBucket' provides methods to both submit units and reserve
+// units for future submission.  Submitting a unit indicates that it has been
 // consumed by the entity being modeled, and it is added to the moving-totals
 // tracking both peak and sustained resource usage.
 //
@@ -224,8 +224,8 @@ BSLS_IDENT("$Id: $")
 // specified amount of data over that network:
 //..
 //  bool sendData(size_t dataSize);
-//      // Send a specified 'dataSize' amount of data over the network.
-//      // Return 'true' if data was sent successfully and 'false' otherwise.
+//      // Send a specified 'dataSize' amount of data over the network.  Return
+//      // 'true' if data was sent successfully and 'false' otherwise.
 //..
 // First, we create a 'btls::RateLimiter' object having a sustained rate of
 // 1024 bytes/s, a sustained-rate time-window of 0.5s
@@ -257,11 +257,11 @@ BSLS_IDENT("$Id: $")
 //  bsls::Types::Uint64 chunkSize  = 64;        // in bytes
 //  bsls::Types::Uint64 bytesSent  = 0;
 //..
-// Now, we send the chunks of data using a loop.  For each iteration, we
-// check whether submitting another byte would exceed the rate limiter's
-// bandwidth limits.  If not, we send an additional chunk of data and submit
-// the number of bytes sent to the leaky bucket.  Note that 'submit' is invoked
-// only after the data has been sent.
+// Now, we send the chunks of data using a loop.  For each iteration, we check
+// whether submitting another byte would exceed the rate limiter's bandwidth
+// limits.  If not, we send an additional chunk of data and submit the number
+// of bytes sent to the leaky bucket.  Note that 'submit' is invoked only after
+// the data has been sent.
 //..
 //  while (bytesSent < sizeOfData) {
 //      now = bdlt::CurrentTime::now();
@@ -296,7 +296,11 @@ BSLS_IDENT("$Id: $")
 #include <btls_leakybucket.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -304,20 +308,20 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifndef INCLUDED_BSL_C_MATH
+#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
 #endif
 
-#ifndef INCLUDED_BSL_LIMITS
+#ifndef INCLUDED_BSL_C_LIMITS
 #include <bsl_c_limits.h>
 #endif
 
 namespace BloombergLP {
 
 namespace btls {
-                        //=======================
-                        // class RateLimiter
-                        //=======================
+                            // =================
+                            // class RateLimiter
+                            // =================
 
 class RateLimiter {
     // This mechanism implements a rate limiter that allows clients to monitor
@@ -352,11 +356,11 @@ class RateLimiter {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    LeakyBucket d_peakRateBucket;      // 'LeakyBucket' object for
-                                            // handling peak load
+    LeakyBucket d_peakRateBucket;       // 'LeakyBucket' object for handling
+                                        // peak load
 
-    LeakyBucket d_sustainedRateBucket; // 'LeakyBucket' object for
-                                            // handling sustained load
+    LeakyBucket d_sustainedRateBucket;  // 'LeakyBucket' object for handling
+                                        // sustained load
 
   private:
     // NOT IMPLEMENTED
@@ -365,16 +369,16 @@ class RateLimiter {
 
   public:
     // CREATORS
-    RateLimiter(bsls::Types::Uint64      sustainedRateLimit,
-                     const bsls::TimeInterval& sustainedRateWindow,
-                     bsls::Types::Uint64      peakRateLimit,
-                     const bsls::TimeInterval& peakRateWindow,
-                     const bsls::TimeInterval& currentTime);
+    RateLimiter(bsls::Types::Uint64       sustainedRateLimit,
+                const bsls::TimeInterval& sustainedRateWindow,
+                bsls::Types::Uint64       peakRateLimit,
+                const bsls::TimeInterval& peakRateWindow,
+                const bsls::TimeInterval& currentTime);
         // Create a RateLimiter object, having the specified
         // 'sustainedRateLimit', the specified 'sustainedRateWindow', the
         // specified 'peakRateLimit', the specified 'peakRateWindow', and using
-        // the specified 'currentTime' as the initial 'lastUpdateTime'.
-        // The behavior is undefined unless '0 < sustainedRateLimit',
+        // the specified 'currentTime' as the initial 'lastUpdateTime'.  The
+        // behavior is undefined unless '0 < sustainedRateLimit',
         // '0 < sustainedRateWindow', '0 < peakRateLimit',
         // '0 < peakRateWindow', the product of 'sustainedRateLimit' and
         // 'sustainedRateWindow' can be represented by 64-bit unsigned integral
@@ -387,12 +391,11 @@ class RateLimiter {
     // MANIPULATORS
     void updateState(const bsls::TimeInterval& currentTime);
         // Set the 'lastUpdateTime' of this rate limiter to the specified
-        // 'currentTime'.  If the specified 'currentTime' is after
-        // 'lastUpdateTime', then recalculate number of units available for
-        // consumption based on the 'peakRate', 'sustainedRate' and the time
-        // interval between 'lastUpdateTime' and 'currentTime'.  If
-        // 'currentTime' is before 'statisticsCollectionStartTime', set it' to
-        // 'currentTime'.
+        // 'currentTime'.  If 'currentTime' is after 'lastUpdateTime', then
+        // recalculate number of units available for consumption based on the
+        // 'peakRate', 'sustainedRate' and the time interval between
+        // 'lastUpdateTime' and 'currentTime'.  If 'currentTime' is before
+        // 'statisticsCollectionStartTime', set it' to 'currentTime'.
 
     void resetStatistics();
         // Reset the statics collected for this rate limiter by setting the
@@ -400,9 +403,9 @@ class RateLimiter {
         // the 'statisticsCollectionStartTime' to the 'lastUpdateTime' of this
         // leaky bucket.
 
-    void setRateLimits(bsls::Types::Uint64      sustainedRateLimit,
+    void setRateLimits(bsls::Types::Uint64       sustainedRateLimit,
                        const bsls::TimeInterval& sustainedRateWindow,
-                       bsls::Types::Uint64      seakRateLimit,
+                       bsls::Types::Uint64       peakRateLimit,
                        const bsls::TimeInterval& peakRateWindow);
         // Set the sustained rate of this rate limiter to the specified
         // 'sustainedRateLimit', the sustained-rate time-window to the
@@ -444,7 +447,7 @@ class RateLimiter {
         // otherwise.
 
     bsls::TimeInterval calculateTimeToSubmit(
-                                         const bsls::TimeInterval& currentTime);
+                                        const bsls::TimeInterval& currentTime);
         // Update the state of this rate limiter to the specified
         // 'currentTime'.  Return the estimated time interval that should pass
         // from 'currentTime' until 1 more unit can be submitted to this rate
@@ -500,12 +503,12 @@ class RateLimiter {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
-                        //-----------------------
-                        // class RateLimiter
-                        //-----------------------
+                            // -----------------
+                            // class RateLimiter
+                            // -----------------
 
 // MANIPULATORS
 inline
@@ -571,8 +574,7 @@ void RateLimiter::cancelReserved(bsls::Types::Uint64 numUnits)
 }
 
 inline
-bool RateLimiter::wouldExceedBandwidth(
-                                          const bsls::TimeInterval& currentTime)
+bool RateLimiter::wouldExceedBandwidth(const bsls::TimeInterval& currentTime)
 {
     return (d_peakRateBucket.wouldOverflow(currentTime) ||
                              d_sustainedRateBucket.wouldOverflow(currentTime));
@@ -652,17 +654,24 @@ bsls::Types::Uint64 RateLimiter::unitsReserved() const
 
     return d_sustainedRateBucket.unitsReserved();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2012
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

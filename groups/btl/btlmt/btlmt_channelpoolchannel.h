@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 #include <btlso_ipv4address.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_BLOB
-#include <bdlmca_blob.h>
+#ifndef INCLUDED_BTLB_BLOB
+#include <btlb_blob.h>
 #endif
 
 #ifndef INCLUDED_BDLQQ_LOCKGUARD
@@ -122,10 +122,10 @@ class ChannelPoolChannel: public AsyncChannel {
     ReadQueue              d_readQueue;            // queue of pending read
                                                    // requests.
 
-    bslma::ManagedPtr<bdlmca::BlobBufferFactory>
+    bslma::ManagedPtr<btlb::BlobBufferFactory>
                            d_blobBufferFactory_p;  // blob buffer factory used
                                                    // to allocate
-                                                   // 'bdlmca::Blob' objects
+                                                   // 'btlb::Blob' objects
                                                    // returned in data callback
 
     bdlma::ConcurrentPoolAllocator
@@ -182,7 +182,7 @@ class ChannelPoolChannel: public AsyncChannel {
     // CREATORS
     ChannelPoolChannel(int                             channelId,
                        ChannelPool                    *channelPool,
-                       bdlmca::BlobBufferFactory      *blobBufferFactory,
+                       btlb::BlobBufferFactory      *blobBufferFactory,
                        bdlma::ConcurrentPoolAllocator *spAllocator,
                        bslma::Allocator               *basicAllocator = 0);
         // Create a 'AsyncChannel' concrete implementation reading from and
@@ -192,7 +192,7 @@ class ChannelPoolChannel: public AsyncChannel {
         // messages.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  If 'blobBufferFactory' is 0, create a
-        // 'bdlmca::PooledBlobBufferFactory' object internally using
+        // 'btlb::PooledBlobBufferFactory' object internally using
         // 'basicAllocator' or the currently installed default allocator if
         // 'basicAllocator' is 0.
 
@@ -226,7 +226,7 @@ class ChannelPoolChannel: public AsyncChannel {
         // success, and a non-zero value otherwise.  On error, the return value
         // *may* equal to one of the enumerators in 'ChannelStatus::Enum'.
 
-    virtual int write(const bdlmca::Blob& blob,
+    virtual int write(const btlb::Blob& blob,
                       int                 highWaterMark = INT_MAX);
         // Enqueue the specified 'blob' message to be written to this channel.
         // Optionally provide 'highWaterMark' to specify the maximum data size
@@ -253,7 +253,7 @@ class ChannelPoolChannel: public AsyncChannel {
         // in the thread in which the channel's data callbacks are invoked,
         // else they are invoked in the thread calling 'cancelRead'.
 
-    void blobBasedDataCb(int *numNeeded, bdlmca::Blob *msg);
+    void blobBasedDataCb(int *numNeeded, btlb::Blob *msg);
         // This method is invoked in response to a blob based channel pool
         // data callback on the channel id associated with this channel, and
         // invokes the pending read requests until either more data is needed

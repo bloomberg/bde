@@ -225,7 +225,7 @@ namespace bdlc {
 template <class T>
 class Queue {
     // This class implements an efficient, in-place double-ended queue of
-    // values of parametrized type 'T'.  The physical capacity of this queue
+    // values of parameterized type 'T'.  The physical capacity of this queue
     // may grow, but never shrinks.  Capacity may be reserved initially via a
     // constructor, or at any time thereafter by using the 'reserveCapacity'
     // and 'reserveCapacityRaw' methods.  Note that there is no guarantee of
@@ -1391,9 +1391,9 @@ T& bdlc::Queue<T>::front()
 }
 
 template <class T>
-void bdlc::Queue<T>::insert(int dstIndex, const T& itemTmp)
+void bdlc::Queue<T>::insert(int dstIndex, const T& item)
 {
-    T item(itemTmp);  // TBD hack for aliased case
+    T itemCopy(item);  // TBD hack for aliased case
 
     // The capacity must always be greater than or equal to
     // 'length + BDLC_EXTRA_CAPACITY'.
@@ -1440,7 +1440,7 @@ void bdlc::Queue<T>::insert(int dstIndex, const T& itemTmp)
 
         d_size = newSize;
         d_back = (start + newLength) % d_size;
-        new (&d_array_p[(start + dstIndex) % d_size]) T(item);
+        new (&d_array_p[(start + dstIndex) % d_size]) T(itemCopy);
     }
     else {  // sufficient capacity
 
@@ -1459,7 +1459,7 @@ void bdlc::Queue<T>::insert(int dstIndex, const T& itemTmp)
             const int dst = d_front;
 
             memShiftLeft(d_array_p, d_size, dst, src, dstIndex);
-            new (&d_array_p[(d_front + dstIndex) % d_size]) T(item);
+            new (&d_array_p[(d_front + dstIndex) % d_size]) T(itemCopy);
             d_front = (d_front - 1 + d_size) % d_size;
         }
         else {
@@ -1474,7 +1474,7 @@ void bdlc::Queue<T>::insert(int dstIndex, const T& itemTmp)
                           dst,
                           src,
                           backLen);
-            new (&d_array_p[(d_front + 1 + dstIndex) % d_size]) T(item);
+            new (&d_array_p[(d_front + 1 + dstIndex) % d_size]) T(itemCopy);
             d_back = (d_back + 1) % d_size;
         }
     }
@@ -1682,30 +1682,30 @@ void bdlc::Queue<T>::popFront()
 }
 
 template <class T>
-void bdlc::Queue<T>::pushBack(const T& itemTmp)
+void bdlc::Queue<T>::pushBack(const T& item)
 {
-    T item(itemTmp);  // TBD aliasing hack
+    T itemCopy(item);  // TBD aliasing hack
 
     int newBack = (d_back + 1) % d_size;
     if (d_front == newBack) {
         increaseSize();  // NOTE: this can change the value of d_back
         newBack = (d_back + 1) % d_size;
     }
-    new (&d_array_p[d_back]) T(item);
+    new (&d_array_p[d_back]) T(itemCopy);
     d_back = newBack;
 }
 
 template <class T>
-void bdlc::Queue<T>::pushFront(const T& itemTmp)
+void bdlc::Queue<T>::pushFront(const T& item)
 {
-    T item(itemTmp);  // TBD aliasing hack
+    T itemCopy(item);  // TBD aliasing hack
 
     int newFront = (d_front - 1 + d_size) % d_size;
     if (newFront == d_back) {
         increaseSize();  // NOTE: this can change the value of d_front
         newFront = (d_front - 1 + d_size) % d_size;
     }
-    new (&d_array_p[d_front]) T(item);
+    new (&d_array_p[d_front]) T(itemCopy);
     d_front = newFront;
 }
 
@@ -1804,14 +1804,14 @@ void bdlc::Queue<T>::removeAll(bsl::vector<T> *buffer)
 }
 
 template <class T>
-void bdlc::Queue<T>::replace(int dstIndex, const T& itemTmp)
+void bdlc::Queue<T>::replace(int dstIndex, const T& item)
 {
-    T item(itemTmp);  // TBD hack for aliased case
+    T itemCopy(item);  // TBD hack for aliased case
 
     // TBD efficiency
 
     d_array_p[(d_front + 1 + dstIndex) % d_size].~T();
-    new (&d_array_p[(d_front + 1 + dstIndex) % d_size]) T(item);
+    new (&d_array_p[(d_front + 1 + dstIndex) % d_size]) T(itemCopy);
 }
 
 template <class T>
