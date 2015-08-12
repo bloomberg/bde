@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(balst_stacktraceframe_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsl_ostream.h>
+
 namespace BloombergLP {
 
 namespace balst {
@@ -15,8 +17,8 @@ namespace balst {
 
 // ACCESSORS
 bsl::ostream& StackTraceFrame::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+                                     int           level,
+                                     int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -35,10 +37,9 @@ bsl::ostream& StackTraceFrame::print(bsl::ostream& stream,
 
     return stream;
 }
-}  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& balst::operator<<(bsl::ostream&                stream,
+bsl::ostream& operator<<(bsl::ostream&          stream,
                          const StackTraceFrame& object)
 {
     if (stream.bad()) {
@@ -58,6 +59,8 @@ bsl::ostream& balst::operator<<(bsl::ostream&                stream,
 
     return stream;
 }
+
+}  // close package namespace
 
 }  // close enterprise namespace
 

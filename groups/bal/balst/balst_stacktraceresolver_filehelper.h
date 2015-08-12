@@ -218,8 +218,8 @@ class StackTraceResolver_FileHelper {
 // ACCESSORS
 inline
 int StackTraceResolver_FileHelper::readExact(void    *buf,
-                                                   UintPtr  numBytes,
-                                                   Offset   offset) const
+                                             UintPtr  numBytes,
+                                             Offset   offset) const
 {
     BSLS_ASSERT_SAFE(buf);
     BSLS_ASSERT_SAFE(offset >= 0);
@@ -227,9 +227,9 @@ int StackTraceResolver_FileHelper::readExact(void    *buf,
     UintPtr res = readBytes(buf, numBytes, offset);
     return res != numBytes ? -1 : 0;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

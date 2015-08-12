@@ -526,7 +526,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
 
   private:
     // PRIVATE TYPES
-    enum AllocatorMagic { STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
+    enum AllocatorMagic { k_STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
 
     struct BlockHeader;                            // information stored in
                                                    // each block (defined in
@@ -542,12 +542,12 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     BlockHeader              *d_blocks;            // list of allocated,
                                                    // unfreed blocks
 
-    mutable bdlqq::Mutex       d_mutex;            // mutex used to synchronize
+    mutable bdlqq::Mutex      d_mutex;             // mutex used to synchronize
                                                    // access to this object
 
     const char               *d_name;              // name of this allocator
 
-    FailureHandler           d_failureHandler;     // function we are to call
+    FailureHandler            d_failureHandler;    // function we are to call
                                                    // on errors.  The default
                                                    // handler will call
                                                    // 'abort'.

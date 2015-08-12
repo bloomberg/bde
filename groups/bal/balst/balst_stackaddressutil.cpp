@@ -12,11 +12,12 @@ BSLS_IDENT_RCSID(balst_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
+#include <bsl_climits.h>
+#include <bsl_cerrno.h>
+
 #include <unistd.h>
 #include <sys/mman.h>
 #include <fcntl.h>
-#include <limits.h>
-#include <errno.h>
 
 #endif
 

@@ -150,11 +150,12 @@ class StackTraceResolverImpl<ObjectFileFormat::Dladdr> {
         // occur.  The behavior is undefined unless all the 'address' field in
         // '*stackTrace' are valid and other fields are invalid.
 };
+
 }  // close package namespace
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

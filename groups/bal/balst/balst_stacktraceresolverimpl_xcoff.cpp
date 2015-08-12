@@ -864,12 +864,12 @@ int local::StackTraceResolver::findIncludeFile(
                     if (binclFirst) {
                         zprintf("Found, includes first line\n");
 
-                        return FOUND_INCLUDE_FILE;                    // RETURN
+                        return k_FOUND_INCLUDE_FILE;                  // RETURN
                     }
                     else {
                         zprintf("Found, does not include first line\n");
-                        return FOUND_INCLUDE_FILE | LINE_NUMBER_IS_ABSOLUTE;
-                                                                      // RETURN
+                        return k_FOUND_INCLUDE_FILE |
+                                        k_LINE_NUMBER_IS_ABSOLUTE;    // RETURN
                     }
                 }
             }
@@ -1576,14 +1576,14 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
                 if (rc < 0) {
                     return -1;                                        // RETURN
                 }
-                if (rc & FOUND_INCLUDE_FILE) {
+                if (rc & k_FOUND_INCLUDE_FILE) {
                     frame->setSourceFileName(getSymbolName(&includeSymEnt));
                 }
                 else {
                     frame->setSourceFileName(
                                       getSourceName(&auxInfo->d_sourceAuxEnt));
                 }
-                if (rc & LINE_NUMBER_IS_ABSOLUTE) {
+                if (rc & k_LINE_NUMBER_IS_ABSOLUTE) {
                     frame->setLineNumber(lineNumber);
                 }
                 else {

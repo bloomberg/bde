@@ -115,7 +115,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
                                              // 0's.
         const int mask      = 0xa72c3dca;    // pure garbage
 
-        enum { LINE = __LINE__ };
+        enum { k_LINE = __LINE__ };
 
         for (int i = 0; !(i & loopGuard); ++i) {
             line ^= (i & mask);
@@ -130,7 +130,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
             break;
         }
 
-        line = LINE;
+        line = k_LINE;
         lineCopy = line;
     }
 

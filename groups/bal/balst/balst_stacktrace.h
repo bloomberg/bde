@@ -361,7 +361,7 @@ StackTrace::StackTrace(bslma::Allocator *basicAllocator)
 
 inline
 StackTrace::StackTrace(const StackTrace&  original,
-                                   bslma::Allocator        *basicAllocator)
+                       bslma::Allocator        *basicAllocator)
 : d_hbpAlloc()
 , d_frames(original.d_frames,
            basicAllocator ? basicAllocator : &d_hbpAlloc)
@@ -439,30 +439,30 @@ void swap(StackTrace& a, StackTrace& b)
     a.swap(b);
 }
 
-}  // close package namespace
-
 // FREE OPERATORS
 inline
-bool balst::operator==(const StackTrace& lhs, const StackTrace& rhs)
+bool operator==(const StackTrace& lhs, const StackTrace& rhs)
 {
     return lhs.d_frames == rhs.d_frames;
 }
 
 inline
-bool balst::operator!=(const StackTrace& lhs,
+bool operator!=(const StackTrace& lhs,
                 const StackTrace& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& balst::operator<<(bsl::ostream&           stream,
+bsl::ostream& operator<<(bsl::ostream&     stream,
                          const StackTrace& object)
 {
     object.print(stream, 0, -1);
 
     return stream;
 }
+
+}  // close package namespace
 
 }  // close namespace BloombergLP
 

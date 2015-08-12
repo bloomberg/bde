@@ -195,10 +195,10 @@ class AssertionLogger {
         // static class method as the 'callback' and a pointer to a particular
         // object as the 'closure'.
 
-    static void setDefaultLogSeverity(ball::Severity::Level level);
-        // Set, to the specified 'level', the default severity level at which
-        // assertion failures are logged.  This value is used if a log severity
-        // callback has not been supplied (by calling
+    static void setDefaultLogSeverity(ball::Severity::Level severity);
+        // Set, to the specified 'severity', the default severity level at
+        // which assertion failures are logged.  This value is used if a log
+        // severity callback has not been supplied (by calling
         // 'setLogSeverityCallback').  The default severity level is initially
         // 'ball::Severity::BAEL_FATAL'.
 

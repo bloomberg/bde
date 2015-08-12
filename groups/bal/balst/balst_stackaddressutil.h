@@ -208,12 +208,12 @@ BSLS_IDENT("$Id: $")
 //
 // Note that on some, but not all, platforms there is an extra 'narcissic'
 // frame describing 'getStackAddresses' itself at the beginning of 'buffer'.
-// By starting our iteration through 'buffer' at 'BALST_IGNORE_FRAMES', we
+// By starting our iteration through 'buffer' at 'k_IGNORE_FRAMES', we
 // guarantee that the first address we examine will be in 'func1' on all
 // platforms.
 //..
 //      int funcIdx  = 1;
-//      int stackIdx = balst::StackAddressUtil::BALST_IGNORE_FRAMES;
+//      int stackIdx = balst::StackAddressUtil::k_IGNORE_FRAMES;
 //      for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
 //          assert(stackIdx < numAddresses);
 //          assert(funcIdx == findIndex(buffer[stackIdx]));
@@ -249,21 +249,25 @@ BSLS_IDENT("$Id: $")
                        // ============================
 
 namespace BloombergLP {
-
 namespace balst {
+
 struct StackAddressUtil {
     // This struct provides a namespace for the function to obtain return
     // addresses from the stack.
 
     // On some platforms, 'getStackAddresses' finds a frame representing
     // 'getStackAddresses' itself.  This frame is usually unwanted.
-    // 'BALST_IGNORE_FRAMES' instructs the caller as to whether the first frame
-    // is such an unwanted frame.
+    // 'k_IGNORE_FRAMES' instructs the caller as to whether the first frame is
+    // such an unwanted frame.
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-    enum { BALST_IGNORE_FRAMES = 1 };
+    enum { k_IGNORE_FRAMES = 1 };
 #else
-    enum { BALST_IGNORE_FRAMES = 0 };
+    enum { k_IGNORE_FRAMES = 0 };
+#endif
+
+#if !defined(BDE_OMIT_INTERNAL_DEPRECATED)
+    enum { BAESU_IGNORE_FRAMES = k_IGNORE_FRAMES };
 #endif
 
     // CLASS METHODS
@@ -287,9 +291,9 @@ struct StackAddressUtil {
         // this routine may fill 'buffer' with garbage if the stack is corrupt,
         // or on Windows if some stack frames represent optimized routines.
 };
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

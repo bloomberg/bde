@@ -122,8 +122,8 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
     enum FindIncludeFileFlags {
         // flags returned by 'findIncludeFile'
 
-        FOUND_INCLUDE_FILE      = 0x1,
-        LINE_NUMBER_IS_ABSOLUTE = 0x2
+        k_FOUND_INCLUDE_FILE      = 0x1,
+        k_LINE_NUMBER_IS_ABSOLUTE = 0x2
     };
 
     // DATA
@@ -377,7 +377,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
                                              // 0's.
         const int mask      = 0xa72c3dca;    // pure garbage
 
-        enum { LINE = __LINE__ };
+        enum { k_LINE = __LINE__ };
 
         for (int i = 0; !(i & loopGuard); ++i) {
             line ^= (i & mask);
@@ -392,7 +392,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
             break;
         }
 
-        line = LINE;
+        line = k_LINE;
         lineCopy = line;
     }
 

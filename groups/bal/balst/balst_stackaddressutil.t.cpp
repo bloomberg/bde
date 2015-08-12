@@ -304,11 +304,11 @@ unsigned int func1()
     // Note that on some, but not all, platforms there is an extra 'narcissic'
     // frame describing 'getStackAddresses' itself at the beginning of
     // 'buffer'.  By starting our iteration through 'buffer' at
-    // 'BALST_IGNORE_FRAMES', we guarantee that the first address we examine
-    // will be in 'func1' on all platforms.
+    // 'k_IGNORE_FRAMES', we guarantee that the first address we examine will
+    // be in 'func1' on all platforms.
 
     int funcIdx  = 1;
-    int stackIdx = balst::StackAddressUtil::BALST_IGNORE_FRAMES;
+    int stackIdx = balst::StackAddressUtil::k_IGNORE_FRAMES;
     for (; funcIdx < (int) entries.size(); ++funcIdx, ++stackIdx) {
         ASSERT(stackIdx < numAddresses);
         ASSERT(funcIdx == findIndex(buffer[stackIdx]));
@@ -405,7 +405,7 @@ CASE3_FUNC(4, 5)
 void func0(int *pi)
 {
     enum { BUFFER_LENGTH = 100,
-           IGNORE_FRAMES = balst::StackAddressUtil::BALST_IGNORE_FRAMES
+           IGNORE_FRAMES = balst::StackAddressUtil::k_IGNORE_FRAMES
     };
 
     *pi += 2;

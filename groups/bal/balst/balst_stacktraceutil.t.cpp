@@ -1208,7 +1208,7 @@ void top(bslma::Allocator *alloc)
     matches.push_back("main");
 
     {
-        enum { IGNORE_FRAMES = balst::StackAddressUtil::BALST_IGNORE_FRAMES };
+        enum { IGNORE_FRAMES = balst::StackAddressUtil::k_IGNORE_FRAMES };
 
         void *addresses[3 + IGNORE_FRAMES];
         bsl::memset(addresses, 0, sizeof(addresses));
