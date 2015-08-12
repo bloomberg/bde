@@ -140,10 +140,10 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
    #include <bslmf_nthparameter.h>
   
    template <std::size_t I, class TUPLE>
-   class my_tuple_element;  // Not defined
+   struct my_tuple_element;  // Not defined
   
    template <std::size_t I, class... ELEMS>
-   class my_tuple_element<I, my_tuple<ELEMS...> > {
+   struct my_tuple_element<I, my_tuple<ELEMS...> > {
        typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
    };
 //..
@@ -166,7 +166,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl bslmf_nthparameter.h bslmf_nthparameter.t.cpp
+// Generator command line: sim_cpp11_features.pl bslmf_nthparameter.t.cpp
 template <class ELEMS_0 = BSLS_COMPILERFEATURES_NILT,
           class ELEMS_1 = BSLS_COMPILERFEATURES_NILT,
           class ELEMS_2 = BSLS_COMPILERFEATURES_NILT,
@@ -317,22 +317,22 @@ template <class ELEMS_01,
    #include <bslmf_nthparameter.h>
   
    template <std::size_t I, class TUPLE>
-   class my_tuple_element;
+   struct my_tuple_element;
   
    template <std::size_t I>
-   class my_tuple_element<I, my_tuple<> > {
+   struct my_tuple_element<I, my_tuple<> > {
        typedef typename bslmf::NthParameter<I>::Type Type;
    };
 
    template <std::size_t I, class ELEMS_01>
-   class my_tuple_element<I, my_tuple<ELEMS_01> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01>::Type Type;
    };
 
    template <std::size_t I, class ELEMS_01,
                             class ELEMS_02>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02>::Type Type;
    };
@@ -340,9 +340,9 @@ template <class ELEMS_01,
    template <std::size_t I, class ELEMS_01,
                             class ELEMS_02,
                             class ELEMS_03>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03>::Type Type;
@@ -352,10 +352,10 @@ template <class ELEMS_01,
                             class ELEMS_02,
                             class ELEMS_03,
                             class ELEMS_04>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03,
-                                      ELEMS_04> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03,
+                                       ELEMS_04> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03,
@@ -367,11 +367,11 @@ template <class ELEMS_01,
                             class ELEMS_03,
                             class ELEMS_04,
                             class ELEMS_05>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03,
-                                      ELEMS_04,
-                                      ELEMS_05> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03,
+                                       ELEMS_04,
+                                       ELEMS_05> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03,
@@ -385,12 +385,12 @@ template <class ELEMS_01,
                             class ELEMS_04,
                             class ELEMS_05,
                             class ELEMS_06>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03,
-                                      ELEMS_04,
-                                      ELEMS_05,
-                                      ELEMS_06> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03,
+                                       ELEMS_04,
+                                       ELEMS_05,
+                                       ELEMS_06> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03,
@@ -406,13 +406,13 @@ template <class ELEMS_01,
                             class ELEMS_05,
                             class ELEMS_06,
                             class ELEMS_07>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03,
-                                      ELEMS_04,
-                                      ELEMS_05,
-                                      ELEMS_06,
-                                      ELEMS_07> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03,
+                                       ELEMS_04,
+                                       ELEMS_05,
+                                       ELEMS_06,
+                                       ELEMS_07> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03,
@@ -430,14 +430,14 @@ template <class ELEMS_01,
                             class ELEMS_06,
                             class ELEMS_07,
                             class ELEMS_08>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03,
-                                      ELEMS_04,
-                                      ELEMS_05,
-                                      ELEMS_06,
-                                      ELEMS_07,
-                                      ELEMS_08> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03,
+                                       ELEMS_04,
+                                       ELEMS_05,
+                                       ELEMS_06,
+                                       ELEMS_07,
+                                       ELEMS_08> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03,
@@ -457,15 +457,15 @@ template <class ELEMS_01,
                             class ELEMS_07,
                             class ELEMS_08,
                             class ELEMS_09>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03,
-                                      ELEMS_04,
-                                      ELEMS_05,
-                                      ELEMS_06,
-                                      ELEMS_07,
-                                      ELEMS_08,
-                                      ELEMS_09> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03,
+                                       ELEMS_04,
+                                       ELEMS_05,
+                                       ELEMS_06,
+                                       ELEMS_07,
+                                       ELEMS_08,
+                                       ELEMS_09> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03,
@@ -487,16 +487,16 @@ template <class ELEMS_01,
                             class ELEMS_08,
                             class ELEMS_09,
                             class ELEMS_10>
-   class my_tuple_element<I, my_tuple<ELEMS_01,
-                                      ELEMS_02,
-                                      ELEMS_03,
-                                      ELEMS_04,
-                                      ELEMS_05,
-                                      ELEMS_06,
-                                      ELEMS_07,
-                                      ELEMS_08,
-                                      ELEMS_09,
-                                      ELEMS_10> > {
+   struct my_tuple_element<I, my_tuple<ELEMS_01,
+                                       ELEMS_02,
+                                       ELEMS_03,
+                                       ELEMS_04,
+                                       ELEMS_05,
+                                       ELEMS_06,
+                                       ELEMS_07,
+                                       ELEMS_08,
+                                       ELEMS_09,
+                                       ELEMS_10> > {
        typedef typename bslmf::NthParameter<I, ELEMS_01,
                                                ELEMS_02,
                                                ELEMS_03,
@@ -532,10 +532,10 @@ template <class ELEMS_01,
    #include <bslmf_nthparameter.h>
   
    template <std::size_t I, class TUPLE>
-   class my_tuple_element;
+   struct my_tuple_element;
   
    template <std::size_t I, class... ELEMS>
-   class my_tuple_element<I, my_tuple<ELEMS...> > {
+   struct my_tuple_element<I, my_tuple<ELEMS...> > {
        typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
    };
    #include <bslmf_issame.h>

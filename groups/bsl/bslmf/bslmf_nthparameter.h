@@ -40,10 +40,10 @@ BSLS_IDENT("$Id: $")
 // #include <bslmf_nthparameter.h>
 //
 // template <std::size_t I, class TUPLE>
-// class my_tuple_element;  // Not defined
+// struct my_tuple_element;  // Not defined
 //
 // template <std::size_t I, class... ELEMS>
-// class my_tuple_element<I, my_tuple<ELEMS...> > {
+// struct my_tuple_element<I, my_tuple<ELEMS...> > {
 //     typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
 // };
 //..
