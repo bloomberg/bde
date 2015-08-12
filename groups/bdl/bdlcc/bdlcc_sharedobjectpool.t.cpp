@@ -68,14 +68,11 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BDLS_TESTUTIL_L_  // current Line number
 
-typedef vector<char> CharArray;
-
 namespace {
 
    //Unnamed namespace scopes private classes and methods for testing
 
 bdlqq::SpinLock coutLock;
-
 
 template <class POOL>
 class TestRun
@@ -125,21 +122,23 @@ public:
 template <class POOL>
 void TestRun<POOL>::threadProc(int id)
 {
-   bsls::Stopwatch timer;
-   timer.start();
+    typedef vector<char> CharArray;
 
-   for (int count = 0; true; ++count) {
-      double elapsed = timer.elapsedTime();
-      if (elapsed < d_secondsToRun) {
-         vector<bsl::shared_ptr<CharArray> > charArrays(d_allocator_p);
-         charArrays.resize(d_numCharArraysPerIteration);
-         for (int i = 0; i < d_numCharArraysPerIteration; ++i) {
-            d_pool.getCharArray(&charArrays[i]);
-         }
-      }
-      else {
-         d_partialRates[id] = (double)(count * d_numCharArraysPerIteration) /
-            (elapsed * d_numThreads);
+    bsls::Stopwatch timer;
+    timer.start();
+
+    for (int count = 0; true; ++count) {
+        double elapsed = timer.elapsedTime();
+        if (elapsed < d_secondsToRun) {
+            vector<bsl::shared_ptr<CharArray> > charArrays(d_allocator_p);
+            charArrays.resize(d_numCharArraysPerIteration);
+            for (int i = 0; i < d_numCharArraysPerIteration; ++i) {
+                d_pool.getCharArray(&charArrays[i]);
+            }
+        }
+        else {
+            d_partialRates[id] = (double)(count * d_numCharArraysPerIteration)
+                               / (elapsed * d_numThreads);
          if (veryVerbose) {
             coutLock.lock();
             cout << "INFO: thread " << id << " count = " << count << endl;
@@ -166,6 +165,8 @@ void TestRun<POOL>::run()
 }
 
 class SlowerCharArrayPool {
+    typedef vector<char> CharArray;
+
     bdlcc::ObjectPool<CharArray>  d_charArrayPool;  // supply charArrays
     bslma::Allocator             *d_allocator_p;    // allocator (held)
 
@@ -196,7 +197,6 @@ class SlowerCharArrayPool {
    }
 };
 
-
 ///Usage
 ///-----
 // This component is intended to improve the efficiency of code which provides
@@ -204,6 +204,7 @@ class SlowerCharArrayPool {
 // maintains a pool of 'vector<char>' objects and provides shared pointers to
 // them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
 //..
+    typedef vector<char> CharArray;
 
     class SlowCharArrayPool {
         bdlma::ConcurrentPoolAllocator d_spAllocator;    // alloc. shared ptr.
@@ -851,7 +852,6 @@ int main(int argc, char *argv[])
             cout << "Thread safety test" << endl;
          }
 
-
          enum {
             k_NUM_THREADS=20,
             k_NUM_CHARARRAYS_PER_ITER=10000,
@@ -884,7 +884,6 @@ int main(int argc, char *argv[])
             cout << "Usage example test" << endl;
          }
 
-//..
 // Now the shared pointer and the object are allocated as one unit from the
 // same allocator.  In addition, the resetter method is a fully-inlined class
 // that is only responsible for resetting the object, improving efficiency and

@@ -142,7 +142,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Note that 'SlowCharArrayPool' must allocate the shared pointer itself from
-// its 'd_spAllocator' in addition to allocating the char array from its pool.
+// its 'd_spAllocator' in addition to allocating the charArray from its pool.
 // Moreover, note that since the same function will handle resetting the object
 // and returning it to the pool, we must define a special function for that
 // purpose and bind its arguments.
