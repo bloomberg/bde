@@ -26,7 +26,7 @@ using bsl::atoi;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test provides a set of value semantic classes which
+// The component under test provides a set of value-semantic classes which
 // represent a floating point numbers in the decimal base, where each class has
 // a different precision.
 // ----------------------------------------------------------------------------

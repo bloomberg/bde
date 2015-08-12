@@ -32,7 +32,7 @@ using namespace BloombergLP;
 //                             Overview
 //                             --------
 // The component under test defines a class template,
-// 'bslstl::HashTableIterator', that is an in-core value semantic type.  This
+// 'bslstl::HashTableIterator', that is an in-core value-semantic type.  This
 // class provides a standard-conforming forward iterator (see section 24.2.5
 // [forward.iterators] of the C++11 standard) over a list of
 // 'bslalg::BidirectionalLink' objects.

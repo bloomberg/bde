@@ -183,7 +183,7 @@ BSLS_IDENT("$Id: $")
 // Note that functions 'createWorkerThread' and 'waitAllThreads' can be
 // implemented using any thread-support package.
 //
-///Example 2: Thread-safe Counted Handle
+///Example 2: Thread-Safe Counted Handle
 ///- - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of atomic integer operations to
 // implement a thread-safe ref-counted handle similar to a shared pointer.

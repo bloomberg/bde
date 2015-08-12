@@ -357,11 +357,13 @@ BSLS_IDENT("$Id: $")
 //: Compiler support:
 //:   gcc 4.3
 //:   clang 2.9
-//:   MSVC 2013
+//:   MSVC 2015 
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //..
-//
+// Note that bugs in MSVC 2013 support for variadic templates preclude
+// enabling the feature for BSL.
+// 
 ///BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 ///- - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'alignas' alignment
@@ -386,11 +388,11 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_GNU)
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
-// gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
-#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #if BSLS_PLATFORM_CMP_VERSION >= 30300
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #endif
+// gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
 #if BSLS_PLATFORM_CMP_VERSION >= 40300
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
@@ -510,9 +512,14 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
+// Note that while MSVC 2013 supports variadic templates in principle, there
+// are sufficient problems with the implementation that we defer support until
+// the 2015 compiler where those issues are ironed out.
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 // MSVC has __declspec(noreturn)
 // (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)

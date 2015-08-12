@@ -400,14 +400,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#   ifndef INCLUDED_STDDEF
+#   ifndef INCLUDED_STDDEF_H
 #   include <stddef.h>
-#   define INCLUDED_STDDEF
+#   define INCLUDED_STDDEF_H
 #   endif
 #else
-#   ifndef INCLUDED_STDINT
+#   ifndef INCLUDED_STDINT_H
 #   include <stdint.h>
-#   define INCLUDED_STDINT
+#   define INCLUDED_STDINT_H
 #   endif
 #endif
 

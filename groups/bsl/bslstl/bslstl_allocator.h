@@ -317,7 +317,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now we can create array objects with different allocator mechanisms.  First
 // we create an array, 'a1', using the default allocator and fill it with the
-// values '[ 1 .. 5 ]':
+// values '[1 .. 5]':
 //..
 //  int main() {
 //
@@ -486,7 +486,7 @@ class allocator {
         // 'original'.  Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     template <class ANY_TYPE>
-    allocator(const allocator<ANY_TYPE>& rhs);                  
+    allocator(const allocator<ANY_TYPE>& rhs);
         // Create a proxy object sharing the same mechanism object as the
         // specified 'rhs'.  The newly constructed allocator will compare equal
         // to 'rhs', even though they are instantiated on different types.
@@ -540,7 +540,7 @@ class allocator {
         // 'operator&'.
 
     size_type max_size() const;
-        // Return the maximum number of elements of (template parmeter) 'TYPE'
+        // Return the maximum number of elements of (template parameter) 'TYPE'
         // that can be allocated using this allocator.  Note that there is no
         // guarantee that attempts at allocating fewer elements than the value
         // returned by 'max_size' will not throw.
@@ -652,14 +652,14 @@ template <class TYPE>
 inline
 bool operator==(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs);
-    // Return 'true' if the specified 'lhs' is a proxy for the specifed 'rhs',
+    // Return 'true' if the specified 'lhs' is a proxy for the specified 'rhs',
     // and 'false' otherwise.
 
 template <class TYPE>
 inline
 bool operator!=(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs);
-    // Return 'true' unless the specified 'lhs' is a proxy for the specifed
+    // Return 'true' unless the specified 'lhs' is a proxy for the specified
     // 'rhs', in which case return 'false'.
 
 
@@ -667,14 +667,14 @@ template <class TYPE>
 inline
 bool operator==(const BloombergLP::bslma::Allocator *lhs,
                 const allocator<TYPE>&               rhs);
-    // Return 'true' if the specified 'rhs' is a proxy for the specifed 'lhs',
+    // Return 'true' if the specified 'rhs' is a proxy for the specified 'lhs',
     // and 'false' otherwise.
 
 template <class TYPE>
 inline
 bool operator!=(const BloombergLP::bslma::Allocator *lhs,
                 const allocator<TYPE>&               rhs);
-    // Return 'true' unless the specified 'rhs' is a proxy for the specifed
+    // Return 'true' unless the specified 'rhs' is a proxy for the specified
     // 'lhs', in which case return 'false'.
 
 // ============================================================================
@@ -741,7 +741,7 @@ inline
 void allocator<TYPE>::deallocate(typename allocator::pointer   p,
                                  typename allocator::size_type n)
 {
-    (void) n;  // suppress unsued parameter warning
+    (void) n;  // suppress unused parameter warning
     d_mechanism->deallocate(p);
 }
 

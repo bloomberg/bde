@@ -486,10 +486,18 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
 
     const CHAR_TYPE *data() const;
         // Return the address of the first character of the string bound to
-        // this string reference such that '[data(), data()+length())' is a
-        // valid half-open range of characters. Note that the range of
+        // this string reference such that '[data() .. data()+length())' is a
+        // valid half-open range of characters.  Note that the range of
         // characters might not be null-terminated and may contain embedded
         // null characters.
+
+    bool empty() const;
+        // Return 'true' if this object represents an empty string value, and
+        // 'false' otherwise.  This object represents an empty string value if
+        // 'begin() == end()'.  Note that this method is functionally identical
+        // with the 'isEmpty' method and allows developers to avoid distracting
+        // syntax differences when 'StringRef' appears in juxtaposition with
+        // 'string', which defines 'empty' but not 'isEmpty'.
 
     bool isEmpty() const;
         // Return 'true' if this object represents an empty string value, and
@@ -913,6 +921,13 @@ inline
 const CHAR_TYPE *StringRefImp<CHAR_TYPE>::data() const
 {
     return begin();
+}
+
+template <typename CHAR_TYPE>
+inline
+bool StringRefImp<CHAR_TYPE>::empty() const
+{
+    return begin() == end();
 }
 
 template <typename CHAR_TYPE>
@@ -1381,15 +1396,16 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     }
     else {
         stringRef.write(stream);
-        stream.width(0);
     }
+
+    stream.width(0);
 
     return stream;
 }
 
 template <typename CHAR_TYPE, typename HASHALG>
 inline
-void bslstl::hashAppend(HASHALG& hashAlg, 
+void bslstl::hashAppend(HASHALG& hashAlg,
                         const StringRefImp<CHAR_TYPE>&  input)
 {
     using ::BloombergLP::bslh::hashAppend;
