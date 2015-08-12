@@ -1371,12 +1371,12 @@ inline
 bool bdlc::HashTableDefaultTraits::isNull(const BUCKET& bucket)
 {
     enum {
-        BDECS_IS_POD = bslalg::HasTrait<
+        k_IS_POD = bslalg::HasTrait<
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
-    BSLMF_ASSERT(BDECS_IS_POD);
+    BSLMF_ASSERT(k_IS_POD);
 
     const char  null  = 0;
     const char *begin = reinterpret_cast<const char *>(&bucket);
@@ -1412,12 +1412,12 @@ void bdlc::HashTableDefaultTraits::setToNull(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        BDECS_IS_POD = bslalg::HasTrait<
+        k_IS_POD = bslalg::HasTrait<
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
-    BSLMF_ASSERT(BDECS_IS_POD);
+    BSLMF_ASSERT(k_IS_POD);
 
     const char  null  = 0;
     char       *begin = reinterpret_cast<char *>(bucket);
@@ -1456,12 +1456,12 @@ inline
 bool bdlc::HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
 {
     enum {
-        BDECS_IS_POD = bslalg::HasTrait<
+        k_IS_POD = bslalg::HasTrait<
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
-    BSLMF_ASSERT(BDECS_IS_POD);
+    BSLMF_ASSERT(k_IS_POD);
 
     const char  removed = (char)0xFF;
     const char *begin   = reinterpret_cast<const char *>(&bucket);
@@ -1505,12 +1505,12 @@ void bdlc::HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
     BSLS_ASSERT_SAFE(bucket);
 
     enum {
-        BDECS_IS_POD = bslalg::HasTrait<
+        k_IS_POD = bslalg::HasTrait<
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
-    BSLMF_ASSERT(BDECS_IS_POD);
+    BSLMF_ASSERT(k_IS_POD);
 
     const char  removed = (char)0xFF;
     char       *begin   = reinterpret_cast<char *>(bucket);
