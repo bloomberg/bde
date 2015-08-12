@@ -1089,8 +1089,10 @@ int main(int argc, char *argv[]) {
                 char writeBuf[k_LEN] = "abcdefghij1234567890",
                      readBuf[k_LEN];
                 int numBytes = 0, augStatus = -1, interruptFlag = 1;
-                int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
-                                               strlen(writeBuf));
+                int len = btlso::SocketImpUtil::write(
+                                           handles[1],
+                                           writeBuf,
+                                           static_cast<int>(strlen(writeBuf)));
 
                 ASSERT(len == (int)strlen(writeBuf));
                 // Read 5 bytes from the channel.

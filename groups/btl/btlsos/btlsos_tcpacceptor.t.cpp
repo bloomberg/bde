@@ -206,17 +206,19 @@ volatile sig_atomic_t syncWithSigHandler = 0;
 static void signalHandler(int sig)
     // The signal handler does nothing.
 {
-     // this is NOT SIGNAL SAFE, but it should not matter if the asser is true
-     ASSERT(syncWithSigHandler == 0);
+    (void)sig;
 
-     if (globalVeryVerbose) {
-         //P_T(bdlqq::ThreadUtil::self());
-         // We can only use write in the signal handler ...
-         write(1, " caught signal\n", sizeof(" caught signal\n"));
-         //PT(sig);
-     }
-     ++syncWithSigHandler;
-     return;
+    // this is NOT SIGNAL SAFE, but it should not matter if the asser is true
+    ASSERT(syncWithSigHandler == 0);
+
+    if (globalVeryVerbose) {
+        //P_T(bdlqq::ThreadUtil::self());
+        // We can only use write in the signal handler ...
+        write(1, " caught signal\n", sizeof(" caught signal\n"));
+        //PT(sig);
+    }
+    ++syncWithSigHandler;
+    return;
 }
 
 static void registerSignal(int signo, void (*handler)(int) )
@@ -336,7 +338,7 @@ void* threadAsClient(void *arg)
     }
 
     // cleanup
-    int length = clients.size();
+    int length = static_cast<int>(clients.size());
     for (int i = 0; i < length; ++i) {
         factory.deallocate(clients[i]);
     }
@@ -992,7 +994,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                  existing = channels.size();
+                  existing = static_cast<int>(channels.size());
                   if (veryVerbose) {
                       PT(channels.size());
                   }
@@ -1039,7 +1041,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -1082,7 +1084,7 @@ int main(int argc, char *argv[]) {
                                                DATA,
                                                NUM_DATA,
                                                expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           PT(channels.size());
                       }
@@ -1335,7 +1337,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1393,7 +1395,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
 
                   if (verbose) {
@@ -1501,7 +1503,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }
@@ -1753,7 +1755,7 @@ int main(int argc, char *argv[]) {
                                                    DATA,
                                                    NUM_DATA,
                                                    expNumChannels));
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                       if (veryVerbose) {
                           QT("Step 1: channels.size() = ");
                           PT(channels.size());
@@ -1811,7 +1813,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 2: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   if (verbose) {
                       QT("Step 3 for testing 'allocate' method:");
@@ -1916,7 +1918,7 @@ int main(int argc, char *argv[]) {
                           QT("Step 4: channels.size() = ");
                           PT(channels.size());
                       }
-                      existing = channels.size();
+                      existing = static_cast<int>(channels.size());
                   }
                   channels.clear();
               }

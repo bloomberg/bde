@@ -594,7 +594,7 @@ void TcpTimedCbAcceptor::cancelAll()
                           d_callbacks.begin() + d_callbacks.size() - 1);
         BSLS_ASSERT(d_currentRequest_p == d_callbacks.back());
 
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         while (--numToCancel >= 0) {
             TcpTimedCbAcceptor_Reg *reg = toBeCancelled[numToCancel];
             BSLS_ASSERT(reg);
@@ -607,7 +607,7 @@ void TcpTimedCbAcceptor::cancelAll()
         bsl::deque<TcpTimedCbAcceptor_Reg *>
                                      toBeCancelled(d_callbacks, d_allocator_p);
         d_callbacks.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_manager_p->deregisterSocketEvent(d_serverSocket_p->handle(),
                                                btlso::EventType::e_ACCEPT);

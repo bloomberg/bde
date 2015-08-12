@@ -566,7 +566,7 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     // either 'pool' or 'queue' is 0.
 {
     BSLS_ASSERT(queue);
-    int numElements = queue->size();
+    int numElements = static_cast<int>(queue->size());
 
     for (int i = 0; i < numElements; ++i) {
         REG *reg = (*queue)[numElements - 1 - i];
@@ -583,9 +583,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
                      // ===============================
 
 static inline
-void initializeBuffer(bsl::vector<char>                     *buffer,
+void initializeBuffer(bsl::vector<char>                       *buffer,
                       btlso::StreamSocket<btlso::IPv4Address> *socket_p,
-                      int                                    option)
+                      int                                      option)
 {
     enum { k_DEFAULT_BUFFER_SIZE = 8192 };
     int result;
@@ -656,7 +656,7 @@ void TcpCbChannel::bufferedReadCb()
 
     int requestLength = d_currentReadRequest_p->d_requestLength;
     int numBytesRemaining = requestLength - d_readBufferOffset;
-    int available = d_readBuffer.size() - d_readBufferOffset;
+    int available = static_cast<int>(d_readBuffer.size()) - d_readBufferOffset;
     BSLS_ASSERT(available >= numBytesRemaining);
 
     int s = d_socket_p->read(&d_readBuffer.front() + d_readBufferOffset,
@@ -962,7 +962,7 @@ void TcpCbChannel::bufferedWriteCb() {
                                            d_writeRequests.back()->d_category);
 
     int numBytesToWrite = 0;
-    int numPendingRequests = d_writeRequests.size();
+    int numPendingRequests = static_cast<int>(d_writeRequests.size());
     for (int i = numPendingRequests - 1; 0 <= i; --i) {
         if (d_writeRequests[i]->d_category
                                        != TcpCbChannel_WReg::e_BUFFERED) {
@@ -2080,9 +2080,11 @@ int TcpCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer.front() + d_writeBufferOffset,
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers + idx + 1,
+                                  numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -2100,9 +2102,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2124,9 +2128,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2159,9 +2165,11 @@ int TcpCbChannel::bufferedWritev(
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
-            &d_writeBuffer.front() + d_writeBufferOffset,
-            d_writeBuffer.size() - d_writeBufferOffset,
-            buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
@@ -2221,9 +2229,11 @@ int TcpCbChannel::bufferedWritev(
 
                 if (idx < numBuffers - 1) {
                     int len = btls::IovecUtil::gather(
-                         &d_writeBuffer.front() + d_writeBufferOffset,
-                         d_writeBuffer.size() - d_writeBufferOffset,
-                         buffers + idx + 1, numBuffers - idx - 1);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers + idx + 1,
+                                  numBuffers - idx - 1);
                     BSLS_ASSERT(length == len);
                 }
                 d_writeBufferOffset += numBytes;
@@ -2241,9 +2251,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2265,9 +2277,11 @@ int TcpCbChannel::bufferedWritev(
                     d_writeBuffer.resize(d_writeBufferOffset + length);
                 }
                 int len = btls::IovecUtil::gather(
-                    &d_writeBuffer.front() + d_writeBufferOffset,
-                    d_writeBuffer.size() - d_writeBufferOffset,
-                    buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
                 BSLS_ASSERT(length == len);
 
                 d_writeBufferOffset += length;
@@ -2300,9 +2314,11 @@ int TcpCbChannel::bufferedWritev(
             d_writeBuffer.resize(d_writeBufferOffset + length);
         }
         int len = btls::IovecUtil::gather(
-            &d_writeBuffer.front() + d_writeBufferOffset,
-            d_writeBuffer.size() - d_writeBufferOffset,
-            buffers, numBuffers);
+                                  &d_writeBuffer.front() + d_writeBufferOffset,
+                                  static_cast<int>(d_writeBuffer.size())
+                                                         - d_writeBufferOffset,
+                                  buffers,
+                                  numBuffers);
         BSLS_ASSERT(length == len);
 
         d_writeBufferOffset += length;
@@ -2333,7 +2349,8 @@ void TcpCbChannel::cancelRead() {
                            d_readRequests.begin(),
                            d_readRequests.begin() + d_readRequests.size() - 1,
                            d_allocator_p);
-        d_readRequests.erase(d_readRequests.begin(),
+        d_readRequests.erase(
+                           d_readRequests.begin(),
                            d_readRequests.begin() + d_readRequests.size() - 1);
         dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_rrequestPool);
         BSLS_ASSERT(d_currentReadRequest_p == d_readRequests.back());
@@ -2342,7 +2359,7 @@ void TcpCbChannel::cancelRead() {
         bsl::deque<TcpCbChannel_RReg *>
                                   toBeCancelled(d_readRequests, d_allocator_p);
         d_readRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
 
         if (numToCancel) {
             d_rManager_p->deregisterSocketEvent(d_socket_p->handle(),
@@ -2368,13 +2385,13 @@ void TcpCbChannel::cancelWrite() {
         BSLS_ASSERT(d_currentWriteRequest_p == d_writeRequests.back());
     }
     else {
-        bsl::deque<TcpCbChannel_WReg *>
-                                 toBeCancelled(d_writeRequests, d_allocator_p);
+        bsl::deque<TcpCbChannel_WReg *> toBeCancelled(d_writeRequests,
+                                                      d_allocator_p);
         d_writeRequests.clear();
-        int numToCancel = toBeCancelled.size();
+        int numToCancel = static_cast<int>(toBeCancelled.size());
         if (numToCancel) {
             d_wManager_p->deregisterSocketEvent(d_socket_p->handle(),
-                                               btlso::EventType::e_WRITE);
+                                                btlso::EventType::e_WRITE);
         }
         dequeue(&toBeCancelled, 0, e_DEQUEUED, &d_wrequestPool);
     }
@@ -2418,14 +2435,14 @@ int TcpCbChannel::isInvalidWrite() const {
 }
 
 int TcpCbChannel::numPendingReadOperations() const {
-    return d_readRequests.size();
+    return static_cast<int>(d_readRequests.size());
 }
 
 int TcpCbChannel::numPendingWriteOperations() const {
-    return d_writeRequests.size();
+    return static_cast<int>(d_writeRequests.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
