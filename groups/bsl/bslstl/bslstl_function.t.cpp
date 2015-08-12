@@ -553,21 +553,18 @@ struct EmptyFunctor : FunctorBase
 {
     // Stateless functor
     // - No allocator
-    // - Not bitwise movable (except in C++-03 mode)
+    // - Bitwise movable
     // - Nothrow move constructible
 
     EmptyFunctor(const EmptyFunctor&) : FunctorBase()
         { --copyLimit; memset(this, 0xdd, sizeof(*this)); }
 
-// #if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
-//     defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-//     // Nothrow moveable
-//     EmptyFunctor(EmptyFunctor&&) noexcept
-//         { memset(this, 0xdd, sizeof(*this)); }
-// #else
-//     // Bitwise moveable
-//     BSLMF_NESTED_TRAIT_DECLARATION(EmptyFunctor, bslmf::IsBitwiseMoveable);
-// #endif
+#if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
+    defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Nothrow moveable
+    EmptyFunctor(EmptyFunctor&&) noexcept
+        { memset(this, 0xdd, sizeof(*this)); }
+#endif
 
     enum { IS_STATELESS = true };
 
@@ -642,7 +639,7 @@ class SmallFunctor : public FunctorBase
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move-constructor deliberately modifies 'other'.
-    // This move constructor is not called in nothrow settings.
+    // This move constructor is not called in destructive move settings.
     SmallFunctor(SmallFunctor&& other) : d_value(other.d_value)
         { --moveLimit; other.d_value = k_MOVED_FROM_VAL; }
 #endif
@@ -704,7 +701,7 @@ class MediumFunctor : public SmallFunctor
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    // This move constructor is not called in nothrow settings.
+    // This move constructor is not called in destructive move settings.
     MediumFunctor(MediumFunctor&& other)
       : SmallFunctor(bslmf::MovableRefUtil::move(other))
     {
@@ -747,7 +744,7 @@ class LargeFunctor : public SmallFunctor
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-//    // This move constructor is not called in nothrow settings.
+    // This move constructor is not called in destructive move settings.
     LargeFunctor(LargeFunctor&& other)
       : SmallFunctor(bslmf::MovableRefUtil::move(other))
     {
@@ -2632,7 +2629,7 @@ void testAssignNullptr(const Obj& func, int line)
     testAlloc.setAllocationLimit(0);    // Disable new allocations
     moveLimit = 0;                      // Disable throwing-functor moves
     copyLimit = 0;                      // Disable throwing-functor copies
-    funcCopy = nullptr_t(); ///////// Assignment from nullptr ////////
+    funcCopy = bsl::nullptr_t(); ///////// Assignment from nullptr ////////
     copyLimit = -1;
     moveLimit = -1;
     testAlloc.setAllocationLimit(-1);
@@ -5859,10 +5856,10 @@ int main(int argc, char *argv[])
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(  isConstPtr(F.target<nullptr_t>()));
-            ASSERT(! isConstPtr(f.target<nullptr_t>()));
-            ASSERT(NULL == F.target<nullptr_t>());
-            ASSERT(NULL == f.target<nullptr_t>());
+            ASSERT(  isConstPtr(F.target<bsl::nullptr_t>()));
+            ASSERT(! isConstPtr(f.target<bsl::nullptr_t>()));
+            ASSERT(NULL == F.target<bsl::nullptr_t>());
+            ASSERT(NULL == f.target<bsl::nullptr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -5870,13 +5867,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Construct with nullptr_t argument\n");
         globalAllocMonitor.reset();
         {
-            const nullptr_t np = nullptr_t();
+            const bsl::nullptr_t np = bsl::nullptr_t();
             Obj f(np); const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<nullptr_t>());
-            ASSERT(NULL == f.target<nullptr_t>());
+            ASSERT(NULL == F.target<bsl::nullptr_t>());
+            ASSERT(NULL == f.target<bsl::nullptr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());

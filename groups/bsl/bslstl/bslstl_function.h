@@ -817,7 +817,7 @@ class function<RET(ARGS...)> :
     static RET outofplaceFunctorInvoker(const Function_Rep *rep,
                                 typename bslmf::ForwardingType<ARGS>::Type...);
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     // UNSPECIFIED BOOL
 
     // This type is needed only in C++03 mode, where 'explicit' conversion
@@ -896,7 +896,7 @@ class function<RET(ARGS...)> :
 #endif
 
     // ACCESSORS
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit  // Explicit conversion available only with C++11
     operator bool() const BSLS_NOTHROW_SPEC;
 #else
