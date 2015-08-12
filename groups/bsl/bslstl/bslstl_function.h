@@ -2054,7 +2054,7 @@ RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 
 // ACCESSORS
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 template <class RET, class... ARGS>
 inline
 bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
@@ -2063,7 +2063,7 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
     // otherwise it is empty (return false).
     return invoker();
 }
-#endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#endif // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class RET, class... ARGS>
