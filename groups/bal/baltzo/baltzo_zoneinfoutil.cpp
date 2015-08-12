@@ -13,7 +13,11 @@ BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 
 #include <bdlt_datetimeinterval.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
+#include <bsl_string.h>
+
+#include <bsls_assert.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -101,21 +105,21 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
     // and this method assigns to both '*firstResultTransition' and
     // '*secondResultTransition' an iterator referring to the transition for
     // that local-time descriptor, and assigns 'resultValidity'
-    // 'BALTZO_VALID_UNIQUE'.
+    // 'e_VALID_UNIQUE'.
     //
     // If 'localTime' falls in either the range [T1, T1') or [T2 and T2'), then
     // either of the two adjacent local-time descriptors might apply to the
     // 'localTime'.  In that case, '*firstResultTransition' is assigned an
     // iterator referring to the earlier transition, and
     // '*secondResultTransition' is assigned an iterator referring to the
-    // latter transition.  'resultValidity' is assigned
-    // 'BALTZO_VALID_AMBIGUOUS', if clocks were set back (i.e., the UTC offset
-    // decreased at the transition), and assigned 'BALTZO_INVALID' if clocks
-    // were set forward (i.e., the UTC offset increased at the transition).
-    // Note that we do not need to test whether clocks remained the same at a
-    // transition, because in that instance, the corresponding highlighted
-    // range -- e.g., [T1, T1') -- degenerates to an empty range, which
-    // therefore cannot include 'localTime'.
+    // latter transition.  'resultValidity' is assigned 'e_VALID_AMBIGUOUS', if
+    // clocks were set back (i.e., the UTC offset decreased at the transition),
+    // and assigned 'e_INVALID' if clocks were set forward (i.e., the UTC
+    // offset increased at the transition).  Note that we do not need to test
+    // whether clocks remained the same at a transition, because in that
+    // instance, the corresponding highlighted range -- e.g., [T1, T1') --
+    // degenerates to an empty range, which therefore cannot include
+    // 'localTime'.
 
     typedef LocalTimeValidity                 Validity;
     typedef Zoneinfo::TransitionConstIterator TransitionConstIter;
@@ -155,7 +159,7 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
         bdlt::EpochUtil::TimeT64 T1Prime = currentTimeT +
                                        bsl::max(prevOffset, currentOffset);
         if (localTimeT < T1) {
-            *resultValidity         = Validity::BALTZO_VALID_UNIQUE;
+            *resultValidity         = Validity::e_VALID_UNIQUE;
             *firstResultTransition  = prevTransition;
             *secondResultTransition = prevTransition;
             return;                                                   // RETURN
@@ -171,8 +175,8 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
             BSLS_ASSERT_SAFE(prevOffset != currentOffset);
 
             *resultValidity         = prevOffset < currentOffset
-                                    ? Validity::BALTZO_INVALID
-                                    : Validity::BALTZO_VALID_AMBIGUOUS;
+                                    ? Validity::e_INVALID
+                                    : Validity::e_VALID_AMBIGUOUS;
             *firstResultTransition  = prevTransition;
             *secondResultTransition = currentTransition;
             return;                                                   // RETURN
@@ -195,7 +199,7 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
                                     bsl::max(currentOffset, nextOffset);
 
         if (localTimeT >= T2Prime) {
-            *resultValidity         = Validity::BALTZO_VALID_UNIQUE;
+            *resultValidity         = Validity::e_VALID_UNIQUE;
             *firstResultTransition  = nextTransition;
             *secondResultTransition = nextTransition;
             return;                                                   // RETURN
@@ -210,8 +214,8 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
 
             BSLS_ASSERT_SAFE(currentOffset != nextOffset);
             *resultValidity         = currentOffset < nextOffset
-                                    ? Validity::BALTZO_INVALID
-                                    : Validity::BALTZO_VALID_AMBIGUOUS;
+                                    ? Validity::e_INVALID
+                                    : Validity::e_VALID_AMBIGUOUS;
             *firstResultTransition  = currentTransition;
             *secondResultTransition = nextTransition;
             return;                                                   // RETURN
@@ -221,7 +225,7 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
     // Since all other cases have been tested, 'localTime' must fall between
     // T1' and T2 (in the figure above).
 
-    *resultValidity         = Validity::BALTZO_VALID_UNIQUE;
+    *resultValidity         = Validity::e_VALID_UNIQUE;
     *firstResultTransition  = currentTransition;
     *secondResultTransition = currentTransition;
 }
@@ -233,9 +237,6 @@ bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
     // not satisfied.
 
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
-    enum {
-        SECONDS_PER_DAY = 24 * 60 * 60  // number of seconds in 24 hours
-    };
 
     // Constraint 1: 'timeZone.numTransitions() > 0'.
 
@@ -290,8 +291,8 @@ bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
         bdlt::EpochUtil::TimeT64 postCurrentTransition = utc + currentOffset;
 
         // Next, we test if the local time representation either immediately
-        // before or after the previous transition, falls after the
-        // local time immediately before or after the current transition.
+        // before or after the previous transition, falls after the local time
+        // immediately before or after the current transition.
         //
         // Note that we are guaranteed that 'postPreviousTransition' is an
         // earlier time representation than 'preCurrentTransition' since they

@@ -34,7 +34,7 @@ bsl::ostream& baltzo::DstPolicy::print(bsl::ostream&   stream,
 
 const char *baltzo::DstPolicy::toAscii(DstPolicy::Enum value)
 {
-#define CASE(X) case(BALTZO_ ## X): return #X;
+#define CASE(X) case(e_ ## X): return #X;
 
     switch (value) {
       CASE(DST)

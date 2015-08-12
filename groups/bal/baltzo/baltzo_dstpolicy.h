@@ -27,14 +27,14 @@ BSLS_IDENT("$Id: $")
 ///Enumerators
 ///-----------
 //..
-//  Name                 Description
-//  ------------------   ---------------------------------------------------
-//  BALTZO_DST           Local time is interpreted as daylight-saving time.
+//  Name            Description
+//  -------------   ---------------------------------------------------
+//  e_DST           Local time is interpreted as daylight-saving time.
 //
-//  BALTZO_STANDARD      Local time is interpreted as standard time.
+//  e_STANDARD      Local time is interpreted as standard time.
 //
-//  BALTZO_UNSPECIFIED   Local time is interpreted as either daylight-saving
-//                       time or standard time (as appropriate).
+//  e_UNSPECIFIED   Local time is interpreted as either daylight-saving time or
+//                  standard time (as appropriate).
 //..
 //
 ///Usage
@@ -48,9 +48,9 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a variable 'value' of type 'baltzo::DstPolicy::Enum' and
 // initialize it with the enumerator value
-// 'baltzo::DstPolicy::BALTZO_STANDARD':
+// 'baltzo::DstPolicy::e_STANDARD':
 //..
-//  baltzo::DstPolicy::Enum value = baltzo::DstPolicy::BALTZO_STANDARD;
+//  baltzo::DstPolicy::Enum value = baltzo::DstPolicy::e_STANDARD;
 //..
 // Now, we store the address of its ASCII representation in a pointer variable,
 // 'asciiValue', of type 'const char *':
@@ -95,20 +95,18 @@ struct DstPolicy {
   public:
     // TYPES
     enum Enum {
-        BALTZO_DST,         // Local time is interpreted as daylight-saving
-                            // time.
+        e_DST,         // Local time is interpreted as daylight-saving time.
 
-        BALTZO_STANDARD,    // Local time is interpreted as standard time.
+        e_STANDARD,    // Local time is interpreted as standard time.
 
-        BALTZO_UNSPECIFIED  // Local time is interpreted as either
-                            // daylight-saving time or standard time (as
-                            // appropriate).
+        e_UNSPECIFIED  // Local time is interpreted as either daylight-saving
+                       // time or standard time (as appropriate).
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      , BAETZO_DST         = BALTZO_DST
-      , BAETZO_STANDARD    = BALTZO_STANDARD
-      , BAETZO_UNSPECIFIED = BALTZO_UNSPECIFIED
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAETZO_DST         = e_DST
+      , BAETZO_STANDARD    = e_STANDARD
+      , BAETZO_UNSPECIFIED = e_UNSPECIFIED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 
@@ -128,17 +126,17 @@ struct DstPolicy {
         // suppress indentation of the first line.  If 'spacesPerLevel' is
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  See 'toAscii' for
-        // what constitutes the string representation of a
-        // 'DstPolicy::Enum' value.
+        // what constitutes the string representation of a 'DstPolicy::Enum'
+        // value.
 
     static const char *toAscii(DstPolicy::Enum value);
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BALTZO_" prefix elided.  For
+        // corresponding enumerator name with the "e_" prefix elided.  For
         // example:
         //..
-        //  bsl::cout << DstPolicy::toAscii(DstPolicy::BALTZO_STANDARD);
+        //  bsl::cout << DstPolicy::toAscii(DstPolicy::e_STANDARD);
         //..
         // will print the following on standard output:
         //..
@@ -164,7 +162,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, DstPolicy::Enum value);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                             // ----------------

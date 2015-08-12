@@ -16,7 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component provides a namespace for the 'enum' type
+//@DESCRIPTION: This component provides a namespace,
+// 'baltzo::LocalTimeValidity', for the 'enum' type
 // 'baltzo::LocalTimeValidity::Enum', which enumerates the set of validity
 // codes that can be attributed to a local time.  Due to the vagaries of time
 // zones, and transitions among daylight-saving time and standard time, a
@@ -26,20 +27,20 @@ BSLS_IDENT("$Id: $")
 ///Enumerators
 ///-----------
 //..
-//  Name                    Description
-//  ----------------------  ---------------------------------------
-//  BALTZO_VALID_UNIQUE     Local time is *valid* and *unique*.
-//  BALTZO_VALID_AMBIGUOUS  Local time is *valid*, but *ambiguous*.
-//  BALTZO_INVALID          Local time is *invalid*.
+//  Name               Description
+//  -----------------  ---------------------------------------
+//  e_VALID_UNIQUE     Local time is *valid* and *unique*.
+//  e_VALID_AMBIGUOUS  Local time is *valid*, but *ambiguous*.
+//  e_INVALID          Local time is *invalid*.
 //..
 // For example, consider the following purported New York local times and their
 // corresponding 'baltzo::LocalTimeValidity::Enum' values:
 //..
 //  New York Local Time     Validity Code
 //  -------------------     ----------------------
-//  Jan  1, 2010 2:30am     BALTZO_VALID_UNIQUE
-//  Mar 14, 2010 2:30am     BALTZO_INVALID
-//  Nov  7, 2010 1:30am     BALTZO_VALID_AMBIGUOUS
+//  Jan  1, 2010 2:30am     e_VALID_UNIQUE
+//  Mar 14, 2010 2:30am     e_INVALID
+//  Nov  7, 2010 1:30am     e_VALID_AMBIGUOUS
 //..
 // On January 1, 2010 in New York, Eastern Standard Time (EST) was in effect
 // and the transition to Eastern Daylight-Saving Time (EDT) was still weeks
@@ -65,10 +66,10 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a variable 'value' of type
 // 'baltzo::LocalTimeValidity::Enum' and initialize it with the enumerator
-// value 'baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS':
+// value 'baltzo::LocalTimeValidity::e_VALID_AMBIGUOUS':
 //..
 //  baltzo::LocalTimeValidity::Enum value =
-//                           baltzo::LocalTimeValidity::BALTZO_VALID_AMBIGUOUS;
+//                                baltzo::LocalTimeValidity::e_VALID_AMBIGUOUS;
 //..
 // Now, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -112,14 +113,14 @@ struct LocalTimeValidity {
   public:
     // TYPES
     enum Enum {
-        BALTZO_VALID_UNIQUE,     // Local time is *valid* and *unique*.
-        BALTZO_VALID_AMBIGUOUS,  // Local time is *valid*, but *ambiguous*.
-        BALTZO_INVALID           // Local time is *invalid*.
+        e_VALID_UNIQUE,     // Local time is *valid* and *unique*.
+        e_VALID_AMBIGUOUS,  // Local time is *valid*, but *ambiguous*.
+        e_INVALID           // Local time is *invalid*.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-      , BAETZO_VALID_UNIQUE    = BALTZO_VALID_UNIQUE
-      , BAETZO_VALID_AMBIGUOUS = BALTZO_VALID_AMBIGUOUS
-      , BAETZO_INVALID         = BALTZO_INVALID
+      , BAETZO_VALID_UNIQUE    = e_VALID_UNIQUE
+      , BAETZO_VALID_AMBIGUOUS = e_VALID_AMBIGUOUS
+      , BAETZO_INVALID         = e_INVALID
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
     };
@@ -147,11 +148,11 @@ struct LocalTimeValidity {
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "BALTZO_" prefix elided.  For
+        // corresponding enumerator name with the "e_" prefix elided.  For
         // example:
         //..
         //  bsl::cout << LocalTimeValidity::toAscii(
-        //                             LocalTimeValidity::BALTZO_VALID_UNIQUE);
+        //                                  LocalTimeValidity::e_VALID_UNIQUE);
         //..
         // will print the following on standard output:
         //..
@@ -177,7 +178,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, LocalTimeValidity::Enum value);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                      // ------------------------

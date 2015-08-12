@@ -1,22 +1,32 @@
 // baltzo_zoneinfobinaryreader.t.cpp                                  -*-C++-*-
 #include <baltzo_zoneinfobinaryreader.h>
 
-#include <baltzo_zoneinfobinaryheader.h>
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
+#include <baltzo_zoneinfobinaryheader.h>
 
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
-#include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlb_bigendian.h>
 
+#include <bdlt_epochutil.h>
+
+#include <bdlsb_fixedmeminstreambuf.h>
+
+#include <bslmf_assert.h>
+
+#include <bsl_algorithm.h>
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
-#include <bsl_fstream.h>
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
+
 #include <bsls_byteorder.h>
 #include <bsls_types.h>
 
@@ -1023,15 +1033,15 @@ class RawHeader;
 class RawLocalTimeTypes;
 class ZoneinfoData;
 
-static int verifyTimeZone(const ZoneinfoData&    data,
+static int verifyTimeZone(const ZoneinfoData&     data,
                           const baltzo::Zoneinfo& timeZone,
-                          int                    line,
-                          bool                   expectToFail = false);
+                          int                     line,
+                          bool                    expectToFail = false);
     // Validate description of a time zone based on the specified 'timeZone' is
     // the same as the description based on the specified 'data', and output an
     // error message containing the line number indicated by the specified
     // 'line' when the validation failed.  Optionally, specified 'expectToFail'
-    // indicating whether there is a difference between 'timeZone' and 'data.
+    // indicating whether there is a difference between 'timeZone' and 'data'.
     // If 'expectToFail' is 'true', 'verifyTimeZone' will not 'ASSERT',
     // otherwise, 'verifyTimeZone' will 'ASSERT' at the location that an error
     // is detected.  The behavior is undefined unless 'data' contains valid
@@ -1039,15 +1049,15 @@ static int verifyTimeZone(const ZoneinfoData&    data,
     // validation succeed, and a non-zero value otherwise.
 
 static int verifyTimeZoneVersion2Format(
-                                  const ZoneinfoData&    data,
-                                  const baltzo::Zoneinfo& timeZone,
-                                  int                    line,
-                                  bool                   expectToFail = false);
+                                 const ZoneinfoData&     data,
+                                 const baltzo::Zoneinfo& timeZone,
+                                 int                     line,
+                                 bool                    expectToFail = false);
     // Validate description of a time zone based on the specified 'timeZone' is
     // the same as the description based on the specified 'data', and output an
     // error message containing the line number indicated by the specified
     // 'line' when the validation failed.  Optionally, specified 'expectToFail'
-    // indicating whether there is a difference between 'timeZone' and 'data.
+    // indicating whether there is a difference between 'timeZone' and 'data'.
     // If 'expectToFail' is 'true', 'verifyTimeZone' will not 'ASSERT',
     // otherwise, 'verifyTimeZone' will 'ASSERT' at the location that an error
     // is detected.  The behavior is undefined unless 'data' contains valid
@@ -1956,10 +1966,10 @@ char *ZoneinfoData::getAbbrevData64() const
 
 // ----------------------------------------------------------------------------
 
-static int verifyTimeZone(const ZoneinfoData&    data,
+static int verifyTimeZone(const ZoneinfoData&     data,
                           const baltzo::Zoneinfo& timeZone,
-                          int                    line,
-                          bool                   expectToFail)
+                          int                     line,
+                          bool                    expectToFail)
 {
 
     const int LINE = line;
@@ -2036,10 +2046,10 @@ static int verifyTimeZone(const ZoneinfoData&    data,
 
 // ----------------------------------------------------------------------------
 
-static int verifyTimeZoneVersion2Format(const ZoneinfoData&    data,
+static int verifyTimeZoneVersion2Format(const ZoneinfoData&     data,
                                         const baltzo::Zoneinfo& timeZone,
-                                        int                    line,
-                                        bool                   expectToFail)
+                                        int                     line,
+                                        bool                    expectToFail)
 {
 
     const int LINE = line;
@@ -2350,9 +2360,9 @@ static int testVerifyTimeZone(int verbose)
 static int testVerifyTimeZoneVersion2Format(int verbose)
     // Run ad-hoc tests on the 'verifyTimeZoneVersion2Format' function.  The
     // tests will be based on a Zoneinfo with 5 transitions and 3 local time
-    // types. 'verifyTimeZoneVersion2Format' will be called on various
-    // 'baltzo::Zoneinfo' objects and the return code will be verified.
-    // Return 0 if all the tests passed, and a non-zero value otherwise.
+    // types.  'verifyTimeZoneVersion2Format' will be called on various
+    // 'baltzo::Zoneinfo' objects and the return code will be verified.  Return
+    // 0 if all the tests passed, and a non-zero value otherwise.
 {
     // Create a table of transition time.
 
@@ -2667,8 +2677,7 @@ int main(int argc, char *argv[])
     if (0 != baltzo::ZoneinfoBinaryReader::read(&timeZone, inputStream)) {
         bsl::cerr << "baltzo::ZoneinfoBinaryReader::load failed"
                   << bsl::endl;
-        return 1;                                                      //RETURN
-                                                                      // RETURN
+        return 1;                                                     // RETURN
     }
 //..
 // Finally, we write a description of the loaded Zoneinfo to the console.
@@ -4536,6 +4545,7 @@ int main(int argc, char *argv[])
         //   than testing this class.
         //
         // Plan:
+        //
         // Testing:
         // --------------------------------------------------------------------
         baltzo::Zoneinfo timeZone;

@@ -34,7 +34,7 @@ bsl::ostream& baltzo::ErrorCode::print(bsl::ostream&   stream,
 
 const char *baltzo::ErrorCode::toAscii(ErrorCode::Enum value)
 {
-#define CASE(X) case(BALTZO_ ## X): return #X;
+#define CASE(X) case(k_ ## X): return #X;
 
     switch (value) {
       CASE(UNSUPPORTED_ID)

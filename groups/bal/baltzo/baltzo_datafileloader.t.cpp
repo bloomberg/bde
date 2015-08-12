@@ -16,6 +16,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 
@@ -550,8 +552,8 @@ int main(int argc, char *argv[])
 // deployed in a standard directory location (see
 // 'baltzo_defaultzoneinfocache').
 //
-// First we define static binary data for "Asia/Bangkok" (chosen because
-// it is relatively small):
+// First we define static binary data for "Asia/Bangkok" (chosen because it is
+// relatively small):
 //..
     const unsigned char ASIA_BANGKOK_DATA[] = {
       0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -662,23 +664,22 @@ int main(int argc, char *argv[])
         //: 1 'loadTimeZone' correctly loads time-zone information when a valid
         //:   time zone identifier is specified.
         //:
-        //: 2 'loadTimeZone' returns 'BALTZO_UNSUPPORTED_ID' if the specified
-        //:   time zone identifier is invalid.
+        //: 2 'loadTimeZone' returns 'k_UNSUPPORTED_ID' if the specified time
+        //:   zone identifier is invalid.
         //:
         //: 3 'loadTimeZone' returns a non-zero value different from
-        //:   'BALTZO_UNSUPPORTED_ID' on error reading the specified time-zone
-        //:   file.
+        //:   'k_UNSUPPORTED_ID' on error reading the specified time-zone file.
         //
         // Plan:
         //: 1 Test that 'loadTimeZone' returns time-zone information when give
         //:   a valid time zone identifier.
         //:
-        //: 2 Test that 'loadTimeZone' returns 'BALTZO_UNSUPPORTED_ID' when
+        //: 2 Test that 'loadTimeZone' returns 'k_UNSUPPORTED_ID' when
         //:   'rootPath' is a plausible directory, but the time zone identifier
         //:   is invalid.
         //:
         //: 3 Test that 'loadTimeZone' returns a non-zero return code other
-        //:   than 'BALTZO_UNSUPPORTED_ID' if 'rootPath' is not plausible.
+        //:   than 'k_UNSUPPORTED_ID' if 'rootPath' is not plausible.
         //
         // Testing:
         //   int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
@@ -701,7 +702,7 @@ int main(int argc, char *argv[])
 
             int rc = mX.loadTimeZone(&timeZone, "A");
             ASSERT(0 != rc);
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID != rc);
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID != rc);
         }
 
         if (verbose) cout << "\nTest with plausible directory" << endl;
@@ -713,12 +714,12 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\n\tTest invalid identifier" << endl;
 
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID ==
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
                                               mX.loadTimeZone(&timeZone, "/"));
 
             if (verbose) cout << "\n\tTest non-existant identifier" << endl;
 
-            ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID ==
+            ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID ==
                         mX.loadTimeZone(&timeZone, "Non/Existant/Identifier"));
 
             ASSERT(0 == mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID));
@@ -728,7 +729,7 @@ int main(int argc, char *argv[])
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
         ASSERT(baltzo::ErrorCode::BAETZO_UNSUPPORTED_ID ==
-               baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID);
+               baltzo::ErrorCode::k_UNSUPPORTED_ID);
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
       } break;

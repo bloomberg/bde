@@ -16,6 +16,12 @@ BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_rawdeleterproctor.h>
 
+#include <bslmf_assert.h>
+
+#include <bsl_ostream.h>
+#include <bsl_set.h>
+#include <bsl_string.h>
+
 namespace BloombergLP {
 
 static const char LOG_CATEGORY[] = "BALTZO.ZONEINFOCACHE";
@@ -48,7 +54,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
         FAILURE = -1
     };
 
-    BSLMF_ASSERT(static_cast<int>(ErrorCode::BALTZO_UNSUPPORTED_ID) !=
+    BSLMF_ASSERT(static_cast<int>(ErrorCode::k_UNSUPPORTED_ID) !=
                  static_cast<int>(FAILURE));
 
     const Zoneinfo *result = lookupZoneinfo(timeZoneId);
@@ -87,7 +93,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
 
         *rc = d_loader_p->loadTimeZone(newTimeZonePtr, timeZoneId);
         if (0 != *rc) {
-            if (ErrorCode::BALTZO_UNSUPPORTED_ID != *rc) {
+            if (ErrorCode::k_UNSUPPORTED_ID != *rc) {
                 BALL_LOG_ERROR << "Unexpected error code loading time zone "
                                << timeZoneId << ": " << *rc
                                << BALL_LOG_END;
