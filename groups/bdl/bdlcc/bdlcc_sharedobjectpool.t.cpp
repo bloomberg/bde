@@ -122,21 +122,23 @@ public:
 template <class POOL>
 void TestRun<POOL>::threadProc(int id)
 {
-   bsls::Stopwatch timer;
-   timer.start();
+    typedef vector<char> CharArray;
 
-   for (int count = 0; true; ++count) {
-      double elapsed = timer.elapsedTime();
-      if (elapsed < d_secondsToRun) {
-         vector<bsl::shared_ptr<CharArray> > charArrays(d_allocator_p);
-         charArrays.resize(d_numCharArraysPerIteration);
-         for (int i = 0; i < d_numCharArraysPerIteration; ++i) {
-            d_pool.getCharArray(&charArrays[i]);
-         }
-      }
-      else {
-         d_partialRates[id] = (double)(count * d_numCharArraysPerIteration) /
-            (elapsed * d_numThreads);
+    bsls::Stopwatch timer;
+    timer.start();
+
+    for (int count = 0; true; ++count) {
+        double elapsed = timer.elapsedTime();
+        if (elapsed < d_secondsToRun) {
+            vector<bsl::shared_ptr<CharArray> > charArrays(d_allocator_p);
+            charArrays.resize(d_numCharArraysPerIteration);
+            for (int i = 0; i < d_numCharArraysPerIteration; ++i) {
+                d_pool.getCharArray(&charArrays[i]);
+            }
+        }
+        else {
+            d_partialRates[id] = (double)(count * d_numCharArraysPerIteration)
+                               / (elapsed * d_numThreads);
          if (veryVerbose) {
             coutLock.lock();
             cout << "INFO: thread " << id << " count = " << count << endl;
@@ -163,6 +165,8 @@ void TestRun<POOL>::run()
 }
 
 class SlowerCharArrayPool {
+    typedef vector<char> CharArray;
+
     bdlcc::ObjectPool<CharArray>  d_charArrayPool;  // supply charArrays
     bslma::Allocator             *d_allocator_p;    // allocator (held)
 
