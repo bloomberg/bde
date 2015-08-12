@@ -442,7 +442,7 @@ int BerUniversalTagNumber::fromInt(
                                      BerUniversalTagNumber::Value *result,
                                      int                                number)
 {
-    enum { BDEM_SUCCESS = 0, BDEM_NOT_FOUND = 1 };
+    enum { k_SUCCESS = 0, k_NOT_FOUND = 1 };
 
     switch (number) {
       case e_BER_BOOL:
@@ -454,9 +454,9 @@ int BerUniversalTagNumber::fromInt(
       case e_BER_SEQUENCE:
       case e_BER_VISIBLE_STRING:
         *result = static_cast<BerUniversalTagNumber::Value>(number);
-        return BDEM_SUCCESS;                                         // RETURN
+        return k_SUCCESS;                                             // RETURN
       default:
-        return BDEM_NOT_FOUND;
+        return k_NOT_FOUND;                                           // RETURN
     }
 }
 
