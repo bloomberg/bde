@@ -59,10 +59,7 @@ namespace bsl
     using native_std::system;
     using native_std::wcstombs;
     using native_std::wctomb;
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::size_t;
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif
