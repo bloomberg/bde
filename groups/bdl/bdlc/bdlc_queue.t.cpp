@@ -221,10 +221,10 @@ typedef bdlc::Queue<Element2> Obj2;
 template <class T>
 inline
 void rotate(T *object, int numPositions)
-   // Using only primary manipulators, rotate the initial 'pushBack' location
-   // of the specified 'object' by the specified 'numPositions'.  The resulting
-   // value is not specified.  The behavior is undefined unless
-   // 0 <= numPositions.
+    // Using only primary manipulators, rotate the initial 'pushBack' location
+    // of the specified 'object' by the specified 'numPositions'.  The
+    // resulting value is not specified.  The behavior is undefined unless
+    // '0 <= numPositions'.
 {
     ASSERT(object);
     ASSERT(0 <= numPositions);
@@ -237,9 +237,9 @@ void rotate(T *object, int numPositions)
 template <class T>
 inline
 void stretch(T *object, int size)
-   // Using only primary manipulators, extend the length of the specified
-   // 'object' by the specified size.  The resulting value is not specified.
-   // The behavior is undefined unless 0 <= size.
+    // Using only primary manipulators, extend the length of the specified
+    // 'object' by the specified 'size'.  The resulting value is not specified.
+    // The behavior is undefined unless '0 <= size'.
 {
     ASSERT(object);
     ASSERT(0 <= size);
@@ -252,9 +252,9 @@ void stretch(T *object, int size)
 template <class T>
 inline
 void stretchRemoveAll(T *object, int size)
-   // Using only primary manipulators, extend the capacity of the specified
-   // 'object' to (at least) the specified size; then remove all elements
-   // leaving 'object' empty.  The behavior is undefined unless 0 <= size.
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'size'; then remove all elements
+    // leaving 'object' empty.  The behavior is undefined unless '0 <= size'.
 {
     ASSERT(object);
     ASSERT(0 <= size);
@@ -268,15 +268,15 @@ void stretchRemoveAll(T *object, int size)
 //-----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.  Uppercase
-// letters [A .. E] correspond to arbitrary (but unique) double values to be
-// appended to the 'bdlc::Queue' object.  A tilde ('~') indicates that
-// the logical (but not necessarily physical) state of the object is to be set
-// to its initial, empty state (via the 'removeAll' method).  The equals sign
+// letters 'A - E' correspond to arbitrary (but unique) double values to be
+// appended to the 'bdlc::Queue' object.  A tilde ('~') indicates that the
+// logical (but not necessarily physical) state of the object is to be set to
+// its initial, empty state (via the 'removeAll' method).  The equals sign
 // ('=') is used to reserve capacity of the specified amount (see below).  The
 // plus sign ('+') indicates that the position of the first 'pushBack' is
 // rotated to the right (towards initially higher index positions) by the
-// specified amount (see below).  Amounts are specified by a sequence of
-// digits in base 10 notation.
+// specified amount (see below).  Amounts are specified by a sequence of digits
+// in base 10 notation.
 //
 // LANGUAGE SPECIFICATION:
 // -----------------------
@@ -331,7 +331,6 @@ void stretchRemoveAll(T *object, int size)
 //-----------------------------------------------------------------------------
 
 template <class T>
-inline
 int ggg(T *object, const char *spec, int verboseFlag = 1)
     // Configure the specified 'object' according to the specified 'spec',
     // using only the primary manipulator function 'append' and white-box
@@ -397,7 +396,7 @@ error:
 template <class T>
 inline
 T& gg(T *object, const char *spec)
-    // Return, by reference, the specified object with its value adjusted
+    // Return, by reference, the specified 'object' with its value adjusted
     // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
@@ -2178,8 +2177,8 @@ DEFINE_TEST_CASE(17) {
                 }
                 if (veryVerbose) P(X);
             }
-             // No destructor is called; will produce memory leak in purify
-             // if internal allocators are not hooked up properly.
+             // No destructor is called; will produce memory leak in purify if
+             // internal allocators are not hooked up properly.
         }
 
         // Test 'reserveCapacity' and 'reserveCapacityRaw' methods.
@@ -5281,8 +5280,8 @@ DEFINE_TEST_CASE(11) {
                 }
             }
 
-             // No destructor is called; will produce memory leak in purify
-             // if internal allocators are not hooked up properly.
+             // No destructor is called; will produce memory leak in purify if
+             // internal allocators are not hooked up properly.
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5356,8 +5355,8 @@ DEFINE_TEST_CASE(11) {
                     LOOP2_ASSERT(length, i, VALUE == X[i]);
                 }
             }
-            // No destructor is called; will produce memory leak in purify
-            // if internal allocators are not hooked up properly.
+            // No destructor is called; will produce memory leak in purify if
+            // internal allocators are not hooked up properly.
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5595,7 +5594,7 @@ DEFINE_TEST_CASE(10) {
 
                         const Obj VV = g(V_SPEC);               // control
 
-                        if (0 == uj && veryVerbose || veryVeryVerbose) {
+                        if ((0 == uj && veryVerbose) || veryVeryVerbose) {
                             cout << "\t\t\tFor destination objects of length "
                                                         << vLen << ":\t";
                             P(V_SPEC);
@@ -5619,7 +5618,8 @@ DEFINE_TEST_CASE(10) {
                             const Obj& V = mV;      gg(&mV, V_SPEC);
 
                             static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                            if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                            if (veryVeryVerbose ||
+                                (veryVerbose && firstFew > 0)) {
                                 cout << "\t |"; P_(U_N); P_(V_N); P_(U); P(V);
                                 --firstFew;
                             }
@@ -5872,7 +5872,8 @@ DEFINE_TEST_CASE(10) {
 DEFINE_TEST_CASE(9) {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR:
-        // We have the following concerns:
+        //
+        // Concerns
         //   1.  The value represented by any instance can be assigned to any
         //         other instance regardless of how either value is represented
         //         internally.
@@ -5979,7 +5980,8 @@ DEFINE_TEST_CASE(9) {
                             const Obj& V = mV; gg(&mV, V_SPEC);
 
                             static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                            if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                            if (veryVeryVerbose ||
+                                (veryVerbose && firstFew > 0)) {
                                 cout << "\t| "; P_(U_N); P_(V_N); P_(U); P(V);
                                 --firstFew;
                             }
@@ -7244,8 +7246,8 @@ DEFINE_TEST_CASE(2) {
             void *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(&a);
             ASSERT(doNotDelete);
 
-            // No destructor is called; will produce memory leak in purify
-            // if internal allocators are not hooked up properly.
+            // No destructor is called; will produce memory leak in purify if
+            // internal allocators are not hooked up properly.
         }
 
         // --------------------------------------------------------------------
@@ -7812,17 +7814,17 @@ DEFINE_TEST_CASE(1) {
         //   leave scope, enabling the destructor to assert internal object
         //   invariants.  Display object values frequently in verbose mode:
         //
-        // 1) Create an object x1 (default ctor).       { x1: }
-        // 2) Create a second object x2 (copy from x1). { x1: x2: }
-        // 3) Append an element value A to x1).         { x1:A x2: }
-        // 4) Append the same element value A to x2).   { x1:A x2:A }
-        // 5) Append another element value B to x2).    { x1:A x2:AB }
-        // 6) Remove all elements from x1.              { x1: x2:AB }
-        // 7) Create a third object x3 (default ctor).  { x1: x2:AB x3: }
-        // 8) Create a fourth object x4 (copy of x2).   { x1: x2:AB x3: x4:AB }
-        // 9) Assign x2 = x1 (non-empty becomes empty). { x1: x2: x3: x4:AB }
-        // 10) Assign x3 = x4 (empty becomes non-empty).{ x1: x2: x3:AB x4:AB }
-        // 11) Assign x4 = x4 (aliasing).               { x1: x2: x3:AB x4:AB }
+        // 1) Create an object x1 (default ctor)        { x1: }
+        // 2) Create a second object x2 (copy from x1)  { x1: x2: }
+        // 3) Append an element value A to x1)          { x1:A x2: }
+        // 4) Append the same element value A to x2)    { x1:A x2:A }
+        // 5) Append another element value B to x2)     { x1:A x2:AB }
+        // 6) Remove all elements from x1               { x1: x2:AB }
+        // 7) Create a third object x3 (default ctor)   { x1: x2:AB x3: }
+        // 8) Create a fourth object x4 (copy of x2)    { x1: x2:AB x3: x4:AB }
+        // 9) Assign x2 = x1 (non-empty becomes empty)  { x1: x2: x3: x4:AB }
+        // 10) Assign x3 = x4 (empty becomes non-empty) { x1: x2: x3:AB x4:AB }
+        // 11) Assign x4 = x4 (aliasing)                { x1: x2: x3:AB x4:AB }
         //
         // Testing:
         //   This "test" *exercises* basic functionality, but *tests* nothing.
@@ -8040,7 +8042,9 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER)                                                          \
-  case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose); break
+  case NUMBER: {                                                              \
+    testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose);                  \
+  } break
         CASE(19);
         CASE(18);
         CASE(17);
@@ -8074,10 +8078,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2002
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

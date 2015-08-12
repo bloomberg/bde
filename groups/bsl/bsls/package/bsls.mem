@@ -50,6 +50,7 @@ bsls_performancehint
 bsls_platform
 bsls_platformutil
 bsls_protocoltest
+bsls_spinlock
 bsls_stopwatch
 bsls_systemclocktype
 bsls_systemtime

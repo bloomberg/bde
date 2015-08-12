@@ -1,6 +1,6 @@
-// bdlc_hashtable2.t.cpp                                              -*-C++-*-
+// bdlc_hashtable.t.cpp                                               -*-C++-*-
 
-#include <bdlc_hashtable2.h>
+#include <bdlc_hashtable.h>
 
 #include <bdlt_date.h>
 
@@ -9,6 +9,7 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h>
 
+#include <bsl_climits.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -57,9 +58,9 @@ using namespace BloombergLP;
 // [ 4] unsigned int DefHash2::operator()(const ConstCharPtr& key);
 // [ 4] unsigned int DefHash2::operator()(const bsl::string& key);
 //-----------------------------------------------------------------------------
-// [ 5] bdlc::HashTable2(Int64 capacityHint, b_A *ba);
-// [ 5] bdlc::HashTable2(Int64 capacityHint, HF hf1, HF hf2, b_A *ba);
-// [ 5] ~bdlc::HashTable2();
+// [ 5] bdlc::HashTable(Int64 capacityHint, b_A *ba);
+// [ 5] bdlc::HashTable(Int64 capacityHint, HF hf1, HF hf2, b_A *ba);
+// [ 5] ~bdlc::HashTable();
 // [ 6] bool insert(Handle *handle, const KEY& key);
 // [ 6] bool insert(Handle *handle, const KEY& key, const VALUE& value);
 // [ 6] void remove(const Handle& handle);
@@ -325,8 +326,8 @@ namespace TestCase3 {
 template <class TYPE>
 void testIsNullFootprint(TYPE *ignored)
 {
-    typedef TYPE                          Bucket;
-    typedef bdlc::HashTable2DefaultTraits Traits;
+    typedef TYPE                         Bucket;
+    typedef bdlc::HashTableDefaultTraits Traits;
 
     bsls::ObjectBuffer<Bucket> d_bucket;
 
@@ -343,8 +344,8 @@ void testIsNullFootprint(TYPE *ignored)
 template <class TYPE>
 void testIsRemovedFootprint(TYPE *ignored)
 {
-    typedef TYPE                          Bucket;
-    typedef bdlc::HashTable2DefaultTraits Traits;
+    typedef TYPE                         Bucket;
+    typedef bdlc::HashTableDefaultTraits Traits;
 
     bsls::ObjectBuffer<Bucket> d_bucket;
 
@@ -412,11 +413,11 @@ unsigned int testHash3(int key)
 // Suppose we wanted to store a table of 'int' keys and 'double' values.  We
 // will use a capacity hint of 10 for demonstration purposes:
 //..
-//  #include <bdlc_hashtable2.h>
+//  #include <bdlc_hashtable.h>
 //
 void usageExample()
 {
-    typedef bdlc::HashTable2<int, double> TableType;
+    typedef bdlc::HashTable<int, double> TableType;
 
     TableType table(10);
 //..
@@ -511,14 +512,14 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING VALUE MANIPULATOR
-        //   This will test the 'bdlc::HashTable2::value(handle)' method.
+        //   This will test the 'bdlc::HashTable::value(handle)' method.
         //
         // Concerns:
         //   This function must return a reference to the modifiable value
         //   identified by the provided handle.
         //
         // Plan:
-        //   Create a 'bdlc::HashTable2' object and insert some elements.
+        //   Create a 'bdlc::HashTable' object and insert some elements.
         //   Exercise the 'value' manipulator and verify that a reference to
         //   the modifiable value is returned.  Modify the value and check the
         //   result.
@@ -530,7 +531,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Value Manipulator"
                                << "\n=========================" << bsl::endl;
 
-        if (verbose) bsl::cout << "\nTesting using 'bdlc::HashTable2"
+        if (verbose) bsl::cout << "\nTesting using 'bdlc::HashTable"
                                << "<int, double>'" << bsl::endl;
         {
         }
@@ -540,7 +541,7 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // TESTING FIND ACCESSOR
-        //   This will test the 'bdlc::HashTable2::find(key)' method.
+        //   This will test the 'bdlc::HashTable::find(key)' method.
         //
         // Concerns:
         //   This accessor must return false if there is no element with the
@@ -549,7 +550,7 @@ int main(int argc, char *argv[])
         //   handle.
         //
         // Plan:
-        //   Construct a 'bdlc::HashTable2' object and insert some elements.
+        //   Construct a 'bdlc::HashTable' object and insert some elements.
         //   Use the 'find' accessor with a set of keys and check that the
         //   results are as expected.
         //
@@ -563,12 +564,12 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Find Accessor"
                                << "\n=====================" << bsl::endl;
 
-        if (verbose) bsl::cout << "\nTesting with 'bdlc::HashTable2<int>'"
+        if (verbose) bsl::cout << "\nTesting with 'bdlc::HashTable<int>'"
                                << bsl::endl;
         {
         }
 
-        if (verbose) bsl::cout << "\nTesting with 'bdlc::HashTable2"
+        if (verbose) bsl::cout << "\nTesting with 'bdlc::HashTable"
                                << "<int, double>'" << bsl::endl;
         {
         }
@@ -578,9 +579,9 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING INSERT AND REMOVE METHODS
-        //   This will test the 'bdlc::HashTable2::insert(key)' method , the
-        //   'bdlc::HashTable2::insert(key, value)' and the
-        //   'bdlc::HashTable2::remove(handle)' method.
+        //   This will test the 'bdlc::HashTable::insert(key)' method , the
+        //   'bdlc::HashTable::insert(key, value)' and the
+        //   'bdlc::HashTable::remove(handle)' method.
         //
         // Concerns:
         //   If the object is full, or if an element with the specified key
@@ -592,7 +593,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For a given scale, prepare a set S of elements that will be
-        //   inserted to the 'bdlc::HashTable2' object.  After each call to
+        //   inserted to the 'bdlc::HashTable' object.  After each call to
         //   'insert', use the 'maxChain', 'numCollisions', 'size', and
         //   'totalChain' accessors and verify that they have the expected
         //   values.  Also verify that the handle is as expected.  Use the
@@ -635,7 +636,7 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING CONSTRUCTORS
-        //   This will test the 'bdlc::HashTable2' constructors.
+        //   This will test the 'bdlc::HashTable' constructors.
         //
         // Concerns:
         //   The 'scale' parameter must be used to determine the capacity of
@@ -646,14 +647,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For a given set of scales, in increasing order, construct a
-        //   'bdlc::HashTable2' object and check that its capacity is as
+        //   'bdlc::HashTable' object and check that its capacity is as
         //   expected.  Verify that the currently installed default allocator
-        //   was used.  Construct another 'bdlc::HashTable2' object, this time
+        //   was used.  Construct another 'bdlc::HashTable' object, this time
         //   specifying an allocator.  Verify that the specified allocator was
         //   used and the default allocator was not used.
         //
         //   For a given set of scales, and a given set of hash functions,
-        //   construct a 'bdlc::HashTable2' object and check that its capacity
+        //   construct a 'bdlc::HashTable' object and check that its capacity
         //   is as expected.  Use the 'insert' method and check that the first
         //   hash function invoked.  Use the 'insert' method again, and check
         //   that this time the second hash function is invoked.  Repeat this
@@ -668,9 +669,9 @@ int main(int argc, char *argv[])
         //   goes out of scope.
         //
         // Testing:
-        //   bdlc::HashTable2(Int64 scale, b_A *ba);
-        //   bdlc::HashTable2(Int64 scale, HF hf1, HF hf2, b_A *ba);
-        //   ~bdlc::HashTable2();
+        //   bdlc::HashTable(Int64 scale, b_A *ba);
+        //   bdlc::HashTable(Int64 scale, HF hf1, HF hf2, b_A *ba);
+        //   ~bdlc::HashTable();
         //   int capacity() const;
         //   int scale() const;
         // --------------------------------------------------------------------
@@ -678,12 +679,12 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Constructors"
                                << "\n====================" << bsl::endl;
 
-        if (verbose) bsl::cout << "\nTesting 'bdlc::HashTable2"
+        if (verbose) bsl::cout << "\nTesting 'bdlc::HashTable"
                                << "(Int64 scale, b_A *ba);'" << bsl::endl;
         {
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlc::HashTable2"
+        if (verbose) bsl::cout << "\nTesting 'bdlc::HashTable"
                                << "(Int64 scale, HF hf1, HF hf2, b_A *ba);'"
                                << bsl::endl;
         {
@@ -694,8 +695,8 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING DEFAULT HASH FUNCTORS
-        //   This will test the 'bdlc::HashTable2DefaultHash1' struct and the
-        //   'bdlc::HashTable2DefaultHash2' struct.
+        //   This will test the 'bdlc::HashTableDefaultHash1' struct and the
+        //   'bdlc::HashTableDefaultHash2' struct.
         //
         // Concerns:
         //   The operators in this struct must behave as expected.
@@ -726,7 +727,7 @@ int main(int argc, char *argv[])
             // Use types:
             //     int, double, bdlt::Date
 
-            typedef bdlc::HashTable2DefaultHash1 Functor;
+            typedef bdlc::HashTableDefaultHash1 Functor;
 
             if (veryVerbose) bsl::cout << "\tUsing 'int'" << bsl::endl;
             {
@@ -860,8 +861,8 @@ int main(int argc, char *argv[])
             // Use oracle:
             //     bdlb::HashUtil::hash1(key, bsl::strlen(key));
 
-            typedef bdlc::HashTable2DefaultHash1 Functor;
-            typedef const char*                  Key;
+            typedef bdlc::HashTableDefaultHash1 Functor;
+            typedef const char*                 Key;
 
             static const struct {
                 int d_lineNum;
@@ -905,8 +906,8 @@ int main(int argc, char *argv[])
             // Use oracle:
             //     bdlb::HashUtil::hash1(key.data(), key.length());
 
-            typedef bdlc::HashTable2DefaultHash1 Functor;
-            typedef bsl::string                  Key;
+            typedef bdlc::HashTableDefaultHash1 Functor;
+            typedef bsl::string                 Key;
 
             static const struct {
                 int d_lineNum;
@@ -951,7 +952,7 @@ int main(int argc, char *argv[])
             // Use types:
             //     int, double, bdlt::Date
 
-           typedef bdlc::HashTable2DefaultHash2 Functor;
+            typedef bdlc::HashTableDefaultHash2 Functor;
 
             if (veryVerbose) bsl::cout << "\tUsing 'int'" << bsl::endl;
             {
@@ -1086,7 +1087,7 @@ int main(int argc, char *argv[])
             // Use oracle:
             //     bdlb::HashUtil::hash2(key, bsl::strlen(key));
 
-           typedef bdlc::HashTable2DefaultHash2 Functor;
+            typedef bdlc::HashTableDefaultHash2 Functor;
             typedef const char*                  Key;
 
             static const struct {
@@ -1132,8 +1133,8 @@ int main(int argc, char *argv[])
             // Use oracle:
             //     bdlb::HashUtil::hash2(key.data(), key.length());
 
-           typedef bdlc::HashTable2DefaultHash2 Functor;
-            typedef bsl::string                  Key;
+            typedef bdlc::HashTableDefaultHash2 Functor;
+            typedef bsl::string                 Key;
 
             static const struct {
                 int d_lineNum;
@@ -1175,7 +1176,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING DEFAULT TRAITS
-        //   This will test the 'bdlc::HashTable2DefaultTraits' struct.
+        //   This will test the 'bdlc::HashTableDefaultTraits' struct.
         //
         // Concerns:
         //   The 'load' function must be implemented using 'operator='.  The
@@ -1234,7 +1235,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Default Traits"
                                << "\n======================" << bsl::endl;
 
-        typedef bdlc::HashTable2DefaultTraits Traits;
+        typedef bdlc::HashTableDefaultTraits Traits;
 
         if (verbose) bsl::cout << "\nTesting 'load' function." << bsl::endl;
         {
@@ -1607,7 +1608,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING IMP UTIL
-        //   This will test the 'bdlc::HashTable2_ImpUtil' struct.
+        //   This will test the 'bdlc::HashTable_ImpUtil' struct.
         //
         // Concerns:
         //   The 'PRIME_NUMBERS' array must contain only prime numbers and they
@@ -1629,7 +1630,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Imp Util"
                                << "\n================" << bsl::endl;
 
-        typedef bdlc::HashTable2_ImpUtil ImpUtil;
+        typedef bdlc::HashTable_ImpUtil ImpUtil;
 
         if (verbose) bsl::cout << "\nTesting 'PRIME_NUMBERS' array."
                                << bsl::endl;
@@ -1741,10 +1742,10 @@ int main(int argc, char *argv[])
         //   verify that the results are as expected.
         //
         // Plan:
-        //   Construct a 'bdlc::HashTable2' object with key and value.  Insert
+        //   Construct a 'bdlc::HashTable' object with key and value.  Insert
         //   elements into the object and verify the results.
         //
-        //   Repeat with a 'bdlc::HashTable2' object with only key.
+        //   Repeat with a 'bdlc::HashTable' object with only key.
         //
         // Testing:
         //   This test case exercises basic functionality.
@@ -1755,9 +1756,9 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nUsing '<const char*, int>'" << bsl::endl;
         {
-            typedef const char*                  Key;
+            typedef const char                  *Key;
             typedef int                          Value;
-            typedef bdlc::HashTable2<Key, Value> Class;
+            typedef bdlc::HashTable<Key, Value>  Class;
 
             Class mX(1, &testAllocator);  const Class& X = mX;
 
@@ -1788,8 +1789,8 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nUsing '<const char*>'" << bsl::endl;
         {
-            typedef const char*           Key;
-            typedef bdlc::HashTable2<Key> Class;
+            typedef const char           *Key;
+            typedef bdlc::HashTable<Key>  Class;
 
             Class mX(-3, &testAllocator);  const Class& X = mX;
 
@@ -1832,10 +1833,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

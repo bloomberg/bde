@@ -410,10 +410,6 @@ struct TimeZoneData {
         bool        d_dstFlag;    // dst flag for descriptor
         const char *d_abbrev;     // abbreviation for descriptor, or 0 for
                                   // invalid time zones
-
-        bsls::AtomicPointer<const Zone>
-                    d_expectedAddress_p;
-                                  // expected cache address of this id
 } VALUES[] = {
     { L_,  "ID_A",  1, true,  "A" },
     { L_,  "ID_B",  2, false, "B" },
@@ -431,6 +427,8 @@ struct TimeZoneData {
     { L_,  "ID_N", 14, true,  "A" }
 };
 const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
+
+bsl::vector<bsls::AtomicPointer<const Zone> > EXP_ADDRESSES(NUM_VALUES);
 
 struct ThreadData {
     Obj           *d_cache_p;    // cache under test
@@ -451,7 +449,7 @@ extern "C" void *workerThread(void *arg)
         // Add all the test values to the cache.
 
         const char *ID = VALUES[i].d_id;
-        bsls::AtomicPointer<const Zone>& addr(VALUES[i].d_expectedAddress_p);
+        bsls::AtomicPointer<const Zone>& addr = EXP_ADDRESSES[i];
 
         // 'result' should either be 0, or the previously returned value (*IF*
         // the previously returned value has been set).
@@ -474,7 +472,7 @@ extern "C" void *workerThread(void *arg)
     for (int testRun = 0; testRun < 5; ++testRun) {
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *ID       = VALUES[i].d_id;
-            const Zone *EXPECTED = VALUES[i].d_expectedAddress_p.loadRelaxed();
+            const Zone *EXPECTED = EXP_ADDRESSES[i].loadRelaxed();
             ASSERT(EXPECTED == X.lookupZoneinfo(ID));
             ASSERT(EXPECTED == mX.getZoneinfo(ID));
             ASSERT(EXPECTED == X.lookupZoneinfo(ID));

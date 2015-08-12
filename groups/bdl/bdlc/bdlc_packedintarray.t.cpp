@@ -294,7 +294,7 @@ typedef bslx::TestOutStream Out;
                          signed char month = 1,
                          signed char day   = 1);
             // Create a 'my_Date' object having the optionally specified 'day',
-            // 'month', and 'year'. Each, if unspecified, will default to 1.
+            // 'month', and 'year'.  Each, if unspecified, will default to 1.
     };
 
     bool operator<(const my_Date& lhs, const my_Date& rhs);
@@ -8096,7 +8096,6 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

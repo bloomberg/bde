@@ -1,4 +1,4 @@
-// ball_userfielddescriptors.h                                             -*-C++-*-
+// ball_userfielddescriptors.h                                        -*-C++-*-
 #ifndef INCLUDED_BALL_USERFIELDDESCRIPTORS
 #define INCLUDED_BALL_USERFIELDDESCRIPTORS
 
@@ -7,18 +7,18 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a container of 'bael_Record' user-field valuees.
+//@PURPOSE: Provide a description for a sequence user field values
 //
 //@CLASSES:
-//  ball::UserFieldDescriptors: a container of 'bael_Record' user-field descriptors
+//  ball::UserFieldDescriptors: describe a sequence of user field values
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@SEE_ALSO: 
 //
-//@DESCRIPTION: This component provides a *value* *semantic* container-type,
-// 'ball::UserFieldDescriptors', that represents a (randomly accessible) sequence of
-// user field descriptors (typically associated with a bael log record).
+//@DESCRIPTION: This component provides a value-semantic container-type,
+// 'ball::UserFieldDescriptors', that describes a sequence of user supplied
+// field values.
 //
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_TUSESBSLMAALLOCATOR
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
@@ -53,14 +53,16 @@ namespace BloombergLP {
 
 namespace ball {
 
-                        // =====================
+                        // ==========================
                         // class UserFieldDescriptors
-                        // =====================
+                        // ==========================
 
 class UserFieldDescriptors {
 
+    // PRIVATE TYPES
     typedef bsl::unordered_map<bsl::string, int> NameToIndex;
 
+    // DATA
     NameToIndex                            d_nameToIndex;
     bsl::vector<bslstl::StringRef>         d_names;
     bsl::vector<ball::UserFieldType::Enum> d_types;
@@ -83,9 +85,14 @@ class UserFieldDescriptors {
     // MANIPULATORS
     UserFieldDescriptors& operator=(const UserFieldDescriptors& rhs);
 
-    int appendDescriptor(bslstl::StringRef name, 
-                          ball::UserFieldType::Enum type);
+    int appendDescriptor(bslstl::StringRef         name, 
+                         ball::UserFieldType::Enum type);
+        // Append to the end of this description of user fields, a description
+        // for a field having the specified 'name' and specified data 'type'.
+
     void removeAll();
+        // Remove all of the descriptinos of user fields managed by this
+        // object. 
 
     void swap(UserFieldDescriptors& other);
 
@@ -94,11 +101,17 @@ class UserFieldDescriptors {
 
 
     int length () const;
+        // Return the number of fields described by this object.
 
     int indexOf(bslstl::StringRef name) const;
-    bslstl::StringRef   name(int index) const;
-    ball::UserFieldType::Enum type(int index) const;   
+        // Return the index of the field having the specified 'name', if such
+        // a field exists, and -1 otherwise.
 
+    bslstl::StringRef name(int index) const;
+        // Return the name of the field at the specified 'index'.
+
+    ball::UserFieldType::Enum type(int index) const;   
+        // Return the data type of the field at the specified 'index'.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -120,19 +133,9 @@ class UserFieldDescriptors {
 // FREE OPERATORS
 bool operator==(const UserFieldDescriptors& lhs, 
                 const UserFieldDescriptors& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'UserFieldDescriptors' objects have the
-    // same value if the corresponding value of their 'identifier' attribute is
-    // the same and if both store the same sequence of transitions, ordered by
-    // time.
 
 bool operator!=(const UserFieldDescriptors& lhs, 
                 const UserFieldDescriptors& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'UserFieldDescriptors' objects do not
-    // have the same value if their corresponding 'identifier' attribute does
-    // not have the same value, or if both do *not* store the same sequence of
-    // transitions, ordered by time.
 
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const UserFieldDescriptors& object);

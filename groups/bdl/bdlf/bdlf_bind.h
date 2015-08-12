@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a signature-specific function object (functor).
 //
 //@CLASSES:
-//      bdlf::Bind: select the proper implementation for the binder
+//  bdlf::Bind: select the proper implementation for the binder
+//  bdlf::BindWrapper: reference counted function binder
 //  bdlf::BindUtil: factory methods for creating the binder
 //
 //@AUTHOR: Ilougino Rocha (irocha), Herve Bronnimann (hbronnimann)
@@ -21,34 +22,45 @@ BSLS_IDENT("$Id: $")
 // 'bdlf::Bind', that is a functor object that binds an invokable object or
 // function to a list of arguments.  This component also defines factory
 // methods in the 'bdlf::BindUtil' namespace for creating 'bdlf::Bind' objects
-// (e.g., 'bind', 'bindA', and 'bindR').  The 'bdlf::Bind' functor (called
-// henceforth a "binder") is an object that can hold any invocable object (the
-// "bound functor") and a number of parameters (the "bound arguments", some of
-// which can be place-holders of type 'bdlf::PlaceHolder').  When the binder is
-// later invoked (with optional additional arguments called the "invocation
+// (e.g., 'bind', 'bindA', and 'bindR') and 'bdlf::BindWrapper' objects (e.g.,
+// 'bindS' and 'bindSR').  The 'bdlf::Bind' functor (called henceforth a
+// "binder") is an object that can hold any invocable object (the "bound
+// functor") and a number of parameters (the "bound arguments", some of which
+// can be place-holders of type 'bdlf::PlaceHolder').  When the binder is later
+// invoked (with optional additional arguments called the "invocation
 // arguments" used to compute the value of bound arguments that use
 // place-holders), it returns the result of calling the bound functor with the
-// bound arguments and invocation arguments.  The section "Supported
-// functionality and limitations" details which kind of bound functors and
-// bound arguments can be used in conjunction with this component.
+// bound arguments and invocation arguments.  The 'bdlf::BindWrapper' functor
+// provides a binder with shared pointer semantics to a non-modifiable binder
+// (both 'operator*' and 'operator->' accessors) and forwards its construction
+// arguments to the underlying binder.  The section "Supported functionality
+// and limitations" details which kind of bound functors and bound arguments
+// can be used in conjunction with this component.
 //
-// The main use of 'bdlf::Bind' is to invoke bound functors with additional data
-// that is not available prior to the point the functor is invoked (as is often
-// the case with callback functions).  The binding is accomplished by passing
-// place-holders instead of literal values as the bound arguments.  When the
-// binder is invoked, these place-holders are replaced by their respective
-// invocation arguments.  The section "Elementary construction and usage of
-// 'bdlf::Bind' objects" shows an elementary (but not realistic) usage of the
-// 'bdlf::BindUtil::bind' factory methods with free functions, that should be
-// enough for most users to grasp the basic usage of this component.  The
-// section "Binding data" offers more details and should enable a user to make
-// a more advanced usage of this component.  The usage example presents many
-// uses of 'bdlf::Bind' and 'bdlf::BindUtil' in a somewhat realistic (but a bit
-// more involved) situation.
+// The main use of 'bdlf::Bind' is to invoke bound functors with additional
+// data that is not available prior to the point the functor is invoked (as is
+// often the case with callback functions).  The binding is accomplished by
+// passing place-holders instead of literal values as the bound arguments.
+// When the binder is invoked, these place-holders are replaced by their
+// respective invocation arguments.  The section "Elementary construction and
+// usage of 'bdlf::Bind' objects" shows an elementary (but not realistic) usage
+// of the 'bdlf::BindUtil::bind' factory methods with free functions, that
+// should be enough for most users to grasp the basic usage of this component.
+// The section "Binding data" offers more details and should enable a user to
+// make a more advanced usage of this component.  The usage example presents
+// many uses of 'bdlf::Bind' and 'bdlf::BindUtil' in a somewhat realistic (but
+// a bit more involved) situation.
 //
 // Note that 'bdlf::Bind' functors are typically used with standard algorithms,
 // or with 'bdlf::Function'.  This mechanism is similar to, but much more
 // powerful than 'bsl::binder1st' or 'bsl::binder2nd'.
+//
+// The difference between a binder created using one of 'bindS' and 'bindSR'
+// and a binder created using 'bind', 'bindA', and 'bindR' is that in the
+// former case the binder is returned by reference rather than by value, with
+// shared ownership semantics.  Hence its main use is for creating binders that
+// hold a non-trivial amount of storage (i.e., the bound arguments) and will be
+// copied, possibly several times, such as jobs enqueued in a threadpool.
 //
 ///Supported functionality
 ///-----------------------
@@ -84,7 +96,7 @@ BSLS_IDENT("$Id: $")
 // below for a more detailed discussion.
 //
 ///Elementary construction and usage of 'bdlf::Bind' objects
-///--------------------------------------------------------
+///---------------------------------------------------------
 // Bound functors are generally constructed by invoking the 'bdlf::BindUtil'
 // with an "invocation template".  An invocation template is a series of one or
 // more arguments that describe how to invoke the bound functor.  Each argument
@@ -106,7 +118,7 @@ BSLS_IDENT("$Id: $")
 //..
 // we can bind the parameters of 'invocable' to the following arguments:
 //..
-//  void bindTest() {
+//  void bindTest(bslma::Allocator *allocator = 0) {
 //      bdlf::BindUtil::bind(&invocable,         // bound functor and
 //                          10, 14, someString) // bound arguments
 //..
@@ -115,10 +127,18 @@ BSLS_IDENT("$Id: $")
 // arguments are fully specified):
 //..
 //                                          (); // invocation
+//..
+// Similarly, we can also create a reference-counted shared binder using the
+// 'bindS' method:
+//..
+//      bdlf::BindUtil::bindS(allocator,                    // allocator,
+//                            &invocable,                   // bound object and
+//                            10, 14, (const char*)"p3")(); // bound arguments
+//..
 //  }
 //..
-// In the function call above, the 'invocable' will be bound with the
-// arguments '10', '14', and '"p3"' respectively, then invoked with those bound
+// In the function call above, the 'invocable' will be bound with the arguments
+// '10', '14', and '"p3"' respectively, then invoked with those bound
 // arguments.  In the next example, place-holders are used to forward
 // user-provided arguments to the bound functor.  We separate the invocation of
 // the binder into a function template to avoid having to declare the type of
@@ -132,18 +152,22 @@ BSLS_IDENT("$Id: $")
 //..
 // The creation of the binder is as follows:
 //..
-//  void bindTest1() {
+//  void bindTest1(bslma::Allocator *allocator = 0) {
 //      callBinder(bdlf::BindUtil::bind(&invocable,
 //                                     _1, _2, someString));
+//
+//      callBinder(bdlf::BindUtil::bindS(allocator,
+//                                       &invocable,
+//                                       _1, _2, someString));
 //  }
 //..
 // In this code snippet, the 'callBinder' template function is invoked with a
-// binder bound to the specified 'invocable' and having the invocation
-// template '_1', '_2', and '"p3"' respectively.  The two special parameters
-// '_1' and '_2' are place-holders for arguments one and two, respectively,
-// which will be specified to the binder at invocation time.  Each place-holder
-// will be substituted with the corresponding positional argument when invoked.
-// When called within the 'callBinder' function, 'invocable' will be invoked as
+// binder bound to the specified 'invocable' and having the invocation template
+// '_1', '_2', and '"p3"' respectively.  The two special parameters '_1' and
+// '_2' are place-holders for arguments one and two, respectively, which will
+// be specified to the binder at invocation time.  Each place-holder will be
+// substituted with the corresponding positional argument when invoked.  When
+// called within the 'callBinder' function, 'invocable' will be invoked as
 // follows:
 //..
 //  invocable(10, 14, "p3");
@@ -151,12 +175,16 @@ BSLS_IDENT("$Id: $")
 // Place-holders can appear anywhere in the invocation template, and in any
 // order.  The same place-holder can appear multiple times.  Each instance will
 // be substituted with the same value.  For example, in the following snippet
-// of code, the 'callBinder' function, is invoked with a binder such
-// that argument one (10) of the binder is passed as parameter two
-// and argument two (14) is passed as (i.e., bound to) parameter one:
+// of code, the 'callBinder' function, is invoked with a binder such that
+// argument one (10) of the binder is passed as parameter two and argument two
+// (14) is passed as (i.e., bound to) parameter one:
 //..
-//  void bindTest2() {
+//  void bindTest2(bslma::Allocator *allocator = 0) {
 //      callBinder(bdlf::BindUtil::bind(&invocable, _2, _1, someString));
+//
+//      callBinder(bdlf::BindUtil::bindS(allocator,
+//                                       &invocable,
+//                                       _2, _1, someString));
 //  }
 //..
 // When called within the 'callBinder' function, 'invocable' will be invoked as
@@ -177,7 +205,7 @@ BSLS_IDENT("$Id: $")
 //      return (x > 0) ? x : -x;
 //  }
 //
-//  void bindTest3()
+//  void bindTest3(bslma::Allocator *allocator = 0)
 //  {
 //      using namespace bdlf::PlaceHolders;
 //      assert(24 == bdlf::BindUtil::bind(&test1, _1, _2)(10, 14));
@@ -185,7 +213,14 @@ BSLS_IDENT("$Id: $")
 //      assert(24 == bdlf::BindUtil::bind(&test1, 10, _1)(14));
 //      assert(24 == bdlf::BindUtil::bind(&test1, 10, 14)());
 //      assert(24 == bdlf::BindUtil::bind(&test1,
-//                                     bdlf::BindUtil::bind(&abs,_1), 14)(-10));
+//                                    bdlf::BindUtil::bind(&abs,_1), 14)(-10));
+//
+//      assert(24 == bdlf::BindUtil::bindS(allocator, &test1, _1, _2)(10, 14));
+//      assert(24 == bdlf::BindUtil::bindS(allocator, &test1, _1, 14)(10));
+//      assert(24 == bdlf::BindUtil::bindS(allocator, &test1, 10, _1 )(14));
+//      assert(24 == bdlf::BindUtil::bindS(allocator, &test1, 10, 14)());
+//      assert(24 == bdlf::BindUtil::bindS(allocator, &test1,
+//                       bdlf::BindUtil::bindS(allocator, &abs, _1), 14)(-10));
 //  }
 //..
 // The usage example below provides a more comprehensive series of calling
@@ -193,21 +228,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Binding Data
 ///------------
-// The main use of 'bdlf::Bind' is to invoke bound functors with additional data
-// that is not available prior to the point the functor is invoked (as is often
-// the case with callback functions).  For that purpose, place-holders are key.
-// There are a couple of issues to understand in order to properly use this
-// component.  The bound arguments must be of a value-semantic type (unless
-// they are place-holders or 'bdlf::Bind' objects).  They are evaluated at
-// binding time once and only once and their value copied into the binder
+// The main use of 'bdlf::Bind' is to invoke bound functors with additional
+// data that is not available prior to the point the functor is invoked (as is
+// often the case with callback functions).  For that purpose, place-holders
+// are key.  There are a couple of issues to understand in order to properly
+// use this component.  The bound arguments must be of a value-semantic type
+// (unless they are place-holders or 'bdlf::Bind' objects).  They are evaluated
+// at binding time once and only once and their value copied into the binder
 // (using the default allocator to supply memory unless an allocator is
-// specified).  A 'bdlf::Bind' object always invokes its bound functor with only
-// the arguments listed as bound arguments, regardless of how many arguments
-// are specified to the binder at invocation time.  Invocation arguments that
-// are not referenced through a place-holder are simply discarded.  Invocation
-// arguments that are duplicated (by using the same place-holder several times)
-// are simply copied several times.  The following examples should make things
-// perfectly clear.
+// specified).  A 'bdlf::Bind' object always invokes its bound functor with
+// only the arguments listed as bound arguments, regardless of how many
+// arguments are specified to the binder at invocation time.  Invocation
+// arguments that are not referenced through a place-holder are simply
+// discarded.  Invocation arguments that are duplicated (by using the same
+// place-holder several times) are simply copied several times.  The following
+// examples should make things perfectly clear.
 //
 ///Ignoring parameters
 ///- - - - - - - - - -
@@ -218,34 +253,49 @@ BSLS_IDENT("$Id: $")
 // even though their value will be unused.  Consider, for example, the
 // following snippet of code:
 //..
+//  int marker = 0;
 //  int singleArgumentFunction(int x) {
-//      bsl::cout << "singleArgumentFunction(" << x << ")" << bsl::endl;
 //      return x;
 //  }
 //
-//  void bindTest4() {
-//      int ret = bdlf::BindUtil::bind(&singleArgumentFunction, _2)(
-//                                                 singleArgumentFunction(5),
-//                                                 singleArgumentFunction(10),
-//                                                 singleArgumentFunction(15));
+//  int identityFunctionWithSideEffects(int x)
+//  {
+//      printf("Calling 'identityFunctionWithSideEffects' with %d\n", x);
+//      marker += x;
+//      return x;
+//  }
+//
+//  template <class BINDER>
+//  void callBinderWithSideEffects1(BINDER const& binder)
+//  {
+//      ASSERT(14 == binder(identityFunctionWithSideEffects(10), 14));
+//  }
+//
+//  void bindTest4(bslma::Allocator *allocator = 0) {
+//      marker = 0;
+//      callBinderWithSideEffects1(bdlf::BindUtil::bind(
+//                                                &singleArgumentFunction, 2));
+//..
+// In the above snippets of code, 'singleArgumentFunction' will be called with
+// only the second argument (14) specified to the binder at invocation time in
+// the 'callBinderWithSideEffects1' function.  Thus the return value of the
+// invocation must be 14.  The 'identityFunctionWithSideEffects(10)' will be
+// evaluated, even though its return value (10) will be discarded.  We can
+// check this as follows:
+//..
 //      assert(10 == marker);
+//..
+// We repeat the same call using 'bindS' below:
+//..
+//      marker = 0;
+//      callBinderWithSideEffects1(bdlf::BindUtil::bindS(
+//                                                     allocator,
+//                                                     &singleArgumentFunction,
+//                                                     _2));
+//      assert(10 == marker);
+//..
 //  }
 //..
-// In the above snippet of code, 'singleArgumentFunction' will be invoked 4
-// times, even though the results of the invocation with '5' and '15' are
-// ignored (as the place holder specifies that only the second invocation
-// argument is used).  The above invocation will produce the following on
-// 'stdout':
-//..
-//  singleArgumentFunction(5)
-//  singleArgumentFunction(10)
-//  singleArgumentFunction(15)
-//  singleArgumentFunction(10)
-//..
-// Note that "singleArgumentFunction" is printed twice - once for evaluating
-// the value used to pass to the bound functor, and once for invoking the
-// bound functor itself.
-//
 ///Duplicating parameters
 ///- - - - - - - - - - -
 // A place-holder can be specified multiple times, effectively passing the same
@@ -257,23 +307,37 @@ BSLS_IDENT("$Id: $")
 //      return x+y;
 //  }
 //
-//  void bindTest5() {
-//      marker = 0;
-//      int ret = bdlf::BindUtil::bind(&doubleArgumentFunction, _1, _1)(
-//                                                  singleArgumentFunction(5));
-//      assert(10 == marker);
+//  template <class BINDER>
+//  void callBinderWithSideEffects2(BINDER const& binder)
+//  {
+//      const int RET1 = binder(10);
+//      ASSERT(20 == RET1);
+//      const int RET2 = binder(identityFunctionWithSideEffects(10));
+//      ASSERT(20 == RET2);
 //  }
+//
+//  void bindTest5(bslma::Allocator *allocator = 0) {
+//      marker = 0;
+//      callBinderWithSideEffects2(bdlf::BindUtil::bind(
+//                                           &doubleArgumentFunction, _1, _1));
 //..
 // In the above snippet of code, 'doubleArgumentFunction' will be called with
-// the result of 'singleArgumentFunction'.  The value, however, is evaluated
-// only once.  The above invocation will produce the following single line
-// output on 'stdout':
+// the first argument ('identityFunctionWithSideEffects(10)') specified to the
+// binder, computed only once at invocation time.  We can check this as
+// follows:
 //..
-//  singleArgumentFunction(5)
+//      assert(10 == marker);
 //..
-// The return value of 'doubleArgumentFunction' is 10, as 5 is passed to both
-// 'x' and 'y'.
-//
+// We repeat the same call using 'bindS' below:
+//..
+//      marker = 0;
+//      callBinderWithSideEffects2(bdlf::BindUtil::bindS(
+//                                                     allocator,
+//                                                     &doubleArgumentFunction,
+//                                                     _1, _1));
+//      assert(marker, 10 == marker);
+//  }
+//..
 ///Bound functors
 ///--------------
 // There are a few issues to be aware of concerning the kind of bound functors
@@ -289,8 +353,8 @@ BSLS_IDENT("$Id: $")
 // followed by the remaining arguments.  See the usage example "Binding to
 // Member Functions" below.
 //
-// Note that special care should be exercised when passing 'this' to bind.
-// If 'this' is passed as the first argument to bind, then all other arguments
+// Note that special care should be exercised when passing 'this' to bind.  If
+// 'this' is passed as the first argument to bind, then all other arguments
 // must be passed by value or by const reference.
 //
 ///Binding to functions with an ellipsis
@@ -318,7 +382,7 @@ BSLS_IDENT("$Id: $")
 // allocators" and the usage example sections "Binding to Function Objects" and
 // "Binding to Function Objects by Reference" below.
 //
-// CAVEAT:  When passing a function object by value, only the (non-modifiable)
+// CAVEAT: When passing a function object by value, only the (non-modifiable)
 // copy held by the binder will be invoked.  Prior to this version, it was
 // possible to modifiably invoke this copy (hence a non-const 'operator()')
 // with the intent to modify the state of the function object.  However, only
@@ -392,8 +456,8 @@ BSLS_IDENT("$Id: $")
 ///Binding with allocators
 ///-----------------------
 // The bound functor and bound arguments are created as members of the
-// 'bdlf::Bind' object, so no memory is allocated for storing them.  However, if
-// the bound functor or bound argument's copy constructor requires memory
+// 'bdlf::Bind' object, so no memory is allocated for storing them.  However,
+// if the bound functor or bound argument's copy constructor requires memory
 // allocation, that memory is supplied by the default allocator unless
 // 'bdlf::BindUtil::bindA' is used to specify the allocator to be passed to the
 // copy constructors of the bound functor and arguments.  Note that the
@@ -442,7 +506,7 @@ BSLS_IDENT("$Id: $")
 // We will also use a 'bslma::TestAllocator' to keep track of the memory
 // allocated:
 //..
-//  void bindTest6() {
+//  void bindTest6(bslma::Allocator *allocator = 0) {
 //      bslma::TestAllocator allocator;
 //      MyString myString((const char*)"p3", &allocator);
 //      const int NUM_ALLOCS = allocator.numAllocations();
@@ -455,8 +519,11 @@ BSLS_IDENT("$Id: $")
 //      bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 //      assert(0 == defaultAllocator.numAllocations());
 //..
-// We now create a binder object with allocator using 'bindA'.  'allocator'
-// *will* be used to make the copy of 'myString' held by the binder:
+// We now create a binder object with allocator using 'bindA'.  If the bound
+// object were an instance of a class taking an allocator, then 'allocator'
+// would be passed to its copy constructor; in this case, 'allocator' will be
+// ignored.  But 'allocator' *will* be used to make the copy of 'myString' held
+// by the binder:
 //..
 //      callBinder(bdlf::BindUtil::bindA(&allocator, &invocable,
 //                                      _1, _2, myString));
@@ -466,7 +533,19 @@ BSLS_IDENT("$Id: $")
 //..
 //      assert(NUM_ALLOCS < allocator.numAllocations());
 //      assert(0 == defaultAllocator.numAllocations());
-//  }
+//..
+// Next, we repeat the same calls using 'bindS' below:
+//..
+//       callBinder(bdlf::BindUtil::bindS(&allocator,
+//                                        &invocable,
+//                                        _1, _2, myString));
+//..
+// We now check that memory was allocated from the test allocator, and none
+// from the default allocator:
+//..
+//       assert(NUM_ALLOCS != allocator.numAllocations());
+//       assert(2 * NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
+//   }
 //..
 //
 ///Usage example
@@ -505,8 +584,8 @@ BSLS_IDENT("$Id: $")
 //..
 //    public:
 //      // CREATORS
-//      MyEventDispatcher(bdlf::Function<void(*)(int, MyEvent)> const& callback)
-//      : d_callback(callback)
+//      MyEventDispatcher(bdlf::Function<void(*)(int, MyEvent)> const& cb)
+//      : d_callback(cb)
 //      {
 //      }
 //..
@@ -539,10 +618,14 @@ BSLS_IDENT("$Id: $")
 //      // Do something ...
 //  }
 //
-//  void myMainLoop()
+//  void myMainLoop(bslma::Allocator *allocator = 0)
 //  {
-//      MyEventDispatcher ed(bdlf::BindUtil::bind(&myCallback, _1, _2));
-//      ed.dispatch(10);
+//      MyEventDispatcher schedA(bdlf::BindUtil::bind(&myCallback, _1, _2));
+//      schedA.dispatch(10);
+//
+//      MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
+//                                                    &myCallback, _1, _2));
+//      schedB.run(10);
 //  }
 //..
 // Next we show how to bind some of the callback arguments at binding time,
@@ -557,11 +640,16 @@ BSLS_IDENT("$Id: $")
 //      // Do something ...
 //  }
 //
-//  void myMainLoop2()
+//  void myMainLoop2(bslma::Allocator *allocator = 0)
 //  {
-//      MyEventDispatcher ed(bdlf::BindUtil::bind(&myCallbackWithUserArgs,
-//                                                        _1, _2, 360, 3.14));
-//      ed.dispatch(10);
+//      MyEventDispatcher schedA(bdlf::BindUtil::bind(&myCallbackWithUserArgs,
+//                                                    _1, _2, 360, 3.14));
+//      schedA.dispatch(10);
+//
+//      MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
+//                                                    &myCallbackWithUserArgs,
+//                                                    _1, _2, 360, 3.14));
+//      schedB.run(10);
 //  }
 //..
 // In the next snippet of code, we show how to reorder the invocation arguments
@@ -575,11 +663,15 @@ BSLS_IDENT("$Id: $")
 //      // Do something ...
 //  }
 //
-//  void myMainLoop3()
+//  void myMainLoop3(bslma::Allocator *allocator = 0)
 //  {
-//      MyEventDispatcher ed(bdlf::BindUtil::bind(
+//      MyEventDispatcher schedA(bdlf::BindUtil::bind(
 //                      &myCallbackWithUserArgsReordered, _1, 360, 3.14, _2));
-//      ed.dispatch(10);
+//      schedA.dispatch(10);
+//
+//      MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
+//                       &myCallbackWithUserArgsReordered, _1, 360, 3.14, _2));
+//      schedB.run(10);
 //  }
 //..
 // And finally, we illustrate that the signature of the callback can be
@@ -591,11 +683,15 @@ BSLS_IDENT("$Id: $")
 //      // Do something ...
 //  }
 //
-//  void myMainLoop4()
+//  void myMainLoop4(bslma::Allocator *allocator = 0)
 //  {
-//      MyEventDispatcher ed(bdlf::BindUtil::bind(
+//      MyEventDispatcher schedA(bdlf::BindUtil::bind(
 //                                        &myCallbackThatDiscardsResult, _2));
-//      ed.dispatch(10);
+//      schedA.dispatch(10);
+//
+//      MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
+//                                         &myCallbackThatDiscardsResult, _2));
+//      schedB.run(10);
 //  }
 //..
 //
@@ -614,11 +710,16 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //
-//  void myMainLoop5()
+//  void myMainLoop5(bslma::Allocator *allocator = 0)
 //  {
-//      MyCallbackObject obj;
-//      MyEventDispatcher ed(bdlf::BindUtil::bind(obj, _1, _2));
-//      ed.dispatch(10);
+//      MyCallbackObject objA;
+//      MyEventDispatcher schedA(bdlf::BindUtil::bind(objA, _1, _2));
+//      schedA.dispatch(10);
+//
+//      MyCallbackObject objB;
+//      MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
+//                                                    objB, _1, _2));
+//      schedB.run(10);
 //  }
 //..
 //
@@ -627,11 +728,16 @@ BSLS_IDENT("$Id: $")
 // The following example reuses the 'MyCallbackObject' of the previous example,
 // but illustrates that it can be passed by reference as well as by value:
 //..
-//  void myMainLoop6()
+//  void myMainLoop6(bslma::Allocator *allocator = 0)
 //  {
-//      MyCallbackObject obj;
-//      MyEventDispatcher ed(bdlf::BindUtil::bind(&obj, _1, _2));
-//      ed.dispatch(10);
+//      MyCallbackObject objA;
+//      MyEventScheduler schedA(bdlf::BindUtil::bind(&objA, _1, _2));
+//      schedA.run(10);
+//
+//      MyCallbackObject objB;
+//      MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
+//                                                    &objB, _1, _2));
+//      schedB.run(10);
 //  }
 //..
 // When passed by reference, only the address of the function object is copied.
@@ -657,33 +763,44 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //
-//  void myMainLoop7()
+//  void myMainLoop7(bslma::Allocator *allocator = 0)
 //  {
-//      MyStatefulObject obj;
-//      MyEventDispatcher ed(bdlf::BindUtil::bind(
-//                                 &MyStatefulObject::callback, &obj, _1, _2));
-//      ed.dispatch(10);
+//      MyStatefulObject objA;
+//      MyEventScheduler schedA(bdlf::BindUtil::bind(
+//                                &MyStatefulObject::callback, &objA, _1, _2));
+//      schedA.run(10);
+//
+//      MyStatefulObject objB;
+//      MyEventScheduler schedB(bdlf::BindUtil::bindS(allocator,
+//                                &MyStatefulObject::callback, &objB, _1, _2));
+//      schedB.run(10);
 //  }
 //..
 //
 ///Nesting Bindings
 /// - - - - - - - -
 // We now show that it is possible to provide a binder as an argument to
-// 'bdlf::BindUtil'.  Upon invocation, the invocation arguments are forwarded to
-// the nested binder.
+// 'bdlf::BindUtil'.  Upon invocation, the invocation arguments are forwarded
+// to the nested binder.
 //..
 //  MyEvent annotateEvent(int, MyEvent const& event) {
 //      // Do something to 'event' ...
 //      return event;
 //  }
 //
-//  void myMainLoop8()
+//  void myMainLoop8(bslma::Allocator *allocator = 0)
 //  {
-//      MyCallbackObject obj;
-//      MyEventDispatcher ed(
-//              bdlf::BindUtil::bind(&obj, _1,
+//      MyCallbackObject objA;
+//      MyEventScheduler schedA(
+//              bdlf::BindUtil::bind(&objA, _1,
 //                              bdlf::BindUtil::bind(&annotateEvent, _1, _2)));
-//      ed.dispatch(10);
+//      schedA.run(10);
+//
+//      MyCallbackObject objB;
+//      MyEventScheduler schedB(
+//              bdlf::BindUtil::bindS(allocator, &objB, _1,
+//                  bdlf::BindUtil::bindS(allocator, &annotateEvent, _1, _2)));
+//      schedB.run(10);
 //  }
 //..
 ///Binding to a Function Object with Explicit Return Type
@@ -701,12 +818,17 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //
-//  void myMainLoop9()
+//  void myMainLoop9(bslma::Allocator *allocator = 0)
 //  {
-//      MyCallbackObjectWithoutResultType obj;
-//      MyEventDispatcher ed(bdlf::BindUtil::
-//                                      bindR<GlobalResultType>(obj, _1, _2));
-//      ed.dispatch(10);
+//      MyCallbackObjectWithoutResultType objA;
+//      MyEventScheduler schedA(bdlf::BindUtil::
+//                                      bindR<GlobalResultType>(objA, _1, _2));
+//      schedA.run(10);
+//
+//      MyCallbackObjectWithoutResultType objB;
+//      MyEventScheduler schedB(bdlf::BindUtil::
+//                          bindSR<GlobalResultType>(allocator, objB, _1, _2));
+//      schedB.run(10);
 //  }
 //..
 // Another situation where the return type (in fact, the whole signature)
@@ -723,7 +845,7 @@ BSLS_IDENT("$Id: $")
 //      b(10, 14);
 //  }
 //
-//  void bindTest7()
+//  void bindTest7(bslma::Allocator *allocator = 0)
 //  {
 //      const char *formatString = "Here it is: %d %d\n";
 //      callBinder(bdlf::BindUtil::bindR<int>(&printf, formatString, _1, _2));
@@ -799,15 +921,20 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_typelist.h>
 #endif
 
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
+#endif
+
 namespace BloombergLP {
 
+namespace bdlf {
 
-namespace bdlf {template <class RET, class FUNC> struct Bind_FuncTraits;
+template <class RET, class FUNC> struct Bind_FuncTraits;
 template <class RET, int NUMARGS> struct Bind_Invoker;
 template <class BINDER, class ARGS> struct Bind_Evaluator;
+
 }  // close package namespace
 
-    
 namespace bdlf {struct Bind_BoundTuple0;
 template <class A1>
     struct Bind_BoundTuple1;
@@ -845,9 +972,9 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13,
           class A14>
     struct Bind_BoundTuple14;
+
 }  // close package namespace
 
-    
 namespace bdlf {struct Bind_Tuple0;
 template <class A1>
     struct Bind_Tuple1;
@@ -891,25 +1018,25 @@ template <class FUNC, class ARGS, int INDEX, int OFFSET>
                                              struct Bind_MapParameter;
 template <class RET, class FUNC, class LIST> struct Bind_ImplSelector;
 
-                          // ===============================
+                          // ==========================
                           // class Bind_BoundTupleValue
-                          // ===============================
+                          // ==========================
 
 // IMPLEMENTATION NOTE: This class template, as well as the
 // 'bind_BoundTuple[0-14]' class templates, are always instantiated with
 // template argument 'TYPE'.  'TYPE' is one of the 'A[0-14]' template
-// parameters for 'bind_BoundTuple[0-14]'.  Since 'TYPE' is *not* a
-// reference or const types, it is always appropriate to take any value of
-// these types by 'const&' to avoid unnecessary copies until the only one and
-// final copy is done in the constructor proxy.
+// parameters for 'bind_BoundTuple[0-14]'.  Since 'TYPE' is *not* a reference
+// or const types, it is always appropriate to take any value of these types by
+// 'const&' to avoid unnecessary copies until the only one and final copy is
+// done in the constructor proxy.
 
 template <class TYPE>
 class Bind_BoundTupleValue {
     // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the 'Bind_Tuple*'
-    // local classes.  This general template definition ensures that the
-    // allocator passed to the creators is passed through to the value if it
-    // uses an allocator, using the 'bslalg::ConstructorProxy' mechanism.
+    // suitable for storing an argument value in one of the 'Bind_Tuple*' local
+    // classes.  This general template definition ensures that the allocator
+    // passed to the creators is passed through to the value if it uses an
+    // allocator, using the 'bslalg::ConstructorProxy' mechanism.
 
     // PRIVATE TYPES
     typedef typename bslmf::ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
@@ -919,9 +1046,8 @@ class Bind_BoundTupleValue {
 
   public:
     // CREATORS
-    Bind_BoundTupleValue(
-                        const Bind_BoundTupleValue<TYPE>&  original,
-                        bslma::Allocator                       *basicAllocator)
+    Bind_BoundTupleValue(const Bind_BoundTupleValue<TYPE>&  original,
+                         bslma::Allocator                  *basicAllocator)
         // Create a 'Bind_BoundTupleValue' object holding a copy of the
         // specified 'original' value, using 'basicAllocator' to supply any
         // memory.
@@ -930,7 +1056,7 @@ class Bind_BoundTupleValue {
     }
 
     Bind_BoundTupleValue(const TYPE&       value,
-                              bslma::Allocator *basicAllocator)
+                         bslma::Allocator *basicAllocator)
         // Create a 'Bind_BoundTupleValue' object holding a copy of the
         // specified 'value', using 'basicAllocator' to supply any memory.
     : d_value(value, basicAllocator)
@@ -939,7 +1065,7 @@ class Bind_BoundTupleValue {
 
     template <class BDE_OTHER_TYPE>
     Bind_BoundTupleValue(const BDE_OTHER_TYPE&  value,
-                              bslma::Allocator      *basicAllocator)
+                         bslma::Allocator      *basicAllocator)
         // Create a 'Bind_BoundTupleValue' object holding a copy of the
         // specified 'value', using 'basicAllocator' to supply any memory.
     : d_value(value, basicAllocator)
@@ -955,9 +1081,9 @@ class Bind_BoundTupleValue {
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
-                           // ===========================
+                           // ======================
                            // class Bind_BoundTuple*
-                           // ===========================
+                           // ======================
 
 struct Bind_BoundTuple0 : public bslmf::TypeList0 {
     // This 'struct' provides the creators for a list of zero arguments.
@@ -968,7 +1094,7 @@ struct Bind_BoundTuple0 : public bslmf::TypeList0 {
     }
 
     Bind_BoundTuple0(const Bind_BoundTuple0&  original,
-                          bslma::Allocator             *allocator = 0)
+                     bslma::Allocator        *allocator = 0)
     {
         (void) original;
         (void) allocator;
@@ -987,26 +1113,24 @@ struct Bind_BoundTuple1 : public bslmf::TypeList1<A1>
 
     // CREATORS
     Bind_BoundTuple1(const Bind_BoundTuple1<A1>&  orig,
-                          bslma::Allocator                 *allocator = 0)
+                     bslma::Allocator            *allocator = 0)
     : d_a1(orig.d_a1, allocator)
     {
     }
 
-    explicit Bind_BoundTuple1(A1 const& a1,
-                                   bslma::Allocator *allocator = 0)
+    explicit Bind_BoundTuple1(A1 const&         a1,
+                              bslma::Allocator *allocator = 0)
     : d_a1(a1, allocator)
     {
     }
 };
 
-                           // ===============
+                           // ==========
                            // class Bind
-                           // ===============
+                           // ==========
 
 template <class RET, class FUNC, class LIST>
-class Bind : public Bind_ImplSelector<RET,
-                                                FUNC,
-                                                LIST>::Type {
+class Bind : public Bind_ImplSelector<RET, FUNC, LIST>::Type {
     // This bind class select the implementation for the given template
     // arguments.  Note that instances of this class should not be
     // created explicitly, instead use the 'BindUtil' factory methods.
@@ -1021,8 +1145,8 @@ class Bind : public Bind_ImplSelector<RET,
 
     // CREATORS
     Bind(typename bslmf::ForwardingType<FUNC>::Type  func,
-              LIST  const&                                list,
-              bslma::Allocator                           *allocator = 0)
+         LIST  const&                                list,
+         bslma::Allocator                           *allocator = 0)
         // Create a 'Bind' object that is bound to the specified 'func'
         // invocable object, optionally using the 'allocator' to supply memory.
     : Base(func, list, allocator)
@@ -1038,40 +1162,478 @@ class Bind : public Bind_ImplSelector<RET,
     }
 };
 
-                           // ===================
+                        // =================
+                        // class BindWrapper
+                        // =================
+
+template <class RET, class FUNC, class TUPLE>
+class BindWrapper {
+    // This wrapper class provides a binder with shared pointer semantics to a
+    // non-modifiable binder (both 'operator*' and 'operator->' accessors) and
+    // forward its construction arguments to the underlying binder.  Note that
+    // instances of this class should not be created explicitly, instead use
+    // the 'BindUtil' factory methods.  Note also that instances of this class
+    // can be invoked directly, in order to meet user expectations that the
+    // result of 'BindUtil::bind' be an invocable just as the result of
+    // 'bdlf::BindUtil::bind' is; in that case, the invocation parameters are
+    // simply forwarded to the shared binder.  Note finally that even though
+    // this wrapper has pointer semantics for the 'operator*' and 'operator->',
+    // it has value semantics for the invocation: invoking a non-modifiable
+    // wrapper will forward the invocation to the non-modifiable binder shared
+    // by that wrapper, even though pointer semantics have it .
+
+    // DATA
+    bsl::shared_ptr<const bdlf::Bind<RET,FUNC,TUPLE> > d_impl;
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(BindWrapper,
+                                 bslalg::TypeTraitHasPointerSemantics);
+
+    // PUBLIC TYPES
+    typedef typename bdlf::Bind<RET,FUNC,TUPLE>::ResultType ResultType;
+        // The return type of this binder object.
+
+    //CREATORS
+    BindWrapper(typename bslmf::ForwardingType<FUNC>::Type  func,
+                const TUPLE&                                tuple,
+                bslma::Allocator                           *allocator = 0)
+        // Create a wrapper with shared pointer semantics around a binder
+        // constructed with the specified 'func' invocable and specified
+        // 'tuple' bound arguments.
+    {
+        this->d_impl.createInplace(allocator, func, tuple, allocator);
+    }
+
+    BindWrapper(const BindWrapper<RET,FUNC,TUPLE>& original)
+        // Create a wrapper that shares ownership of the binder of the
+        // specified 'original'.
+    : d_impl(original.d_impl)
+    {
+    }
+
+    //ACCESSORS
+    template <class ARGS>
+    inline ResultType invoke(ARGS& arguments) const
+        // Invoke the bound object using the invocation parameters provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for their respective values in the specified 'arguments'.
+    {
+        return d_impl->invoke(arguments);
+    }
+
+    const bdlf::Bind<RET,FUNC,TUPLE>& operator*() const
+        // Return a reference to the non-modifiable binder shared by this
+        // wrapper.
+    {
+        return *(this->d_impl);
+    }
+
+    const bdlf::Bind<RET,FUNC,TUPLE>* operator->() const
+        // Return the address of the non-modifiable binder shared by this
+        // wrapper.
+    {
+        return this->d_impl.ptr();
+    }
+
+    inline ResultType operator()() const
+        // Invoke the bound object using only the invocation parameters
+        // provided at construction of this 'bdlf::Bind' object and return the
+        // result.
+    {
+        return (*d_impl)();
+    }
+
+    template <class P1>
+    inline ResultType operator()(P1& p1)  const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for argument 1 with the value of the argument 'p1'.  Return the
+        // result.
+    {
+        return (*d_impl)(p1);
+    }
+
+    template <class P1>
+    inline ResultType operator()(P1 const& p1)  const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for argument 1 with the value of the argument 'p1'.  Return the
+        // result.
+    {
+        return (*d_impl)(p1);
+    }
+
+    template <class P1, class P2>
+    inline ResultType operator()(P1& p1, P2& p2) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2);
+    }
+
+    template <class P1, class P2>
+    inline ResultType operator()(P1 const& p1, P2 const& p2) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2);
+    }
+
+    template <class P1, class P2, class P3>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1, 2, and 3 with the values of the arguments 'p1',
+        // 'p2' and 'p3' respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3);
+    }
+
+    template <class P1, class P2, class P3>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3)
+    const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1, 2, and 3 with the values of the arguments 'p1',
+        // 'p2' and 'p3' respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3);
+    }
+
+    template <class P1, class P2, class P3, class P4>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4);
+    }
+
+    template <class P1, class P2, class P3, class P4>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6)
+    const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
+        // respectively.  Return the result.
+
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
+        // respectively.  Return the result.
+
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7, P8& p8) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7, P8 const& p8) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7, P8& p8, P9& p9) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7, P8 const& p8, P9 const& p9)
+    const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7, P8& p8, P9& p9,
+                                 P10& p10) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7, P8 const& p8, P9 const& p9,
+                                 P10 const& p10) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
+                                 P11& p11) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 11 with the values of the arguments 'p1' - 'p11'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7, P8 const& p8, P9 const& p9,
+                                 P10 const& p10, P11 const& p11) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 11 with the values of the arguments 'p1' - 'p11'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11, class P12>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
+                                 P11& p11, P12& p12) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11, class P12>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7, P8 const& p8, P9 const& p9,
+                                 P10 const& p10, P11 const& p11,
+                                 P12 const& p12) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11, class P12,
+              class P13>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
+                                 P11& p11, P12& p12, P13& p13) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
+                         p13);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11, class P12,
+              class P13>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7, P8 const& p8, P9 const& p9,
+                                 P10 const& p10, P11 const& p11,
+                                 P12 const& p12, P13 const& p13) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
+                         p13);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11, class P12,
+              class P13, class P14>
+    inline ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
+                                 P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
+                                 P11& p11, P12& p12, P13& p13, P14& p14) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
+                         p13, p14);
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6,
+              class P7, class P8, class P9, class P10, class P11, class P12,
+              class P13, class P14>
+    inline ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
+                                 P4 const& p4, P5 const& p5, P6 const& p6,
+                                 P7 const& p7, P8 const& p8, P9 const& p9,
+                                 P10 const& p10, P11 const& p11,
+                                 P12 const& p12, P13 const& p13,
+                                 P14 const& p14) const
+        // Invoke the bound object using the invocation template provided at
+        // construction of this 'bdlf::Bind' object, substituting place-holders
+        // for arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
+        // respectively.  Return the result.
+    {
+        return (*d_impl)(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12,
+                         p13, p14);
+    }
+};
+
+                           // ==============
                            // class BindUtil
-                           // ===================
+                           // ==============
 
 struct BindUtil {
     // This 'struct' provides a namespace for utility functions used to
-    // construct 'Bind' objects.  Three families of factory methods are
-    // provided: 'bind', 'bindA' and 'bindR'.  All factory methods accept an
-    // invocable object, optionally followed by up to fourteen additional
-    // arguments.  Each argument can be either a literal value, a place-holder,
-    // or another 'Bind' object.
+    // construct 'Bind' and 'BindWrapper objects.  Five families of factory
+    // methods are provided: 'bind', 'bindA', 'bindR', 'bindS', and 'bindSR'.
+    // All factory methods accept an invocable object, optionally followed by
+    // up to fourteen additional arguments.  Each argument can be either a
+    // literal value, a place-holder, or another 'Bind' or 'BindWrapper'
+    // object.
     //
     // The 'BindUtil' class methods compute the signature of the function
     // object automatically, including the return type, and return a binder
     // object with the specified bound functor and bound arguments.  Memory for
     // copying the bound functor and bound arguments is supplied by the user
-    // specified allocator if 'bindA' is used, or the currently installed
-    // default allocator.  The return type is inferred by using
-    // 'bslmf::FunctionPointerTraits' for free functions references and
+    // specified allocator if 'bindA', 'bindS', or 'bindSR' is used, or the
+    // currently installed default allocator.  The return type is inferred by
+    // using 'bslmf::FunctionPointerTraits' for free functions references and
     // pointers, 'bslmf::MemberFunctionPointerTraits' for member function
     // pointers, and 'FUNC::ResultType' for a functor of type 'FUNC'.
     //
     // The 'bindA' variations are used when a specified allocator must be used
     // to supply memory for copying the bound functor and bound arguments.  The
-    // 'bindR' variation must be used when binding to an object for which a
-    // result type cannot be automatically determined.
+    // 'bindR' and 'bindSR' variations must be used when binding to an object
+    // for which a result type cannot be automatically determined.
 
     // CLASS METHODS
+
+                        // - - - - 'bind' methods - - - -
+
     template <class FUNC>
     static
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple0>
     bind(FUNC func)
-        // Return a 'Bind' object that is bound to the specified
-        // 'func' invocable object, which can be invoked with no parameters.
+        // Return a 'Bind' object that is bound to the specified 'func'
+        // invocable object, which can be invoked with no parameters.
     {
         return Bind<bslmf::Nil, FUNC, Bind_BoundTuple0>
                    (func, Bind_BoundTuple0());
@@ -1081,8 +1643,8 @@ struct BindUtil {
     static
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
     bind(FUNC func, P1 const&p1)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with one parameter.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with one parameter.
     {
         return Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
                    (func, Bind_BoundTuple1<P1>(p1));
@@ -1092,8 +1654,8 @@ struct BindUtil {
     static
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple2<P1, P2> >
     bind(FUNC func, P1 const&p1, P2 const&p2)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with two parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with two parameters.
     {
         typedef Bind_BoundTuple2<P1, P2> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1104,9 +1666,8 @@ struct BindUtil {
     static
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple3<P1,P2,P3> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with three
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with three parameters.
     {
         typedef Bind_BoundTuple3<P1,P2,P3> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1117,8 +1678,8 @@ struct BindUtil {
     static
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple4<P1,P2,P3,P4> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with four parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with four parameters.
     {
         typedef Bind_BoundTuple4<P1,P2,P3,P4> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1130,8 +1691,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple5<P1,P2,P3,P4,P5> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with five parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with five parameters.
     {
         typedef Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1144,8 +1705,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with six parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with six parameters.
     {
         typedef Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1158,8 +1719,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with seven parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with seven parameters.
     {
         typedef Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1173,9 +1734,8 @@ struct BindUtil {
               Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with eight
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with eight parameters.
     {
         typedef Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1189,8 +1749,8 @@ struct BindUtil {
               Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with nine parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with nine parameters.
     {
         typedef Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1200,16 +1760,14 @@ struct BindUtil {
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple10<
-                                              P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
+    Bind<bslmf::Nil, FUNC, Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
          P10 const&p10)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with ten parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with ten parameters.
     {
-        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
-            ListType;
+        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10));
     }
@@ -1222,12 +1780,10 @@ struct BindUtil {
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
          P10 const&p10, P11 const&p11)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with eleven
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with eleven parameters.
     {
-        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
-            ListType;
+        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11));
     }
@@ -1241,9 +1797,8 @@ struct BindUtil {
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
          P10 const&p10, P11 const&p11, P12 const&p12)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with twelve
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with twelve parameters.
     {
         typedef Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
             ListType;
@@ -1260,9 +1815,8 @@ struct BindUtil {
     bind(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
          P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with thirteen
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with thirteen parameters.
     {
         typedef Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13> ListType;
@@ -1280,9 +1834,8 @@ struct BindUtil {
          P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
          P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13,
          P14 const&p14)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with fourteen
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with fourteen parameters.
     {
         typedef Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
                                        P13,P14> ListType;
@@ -1290,12 +1843,14 @@ struct BindUtil {
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
     }
 
+                        // - - - - 'bindA' methods - - - -
+
     template <class FUNC>
     static
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple0>
     bindA(bslma::Allocator *allocator, FUNC func)
-        // Return a 'Bind' object that is bound to the specified
-        // 'func' invocable object, which can be invoked with no parameters.
+        // Return a 'Bind' object that is bound to the specified 'func'
+        // invocable object, which can be invoked with no parameters.
     {
         return Bind<bslmf::Nil, FUNC, Bind_BoundTuple0>
                    (func, Bind_BoundTuple0(), allocator);
@@ -1305,8 +1860,8 @@ struct BindUtil {
     static
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with one parameter.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with one parameter.
     {
         return Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
             (func, Bind_BoundTuple1<P1>(p1, allocator), allocator);
@@ -1317,8 +1872,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple2<P1, P2> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with two parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with two parameters.
     {
         typedef Bind_BoundTuple2<P1,P2> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1330,9 +1885,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple3<P1,P2,P3> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with three
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with three parameters.
     {
         typedef Bind_BoundTuple3<P1,P2,P3> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1344,8 +1898,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple4<P1,P2,P3,P4> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with four parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with four parameters.
     {
         typedef Bind_BoundTuple4<P1,P2,P3,P4> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1357,8 +1911,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple5<P1,P2,P3,P4,P5> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with five parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with five parameters.
     {
         typedef Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1371,8 +1925,8 @@ struct BindUtil {
     Bind<bslmf::Nil, FUNC, Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with six parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with six parameters.
     {
         typedef Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1386,9 +1940,8 @@ struct BindUtil {
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with seven
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with seven parameters.
     {
         typedef Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1399,13 +1952,12 @@ struct BindUtil {
               class P6, class P7, class P8>
     static
     Bind<bslmf::Nil, FUNC,
-              Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
+         Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with eight
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with eight parameters.
     {
         typedef Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1416,12 +1968,12 @@ struct BindUtil {
               class P6, class P7, class P8, class P9>
     static
     Bind<bslmf::Nil, FUNC,
-              Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
+         Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
          P7 const&p7, P8 const&p8, P9 const&p9)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with nine parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with nine parameters.
     {
         typedef Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
@@ -1431,16 +1983,14 @@ struct BindUtil {
     template <class FUNC, class P1, class P2, class P3, class P4, class P5,
               class P6, class P7, class P8, class P9, class P10>
     static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple10<
-                                              P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
+    Bind<bslmf::Nil, FUNC, Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with ten parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with ten parameters.
     {
-        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
-            ListType;
+        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
              allocator);
@@ -1454,12 +2004,10 @@ struct BindUtil {
     bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with eleven
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with eleven parameters.
     {
-        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
-            ListType;
+        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
              allocator);
@@ -1475,9 +2023,8 @@ struct BindUtil {
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with twelve
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with twelve parameters.
     {
         typedef Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
             ListType;
@@ -1496,12 +2043,11 @@ struct BindUtil {
           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12, P13 const&p13)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with thirteen
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with thirteen parameters.
     {
         typedef Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13> ListType;
+                                  P13> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
                             allocator),allocator);
@@ -1517,24 +2063,25 @@ struct BindUtil {
           P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
           P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
           P12 const&p12, P13 const&p13, P14 const&p14)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with fourteen
-        // parameters.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with fourteen parameters.
     {
         typedef Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13,P14> ListType;
+                                  P13,P14> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
                             allocator),allocator);
     }
 
+                        // - - - - 'bindR' methods - - - -
+
     template <class RET, class FUNC>
     static
     Bind<RET, FUNC, Bind_BoundTuple0>
     bindR(FUNC func)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with no parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with no parameters and returns a
+        // value of type 'RET'.
     {
         return Bind<RET, FUNC, Bind_BoundTuple0>
             (func, Bind_BoundTuple0());
@@ -1544,9 +2091,9 @@ struct BindUtil {
     static
     Bind<RET, FUNC, Bind_BoundTuple1<P1> >
     bindR(FUNC func, P1 const&p1)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with one parameter
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with one parameter and returns a
+        // value of type 'RET'.
     {
         return Bind<RET, FUNC, Bind_BoundTuple1<P1> >
             (func, Bind_BoundTuple1<P1>(p1));
@@ -1556,9 +2103,9 @@ struct BindUtil {
     static
     Bind<RET, FUNC, Bind_BoundTuple2<P1,P2> >
     bindR(FUNC func, P1 const&p1, P2 const&p2)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with two parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with two parameters and returns
+        // a value of type 'RET'.
     {
         typedef Bind_BoundTuple2<P1,P2> ListType;
         return Bind<RET, FUNC, ListType>(func, ListType(p1,p2));
@@ -1568,9 +2115,9 @@ struct BindUtil {
     static
     Bind<RET, FUNC, Bind_BoundTuple3<P1,P2,P3> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with three parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with three parameters and
+        // returns a value of type 'RET'.
     {
         typedef Bind_BoundTuple3<P1,P2,P3> ListType;
         return Bind<RET, FUNC, ListType>(func, ListType(p1,p2,p3));
@@ -1580,9 +2127,9 @@ struct BindUtil {
     static
     Bind<RET, FUNC, Bind_BoundTuple4<P1,P2,P3,P4> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with four parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with four parameters and returns
+        // a value of type 'RET'.
     {
         typedef Bind_BoundTuple4<P1,P2,P3,P4> ListType;
         return Bind<RET,FUNC,ListType>(func,ListType(p1,p2,p3,p4));
@@ -1594,9 +2141,9 @@ struct BindUtil {
     Bind<RET, FUNC, Bind_BoundTuple5<P1,P2,P3,P4,P5> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with five parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with five parameters and returns
+        // a value of type 'RET'.
     {
         typedef Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
         return Bind<RET,FUNC,ListType>(func, ListType(p1,p2,p3,p4,p5));
@@ -1608,13 +2155,12 @@ struct BindUtil {
     Bind<RET, FUNC, Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with six parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with six parameters and returns
+        // a value of type 'RET'.
     {
         typedef Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return
-            Bind<RET, FUNC, ListType>(func, ListType(p1,p2,p3,p4,p5,p6));
+        return Bind<RET, FUNC, ListType>(func, ListType(p1,p2,p3,p4,p5,p6));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
@@ -1623,13 +2169,12 @@ struct BindUtil {
     Bind<RET, FUNC, Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6, P7 const&p7)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with seven parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with seven parameters and
+        // returns a value of type 'RET'.
     {
         typedef Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return Bind<RET, FUNC,
-            ListType>(func, ListType(p1,p2,p3,p4,p5,p6,p7));
+        return Bind<RET, FUNC, ListType>(func, ListType(p1,p2,p3,p4,p5,p6,p7));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
@@ -1638,13 +2183,13 @@ struct BindUtil {
     Bind<RET, FUNC, Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with eight parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with eight parameters and
+        // returns a value of type 'RET'.
     {
         typedef Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
         return Bind<RET, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8));
+                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8));
     }
 
     template <class RET, class FUNC, class P1, class P2, class P3, class P4,
@@ -1653,9 +2198,9 @@ struct BindUtil {
     Bind<RET, FUNC, Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with nine parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with nine parameters and returns
+        // a value of type 'RET'.
     {
         typedef Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
         return Bind<RET, FUNC, ListType>
@@ -1670,12 +2215,11 @@ struct BindUtil {
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
           P10 const&p10)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with ten parameters
-        // and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with ten parameters and returns
+        // a value of type 'RET'.
     {
-        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
-            ListType;
+        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> ListType;
         return Bind<RET, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10));
     }
@@ -1684,17 +2228,15 @@ struct BindUtil {
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11>
     static
-    Bind<RET, FUNC, Bind_BoundTuple11<
-                                          P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> >
+    Bind<RET, FUNC, Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
           P10 const&p10, P11 const&p11)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with eleven
-        // parameters and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with eleven parameters and
+        // returns a value of type 'RET'.
     {
-        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
-            ListType;
+        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> ListType;
         return Bind<RET, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11));
     }
@@ -1703,14 +2245,13 @@ struct BindUtil {
               class P5, class P6, class P7, class P8, class P9, class P10,
               class P11, class P12>
     static
-    Bind<RET, FUNC, Bind_BoundTuple12<
-                                      P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12> >
+    Bind<RET, FUNC, Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12> >
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
           P10 const&p10, P11 const&p11, P12 const&p12)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with twelve
-        // parameters and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with twelve parameters and
+        // returns a value of type 'RET'.
     {
         typedef Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
             ListType;
@@ -1727,12 +2268,12 @@ struct BindUtil {
     bindR(FUNC func, P1 const&p1, P2 const&p2, P3 const&p3, P4 const&p4,
           P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
           P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with thirteen
-        // parameters and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with thirteen parameters and
+        // returns a value of type 'RET'.
     {
         typedef Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13> ListType;
+                                  P13> ListType;
         return Bind<RET, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13));
     }
@@ -1747,15 +2288,495 @@ struct BindUtil {
           P5 const&p5, P6 const&p6, P7 const&p7, P8 const&p8, P9 const&p9,
           P10 const&p10, P11 const&p11, P12 const&p12, P13 const&p13,
           P14 const&p14)
-        // Return a 'Bind' object that is bound to the specified
-        // invocable object 'func', which can be invoked with fourteen
-        // parameters and returns a value of type 'RET'.
+        // Return a 'Bind' object that is bound to the specified invocable
+        // object 'func', which can be invoked with fourteen parameters and
+        // returns a value of type 'RET'.
     {
         typedef Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                       P13,P14> ListType;
+                                  P13,P14> ListType;
         return Bind<RET, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
     }
+
+                        // - - - - 'bindS' methods - - - -
+
+    template <class FUNC>
+    static inline BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0 >
+    bindS(bslma::Allocator *allocator, FUNC func)
+        // Return a 'bdlf::Bind' object that is bound to the specified 'func'
+        // invocable object which can be invoked with no parameters.
+    {
+        return BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple0>
+                   (func, bdlf::Bind_BoundTuple0(),allocator);
+    }
+
+    template <class FUNC, class P1>
+    static inline BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple1<P1> >
+    bindS(bslma::Allocator *allocator, FUNC func,P1 const&p1)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with one parameters.
+    {
+        return BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple1<P1> >
+                   (func, bdlf::Bind_BoundTuple1<P1>(p1,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2>
+    static inline BindWrapper<bslmf::Nil, FUNC, bdlf::Bind_BoundTuple2<P1,P2> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const &p1, P2 const &p2)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with two parameters.
+    {
+        typedef bdlf::Bind_BoundTuple2<P1,P2> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+                   (func, ListType(p1,p2,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple3<P1,P2,P3> >
+    bindS(bslma::Allocator *allocator, FUNC  func, P1 const&p1, P2 const&p2,
+          P3 const&p3)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with three parameters.
+    {
+        typedef bdlf::Bind_BoundTuple3<P1,P2,P3> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+                   (func, ListType(p1,p2,p3,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple4<P1,P2,P3,P4> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with four parameters.
+    {
+        typedef bdlf::Bind_BoundTuple4<P1,P2,P3,P4> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with five parameters.
+    {
+        typedef bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+                   (func, ListType(p1,p2,p3,p4,p5,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with six parameters.
+    {
+        typedef bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+                   (func, ListType(p1,p2,p3,p4,p5,p6,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7>
+    static inline BindWrapper<bslmf::Nil,
+                              FUNC,
+                              bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with seven parameters.
+    {
+        typedef bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7, class P8>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
+                                                     P8> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+          P8 const&p8)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with eight parameters.
+    {
+        typedef bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+                (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7, class P8, class P9>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
+                                                     P8,P9> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4,P5 const&p5, P6 const&p6, P7 const&p7,
+          P8 const&p8, P9 const&p9)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with nine parameters.
+    {
+        typedef bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7, class P8, class P9, class P10>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+          P8 const&p8, P9 const&p9, P10 const&p10)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with ten parameters.
+    {
+        typedef bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
+                                                                      ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
+             allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7, class P8, class P9, class P10, class P11>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with eleven
+        // parameters.
+    {
+        typedef bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
+            ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
+             allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7, class P8, class P9, class P10, class P11,
+              class P12>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11,P12> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
+          P12 const&p12)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with twelve
+        // parameters.
+    {
+        typedef bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
+            ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
+             allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7, class P8, class P9, class P10, class P11,
+              class P12, class P13>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11,P12,P13> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
+          P12 const&p12, P13 const&p13)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with thirteen
+        // parameters.
+    {
+        typedef bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
+                                        P13> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
+                            allocator), allocator);
+    }
+
+    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
+              class P6, class P7, class P8, class P9, class P10, class P11,
+              class P12, class P13, class P14>
+    static inline BindWrapper<bslmf::Nil, FUNC,
+                              bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11,P12,P13,
+                                                      P14> >
+    bindS(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
+          P12 const&p12, P13 const&p13, P14 const&p14)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with fourteen
+        // parameters.
+    {
+        typedef bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
+                                        P13,P14> ListType;
+        return BindWrapper<bslmf::Nil, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
+                            allocator), allocator);
+    }
+
+                        // - - - - 'bindSR' methods - - - -
+
+    template <class RET, class FUNC>
+    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0 >
+    bindSR(bslma::Allocator *allocator, FUNC func)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with no parameters and
+        // returns a value of type 'RET'.
+    {
+        return BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple0>
+                   (func, bdlf::Bind_BoundTuple0(), allocator);
+    }
+
+    template <class RET, class FUNC, class P1>
+    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple1<P1> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with one parameter and
+        // returns a value of type 'RET'.
+    {
+        return BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple1<P1> >
+                  (func, bdlf::Bind_BoundTuple1<P1>(p1, allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2>
+    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple2<P1,P2> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with two parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple2<P1,P2> ListType;
+        return BindWrapper<RET,FUNC,ListType>
+                   (func, ListType(p1,p2,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3>
+    static inline BindWrapper<RET, FUNC, bdlf::Bind_BoundTuple3<P1,P2,P3> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with three parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple3<P1,P2,P3> ListType;
+        return BindWrapper<RET,FUNC,ListType>
+                   (func, ListType(p1,p2,p3,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple4<P1,P2,P3,P4> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with four parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple4<P1,P2,P3,P4> ListType;
+        return BindWrapper<RET,FUNC,ListType>
+                   (func, ListType(p1,p2,p3,p4,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with five parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
+        return BindWrapper<RET,FUNC,ListType>
+                   (func, ListType(p1,p2,p3,p4,p5,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with six parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
+        return BindWrapper<RET, FUNC, ListType>
+                   (func, ListType(p1,p2,p3,p4,p5,p6,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6, P7> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with seven parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
+        return BindWrapper<RET, FUNC, ListType>
+                   (func, ListType(p1,p2,p3,p4,p5,p6,p7,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7, class P8>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,
+                                                     P8> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+           P8 const&p8)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with eight parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
+        return BindWrapper<RET, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7, class P8, class P9>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,
+                                                     P8,P9> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+           P8 const&p8, P9 const&p9)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with nine parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
+        return BindWrapper<RET, FUNC, ListType>
+             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7, class P8, class P9, class P10>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+           P8 const&p8, P9 const&p9, P10 const&p10)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with ten parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10>
+                                                                      ListType;
+        return BindWrapper<RET, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
+             allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7, class P8, class P9, class P10,
+              class P11>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with eleven parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11>
+            ListType;
+        return BindWrapper<RET, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
+             allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7, class P8, class P9, class P10,
+              class P11, class P12>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11,P12> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
+           P12 const&p12)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with twelve parameters
+        // and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
+            ListType;
+        return BindWrapper<RET, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
+             allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7, class P8, class P9, class P10,
+              class P11, class P12, class P13>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11,P12,P13> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
+           P12 const&p12, P13 const&p13)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with thirteen
+        // parameters and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
+                                        P13> ListType;
+        return BindWrapper<RET, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
+                            allocator), allocator);
+    }
+
+    template <class RET, class FUNC, class P1, class P2, class P3, class P4,
+              class P5, class P6, class P7, class P8, class P9, class P10,
+              class P11, class P12, class P13, class P14>
+    static inline BindWrapper<RET, FUNC,
+                              bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,
+                                                      P8,P9,P10,P11,P12,P13,
+                                                      P14> >
+    bindSR(bslma::Allocator *allocator, FUNC func, P1 const&p1, P2 const&p2,
+           P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
+           P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
+           P12 const&p12, P13 const&p13, P14 const&p14)
+        // Return a 'bdlf::Bind' object that is bound to the specified
+        // invocable object 'func', which can be invoked with fourteen
+        // parameters and returns a value of type 'RET'.
+    {
+        typedef bdlf::Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
+                                        P13,P14> ListType;
+        return BindWrapper<RET, FUNC, ListType>
+            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
+                            allocator), allocator);
+    }
+
 };
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
@@ -1767,11 +2788,10 @@ struct BindUtil {
 template <class TYPE>
 class Bind_TupleValue {
     // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the
-    // 'Bind_Tuple[0-14]' local classes.  'TYPE' must already be a
-    // 'bslmf::ForwardingType', meaning no extra copies will be made (unless
-    // the type is a fundamental type, which is meant to be copied for
-    // efficiency).
+    // suitable for storing an argument value in one of the 'Bind_Tuple[0-14]'
+    // local classes.  'TYPE' must already be a 'bslmf::ForwardingType',
+    // meaning no extra copies will be made (unless the type is a fundamental
+    // type, which is meant to be copied for efficiency).
 
     // PRIVATE TYPES
     typedef typename bslmf::ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
@@ -1781,16 +2801,16 @@ class Bind_TupleValue {
 
   public:
     // CREATORS
-    Bind_TupleValue(const Bind_TupleValue<TYPE>&  original)
-        // Create a 'Bind_TupleValue' object holding a copy of the
-        // specified 'original' value.
+    Bind_TupleValue(const Bind_TupleValue<TYPE>& original)
+        // Create a 'Bind_TupleValue' object holding a copy of the specified
+        // 'original' value.
     : d_value(original.d_value)
     {
     }
 
     Bind_TupleValue(TYPE value)                                // IMPLICIT
-        // Create a 'Bind_TupleValue' object holding a copy of the
-        // specified 'value'.
+        // Create a 'Bind_TupleValue' object holding a copy of the specified
+        // 'value'.
     : d_value(value)
     {
     }
@@ -1807,9 +2827,9 @@ class Bind_TupleValue {
 template <class TYPE>
 class Bind_TupleValue<TYPE&> {
     // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the 'Bind_Tuple*'
-    // local classes.  This full specialization for reference types simply
-    // stores the address of the argument value.
+    // suitable for storing an argument value in one of the 'Bind_Tuple*' local
+    // classes.  This full specialization for reference types simply stores the
+    // address of the argument value.
 
     // PRIVATE INSTANCE DATA
     TYPE *d_value;
@@ -1817,8 +2837,8 @@ class Bind_TupleValue<TYPE&> {
   public:
     // CREATORS
     Bind_TupleValue(const Bind_TupleValue<TYPE&>& original)
-        // Create a 'Bind_TupleValue' object holding a copy of the
-        // specified 'original' reference.
+        // Create a 'Bind_TupleValue' object holding a copy of the specified
+        // 'original' reference.
     : d_value(original.d_value)
     {
     }
@@ -1842,9 +2862,9 @@ class Bind_TupleValue<TYPE&> {
 template <class TYPE>
 class Bind_TupleValue<TYPE const&> {
     // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the 'Bind_Tuple*'
-    // local classes.  This full specialization for const reference types
-    // simply stores the address of the argument value.
+    // suitable for storing an argument value in one of the 'Bind_Tuple*' local
+    // classes.  This full specialization for const reference types simply
+    // stores the address of the argument value.
 
     // PRIVATE INSTANCE DATA
     const TYPE *d_value;
@@ -1852,8 +2872,8 @@ class Bind_TupleValue<TYPE const&> {
   public:
     // CREATORS
     Bind_TupleValue(const Bind_TupleValue<TYPE const&>& original)
-        // Create a 'Bind_TupleValue' object holding a copy of the
-        // specified 'original' reference.
+        // Create a 'Bind_TupleValue' object holding a copy of the specified
+        // 'original' reference.
     : d_value(original.d_value)
     {
     }
@@ -2179,7 +3199,7 @@ struct Bind_Tuple8 : public bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     }
 
     Bind_Tuple8(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                     FA7 a7, FA8 a8)
+                FA7 a7, FA8 a8)
     : d_a1(a1)
     , d_a2(a2)
     , d_a3(a3)
@@ -2236,7 +3256,7 @@ struct Bind_Tuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
     }
 
     Bind_Tuple9(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                     FA7 a7, FA8 a8, FA9 a9)
+                FA7 a7, FA8 a8, FA9 a9)
     : d_a1(a1)
     , d_a2(a2)
     , d_a3(a3)
@@ -2253,7 +3273,7 @@ struct Bind_Tuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10>
 struct Bind_Tuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10>
+                                               A10>
 {
     // This 'struct' stores a list of ten arguments.
 
@@ -2282,8 +3302,7 @@ struct Bind_Tuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     Bind_TupleValue<FA10> d_a10;
 
     // CREATORS
-    Bind_Tuple10(const Bind_Tuple10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                             A10>& orig)
+    Bind_Tuple10(const Bind_Tuple10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& orig)
     : d_a1(orig.d_a1)
     , d_a2(orig.d_a2)
     , d_a3(orig.d_a3)
@@ -2298,7 +3317,7 @@ struct Bind_Tuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     }
 
     Bind_Tuple10(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10)
+                 FA7 a7, FA8 a8, FA9 a9, FA10 a10)
     : d_a1(a1)
     , d_a2(a2)
     , d_a3(a3)
@@ -2316,7 +3335,7 @@ struct Bind_Tuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11>
 struct Bind_Tuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11>
+                                               A10,A11>
 {
     // This 'struct' stores a list of eleven arguments.
 
@@ -2347,8 +3366,7 @@ struct Bind_Tuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     Bind_TupleValue<FA11> d_a11;
 
     // CREATORS
-    Bind_Tuple11(const Bind_Tuple11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11>& orig)
+    Bind_Tuple11(const Bind_Tuple11<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11>& orig)
     : d_a1(orig.d_a1)
     , d_a2(orig.d_a2)
     , d_a3(orig.d_a3)
@@ -2364,7 +3382,7 @@ struct Bind_Tuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     }
 
     Bind_Tuple11(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11)
+                 FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11)
     : d_a1(a1)
     , d_a2(a2)
     , d_a3(a3)
@@ -2383,7 +3401,7 @@ struct Bind_Tuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12>
 struct Bind_Tuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11,A12>
+                                               A10,A11,A12>
 {
     // This 'struct' stores a list of twelve arguments.
 
@@ -2416,8 +3434,8 @@ struct Bind_Tuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     Bind_TupleValue<FA12> d_a12;
 
     // CREATORS
-    Bind_Tuple12(const Bind_Tuple12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11,A12>& orig)
+    Bind_Tuple12(const Bind_Tuple12<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12>&
+                                                                          orig)
     : d_a1(orig.d_a1)
     , d_a2(orig.d_a2)
     , d_a3(orig.d_a3)
@@ -2433,9 +3451,8 @@ struct Bind_Tuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     {
     }
 
-    Bind_Tuple12(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
-                      FA12 a12)
+    Bind_Tuple12(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6, FA7 a7,
+                 FA8 a8, FA9 a9, FA10 a10, FA11 a11, FA12 a12)
     : d_a1(a1)
     , d_a2(a2)
     , d_a3(a3)
@@ -2455,7 +3472,7 @@ struct Bind_Tuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13>
 struct Bind_Tuple13 : public bslmf::TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11,A12,A13>
+                                               A10,A11,A12,A13>
 {
     // This 'struct' stores a list of thirteen arguments.
 
@@ -2491,7 +3508,7 @@ struct Bind_Tuple13 : public bslmf::TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
     // CREATORS
     Bind_Tuple13(const Bind_Tuple13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11,A12,A13>& orig)
+                                    A10,A11,A12,A13>& orig)
     : d_a1(orig.d_a1)
     , d_a2(orig.d_a2)
     , d_a3(orig.d_a3)
@@ -2508,9 +3525,8 @@ struct Bind_Tuple13 : public bslmf::TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     {
     }
 
-    Bind_Tuple13(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
-                      FA12 a12, FA13 a13)
+    Bind_Tuple13(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6, FA7 a7,
+                 FA8 a8, FA9 a9, FA10 a10, FA11 a11, FA12 a12, FA13 a13)
     : d_a1(a1)
     , d_a2(a2)
     , d_a3(a3)
@@ -2532,7 +3548,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13,
           class A14>
 struct Bind_Tuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11,A12,A13,A14>
+                                               A10,A11,A12,A13,A14>
 {
     // This 'struct' stores a list of fourteen arguments.
 
@@ -2570,7 +3586,7 @@ struct Bind_Tuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
     // CREATORS
     Bind_Tuple14(const Bind_Tuple14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11,A12,A13,A14>& orig)
+                                    A10,A11,A12,A13,A14>& orig)
     : d_a1(orig.d_a1)
     , d_a2(orig.d_a2)
     , d_a3(orig.d_a3)
@@ -2588,9 +3604,9 @@ struct Bind_Tuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     {
     }
 
-    Bind_Tuple14(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
-                      FA12 a12, FA13 a13, FA14 a14)
+    Bind_Tuple14(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6, FA7 a7,
+                 FA8 a8, FA9 a9, FA10 a10, FA11 a11, FA12 a12, FA13 a13,
+                 FA14 a14)
     : d_a1(a1)
     , d_a2(a2)
     , d_a3(a3)
@@ -2609,26 +3625,26 @@ struct Bind_Tuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     }
 };
 
-                          // ====================
+                          // ===============
                           // class Bind_Impl
-                          // ====================
+                          // ===============
 
 template <class RET, class FUNC, class LIST>
 class Bind_Impl {
-    // This class is an implementation detail of 'Bind'.  Do not use.
-    // This class implements the storage and functionality required for a
-    // binder that invokes an object of type 'FUNC' with a list of invocation
+    // This class is an implementation detail of 'Bind'.  Do not use.  This
+    // class implements the storage and functionality required for a binder
+    // that invokes an object of type 'FUNC' with a list of invocation
     // parameters of type 'LIST'.  The return type of the invocation is
     // determined by a combination of type 'RET' and 'FUNC'.  Note that this
     // class is a generic binder implementation; this component provides more
-    // type safe implementation 'Bind_ImplExplicit' that will be used
-    // under certain conditions.
+    // type safe implementation 'Bind_ImplExplicit' that will be used under
+    // certain conditions.
 
     // PRIVATE TYPES
-    typedef Bind_FuncTraits<RET,FUNC>                 Traits;
+    typedef Bind_FuncTraits<RET,FUNC>                      Traits;
     typedef bslmf::Tag<Traits::HAS_POINTER_SEMANTICS>      HasPointerSemantics;
     typedef Bind_Invoker<typename Traits::ResultType,
-                              LIST::LENGTH>                Invoker;
+                         LIST::LENGTH>                     Invoker;
     typedef typename Traits::Type                          FuncType;
 
     // PRIVATE INSTANCE DATA
@@ -2649,8 +3665,8 @@ class Bind_Impl {
     template <class ARGS>
     inline ResultType invokeImpl(ARGS& arguments, bslmf::Tag<0>) const
         // Invoke the bound functor using the invocation parameters provided at
-        // construction of this 'Bind' object.  Substituting place-holders
-        // for their respective values in the specified 'arguments'.  The
+        // construction of this 'Bind' object.  Substituting place-holders for
+        // their respective values in the specified 'arguments'.  The
         // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
@@ -2661,8 +3677,8 @@ class Bind_Impl {
     template <class ARGS>
     inline ResultType invokeImpl(ARGS& arguments, bslmf::Tag<1>) const
         // Invoke the bound functor using the invocation parameters provided at
-        // construction of this 'Bind' object.  Substituting place-holders
-        // for their respective values in the specified 'arguments'.  The
+        // construction of this 'Bind' object.  Substituting place-holders for
+        // their respective values in the specified 'arguments'.  The
         // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
@@ -2672,27 +3688,25 @@ class Bind_Impl {
 
   public:
     // CREATORS
-    Bind_Impl(
-                typename bslmf::ForwardingType<FUNC>::Type  func,
-                LIST const&                                 list,
-                bslma::Allocator                           *basicAllocator = 0)
-        // Construct a 'Bind_Impl' object bound to the specified
-        // invocable object 'func' using the invocation parameters specified
-        // in 'list'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+    Bind_Impl(typename bslmf::ForwardingType<FUNC>::Type  func,
+              LIST const&                                 list,
+              bslma::Allocator                           *basicAllocator = 0)
+        // Construct a 'Bind_Impl' object bound to the specified invocable
+        // object 'func' using the invocation parameters specified in 'list'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
     : d_func(func, basicAllocator)
     , d_list(list, basicAllocator)
     {
     }
 
-    Bind_Impl(const Bind_Impl&  other,
-                   bslma::Allocator      *basicAllocator = 0)
-        // Construct a 'Bind_Impl' object bound to the same invocable
-        // object 'func' and using the same invocation parameters as the
-        // specified 'other' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+    Bind_Impl(const Bind_Impl& other, bslma::Allocator *basicAllocator = 0)
+        // Construct a 'Bind_Impl' object bound to the same invocable object
+        // 'func' and using the same invocation parameters as the specified
+        // 'other' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
     : d_func(other.d_func, basicAllocator)
     , d_list(other.d_list, basicAllocator)
     {
@@ -2702,16 +3716,16 @@ class Bind_Impl {
     template <class ARGS>
     ResultType invoke(ARGS& arguments) const
         // Invoke the bound functor using the invocation parameters provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for their respective values in the specified 'arguments'.
+        // construction of this 'Bind' object, substituting place-holders for
+        // their respective values in the specified 'arguments'.
     {
         return invokeImpl(arguments, HasPointerSemantics());
     }
 
     ResultType operator()() const
         // Invoke the bound functor using only the invocation parameters
-        // provided at construction of this 'Bind' object and return
-        // the result.
+        // provided at construction of this 'Bind' object and return the
+        // result.
     {
         typedef Bind_Tuple0 ARGS;
         ARGS args;
@@ -2719,11 +3733,10 @@ class Bind_Impl {
     }
 
     template <class P1>
-    ResultType operator()(P1& p1)  const
+    ResultType operator()(P1& p1) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for argument 1 with the value of the argument 'p1'.  Return the
-        // result.
+        // construction of this 'Bind' object, substituting place-holders for
+        // argument 1 with the value of the argument 'p1'.  Return the result.
     {
         typedef Bind_Tuple1<P1&> ARGS;
         ARGS args(p1);
@@ -2731,11 +3744,10 @@ class Bind_Impl {
     }
 
     template <class P1>
-    ResultType operator()(P1 const& p1)  const
+    ResultType operator()(P1 const& p1) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for argument 1 with the value of the argument 'p1'.  Return the
-        // result.
+        // construction of this 'Bind' object, substituting place-holders for
+        // argument 1 with the value of the argument 'p1'.  Return the result.
     {
         typedef Bind_Tuple1<P1 const&> ARGS;
         ARGS args(p1);
@@ -2745,8 +3757,8 @@ class Bind_Impl {
     template <class P1, class P2>
     ResultType operator()(P1& p1, P2& p2) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple2<P1&, P2&> ARGS;
@@ -2757,8 +3769,8 @@ class Bind_Impl {
     template <class P1, class P2>
     ResultType operator()(P1 const& p1, P2 const& p2) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple2<P1 const&, P2 const&> ARGS;
@@ -2769,9 +3781,9 @@ class Bind_Impl {
     template <class P1, class P2, class P3>
     ResultType operator()(P1& p1, P2& p2, P3& p3) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1, 2, and 3 with the values of the arguments 'p1',
-        // 'p2' and 'p3' respectively.  Return the result.
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1, 2, and 3 with the values of the arguments 'p1', 'p2'
+        // and 'p3' respectively.  Return the result.
     {
         typedef Bind_Tuple3<P1&, P2&, P3&> ARGS;
         ARGS args(p1, p2, p3);
@@ -2779,12 +3791,11 @@ class Bind_Impl {
     }
 
     template <class P1, class P2, class P3>
-    ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3)
-    const
+    ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1, 2, and 3 with the values of the arguments 'p1',
-        // 'p2' and 'p3' respectively.  Return the result.
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1, 2, and 3 with the values of the arguments 'p1', 'p2'
+        // and 'p3' respectively.  Return the result.
     {
         typedef Bind_Tuple3<P1 const&, P2 const&, P3 const&> ARGS;
         ARGS args(p1, p2, p3);
@@ -2794,8 +3805,8 @@ class Bind_Impl {
     template <class P1, class P2, class P3, class P4>
     ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple4<P1&, P2&, P3&, P4&> ARGS;
@@ -2805,14 +3816,13 @@ class Bind_Impl {
 
     template <class P1, class P2, class P3, class P4>
     ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4) const
+                          P4 const& p4) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
         // respectively.  Return the result.
     {
-        typedef Bind_Tuple4<P1 const&, P2 const&, P3 const&, P4 const&>
-                                 ARGS;
+        typedef Bind_Tuple4<P1 const&, P2 const&, P3 const&, P4 const&> ARGS;
         ARGS args(p1, p2, p3, p4);
         return invoke(args);
     }
@@ -2820,8 +3830,8 @@ class Bind_Impl {
     template <class P1, class P2, class P3, class P4, class P5>
     ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple5<P1&, P2&, P3&, P4&, P5&> ARGS;
@@ -2831,24 +3841,24 @@ class Bind_Impl {
 
     template <class P1, class P2, class P3, class P4, class P5>
     ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
-                                 P4 const& p4, P5 const& p5) const
+                          P4 const& p4, P5 const& p5) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple5<P1 const&, P2 const&, P3 const&, P4 const&,
-                                 P5 const&> ARGS;
+                            P5 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5);
         return invoke(args);
     }
 
     template <class P1, class P2, class P3, class P4, class P5, class P6>
     ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
-                                 P6& p6) const
+                          P6& p6) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple6<P1&, P2&, P3&, P4&, P5&, P6&> ARGS;
@@ -2860,12 +3870,12 @@ class Bind_Impl {
     ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
                           P4 const& p4, P5 const& p5, P6 const& p6) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple6<P1 const&, P2 const&, P3 const&, P4 const&,
-                                 P5 const&, P6 const&> ARGS;
+                            P5 const&, P6 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6);
         return invoke(args);
     }
@@ -2875,10 +3885,9 @@ class Bind_Impl {
     ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
                           P6& p6, P7& p7) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
         // respectively.  Return the result.
-
     {
         typedef Bind_Tuple7<P1&, P2&, P3&, P4&, P5&, P6&, P7&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7);
@@ -2891,13 +3900,12 @@ class Bind_Impl {
                           P4 const& p4, P5 const& p5, P6 const& p6,
                           P7 const& p7) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
         // respectively.  Return the result.
-
     {
         typedef Bind_Tuple7<P1 const&, P2 const&, P3 const&, P4 const&,
-                                 P5 const&, P6 const&, P7 const&> ARGS;
+                            P5 const&, P6 const&, P7 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7);
         return invoke(args);
     }
@@ -2907,8 +3915,8 @@ class Bind_Impl {
     ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
                           P6& p6, P7& p7, P8& p8) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple8<P1&, P2&, P3&, P4&, P5&, P6&, P7&, P8&> ARGS;
@@ -2922,13 +3930,12 @@ class Bind_Impl {
                           P4 const& p4, P5 const& p5, P6 const& p6,
                           P7 const& p7, P8 const& p8) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple8<P1 const&, P2 const&, P3 const&, P4 const&,
-                                 P5 const&, P6 const&, P7 const&, P8 const&>
-                                 ARGS;
+                            P5 const&, P6 const&, P7 const&, P8 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8);
         return invoke(args);
     }
@@ -2938,12 +3945,11 @@ class Bind_Impl {
     ResultType operator()(P1& p1, P2& p2, P3& p3, P4& p4, P5& p5,
                           P6& p6, P7& p7, P8& p8, P9& p9) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
         // respectively.  Return the result.
     {
-        typedef Bind_Tuple9<P1&, P2&, P3&, P4&, P5&, P6&, P7&, P8&,
-                                 P9&> ARGS;
+        typedef Bind_Tuple9<P1&, P2&, P3&, P4&, P5&, P6&, P7&, P8&, P9&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9);
         return invoke(args);
     }
@@ -2952,16 +3958,15 @@ class Bind_Impl {
               class P7, class P8, class P9>
     ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
                           P4 const& p4, P5 const& p5, P6 const& p6,
-                          P7 const& p7, P8 const& p8, P9 const& p9)
-    const
+                          P7 const& p7, P8 const& p8, P9 const& p9) const
         // Invoke the bound functor using the invocation template provided at
         // construction of this 'Bind' object, substituting place-holders
         // for arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple9<P1 const&, P2 const&, P3 const&, P4 const&,
-                                 P5 const&, P6 const&, P7 const&, P8 const&,
-                                 P9 const&> ARGS;
+                            P5 const&, P6 const&, P7 const&, P8 const&,
+                            P9 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9);
         return invoke(args);
     }
@@ -2972,12 +3977,12 @@ class Bind_Impl {
                           P6& p6, P7& p7, P8& p8, P9& p9,
                           P10& p10) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple10<P1&, P2&, P3&, P4&, P5&, P6&, P7&, P8&,
-                                  P9&, P10&> ARGS;
+                             P9&, P10&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
         return invoke(args);
     }
@@ -2989,13 +3994,13 @@ class Bind_Impl {
                           P7 const& p7, P8 const& p8, P9 const& p9,
                           P10 const& p10) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple10<P1 const&, P2 const&, P3 const&, P4 const&,
-                                  P5 const&, P6 const&, P7 const&, P8 const&,
-                                  P9 const&, P10 const&> ARGS;
+                             P5 const&, P6 const&, P7 const&, P8 const&,
+                             P9 const&, P10 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
         return invoke(args);
     }
@@ -3021,15 +4026,15 @@ class Bind_Impl {
     ResultType operator()(P1 const& p1, P2 const& p2, P3 const& p3,
                           P4 const& p4, P5 const& p5, P6 const& p6,
                           P7 const& p7, P8 const& p8, P9 const& p9,
-                                 P10 const& p10, P11 const& p11) const
+                          P10 const& p10, P11 const& p11) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 11 with the values of the arguments 'p1' - 'p11'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 11 with the values of the arguments 'p1' - 'p11'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple11<P1 const&, P2 const&, P3 const&, P4 const&,
-                                  P5 const&, P6 const&, P7 const&, P8 const&,
-                                  P9 const&, P10 const&, P11 const&> ARGS;
+                             P5 const&, P6 const&, P7 const&, P8 const&,
+                             P9 const&, P10 const&, P11 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
         return invoke(args);
     }
@@ -3040,12 +4045,12 @@ class Bind_Impl {
                           P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
                           P11& p11, P12& p12) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple12<P1&, P2&, P3&, P4&, P5&, P6&, P7&, P8&,
-                                  P9&, P10&, P11&, P12&> ARGS;
+                             P9&, P10&, P11&, P12&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
         return invoke(args);
     }
@@ -3058,14 +4063,14 @@ class Bind_Impl {
                           P10 const& p10, P11 const& p11,
                           P12 const& p12) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple12<P1 const&, P2 const&, P3 const&, P4 const&,
-                                  P5 const&, P6 const&, P7 const&, P8 const&,
-                                  P9 const&, P10 const&, P11 const&,
-                                  P12 const&> ARGS;
+                             P5 const&, P6 const&, P7 const&, P8 const&,
+                             P9 const&, P10 const&, P11 const&,
+                             P12 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
         return invoke(args);
     }
@@ -3077,12 +4082,12 @@ class Bind_Impl {
                           P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
                           P11& p11, P12& p12, P13& p13) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple13<P1&, P2&, P3&, P4&, P5&, P6&, P7&, P8&,
-                                  P9&, P10&, P11&, P12&, P13&> ARGS;
+                             P9&, P10&, P11&, P12&, P13&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
         return invoke(args);
     }
@@ -3096,14 +4101,14 @@ class Bind_Impl {
                           P10 const& p10, P11 const& p11,
                           P12 const& p12, P13 const& p13) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple13<P1 const&, P2 const&, P3 const&, P4 const&,
-                                  P5 const&, P6 const&, P7 const&, P8 const&,
-                                  P9 const&,  P10 const&, P11 const&,
-                                  P12 const&, P13 const&> ARGS;
+                             P5 const&, P6 const&, P7 const&, P8 const&,
+                             P9 const&,  P10 const&, P11 const&,
+                             P12 const&, P13 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
         return invoke(args);
     }
@@ -3115,8 +4120,8 @@ class Bind_Impl {
                           P6& p6, P7& p7, P8& p8, P9& p9, P10& p10,
                           P11& p11, P12& p12, P13& p13, P14& p14) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple14<P1&, P2&, P3&, P4&, P5&, P6&, P7&, P8&,
@@ -3135,14 +4140,14 @@ class Bind_Impl {
                           P12 const& p12, P13 const& p13,
                           P14 const& p14) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple14<P1 const&, P2 const&, P3 const&, P4 const&,
-                                  P5 const&, P6 const&, P7 const&, P8 const&,
-                                  P9 const&,  P10 const&, P11 const&,
-                                  P12 const&, P13 const&, P14 const&> ARGS;
+                             P5 const&, P6 const&, P7 const&, P8 const&,
+                             P9 const&,  P10 const&, P11 const&,
+                             P12 const&, P13 const&, P14 const&> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
         return invoke(args);
     }
@@ -3173,17 +4178,17 @@ class Bind_ImplExplicit {
     //:   nested 'Bind' objects in the bound arguments.
     //: 3 There are no ellipsis argument in the signature of the function.
     //
-    // Note that this class is an implementation detail of 'Bind'.  Do not
-    // use this class outside this component.
+    // Note that this class is an implementation detail of 'Bind'.  Do not use
+    // this class outside this component.
 
     // PRIVATE TYPES
-    typedef Bind_FuncTraits<RET,FUNC>                 Traits;
+    typedef Bind_FuncTraits<RET,FUNC>                      Traits;
     typedef typename Traits::Type                          FuncType;
     typedef Bind_Invoker<typename Traits::ResultType,
-                              LIST::LENGTH>                Invoker;
+                         LIST::LENGTH>                     Invoker;
     typedef bslmf::Tag<Traits::HAS_POINTER_SEMANTICS>      HasPointerSemantics;
     typedef typename Traits::ArgumentList                  Args;
-    typedef Bind_CalcParameterMask<LIST>              ParamMask;
+    typedef Bind_CalcParameterMask<LIST>                   ParamMask;
 
     enum {
         OFFSET = (int)Traits::PARAM_OFFSET    // 1 for member functions, 0 else
@@ -3236,8 +4241,8 @@ class Bind_ImplExplicit {
     template <class ARGS>
     ResultType invokeImpl(ARGS& arguments, bslmf::Tag<0>) const
         // Invoke the bound functor using the invocation parameters provided at
-        // construction of this 'Bind' object.  Substituting place-holders
-        // for their respective values in the specified 'arguments'.  The
+        // construction of this 'Bind' object.  Substituting place-holders for
+        // their respective values in the specified 'arguments'.  The
         // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
@@ -3248,8 +4253,8 @@ class Bind_ImplExplicit {
     template <class ARGS>
     inline ResultType invokeImpl(ARGS& arguments, bslmf::Tag<1>) const
         // Invoke the bound functor using the invocation parameters provided at
-        // construction of this 'Bind' object.  Substituting place-holders
-        // for their respective values in the specified 'arguments'.  The
+        // construction of this 'Bind' object.  Substituting place-holders for
+        // their respective values in the specified 'arguments'.  The
         // 'bslmf::Tag' is only used for overloading resolution - indicating
         // whether 'd_func' has pointer semantics or not.
     {
@@ -3259,10 +4264,9 @@ class Bind_ImplExplicit {
 
   public:
     // CREATORS
-    Bind_ImplExplicit(
-                         typename bslmf::ForwardingType<FUNC>::Type  func,
-                         LIST const&                                 list,
-                         bslma::Allocator                           *allocator)
+    Bind_ImplExplicit(typename bslmf::ForwardingType<FUNC>::Type  func,
+                      LIST const&                                 list,
+                      bslma::Allocator                           *allocator)
         // Construct a 'Bind_Impl' object bound to the specified
         // invocable object 'func' using the invocation parameters specified
         // in 'list'.
@@ -3272,7 +4276,7 @@ class Bind_ImplExplicit {
     }
 
     Bind_ImplExplicit(const Bind_ImplExplicit&  other,
-                           bslma::Allocator              *allocator)
+                      bslma::Allocator         *allocator)
     : d_func(other.d_func, allocator)
     , d_list(other.d_list, allocator)
     {
@@ -3282,16 +4286,16 @@ class Bind_ImplExplicit {
     template <class ARGS>
     ResultType invoke(ARGS& arguments) const
         // Invoke the bound functor using the invocation parameters provided at
-        // construction of this 'Bind' object.  Substituting place-holders
-        // for their respective values in the specified 'arguments'.
+        // construction of this 'Bind' object.  Substituting place-holders for
+        // their respective values in the specified 'arguments'.
     {
         return invokeImpl(arguments, HasPointerSemantics());
     }
 
     ResultType operator()() const
         // Invoke the bound functor using only the invocation parameters
-        // provided at construction of this 'Bind' object and return
-        // the result.
+        // provided at construction of this 'Bind' object and return the
+        // result.
     {
         typedef Bind_Tuple0 ARGS; ARGS args;
         return invoke(args);
@@ -3299,9 +4303,8 @@ class Bind_ImplExplicit {
 
     ResultType operator()(P1 p1)  const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for argument 1 with the value of the argument 'p1'.  Return the
-        // result.
+        // construction of this 'Bind' object, substituting place-holders for
+        // argument 1 with the value of the argument 'p1'.  Return the result.
     {
 
         typedef Bind_Tuple1<P1> ARGS;  ARGS args(p1);
@@ -3310,8 +4313,8 @@ class Bind_ImplExplicit {
 
     ResultType operator()(P1 p1, P2 p2) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 and 2 with the value of the arguments 'p1', and 'p2'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple2<P1, P2> ARGS;
@@ -3321,9 +4324,9 @@ class Bind_ImplExplicit {
 
     ResultType operator()(P1 p1, P2  p2, P3  p3) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1, 2, and 3 with the values of the arguments 'p1',
-        // 'p2' and 'p3' respectively.  Return the result.
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1, 2, and 3 with the values of the arguments 'p1', 'p2'
+        // and 'p3' respectively.  Return the result.
     {
         typedef Bind_Tuple3<P1, P2, P3> ARGS;
         ARGS args(p1, p2, p3);
@@ -3332,8 +4335,8 @@ class Bind_ImplExplicit {
 
     ResultType operator()(P1 p1, P2  p2, P3 p3, P4 p4) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 4 with the values of the arguments 'p1' - 'p4'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple4<P1, P2, P3, P4> ARGS;
@@ -3343,8 +4346,8 @@ class Bind_ImplExplicit {
 
     ResultType operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 5 with the values of the arguments 'p1' - 'p5'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple5<P1, P2, P3, P4, P5> ARGS;
@@ -3354,8 +4357,8 @@ class Bind_ImplExplicit {
 
     ResultType operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 6 with the values of the arguments 'p1' - 'p7'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple6<P1, P2, P3, P4, P5, P6> ARGS;
@@ -3366,10 +4369,9 @@ class Bind_ImplExplicit {
     ResultType operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6,
                           P7 p7) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 7 with the values of the arguments 'p1' - 'p7'
         // respectively.  Return the result.
-
     {
         typedef Bind_Tuple7<P1, P2, P3, P4, P5, P6, P7> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7);
@@ -3379,8 +4381,8 @@ class Bind_ImplExplicit {
     ResultType operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6,
                           P7 p7, P8 p8) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 8 with the values of the arguments 'p1' - 'p8'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple8<P1, P2, P3, P4, P5, P6, P7, P8> ARGS;
@@ -3391,8 +4393,8 @@ class Bind_ImplExplicit {
     ResultType operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6,
                           P7 p7, P8 p8, P9 p9) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 9 with the values of the arguments 'p1' - 'p9'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple9<P1, P2, P3, P4, P5, P6, P7, P8, P9> ARGS;
@@ -3403,12 +4405,11 @@ class Bind_ImplExplicit {
     ResultType operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6,
                           P7 p7, P8 p8, P9 p9, P10 p10) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 10 with the values of the arguments 'p1' - 'p10'
         // respectively.  Return the result.
     {
-        typedef Bind_Tuple10<P1, P2, P3, P4, P5, P6, P7, P8, P9,
-                                  P10> ARGS;
+        typedef Bind_Tuple10<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
         return invoke(args);
     }
@@ -3418,10 +4419,10 @@ class Bind_ImplExplicit {
         // invoke the bound functor using the invocation template provided at
         // construction of this 'bdlf_bind' object, substituting place-holders
         // for arguments 1 - 11 with the values of the arguments 'p1' - 'p11'
-        // respectively.  return the result.
+        // respectively.  Return the result.
     {
         typedef Bind_Tuple11<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
-                                  P11> ARGS;
+                             P11> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
         return invoke(args);
     }
@@ -3430,12 +4431,12 @@ class Bind_ImplExplicit {
                           P7 p7, P8 p8, P9 p9, P10 p10, P11 p11,
                           P12 p12) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 12 with the values of the arguments 'p1' - 'p12'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple12<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
-                                  P11, P12> ARGS;
+                             P11, P12> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
         return invoke(args);
     }
@@ -3444,12 +4445,12 @@ class Bind_ImplExplicit {
                           P7 p7, P8 p8, P9 p9, P10 p10, P11 p11,
                           P12 p12, P13 p13) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 13 with the values of the arguments 'p1' - 'p13'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple13<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
-                                  P11, P12, P13> ARGS;
+                             P11, P12, P13> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
         return invoke(args);
     }
@@ -3458,27 +4459,27 @@ class Bind_ImplExplicit {
                           P7 p7, P8 p8, P9 p9, P10 p10, P11 p11,
                           P12 p12, P13 p13, P14 p14) const
         // Invoke the bound functor using the invocation template provided at
-        // construction of this 'Bind' object, substituting place-holders
-        // for arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
+        // construction of this 'Bind' object, substituting place-holders for
+        // arguments 1 - 14 with the values of the arguments 'p1' - 'p14'
         // respectively.  Return the result.
     {
         typedef Bind_Tuple14<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11,
-                                  P12, P13, P14> ARGS;
+                             P12, P13, P14> ARGS;
         ARGS args(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
         return invoke(args);
     }
 };
 
-                          // ============================
+                          // =======================
                           // class Bind_ImplSelector
-                          // ============================
+                          // =======================
 
 template <class RET, class FUNC, class LIST>
 struct Bind_ImplSelector {
     // This utility is used to select the best bind implementation for the
-    // given function and invocation template.  'Bind_ImplExplicit' is
-    // selected if the binder is explicit, else 'Bind_Impl' is selected.
-    // A binder is explicit when:
+    // given function and invocation template.  'Bind_ImplExplicit' is selected
+    // if the binder is explicit, else 'Bind_Impl' is selected.  A binder is
+    // explicit when:
     //
     //: 1 The function signature can be determined completely (return and
     //:   argument types, e.g., free or member function pointers).
@@ -3493,8 +4494,8 @@ struct Bind_ImplSelector {
 
     typedef typename
         bslmf::If<IS_EXPLICIT,
-                 Bind_ImplExplicit<RET,FUNC,LIST>,
-                 Bind_Impl<RET,FUNC,LIST> >::Type Type;
+                  Bind_ImplExplicit<RET,FUNC,LIST>,
+                  Bind_Impl<RET,FUNC,LIST> >::Type Type;
 };
 
 // Implementation note: The following three classes, 'Bind_FuncTraits',
@@ -3502,9 +4503,9 @@ struct Bind_ImplSelector {
 // presented in the reverse order to eliminate an AIX failure due to the order
 // of templates, even if those have been forward-declared.
 
-                          // =======================================
+                          // ==================================
                           // class Bind_FuncTraitsHasNoEllipsis
-                          // =======================================
+                          // ==================================
 
 template <class FUNC>
 struct Bind_FuncTraitsHasNoEllipsis {
@@ -3512,8 +4513,8 @@ struct Bind_FuncTraitsHasNoEllipsis {
     // This is needed for making the binder non-explicit in case of a function
     // pointer, reference, or member function pointer.  By default, a function
     // does not take an ellipsis unless specialized below.  This traits class
-    // is used in the 'Bind_FuncTraitsImp' below.  Note that this meta
-    // function is not supported on sun studio 8.
+    // is used in the 'Bind_FuncTraitsImp' below.  Note that this meta function
+    // is not supported on sun studio 8.
 
     enum {
         VALUE = 1
@@ -3581,8 +4582,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6, A7,...)> {
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
           class A6, class A7, class A8>
-struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,
-                                                 A8,...)> {
+struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,...)> {
     // Specialization for function pointers that return 'RET' and accept eight
     // arguments and an ellipsis.
     enum { VALUE = 0 };
@@ -3590,8 +4590,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
           class A6, class A7, class A8, class A9>
-struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,
-                                                 A9,...)> {
+struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,...)> {
     // Specialization for function pointers that return 'RET' and accept nine
     // arguments and an ellipsis.
     enum { VALUE = 0 };
@@ -3600,7 +4599,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,
 template <class RET, class A1, class A2, class A3, class A4, class A5,
           class A6, class A7, class A8, class A9, class A10>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                 A10,...)> {
+                                            A10,...)> {
     // Specialization for function pointers that return 'RET' and accept ten
     // arguments and an ellipsis.
     enum { VALUE = 0 };
@@ -3609,7 +4608,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 template <class RET, class A1, class A2, class A3, class A4, class A5,
           class A6, class A7, class A8, class A9, class A10,class A11>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                 A10,A11,...)> {
+                                            A10,A11,...)> {
     // Specialization for function pointers that return 'RET' and accept eleven
     // arguments and an ellipsis.
     enum { VALUE = 0 };
@@ -3619,7 +4618,7 @@ template <class RET, class A1, class A2, class A3, class A4, class A5,
           class A6, class A7, class A8, class A9, class A10, class A11,
           class A12>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                 A10,A11,A12,...)> {
+                                            A10,A11,A12,...)> {
     // Specialization for function pointers that return 'RET' and accept
     // twelve arguments and an ellipsis.
     enum { VALUE = 0 };
@@ -3629,7 +4628,7 @@ template <class RET, class A1, class A2, class A3, class A4, class A5,
           class A6, class A7, class A8, class A9, class A10, class A11,
           class A12, class A13>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                 A10,A11,A12,A13,...)> {
+                                            A10,A11,A12,A13,...)> {
     // Specialization for function pointers that return 'RET' and accept
     // thirteen arguments and an ellipsis.
     enum { VALUE = 0 };
@@ -3639,19 +4638,21 @@ template <class RET, class A1, class A2, class A3, class A4, class A5,
           class A6, class A7, class A8, class A9, class A10, class A11,
           class A12, class A13, class A14>
 struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                 A10,A11,A12,A13,A14...)> {
+                                            A10,A11,A12,A13,A14...)> {
     // Specialization for function pointers that return 'RET' and accept
     // fourteen arguments and an ellipsis.
     enum { VALUE = 0 };
 };
 }  // close package namespace
 
-                          // ========================
-                          // class bdef::FuncTraitsImp
-                          // ========================
+                          // ===================
+                          // class FuncTraitsImp
+                          // ===================
 
 
-namespace bdlf {template <class RET, class FUNC,
+namespace bdlf {
+
+template <class RET, class FUNC,
           int IS_FUNCTION,
           int IS_FUNCTION_POINTER,
           int IS_MEMBER_FUNCTION_POINTER>
@@ -3665,8 +4666,8 @@ struct Bind_FuncTraitsImp;
     // to function type, or a pointer to member function type, respectively.
     //
     // Only specializations of this class should be used (given below).  All
-    // specializations define the types and enumerations documented in
-    // the 'Bind_FuncTraits' below.
+    // specializations define the types and enumerations documented in the
+    // 'Bind_FuncTraits' below.
 
 // PARTIAL SPECIALIZATIONS
 template <class RET, class FUNC>
@@ -3864,9 +4865,9 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
     typedef typename FUNC::ResultType ResultType;
 };
 
-                          // =====================
+                          // ================
                           // class FuncTraits
-                          // =====================
+                          // ================
 
 template <class RET, class FUNC>
 struct Bind_FuncTraits
@@ -3929,9 +4930,9 @@ struct Bind_FuncTraits
     //    ellipsis in non-member functions.
 };
 
-                           // ============================
+                           // =======================
                            // class Bind_ArgumentMask
-                           // ============================
+                           // =======================
 
 template <class TYPE>
 struct Bind_ArgumentMask {
@@ -3958,23 +4959,36 @@ struct Bind_ArgumentMask<PlaceHolder<INDEX> > {
 
 template <class RET, class FUNC, class LIST>
 struct Bind_ArgumentMask<Bind<RET, FUNC, LIST> > {
-    // This specialization of 'Bind_ArgumentMask' defines a mask for a
-    // 'Bind' object passed recursively as a bound argument.  The value is
-    // not important, as long as it is out of range.  Note that '1 << 30' would
-    // be equally valid, but can lead to an overflow in constant expression
-    // with 'Bind_CalcParameterMask::PARAM_MASK2' below (obtained by
-    // adding the masks of the bound arguments together) when there are more
-    // than 3 nested binders (this is unfortunately an error with the GNU
-    // compiler).
+    // This specialization of 'Bind_ArgumentMask' defines a mask for a 'Bind'
+    // object passed recursively as a bound argument.  The value is not
+    // important, as long as it is out of range.  Note that '1 << 30' would be
+    // equally valid, but can lead to an overflow in constant expression with
+    // 'Bind_CalcParameterMask::PARAM_MASK2' below (obtained by adding the
+    // masks of the bound arguments together) when there are more than 3 nested
+    // binders (this is unfortunately an error with the GNU compiler).
 
     enum {
         VALUE = 1 << 24
     };
 };
 
-                          // ==============================
+template <class RET, class FUNC, class LIST>
+struct Bind_ArgumentMask<BindWrapper<RET, FUNC, LIST> > {
+    // This specialization of 'Bind_ArgumentMask' defines a mask for a
+    // 'BindWrapper' object passed recursively as a bound argument.  The value
+    // is not important, as long as it is out of range.  This makes sure that a
+    // binder with a nested 'BindWrapper' object is treated as non-explicit, in
+    // the same way as if the the nested binder was of type 'Bind'.
+
+    enum {
+        VALUE = 1 << 24
+    };
+};
+
+
+                          // =========================
                           // class Bind_ArgumentNumber
-                          // ==============================
+                          // =========================
 
 template <class TYPE>
 struct Bind_ArgumentNumber {
@@ -3989,32 +5003,31 @@ struct Bind_ArgumentNumber {
 
 template <int INDEX>
 struct Bind_ArgumentNumber<PlaceHolder<INDEX> > {
-    // This specialization of 'Bind_ArgumentNumber' defines a numeric
-    // value for the place-holder at the specified 'INDEX' of the bound
-    // arguments.
+    // This specialization of 'Bind_ArgumentNumber' defines a numeric value for
+    // the place-holder at the specified 'INDEX' of the bound arguments.
 
     enum {
         VALUE = INDEX
     };
 };
 
-                       // ==================================
+                       // =============================
                        // class Bind_MemFnObjectWrapper
-                       // ==================================
+                       // =============================
 
 template <class TYPE>
 class Bind_MemFnObjectWrapper {
     // This local class is used to wrap an object used to invoke a member
-    // functions bound to a 'Bind' binder.  In explicit binding, the
-    // argument types of operator() are determined during 'Bind'
-    // instantiation.  If a member function is bound to the binder, and the
-    // object to invoke the member function on is passed as an invocation
-    // argument (instead of a bound argument), the exact type of the object -
-    // whether it is a pointer or reference - cannot be determined based on the
-    // method signature.  This wrapper serve as an intermediate type to wrap
-    // around the object pointer or reference.  This class is declared to have
-    // pointer semantics, such that 'MemFn' will properly dereference the
-    // object to invoke the member function.
+    // functions bound to a 'Bind' binder.  In explicit binding, the argument
+    // types of operator() are determined during 'Bind' instantiation.  If a
+    // member function is bound to the binder, and the object to invoke the
+    // member function on is passed as an invocation argument (instead of a
+    // bound argument), the exact type of the object - whether it is a pointer
+    // or reference - cannot be determined based on the method signature.  This
+    // wrapper serve as an intermediate type to wrap around the object pointer
+    // or reference.  This class is declared to have pointer semantics, such
+    // that 'MemFn' will properly dereference the object to invoke the member
+    // function.
 
     // DATA
     TYPE *d_object;  // held, not owned
@@ -4040,16 +5053,15 @@ class Bind_MemFnObjectWrapper {
 
 };
 
-                           // ============================
+                           // =======================
                            // class Bind_MapParameter
-                           // ============================
+                           // =======================
 
 template <class FUNC, class ARGS, int INDEX, int OFFSET>
 struct Bind_MapParameter {
     // This meta-function is used to select the type at 'OFFSET' positions of
     // the 'INDEX' position in an argument list type 'ARGS', which is of type
-    // 'bslmf::TypeList'.  Note that this class is used by
-    // 'Bind_ImplExplicit'.
+    // 'bslmf::TypeList'.  Note that this class is used by 'Bind_ImplExplicit'.
 
     // PUBLIC TYPES
     typedef typename
@@ -4060,10 +5072,10 @@ struct Bind_MapParameter {
 
 template <class FUNC, class ARGS>
 struct Bind_MapParameter<FUNC, ARGS, 1, 1> {
-    // This partial specialization of 'Bind_MapParameter' is intended for
-    // use with member functions.  The 'Bind_MemFnObjectWrapper' will
-    // properly wrap around the class object reference or pointer, such that
-    // either can be used to invoke the member function.
+    // This partial specialization of 'Bind_MapParameter' is intended for use
+    // with member functions.  The 'Bind_MemFnObjectWrapper' will properly wrap
+    // around the class object reference or pointer, such that either can be
+    // used to invoke the member function.
 
     // PUBLIC TYPES
     typedef bslmf::MemberFunctionPointerTraits<FUNC> Traits;
@@ -4075,8 +5087,8 @@ struct Bind_MapParameter<FUNC, ARGS, 1, 1> {
 
 template <class FUNC, class ARGS, int OFFSET>
 struct Bind_MapParameter<FUNC, ARGS, 0, OFFSET> {
-    // This partial specialization of 'Bind_MapParameter' does not specify
-    // any type in the 'ARGS' list.  It is used for parameters that should be
+    // This partial specialization of 'Bind_MapParameter' does not specify any
+    // type in the 'ARGS' list.  It is used for parameters that should be
     // ignored.
 
     // PUBLIC TYPES
@@ -4240,16 +5252,16 @@ struct Bind_CalcParameterMask {
 #undef BDLF_BIND_PARAMINDEX
 
 namespace bdlf {
-                           // ===========================
+                           // ======================
                            // class Bind_BoundTuple*
-                           // ===========================
+                           // ======================
 
 template <class A1, class A2>
 struct Bind_BoundTuple2 : public bslmf::TypeList2<A1,A2>
 {
     // This 'struct' stores a list of two arguments.  It does *not* use the
-    // const-forwarding type of its argument, unlike 'Bind_Tuple2'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its argument, unlike 'Bind_Tuple2' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4257,14 +5269,14 @@ struct Bind_BoundTuple2 : public bslmf::TypeList2<A1,A2>
 
     // CREATORS
     Bind_BoundTuple2(const Bind_BoundTuple2<A1,A2>&  orig,
-                          bslma::Allocator                    *allocator = 0)
+                     bslma::Allocator               *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     {
     }
 
     Bind_BoundTuple2(A1 const& a1, A2 const& a2,
-                          bslma::Allocator *allocator = 0)
+                     bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     {
@@ -4275,8 +5287,8 @@ template <class A1, class A2, class A3>
 struct Bind_BoundTuple3 : public bslmf::TypeList3<A1,A2,A3>
 {
     // This 'struct' stores a list of three arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple3'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple3' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4285,7 +5297,7 @@ struct Bind_BoundTuple3 : public bslmf::TypeList3<A1,A2,A3>
 
     // CREATORS
     Bind_BoundTuple3(const Bind_BoundTuple3<A1,A2,A3>& orig,
-                          bslma::Allocator *allocator = 0)
+                     bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4293,7 +5305,7 @@ struct Bind_BoundTuple3 : public bslmf::TypeList3<A1,A2,A3>
     }
 
     Bind_BoundTuple3(A1 const& a1, A2 const& a2, A3 const& a3,
-                          bslma::Allocator *allocator = 0)
+                     bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4305,8 +5317,8 @@ template <class A1, class A2, class A3, class A4>
 struct Bind_BoundTuple4 : public bslmf::TypeList4<A1,A2,A3,A4>
 {
     // This 'struct' stores a list of four arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple4'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple4' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4316,7 +5328,7 @@ struct Bind_BoundTuple4 : public bslmf::TypeList4<A1,A2,A3,A4>
 
     // CREATORS
     Bind_BoundTuple4(const Bind_BoundTuple4<A1,A2,A3,A4>& orig,
-                          bslma::Allocator *allocator = 0)
+                     bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4325,7 +5337,7 @@ struct Bind_BoundTuple4 : public bslmf::TypeList4<A1,A2,A3,A4>
     }
 
     Bind_BoundTuple4(A1 const& a1, A2 const& a2, A3 const& a3,
-                          A4 const& a4, bslma::Allocator *allocator = 0)
+                     A4 const& a4, bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4338,8 +5350,8 @@ template <class A1, class A2, class A3, class A4, class A5>
 struct Bind_BoundTuple5 : public bslmf::TypeList5<A1,A2,A3,A4,A5>
 {
     // This 'struct' stores a list of five arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple5'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple5' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4350,7 +5362,7 @@ struct Bind_BoundTuple5 : public bslmf::TypeList5<A1,A2,A3,A4,A5>
 
     // CREATORS
     Bind_BoundTuple5(const Bind_BoundTuple5<A1,A2,A3,A4,A5>& orig,
-                          bslma::Allocator *allocator = 0)
+                     bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4360,8 +5372,8 @@ struct Bind_BoundTuple5 : public bslmf::TypeList5<A1,A2,A3,A4,A5>
     }
 
     Bind_BoundTuple5(A1 const& a1, A2 const& a2, A3 const& a3,
-                          A4 const& a4, A5 const& a5,
-                          bslma::Allocator *allocator = 0)
+                     A4 const& a4, A5 const& a5,
+                     bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4375,8 +5387,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6>
 struct Bind_BoundTuple6 : public bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
 {
     // This 'struct' stores a list of six arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple6'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple6' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4387,9 +5399,8 @@ struct Bind_BoundTuple6 : public bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
     Bind_BoundTupleValue<A6> d_a6;
 
     // CREATORS
-    Bind_BoundTuple6(const Bind_BoundTuple6<A1,A2,A3,A4,A5,A6>&
-                                           orig,
-                          bslma::Allocator *allocator = 0)
+    Bind_BoundTuple6(const Bind_BoundTuple6<A1,A2,A3,A4,A5,A6>& orig,
+                     bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4400,8 +5411,8 @@ struct Bind_BoundTuple6 : public bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
     }
 
     Bind_BoundTuple6(A1 const& a1, A2 const& a2, A3 const& a3,
-                          A4 const& a4, A5 const& a5, A6 const& a6,
-                          bslma::Allocator *allocator = 0)
+                     A4 const& a4, A5 const& a5, A6 const& a6,
+                     bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4416,8 +5427,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 struct Bind_BoundTuple7 : public bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
 {
     // This 'struct' stores a list of seven arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple7'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple7' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4429,9 +5440,8 @@ struct Bind_BoundTuple7 : public bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
     Bind_BoundTupleValue<A7> d_a7;
 
     // CREATORS
-    Bind_BoundTuple7(const Bind_BoundTuple7<A1,A2,A3,A4,A5,A6,A7>&
-                                           orig,
-                          bslma::Allocator *allocator = 0)
+    Bind_BoundTuple7(const Bind_BoundTuple7<A1,A2,A3,A4,A5,A6,A7>& orig,
+                     bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4443,8 +5453,8 @@ struct Bind_BoundTuple7 : public bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
     }
 
     Bind_BoundTuple7(A1 const& a1, A2 const& a2, A3 const& a3,
-                          A4 const& a4, A5 const& a5, A6 const& a6,
-                          A7 const& a7, bslma::Allocator *allocator = 0)
+                     A4 const& a4, A5 const& a5, A6 const& a6,
+                     A7 const& a7, bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4461,8 +5471,8 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
 struct Bind_BoundTuple8 : public bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
 {
     // This 'struct' stores a list of eight arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple8'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple8' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4475,9 +5485,8 @@ struct Bind_BoundTuple8 : public bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     Bind_BoundTupleValue<A8> d_a8;
 
     // CREATORS
-    Bind_BoundTuple8(const Bind_BoundTuple8<A1,A2,A3,A4,A5,A6,A7,A8>&
-                                           orig,
-                          bslma::Allocator *allocator = 0)
+    Bind_BoundTuple8(const Bind_BoundTuple8<A1,A2,A3,A4,A5,A6,A7,A8>& orig,
+                     bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4490,9 +5499,9 @@ struct Bind_BoundTuple8 : public bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     }
 
     Bind_BoundTuple8(A1 const& a1, A2 const& a2, A3 const& a3,
-                          A4 const& a4, A5 const& a5, A6 const& a6,
-                          A7 const& a7, A8 const& a8,
-                          bslma::Allocator *allocator = 0)
+                     A4 const& a4, A5 const& a5, A6 const& a6,
+                     A7 const& a7, A8 const& a8,
+                     bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4507,12 +5516,11 @@ struct Bind_BoundTuple8 : public bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
 
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9>
-struct Bind_BoundTuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,
-                                                      A8,A9>
+struct Bind_BoundTuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
 {
     // This 'struct' stores a list of nine arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple9'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple9' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -4526,9 +5534,8 @@ struct Bind_BoundTuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,
     Bind_BoundTupleValue<A9> d_a9;
 
     // CREATORS
-    Bind_BoundTuple9(const Bind_BoundTuple9<A1,A2,A3,A4,A5,A6,A7,
-                                                      A8,A9>& orig,
-                          bslma::Allocator *allocator = 0)
+    Bind_BoundTuple9(const Bind_BoundTuple9<A1,A2,A3,A4,A5,A6,A7,A8,A9>& orig,
+                     bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4542,9 +5549,9 @@ struct Bind_BoundTuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,
     }
 
     Bind_BoundTuple9(A1 const& a1, A2 const& a2, A3 const& a3,
-                          A4 const& a4, A5 const& a5, A6 const& a6,
-                          A7 const& a7, A8 const& a8, A9 const& a9,
-                          bslma::Allocator *allocator = 0)
+                     A4 const& a4, A5 const& a5, A6 const& a6,
+                     A7 const& a7, A8 const& a8, A9 const& a9,
+                     bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4561,11 +5568,11 @@ struct Bind_BoundTuple9 : public bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10>
 struct Bind_BoundTuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,
-                                                        A8,A9,A10>
+                                                    A8,A9,A10>
 {
     // This 'struct' stores a list of ten arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple10'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple10' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -4581,8 +5588,8 @@ struct Bind_BoundTuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,
 
     // CREATORS
     Bind_BoundTuple10(const Bind_BoundTuple10<A1,A2,A3,A4,A5,A6,A7,
-                                                        A8,A9,A10>& orig,
-                           bslma::Allocator *allocator = 0)
+                                              A8,A9,A10>& orig,
+                      bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4597,10 +5604,10 @@ struct Bind_BoundTuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,
     }
 
     Bind_BoundTuple10(A1 const& a1, A2 const& a2, A3 const& a3,
-                           A4 const& a4, A5 const& a5, A6 const& a6,
-                           A7 const& a7, A8 const& a8, A9 const& a9,
-                           A10 const& a10,
-                           bslma::Allocator *allocator = 0)
+                      A4 const& a4, A5 const& a5, A6 const& a6,
+                      A7 const& a7, A8 const& a8, A9 const& a9,
+                      A10 const& a10,
+                      bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4618,11 +5625,11 @@ struct Bind_BoundTuple10 : public bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11>
 struct Bind_BoundTuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,
-                                                        A8,A9,A10,A11>
+                                                    A8,A9,A10,A11>
 {
     // This 'struct' stores a list of eleven arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple11'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple11' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -4639,8 +5646,8 @@ struct Bind_BoundTuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,
 
     // CREATORS
     Bind_BoundTuple11(const Bind_BoundTuple11<A1,A2,A3,A4,A5,A6,A7,
-                                                        A8,A9,A10,A11>& orig,
-                           bslma::Allocator *allocator = 0)
+                                              A8,A9,A10,A11>& orig,
+                      bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4656,10 +5663,10 @@ struct Bind_BoundTuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,
     }
 
     Bind_BoundTuple11(A1 const& a1, A2 const& a2, A3 const& a3,
-                           A4 const& a4, A5 const& a5, A6 const& a6,
-                           A7 const& a7, A8 const& a8, A9 const& a9,
-                           A10 const& a10, A11 const& a11,
-                           bslma::Allocator *allocator = 0)
+                      A4 const& a4, A5 const& a5, A6 const& a6,
+                      A7 const& a7, A8 const& a8, A9 const& a9,
+                      A10 const& a10, A11 const& a11,
+                      bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4678,11 +5685,11 @@ struct Bind_BoundTuple11 : public bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,
 template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12>
 struct Bind_BoundTuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,
-                                                        A8,A9,A10,A11,A12>
+                                                    A8,A9,A10,A11,A12>
 {
     // This 'struct' stores a list of twelve arguments.  It does *not* use the
-    // const-forwarding type of its arguments, unlike 'Bind_Tuple12'
-    // which applies that optimization to avoid unnecessary copying.
+    // const-forwarding type of its arguments, unlike 'Bind_Tuple12' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -4700,8 +5707,8 @@ struct Bind_BoundTuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,
 
     // CREATORS
     Bind_BoundTuple12(const Bind_BoundTuple12<A1,A2,A3,A4,A5,A6,A7,
-                                                      A8,A9,A10,A11,A12>& orig,
-                           bslma::Allocator *allocator = 0)
+                                              A8,A9,A10,A11,A12>& orig,
+                      bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4718,10 +5725,10 @@ struct Bind_BoundTuple12 : public bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,
     }
 
     Bind_BoundTuple12(A1 const& a1, A2 const& a2, A3 const& a3,
-                           A4 const& a4, A5 const& a5, A6 const& a6,
-                           A7 const& a7, A8 const& a8, A9 const& a9,
-                           A10 const& a10, A11 const& a11,
-                           A12 const& a12, bslma::Allocator *allocator = 0)
+                      A4 const& a4, A5 const& a5, A6 const& a6,
+                      A7 const& a7, A8 const& a8, A9 const& a9,
+                      A10 const& a10, A11 const& a11,
+                      A12 const& a12, bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4744,8 +5751,8 @@ struct Bind_BoundTuple13
 : public bslmf::TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13>
 {
     // This 'struct' stores a list of thirteen arguments.  It does *not* use
-    // the const-forwarding type of its arguments, unlike 'Bind_Tuple13'
-    // which applies that optimization to avoid unnecessary copying.
+    // the const-forwarding type of its arguments, unlike 'Bind_Tuple13' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -4764,8 +5771,8 @@ struct Bind_BoundTuple13
 
     // CREATORS
     Bind_BoundTuple13(const Bind_BoundTuple13<A1,A2,A3,A4,A5,A6,A7,
-                                                  A8,A9,A10,A11,A12,A13>& orig,
-                           bslma::Allocator *allocator = 0)
+                                              A8,A9,A10,A11,A12,A13>& orig,
+                      bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4783,11 +5790,11 @@ struct Bind_BoundTuple13
     }
 
     Bind_BoundTuple13(A1 const& a1, A2 const& a2, A3 const& a3,
-                           A4 const& a4, A5 const& a5, A6 const& a6,
-                           A7 const& a7, A8 const& a8, A9 const& a9,
-                           A10 const& a10, A11 const& a11,
-                           A12 const& a12, A13 const& a13,
-                           bslma::Allocator *allocator = 0)
+                      A4 const& a4, A5 const& a5, A6 const& a6,
+                      A7 const& a7, A8 const& a8, A9 const& a9,
+                      A10 const& a10, A11 const& a11,
+                      A12 const& a12, A13 const& a13,
+                      bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4809,11 +5816,11 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
           class A8, class A9, class A10, class A11, class A12, class A13,
           class A14>
 struct Bind_BoundTuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,
-                                                     A8,A9,A10,A11,A12,A13,A14>
+                                                    A8,A9,A10,A11,A12,A13,A14>
 {
     // This 'struct' stores a list of fourteen arguments.  It does *not* use
-    // the const-forwarding type of its arguments, unlike 'Bind_Tuple14'
-    // which applies that optimization to avoid unnecessary copying.
+    // the const-forwarding type of its arguments, unlike 'Bind_Tuple14' which
+    // applies that optimization to avoid unnecessary copying.
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -4834,7 +5841,7 @@ struct Bind_BoundTuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,
     // CREATORS
     Bind_BoundTuple14(const Bind_BoundTuple14<A1,A2,A3,A4,A5,A6,A7,
                                               A8,A9,A10,A11,A12,A13,A14>& orig,
-                           bslma::Allocator *allocator = 0)
+                      bslma::Allocator *allocator = 0)
     : d_a1(orig.d_a1,allocator)
     , d_a2(orig.d_a2,allocator)
     , d_a3(orig.d_a3,allocator)
@@ -4853,11 +5860,11 @@ struct Bind_BoundTuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,
     }
 
     Bind_BoundTuple14(A1 const& a1, A2 const& a2, A3 const& a3,
-                           A4 const& a4, A5 const& a5, A6 const& a6,
-                           A7 const& a7, A8 const& a8, A9 const& a9,
-                           A10 const& a10, A11 const& a11,
-                           A12 const& a12, A13 const& a13, A14 const& a14,
-                           bslma::Allocator *allocator = 0)
+                      A4 const& a4, A5 const& a5, A6 const& a6,
+                      A7 const& a7, A8 const& a8, A9 const& a9,
+                      A10 const& a10, A11 const& a11,
+                      A12 const& a12, A13 const& a13, A14 const& a14,
+                      bslma::Allocator *allocator = 0)
     : d_a1(a1,allocator)
     , d_a2(a2,allocator)
     , d_a3(a3,allocator)
@@ -4877,9 +5884,9 @@ struct Bind_BoundTuple14 : public bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,
 };
 }  // close package namespace
 
-                          // =======================
+                          // ========================
                           // class bdlf::Bind_Invoker
-                          // =======================
+                          // ========================
 
 #define BDLF_BIND_EVAL(N) \
     bdlf::Bind_Evaluator<typename bslmf::TypeListTypeOf<N,LIST>::Type, ARGS>\
@@ -5256,9 +6263,9 @@ struct Bind_Invoker<void, 14> {
 #undef BDLF_BIND_EVAL
 
 namespace bdlf {
-                          // =========================
+                          // ====================
                           // class Bind_Evaluator
-                          // =========================
+                          // ====================
 
 template <class ARG, class LIST>
 struct Bind_Evaluator {
@@ -5403,6 +6410,25 @@ struct Bind_Evaluator<Bind<RET,FUNC,BINDLIST>, LIST> {
         return func.invoke(args);
     }
 };
+
+template <class RET, class FUNC, class BINDLIST, class LIST>
+struct Bind_Evaluator<BindWrapper<RET,FUNC,BINDLIST>, LIST> {
+    // This utility provides an evaluator for nested 'BindWrapper'
+    // arguments.  It is a specialization of the 'Bind_Evaluator' declared
+    // in the 'bdlf_bind' component to enable nested 'BindWrapper' objects
+    // in the same fashion as nested 'Bind' objects.
+    // The underlying 'Bind' function object is invoked using the provided
+    // argument list and the result is returned.
+
+    static inline typename Bind<RET,FUNC,BINDLIST>::ResultType
+    eval(LIST& args, const BindWrapper<RET,FUNC,BINDLIST>& func)
+        // Call the specified 'func' functor with the specified 'args'
+        // arguments and return the result.
+    {
+        return func.invoke(args);
+    }
+};
+
 }  // close package namespace
 
 }  // close namespace BloombergLP
@@ -5411,7 +6437,7 @@ struct Bind_Evaluator<Bind<RET,FUNC,BINDLIST>, LIST> {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
