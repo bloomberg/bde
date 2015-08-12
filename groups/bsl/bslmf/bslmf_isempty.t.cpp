@@ -2,8 +2,8 @@
 
 #include "bslmf_isempty.h"
 
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
 //=============================================================================
 //                             TEST PLAN
