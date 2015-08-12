@@ -312,7 +312,7 @@ void publishRecord(Obj *mX, const char *message)
                                "CATEGORY",
                                32,
                                message);
-    ball::Record record(attr, ball::UserFieldValues());
+    ball::Record record(attr, ball::UserFields());
 
     ball::Context context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1);
 

@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 
         {
             ball::RecordAttributes attributes;
-            ball::UserFieldValues  fieldValues;
+            ball::UserFields  fieldValues;
             ball::Record           record(attributes, fieldValues);
             ball::Context          context;
 
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
 
         {
             ball::RecordAttributes attributes;
-            ball::UserFieldValues  fieldValues;
+            ball::UserFields  fieldValues;
             ball::Record           record(attributes, fieldValues);
             ball::Context          context;
 

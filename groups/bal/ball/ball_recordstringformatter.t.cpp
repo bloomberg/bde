@@ -4,7 +4,7 @@
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
-#include <ball_userfieldvalues.h>
+#include <ball_userfields.h>
 #include <bdlqq_threadutil.h>
 
 #include <bdlt_currenttime.h>
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
                                               "",
                                               ball::Severity::BAEL_OFF,
                                               "");
-            ball::Record           mRecord(fixedFields, ball::UserFieldValues());
+            ball::Record           mRecord(fixedFields, ball::UserFields());
             const ball::Record&    record = mRecord;
 
             bdlt::Datetime dtWithOffset(dtUtc); dtWithOffset.addDays(10);
@@ -521,7 +521,7 @@ int main(int argc, char *argv[])
 
         fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-        ball::UserFieldValues userFields;
+        ball::UserFields userFields;
         userFields.appendString("string");
         userFields.appendDouble(3.14159265);
         userFields.appendInt64(1000000);
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
                                                   &oa);
                 fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
-                ball::UserFieldValues   userFields(&oa);
+                ball::UserFields   userFields(&oa);
                 ball::Record record(fixedFields, userFields);
 
                 bsl::ostringstream stream;

@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <ball_record.h>
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
-#include <ball_userfieldvalues.h>
+#include <ball_userfields.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
@@ -327,8 +327,8 @@ void RecordStringFormatter::operator()(bsl::ostream&      stream,
                 output += ss.str();
               } break;
               case 'u': {
-                typedef ball::UserFieldValues Values;
-                const Values& userFields = record.userFieldValues();
+                typedef ball::UserFields Values;
+                const Values& userFields = record.userFields();
                 const int numUserFields  = userFields.length();
 
                 if (numUserFields > 0) {

@@ -224,7 +224,7 @@ void logRecord1(bsl::ostream& stream, const ball::Record& record)
     stream << record.fixedFields().category()       << " ";
     stream << record.fixedFields().message ()       << " ";
 
-    ball::UserFieldValues userFields = record.userFieldValues();
+    ball::UserFields userFields = record.userFields();
     for (int i = 0; i < userFields.length(); ++i)
     {
         stream << userFields[i] << "*";
@@ -247,7 +247,7 @@ void logRecord2(bsl::ostream& stream, const ball::Record& record)
     stream << record.fixedFields().threadID()       << " ";
     stream << record.fixedFields().processID()      << ":";
 
-    ball::UserFieldValues userFields = record.userFieldValues();
+    ball::UserFields userFields = record.userFields();
     for (int i = 0; i < userFields.length(); ++i)
     {
         stream << userFields[i] << "*";
@@ -469,7 +469,7 @@ void publishRecord(Obj *mX, const char *message)
                                "CATEGORY",
                                32,
                                message);
-    ball::Record record(attr, ball::UserFieldValues());
+    ball::Record record(attr, ball::UserFields());
 
     ball::Context context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1);
 

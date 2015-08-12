@@ -1,7 +1,5 @@
-// ball_userfielddescriptors.t.cpp                                    -*-C++-*-
-#include <ball_userfielddescriptors.h>
-
-#include <ball_userfieldtype.h>
+// ball_userfields.t.cpp                                              -*-C++-*-
+#include <ball_userfields.h>
 
 #include <bdls_testutil.h>
 
@@ -62,7 +60,7 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] UserFieldDescriptors();
+// [  ] UserFields();
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -127,8 +125,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::UserFieldDescriptors Obj;
-typedef ball::UserFieldType        Type;
+typedef ball::UserFields Obj;
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -139,8 +136,6 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -191,10 +186,8 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-
       } break;
       case 1: {
-
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
@@ -218,7 +211,6 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
@@ -229,11 +221,10 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
 
-        const char       *A_NAME1  = "A";
-        const Type::Enum  A_TYPE1  = Type::e_INT64;
-        const char       *A_NAME2  = "B";
-        const Type::Enum  A_TYPE2  = Type::e_DATETIMETZ;
-
+        const char             *A_STRING = "A";
+        double                  A_DOUBLE = 2.0;
+        const int64_t           A_INT    = 5;
+        const bdlt::DatetimeTz  A_DATE(bdlt::Datetime(1999,1,1), 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -276,17 +267,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
                              "\t\t{ w:0 x:A         }" << endl;
 
-        mX.appendDescriptor(A_NAME1, A_TYPE1);
-        mX.appendDescriptor(A_NAME2, A_TYPE2);
+        mX.appendInt64(A_INT);
+        mX.appendString(A_STRING);
+        mX.appendDatetimeTz(A_DATE);
+        mX.appendDouble(A_DOUBLE);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(2        == X.length());
-        ASSERT(A_NAME1  == X.name(0));
-        ASSERT(A_TYPE1  == X.type(0));
-        ASSERT(A_NAME2  == X.name(1));
-        ASSERT(A_TYPE2  == X.type(1));
+        ASSERT(4         == X.length());
+        ASSERT(A_INT     == X.value(0).theInt64());
+        ASSERT(A_STRING  == X.value(1).theString());
+        ASSERT(A_DATE    == X.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == X.value(3).theDouble());
 
         if (veryVerbose) cout <<
                      "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -300,18 +293,20 @@ int main(int argc, char *argv[])
                              "\t\t{ w:0 x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
-        mY.appendDescriptor(A_NAME1, A_TYPE1);
-        mY.appendDescriptor(A_NAME2, A_TYPE2);
+
+        mY.appendInt64(A_INT);
+        mY.appendString(A_STRING);
+        mY.appendDatetimeTz(A_DATE);
+        mY.appendDouble(A_DOUBLE);
 
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ P(Y) }
 
-        ASSERT(2        == Y.length());
-        ASSERT(A_NAME1  == Y.name(0));
-        ASSERT(A_TYPE1  == Y.type(0));
-        ASSERT(A_NAME2  == Y.name(1));
-        ASSERT(A_TYPE2  == Y.type(1));
+        ASSERT(4        == Y.length());
+        ASSERT(A_INT    == Y.value(0).theInt64());
+        ASSERT(A_STRING == Y.value(1).theString());
+        ASSERT(A_DATE   == Y.value(2).theDatetimeTz());
 
 
         if (veryVerbose) cout <<
@@ -331,12 +326,11 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
-        ASSERT(2        == Z.length());
-        ASSERT(A_NAME1  == Z.name(0));
-        ASSERT(A_TYPE1  == Z.type(0));
-        ASSERT(A_NAME2  == Z.name(1));
-        ASSERT(A_TYPE2  == Z.type(1));
-
+        ASSERT(4         == Z.length());
+        ASSERT(A_INT     == Z.value(0).theInt64());
+        ASSERT(A_STRING  == Z.value(1).theString());
+        ASSERT(A_DATE    == Z.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == Z.value(3).theDouble());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -376,12 +370,11 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(2        == W.length());
-        ASSERT(A_NAME1  == W.name(0));
-        ASSERT(A_TYPE1  == W.type(0));
-        ASSERT(A_NAME2  == W.name(1));
-        ASSERT(A_TYPE2  == W.type(1));
-
+        ASSERT(4         == W.length());
+        ASSERT(A_INT     == W.value(0).theInt64());
+        ASSERT(A_STRING  == W.value(1).theString());
+        ASSERT(A_DATE    == W.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == W.value(3).theDouble());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -421,11 +414,11 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(2        == X.length());
-        ASSERT(A_NAME1  == X.name(0));
-        ASSERT(A_TYPE1  == X.type(0));
-        ASSERT(A_NAME2  == X.name(1));
-        ASSERT(A_TYPE2  == X.type(1));
+        ASSERT(4         == X.length());
+        ASSERT(A_INT     == X.value(0).theInt64());
+        ASSERT(A_STRING  == X.value(1).theString());
+        ASSERT(A_DATE    == X.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE  == X.value(3).theDouble());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

@@ -1,6 +1,6 @@
-// ball_userfielddescriptors.h                                        -*-C++-*-
-#ifndef INCLUDED_BALL_USERFIELDDESCRIPTORS
-#define INCLUDED_BALL_USERFIELDDESCRIPTORS
+// ball_userfieldsschema.h                                            -*-C++-*-
+#ifndef INCLUDED_BALL_USERFIELDSSCHEMA
+#define INCLUDED_BALL_USERFIELDSSCHEMA
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a description for a sequence user field values
 //
 //@CLASSES:
-//  ball::UserFieldDescriptors: describe a sequence of user field values
+//  ball::UserFieldsSchema: describe a sequence of user field values
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@SEE_ALSO: 
 //
 //@DESCRIPTION: This component provides a value-semantic container-type,
-// 'ball::UserFieldDescriptors', that describes a sequence of user supplied
+// 'ball::UserFieldsSchema', that describes a sequence of user supplied
 // field values.
 //
 
@@ -53,11 +53,11 @@ namespace BloombergLP {
 
 namespace ball {
 
-                        // ==========================
-                        // class UserFieldDescriptors
-                        // ==========================
+                        // ======================
+                        // class UserFieldsSchema
+                        // ======================
 
-class UserFieldDescriptors {
+class UserFieldsSchema {
 
     // PRIVATE TYPES
     typedef bsl::unordered_map<bsl::string, int> NameToIndex;
@@ -68,22 +68,22 @@ class UserFieldDescriptors {
     bsl::vector<ball::UserFieldType::Enum> d_types;
     
     // FRIENDS
-    friend bool operator==(const UserFieldDescriptors&, 
-                           const UserFieldDescriptors&);
+    friend bool operator==(const UserFieldsSchema&, 
+                           const UserFieldsSchema&);
 
   public:
     // TYPES
-    BSLMF_NESTED_TRAIT_DECLARATION(UserFieldDescriptors,
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFieldsSchema,
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit UserFieldDescriptors(bslma::Allocator *basicAllocator = 0);
+    explicit UserFieldsSchema(bslma::Allocator *basicAllocator = 0);
 
-    UserFieldDescriptors(const UserFieldDescriptors&  original,
-                         bslma::Allocator       *basicAllocator = 0);
+    UserFieldsSchema(const UserFieldsSchema&  original,
+                         bslma::Allocator    *basicAllocator = 0);
 
     // MANIPULATORS
-    UserFieldDescriptors& operator=(const UserFieldDescriptors& rhs);
+    UserFieldsSchema& operator=(const UserFieldsSchema& rhs);
 
     int appendDescriptor(bslstl::StringRef         name, 
                          ball::UserFieldType::Enum type);
@@ -94,7 +94,7 @@ class UserFieldDescriptors {
         // Remove all of the descriptinos of user fields managed by this
         // object. 
 
-    void swap(UserFieldDescriptors& other);
+    void swap(UserFieldsSchema& other);
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
@@ -131,14 +131,14 @@ class UserFieldDescriptors {
 };
 
 // FREE OPERATORS
-bool operator==(const UserFieldDescriptors& lhs, 
-                const UserFieldDescriptors& rhs);
+bool operator==(const UserFieldsSchema& lhs, 
+                const UserFieldsSchema& rhs);
 
-bool operator!=(const UserFieldDescriptors& lhs, 
-                const UserFieldDescriptors& rhs);
+bool operator!=(const UserFieldsSchema& lhs, 
+                const UserFieldsSchema& rhs);
 
-bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const UserFieldDescriptors& object);
+bsl::ostream& operator<<(bsl::ostream&           stream,
+                         const UserFieldsSchema& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -149,7 +149,7 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     //..
 
 // FREE FUNCTIONS
-void swap(ball::UserFieldDescriptors& a, ball::UserFieldDescriptors& b);
+void swap(ball::UserFieldsSchema& a, ball::UserFieldsSchema& b);
     // Swap the value of the specified 'a' object with the value of the
     // specified 'b' object.  This method provides the no-throw guarantee.  The
     // behavior is undefined if the two objects being swapped have non-equal
@@ -160,11 +160,11 @@ void swap(ball::UserFieldDescriptors& a, ball::UserFieldDescriptors& b);
 // ============================================================================
 
                         // ---------------------
-                        // class UserFieldDescriptors
+                        // class UserFieldsSchema
                         // ---------------------
 
 inline
-UserFieldDescriptors::UserFieldDescriptors(bslma::Allocator *basicAllocator)
+UserFieldsSchema::UserFieldsSchema(bslma::Allocator *basicAllocator)
 : d_nameToIndex(basicAllocator)
 , d_names(basicAllocator)
 , d_types(basicAllocator)
@@ -172,9 +172,8 @@ UserFieldDescriptors::UserFieldDescriptors(bslma::Allocator *basicAllocator)
 }
 
 inline
-UserFieldDescriptors::UserFieldDescriptors(
-                                       const UserFieldDescriptors&  original,
-                                       bslma::Allocator       *basicAllocator)
+UserFieldsSchema::UserFieldsSchema(const UserFieldsSchema&  original,
+                                   bslma::Allocator        *basicAllocator)
 : d_nameToIndex(original.d_nameToIndex, basicAllocator)
 , d_names(basicAllocator)
 , d_types(original.d_types, basicAllocator)
@@ -189,17 +188,16 @@ UserFieldDescriptors::UserFieldDescriptors(
 
 // MANIPULATORS
 inline
-UserFieldDescriptors& UserFieldDescriptors::operator=(
-                                       const UserFieldDescriptors& rhs)
+UserFieldsSchema& UserFieldsSchema::operator=(const UserFieldsSchema& rhs)
 {
-    UserFieldDescriptors tmp(rhs, allocator());
+    UserFieldsSchema tmp(rhs, allocator());
     swap(tmp);
     return *this;
 }
 
 inline
-int UserFieldDescriptors::appendDescriptor(bslstl::StringRef   name,
-                                           ball::UserFieldType::Enum type)
+int UserFieldsSchema::appendDescriptor(bslstl::StringRef         name,
+                                       ball::UserFieldType::Enum type)
 {
     if (d_nameToIndex.end() != d_nameToIndex.find(name)) {
         return -1;                                                    // RETURN
@@ -215,7 +213,7 @@ int UserFieldDescriptors::appendDescriptor(bslstl::StringRef   name,
 }
 
 inline
-void UserFieldDescriptors::removeAll()
+void UserFieldsSchema::removeAll()
 {
     d_nameToIndex.clear();
     d_names.clear();
@@ -224,7 +222,7 @@ void UserFieldDescriptors::removeAll()
 
 
 inline
-void UserFieldDescriptors::swap(UserFieldDescriptors& other)
+void UserFieldsSchema::swap(UserFieldsSchema& other)
 {
     d_nameToIndex.swap(other.d_nameToIndex);
     d_names.swap(other.d_names);
@@ -233,32 +231,32 @@ void UserFieldDescriptors::swap(UserFieldDescriptors& other)
 
 // ACCESSORS
 inline
-bslma::Allocator *UserFieldDescriptors::allocator() const
+bslma::Allocator *UserFieldsSchema::allocator() const
 {
     return d_names.get_allocator().mechanism();
 }
 
 inline
-int UserFieldDescriptors::indexOf(bslstl::StringRef name) const
+int UserFieldsSchema::indexOf(bslstl::StringRef name) const
 {
     NameToIndex::const_iterator it = d_nameToIndex.find(name);
     return it == d_nameToIndex.end() ? -1 : it->second;
 }
 
 inline
-bslstl::StringRef UserFieldDescriptors::name(int index) const
+bslstl::StringRef UserFieldsSchema::name(int index) const
 {
     return d_names[index];
 }
 
 inline
-ball::UserFieldType::Enum UserFieldDescriptors::type(int index) const
+ball::UserFieldType::Enum UserFieldsSchema::type(int index) const
 {
     return d_types[index];
 }
 
 inline
-int UserFieldDescriptors::length() const
+int UserFieldsSchema::length() const
 {
     return d_names.size();
 }
@@ -267,8 +265,8 @@ int UserFieldDescriptors::length() const
 
 // FREE OPERATORS
 inline
-bool ball::operator==(const UserFieldDescriptors& lhs,
-                      const UserFieldDescriptors& rhs)
+bool ball::operator==(const UserFieldsSchema& lhs,
+                      const UserFieldsSchema& rhs)
 {
     return lhs.d_nameToIndex == rhs.d_nameToIndex 
         && lhs.d_names       == rhs.d_names
@@ -276,15 +274,15 @@ bool ball::operator==(const UserFieldDescriptors& lhs,
 }
 
 inline
-bool ball::operator!=(const UserFieldDescriptors& lhs,
-                      const UserFieldDescriptors& rhs)
+bool ball::operator!=(const UserFieldsSchema& lhs,
+                      const UserFieldsSchema& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
 bsl::ostream& ball::operator<<(bsl::ostream&               stream, 
-                               const UserFieldDescriptors& rhs)
+                               const UserFieldsSchema& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -292,7 +290,7 @@ bsl::ostream& ball::operator<<(bsl::ostream&               stream,
 
 // FREE FUNCTIONS
 inline
-void swap(ball::UserFieldDescriptors& a, ball::UserFieldDescriptors& b)
+void swap(ball::UserFieldsSchema& a, ball::UserFieldsSchema& b)
 {
     a.swap(b);
 }

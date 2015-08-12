@@ -1,8 +1,8 @@
-// ball_userfielddescriptors.cpp                                      -*-C++-*-
-#include <ball_userfielddescriptors.h>
+// ball_userfieldsschema.cpp                                          -*-C++-*-
+#include <ball_userfieldsschema.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(ball_userfielddescriptors_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(ball_userfieldsschema_cpp,"$Id$ $CSID$")
 
 #include <ball_userfieldtype.h>
 #include <bslim_printer.h>
@@ -15,13 +15,13 @@ namespace ball {
 
 
                              // ---------------------
-                             // class UserFieldDescriptors
+                             // class UserFieldsSchema
                              // ---------------------
 
 // ACCESSORS
-bsl::ostream& UserFieldDescriptors::print(bsl::ostream& stream,
-                                int           level,
-                                int           spacesPerLevel) const
+bsl::ostream& UserFieldsSchema::print(bsl::ostream& stream,
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN

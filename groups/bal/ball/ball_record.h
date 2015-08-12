@@ -40,8 +40,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_recordattributes.h>
 #endif
 
-#ifndef INCLUDED_BALL_USERFIELDVALUES
-#include <ball_userfieldvalues.h>
+#ifndef INCLUDED_BALL_USERFIELDS
+#include <ball_userfields.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -75,7 +75,7 @@ class Record {
     // This class provides a container for a set of fields that are
     // appropriate for a user-configurable log record.  The class contains a
     // 'RecordAttributes' object that in turn holds a fixed set of
-    // fields, and a 'ball::UserFieldValues' object that holds a set of optional,
+    // fields, and a 'ball::UserFields' object that holds a set of optional,
     // user-defined fields.  For each of these two sub-containers there is an
     // accessor for obtaining the container value and a manipulator for
     // changing that value.
@@ -96,7 +96,7 @@ class Record {
 
     RecordAttributes   d_fixedFields;  // bytes used by fixed fields
 
-    ball::UserFieldValues               d_userFields;   // bytes used by user fields
+    ball::UserFields               d_userFields;   // bytes used by user fields
 
     bslma::Allocator       *d_allocator_p;  // allocator used to supply
                                             // memory; held but not own
@@ -124,7 +124,7 @@ class Record {
         // installed default allocator is used.
 
     Record(const RecordAttributes&            fixedFields,
-                const ball::UserFieldValues&  userFields,
+                const ball::UserFields&  userFields,
                 bslma::Allocator             *basicAllocator = 0);
         // Create a log record with fixed fields having the value of the
         // specified 'fixedFields' and user-defined fields having the value of
@@ -154,18 +154,18 @@ class Record {
         // Set the fixed fields of this log record to the value of the
         // specified 'fixedFields'.
 
-    void setUserFieldValues(const ball::UserFieldValues& userFields);
+    void setUserFields(const ball::UserFields& userFields);
         // Set the user-defined fields of this log record to the value of the
         // specified 'userFields'.
 
-    ball::UserFieldValues& userFieldValues();
+    ball::UserFields& userFields();
         // Return the modifiable user-defined fields of this log record.
 
     // ACCESSORS
     const RecordAttributes& fixedFields() const;
         // Return the non-modifiable fixed fields of this log record.
 
-    const ball::UserFieldValues& userFieldValues() const;
+    const ball::UserFields& userFields() const;
         // Return the non-modifiable user-defined fields of this log record.
 
     int numAllocatedBytes() const;
@@ -235,7 +235,7 @@ Record::Record(bslma::Allocator *basicAllocator)
 
 inline
 Record::Record(const RecordAttributes&  fixedFields,
-                         const ball::UserFieldValues&              userFields,
+                         const ball::UserFields&              userFields,
                          bslma::Allocator             *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(fixedFields, &d_allocator)
@@ -283,13 +283,13 @@ void Record::setFixedFields(const RecordAttributes& fixedFields)
 }
 
 inline
-void Record::setUserFieldValues(const ball::UserFieldValues& userFields)
+void Record::setUserFields(const ball::UserFields& userFields)
 {
     d_userFields = userFields;
 }
 
 inline
-ball::UserFieldValues& Record::userFieldValues()
+ball::UserFields& Record::userFields()
 {
     return d_userFields;
 }
@@ -302,7 +302,7 @@ const RecordAttributes& Record::fixedFields() const
 }
 
 inline
-const ball::UserFieldValues& Record::userFieldValues() const
+const ball::UserFields& Record::userFields() const
 {
     return d_userFields;
 }

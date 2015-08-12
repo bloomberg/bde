@@ -1,6 +1,6 @@
-// ball_userfieldvalues.h                                             -*-C++-*-
-#ifndef INCLUDED_BALL_USERFIELDVALUES
-#define INCLUDED_BALL_USERFIELDVALUES
+// ball_userfields.h                                                  -*-C++-*-
+#ifndef INCLUDED_BALL_USERFIELDS
+#define INCLUDED_BALL_USERFIELDS
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container of user supplied field values.
 //
 //@CLASSES:
-//  ball::UserFieldValues: a container of user supplied field values
+//  ball::UserFields: a container of user supplied field values
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
 //@SEE_ALSO: 
 //
 //@DESCRIPTION: This component provides a value-semantic container-type,
-// 'ball::UserFieldValues', that represents a (randomly accessible) sequence of
+// 'ball::UserFields', that represents a (randomly accessible) sequence of
 // user supplied field values (typically associated with a 'ball::LogRecord').
 //
 
@@ -38,35 +38,35 @@ namespace BloombergLP {
 namespace ball {
 
 
-                        // =====================
-                        // class UserFieldValues
-                        // =====================
+                        // ================
+                        // class UserFields
+                        // ================
 
-class UserFieldValues {
+class UserFields {
 
   private:
     // DATA
     bsl::vector<ball::UserFieldValue>  d_values;      
 
     // FRIENDS
-    friend bool operator==(const UserFieldValues&, const UserFieldValues&);
+    friend bool operator==(const UserFields&, const UserFields&);
 
   public:
     // TYPES
     typedef bsl::vector<ball::UserFieldValue>::const_iterator ConstIterator;
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(UserFieldValues,
+    BSLALG_DECLARE_NESTED_TRAITS(UserFields,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit UserFieldValues(bslma::Allocator *basicAllocator = 0);
+    explicit UserFields(bslma::Allocator *basicAllocator = 0);
 
-    UserFieldValues(const UserFieldValues&  original,
+    UserFields(const UserFields&  original,
                     bslma::Allocator       *basicAllocator = 0);
 
     // MANIPULATORS
-    UserFieldValues& operator=(const UserFieldValues& rhs);
+    UserFields& operator=(const UserFields& rhs);
 
     void removeAll();
 
@@ -78,7 +78,7 @@ class UserFieldValues {
     void appendString(bslstl::StringRef value);
     void appendDatetimeTz(const bdlt::DatetimeTz& value);
 
-    void swap(UserFieldValues& other);
+    void swap(UserFields& other);
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
@@ -110,22 +110,22 @@ class UserFieldValues {
 };
 
 // FREE OPERATORS
-bool operator==(const UserFieldValues& lhs, const UserFieldValues& rhs);
+bool operator==(const UserFields& lhs, const UserFields& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'UserFieldValues' objects have the
+    // value, and 'false' otherwise.  Two 'UserFields' objects have the
     // same value if the corresponding value of their 'identifier' attribute is
     // the same and if both store the same sequence of transitions, ordered by
     // time.
 
-bool operator!=(const UserFieldValues& lhs, const UserFieldValues& rhs);
+bool operator!=(const UserFields& lhs, const UserFields& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'UserFieldValues' objects do not
+    // same value, and 'false' otherwise.  Two 'UserFields' objects do not
     // have the same value if their corresponding 'identifier' attribute does
     // not have the same value, or if both do *not* store the same sequence of
     // transitions, ordered by time.
 
-bsl::ostream& operator<<(bsl::ostream&          stream,
-                         const UserFieldValues& object);
+bsl::ostream& operator<<(bsl::ostream&     stream,
+                         const UserFields& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -136,7 +136,7 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
     //..
 
 // FREE FUNCTIONS
-void swap(ball::UserFieldValues& a, ball::UserFieldValues& b);
+void swap(ball::UserFields& a, ball::UserFields& b);
     // Swap the value of the specified 'a' object with the value of the
     // specified 'b' object.  This method provides the no-throw guarantee.  The
     // behavior is undefined if the two objects being swapped have non-equal
@@ -147,105 +147,105 @@ void swap(ball::UserFieldValues& a, ball::UserFieldValues& b);
 // ============================================================================
 
                         // ---------------------
-                        // class UserFieldValues
+                        // class UserFields
                         // ---------------------
 
 inline
-UserFieldValues::UserFieldValues(bslma::Allocator *basicAllocator)
+UserFields::UserFields(bslma::Allocator *basicAllocator)
 : d_values(basicAllocator)
 {
 }
 
 inline
-UserFieldValues::UserFieldValues(const UserFieldValues&  original,
-                                 bslma::Allocator       *basicAllocator)
+UserFields::UserFields(const UserFields&  original,
+                       bslma::Allocator  *basicAllocator)
 : d_values(original.d_values, basicAllocator)
 {
 }
 
 // MANIPULATORS
 inline
-UserFieldValues& UserFieldValues::operator=(const UserFieldValues& rhs)
+UserFields& UserFields::operator=(const UserFields& rhs)
 {
     d_values = rhs.d_values;
     return *this;
 }
 
 inline
-void UserFieldValues::removeAll()
+void UserFields::removeAll()
 {
     d_values.clear();
 }
 
 inline
-void UserFieldValues::appendNull()
+void UserFields::appendNull()
 {
     d_values.emplace_back();
 }
         
 inline
-void UserFieldValues::appendInt64(int64_t value)
+void UserFields::appendInt64(int64_t value)
 {
     d_values.emplace_back(value);
 }
 
 inline
-void UserFieldValues::appendDouble(double value)
+void UserFields::appendDouble(double value)
 {
     d_values.emplace_back(value);
 }
 
 inline
-void UserFieldValues::appendString(bslstl::StringRef value)
+void UserFields::appendString(bslstl::StringRef value)
 {
     d_values.emplace_back(value);
 }
 
 inline
-void UserFieldValues::appendDatetimeTz(const bdlt::DatetimeTz& value)
+void UserFields::appendDatetimeTz(const bdlt::DatetimeTz& value)
 {
     d_values.emplace_back(value);
 }
 
 inline
-void UserFieldValues::swap(UserFieldValues& other)
+void UserFields::swap(UserFields& other)
 {
     d_values.swap(other.d_values);
 }
 
 // ACCESSORS
 inline
-bslma::Allocator *UserFieldValues::allocator() const
+bslma::Allocator *UserFields::allocator() const
 {
     return d_values.get_allocator().mechanism();
 }
 
 inline
-UserFieldValues::ConstIterator UserFieldValues::begin() const
+UserFields::ConstIterator UserFields::begin() const
 {
     return d_values.begin();
 }
 
 inline
-UserFieldValues::ConstIterator UserFieldValues::end() const
+UserFields::ConstIterator UserFields::end() const
 {
     return d_values.end();
 }
 
 inline
-int UserFieldValues::length() const
+int UserFields::length() const
 {
     return d_values.size();
 }
 
 inline
-const UserFieldValue& UserFieldValues::operator[](int index) const
+const UserFieldValue& UserFields::operator[](int index) const
 {
     return d_values[index];
 }
 
 inline
-const UserFieldValue& UserFieldValues::value(int index) const
+const UserFieldValue& UserFields::value(int index) const
 {
     return d_values[index];
 }
@@ -254,20 +254,20 @@ const UserFieldValue& UserFieldValues::value(int index) const
 
 // FREE OPERATORS
 inline
-bool ball::operator==(const UserFieldValues& lhs, const UserFieldValues& rhs)
+bool ball::operator==(const UserFields& lhs, const UserFields& rhs)
 {
     return lhs.d_values == rhs.d_values;
 }
 
 inline
-bool ball::operator!=(const UserFieldValues& lhs, const UserFieldValues& rhs)
+bool ball::operator!=(const UserFields& lhs, const UserFields& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&          stream, 
-                               const UserFieldValues& rhs)
+bsl::ostream& ball::operator<<(bsl::ostream&     stream, 
+                               const UserFields& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -275,7 +275,7 @@ bsl::ostream& ball::operator<<(bsl::ostream&          stream,
 
 // FREE FUNCTIONS
 inline
-void swap(ball::UserFieldValues& a, ball::UserFieldValues& b)
+void swap(ball::UserFields& a, ball::UserFields& b)
 {
     a.swap(b);
 }
