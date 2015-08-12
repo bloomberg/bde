@@ -9,6 +9,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslmf_assert.h>
 
 #include <bsl_algorithm.h>
@@ -1154,11 +1155,11 @@ int main(int argc, char *argv[])
                 size_t retResult =
                                 static_cast<size_t>(mSB.sputn(FILL + summ, i));
                 summ += i;
+                if (veryVerbose) { T_ P_(SB) }
+
                 ASSERTV(i, i    == retResult);
                 ASSERTV(i, summ == SB.length());
                 ASSERTV(i, 0    == strncmp(SB.data(), FILL, summ));
-
-                if (veryVerbose) { T_ P_(SB) }
             }
         }
 
@@ -1196,6 +1197,7 @@ int main(int argc, char *argv[])
                 const Obj&           SB = mSB;
 
                 mSB.sputn(FILL, DATA[i].d_numCharsToWrite);
+                if (veryVerbose) { T_ P_(SB) }
 
                 ASSERTV(
                      LINE,
@@ -1204,8 +1206,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == strncmp(SB.data(),
                                            FILL,
                                            DATA[i].d_numCharsToWrite));
-
-                if (veryVerbose) { T_ P_(SB) }
             }
         }
 
@@ -1360,8 +1360,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, DATA[i].d_expectedCap     == da.numBytesTotal());
                 ASSERTV(LINE, da.lastAllocatedAddress() == SB.data());
                 ASSERTV(LINE, 0                         == SB.length());
-
-                if (veryVerbose) { T_ P_(SB) }
             }
         }
       } break;
@@ -1421,10 +1419,10 @@ int main(int argc, char *argv[])
 
         for (size_t i = 0; i < FILL_LEN; ++i) {
             mSB.sputc(FILL[i]);
+            if (veryVerbose) { T_ P_(SB) }
+
             ASSERTV(i, i + 1   == SB.length());
             ASSERTV(i, FILL[i] == SB.data()[i]);
-
-            if (veryVerbose) { T_ P_(SB) }
         }
         ASSERT(0 == memcmp(SB.data(), FILL, FILL_LEN));
 
@@ -1668,10 +1666,10 @@ int main(int argc, char *argv[])
                 const int LINE = DATA[i].d_line;
 
                 mSB.sputc(DATA[i].d_outChar);
+                if (veryVerbose) { T_ P_(SB) }
+
                 ASSERTV(LINE, DATA[i].d_outChar == SB.data()[i]);
                 ASSERTV(LINE, i + 1             == SB.length());
-
-                if (veryVerbose) { T_ P_(SB) }
             }
         }
 
@@ -1911,6 +1909,64 @@ int main(int argc, char *argv[])
              ASSERT(CAPACITY + 1    == SB.length());
             ASSERT(numAllocations   <  ta.numAllocations());
             ASSERT(numDeallocations <  ta.numDeallocations());
+        }
+
+        if (verbose) cout << "\nTesting exception neutrality." << endl;
+        {
+            const bsl::size_t DATA[] = { 0,
+                                         INIT_BUFSIZE,
+                                         TWICE_INIT_BUFSIZE };
+
+            const bsl::size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+
+            // This segment verifies correct behavior across different initial
+            // stream buffer states.
+
+            for(size_t i = 0; i < DATA_LEN; ++i ) {
+                bsl::size_t INITIAL_DATA_LEN = DATA[i];
+
+                bslma::TestAllocator eta("exception test",
+                                         veryVeryVeryVerbose);
+                {
+                    Obj mSB(&eta);
+
+                    // Pre-fill stream buffer with some data.  This might also
+                    // trigger some initial memory allocation.
+                    for (bsl::size_t j = 0; j < INITIAL_DATA_LEN; ++j) {
+                        mSB.sputc('a');
+                    }
+
+                    int numIterations = 0;
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(eta) {
+                        bslma::TestAllocatorMonitor monitor(&eta);
+
+                        if (veryVeryVerbose) {
+                            P_(INITIAL_DATA_LEN) P(numIterations)
+                        }
+
+                        ++numIterations;
+
+                        // Add characters until the overflow buffer is created/
+                        // grows.  This will trigger an exception on at least
+                        // one iteration.
+
+                        while (!monitor.isTotalUp()) {
+                            mSB.sputc('a');
+                        }
+
+                        // sanity check only, does not establish exception
+                        // neutrality: appending characters does allocate
+                        // memory.
+
+                        ASSERTV(numIterations, monitor.isTotalUp());
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    ASSERTV(i, 2 == numIterations);
+                }
+
+                // Test exception neutrality: all memory has been returned.
+                ASSERTV(i, 0 == eta.numBlocksInUse());
+            }
         }
 
         if (verbose) cout << "\nTesting destructor." << endl;
