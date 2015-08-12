@@ -156,7 +156,7 @@ const int MAX_VEC     = 16;   // the maximum buffers for a readv() or writev().
 
 static int veryVerbose;
 
-struct {
+static const struct {
     int         d_lineNum;
     const char *d_sndBuf;        // write into the channel from this buf.
     int         d_sndLen;        // the string length to be sent.
@@ -320,15 +320,15 @@ static void helpBuildVector()
                 BUFFERS[i].d_sndLen);
         oVec[i].setBuffer(BUFFERS[i].d_sndBuf, BUFFERS[i].d_sndLen);
     }
-    ioVec[5].setBuffer(str2, strlen(str2));
-    oVec[5].setBuffer(str2, strlen(str2));
-    ioVec[6].setBuffer(str, strlen(str));
-    oVec[6].setBuffer(str, strlen(str));
+    ioVec[5].setBuffer(str2, static_cast<int>(strlen(str2)));
+    oVec[5].setBuffer(str2, static_cast<int>(strlen(str2)));
+    ioVec[6].setBuffer(str, static_cast<int>(strlen(str)));
+    oVec[6].setBuffer(str, static_cast<int>(strlen(str)));
 #ifdef BSLS_PLATFORM_OS_LINUX
     memset(str3,'8', sizeof(str3));
     str3[sizeof(str3) - 1] = '\0';
-    ioVec[7].setBuffer(str3, strlen(str3));
-    oVec[7].setBuffer(str3, strlen(str3));
+    ioVec[7].setBuffer(str3, static_cast<int>(strlen(str3)));
+    oVec[7].setBuffer(str3, static_cast<int>(strlen(str3)));
 #endif
 }
 
@@ -345,7 +345,7 @@ static void helpAssertVecData(int i, int j, int type, void *vecBuffer,
           case e_IOVECTOR: {
               btls::Iovec *vec = (btls::Iovec*) vecBuffer;
               int idx = 0;
-              int len = strlen((char*)vec[idx].buffer());
+              int len = static_cast<int>(strlen((char*)vec[idx].buffer()));
 
               while (len) {
                   if (veryVerbose) {
@@ -357,7 +357,7 @@ static void helpAssertVecData(int i, int j, int type, void *vecBuffer,
 
                   ++idx;
                   expData += len;
-                  len = strlen((char*)vec[idx].buffer());
+                  len = static_cast<int>(strlen((char*)vec[idx].buffer()));
               }
           } break;
           default:
@@ -1499,8 +1499,10 @@ int main(int argc, char *argv[])
             // The client now writes data into its socket for the channel to
             // read.
             char writeBuf[21] = "abcdefghij1234567890";
-            int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
-                                                 strlen(writeBuf));
+            int len = btlso::SocketImpUtil::write(handles[1],
+                                                  writeBuf,
+                                                  static_cast<int>(
+                                                            strlen(writeBuf)));
             ASSERT(len == (int)strlen(writeBuf));
             // Now the channel dispatches the request.
             ret = ((btlso::TcpTimerEventManager*)
