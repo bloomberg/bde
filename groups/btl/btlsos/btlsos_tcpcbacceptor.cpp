@@ -338,9 +338,9 @@ void TcpCbAcceptor::deallocateCb(btlsc::CbChannel *channel)
 // CREATORS
 
 TcpCbAcceptor::TcpCbAcceptor(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        btlso::TimerEventManager                      *manager,
-        bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpCbAcceptor_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_callbacks(basicAllocator)
@@ -359,10 +359,10 @@ TcpCbAcceptor::TcpCbAcceptor(
 }
 
 TcpCbAcceptor::TcpCbAcceptor(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        btlso::TimerEventManager                      *manager,
-        int                                           numElements,
-        bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                int                                             numElements,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpCbAcceptor_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE,
                 bsls::BlockGrowth::BSLS_CONSTANT,

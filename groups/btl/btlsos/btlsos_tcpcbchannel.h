@@ -21,11 +21,12 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:  btlsc_timedcbchannel btlsc_timedchannel
 //
 //@DESCRIPTION: This component provides a non-blocking communication channel
-// over TCP/IPv4 sockets that adheres to 'btlsc::TimedCbChannel' protocol.
-// Following the protocol, only operations without timeout are supported.  The
-// channel uses user-installed event manager(s) to monitor an underlying socket
-// for incoming events; two event managers can be installed in order to monitor
-// for read and write events in different event managers.
+// over TCP/IPv4 sockets, 'btlsos::TcpCbChannel', that adheres to
+// 'btlsc::TimedCbChannel' protocol.  Following the protocol, only operations
+// without timeout are supported.  The channel uses user-installed event
+// manager(s) to monitor an underlying socket for incoming events; two event
+// managers can be installed in order to monitor for read and write events in
+// different event managers.
 //
 // This channel uses a user-provided stream socket for IPv4 address family.
 // Any concrete implementation that provides socket-like primitives is allowed.
@@ -150,7 +151,7 @@ class TcpCbChannel : public btlsc::CbChannel {
   private:
     // PRIVATE MANIPULATORS
     void initializeReadBuffer(int size = -1);
-        // Initialize internal read buffer with the optionally-specified
+        // Initialize internal read buffer with the optionally specified
         // 'size'.  If 'size' is not specified, the default that is obtained by
         // querying the underlying socket is used.
 
@@ -190,15 +191,15 @@ class TcpCbChannel : public btlsc::CbChannel {
         // this queue is a buffered write request.
 
   private:
-    TcpCbChannel(const TcpCbChannel&);           // not impl.
-    TcpCbChannel& operator=(const TcpCbChannel); // not impl.
+    // Not implemented:
+    TcpCbChannel(const TcpCbChannel&);
+    TcpCbChannel& operator=(const TcpCbChannel);
 
   public:
     // CREATORS
-    TcpCbChannel(
-                    btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-                    btlso::TimerEventManager               *manager,
-                    bslma::Allocator                      *basicAllocator = 0);
+    TcpCbChannel(btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                 btlso::TimerEventManager                *manager,
+                 bslma::Allocator                        *basicAllocator = 0);
         // Create a callback channel for the TCP/IPv4 that uses the specified
         // 'sSocket' for socket-level communications, the specified 'manager'
         // to monitor for incoming data and for availability of space in the
@@ -210,11 +211,10 @@ class TcpCbChannel : public btlsc::CbChannel {
         // 'sSocket' directly simultaneously with this channel may result in an
         // undefined behavior of the channel.
 
-    TcpCbChannel(
-                    btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-                    btlso::TimerEventManager               *rManager,
-                    btlso::TimerEventManager               *wManager,
-                    bslma::Allocator                      *basicAllocator = 0);
+    TcpCbChannel(btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                 btlso::TimerEventManager                *rManager,
+                 btlso::TimerEventManager                *wManager,
+                 bslma::Allocator                        *basicAllocator = 0);
         // Create a callback channel for the TCP/IPv4 that uses the specified
         // 'sSocket' for socket-level communications, the specified 'rManager'
         // to monitor for incoming data and the specified 'wManager' for
@@ -263,7 +263,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
         // and remains valid until the (non-null) 'readCallback' completes, and
-        // 0 < numBytes.
+        // '0 < numBytes'.
 
     int readv(const btls::Iovec   *buffers,
               int                  numBuffers,
@@ -300,10 +300,10 @@ class TcpCbChannel : public btlsc::CbChannel {
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-     int readRaw(char                *buffer,
-                 int                  numBytes,
-                 const ReadCallback&  readCallback,
-                 int                  flags = 0);
+    int readRaw(char                *buffer,
+                int                  numBytes,
+                const ReadCallback&  readCallback,
+                int                  flags = 0);
         // Initiate a non-blocking operation to *atomically* read *up *to* the
         // specified 'numBytes' from this channel into the specified 'buffer';
         // execute the specified 'readCallback' functor after this read
@@ -333,10 +333,10 @@ class TcpCbChannel : public btlsc::CbChannel {
         // remains valid until the (non-null) 'readCallback' completes, and 0 <
         // numBytes.
 
-     int readvRaw(const btls::Iovec   *buffers,
-                  int                  numBuffers,
-                  const ReadCallback&  readCallback,
-                  int                  flags = 0);
+    int readvRaw(const btls::Iovec   *buffers,
+                 int                  numBuffers,
+                 const ReadCallback&  readCallback,
+                 int                  flags = 0);
         // Initiate a non-blocking operation to *atomically* read from this
         // channel into the specified sequence of 'buffers' of specified
         // sequence length 'numBuffers' *up* *to* the respective numbers of
@@ -369,6 +369,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // 'readCallback' completes, and 0 < numBytes.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     int bufferedRead(int                         numBytes,
                      const BufferedReadCallback& bufferedReadCallback,
                      int                         flags = 0);
@@ -746,9 +747,9 @@ class TcpCbChannel : public btlsc::CbChannel {
         // availability of space in the outgoing buffer on this channel.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 btlso::StreamSocket<btlso::IPv4Address> *TcpCbChannel::socket() const

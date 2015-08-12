@@ -618,9 +618,9 @@ class TcpTimedCbConnector : public btlsc::TimedCbChannelAllocator {
   public:
     // CREATORS
     TcpTimedCbConnector(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            btlso::TimerEventManager                      *manager,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed callback connector that uses the specified 'factory'
         // (to create stream sockets) and the specified 'manager' (to monitor
         // for incoming connections).  Optionally specify a 'basicAllocator'
@@ -630,10 +630,10 @@ class TcpTimedCbConnector : public btlsc::TimedCbChannelAllocator {
         // created in a valid state (as reported by the 'isInvalid' method).
 
     TcpTimedCbConnector(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            btlso::TimerEventManager                      *manager,
-            int                                           numChannels,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           int                                             numChannels,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed cb connector, with enough internal capacity to
         // allocate up to the specified 'numChannels' without reallocation,
         // that uses the specified 'factory' to create stream sockets, and the
@@ -797,9 +797,9 @@ class TcpTimedCbConnector : public btlsc::TimedCbChannelAllocator {
         // connector.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 void TcpTimedCbConnector::setPeer(const btlso::IPv4Address& endpoint)

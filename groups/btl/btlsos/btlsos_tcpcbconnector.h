@@ -19,10 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Andrei Basov (abasov)
 //
 //@DESCRIPTION: This component provides a non-blocking single-port connector of
-// TCP connections with timeout capability that adheres to the
-// 'btlsc::CbChannelAllocator' protocol.  Both timed and non-timed (callback)
-// channels can be allocated in a non-timed fashion as indicated by the
-// following table:
+// TCP connections with timeout capability, 'btlsos::TcpCbConnector', that
+// adheres to the 'btlsc::CbChannelAllocator' protocol.  Both timed and
+// non-timed (callback) channels can be allocated in a non-timed fashion as
+// indicated by the following table:
 //
 // Allocations follow the asynchronous (callback-based) nature of the 'btesc'
 // protocol; the callbacks are invoked when an allocation succeeds or an error
@@ -586,16 +586,16 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // when the timer is expired (and the associated request is timed out).
 
   private:
-    TcpCbConnector(const TcpCbConnector&); // not impl.
-    TcpCbConnector&
-        operator=(const TcpCbConnector&);              // not impl.
+    // Not implemented:
+    TcpCbConnector(const TcpCbConnector&);
+    TcpCbConnector& operator=(const TcpCbConnector&);
 
   public:
     // CREATORS
     TcpCbConnector(
-             btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-             btlso::TimerEventManager                      *manager,
-             bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed callback connector that uses the specified 'factory'
         // (to create stream sockets) and the specified 'manager' (to monitor
         // for incoming connections).  Optionally specify a 'basicAllocator'
@@ -605,10 +605,10 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // created in a valid state (as reported by the 'isInvalid' method).
 
     TcpCbConnector(
-             btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-             btlso::TimerEventManager                      *manager,
-             int                                           numChannels,
-             bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           int                                             numChannels,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed cb connector, with enough internal capacity to
         // allocate up to the specified 'numChannels' without reallocation,
         // that uses the specified 'factory' to create stream sockets, and the
@@ -647,8 +647,8 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // permanent one; the allocator itself may still be valid (see
         // 'isInvalid').  The behavior is undefined unless 'callback' is valid.
 
-     virtual int allocateTimed(const TimedCallback& timedCallback,
-                               int                  flags = 0);
+    virtual int allocateTimed(const TimedCallback& timedCallback,
+                              int                  flags = 0);
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
@@ -672,7 +672,7 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // still be valid (see 'isInvalid').  The behavior is undefined unless
         // 'callback' is valid.
 
-     virtual void cancelAll();
+    virtual void cancelAll();
         // Immediately cancel all pending operations on this allocator,
         // invoking each registered allocation callback in turn.  Each callback
         // will be invoked with a null channel and a status of -1.  This method
@@ -682,7 +682,7 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // simply extends the set of canceled operations to include any new
         // ones initiated since the previous 'cancelAll' was invoked.
 
-     virtual void deallocate(btlsc::CbChannel *channel);
+    virtual void deallocate(btlsc::CbChannel *channel);
         // Terminate all operations on the specified 'channel', invoke each
         // pending callback with the appropriate status, and reclaim all
         // afforded channel services.  The behavior is undefined unless
@@ -716,9 +716,9 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // connector.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 void TcpCbConnector::setPeer(const btlso::IPv4Address& endpoint)
@@ -737,8 +737,8 @@ int TcpCbConnector::numChannels() const
 {
     return static_cast<int>(d_channels.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -221,15 +221,14 @@ class TcpChannel : public btlsc::Channel {
 
     // PRIVATE MANIPULATORS
     void initializeReadBuffer(int size = -1);
-        // Initialize internal read buffer with the optionally-specified
+        // Initialize internal read buffer with the optionally specified
         // 'size'.  If 'size' is not specified, the default that is obtained by
         // querying the underlying socket is used.
 
   public:
     // CREATORS
-    TcpChannel(
-                    btlso::StreamSocket<btlso::IPv4Address> *socket,
-                    bslma::Allocator                      *basicAllocator = 0);
+    TcpChannel(btlso::StreamSocket<btlso::IPv4Address> *socket,
+               bslma::Allocator                        *basicAllocator = 0);
         // Create a channel attached to the specified stream-oriented 'socket'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -240,7 +239,7 @@ class TcpChannel : public btlsc::Channel {
 
     // MANIPULATORS
     int read(char *buffer, int numBytes, int flags = 0);
-    int read(int  *augStatus, char *buffer, int numBytes, int flags = 0);
+    int read(int *augStatus, char *buffer, int numBytes, int flags = 0);
         // Read from this channel into the specified 'buffer' the specified
         // 'numBytes'.  If the optionally specified 'flags' incorporates
         // 'btlsc::Channel::ASYNC_INTERRUPT', "asynchronous events" are
@@ -581,9 +580,9 @@ class TcpChannel : public btlsc::Channel {
 
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 void TcpChannel::invalidate()

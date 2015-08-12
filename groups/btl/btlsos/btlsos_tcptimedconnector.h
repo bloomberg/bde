@@ -237,8 +237,8 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
   public:
     // CREATORS
     TcpTimedConnector(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed connector that uses the specified 'factory' to create
         // stream sockets.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -248,9 +248,9 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
         // *fail* until the peer address is specified (using 'setPeer').
 
     TcpTimedConnector(
-             btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-             int                                           numElements,
-             bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           int                                             numElements,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed connector that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'numElements' channels without reallocation.
@@ -380,9 +380,9 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
 
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 void TcpTimedConnector::setPeer(const btlso::IPv4Address& endpoint)

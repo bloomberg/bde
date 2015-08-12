@@ -210,9 +210,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
   public:
     // CREATORS
     TcpTimedCbChannel(
-                    btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-                    btlso::TimerEventManager               *manager,
-                    bslma::Allocator                      *basicAllocator = 0);
+                  btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                  btlso::TimerEventManager                *manager,
+                  bslma::Allocator                        *basicAllocator = 0);
         // Create a timed callback channel for the TCP/IPv4 that uses the
         // specified 'sSocket' for socket-level communications, the specified
         // 'manager' to monitor for incoming data and for availability of space
@@ -225,10 +225,10 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // undefined behavior of the channel.
 
     TcpTimedCbChannel(
-                    btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-                    btlso::TimerEventManager               *rManager,
-                    btlso::TimerEventManager               *wManager,
-                    bslma::Allocator                      *basicAllocator = 0);
+                  btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                  btlso::TimerEventManager                *rManager,
+                  btlso::TimerEventManager                *wManager,
+                  bslma::Allocator                        *basicAllocator = 0);
         // Create a timed callback channel for the TCP/IPv4 that uses the
         // specified 'sSocket' for socket-level communications, the specified
         // 'rManager' to monitor for incoming data and the specified 'wManager'
@@ -1257,9 +1257,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // availability of space in the outgoing buffer on this channel.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 btlso::StreamSocket<btlso::IPv4Address>

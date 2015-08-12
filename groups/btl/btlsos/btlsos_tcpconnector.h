@@ -225,9 +225,9 @@ class TcpConnector : public btlsc::ChannelAllocator {
         // *fail* until the peer address is specified (using 'setPeer').
 
     TcpConnector(
-             btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-             int                                           numElements,
-             bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           int                                             numElements,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a connector that uses the specified 'factory' to create
         // stream sockets with enough internal capacity to accommodate up to
         // the specified 'numElements' channels without reallocation.
@@ -309,9 +309,9 @@ class TcpConnector : public btlsc::ChannelAllocator {
         // connector.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 // MANIPULATORS
 inline

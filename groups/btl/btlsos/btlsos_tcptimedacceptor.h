@@ -410,9 +410,9 @@ class TcpTimedAcceptor : public btlsc::TimedChannelAllocator {
         // acceptor.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTIONS' DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 const btlso::IPv4Address& TcpTimedAcceptor::address() const

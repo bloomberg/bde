@@ -436,9 +436,9 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
   public:
     // CREATORS
     TcpTimedCbAcceptor(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            btlso::TimerEventManager                      *manager,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed callback acceptor that uses the specified 'factory'
         // (to create stream sockets) and the specified 'manager' (to monitor
         // for incoming connections).  Optionally specify a 'basicAllocator'
@@ -451,10 +451,10 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // listening socket is created (using 'open').
 
     TcpTimedCbAcceptor(
-            btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-            btlso::TimerEventManager                      *manager,
-            int                                           numElements,
-            bslma::Allocator                             *basicAllocator = 0);
+           btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+           btlso::TimerEventManager                       *manager,
+           int                                             numElements,
+           bslma::Allocator                               *basicAllocator = 0);
         // Create a timed callback acceptor, with enough internal capacity to
         // accommodate up to the specified 'numElements' channels without
         // reallocation, that uses the specified 'factory' to create stream
@@ -654,9 +654,9 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // acceptor.
 };
 
-//-----------------------------------------------------------------------------
-//                      INLINE FUNCTION DEFINITIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
 
 inline
 const btlso::IPv4Address& TcpTimedCbAcceptor::address() const
