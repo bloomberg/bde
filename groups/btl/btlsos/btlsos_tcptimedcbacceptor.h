@@ -19,10 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Andrei Basov (abasov)
 //
 //@DESCRIPTION: This component provides a non-blocking single-port acceptor of
-// TCP connections with timeout capability that adheres to the
-// 'btlsc::TimedCbChannelAllocator' protocol.  Both timed and non-timed
-// (callback) channels can be allocated in a timed and non-timed fashion as
-// indicated by the following table:
+// TCP connections with timeout capability, 'btlsos::TcpTimedCbAcceptor', that
+// adheres to the 'btlsc::TimedCbChannelAllocator' protocol.  Both timed and
+// non-timed (callback) channels can be allocated in a timed and non-timed
+// fashion as indicated by the following table:
 //..
 //                           +=========================================+
 //                           |            Accept operation             |
@@ -462,7 +462,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // connections.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  The behavior is undefined if either 'factory' or
-        // 'manager' is 0 and unless 0 < numElements.  Note that the acceptor
+        // 'manager' is 0 and unless '0 < numElements'.  Note that the acceptor
         // is created in a valid state (as reported by the 'isInvalid' method)
         // and that subsequent allocation requests will be enqueued
         // successfully, but the allocations will fail with a status of -1
@@ -563,7 +563,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // 'REUSEADDRESS' option.  If 'reuseAddress' is not specified, 1 (i.e.,
         // if the REUSEADDRESS option is enabled) is used.  Return 0 on
         // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless 0 < queueSize and the listening socket is closed.
+        // unless '0 < queueSize' and the listening socket is closed.
 
     int setOption(int level, int option, int value);
         // Set the specified socket 'option' having the specified 'level' on
@@ -598,9 +598,9 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // by the caller (see 'cancelAll') and, often, may be retried
         // successfully.  A status less than -1 indicates a more persistent
         // error, but not necessarily a permanent one; the allocator itself may
-        // still be valid (see 'isInvalid').  Note that if the specified
-        // 'timeout' value has already passed, the allocation will still be
-        // attempted, but the attempt will not block.
+        // still be valid (see 'isInvalid').  Note that if the 'timeout' value
+        // has already passed, the allocation will still be attempted, but the
+        // attempt will not block.
 
     virtual int timedAllocateTimed(const TimedCallback&      timedCallback,
                                    const bsls::TimeInterval& timeout,
@@ -612,8 +612,8 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
-        // non-zero value otherwise (in which case 'timedCallback' will not be
-        // invoked).
+        // non-zero value otherwise (in which case the specified
+        // 'timedCallback' will not be invoked).
         //
         // When invoked, 'timedCallback' is passed the (possibly null) address
         // of a timed callback channel and an integer "status".  If that
@@ -628,8 +628,8 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // retried successfully.  A status less than -1 indicates a more
         // persistent error, but not necessarily a permanent one; the allocator
         // itself may still be valid (see 'isInvalid').  Note that if the
-        // specified 'timeout' value has already passed, the allocation will
-        // still be attempted, but the attempt will not block.
+        // 'timeout' value has already passed, the allocation will still be
+        // attempted, but the attempt will not block.
 
     // ACCESSORS
     const btlso::IPv4Address& address() const;
@@ -639,9 +639,9 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
 
     int getOption(int *result, int level, int option) const;
         // Load into the specified 'result' the current value of the specified
-        // option of the specified 'level' set on the listening socket.  Return
-        // 0 on success and a non-zero value otherwise.  The list of commonly
-        // supported options (and levels) is enumerated in
+        // 'option' of the specified 'level' set on the listening socket.
+        // Return 0 on success and a non-zero value otherwise.  The list of
+        // commonly supported options (and levels) is enumerated in
         // 'btlso_socketoptutil'.  The behavior is undefined if 'result' is 0
         // and unless the listening socket has been established.
 

@@ -439,16 +439,15 @@ int TcpTimedAcceptor::setOption(int level, int option, int value)
 
 // ACCESSORS
 
-int
-TcpTimedAcceptor::getOption(int *result, int level, int option) const
+int TcpTimedAcceptor::getOption(int *result, int level, int option) const
 {
     BSLS_ASSERT(!d_isInvalidFlag);
     BSLS_ASSERT(d_serverSocket_p);
 
     return d_serverSocket_p->socketOption(result, level, option);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

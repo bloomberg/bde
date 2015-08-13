@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a synchronous connector to TCP-based servers
+//@PURPOSE: Provide a synchronous connector to TCP-based servers.
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -17,9 +17,10 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlsos_tcpacceptor btlsos_tcptimedchannel
 //
 //@DESCRIPTION: This component provides a synchronous connector to TCP-based
-// servers that adheres to 'btlsc::ChannelAllocator' protocol.  Both timed and
-// non-timed (synchronous) channels can be allocated in a non-timed fashion
-// using the 'allocateTimed' and 'allocate' methods respectively.
+// servers, 'btlsos::TcpConnector', that adheres to 'btlsc::ChannelAllocator'
+// protocol.  Both timed and non-timed (synchronous) channels can be allocated
+// in a non-timed fashion using the 'allocateTimed' and 'allocate' methods
+// respectively.
 //
 // The connector has the flexibility of changing the address of the peer server
 // at run-time (and producing channels connected to this end-point) without any
@@ -233,11 +234,11 @@ class TcpConnector : public btlsc::ChannelAllocator {
         // the specified 'numElements' channels without reallocation.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if 'factory' is 0 or 0 >=
-        // numElements.  Note that connector is created NOT in an invalid state
-        // (as reported by the 'isInvalid' method), though subsequent
-        // allocations will *fail* until the peer is specified (using
-        // 'setPeer').
+        // used.  The behavior is undefined if 'factory' is 0 or
+        // '0 >= numElements'.  Note that connector is created NOT in an
+        // invalid state (as reported by the 'isInvalid' method), though
+        // subsequent allocations will *fail* until the peer is specified
+        // (using 'setPeer').
 
     ~TcpConnector();
         // Destroy this connector.  The behavior is undefined if there are any

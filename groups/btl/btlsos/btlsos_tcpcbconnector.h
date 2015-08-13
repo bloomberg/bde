@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a non-blocking connector to TCP servers.
 //
 //@CLASSES:
-//  btlsos::TcpTimedCbConnector: non-blocking channel allocator
+//  btlsos::TcpCbConnector: non-blocking channel allocator
 //
 //@SEE_ALSO: btlsos_tcptimedcbchannel btlso_tcptimereventmanager
 //           btlsos_tcpcbacceptor btlsos_tcpcbchannel

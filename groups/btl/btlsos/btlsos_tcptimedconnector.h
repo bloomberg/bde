@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a synchronous connector (with timeout) to TCP-based servers
+//@PURPOSE: Provide a synchronous connector (with timeout) to TCP servers.
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -17,9 +17,10 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlsos_tcptimedacceptor btlsos_tcptimedchannel
 //
 //@DESCRIPTION: This component provides a synchronous connector to TCP-based
-// servers that adheres to 'btlsc::TimedChannelAllocator' protocol.  Both timed
-// and non-timed (synchronous) channels can be allocated in a timed and
-// non-timed fashion as indicated by the following table:
+// servers, 'btlsos::TcpTimedConnector', that adheres to
+// 'btlsc::TimedChannelAllocator' protocol.  Both timed and non-timed
+// (synchronous) channels can be allocated in a timed and non-timed fashion as
+// indicated by the following table:
 //..
 //       +=============================================================+
 //       |  Result/Operation |        Timed         |    Non-Timed     |
@@ -231,9 +232,10 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
         // a flag to be set if this acceptor is invalid
 
   private:
-    TcpTimedConnector(const TcpTimedConnector&); // not impl.
-    TcpTimedConnector&
-            operator=(const TcpTimedConnector&);        // not impl.
+    // Not implemented:
+    TcpTimedConnector(const TcpTimedConnector&);
+    TcpTimedConnector& operator=(const TcpTimedConnector&);
+
   public:
     // CREATORS
     TcpTimedConnector(
@@ -256,11 +258,11 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
         // the specified 'numElements' channels without reallocation.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined if 'factory' is 0 or 0 >=
-        // numElements.  Note that connector is created NOT in an invalid state
-        // (as reported by the 'isInvalid' method), though subsequent
-        // allocations will *fail* until the peer is specified (using
-        // 'setPeer').
+        // used.  The behavior is undefined if 'factory' is 0 or
+        // '0 >= numElements'.  Note that connector is created NOT in an
+        // invalid state (as reported by the 'isInvalid' method), though
+        // subsequent allocations will *fail* until the peer is specified
+        // (using 'setPeer').
 
     ~TcpTimedConnector();
         // Destroy this connector.  The behavior is undefined if there are any
@@ -334,10 +336,10 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
         // An allocation error does not *necessarily* invalidate this
         // allocator, and so subsequent allocations *may* succeed.  Use the
         // 'isInvalid' method for more information on the state of this
-        // allocator.  Note that if the specified 'timeout' value has already
-        // passed, the allocation will still be attempted, but the attempt will
-        // not block.  Note that -2 is loaded into 'status' if the peer is not
-        // set (see 'setPeer').
+        // allocator.  Note that if the 'timeout' value has already passed, the
+        // allocation will still be attempted, but the attempt will not block.
+        // Note that -2 is loaded into 'status' if the peer is not set (see
+        // 'setPeer').
 
     btlsc::TimedChannel *timedAllocateTimed(
                                          int                       *status,
@@ -359,9 +361,9 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
         // *necessarily* invalidate this allocator, and so subsequent
         // allocations *may* succeed.  Use the 'isInvalid' method for more
         // information on the state of this allocator.  Note that if the
-        // specified 'timeout' value has already passed, the allocation will
-        // still be attempted, but the attempt will not block.  Note that -2 is
-        // loaded into 'status' if the peer is not set (see 'setPeer').
+        // 'timeout' value has already passed, the allocation will still be
+        // attempted, but the attempt will not block.  Note that -2 is loaded
+        // into 'status' if the peer is not set (see 'setPeer').
 
     // ACCESSORS
     const btlso::IPv4Address& peer() const;

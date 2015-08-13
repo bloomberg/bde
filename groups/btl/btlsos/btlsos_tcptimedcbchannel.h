@@ -21,11 +21,12 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:  btlsc_timedcbchannel btlsc_timedchannel
 //
 //@DESCRIPTION: This component provides a non-blocking communication channel
-// over TCP/IPv4 sockets that adheres to 'btlsc::TimedCbChannel' protocol.
-// Following the protocol, both timed and non-timed operations are supported.
-// The channel uses user-installed timer event manager(s) to monitor an
-// underlying socket for incoming events; two event managers can be installed
-// in order to monitor for read and write events in different event managers.
+// over TCP/IPv4 sockets, 'btlsos::TcpTimedCbChannel', that adheres to
+// 'btlsc::TimedCbChannel' protocol.  Following the protocol, both timed and
+// non-timed operations are supported.  The channel uses user-installed timer
+// event manager(s) to monitor an underlying socket for incoming events; two
+// event managers can be installed in order to monitor for read and write
+// events in different event managers.
 //
 // This channel uses a user-provided stream socket for IPv4 address family.
 // Any concrete implementation that provides socket-like primitives is allowed.
@@ -159,7 +160,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
   private:
     void initializeReadBuffer(int size = -1);
     void initializeWriteBuffer(int size = -1);
-        // Initialize internal read/write buffers with the optionally-specified
+        // Initialize internal read/write buffers with the optionally specified
         // 'size'.  If 'size' is not specified, the default, which is obtained
         // by querying underlying socket, is used.
 
@@ -203,10 +204,12 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // callback associated indicating timeout for the operation, and
         // register callbacks, as needed for the next request, if any.  The
         // behavior is undefined if write requests queue is empty.
+
   private:
-    TcpTimedCbChannel(const TcpTimedCbChannel&); // not impl.
-    TcpTimedCbChannel&
-        operator=(const TcpTimedCbChannel&);            // not impl.
+    // Not implemented:
+    TcpTimedCbChannel(const TcpTimedCbChannel&);
+    TcpTimedCbChannel& operator=(const TcpTimedCbChannel&);
+
   public:
     // CREATORS
     TcpTimedCbChannel(
@@ -277,7 +280,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
         // and remains valid until the (non-null) 'readCallback' completes, and
-        // 0 < numBytes.
+        // '0 < numBytes'.
 
     int timedRead(char                      *buffer,
                   int                        numBytes,
@@ -312,10 +315,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // the peer (but the converse is not guaranteed).  The behavior is
         // undefined unless 'buffer' has sufficient capacity to hold the
         // requested data and remains valid until the (non-null) 'readCallback'
-        // completes, and 0 < numBytes.  Note that if the specified 'timeout'
-        // value has already passed, the "read" operation will still be
-        // attempted, but the attempt, once initiated, will not be permitted to
-        // block.
+        // completes, and '0 < numBytes'.  Note that if the 'timeout' value has
+        // already passed, the "read" operation will still be attempted, but
+        // the attempt, once initiated, will not be permitted to block.
 
     int readv(const btls::Iovec   *buffers,
               int                  numBuffers,
@@ -385,16 +387,16 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // guaranteed).  The behavior is undefined unless 'buffer' has
         // sufficient capacity to hold the requested data and remains valid
         // until the (non-null) 'readCallback' completes, and 0 < numBytes.
-        // Note that if the specified 'timeout' value has already passed, the
-        // "read" operation will still be attempted, but the attempt, once
-        // initiated, will not be permitted to block.
+        // Note that if the 'timeout' value has already passed, the "read"
+        // operation will still be attempted, but the attempt, once initiated,
+        // will not be permitted to block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-     int readRaw(char                *buffer,
-                 int                  numBytes,
-                 const ReadCallback&  readCallback,
-                 int                  flags = 0);
+    int readRaw(char                *buffer,
+                int                  numBytes,
+                const ReadCallback&  readCallback,
+                int                  flags = 0);
         // Initiate a non-blocking operation to *atomically* read *up *to* the
         // specified 'numBytes' from this channel into the specified 'buffer';
         // execute the specified 'readCallback' functor after this read
@@ -421,14 +423,14 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // error: -1 implies that the connection was closed by the peer (but
         // the converse is not guaranteed).  The behavior is undefined unless
         // 'buffer' has sufficient capacity to hold the requested data and
-        // remains valid until the (non-null) 'readCallback' completes, and 0 <
-        // numBytes.
+        // remains valid until the (non-null) 'readCallback' completes, and
+        // '0 < numBytes'.
 
-     int timedReadRaw(char                      *buffer,
-                      int                        numBytes,
-                      const bsls::TimeInterval&  timeout,
-                      const ReadCallback&        readCallback,
-                      int                        flags = 0);
+    int timedReadRaw(char                      *buffer,
+                     int                        numBytes,
+                     const bsls::TimeInterval&  timeout,
+                     const ReadCallback&        readCallback,
+                     int                        flags = 0);
         // Initiate a non-blocking operation to *atomically* read *up *to* the
         // specified 'numBytes' from this channel into the specified 'buffer'
         // or interrupt after the specified absolute 'timeout' time is reached;
@@ -458,15 +460,15 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // the connection was closed by the peer (but the converse is not
         // guaranteed).  The behavior is undefined unless 'buffer' has
         // sufficient capacity to hold the requested data and remains valid
-        // until the (non-null) 'readCallback' completes, and 0 < numBytes.
-        // Note that if the specified 'timeout' value has already passed, the
-        // "read" operation will still be attempted, but the attempt, once
-        // initiated, will not be permitted to block.
+        // until the (non-null) 'readCallback' completes, and '0 < numBytes'.
+        // Note that if the 'timeout' value has already passed, the "read"
+        // operation will still be attempted, but the attempt, once initiated,
+        // will not be permitted to block.
 
-     int readvRaw(const btls::Iovec   *buffers,
-                  int                  numBuffers,
-                  const ReadCallback&  readCallback,
-                  int                  flags = 0);
+    int readvRaw(const btls::Iovec   *buffers,
+                 int                  numBuffers,
+                 const ReadCallback&  readCallback,
+                 int                  flags = 0);
         // Initiate a non-blocking operation to *atomically* read from this
         // channel into the specified sequence of 'buffers' of specified
         // sequence length 'numBuffers' *up* *to* the respective numbers of
@@ -498,11 +500,11 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // hold the requested data and remains valid until the (non-null)
         // 'readCallback' completes, and 0 < numBytes.
 
-     int timedReadvRaw(const btls::Iovec         *buffers,
-                       int                        numBuffers,
-                       const bsls::TimeInterval&  timeout,
-                       const ReadCallback&        readCallback,
-                       int                        flags = 0);
+    int timedReadvRaw(const btls::Iovec         *buffers,
+                      int                        numBuffers,
+                      const bsls::TimeInterval&  timeout,
+                      const ReadCallback&        readCallback,
+                      int                        flags = 0);
         // Initiate a non-blocking operation to *atomically* read from this
         // channel into the specified sequence of 'buffers' of specified
         // sequence length 'numBuffers' *up* *to* the respective numbers of
@@ -535,9 +537,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // behavior is undefined unless 'buffer' has sufficient capacity to
         // hold the requested data and remains valid until the (non-null)
         // 'readCallback' completes, and 0 < numBytes.  Note that if the
-        // specified 'timeout' value has already passed, the "read" operation
-        // will still be attempted, but the attempt, once initiated, will not
-        // be permitted to block.
+        // 'timeout' value has already passed, the "read" operation will still
+        // be attempted, but the attempt, once initiated, will not be permitted
+        // to block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -570,7 +572,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // of success.  A negative "status", however, indicates a permanent
         // error (leaving the contents of 'buffer' undefined); -1 implies that
         // the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 0 < numBytes and
+        // guaranteed).  The behavior is undefined unless '0 < numBytes' and
         // 'bufferedReadCallback' is non-null.
 
     int timedBufferedRead(int                         numBytes,
@@ -606,10 +608,10 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // indicates a permanent error (leaving the contents of 'buffer'
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
-        // unless 0 < numBytes and 'bufferedReadCallback' is non-null.  Note
-        // that if the specified 'timeout' value has already passed, the "read"
-        // operation will still be attempted, but the attempt, once initiated,
-        // will not be permitted to block.
+        // unless '0 < numBytes' and 'bufferedReadCallback' is non-null.  Note
+        // that if the 'timeout' value has already passed, the "read" operation
+        // will still be attempted, but the attempt, once initiated, will not
+        // be permitted to block.
 
     int bufferedReadRaw(int                         numBytes,
                         const BufferedReadCallback& bufferedReadCallback,
@@ -643,7 +645,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // "status", however, indicates a permanent error (leaving the contents
         // of 'buffer' undefined); -1 implies that the connection was closed by
         // the peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless 0 < numBytes and 'bufferedReadCallback' is
+        // undefined unless '0 < numBytes' and 'bufferedReadCallback' is
         // non-null.
 
     int timedBufferedReadRaw(int                         numBytes,
@@ -681,10 +683,11 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // A negative "status", however, indicates a permanent error (leaving
         // the contents of 'buffer' undefined); -1 implies that the connection
         // was closed by the peer (but the converse is not guaranteed).  The
-        // behavior is undefined unless 0 < numBytes and 'bufferedReadCallback'
-        // is non-null.  Note that if the specified 'timeout' value has already
-        // passed, the "read" operation will still be attempted, but the
-        // attempt, once initiated, will not be permitted to block.
+        // behavior is undefined unless '0 < numBytes' and
+        // 'bufferedReadCallback' is non-null.  Note that if the 'timeout'
+        // value has already passed, the "read" operation will still be
+        // attempted, but the attempt, once initiated, will not be permitted to
+        // block.
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -716,8 +719,8 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // "status", however, indicates a permanent error; -1 implies that the
         // connection was closed by the peer (but the converse is not
         // guaranteed).  The behavior is undefined unless 'buffer' remains
-        // valid until the (non-null) 'writeCallback' completes, and 0 <
-        // numBytes.
+        // valid until the (non-null) 'writeCallback' completes, and
+        // '0 < numBytes'.
 
     int timedWrite(const char                *buffer,
                    int                        numBytes,
@@ -751,9 +754,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // connection was closed by the peer (but the converse is not
         // guaranteed).  The behavior is undefined unless 'buffer' remains
         // valid until the (non-null) 'writeCallback' completes, and 0 <
-        // numBytes.  Note that if the specified 'timeout' value has already
-        // passed, the "write" operation will still be attempted, but the
-        // attempt, once initiated, will not be permitted to block.
+        // 'numBytes'.  Note that if the 'timeout' value has already passed,
+        // the "write" operation will still be attempted, but the attempt, once
+        // initiated, will not be permitted to block.
 
     int writeRaw(const char           *buffer,
                  int                   numBytes,
@@ -766,7 +769,8 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt this operation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
-        // value otherwise (in which case 'writeCallback' will not be invoked).
+        // value otherwise (in which case the specified 'writeCallback' will
+        // not be invoked).
         //
         // When invoked, 'writeCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -785,7 +789,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // error; -1 implies that the connection was closed by the peer (but
         // the converse is not guaranteed).  The behavior is undefined unless
         // 'buffer' remains valid until the (non-null) 'writeCallback'
-        // completes, and 0 < numBytes.
+        // completes, and '0 < numBytes'.
 
     int timedWriteRaw(const char                *buffer,
                       int                        numBytes,
@@ -800,7 +804,8 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt this operation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
-        // value otherwise (in which case 'writeCallback' will not be invoked).
+        // value otherwise (in which case the specified 'writeCallback' will
+        // not be invoked).
         //
         // When invoked, 'writeCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -820,10 +825,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // error; -1 implies that the connection was closed by the peer (but
         // the converse is not guaranteed).  The behavior is undefined unless
         // 'buffer' remains valid until the (non-null) 'writeCallback'
-        // completes, and 0 < numBytes.  Note that if the specified 'timeout'
-        // value has already passed, the "write" operation will still be
-        // attempted, but the attempt, once initiated, will not be permitted to
-        // block.
+        // completes, and '0 < numBytes'.  Note that if the 'timeout' value has
+        // already passed, the "write" operation will still be attempted, but
+        // the attempt, once initiated, will not be permitted to block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -907,10 +911,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // the converse is not guaranteed).  The behavior is undefined unless
         // the total number of bytes to be written is *positive* and 'buffers'
         // (and the data to which it refers) remains valid until the (non-null)
-        // 'writeCallback' completes.  Note that if the specified 'timeout'
-        // value has already passed, the "write" operation will still be
-        // attempted, but the attempt, once initiated, will not be permitted to
-        // block.
+        // 'writeCallback' completes.  Note that if the 'timeout' value has
+        // already passed, the "write" operation will still be attempted, but
+        // the attempt, once initiated, will not be permitted to block.
 
     int writevRaw(const btls::Ovec     *buffers,
                   int                   numBuffers,
@@ -997,9 +1000,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // guaranteed).  The behavior is undefined unless the total number of
         // bytes to be written is *positive* and 'buffers' (and the data to
         // which it refers) remains valid until the(non-null) 'writeCallback'
-        // completes.  Note that if the specified 'timeout' value has already
-        // passed, the "write" operation will still be attempted, but the
-        // attempt, once initiated, will not be permitted to block.
+        // completes.  Note that if the 'timeout' value has already passed, the
+        // "write" operation will still be attempted, but the attempt, once
+        // initiated, will not be permitted to block.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1035,7 +1038,7 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffer' remains valid until the
-        // (non-null) 'writeCallback' completes, and 0 < numBytes.
+        // (non-null) 'writeCallback' completes, and '0 < numBytes'.
 
     int timedBufferedWrite(const char                *buffer,
                            int                        numBytes,
@@ -1072,10 +1075,10 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffer' remains valid until the
-        // (non-null) 'writeCallback' completes, and 0 < numBytes.  Note that
-        // if the specified 'timeout' value has already passed, the "write"
-        // operation will still be attempted, but the attempt, once initiated,
-        // will not be permitted to block.
+        // (non-null) 'writeCallback' completes, and '0 < numBytes'.  Note that
+        // if the 'timeout' value has already passed, the "write" operation
+        // will still be attempted, but the attempt, once initiated, will not
+        // be permitted to block.
 
     int bufferedWritev(const btls::Ovec     *buffers,
                        int                   numBuffers,
@@ -1165,10 +1168,9 @@ class TcpTimedCbChannel : public btlsc::TimedCbChannel {
         // converse is not guaranteed).  The behavior is undefined unless the
         // total number of bytes to be written is *positive* and 'buffers' (and
         // the data to which it refers) remains valid until the (non-null)
-        // 'writeCallback' completes.  Note that if the specified 'timeout'
-        // value has already passed, the "write" operation will still be
-        // attempted, but the attempt, once initiated, will not be permitted to
-        // block.
+        // 'writeCallback' completes.  Note that if the 'timeout' value has
+        // already passed, the "write" operation will still be attempted, but
+        // the attempt, once initiated, will not be permitted to block.
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
