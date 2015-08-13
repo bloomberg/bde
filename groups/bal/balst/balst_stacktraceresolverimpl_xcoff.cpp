@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #include <balst_objectfileformat.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF
 
 #include <balst_stacktrace.h>
 #include <balst_stacktraceresolver_filehelper.h>
@@ -587,7 +587,8 @@ local::UintPtr parseNumber(const TYPE& text)
 }
 
  // ===========================================================================
- // struct balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>::AuxInfo
+ // struct balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>::
+ //                                                                     AuxInfo
  //               == struct local::StackTraceResolver::AuxInfo
  // ===========================================================================
 
@@ -659,15 +660,15 @@ struct local::StackTraceResolver::LoadAuxInfosInfo {
     AUXENT   *d_savedSourceAuxEnt;   // pointer to 'savedSourceAuxEnt'
 };
 
-      // -----------------------------------------------------------------
-      // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
-      //                == class local::StackTraceResolver
-      // -----------------------------------------------------------------
+     // -------------------------------------------------------------------
+     // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
+     //                == class local::StackTraceResolver
+     // -------------------------------------------------------------------
 
 // PRIVATE CREATORS
-local::StackTraceResolver::balst::StackTraceResolverImpl(
+local::StackTraceResolver::StackTraceResolverImpl(
                                               balst::StackTrace *stackTrace,
-                                              bool              demangle)
+                                              bool               demangle)
 : d_helper(0)
 , d_stackTrace_p(stackTrace)
 , d_segFramePtrs_p(0)
@@ -700,7 +701,7 @@ local::StackTraceResolver::balst::StackTraceResolverImpl(
     d_symbolBuf_p  = (char *) allocator()->allocate(local::SYMBOL_BUF_LEN);
 }
 
-local::StackTraceResolver::~balst::StackTraceResolverImpl()
+local::StackTraceResolver::~StackTraceResolverImpl()
 {
 }
 
@@ -863,12 +864,12 @@ int local::StackTraceResolver::findIncludeFile(
                     if (binclFirst) {
                         zprintf("Found, includes first line\n");
 
-                        return FOUND_INCLUDE_FILE;                    // RETURN
+                        return k_FOUND_INCLUDE_FILE;                  // RETURN
                     }
                     else {
                         zprintf("Found, does not include first line\n");
-                        return FOUND_INCLUDE_FILE | LINE_NUMBER_IS_ABSOLUTE;
-                                                                      // RETURN
+                        return k_FOUND_INCLUDE_FILE |
+                                        k_LINE_NUMBER_IS_ABSOLUTE;    // RETURN
                     }
                 }
             }
@@ -1421,7 +1422,8 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
     }
     else {
         d_archiveMemberOffset = 0;
-        d_archiveMemberSize = bdlsu::FilesystemUtil::getFileSize(libraryFileName);
+        d_archiveMemberSize =
+                           bdlsu::FilesystemUtil::getFileSize(libraryFileName);
     }
 
     xcoffhdr header;                  // Xcoff header at the beginning of the
@@ -1574,14 +1576,14 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
                 if (rc < 0) {
                     return -1;                                        // RETURN
                 }
-                if (rc & FOUND_INCLUDE_FILE) {
+                if (rc & k_FOUND_INCLUDE_FILE) {
                     frame->setSourceFileName(getSymbolName(&includeSymEnt));
                 }
                 else {
                     frame->setSourceFileName(
                                       getSourceName(&auxInfo->d_sourceAuxEnt));
                 }
-                if (rc & LINE_NUMBER_IS_ABSOLUTE) {
+                if (rc & k_LINE_NUMBER_IS_ABSOLUTE) {
                     frame->setLineNumber(lineNumber);
                 }
                 else {
@@ -1620,7 +1622,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
 // PUBLIC CLASS METHODS
 int local::StackTraceResolver::resolve(balst::StackTrace *stackTrace,
-                                       bool              demangle)
+                                       bool               demangle)
 {
     local::StackTraceResolver resolver(stackTrace,
                                        demangle);

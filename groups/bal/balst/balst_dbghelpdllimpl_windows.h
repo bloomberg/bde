@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a single class,
 // 'balst::DbghelpDllImpl_Windows', that provides Windows platform-specific
-// facilities in support of the 'baesu' stack trace facility.  This component
+// facilities in support of the 'balst' stack trace facility.  This component
 // is *not* intended for public use.
 //
 // The 'balst::DbghelpDllImpl_Windows' class:
@@ -74,8 +74,8 @@ BSLS_IDENT("$Id: $")
 //  bdlqq::QLockGuard guard(&balst::DbghelpDllImpl_Windows::qLock());
 //..
 // Next, we set the options for the 'dbghelp.dll' library.  Note that any call
-// to any of the functions in 'balst::DbghelpDllImpl_Windows' other than 'qlock'
-// will load the 'dbghelp.dll' library if necessary.
+// to any of the functions in 'balst::DbghelpDllImpl_Windows' other than
+// 'qlock' will load the 'dbghelp.dll' library if necessary.
 //..
 //  balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
 //                                              | SYMOPT_LOAD_LINES
@@ -268,9 +268,9 @@ class DbghelpDllImpl_Windows {
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------------
+                        // ----------------------------
                         // class DbghelpDllImpl_Windows
-                        // ----------------------------------
+                        // ----------------------------
 
 // CLASS METHODS
 inline

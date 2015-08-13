@@ -17,13 +17,13 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
 //@DESCRIPTION: This class provides a class this able to take a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set, and sets
-// as many of the other fields in the stack trace frames as possible.  Elf
+// 'balst::StackTraceFrame's that have only their 'address' fields set, and
+// sets as many of the other fields in the stack trace frames as possible.  Elf
 // objects are used on Solaris, Linux, and HPUX platforms.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -53,10 +53,12 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
 
-namespace balst {template <typename RESOLVER_POLICY>
+namespace balst {
+
+template <typename RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
     // ===================================================================
@@ -113,7 +115,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
                                              // 0's.
         const int mask      = 0xa72c3dca;    // pure garbage
 
-        enum { LINE = __LINE__ };
+        enum { k_LINE = __LINE__ };
 
         for (int i = 0; !(i & loopGuard); ++i) {
             line ^= (i & mask);
@@ -128,12 +130,13 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::testFunc()
             break;
         }
 
-        line = LINE;
+        line = k_LINE;
         lineCopy = line;
     }
 
     return line;
 }
+
 }  // close package namespace
 
 #endif

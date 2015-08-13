@@ -171,11 +171,11 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-#if !defined(BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
+#if !defined(BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
 
-// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy', which
-// will be of type '...::Elf', '...::Xcoff', or '...::Windows' appropriate for
-// the platform.
+// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy',
+// which will be of type '...::Elf', '...::Xcoff', or '...::Windows'
+// appropriate for the platform.
 //..
         balst::ObjectFileFormat::Policy policy;
 //..
@@ -183,13 +183,13 @@ int main(int argc, char *argv[])
 //..
         ASSERT(typeTest(policy) > 0);
 
-    #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+    #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
         ASSERT(1 == typeTest(policy));
-    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+    #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
         ASSERT(2 == typeTest(policy));
-    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+    #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         ASSERT(3 == typeTest(policy));
-    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+    #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
         ASSERT(4 == typeTest(policy));
     #else
         #error No resolver format defined
@@ -267,23 +267,23 @@ int main(int argc, char *argv[])
 
         int count = 0;
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
         ++count;
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
         ++count;
 #endif
 
@@ -312,48 +312,48 @@ int main(int argc, char *argv[])
     defined(BSLS_PLATFORM_OS_LINUX)   || \
     defined(BSLS_PLATFORM_OS_HPUX)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_ELF);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_AIX)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
 #  error multiple file formats defined
 # endif
 
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR);
 
-# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+# if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 #  error multiple file formats defined
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_CYGWIN)
 
-        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED);
+        ASSERT(1 == BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED);
 
 #else
 # error unrecognized platform

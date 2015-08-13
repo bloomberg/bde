@@ -60,9 +60,9 @@ BSLS_IDENT("$Id: $")
 //
 //  int main() ...
 //..
-// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy', which
-// will be of type '...::Elf', '...::Xcoff', or '...::Windows' appropriate for
-// the platform.
+// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy',
+// which will be of type '...::Elf', '...::Xcoff', or '...::Windows'
+// appropriate for the platform.
 //..
 //      balst::ObjectFileFormat::Policy policy;
 //..
@@ -70,15 +70,15 @@ BSLS_IDENT("$Id: $")
 //..
 //      assert(typeTest(policy) > 0);
 //
-//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
+//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
 //      assert(1 == typeTest(policy));
 //  #endif
 //
-//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 //      assert(2 == typeTest(policy));
 //  #endif
 //
-//  #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 //      assert(3 == typeTest(policy));
 //  #endif
 //  }
@@ -120,28 +120,28 @@ struct ObjectFileFormat {
     defined(BSLS_PLATFORM_OS_HPUX)
 
     typedef Elf Policy;
-#   define BAESU_OBJECTFILEFORMAT_RESOLVER_ELF 1
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
 #elif defined(BSLS_PLATFORM_OS_AIX)
 
     typedef Xcoff Policy;
-#   define BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
     typedef Windows Policy;
-#   define BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
     typedef Dladdr Policy;
-#   define BAESU_OBJECTFILEFORMAT_RESOLVER_DLADDR 1
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR 1
 
 #else
 
     typedef Dummy Policy;
 #   error unrecognized platform
-#   define BAESU_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED 1
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED 1
 
 #endif
 

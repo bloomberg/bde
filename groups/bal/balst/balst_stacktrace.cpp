@@ -14,8 +14,8 @@ namespace BloombergLP {
 namespace balst {
 // ACCESSORS
 bsl::ostream& StackTrace::print(bsl::ostream& stream,
-                                      int           level,
-                                      int           spacesPerLevel) const
+                                int           level,
+                                int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();

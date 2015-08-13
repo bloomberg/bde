@@ -16,7 +16,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_ELF
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -83,8 +83,8 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf> Obj;
-typedef balst::StackTraceFrame                                     Frame;
-typedef bsls::Types::UintPtr                                      UintPtr;
+typedef balst::StackTraceFrame                                      Frame;
+typedef bsls::Types::UintPtr                                        UintPtr;
 
 //=============================================================================
 // GLOBAL HELPER VARIABLES FOR TESTING
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // baesu::StackTraceResolverImp<Elf> BREATHING TEST
+        // balst::StackTraceResolverImp<Elf> BREATHING TEST
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //
@@ -367,9 +367,7 @@ int main(int argc, char *argv[])
             stackTrace[3].setAddress(addFixedOffset((UintPtr) &bsl::qsort));
 #endif
 
-            stackTrace[3].setAddress(addFixedOffset((UintPtr)
-                   &balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>::
-                                                                     resolve));
+            stackTrace[3].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
 
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {

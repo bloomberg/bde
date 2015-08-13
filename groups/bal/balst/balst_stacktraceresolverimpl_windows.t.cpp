@@ -17,7 +17,7 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
-#ifdef BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // --------------------------------------------------------------------
-        // baesu::StackTraceResolverImp<Windows> BREATHING TEST
+        // balst::StackTraceResolverImp<Windows> BREATHING TEST
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //
@@ -353,9 +353,9 @@ int main(int argc, char *argv[])
                                   abs(frame.lineNumber() - testFuncLine) < 30);
                 ASSERT(npos != frame.mangledSymbolName().find("testFunc"));
                 LOOP_ASSERT(frame.symbolName(), frame.symbolName() ==
-                               "BloombergLP::balst::StackTraceResolverImpl"
-                               "<BloombergLP::balst::ObjectFileFormat::Windows>"
-                               "::testFunc");
+                              "BloombergLP::balst::StackTraceResolverImpl"
+                              "<BloombergLP::balst::ObjectFileFormat::Windows>"
+                              "::testFunc");
             }
         }
 #endif

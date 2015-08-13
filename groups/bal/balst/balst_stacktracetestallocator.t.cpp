@@ -1162,15 +1162,15 @@ int main(int argc, char *argv[])
 //  ---------------------------------------------------------------------------
 //  Allocation trace 1, 1 block(s) in use.
 //  Stack trace at allocation time:
-//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x8
-//  05e741 in balst_stacktracetestallocator.t.dbg_exc_mt
+//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x
+//  805e741 in balst_stacktracetestallocator.t.dbg_exc_mt
 //  (1): BloombergLP::bslma::TestAllocator::allocate(int)+0x12c at 0x8077398 in
 //   balst_stacktracetestallocator.t.dbg_exc_mt
 //  (2): ShipsCrew::copy(bsl::basic_string<char, std::char_traits<char>, bsl::a
 //  llocator<char> > const&)+0x31 at 0x804c3db in balst_stacktracetestallocator
 //  .t.dbg_exc_mt
 //  (3): ShipsCrew::setCook(bsl::basic_string<char, std::char_traits<char>, bsl
-//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in baesu_stacktracetestalloca
+//  ::allocator<char> > const&)+0x2d at 0x804c4c1 in balst_stacktracetestalloca
 //  tor.t.dbg_exc_mt
 //  (4): ShipsCrew::ShipsCrew(char const*, BloombergLP::bslma::Allocator*)+0x23
 //  4 at 0x804c738 in balst_stacktracetestallocator.t.dbg_exc_mt
@@ -1184,6 +1184,13 @@ int main(int argc, char *argv[])
 // we can now easily fix our leak.
 
         bdlsu::FilesystemUtil::remove("shipscrew.txt");
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // 'remove' above uses the default allocator on Windows, so suppress
+        // the default allocator check at the end.
+
+        expectedDefaultAllocations = -1;
+#endif
       }  break;
       case 21: {
         //---------------------------------------------------------------------
@@ -1656,7 +1663,7 @@ int main(int argc, char *argv[])
             }
 
             const bool FOUND = npos != ss.str().find(
-                               "BloombergLP::balst::StackTraceTestAllocator::");
+                              "BloombergLP::balst::StackTraceTestAllocator::");
             LOOP3_ASSERT(ss.str(), demangleExpected, FOUND,
                                                     FOUND == demangleExpected);
 
@@ -3202,8 +3209,8 @@ int main(int argc, char *argv[])
                 ASSERT((npos != report.find("woof")) == isWoof);
                 if (CAN_FIND_SYMBOLS) {
                     ASSERT(npos != report.find("BloombergLP"));
-                    ASSERT(npos != report.find(
-                                             "balst::StackTraceTestAllocator"));
+                    ASSERT(npos != report.find("balst"));
+                    ASSERT(npos != report.find("StackTraceTestAllocator"));
                     ASSERT(npos != report.find("allocate"));
                     ASSERT(npos != report.find("main"));
                 }

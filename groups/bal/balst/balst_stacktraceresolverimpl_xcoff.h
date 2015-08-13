@@ -18,13 +18,14 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a class,
-// baesu::StackTraceResolver<Xcoff>, that, given a vector of
-// 'balst::StackTraceFrame's that have only their 'address' fields set, resolves
-// all other fields in those frames.  Xcoff objects are used on AIX platforms.
+// balst::StackTraceResolver<Xcoff>, that, given a vector of
+// 'balst::StackTraceFrame's that have only their 'address' fields set,
+// resolves all other fields in those frames.  Xcoff objects are used on AIX
+// platforms.
 //
 ///Usage
 ///-----
-// This component is an implementation detail of 'baesu' and is *not* intended
+// This component is an implementation detail of 'balst' and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -36,7 +37,7 @@ BSLS_IDENT("$Id: $")
 #include <balst_objectfileformat.h>
 #endif
 
-#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
 #ifndef INCLUDED_BALST_STACKTRACE
 #include <balst_stacktrace.h>
@@ -90,8 +91,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace balst {
 
-namespace balst {template <typename RESOLVER_POLICY>
+template <typename RESOLVER_POLICY>
 class StackTraceResolverImpl;
 
       // =================================================================
@@ -120,8 +122,8 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
     enum FindIncludeFileFlags {
         // flags returned by 'findIncludeFile'
 
-        FOUND_INCLUDE_FILE      = 0x1,
-        LINE_NUMBER_IS_ABSOLUTE = 0x2
+        k_FOUND_INCLUDE_FILE      = 0x1,
+        k_LINE_NUMBER_IS_ABSOLUTE = 0x2
     };
 
     // DATA
@@ -375,7 +377,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
                                              // 0's.
         const int mask      = 0xa72c3dca;    // pure garbage
 
-        enum { LINE = __LINE__ };
+        enum { k_LINE = __LINE__ };
 
         for (int i = 0; !(i & loopGuard); ++i) {
             line ^= (i & mask);
@@ -390,7 +392,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
             break;
         }
 
-        line = LINE;
+        line = k_LINE;
         lineCopy = line;
     }
 
