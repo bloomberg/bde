@@ -2313,7 +2313,7 @@ int main(int argc, char *argv[])
                 thresholdsCallback(&inheritThresholdLevels);
 
         ball::UserFieldsSchema descriptors;
-        descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
+        descriptors.appendFieldDescription("n!", ball::UserFieldType::e_INT64);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
@@ -2819,7 +2819,7 @@ int main(int argc, char *argv[])
             Cnf nameFilter(&toLower);
 
             ball::UserFieldsSchema descriptors;
-            descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
+            descriptors.appendFieldDescription("n!", ball::UserFieldType::e_INT64);
 
             ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
@@ -3450,7 +3450,7 @@ int main(int argc, char *argv[])
                 thresholdsCallback(&inheritThresholdLevels);
 
         ball::UserFieldsSchema descriptors;
-        descriptors.appendDescriptor("n!", ball::UserFieldType::e_INT64);
+        descriptors.appendFieldDescription("n!", ball::UserFieldType::e_INT64);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 
@@ -3770,8 +3770,8 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::UserFieldsSchema descriptors(OA);
-            descriptors.appendDescriptor("int", FieldType::e_INT64);
-            descriptors.appendDescriptor("string", FieldType::e_STRING);
+            descriptors.appendFieldDescription("int", FieldType::e_INT64);
+            descriptors.appendFieldDescription("string", FieldType::e_STRING);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator, OA);
@@ -3902,8 +3902,8 @@ int main(int argc, char *argv[])
         Obj::FactoryDefaultThresholds fdt(19, 17, 13, 11);
 
         ball::UserFieldsSchema descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -4008,8 +4008,8 @@ int main(int argc, char *argv[])
             thresholdsCallback(&simpleThresholdLevels);
 
         ball::UserFieldsSchema descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -4113,8 +4113,8 @@ int main(int argc, char *argv[])
         Obj::FactoryDefaultThresholds fdt(19, 17, 13, 11);
 
         ball::UserFieldsSchema descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
         
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -4211,8 +4211,8 @@ int main(int argc, char *argv[])
         ball::TestObserver testObserver(cout);
 
         ball::UserFieldsSchema descriptors;
-        descriptors.appendDescriptor("int", FieldType::e_INT64);
-        descriptors.appendDescriptor("string", FieldType::e_STRING);
+        descriptors.appendFieldDescription("int", FieldType::e_INT64);
+        descriptors.appendFieldDescription("string", FieldType::e_STRING);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&simplePopulator);
 
@@ -4941,7 +4941,7 @@ int main(int argc, char *argv[])
                 thresholdsCallback(&inheritThresholdLevels);
 
         ball::UserFieldsSchema descriptors;
-        descriptors.appendDescriptor("n!", FieldType::e_INT64);
+        descriptors.appendFieldDescription("n!", FieldType::e_INT64);
 
         ball::Logger::UserFieldsPopulatorCallback populator(&myPopulator);
 

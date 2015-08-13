@@ -276,8 +276,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
                              "\t\t{ w:0 x:A         }" << endl;
 
-        mX.appendDescriptor(A_NAME1, A_TYPE1);
-        mX.appendDescriptor(A_NAME2, A_TYPE2);
+        mX.appendFieldDescription(A_NAME1, A_TYPE1);
+        mX.appendFieldDescription(A_NAME2, A_TYPE2);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
@@ -300,8 +300,8 @@ int main(int argc, char *argv[])
                              "\t\t{ w:0 x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
-        mY.appendDescriptor(A_NAME1, A_TYPE1);
-        mY.appendDescriptor(A_NAME2, A_TYPE2);
+        mY.appendFieldDescription(A_NAME1, A_TYPE1);
+        mY.appendFieldDescription(A_NAME2, A_TYPE2);
 
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;

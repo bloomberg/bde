@@ -1,6 +1,8 @@
 // ball_userfields.t.cpp                                              -*-C++-*-
 #include <ball_userfields.h>
 
+#include <ball_userfieldsschema.h>                          // for testing only
+
 #include <bdls_testutil.h>
 
 #include <bslma_default.h>
@@ -125,7 +127,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::UserFields Obj;
+typedef ball::UserFields    Obj;
+typedef ball::UserFieldType Type;
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -136,6 +139,70 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+//=============================================================================
+//                               USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFields'
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the following example we demonstrate populating a 'ball::UserFields'
+// object with a sequence of field values.
+//
+// First, we define the signature for a callback, 'populateUserFields'.  Most
+// often 'ball::UserFields' objects are populated by a callback, such as the
+// one described by the 'ball::LoggerManagerConfiguration'
+// 'UserFieldsPopulatorCallback'.
+//..
+    void populateLoggingFields(ball::UserFields              *fields, 
+                               const ball::UserFieldsSchema&  fieldsSchema)
+        // Populate the specifield 'fields' with the user name and current
+        // task identifier so that in matches the specified 'fieldsSchema'.
+        // The behavior is undefiend unless 'fields' is empty, and
+        // 'fieldsSchema' describes a user fields object whose fist element is
+        // a string called "username" and whose second element is a integer
+        // called "taskId".
+    {
+//..
+// Notice that we have decided for this application the schema for the custom 
+// logging fields are fixed at compile time.
+//
+// Next, we assert that the schema matches the preconditions for this function:
+//..
+      typedef ball::UserFieldType Type;
+      BSLS_ASSERT(2 == fieldsSchema.length());
+      BSLS_ASSERT("username"     == fieldsSchema.name(0));
+      BSLS_ASSERT(Type::e_STRING == fieldsSchema.type(0));
+      BSLS_ASSERT("taskId"       == fieldsSchema.name(1));
+      BSLS_ASSERT(Type::e_INT64  == fieldsSchema.type(1));
+//..
+// Then we assert the additional precondition that 'fields' is empty:
+//..
+      BSLS_ASSERT(0 == fields->length());
+//..
+// Now we populate the 'fields' object with the user name and current task
+// identifier (for the purpose of illustration, these are simply constants):
+//..
+      static const char    *TEST_USER = "testUser";
+      static const int64_t  TEST_TASK = 4315;
+//
+      fields->appendString(TEST_USER);
+      fields->appendInt64(TEST_TASK);
+//..
+// Finally, for the purposes of illustration, we verify that 'fields' has been
+// set correctly:
+//..
+      ASSERT(2 == fields->length());
+      ASSERT(Type::e_STRING == fields->value(0).type());
+      ASSERT(TEST_USER      == fields->value(0).theString());
+      ASSERT(Type::e_INT64  == fields->value(1).type());
+      ASSERT(TEST_TASK      == fields->value(1).theInt64());
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -164,7 +231,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 20: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -185,6 +252,22 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
+
+        // This test intentionally uses the default allocator.
+
+        bslma::TestAllocator testAllocator("breathing", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&testAllocator);
+
+        ball::UserFields result;
+        ball::UserFieldsSchema schema;
+        schema.appendFieldDescription("username", Type::e_STRING);
+        schema.appendFieldDescription("taskId", Type::e_INT64);
+        
+        populateLoggingFields(&result, schema);
+
+        ASSERT(2 == result.length());
+        ASSERT("testUser" == result[0].theString());
+        ASSERT(4315       == result[1].theInt64());
 
       } break;
       case 1: {

@@ -17,8 +17,16 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: 
 //
 //@DESCRIPTION: This component provides a value-semantic container-type,
-// 'ball::UserFieldsSchema', that describes a sequence of user supplied
-// field values.
+// 'ball::UserFieldsSchema', that is used to describe the contents of a
+// 'ball::UserFields' object.  A 'ball::UserFields' object contains a sequence
+// of values, where each value may be one of the types described by
+// 'ball::UserFieldType::Enum' (integer, string, double, etc).  A
+// 'ball::UserFieldsSchema' object provides a sequence of field descriptions,
+// where each index in the schema supplies an identifying string and
+// 'ball::UserFieldType' for corresponding index in the described
+// 'ball::UserFields' object.  In addition, a 'ball::UserFieldsSchema'
+// provides an operation, 'indexOf', for users to find the index of the field
+// having a particular identifier.
 //
 
 #ifndef INCLUDED_BALSCM_VERSION
@@ -58,14 +66,27 @@ namespace ball {
                         // ======================
 
 class UserFieldsSchema {
+    // This component provides a value-semantic container-type,
+    // 'ball::UserFieldsSchema', that is used to describe the contents of a
+    // 'ball::UserFields' object. 
+    //
 
     // PRIVATE TYPES
     typedef bsl::unordered_map<bsl::string, int> NameToIndex;
 
     // DATA
-    NameToIndex                            d_nameToIndex;
-    bsl::vector<bslstl::StringRef>         d_names;
-    bsl::vector<ball::UserFieldType::Enum> d_types;
+    NameToIndex                            d_nameToIndex;  // map of field name
+                                                           // to index into
+                                                           // 'd_names' and
+                                                           // 'd_types'
+
+    bsl::vector<bslstl::StringRef>         d_names;        // field names
+                                                           // (same length as
+                                                           // 'd_types')
+
+    bsl::vector<ball::UserFieldType::Enum> d_types;        // field types
+                                                           // (same length as
+                                                           // 'd_names')
     
     // FRIENDS
     friend bool operator==(const UserFieldsSchema&, 
@@ -78,40 +99,70 @@ class UserFieldsSchema {
 
     // CREATORS
     explicit UserFieldsSchema(bslma::Allocator *basicAllocator = 0);
+        // Create an empty user field schema.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     UserFieldsSchema(const UserFieldsSchema&  original,
-                         bslma::Allocator    *basicAllocator = 0);
+                     bslma::Allocator        *basicAllocator = 0);
+        // Create a 'UserFieldsSchema' object having the same value as the
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+
+    ~UserFieldsSchema();
+        // Destroy this object.  Note that this method is not compiler
+        // supplied to allow for the verification of class invariants.
 
     // MANIPULATORS
     UserFieldsSchema& operator=(const UserFieldsSchema& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
-    int appendDescriptor(bslstl::StringRef         name, 
-                         ball::UserFieldType::Enum type);
-        // Append to the end of this description of user fields, a description
-        // for a field having the specified 'name' and specified data 'type'.
+    int appendFieldDescription(bslstl::StringRef         name, 
+                               ball::UserFieldType::Enum type);
+        // Append a field description to this schema describing a field having
+        // the specified 'name' and 'type.  Return 0 on success, or a non-zero
+        // value if this schema already contains a description for a field
+        // with the supplied 'name'. 
 
     void removeAll();
-        // Remove all of the descriptinos of user fields managed by this
-        // object. 
+        // Remove all of the field descriptions maintained by this object.
+
+                                  // Aspects
 
     void swap(UserFieldsSchema& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.   This method provides the no-throw
+        // exception guarantee.  The behavior is undefined unless 'allocator'
+        // is the same as 'other.allocator()'.
+
 
     // ACCESSORS
-    bslma::Allocator *allocator() const;
-
-
     int length () const;
         // Return the number of fields described by this object.
 
     int indexOf(bslstl::StringRef name) const;
-        // Return the index of the field having the specified 'name', if such
-        // a field exists, and -1 otherwise.
+        // Return the index of the field in the described user fields object
+        // having the specified 'name', if such a field exists, and -1
+        // otherwise.  Note that if this method returns successful, calling
+        // 'type' with the return value will provide the type of the described
+        // field.
 
     bslstl::StringRef name(int index) const;
-        // Return the name of the field at the specified 'index'.
+        // Return the name of the field at the specified 'index' in the
+        // described user fields object.
 
     ball::UserFieldType::Enum type(int index) const;   
-        // Return the data type of the field at the specified 'index'.
+        // Return the data type of the field in the described user fields
+        // object at the specified 'index'.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.       
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -131,11 +182,19 @@ class UserFieldsSchema {
 };
 
 // FREE OPERATORS
-bool operator==(const UserFieldsSchema& lhs, 
-                const UserFieldsSchema& rhs);
+bool operator==(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'ball::UserFieldsSchema' objects have
+    // the same value if they have the same number of field descriptions, and
+    // each field description in 'lhs' has the same name and type as
+    // corresponding description at the same index in 'rhs'. 
 
-bool operator!=(const UserFieldsSchema& lhs, 
-                const UserFieldsSchema& rhs);
+bool operator!=(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'UserFieldsSchema' objects do
+    // not have the same value if they have a different number of field
+    // descriptions, or if any field description in 'lhs' has a different name
+    // or type from the corresponding description at the same index in 'rhs'.
 
 bsl::ostream& operator<<(bsl::ostream&           stream,
                          const UserFieldsSchema& object);
@@ -151,9 +210,10 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
 // FREE FUNCTIONS
 void swap(ball::UserFieldsSchema& a, ball::UserFieldsSchema& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw guarantee.  The
-    // behavior is undefined if the two objects being swapped have non-equal
-    // allocators.
+    // specified 'b' object.   This method provides the no-throw exception
+    // guarantee if 'a.allocator()' is the same as 'b.allocator()', and the
+    // basic exception guarantee otherwise.
+
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -196,8 +256,8 @@ UserFieldsSchema& UserFieldsSchema::operator=(const UserFieldsSchema& rhs)
 }
 
 inline
-int UserFieldsSchema::appendDescriptor(bslstl::StringRef         name,
-                                       ball::UserFieldType::Enum type)
+int UserFieldsSchema::appendFieldDescription(bslstl::StringRef         name,
+                                             ball::UserFieldType::Enum type)
 {
     if (d_nameToIndex.end() != d_nameToIndex.find(name)) {
         return -1;                                                    // RETURN
@@ -220,14 +280,16 @@ void UserFieldsSchema::removeAll()
     d_types.clear();
 }
 
-
 inline
 void UserFieldsSchema::swap(UserFieldsSchema& other)
 {
+    BSLS_ASSERT(allocator() == other.allocator());
+
     d_nameToIndex.swap(other.d_nameToIndex);
     d_names.swap(other.d_names);
     d_types.swap(other.d_types);
 }
+
 
 // ACCESSORS
 inline
@@ -265,8 +327,7 @@ int UserFieldsSchema::length() const
 
 // FREE OPERATORS
 inline
-bool ball::operator==(const UserFieldsSchema& lhs,
-                      const UserFieldsSchema& rhs)
+bool ball::operator==(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs)
 {
     return lhs.d_nameToIndex == rhs.d_nameToIndex 
         && lhs.d_names       == rhs.d_names
@@ -274,14 +335,13 @@ bool ball::operator==(const UserFieldsSchema& lhs,
 }
 
 inline
-bool ball::operator!=(const UserFieldsSchema& lhs,
-                      const UserFieldsSchema& rhs)
+bool ball::operator!=(const UserFieldsSchema& lhs, const UserFieldsSchema& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& ball::operator<<(bsl::ostream&               stream, 
+bsl::ostream& ball::operator<<(bsl::ostream&           stream, 
                                const UserFieldsSchema& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -292,7 +352,16 @@ bsl::ostream& ball::operator<<(bsl::ostream&               stream,
 inline
 void swap(ball::UserFieldsSchema& a, ball::UserFieldsSchema& b)
 {
-    a.swap(b);
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+    }
+    else {
+        ball::UserFieldsSchema tempA(a, b.allocator());
+        ball::UserFieldsSchema tempB(b, a.allocator());
+        
+        a.swap(tempB);
+        b.swap(tempA);
+    }
 }
 
 }  // close namespace BloombergLP

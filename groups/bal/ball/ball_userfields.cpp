@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_userfields_cpp,"$Id$ $CSID$")
 
+#include <ball_userfieldsschema.h>                          // for testing only
+
 #include <bslim_printer.h>
 
 #include <bsl_ostream.h>

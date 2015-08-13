@@ -14,12 +14,77 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
-//@SEE_ALSO: 
+//@SEE_ALSO: ball_userfieldvalue, ball_userfieldsschema
 //
 //@DESCRIPTION: This component provides a value-semantic container-type,
 // 'ball::UserFields', that represents a (randomly accessible) sequence of
-// user supplied field values (typically associated with a 'ball::LogRecord').
+// 'ball::UserFieldValue' objects.  Each user field value contained in the
+// sequence functions as a discriminated union of the types described by
+// 'ball::UserFieldType::Enum' (integer, double, string, etc).  Values can be
+// added to the sequence using the 'append*' manipulators, and can be
+// manipulated and accessed using 'operator[]'.  Additionally,
+// 'ball::UserFields' exposes a random-access iterator providing non-modifiable
+// access to the sequence through the 'begin' and 'end' methods.
 //
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'ball::UserFields'
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the following example we demonstrate populating a 'ball::UserFields'
+// object with a sequence of field values.
+//
+// First, we define the signature for a callback, 'populateUserFields'.  Most
+// often 'ball::UserFields' objects are populated by a callback, such as the
+// one described by the 'ball::LoggerManagerConfiguration'
+// 'UserFieldsPopulatorCallback'.
+//..
+//  void populateLoggingFields(ball::UserFields              *fields, 
+//                             const ball::UserFieldsSchema&  fieldsSchema)
+//      // Populate the specifield 'fields' with the user name and current
+//      // task identifier so that in matches the specified 'fieldsSchema'.
+//      // The behavior is undefiend unless 'fields' is empty, and
+//      // 'fieldsSchema' describes a user fields object whose fist element is
+//      // a string called "username" and whose second element is a integer
+//      // called "taskId".
+//  {
+//..
+// Notice that we have decided for this application the schema for the custom 
+// logging fields are fixed at compile time.
+//
+// Next, we assert that the schema matches the preconditions for this function:
+//..
+//    typedef ball::UserFieldType Type;
+//    BSLS_ASSERT(2 == fieldsSchema.length());
+//    BSLS_ASSERT("username"     == fieldsSchema.name(0));
+//    BSLS_ASSERT(Type::e_STRING == fieldsSchema.type(0));
+//    BSLS_ASSERT("taskId"       == fieldsSchema.name(1));
+//    BSLS_ASSERT(Type::e_INT64  == fieldsSchema.type(1));
+//..
+// Then we assert the additional precondition that 'fields' is empty:
+//..
+//    BSLS_ASSERT(0 == fields->length());
+//..
+// Now we populate the 'fields' object with the user name and current task
+// identifier (for the purpose of illustration, these are simply constants):
+//..
+//    static const char    *TEST_USER = "testUser";
+//    static const int64_t  TEST_TASK = 4315;
+//
+//    fields->appendString(TEST_USER);
+//    fields->appendInt64(TEST_TASK);
+//..
+// Finally, for the purposes of illustration, we verify that 'fields' has been
+// set correctly:
+//..
+//    assert(2 == fields->length());
+//    assert(Type::e_STRING == fields->value(0).type());
+//    assert(TEST_USER      == fields->value(0).theString());
+//    assert(Type::e_INT64  == fields->value(1).type());
+//    assert(TEST_TASK      == fields->value(1).theInt64());
+//  }
+//..
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -43,10 +108,12 @@ namespace ball {
                         // ================
 
 class UserFields {
+    // This class implements a value-semantic type for representing a sequence
+    // of (randomly accessible) user field values.
 
   private:
     // DATA
-    bsl::vector<ball::UserFieldValue>  d_values;      
+    bsl::vector<ball::UserFieldValue> d_values;  // sequence of values    
 
     // FRIENDS
     friend bool operator==(const UserFields&, const UserFields&);
@@ -61,36 +128,81 @@ class UserFields {
 
     // CREATORS
     explicit UserFields(bslma::Allocator *basicAllocator = 0);
+        // Create an empty 'UserFields' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     UserFields(const UserFields&  original,
-                    bslma::Allocator       *basicAllocator = 0);
+               bslma::Allocator  *basicAllocator = 0);
+        // Create a 'UserFields' object having the same value as the specified
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    //! ~UserFields() = default;
+        // Destroy this object.
 
     // MANIPULATORS
     UserFields& operator=(const UserFields& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
     void removeAll();
+        // Remove all of the user field values from this object.  After this
+        // method is called 'length' will be 0.
 
     void append(const UserFieldValue& value);
+        // Append the specified 'value' to this object.
 
     void appendNull();
+        // Append an element having the unset value to this object.
+
     void appendInt64(int64_t value);
     void appendDouble(double value);
     void appendString(bslstl::StringRef value);
     void appendDatetimeTz(const bdlt::DatetimeTz& value);
+        // Append the specied 'value' to this object.
+
+    ball::UserFieldValue& operator[](int index);
+    ball::UserFieldValue& value(int index);
+        // Return a reference providing modifiable access to the value at the
+        // specified 'index'.  The behavior is undefined unless
+        // '0 <= index && index < length()'.
+
+                                  // Aspects
 
     void swap(UserFields& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.   This method provides the no-throw
+        // exception guarantee if 'allocator' is the same as
+        // 'other.allocator()', and the basic exception guarantee otherwise.
 
     // ACCESSORS
-    bslma::Allocator *allocator() const;
-
     ConstIterator begin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // element in the sequence of user field values maintained by this
+        // object, or the 'end' iterator if this object is empty.
+
     ConstIterator end() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element in the sequence of user field values
+        // maintained by this object.
 
     int length () const;
+        // Return the number of user field values in this object.
 
     const ball::UserFieldValue& operator[](int index) const;
     const ball::UserFieldValue& value(int index) const;
-        
+        // Return a reference providing non-modifiable access to the value at
+        // the specified 'index'.  The behavior is undefined unless
+        // '0 <= index && index < length()'.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.       
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -112,17 +224,17 @@ class UserFields {
 // FREE OPERATORS
 bool operator==(const UserFields& lhs, const UserFields& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'UserFields' objects have the
-    // same value if the corresponding value of their 'identifier' attribute is
-    // the same and if both store the same sequence of transitions, ordered by
-    // time.
+    // value, and 'false' otherwise.  Two 'ball::UserFields' objects have the
+    // same value if they have the same number of elements, and each element in
+    // 'lhs' has the same value as corresponding element at the same index in
+    // 'rhs'.
 
 bool operator!=(const UserFields& lhs, const UserFields& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'UserFields' objects do not
-    // have the same value if their corresponding 'identifier' attribute does
-    // not have the same value, or if both do *not* store the same sequence of
-    // transitions, ordered by time.
+    // have the same value if they have a different number of elements, or if
+    // any element in 'lhs' has a different value from the corresponding
+    // element at the same index in 'rhs'.
 
 bsl::ostream& operator<<(bsl::ostream&     stream,
                          const UserFields& object);
@@ -138,17 +250,18 @@ bsl::ostream& operator<<(bsl::ostream&     stream,
 // FREE FUNCTIONS
 void swap(ball::UserFields& a, ball::UserFields& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw guarantee.  The
-    // behavior is undefined if the two objects being swapped have non-equal
-    // allocators.
+    // specified 'b' object.  This method provides the no-throw exception
+    // guarantee if 'a.allocator()' is the same as 'b.allocator()', and the
+    // basic exception guarantee otherwise.
+
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------
+                        // ----------------
                         // class UserFields
-                        // ---------------------
+                        // ----------------
 
 inline
 UserFields::UserFields(bslma::Allocator *basicAllocator)
@@ -205,6 +318,18 @@ inline
 void UserFields::appendDatetimeTz(const bdlt::DatetimeTz& value)
 {
     d_values.emplace_back(value);
+}
+
+inline
+UserFieldValue& UserFields::operator[](int index)
+{
+    return d_values[index];
+}
+
+inline
+UserFieldValue& UserFields::value(int index)
+{
+    return d_values[index];
 }
 
 inline
