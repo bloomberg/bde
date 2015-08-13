@@ -109,11 +109,11 @@ private:
 public:
     // CREATORS
     TcpCbConnector_Reg(
-            const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor
-          , int flags);
+              const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor ,
+              int                                                     flags);
     TcpCbConnector_Reg(
-           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor
-         , int flags);
+         const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor ,
+         int                                                          flags);
 
     ~TcpCbConnector_Reg();
 
@@ -193,7 +193,7 @@ void TcpCbConnector_Reg::invoke(btlsc::CbChannel *channel, int status)
 
 inline
 void TcpCbConnector_Reg::invokeTimed(btlsc::TimedCbChannel *channel,
-                                            int                   status)
+                                     int                    status)
 {
     bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
         (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *)
@@ -241,10 +241,9 @@ TcpCbConnector_Reg::timedCallback() const
 // PRIVATE MANIPULATORS
 
 template <class CALLBACK_TYPE, class CHANNEL>
-int TcpCbConnector::initiateConnection(
-                                            const CALLBACK_TYPE& callback,
-                                            int                  flags,
-                                            int                  createRequest)
+int TcpCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
+                                       int                  flags,
+                                       int                  createRequest)
 {
     d_connectingSocket_p = d_factory_p->allocate();
     if (NULL == d_connectingSocket_p) {
@@ -414,9 +413,9 @@ void TcpCbConnector::deallocateCb(btlsc::CbChannel *channel) {
 // CREATORS
 
 TcpCbConnector::TcpCbConnector(
-                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  btlso::TimerEventManager                      *manager,
-                  bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpCbConnector_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)
@@ -434,10 +433,10 @@ TcpCbConnector::TcpCbConnector(
 }
 
 TcpCbConnector::TcpCbConnector(
-                  btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  btlso::TimerEventManager                      *manager,
-                  int                                           numChannels,
-                  bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                btlso::TimerEventManager                       *manager,
+                int                                             numChannels,
+                bslma::Allocator                               *basicAllocator)
 : d_callbackPool(sizeof(TcpCbConnector_Reg), basicAllocator)
 , d_channelPool(k_CHANNEL_SIZE, basicAllocator)
 , d_channels(basicAllocator)

@@ -100,21 +100,22 @@ public:
     char              d_callbackType;
 
     // CREATORS
-    TcpCbChannel_RReg(char *buffer, int length,
-                             int numSysCalls,
-                             const ReadCb& callback,
-                             int flags);
+    TcpCbChannel_RReg(char          *buffer,
+                      int            length,
+                      int            numSysCalls,
+                      const ReadCb&  callback,
+                      int            flags);
 
     TcpCbChannel_RReg(const btls::Iovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const ReadCb& callback,
-                             int flags);
+                      int                numBuffers,
+                      int                numSysCalls,
+                      const ReadCb&      callback,
+                      int                flags);
 
-    TcpCbChannel_RReg(int length,
-                             int numSysCalls,
-                             const BReadCb& callback,
-                             int flags);
+    TcpCbChannel_RReg(int            length,
+                      int            numSysCalls,
+                      const BReadCb& callback,
+                      int            flags);
 
     ~TcpCbChannel_RReg();
         // Destroy this request.
@@ -237,7 +238,8 @@ void TcpCbChannel_RReg::invoke(int status, int asyncStatus) const {
 
 inline
 void TcpCbChannel_RReg::invoke(const char *buffer,
-                                      int status, int asyncStatus) const {
+                               int         status,
+                               int         asyncStatus) const {
     BSLS_ASSERT(e_VFUNC3 == d_callbackType);
     BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(buffer, status, asyncStatus);
@@ -315,27 +317,28 @@ public:
     int               d_flags;       // flags supplied in request.
 
     // CREATORS
-    TcpCbChannel_WReg(const char *buffer, int length,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+    TcpCbChannel_WReg(const char     *buffer,
+                      int             length,
+                      int             numSysCalls,
+                      const WriteCb&  callback,
+                      int             flags);
 
     TcpCbChannel_WReg(const btls::Iovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+                      int                numBuffers,
+                      int                numSysCalls,
+                      const WriteCb&     callback,
+                      int                flags);
 
     TcpCbChannel_WReg(const btls::Ovec *buffers,
-                             int numBuffers,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+                      int               numBuffers,
+                      int               numSysCalls,
+                      const WriteCb&    callback,
+                      int               flags);
 
-    TcpCbChannel_WReg(int length,
-                             int numSysCalls,
-                             const WriteCb& callback,
-                             int flags);
+    TcpCbChannel_WReg(int            length,
+                      int            numSysCalls,
+                      const WriteCb& callback,
+                      int            flags);
 
     ~TcpCbChannel_WReg();
         // Destroy this request.
@@ -445,8 +448,7 @@ void TcpCbChannel_WReg::invoke(int status, int asyncStatus) const
 }
 
 inline
-void TcpCbChannel_WReg::invokeConditionally(int status,
-                                                   int asyncStatus) const
+void TcpCbChannel_WReg::invokeConditionally(int status, int asyncStatus) const
 {
     d_callback(status, asyncStatus);
 }
@@ -457,9 +459,9 @@ void TcpCbChannel_WReg::invokeConditionally(int status,
                        // ================================
 static inline
 int completeOperation(btlsos::TcpCbChannel_RReg *request,
-                      bsl::vector<char>        *bufferPtr,
-                      int                      *offset,
-                      int                      *SP)
+                      bsl::vector<char>         *bufferPtr,
+                      int                       *offset,
+                      int                       *SP)
     // Try to satisfy the specified 'request' given that there is data in the
     // specified 'buffer' of the specified '*offset' length.  Return 0 if the
     // 'request' cannot be satisfied, and a non-zero value otherwise.  If the
@@ -1325,9 +1327,9 @@ void TcpCbChannel::writeCb() {
 // CREATORS
 
 TcpCbChannel::TcpCbChannel(
-        btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-        btlso::TimerEventManager               *manager,
-        bslma::Allocator                      *basicAllocator)
+                       btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                       btlso::TimerEventManager                *manager,
+                       bslma::Allocator                        *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(manager)
 , d_wManager_p(manager)
@@ -1372,10 +1374,10 @@ TcpCbChannel::TcpCbChannel(
 }
 
 TcpCbChannel::TcpCbChannel(
-        btlso::StreamSocket<btlso::IPv4Address> *sSocket,
-        btlso::TimerEventManager               *rManager,
-        btlso::TimerEventManager               *wManager,
-        bslma::Allocator                      *basicAllocator)
+                       btlso::StreamSocket<btlso::IPv4Address> *sSocket,
+                       btlso::TimerEventManager                *rManager,
+                       btlso::TimerEventManager                *wManager,
+                       bslma::Allocator                        *basicAllocator)
 : d_socket_p(sSocket)
 , d_rManager_p(rManager)
 , d_wManager_p(wManager)
@@ -1519,10 +1521,10 @@ int TcpCbChannel::readv(const btls::Iovec   *buffers,
 }
 
 int
-TcpCbChannel::readvRaw(const btls::Iovec *buffers,
-                                   int                      numBuffers,
-                                   const ReadCallback&      readCallback,
-                                   int                      flags)
+TcpCbChannel::readvRaw(const btls::Iovec   *buffers,
+                       int                  numBuffers,
+                       const ReadCallback&  readCallback,
+                       int                  flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -1557,10 +1559,9 @@ TcpCbChannel::readvRaw(const btls::Iovec *buffers,
 }
 
 int
-TcpCbChannel::bufferedRead(
-        int                         numBytes,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+TcpCbChannel::bufferedRead(int                         numBytes,
+                           const BufferedReadCallback& bufferedReadCallback,
+                           int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -2037,11 +2038,10 @@ int TcpCbChannel::bufferedWrite(const char           *buffer,
     return 0;
 }
 
-int TcpCbChannel::bufferedWritev(
-        const btls::Iovec        *buffers,
-        int                      numBuffers,
-        const WriteCallback&     writeCallback,
-        int                      flags)
+int TcpCbChannel::bufferedWritev(const btls::Iovec    *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2184,11 +2184,10 @@ int TcpCbChannel::bufferedWritev(
     return 0;
 }
 
-int TcpCbChannel::bufferedWritev(
-        const btls::Ovec         *buffers,
-        int                      numBuffers,
-        const WriteCallback&     writeCallback,
-        int                      flags)
+int TcpCbChannel::bufferedWritev(const btls::Ovec     *buffers,
+                                 int                   numBuffers,
+                                 const WriteCallback&  writeCallback,
+                                 int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2410,15 +2409,13 @@ void TcpCbChannel::invalidateWrite() {
     d_isInvalidWriteFlag = 1;
 }
 
-void TcpCbChannel::setReadEventManager(
-        btlso::TimerEventManager *manager) {
+void TcpCbChannel::setReadEventManager(btlso::TimerEventManager *manager) {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingReadOperations());
     d_rManager_p = manager;
 }
 
-void TcpCbChannel::setWriteEventManager(
-        btlso::TimerEventManager *manager) {
+void TcpCbChannel::setWriteEventManager(btlso::TimerEventManager *manager) {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingWriteOperations());
     d_wManager_p = manager;

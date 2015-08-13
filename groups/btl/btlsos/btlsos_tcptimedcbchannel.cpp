@@ -2388,11 +2388,11 @@ int TcpTimedCbChannel::readRaw(char                *buffer,
 }
 
 int
-TcpTimedCbChannel::timedReadRaw(char                     *buffer,
-                                       int                       numBytes,
-                                       const bsls::TimeInterval&  timeout,
-                                       const ReadCallback&       readCallback,
-                                       int                       flags)
+TcpTimedCbChannel::timedReadRaw(char                      *buffer,
+                                int                        numBytes,
+                                const bsls::TimeInterval&  timeout,
+                                const ReadCallback&        readCallback,
+                                int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -2447,19 +2447,19 @@ int TcpTimedCbChannel::readv(const btls::Iovec   *buffers,
 
 int
 TcpTimedCbChannel::timedReadv(const btls::Iovec         *buffers,
-                                     int                       numBuffers,
-                                     const bsls::TimeInterval&  timeout,
-                                     const ReadCallback&       readCallback,
-                                     int                       flags)
+                              int                        numBuffers,
+                              const bsls::TimeInterval&  timeout,
+                              const ReadCallback&        readCallback,
+                              int                        flags)
 {
     return timedReadvRaw(buffers, numBuffers, timeout, readCallback, flags);
 }
 
 int
-TcpTimedCbChannel::readvRaw(const btls::Iovec    *buffers,
-                                   int                  numBuffers,
-                                   const ReadCallback&  readCallback,
-                                   int                  flags)
+TcpTimedCbChannel::readvRaw(const btls::Iovec   *buffers,
+                            int                  numBuffers,
+                            const ReadCallback&  readCallback,
+                            int                  flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2499,10 +2499,10 @@ TcpTimedCbChannel::readvRaw(const btls::Iovec    *buffers,
 
 int
 TcpTimedCbChannel::timedReadvRaw(const btls::Iovec         *buffers,
-                                        int                       numBuffers,
-                                        const bsls::TimeInterval&  timeout,
-                                        const ReadCallback&       readCallback,
-                                        int                       flags)
+                                 int                        numBuffers,
+                                 const bsls::TimeInterval&  timeout,
+                                 const ReadCallback&        readCallback,
+                                 int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -2545,9 +2545,9 @@ TcpTimedCbChannel::timedReadvRaw(const btls::Iovec         *buffers,
 
 int
 TcpTimedCbChannel::bufferedRead(
-        int                         numBytes,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+                              int                         numBytes,
+                              const BufferedReadCallback& bufferedReadCallback,
+                              int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 
@@ -2677,10 +2677,10 @@ int TcpTimedCbChannel::bufferedReadRaw(
 
 int
 TcpTimedCbChannel::timedBufferedReadRaw(
-        int                         numBytes,
-        const bsls::TimeInterval&    timeout,
-        const BufferedReadCallback& bufferedReadCallback,
-        int                         flags)
+                              int                         numBytes,
+                              const bsls::TimeInterval&   timeout,
+                              const BufferedReadCallback& bufferedReadCallback,
+                              int                         flags)
 {
     BSLS_ASSERT(0 < numBytes);
 

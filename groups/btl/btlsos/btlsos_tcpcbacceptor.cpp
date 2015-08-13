@@ -104,19 +104,19 @@ class TcpCbAcceptor_Reg {
   public:
     // CREATORS
     TcpCbAcceptor_Reg(
-          const bsls::TimeInterval& timeout,
+          const bsls::TimeInterval&                                    timeout,
           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-          int flags);
+          int                                                          flags);
     TcpCbAcceptor_Reg(
-            const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-            int flags);
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags);
     TcpCbAcceptor_Reg(
           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-          int flags);
+          int                                                          flags);
     TcpCbAcceptor_Reg(
-            const bsls::TimeInterval& timeout,
-            const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-            int flags);
+               const bsls::TimeInterval&                               timeout,
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags);
         // Create a callback from a specified functor 'func' with specified
         // 'flags', and an optionally specified 'timeout' for the callback
         // execution.

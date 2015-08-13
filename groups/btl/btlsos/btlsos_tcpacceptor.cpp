@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(btlsos_tcpacceptor_cpp,"$Id$ $CSID$")
 #include <bsls_blockgrowth.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -54,9 +55,10 @@ enum {
 
 template <class RESULT>
 inline
-RESULT *allocate(int *status, int flags,
-                 btlso::StreamSocket<btlso::IPv4Address> *socket,
-                 bdlma::Pool *pool)
+static RESULT *allocate(int                                     *status,
+                        int                                      flags,
+                        btlso::StreamSocket<btlso::IPv4Address> *socket,
+                        bdlma::Pool                             *pool)
 {
     BSLS_ASSERT(socket);
     BSLS_ASSERT(pool);
@@ -89,8 +91,7 @@ RESULT *allocate(int *status, int flags,
 
     socket->setBlockingMode(bteso_Flag::e_NONBLOCKING_MODE);
 
-    RESULT *channel =
-        new (*pool) RESULT(acceptedConnection);
+    RESULT *channel = new (*pool) RESULT(acceptedConnection);
 
     return channel;
 }
@@ -106,10 +107,9 @@ namespace btlsos {
                             // -----------------
 
 // CREATORS
-
 TcpAcceptor::TcpAcceptor(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        bslma::Allocator                             *basicAllocator)
+                btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE, basicAllocator)
 , d_channels(basicAllocator)
 , d_factory_p(factory)
@@ -121,9 +121,9 @@ TcpAcceptor::TcpAcceptor(
 }
 
 TcpAcceptor::TcpAcceptor(
-        btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-        int                                           initialCapacity,
-        bslma::Allocator                             *basicAllocator)
+               btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+               int                                             initialCapacity,
+               bslma::Allocator                               *basicAllocator)
 : d_pool(k_ARENA_SIZE,
          bsls::BlockGrowth::BSLS_CONSTANT,
          initialCapacity,
@@ -157,7 +157,6 @@ TcpAcceptor::~TcpAcceptor() {
 }
 
 // MANIPULATORS
-
 void TcpAcceptor::deallocate(btlsc::Channel *channel) {
     BSLS_ASSERT(channel);
     char *arena = (char *) channel;
@@ -308,7 +307,7 @@ int TcpAcceptor::open(const btlso::IPv4Address& endpoint,
     }
 
     if (0 != d_serverSocket_p->setBlockingMode(
-                                         bteso_Flag::e_NONBLOCKING_MODE)) {
+                                             bteso_Flag::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
         return e_BLOCKMODE_FAILED;
@@ -325,7 +324,6 @@ int TcpAcceptor::setOption(int level, int option, int value)
 }
 
 // ACCESSORS
-
 int TcpAcceptor::getOption(int *result, int level, int option) const
 {
     BSLS_ASSERT(!d_isInvalidFlag);
@@ -333,8 +331,8 @@ int TcpAcceptor::getOption(int *result, int level, int option) const
 
     return d_serverSocket_p->socketOption(result, level, option);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
