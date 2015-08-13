@@ -41,7 +41,7 @@ using namespace bsl;
 // connection to the destination host. In order to test this component, a test
 // class, 'btls5::TestServer' is used as a proxy to negotiate with.  The test
 // scenarios create a SOCKS5 test server, connect to it (using TCP) and pass
-// the connection socket to the 'btes5::Negotirator' object.
+// the connection socket to the 'btls5::Negotirator' object.
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -374,7 +374,7 @@ int main(int argc, char *argv[]) {
         //   This test exercises basic functionality but tests nothing.
         //
         // Plan:
-        //: 1 Create a 'btes5::Negotiatior' object, but do not actually
+        //: 1 Create a 'btls5::Negotiatior' object, but do not actually
         //:   negotiate a connection.
         //
         // Testing:

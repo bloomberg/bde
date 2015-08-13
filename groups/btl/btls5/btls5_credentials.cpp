@@ -10,6 +10,9 @@ BSLS_IDENT_RCSID(btls5_credentials_cpp, "$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+
+namespace btls5 {
+
 namespace {
 
 static bool areValidCredentials(const bslstl::StringRef& username,
@@ -30,14 +33,13 @@ static bool areValidCredentials(const bslstl::StringRef& username,
 
 }  // close unnamed namespace
 
-namespace btls5 {
-                         // -----------------------
+                         // -----------------
                          // class Credentials
-                         // -----------------------
+                         // -----------------
 
 // MANIPULATORS
 void Credentials::set(const bslstl::StringRef& username,
-                            const bslstl::StringRef& password)
+                      const bslstl::StringRef& password)
 {
     BSLS_ASSERT(areValidCredentials(username, password));
 
@@ -50,8 +52,8 @@ void Credentials::set(const bslstl::StringRef& username,
                                   // Aspects
 
 bsl::ostream& Credentials::print(bsl::ostream& stream,
-                                       int           level,
-                                       int           spacesPerLevel) const
+                                 int           level,
+                                 int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -61,11 +63,12 @@ bsl::ostream& Credentials::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& btls5::operator<<(bsl::ostream&            stream,
-                         const Credentials& object)
+bsl::ostream& btls5::operator<<(bsl::ostream&      stream,
+                                const Credentials& object)
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
@@ -80,7 +83,7 @@ bsl::ostream& btls5::operator<<(bsl::ostream&            stream,
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
