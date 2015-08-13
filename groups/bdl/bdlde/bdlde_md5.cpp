@@ -140,6 +140,7 @@ static const unsigned char BDEDE_MD5_PAD[] = {
 };
 
 // Constants used in MD5 algorithm specified by the RFC 1321 document.
+
 const int S11 = 7;
 const int S12 = 12;
 const int S13 = 17;
@@ -172,6 +173,7 @@ static unsigned int F(unsigned int x, unsigned int y, unsigned int z)
 {
     // A more optimized version of '(x & y) | ((~x) & z);', which was
     // specified in the RFC 1321 document.
+
     return z ^ (x & (y ^ z));
 }
 
@@ -180,6 +182,7 @@ static unsigned int G(unsigned int x, unsigned int y, unsigned int z)
 {
     // A more optimized version of '(x & z) | (y & (~z));', which was
     // specified in the RFC 1321 document.
+
     return y ^ (z & (x ^ y));
 }
 
@@ -316,7 +319,9 @@ static void append(unsigned int *state, const unsigned char *data)
     c = FF (c, d, a, b, x[14], S13, 0xa679438e); /* 15 */
     x[15] = Decode(data);
     b = FF (b, c, d, a, x[15], S14, 0x49b40821); /* 16 */
+
     // Round 2
+
     a = GG (a, b, c, d, x[ 1], S21, 0xf61e2562); /* 17 */
     d = GG (d, a, b, c, x[ 6], S22, 0xc040b340); /* 18 */
     c = GG (c, d, a, b, x[11], S23, 0x265e5a51); /* 19 */
@@ -333,7 +338,9 @@ static void append(unsigned int *state, const unsigned char *data)
     d = GG (d, a, b, c, x[ 2], S22, 0xfcefa3f8); /* 30 */
     c = GG (c, d, a, b, x[ 7], S23, 0x676f02d9); /* 31 */
     b = GG (b, c, d, a, x[12], S24, 0x8d2a4c8a); /* 32 */
+
     // Round 3
+
     a = HH (a, b, c, d, x[ 5], S31, 0xfffa3942); /* 33 */
     d = HH (d, a, b, c, x[ 8], S32, 0x8771f681); /* 34 */
     c = HH (c, d, a, b, x[11], S33, 0x6d9d6122); /* 35 */
@@ -350,7 +357,9 @@ static void append(unsigned int *state, const unsigned char *data)
     d = HH (d, a, b, c, x[12], S32, 0xe6db99e5); /* 46 */
     c = HH (c, d, a, b, x[15], S33, 0x1fa27cf8); /* 47 */
     b = HH (b, c, d, a, x[ 2], S34, 0xc4ac5665); /* 48 */
+
     // Round 4
+
     a = II (a, b, c, d, x[ 0], S41, 0xf4292244); /* 49 */
     d = II (d, a, b, c, x[ 7], S42, 0x432aff97); /* 50 */
     c = II (c, d, a, b, x[14], S43, 0xab9423a7); /* 51 */
@@ -371,7 +380,9 @@ static void append(unsigned int *state, const unsigned char *data)
     state[1] += b;
     state[2] += c;
     state[3] += d;
+
     // Zeroing it out just in case the information is sensitive.
+
     bsl::memset(xArray, 0, sizeof(xArray));
 }
 
@@ -380,6 +391,7 @@ static void padLengthToBuffer(unsigned int       *state,
                               bsls::Types::Int64  length)
 {
     // The same as 'int inUse = length % BYTEBLOCKSIZE;'
+
     int inUse = length & 0x3f;
     int start = 0;
     const int PADLENGTHINDEX = BYTEBLOCKSIZE - BYTELENGTHPADSIZE;
@@ -397,10 +409,12 @@ static void padLengthToBuffer(unsigned int       *state,
     }
 
     // Pad the remaining bytes.
+
     int copy = PADLENGTHINDEX - inUse;
     bsl::memcpy(buffer + inUse, BDEDE_MD5_PAD + start, copy);
 
     // Need bit length, so multiply by 8.
+
     length *= 8;
 
     {
@@ -408,11 +422,13 @@ static void padLengthToBuffer(unsigned int       *state,
 
 #if BSLS_PLATFORM_IS_BIG_ENDIAN
         // We want it in little-endian format, so reverse byte ordering.
+
         for (int i = 0; i < 8; ++i) {
             buffer[PADLENGTHINDEX + i] = tmp[7 - i];
         }
 #else
         // If it is little-endian already, just copy through.
+
         for (int i = 0; i < 8; ++i) {
             buffer[PADLENGTHINDEX + i] = tmp[i];
         }
@@ -442,6 +458,7 @@ static void populateResultBuffer(bdlde::Md5::Md5Digest *result,
 static void initStates(unsigned int (*state)[4])
 {
     // Initial states specified by the RFC 1321 document.
+
     const unsigned int INITSTATE0 = 0x67452301;
     const unsigned int INITSTATE1 = 0xefcdab89;
     const unsigned int INITSTATE2 = 0x98badcfe;
@@ -502,6 +519,7 @@ void Md5::update(const void *data, int length)
     const unsigned char *input = (const unsigned char *)data;
 
     // The same as 'int inUse = d_length % BYTEBLOCKSIZE;'
+
     int inUse = d_length & 0x3f;
     int start = 0;
 
@@ -535,12 +553,15 @@ void Md5::loadDigestAndReset(Md5::Md5Digest *result)
     BSLS_ASSERT(result);
 
     // Before loading, complete padding by adding the length.
+
     padLengthToBuffer(d_state, d_buffer, d_length);
 
     // Append that to the states.
+
     append(d_state, d_buffer);
 
     // Populate the result.
+
     populateResultBuffer(result, d_state);
 
     reset();
@@ -559,15 +580,19 @@ void Md5::loadDigest(Md5::Md5Digest *result) const
 
     // Save the states before proceeding by making a copy.  Cannot just save
     // the 'd_state[]' because this is a 'const' function.
+
     Md5 copy(*this);
 
     // Before loading, complete padding by adding the length.
+
     padLengthToBuffer(copy.d_state, copy.d_buffer, copy.d_length);
 
     // Append that to the states.
+
     append(copy.d_state, copy.d_buffer);
 
     // Populate the result.
+
     populateResultBuffer(result, copy.d_state);
 }
 
@@ -590,10 +615,9 @@ bsl::ostream& Md5::print(bsl::ostream& stream) const
 
     return stream;
 }
-}  // close package namespace
 
 // FREE OPERATORS
-bool bdlde::operator==(const Md5& lhs, const Md5& rhs)
+bool operator==(const Md5& lhs, const Md5& rhs)
 {
     if (lhs.d_length != rhs.d_length
      || 0 != bsl::memcmp(lhs.d_state, rhs.d_state, sizeof lhs.d_state)) {
@@ -601,13 +625,15 @@ bool bdlde::operator==(const Md5& lhs, const Md5& rhs)
     }
 
     // Same as 'int inUse = lhs.d_length % BYTEBLOCKSIZE;'.
+
     int inUse = lhs.d_length & 0x3f;
     return 0 == bsl::memcmp(lhs.d_buffer,
                             rhs.d_buffer,
                             (sizeof *lhs.d_buffer) * inUse);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
