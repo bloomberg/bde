@@ -156,7 +156,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // querying the underlying socket is used.
 
     void initializeWriteBuffer(int size = -1);
-        // Initialize internal write buffer with the optionally-specified
+        // Initialize internal write buffer with the optionally specified
         // 'size'.  If 'size' is not specified, the default that is obtained by
         // querying the underlying socket is used.
 
@@ -330,8 +330,8 @@ class TcpCbChannel : public btlsc::CbChannel {
         // error: -1 implies that the connection was closed by the peer (but
         // the converse is not guaranteed).  The behavior is undefined unless
         // 'buffer' has sufficient capacity to hold the requested data and
-        // remains valid until the (non-null) 'readCallback' completes, and 0 <
-        // numBytes.
+        // remains valid until the (non-null) 'readCallback' completes, and
+        // '0 < numBytes'.
 
     int readvRaw(const btls::Iovec   *buffers,
                  int                  numBuffers,
@@ -399,7 +399,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // of success.  A negative "status", however, indicates a permanent
         // error (leaving the contents of 'buffer' undefined); -1 implies that
         // the connection was closed by the peer (but the converse is not
-        // guaranteed).  The behavior is undefined unless 0 < numBytes and
+        // guaranteed).  The behavior is undefined unless '0 < numBytes' and
         // 'bufferedReadCallback' is non-null.
 
     int bufferedReadRaw(int                         numBytes,
@@ -434,7 +434,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // "status", however, indicates a permanent error (leaving the contents
         // of 'buffer' undefined); -1 implies that the connection was closed by
         // the peer (but the converse is not guaranteed).  The behavior is
-        // undefined unless 0 < numBytes and 'bufferedReadCallback' is
+        // undefined unless '0 < numBytes' and 'bufferedReadCallback' is
         // non-null.
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -467,8 +467,8 @@ class TcpCbChannel : public btlsc::CbChannel {
         // "status", however, indicates a permanent error; -1 implies that the
         // connection was closed by the peer (but the converse is not
         // guaranteed).  The behavior is undefined unless 'buffer' remains
-        // valid until the (non-null) 'writeCallback' completes, and 0 <
-        // numBytes.
+        // valid until the (non-null) 'writeCallback' completes, and
+        // '0 < numBytes'.
 
     int writeRaw(const char           *buffer,
                  int                   numBytes,
@@ -476,7 +476,7 @@ class TcpCbChannel : public btlsc::CbChannel {
                  int                   flags = 0);
         // Initiate a non-blocking operation to *atomically* write *up *to* the
         // specified 'numBytes' from the specified 'buffer' to this channel;
-        // execute the specified writeCallback' functor after this write
+        // execute the specified 'writeCallback' functor after this write
         // operation terminates.  If the optionally specified 'flags'
         // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt this operation; by default, such events
@@ -500,7 +500,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // error; -1 implies that the connection was closed by the peer (but
         // the converse is not guaranteed).  The behavior is undefined unless
         // 'buffer' remains valid until the (non-null) 'writeCallback'
-        // completes, and 0 < numBytes.
+        // completes, and '0 < numBytes'.
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -616,7 +616,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // indicates a permanent error; -1 implies that the connection was
         // closed by the peer (but the converse is not guaranteed).  The
         // behavior is undefined unless 'buffer' remains valid until the
-        // (non-null) 'writeCallback' completes, and 0 < numBytes.
+        // (non-null) 'writeCallback' completes, and '0 < numBytes'.
 
     int bufferedWritev(const btls::Ovec     *buffers,
                        int                   numBuffers,
