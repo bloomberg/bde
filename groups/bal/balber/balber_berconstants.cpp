@@ -12,8 +12,8 @@ namespace BloombergLP {
 
 // FREE OPERATORS
 
-bsl::ostream& balber::operator<<(bsl::ostream&               stream,
-                         BerConstants::TagClass tagClass)
+bsl::ostream& balber::operator<<(bsl::ostream&          stream,
+                                 BerConstants::TagClass tagClass)
 {
     switch (tagClass) {
       case BerConstants::e_UNIVERSAL:
@@ -31,8 +31,8 @@ bsl::ostream& balber::operator<<(bsl::ostream&               stream,
     return stream;
 }
 
-bsl::ostream& balber::operator<<(bsl::ostream&              stream,
-                         BerConstants::TagType tagType)
+bsl::ostream& balber::operator<<(bsl::ostream&         stream,
+                                 BerConstants::TagType tagType)
 {
     switch (tagType) {
       case BerConstants::e_BDEM_PRIMITIVE:
