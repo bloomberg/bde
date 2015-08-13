@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 // constants within this class.
 //..
 //  class my_EchoServer {
-//      // This class implements a simple multi-user echo server as
-//      // specified by the RFC 862.
+//      // This class implements a simple multi-user echo server as specified
+//      // by the RFC 862.
 //
 //      enum {
 //          k_READ_SIZE           =  200,  // The number of bytes to be read
@@ -113,8 +113,8 @@ BSLS_IDENT("$Id: $")
 //                   int                    asyncStatus,
 //                   btlsc::TimedCbChannel *channel,
 //                   int                    numBytes);
-//          // Invoked from the socket event manager when data is written
-//          // into a channel.  [...]
+//          // Invoked from the socket event manager when data is written into
+//          // a channel.  [...]
 //
 //    private:
 //      // Not implemented:
@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 //      int open(int portNumber = k_DEFAULT_PORT_NUMBER);
 //          // Establish a listening socket on the specified 'portNumber';
 //          // return 0 on success, and a non-zero value otherwise.  The
-//          // behavior is undefined unless 0 <= portNumber and the listening
+//          // behavior is undefined unless '0 <= portNumber' and the listening
 //          // port is not currently open.
 //
 //      int close();

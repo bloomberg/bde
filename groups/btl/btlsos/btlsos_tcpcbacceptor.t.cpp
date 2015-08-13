@@ -18,8 +18,11 @@
 #include <bdlqq_threadutil.h>
 
 #include <bdlt_currenttime.h>
-#include <bsls_timeinterval.h>
+
 #include <bslma_testallocator.h>
+
+#include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
@@ -159,8 +162,8 @@ enum {
 // constants within this class.
 //..
     class my_EchoServer {
-        // This class implements a simple multi-user echo server as
-        // specified by the RFC 862.
+        // This class implements a simple multi-user echo server as specified
+        // by the RFC 862.
 
         enum {
             k_READ_SIZE           =  200,  // The number of bytes to be read
@@ -208,8 +211,8 @@ enum {
                      int                    asyncStatus,
                      btlsc::TimedCbChannel *channel,
                      int                    numBytes);
-            // Invoked from the socket event manager when data is written
-            // into a channel.  [...]
+            // Invoked from the socket event manager when data is written into
+            // a channel.  [...]
 
       private:
         // Not implemented:
@@ -235,7 +238,7 @@ enum {
         int open(int portNumber = k_DEFAULT_PORT_NUMBER);
             // Establish a listening socket on the specified 'portNumber';
             // return 0 on success, and a non-zero value otherwise.  The
-            // behavior is undefined unless 0 <= portNumber and the listening
+            // behavior is undefined unless '0 <= portNumber' and the listening
             // port is not currently open.
 
         int close();
@@ -1996,8 +1999,8 @@ int main(int argc, char *argv[])
             address.setPortNumber(0);
             address.setIpAddress(hostName);
 
-            ASSERT(0 == mX.open(address, 5)); // Need to make sure that socket,
-                                              // etc. is called.
+            ASSERT(0 == mX.open(address, 5)); // Need to make sure that, e.g.,
+                                              // socket is called.
             ASSERT(0 == mX.close());
 
         } break;

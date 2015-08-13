@@ -15,6 +15,8 @@ BSLS_IDENT_RCSID(btlsos_tcpcbacceptor_cpp,"$Id$ $CSID$")
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
+#include <bslalg_scalardestructionprimitives.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_blockgrowth.h>
@@ -26,11 +28,13 @@ BSLS_IDENT_RCSID(btlsos_tcpcbacceptor_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
+#include <bsl_iterator.h>
 #include <bsl_vector.h>
 
-// ===========================================================================
-// IMPLEMENTATION DETAILS
-// ---------------------------------------------------------------------------
+// ============================================================================
+//                         IMPLEMENTATION DETAILS
+// ----------------------------------------------------------------------------
 // 1.  Internally, this acceptor holds a queue of callbacks for allocation
 // requests.  The queue contains non-timed callbacks along with any supporting
 // data for a request, if any.
@@ -45,7 +49,7 @@ BSLS_IDENT_RCSID(btlsos_tcpcbacceptor_cpp,"$Id$ $CSID$")
 // rather installs the deallocate callback to be invoked on the next invocation
 // of the 'dispatch' method of the event manager.  The deallocate callback will
 // actually destroy the resources allocates for a channel.
-// ===========================================================================
+// ============================================================================
 
 namespace BloombergLP {
 
@@ -53,9 +57,9 @@ namespace BloombergLP {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                         // ========================
-                         // Local typedefs and enums
-                         // ========================
+                     // ===============================
+                     // Local typedefs and enumerations
+                     // ===============================
 
 enum {
     k_CALLBACK_SIZE      = sizeof(btlsc::CbChannelAllocator::Callback),
@@ -117,9 +121,8 @@ class TcpCbAcceptor_Reg {
                const bsls::TimeInterval&                               timeout,
                const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
                int                                                     flags);
-        // Create a callback from a specified functor 'func' with specified
-        // 'flags', and an optionally specified 'timeout' for the callback
-        // execution.
+        // Create a callback from a specified 'functor' with specified 'flags',
+        // and an optionally specified 'timeout' for the callback execution.
 
     ~TcpCbAcceptor_Reg();
         // Destroy my object.
@@ -143,8 +146,8 @@ class TcpCbAcceptor_Reg {
 
 // CREATORS
 TcpCbAcceptor_Reg::TcpCbAcceptor_Reg(
-    const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
-    int flags)
+          const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
+          int                                                          flags)
 : d_isTimedChannel(1)
 , d_flags(flags)
 {
@@ -153,8 +156,8 @@ TcpCbAcceptor_Reg::TcpCbAcceptor_Reg(
 }
 
 TcpCbAcceptor_Reg::TcpCbAcceptor_Reg(
-    const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-    int flags)
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags)
 : d_isTimedChannel(0)
 , d_flags(flags)
 {
@@ -283,7 +286,9 @@ void TcpCbAcceptor::acceptCb() {
                 d_currentRequest_p->invoke(status);
             }
             else {
-                return; // EWOULDBLOCK -- ignored.
+                // EWOULDBLOCK -- ignored.
+
+                return;                                               // RETURN
             }
         }
     }
@@ -405,11 +410,11 @@ TcpCbAcceptor::~TcpCbAcceptor()
 int TcpCbAcceptor::allocate(const Callback& callback, int flags)
 {
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
         callback(NULL, e_UNINITIALIZED);
-        return e_UNINITIALIZED;
+        return e_UNINITIALIZED;                                       // RETURN
     }
 
     TcpCbAcceptor_Reg *cb =
@@ -430,24 +435,24 @@ int TcpCbAcceptor::allocate(const Callback& callback, int flags)
             d_callbacks.pop_back();
             cb->invoke(e_CANCELLED);
             d_callbackPool.deleteObjectRaw(cb);
-            return e_INVALID;
+            return e_INVALID;                                         // RETURN
         }
     }
     return e_SUCCESS;
 }
 
-int TcpCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
+int TcpCbAcceptor::allocateTimed(const TimedCallback& timedCallback, int flags)
 {
     if (d_isInvalidFlag) {
-        return e_INVALID;
+        return e_INVALID;                                             // RETURN
     }
     if (NULL == d_serverSocket_p) {
-        callback(NULL, e_UNINITIALIZED);
-        return e_UNINITIALIZED;
+        timedCallback(NULL, e_UNINITIALIZED);
+        return e_UNINITIALIZED;                                       // RETURN
     }
 
     TcpCbAcceptor_Reg *cb =
-        new (d_callbackPool) TcpCbAcceptor_Reg(callback, flags);
+        new (d_callbackPool) TcpCbAcceptor_Reg(timedCallback, flags);
 
     // For safety, we push the callback before registering the socket event,
     // although when this component is used by 'btlmt_channelpool' (as
@@ -463,7 +468,7 @@ int TcpCbAcceptor::allocateTimed(const TimedCallback& callback, int flags)
             d_callbacks.pop_back();
             cb->invoke(e_CANCELLED);
             d_callbackPool.deleteObjectRaw(cb);
-            return e_INVALID;
+            return e_INVALID;                                         // RETURN
         }
     }
     return e_SUCCESS;
@@ -551,7 +556,7 @@ int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
 
     d_serverSocket_p = d_factory_p->allocate();
     if (!d_serverSocket_p) {
-        return e_ALLOCATION_FAILED;
+        return e_ALLOCATION_FAILED;                                   // RETURN
     }
 
     if (0 !=
@@ -560,26 +565,26 @@ int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
                                       !!reuseAddress))
     {
         d_factory_p->deallocate(d_serverSocket_p);
-        return e_REUSEADDRESS_FAILED;
+        return e_REUSEADDRESS_FAILED;                                 // RETURN
     }
 
     if (0 != d_serverSocket_p->bind(endpoint)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BIND_FAILED;
+        return e_BIND_FAILED;                                         // RETURN
     }
 
     if (0 != d_serverSocket_p->localAddress(&d_serverAddress)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BIND_FAILED;
+        return e_BIND_FAILED;                                         // RETURN
     }
     BSLS_ASSERT(d_serverAddress.portNumber());
 
     if (0 != d_serverSocket_p->listen(queueSize)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_LISTEN_FAILED;
+        return e_LISTEN_FAILED;                                       // RETURN
     }
 #ifndef BTLSO_PLATFORM_WIN_SOCKETS
     // Windows has a bug -- setting listening socket to non-blocking mode will
@@ -590,7 +595,7 @@ int TcpCbAcceptor::open(const btlso::IPv4Address& endpoint,
                                          bteso_Flag::e_NONBLOCKING_MODE)) {
         d_factory_p->deallocate(d_serverSocket_p);
         d_serverSocket_p = NULL;
-        return e_BLOCKMODE_FAILED;
+        return e_BLOCKMODE_FAILED;                                    // RETURN
     }
 #endif
     return e_SUCCESS;
@@ -614,8 +619,8 @@ int TcpCbAcceptor::isInvalid() const
 {
     return d_isInvalidFlag;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
