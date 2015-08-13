@@ -325,7 +325,7 @@ class StrTokenRefIter {
 
     // PRIVATE TYPES
 //ARB:ENUM 327
-    enum { BDEUT_TABLE_SIZE = 256 };
+    enum { BDEUT_TABLE_SIZE = 256 };//ARB:ONELINE
 
     // DATA
     const char *d_cursor_p;                // cursor into original string

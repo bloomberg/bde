@@ -160,7 +160,7 @@ struct Severity {
     };
 
 //ARB:ENUM 154
-    enum { BAEL_LENGTH = 8 };
+    enum { BAEL_LENGTH = 8 };//ARB:ONELINE
         // Define 'BAEL_LENGTH' to be the number of enumerators in the 'Level'
         // enumeration.
 

@@ -4193,7 +4193,7 @@ class Bind_ImplExplicit {
     enum {
 //ARB:ENUM 4194
         OFFSET = (int)Traits::PARAM_OFFSET    // 1 for member functions, 0 else
-    };
+    };//ARB:IFNDEF
 
     typedef typename Bind_MapParameter<FUNC, Args,
               (int)ParamMask::PARAMINDEX1, OFFSET>::Type   P1;
@@ -4492,7 +4492,7 @@ struct Bind_ImplSelector {
 //ARB:ENUM 4491
         IS_EXPLICIT = (Bind_CalcParameterMask<LIST>::IS_EXPLICIT &&
                        Bind_FuncTraits<RET,FUNC>::IS_EXPLICIT) ? 1 : 0
-    };
+    };//ARB:IFNDEF
 
     typedef typename
         bslmf::If<IS_EXPLICIT,
@@ -4521,7 +4521,7 @@ struct Bind_FuncTraitsHasNoEllipsis {
     enum {
 //ARB:ENUM 4520
         VALUE = 1
-    };
+    };//ARB:IFNDEF
 };
 
 // PARTIAL SPECIALIZATIONS
@@ -4530,7 +4530,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(...)> {
     // Specialization for function pointers that return 'RET' and accept one
     // argument which is an ellipsis.
 //ARB:ENUM 4529
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1>
@@ -4538,7 +4538,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,...)> {
     // Specialization for function pointers that return 'RET' and accept one
     // argument and an ellipsis.
 //ARB:ENUM 4536
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2>
@@ -4546,7 +4546,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,...)> {
     // Specialization for function pointers that return 'RET' and accept two
     // arguments and an ellipsis.
 //ARB:ENUM 4543
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3>
@@ -4554,7 +4554,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,...)> {
     // Specialization for function pointers that return 'RET' and accept three
     // arguments and an ellipsis.
 //ARB:ENUM 4550
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4>
@@ -4562,7 +4562,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,...)> {
     // Specialization for function pointers that return 'RET' and accept four
     // arguments and an ellipsis.
 //ARB:ENUM 4557
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5>
@@ -4570,7 +4570,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,...)> {
     // Specialization for function pointers that return 'RET' and accept five
     // arguments and an ellipsis.
 //ARB:ENUM 4564
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4579,7 +4579,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,...)> {
     // Specialization for function pointers that return 'RET' and accept six
     // arguments and an ellipsis.
 //ARB:ENUM 4572
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4588,7 +4588,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6, A7,...)> {
     // Specialization for function pointers that return 'RET' and accept seven
     // arguments and an ellipsis.
 //ARB:ENUM 4580
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4597,7 +4597,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,...)> {
     // Specialization for function pointers that return 'RET' and accept eight
     // arguments and an ellipsis.
 //ARB:ENUM 4588
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4606,7 +4606,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,...)> {
     // Specialization for function pointers that return 'RET' and accept nine
     // arguments and an ellipsis.
 //ARB:ENUM 4596
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4616,7 +4616,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // Specialization for function pointers that return 'RET' and accept ten
     // arguments and an ellipsis.
 //ARB:ENUM 4605
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4626,7 +4626,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // Specialization for function pointers that return 'RET' and accept eleven
     // arguments and an ellipsis.
 //ARB:ENUM 4614
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4637,7 +4637,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // Specialization for function pointers that return 'RET' and accept
     // twelve arguments and an ellipsis.
 //ARB:ENUM 4624
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4648,7 +4648,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // Specialization for function pointers that return 'RET' and accept
     // thirteen arguments and an ellipsis.
 //ARB:ENUM 4634
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 template <class RET, class A1, class A2, class A3, class A4, class A5,
@@ -4659,7 +4659,7 @@ struct Bind_FuncTraitsHasNoEllipsis<RET (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // Specialization for function pointers that return 'RET' and accept
     // fourteen arguments and an ellipsis.
 //ARB:ENUM 4644
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 }  // close package namespace
 
@@ -4701,7 +4701,7 @@ struct Bind_FuncTraitsImp<RET,FUNC,1,0,0> {
       , PARAM_OFFSET          = 0
 //ARB:ENUM 4682
       , HAS_POINTER_SEMANTICS = 0
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC*                                             Type;
@@ -4724,7 +4724,7 @@ struct Bind_FuncTraitsImp<RET,FUNC,0,1,0> {
       , PARAM_OFFSET          = 0
 //ARB:ENUM 4702
       , HAS_POINTER_SEMANTICS = 0
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC              Type;
@@ -4747,7 +4747,7 @@ struct Bind_FuncTraitsImp<RET,FUNC,0,0,1> {
       , PARAM_OFFSET          = 1
 //ARB:ENUM 4722
       , HAS_POINTER_SEMANTICS = 0
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC             Type;
@@ -4769,7 +4769,7 @@ struct Bind_FuncTraitsImp<RET,FUNC,0,0,0> {
 //ARB:ENUM 4741
       , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
                                    bslalg::TypeTraitHasPointerSemantics>::VALUE
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC Type;
@@ -4787,7 +4787,7 @@ struct Bind_FuncTraitsImp<RET,FUNC*,0,0,0> {
         IS_EXPLICIT           = 0
 //ARB:ENUM 4758
       , HAS_POINTER_SEMANTICS = 1
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC  Type;
@@ -4809,7 +4809,7 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,1,0,0> {
       , PARAM_OFFSET          = 0
 //ARB:ENUM 4777
       , HAS_POINTER_SEMANTICS = 0
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC                                              Type;
@@ -4833,7 +4833,7 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,1,0> {
       , PARAM_OFFSET          = 0
 //ARB:ENUM 4798
       , HAS_POINTER_SEMANTICS = 0
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC Type;
@@ -4857,7 +4857,7 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,1> {
       , PARAM_OFFSET          = 1
 //ARB:ENUM 4819
       , HAS_POINTER_SEMANTICS = 0
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC             Type;
@@ -4881,7 +4881,7 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
 //ARB:ENUM 4840
       , HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
                                    bslalg::TypeTraitHasPointerSemantics>::VALUE
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC                      Type;
@@ -4901,7 +4901,7 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC*,0,0,0> {
         IS_EXPLICIT           = 0
 //ARB:ENUM 4859
       , HAS_POINTER_SEMANTICS = 1
-    };
+    };//ARB:IFNDEF
 
     // PUBLIC TYPES
     typedef FUNC                      Type;
@@ -4988,7 +4988,7 @@ struct Bind_ArgumentMask {
     enum {
 //ARB:ENUM 4945
         VALUE = 0
-    };
+    };//ARB:IFNDEF
 };
 
 template <int INDEX>
@@ -5000,7 +5000,7 @@ struct Bind_ArgumentMask<PlaceHolder<INDEX> > {
     enum {
 //ARB:ENUM 4956
         VALUE = 1 << INDEX
-    };
+    };//ARB:IFNDEF
 };
 
 template <class RET, class FUNC, class LIST>
@@ -5016,7 +5016,7 @@ struct Bind_ArgumentMask<Bind<RET, FUNC, LIST> > {
     enum {
 //ARB:ENUM 4971
         VALUE = 1 << 24
-    };
+    };//ARB:IFNDEF
 };
 
 template <class RET, class FUNC, class LIST>
@@ -5030,7 +5030,7 @@ struct Bind_ArgumentMask<BindWrapper<RET, FUNC, LIST> > {
     enum {
 //ARB:ENUM 4984
         VALUE = 1 << 24
-    };
+    };//ARB:IFNDEF
 };
 
 
@@ -5047,7 +5047,7 @@ struct Bind_ArgumentNumber {
     enum {
 //ARB:ENUM 5000
         VALUE = 0
-    };
+    };//ARB:IFNDEF
 };
 
 template <int INDEX>
@@ -5058,7 +5058,7 @@ struct Bind_ArgumentNumber<PlaceHolder<INDEX> > {
     enum {
 //ARB:ENUM 5010
         VALUE = INDEX
-    };
+    };//ARB:IFNDEF
 };
 
                        // =============================
@@ -5326,7 +5326,7 @@ struct Bind_CalcParameterMask {
       , PARAMINDEX13 = BDLF_BIND_PARAMINDEX(13)
 //ARB:ENUM 5247
       , PARAMINDEX14 = BDLF_BIND_PARAMINDEX(14)
-    };
+    };//ARB:IFNDEF
 };
 }  // close package namespace
 

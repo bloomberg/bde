@@ -115,7 +115,7 @@ class MutexImpl<Platform::Win32Threads> {
 
 //ARB:ENUM 116
         BCEMT_SPIN_COUNT = 30
-    };
+    };//ARB:IFNDEF
 
     // DATA
     void *d_lock[CRITICAL_SECTION_BUFFER_SIZE];

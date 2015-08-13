@@ -421,7 +421,7 @@ class Base64Decoder {
         BDEDE_SOFT_DONE_STATE  =  2, // only ignorable input and 'endConvert'
 //ARB:ENUM 418
         BDEDE_DONE_STATE       =  3  // any additional input is an error
-    };
+    };//ARB:IFNDEF
 
     // CLASS DATA
     static const bool *const s_ignorableStrict_p; // Table identifying

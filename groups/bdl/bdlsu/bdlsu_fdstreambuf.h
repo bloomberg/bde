@@ -647,7 +647,7 @@ class FdStreamBuf : public bsl::streambuf {
   private:
     // PRIVATE TYPES
 //ARB:ENUM 649
-    enum { BDESU_PBACK_BUF_SIZE = 8 }; // size of d_pBackBuf
+    enum { BDESU_PBACK_BUF_SIZE = 8 }; // size of d_pBackBuf//ARB:ONELINE
 
     enum FdStreamBufMode  {
 //ARB:ENUM 652
@@ -672,7 +672,7 @@ class FdStreamBuf : public bsl::streambuf {
                                        // error mode is sticky -- subsequent
                                        // I/O won't work until error mode is
                                        // cleared by a 'reset' or a seek.
-    };
+    };//ARB:IFNDEF
 
   private:
     // DATA

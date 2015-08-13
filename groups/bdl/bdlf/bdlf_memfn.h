@@ -242,7 +242,7 @@ struct MemFn_Dereference {
     template <class TYPE>
     static inline OBJTYPE& deref(TYPE& obj)
     {
-//ARB:ENUM 245
+//ARB:ENUM 245 local
         enum { VALUE = bslmf::IsPointer<TYPE>::VALUE
                     || bslalg::HasTrait<TYPE,
                                 bslalg::TypeTraitHasPointerSemantics>::VALUE };
@@ -253,7 +253,7 @@ struct MemFn_Dereference {
     template <class TYPE>
     static inline OBJTYPE& deref(const TYPE& obj)
     {
-//ARB:ENUM 255
+//ARB:ENUM 255 local
         enum { VALUE = bslmf::IsPointer<TYPE>::VALUE
                     || bslalg::HasTrait<TYPE,
                                 bslalg::TypeTraitHasPointerSemantics>::VALUE };

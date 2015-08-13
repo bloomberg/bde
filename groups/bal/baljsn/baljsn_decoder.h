@@ -692,7 +692,7 @@ int Decoder::decodeImp(TYPE *value,
                               bdeat_TypeCategory::Enumeration)
 {
 //ARB:ENUM 694
-    enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };
+    enum { BAEJSN_MIN_ENUM_STRING_LENGTH = 2 };//ARB:ONELINE
 
     if (Tokenizer::BAEJSN_ELEMENT_VALUE != d_tokenizer.tokenType()) {
         d_logStream << "Enumeration element value was not found\n";
@@ -859,7 +859,7 @@ int Decoder::decodeImp(TYPE *value,
                               bdeat_TypeCategory::NullableValue)
 {
 //ARB:ENUM 860
-    enum { BAEJSN_NULL_VALUE_LENGTH = 4 };
+    enum { BAEJSN_NULL_VALUE_LENGTH = 4 };//ARB:ONELINE
 
     if (Tokenizer::BAEJSN_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         bslstl::StringRef dataValue;

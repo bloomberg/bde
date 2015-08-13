@@ -232,7 +232,7 @@ bool ThresholdAggregate::areValidThresholdLevels(int recordLevel,
                                                       int triggerAllLevel)
 {
 //ARB:ENUM 234
-    enum { BAEL_BITS_PER_CHAR = 8 };
+    enum { BAEL_BITS_PER_CHAR = 8 };//ARB:ONELINE
 
     return !((recordLevel | passLevel | triggerLevel | triggerAllLevel)
              >> BAEL_BITS_PER_CHAR);

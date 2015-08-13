@@ -82,7 +82,7 @@ struct ChannelType {
     };
 
 //ARB:ENUM 80
-    enum { BTEMT_LENGTH = BTEMT_IMPORTED_CHANNEL };
+    enum { BTEMT_LENGTH = BTEMT_IMPORTED_CHANNEL };//ARB:ONELINE
         // Define 'LENGTH' to be the number of consecutively valued enumerators
         // in the range '[ LISTENING_CHANNEL .. IMPORTED_CHANNEL ]'.
 

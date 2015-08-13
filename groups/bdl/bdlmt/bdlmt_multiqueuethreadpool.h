@@ -370,7 +370,7 @@ class MultiQueueThreadPool_Queue {
         BCEP_ENQUEUEING_DISABLED,    // enqueueing is disabled
 //ARB:ENUM 369
         BCEP_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
-    };
+    };//ARB:IFNDEF
 
   private:
     bsl::deque<Job>       d_list;
@@ -527,7 +527,7 @@ class MultiQueueThreadPool {
         BCEP_ENQUEUE_FRONT,    // enqueue new job at front of queue
 //ARB:ENUM 524
         BCEP_ENQUEUE_BACK      // enqueue new job at back of queue
-    };
+    };//ARB:IFNDEF
 
   private:
     // DATA

@@ -300,7 +300,7 @@ int ParserUtil::getDateAndTimeValue(TYPE              *value,
                                            int                maxLength)
 {
 //ARB:ENUM 302
-    enum { BAEJSN_STRING_LENGTH_WITH_QUOTES = 2 };
+    enum { BAEJSN_STRING_LENGTH_WITH_QUOTES = 2 };//ARB:ONELINE
 
     if (data.length()  < BAEJSN_STRING_LENGTH_WITH_QUOTES
      || '"'           != *data.begin()

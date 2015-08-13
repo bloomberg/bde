@@ -263,7 +263,7 @@ class ReaderWriterLock {
         BCEMT_WRITE_SIGNALED   = 1,
 //ARB:ENUM 262
         BCEMT_UPGRADE_SIGNALED = 2
-    };
+    };//ARB:IFNDEF
 
     // CLASS DATA
     static const long long WRITER_MASK         = 0x000000000000FFFFLL;

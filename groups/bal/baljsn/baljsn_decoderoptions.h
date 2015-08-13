@@ -102,7 +102,7 @@ class DecoderOptions {
 //ARB:ENUM 102
         BAEJSN_DEFAULT_MAX_DEPTH = 32  // default value for
                                        // 'maxDepth' attribute
-    };
+    };//ARB:IFNDEF
 
     // DATA
     int  d_maxDepth;             // maximum recursion depth

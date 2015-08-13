@@ -203,7 +203,7 @@ struct Transmission {
     };
 
 //ARB:ENUM 199
-    enum { BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1 };
+    enum { BAEL_LENGTH = BAEL_MANUAL_PUBLISH_ALL + 1 };//ARB:ONELINE
         // Define 'LENGTH' to be the number of consecutively-valued enumerators
         // in the range '[ BAEL_PASSTHROUGH .. BAEL_MANUAL_PUBLISH_ALL ]'.
 

@@ -244,7 +244,7 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
     BSLS_ASSERT_SAFE(0 < dataLength);
 
 //ARB:ENUM 246
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
 
     const int i = static_cast<int>(bdeat_ArrayFunctions::size(*d_object_p));
 
@@ -291,7 +291,7 @@ int ListParser<TYPE>::beginParse(TYPE *object)
     BSLS_ASSERT_SAFE(object);
 
 //ARB:ENUM 292
-    enum { BAEXML_SUCCESS = 0 };
+    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
 
     d_characters.clear();
     d_object_p = object;
@@ -307,7 +307,7 @@ int ListParser<TYPE>::endParse()
     BSLS_ASSERT_SAFE(d_object_p);
 
 //ARB:ENUM 307
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
 
     if (!d_characters.empty()) {
         if (0 != appendElement(d_characters.data(),
@@ -329,7 +329,7 @@ int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
     BSLS_ASSERT_SAFE(d_object_p);
 
 //ARB:ENUM 328
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
 
     while (begin != end) {
         const char character = *begin;

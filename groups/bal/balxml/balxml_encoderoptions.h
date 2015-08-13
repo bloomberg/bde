@@ -155,12 +155,12 @@ class EncoderOptions {
       , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER         = 12
 //ARB:ENUM 143
       , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS          = 13
-    };
+    };//ARB:IFNDEF
 
     enum {
 //ARB:ENUM 147
         NUM_ATTRIBUTES = 14
-    };
+    };//ARB:IFNDEF
 
     enum {
 //ARB:ENUM 151
@@ -191,7 +191,7 @@ class EncoderOptions {
       , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER         = 12
 //ARB:ENUM 164
       , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS          = 13
-    };
+    };//ARB:IFNDEF
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -557,7 +557,7 @@ template <class MANIPULATOR>
 int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
 //ARB:ENUM 530
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     switch (id) {
       case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
@@ -614,7 +614,7 @@ int EncoderOptions::manipulateAttribute(
         int           nameLength)
 {
 //ARB:ENUM 586
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
@@ -792,7 +792,7 @@ template <class ACCESSOR>
 int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
 //ARB:ENUM 763
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     switch (id) {
       case ATTRIBUTE_ID_OBJECT_NAMESPACE: {
@@ -849,7 +849,7 @@ int EncoderOptions::accessAttribute(
         int         nameLength) const
 {
 //ARB:ENUM 819
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);

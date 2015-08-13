@@ -382,7 +382,7 @@ struct CharType {
     };
 
 //ARB:ENUM 368
-    enum { BDEU_NUM_CATEGORIES = BDEU_NONE + 1 };
+    enum { BDEU_NUM_CATEGORIES = BDEU_NONE + 1 };//ARB:ONELINE
         // Current number of categories supported by this component.
 
   private:

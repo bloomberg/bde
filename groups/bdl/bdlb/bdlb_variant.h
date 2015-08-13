@@ -766,9 +766,11 @@ struct Variant_ReturnValueHelper {
         // than the ellipsis version, which will return a 'YesType', indicating
         // the existence of 'T::ResultType'.
 
+    enum {
 //ARB:ENUM 769
-    enum { VALUE = sizeof(match<VISITOR>(0))
-                   == sizeof(Variant_ReturnValueHelper_YesType) };
+        VALUE = sizeof(match<VISITOR>(0))
+                   == sizeof(Variant_ReturnValueHelper_YesType)
+    };//ARB:IFNDEF
         // A 'VALUE' of 'true' indicates 'VISITOR::ResultType' exists, and
         // 'false' otherwise.
 };
@@ -1092,7 +1094,7 @@ struct VariantImp_Traits {
          && bslmf::IsBitwiseMoveable<Type18>::value
          && bslmf::IsBitwiseMoveable<Type19>::value
          && bslmf::IsBitwiseMoveable<Type20>::value)
-    };
+    };//ARB:IFNDEF
 
     typedef typename bslmf::If<
         VARIANT_USES_BSLMA_ALLOCATOR,
@@ -6148,9 +6150,11 @@ VariantImp<TYPES>::VariantImp(const TYPE_OR_ALLOCATOR& typeOrAlloc)
        (bslmf::MetaInt< bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
                                            bslma::Allocator *>::VALUE> *)0)
 {
-//ARB:ENUM 6147
-    enum { IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
-                                              bslma::Allocator *>::VALUE };
+    enum {
+//ARB:ENUM 6147 local
+        IS_ALLOCATOR = bslmf::IsConvertible<TYPE_OR_ALLOCATOR,
+                                              bslma::Allocator *>::VALUE
+    };
 
     create(typeOrAlloc, (bslmf::MetaInt<IS_ALLOCATOR> *)0);
 }

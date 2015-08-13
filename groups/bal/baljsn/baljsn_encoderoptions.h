@@ -130,7 +130,7 @@ class EncoderOptions {
         BAEJSN_COMPACT = 0,  // compact encoding without any whitespace
 //ARB:ENUM 130
         BAEJSN_PRETTY        // pretty encoding with appropriate indentation
-    };
+    };//ARB:IFNDEF
 
   private:
     // DATA

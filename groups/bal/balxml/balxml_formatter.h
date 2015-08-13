@@ -320,7 +320,7 @@ class Formatter {
 //ARB:ENUM 313
         BAEXML_BETWEEN_TAGS,
         BAEXML_AT_END
-    };
+    };//ARB:IFNDEF
 
     class ElemContext;
     friend class ElemContext;
@@ -333,7 +333,7 @@ class Formatter {
         // If tag is longer than the maximum length, only the first
         // 'TRUNCATED_TAG_LEN' characters are checked.
 //ARB:ENUM 327
-        enum { BAEXML_TRUNCATED_TAG_LEN = 15 };
+        enum { BAEXML_TRUNCATED_TAG_LEN = 15 };//ARB:ONELINE
         unsigned char d_tagLen;  // actual tag length, up to 255
         char          d_tag[BAEXML_TRUNCATED_TAG_LEN]; // truncated tag
 #endif

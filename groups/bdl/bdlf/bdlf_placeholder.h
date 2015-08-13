@@ -35,7 +35,7 @@ namespace bdlf {
 template <int I>
 struct PlaceHolder {
 //ARB:ENUM 37
-    enum { VALUE = I };
+    enum { VALUE = I };//ARB:ONELINE
 };
 
 namespace PlaceHolders {

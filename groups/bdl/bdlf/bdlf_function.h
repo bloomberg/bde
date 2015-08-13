@@ -451,7 +451,7 @@ class Function_Rep {
       , BDEF_DESTROY            = 3
 //ARB:ENUM 448
       , BDEF_IN_PLACE_DETECTION = 4
-    };
+    };//ARB:IFNDEF
 
     typedef bool (*Manager)(Function_Rep *rep,
                             const void        *source,
@@ -553,7 +553,7 @@ class Function_Rep {
       , IS_IN_PLACE_WITHOUT_POINTER_SEMANTICS     = 10
 //ARB:ENUM 538
       , IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS = 11
-    };
+    };//ARB:IFNDEF
 
     // CREATORS
     explicit Function_Rep(bslma::Allocator *allocator = 0);
@@ -702,7 +702,7 @@ struct FunctionUtil {
             // is guaranteed not to trigger a call to the allocator when
             // passing to the constructor of, or assigned to, a 'Function'
             // instance.
-    };
+    };//ARB:IFNDEF
 
     template <class FUNC>
     struct IsInplace {
@@ -744,7 +744,7 @@ struct FunctionUtil {
         enum {
 //ARB:ENUM 727
             VALUE = sizeof(FUNC) <= FunctionUtil::MAX_INPLACE_OBJECT_SIZE
-        };
+        };//ARB:IFNDEF
     };
 };
 
@@ -812,7 +812,7 @@ class Function {
             // is guaranteed not to trigger a call to the allocator (typically
             // one function or member function pointer plus four integers).
             // Equal to 'FunctionUtil::MAX_INPLACE_OBJECT_SIZE'.
-    };
+    };//ARB:IFNDEF
 
   private:
     // PRIVATE TYPES
@@ -867,7 +867,7 @@ class Function {
       , IS_IN_PLACE                  = Rep::IS_IN_PLACE
 //ARB:ENUM 842
       , IS_OUT_OF_PLACE              = Rep::IS_OUT_OF_PLACE
-    };
+    };//ARB:IFNDEF
 
     // DATA
     Rep         d_rep;       // representation of the functor (in-place or
@@ -1397,7 +1397,7 @@ struct Function_TypeList {
                                             : (HAS_POINTER_SEMANTICS          \
          ? (int)bdlf::Function_Rep::IS_OUT_OF_PLACE_WITH_POINTER_SEMANTICS     \
          : (int)bdlf::Function_Rep::IS_OUT_OF_PLACE_WITHOUT_POINTER_SEMANTICS) \
-    };
+    };//ARB:IFNDEF
     // This private local macro is used to define an 'INVOKER_TAG' enumerated
     // value which is equal to one of the following values depending on the
     // parameterized 'FUNC' argument (the name is self-explanatory):
@@ -2706,7 +2706,7 @@ Function_Rep::operator=(const FUNC& func)
                                        bslalg::TypeTraitBitwiseCopyable>::VALUE
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE
-    };
+    };//ARB:IFNDEF
 
     Function_Rep(func,
                       (bslmf::Tag<CREATION_TAG> *)0,
@@ -2743,7 +2743,7 @@ Function_Rep::load(const FUNC& func, bslma::Allocator *allocator)
                                        bslalg::TypeTraitBitwiseCopyable>::VALUE
                                              ? IS_OUT_OF_PLACE_BITWISE_COPYABLE
                                              : IS_OUT_OF_PLACE
-    };
+    };//ARB:IFNDEF
 
     new(this) Function_Rep(func, (bslmf::Tag<CREATION_TAG> *)0,
                                 allocator);

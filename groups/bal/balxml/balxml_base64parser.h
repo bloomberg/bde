@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balxml::Base64Parser: push parser for Base64 types
 //
-//@DESCRIPTION: The 'balxml::Base64Parser<TYPE>' class template provided by 
+//@DESCRIPTION: The 'balxml::Base64Parser<TYPE>' class template provided by
 // this component can be used to parse Base64 characters into one of the
 // supported Base64 types, which are 'bsl::vector<char>' and 'bsl::string'.
 // The 'TYPE' parameter can be one of these two types.
@@ -199,7 +199,7 @@ int Base64Parser<TYPE>::beginParse(TYPE *object)
     BSLS_ASSERT_SAFE(object);
 
 //ARB:ENUM 201
-    enum { BAEXML_SUCCESS = 0 };
+    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
 
     d_base64Decoder.resetState();
     d_object_p = object;
@@ -215,7 +215,7 @@ int Base64Parser<TYPE>::endParse()
     BSLS_ASSERT_SAFE(d_object_p);
 
 //ARB:ENUM 216
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
 
     bsl::back_insert_iterator<TYPE> outputIterator(*d_object_p);
 
@@ -240,7 +240,7 @@ int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
     BSLS_ASSERT_SAFE(d_object_p);
 
 //ARB:ENUM 240
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
 
     bsl::back_insert_iterator<TYPE> outputIterator(*d_object_p);
 

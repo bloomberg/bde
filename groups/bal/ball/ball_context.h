@@ -268,7 +268,7 @@ class Context {
 
     // PRIVATE TYPES
 //ARB:ENUM 270
-    enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };
+    enum { BAEL_SUCCESS = 0, BAEL_FAILURE = -1 };//ARB:ONELINE
 
     // FRIENDS
     friend bool operator==(const Context&, const Context&);

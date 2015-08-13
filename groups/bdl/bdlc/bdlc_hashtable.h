@@ -1375,7 +1375,7 @@ bool bdlc::HashTableDefaultTraits::isNull(const BUCKET& bucket)
 //ARB:ENUM 1375
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
+    };//ARB:IFNDEF
 
     BSLMF_ASSERT(k_IS_POD);
 
@@ -1417,7 +1417,7 @@ void bdlc::HashTableDefaultTraits::setToNull(BUCKET *bucket)
 //ARB:ENUM 1416
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
+    };//ARB:IFNDEF
 
     BSLMF_ASSERT(k_IS_POD);
 
@@ -1462,7 +1462,7 @@ bool bdlc::HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
 //ARB:ENUM 1460
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
+    };//ARB:IFNDEF
 
     BSLMF_ASSERT(k_IS_POD);
 
@@ -1512,7 +1512,7 @@ void bdlc::HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
 //ARB:ENUM 1509
                           BUCKET,
                           bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
+    };//ARB:IFNDEF
 
     BSLMF_ASSERT(k_IS_POD);
 

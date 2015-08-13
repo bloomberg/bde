@@ -448,7 +448,7 @@ struct bdlat_TypeCategoryDeclareDynamic {
     // its real type.
 
 //ARB:ENUM 450
-    enum { VALUE = 0 };
+    enum { VALUE = 0 };//ARB:ONELINE
 };
 
 struct bdlat_TypeCategory {
@@ -538,7 +538,7 @@ struct bdlat_TypeCategory {
 //ARB:ENUM 525
             BDLAT_IS_DYNAMIC = BDLAT_NUM_CATEGORIES > 1
                                || bdlat_TypeCategoryDeclareDynamic<TYPE>::VALUE
-        };
+        };//ARB:IFNDEF
 
       public:
         enum {
@@ -1228,7 +1228,7 @@ bdlat_TypeCategoryFunctions::bdlat_typeCategorySelect(const TYPE& object)
     enum {
 //ARB:ENUM 1207
         BDLAT_SELECTION = bdlat_TypeCategory::Select<TYPE>::BDLAT_SELECTION
-    };
+    };//ARB:IFNDEF
 
     // An assertion below indicates that 'TYPE' is a dynamic type, but does not
     // overload this 'select' function.  Dynamic types *must* overload this

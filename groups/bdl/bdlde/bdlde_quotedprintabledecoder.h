@@ -158,7 +158,7 @@ class QuotedPrintableDecoder {
         BDEDE_NEED_HARD_LF_STATE =  5, // need soft new line
 //ARB:ENUM 152
         BDEDE_DONE_STATE         =  6  // any additional input is an error
-    };
+    };//ARB:IFNDEF
 
   public:
 
@@ -220,7 +220,7 @@ class QuotedPrintableDecoder {
         BDEDE_UC_,     // strict mode       - Ignore and halt decoding
 //ARB:ENUM 198
         BDEDE_UC       // relaxed mode      - Ignore but continue decoding
-    };
+    };//ARB:IFNDEF
 
     enum LineBreakMode {
         // Configuration governing how line breaks are decoded.
@@ -229,7 +229,7 @@ class QuotedPrintableDecoder {
         BDEDE_CRLF_MODE,       // "\r\n" are decoded to "\r\n".
 //ARB:ENUM 205
         BDEDE_LF_MODE          // "\r\n" are decoded to "\n".
-    };
+    };//ARB:IFNDEF
 
     // CLASS DATA
     static const char s_componentName[];

@@ -382,7 +382,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(char                             *lhs,
                                          bdlat_TypeCategory::Enumeration)
 {
 //ARB:ENUM 384
-    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };
+    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };//ARB:ONELINE
 
     const int MIN_CHAR = -128;
     const int MAX_CHAR = 127;
@@ -407,7 +407,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(short                            *lhs,
                                          bdlat_TypeCategory::Enumeration)
 {
 //ARB:ENUM 408
-    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };
+    enum { BDLAT_SUCCESS = 0, BDLAT_FAILURE = -1 };//ARB:ONELINE
 
     const int MIN_SHORT = -32768;
     const int MAX_SHORT = 32767;
@@ -432,7 +432,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(int                              *lhs,
                                          bdlat_TypeCategory::Enumeration)
 {
 //ARB:ENUM 432
-    enum { BDLAT_SUCCESS = 0 };
+    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
 
     bdlat_EnumFunctions::toInt(lhs, rhs);
 
@@ -446,7 +446,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(bsl::string                      *lhs,
                                          bdlat_TypeCategory::Enumeration)
 {
 //ARB:ENUM 445
-    enum { BDLAT_SUCCESS = 0 };
+    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
 
     bdlat_EnumFunctions::toString(lhs, rhs);
 
@@ -462,7 +462,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE                    *lhs,
     enum {
 //ARB:ENUM 459
         IS_CONVERTIBLE = bslmf::IsConvertible<RHS_TYPE, LHS_TYPE>::VALUE
-    };
+    };//ARB:IFNDEF
 
     typedef typename
     bslmf::If<IS_CONVERTIBLE, IsConvertible, IsNotConvertible>::Type Selector;
@@ -478,7 +478,7 @@ int bdlat_ValueTypeFunctions_Imp::assign(LHS_TYPE        *lhs,
                                          RHS_CATEGORY)
 {
 //ARB:ENUM 475
-    enum { BDLAT_FAILURE = -1 };
+    enum { BDLAT_FAILURE = -1 };//ARB:ONELINE
 
     (void)lhs;  // quell warning
     (void)rhs;  // quell warning
@@ -492,7 +492,7 @@ int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
                                                     IsConvertible)
 {
 //ARB:ENUM 488
-    enum { BDLAT_SUCCESS = 0 };
+    enum { BDLAT_SUCCESS = 0 };//ARB:ONELINE
 
     *lhs = static_cast<LHS_TYPE>(rhs);
 
@@ -506,7 +506,7 @@ int bdlat_ValueTypeFunctions_Imp::assignSimpleTypes(LHS_TYPE        *lhs,
                                                     IsNotConvertible)
 {
 //ARB:ENUM 501
-    enum { BDLAT_FAILURE = -1 };
+    enum { BDLAT_FAILURE = -1 };//ARB:ONELINE
 
     (void)lhs;  // quell warning
     (void)rhs;  // quell warning
@@ -523,7 +523,7 @@ void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object)
                  || bslalg::HasTrait<TYPE, bdlat_TypeTraitBasicSequence>::VALUE
                  || bslalg::HasTrait<TYPE,
                                     bdlat_TypeTraitBasicCustomizedType>::VALUE
-    };
+    };//ARB:IFNDEF
 
     typedef typename
     bslmf::If<HAS_TRAIT,

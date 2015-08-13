@@ -77,12 +77,12 @@ class DecoderOptions {
       , ATTRIBUTE_ID_FORMATTING_MODE       = 1
 //ARB:ENUM 76
       , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 2
-    };
+    };//ARB:IFNDEF
 
     enum {
 //ARB:ENUM 80
         NUM_ATTRIBUTES = 3
-    };
+    };//ARB:IFNDEF
 
     enum {
 //ARB:ENUM 84
@@ -91,7 +91,7 @@ class DecoderOptions {
       , ATTRIBUTE_INDEX_FORMATTING_MODE       = 1
 //ARB:ENUM 86
       , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 2
-    };
+    };//ARB:IFNDEF
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -299,7 +299,7 @@ template <class MANIPULATOR>
 int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
 //ARB:ENUM 294
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_DEPTH: {
@@ -323,7 +323,7 @@ int DecoderOptions::manipulateAttribute(
         int           nameLength)
 {
 //ARB:ENUM 317
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
@@ -380,7 +380,7 @@ template <class ACCESSOR>
 int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 {
 //ARB:ENUM 373
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_DEPTH: {
@@ -404,7 +404,7 @@ int DecoderOptions::accessAttribute(
         int         nameLength) const
 {
 //ARB:ENUM 396
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     const bdeat_AttributeInfo *attributeInfo =
           lookupAttributeInfo(name, nameLength);

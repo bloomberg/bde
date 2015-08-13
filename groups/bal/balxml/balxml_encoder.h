@@ -1113,7 +1113,7 @@ Encoder_EncodeObject::executeImp(const TYPE&            object,
                                         bdeat_TypeCategory::NullableValue)
 {
 //ARB:ENUM 1115
-    enum { BAEXML_SUCCESS = 0 };
+    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
 
     if (bdeat_NullableValueFunctions::isNull(object)) {
         if (formattingMode & bdeat_FormattingMode::BDEAT_NILLABLE) {
@@ -1164,7 +1164,7 @@ int Encoder_EncodeObject::executeImp(
                                          ANY_CATEGORY)
 {
 //ARB:ENUM 1165
-    enum { BAEXML_FAILURE = -1 };
+    enum { BAEXML_FAILURE = -1 };//ARB:ONELINE
 
     bool isUntagged = formattingMode & bdeat_FormattingMode::BDEAT_UNTAGGED;
 
@@ -1230,7 +1230,7 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
                                          int                    formattingMode)
 {
 //ARB:ENUM 1230
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
 
     const int size = (int)bdeat_ArrayFunctions::size(object);
 
@@ -1300,7 +1300,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            bdeat_TypeCategory::Sequence)
 {
 //ARB:ENUM 1299
-    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };//ARB:ONELINE
 
 #if defined(BDE_BUILD_TARGET_SAFE)
     int type = formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK;
@@ -1341,7 +1341,7 @@ int Encoder_EncodeValue::executeImp(const TYPE& object,
                                            bdeat_TypeCategory::Choice)
 {
 //ARB:ENUM 1339
-    enum { BAEXML_FAILURE = -1 };
+    enum { BAEXML_FAILURE = -1 };//ARB:ONELINE
 
 #if defined(BDE_BUILD_TARGET_SAFE)
     int type = formattingMode & bdeat_FormattingMode::BDEAT_TYPE_MASK;
@@ -1437,7 +1437,7 @@ int Encoder_SequenceFirstPass::addAttributeImp(
                                          bdeat_TypeCategory::NullableValue)
 {
 //ARB:ENUM 1434
-    enum { BAEXML_SUCCESS = 0 };
+    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
 
     if (bdeat_NullableValueFunctions::isNull(object)) {
         return BAEXML_SUCCESS;
@@ -1521,7 +1521,7 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
                                                  const INFO_TYPE& info)
 {
 //ARB:ENUM 1517
-    enum { BAEXML_SUCCESS = 0 };
+    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
 
     int  formattingMode  = info.formattingMode();
     bool isSimpleContent = formattingMode
@@ -1582,7 +1582,7 @@ int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
                                                   const INFO_TYPE& info)
 {
 //ARB:ENUM 1577
-    enum { BAEXML_SUCCESS = 0 };
+    enum { BAEXML_SUCCESS = 0 };//ARB:ONELINE
 
     int formattingMode = info.formattingMode();
 

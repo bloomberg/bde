@@ -107,11 +107,11 @@ struct DstPolicy {
                             // daylight-saving time or standard time (as
                             // appropriate).
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BAETZO_DST         = BALTZO_DST
       , BAETZO_STANDARD    = BALTZO_STANDARD
       , BAETZO_UNSPECIFIED = BALTZO_UNSPECIFIED
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     };
 

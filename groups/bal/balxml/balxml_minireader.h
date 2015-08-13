@@ -325,7 +325,7 @@ class MiniReader :  public Reader {
         BAEXML_DEFAULT_BUFSIZE = 1024 * 8,    // DEFAULT - 8 KB
 //ARB:ENUM 323
         BAEXML_DEFAULT_DEPTH   = 20           // Average expected deep
-    };                                        // to minimize allocations
+    };                                        // to minimize allocations//ARB:IFNDEF
 
     typedef ElementAttribute Attribute;
     typedef bsl::vector<Attribute>  AttributeVector;
@@ -339,9 +339,9 @@ class MiniReader :  public Reader {
             BAEXML_NODE_NO_FLAGS = 0x0000,
 //ARB:ENUM 335
             BAEXML_NODE_EMPTY    = 0x0001
-        };
+        };//ARB:IFNDEF
 
-        NodeType         d_type;                  
+        NodeType         d_type;
         const char      *d_qualifiedName;
         const char      *d_prefix;
         const char      *d_localName;
@@ -404,7 +404,7 @@ class MiniReader :  public Reader {
                                                 // the input
 
     char                     *d_markPtr;        // pointer to the previous node
-                                                // value 
+                                                // value
 
     char                     *d_attrNamePtr;
     char                     *d_attrValPtr;

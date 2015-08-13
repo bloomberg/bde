@@ -260,7 +260,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace ball {     
+namespace ball {
 
 class UserFieldValues;
 
@@ -287,7 +287,7 @@ class LoggerManagerConfiguration {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(ball::UserFieldValues *, 
+    typedef bdlf::Function<void (*)(ball::UserFieldValues *,
                                     const ball::UserFieldDescriptors& )>
                                                    UserFieldsPopulatorCallback;
         // 'UserFieldsPopulatorCallback' is the type of a user-supplied
@@ -355,12 +355,12 @@ class LoggerManagerConfiguration {
                                                   // severity threshold levels
                                                   // for logger manager
 
-    ball::UserFieldDescriptors  
+    ball::UserFieldDescriptors
                           d_userFieldDescriptors; // describes the fields
-                                                  // returned by 
+                                                  // returned by
                                                   // 'd_userPopulatorCallback'
 
-    UserFieldsPopulatorCallback 
+    UserFieldsPopulatorCallback
                           d_userPopulator;        // user callback to add
                                                   // optional user-defined
                                                   // fields to a log record
@@ -456,7 +456,7 @@ class LoggerManagerConfiguration {
 
     int setDefaultThresholdLevelsIfValid(int passLevel);
         // Set the passthrough severity threshold level attribute of the
-        // 'LoggerManagerDefaults' attribute of this object to the 
+        // 'LoggerManagerDefaults' attribute of this object to the
         // specified 'passLevel', if it is in the range '[0 .. 255]', and set
         // all the other threshold levels (recordLevel, triggerLevel,
         // triggerAllLevel) to 0.  Return 0 on success, and a non-zero value
@@ -472,7 +472,7 @@ class LoggerManagerConfiguration {
         // 'triggerAllLevel' values if each level is in the range '[0 .. 255]'.
         // Return 0 on success, and a non-zero value otherwise with no effect
         // on this object.
-    
+
     void setUserFieldDescriptors(
                        const ball::UserFieldDescriptors   fieldDescriptions,
                        const UserFieldsPopulatorCallback& populatorCallback);

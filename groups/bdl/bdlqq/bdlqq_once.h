@@ -403,7 +403,7 @@ class Once {
 
     // PRIVATE TYPES
 //ARB:ENUM 405
-    enum { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
+    enum { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };//ARB:ONELINE
 
   private:
     // NOT IMPLEMENTED
@@ -485,7 +485,7 @@ class OnceGuard {
 
     // PRIVATE TYPES
 //ARB:ENUM 486
-    enum State { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };
+    enum State { BCEMT_NOT_ENTERED, BCEMT_IN_PROGRESS, BCEMT_DONE };//ARB:ONELINE
 
     // DATA
     Once::OnceLock  d_onceLock;

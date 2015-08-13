@@ -76,7 +76,7 @@ struct EncodingStyle {
     enum {
 //ARB:ENUM 75
         NUM_ENUMERATORS = 2
-    };
+    };//ARB:IFNDEF
 
     // CONSTANTS
     static const char CLASS_NAME[];

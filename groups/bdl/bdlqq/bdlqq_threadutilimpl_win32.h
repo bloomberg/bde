@@ -440,7 +440,7 @@ void bdlqq::ThreadUtilImpl<bdlqq::Platform::Win32Threads>::microSleep(
                                                                  int seconds)
 {
 //ARB:ENUM 442
-    enum { MILLION = 1000 * 1000 };
+    enum { MILLION = 1000 * 1000 };//ARB:ONELINE
 
     bsls::TimeInterval ti((microsecs / MILLION) + seconds,
                          (microsecs % MILLION) * 1000);

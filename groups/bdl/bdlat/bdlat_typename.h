@@ -592,7 +592,7 @@ const char *bdlat_TypeName_Imp::className(const TYPE *object)
 
 //ARB:ENUM 591
         SELECTOR = (HAS_CLASS_NAME ? 0 : (IS_BASIC_ENUMERATION ? 1 : 2))
-    };
+    };//ARB:IFNDEF
 
     typedef typename
     bslmf::Switch<SELECTOR,

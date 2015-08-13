@@ -402,7 +402,7 @@ namespace bdlat_NullableValueFunctions {
     template <typename TYPE>
     struct IsNullableValue<bdlb::NullableValue<TYPE> > {
 //ARB:ENUM 403
-        enum { VALUE = 1 };
+        enum { VALUE = 1 };//ARB:ONELINE
     };
 
     template <typename TYPE>
@@ -440,7 +440,7 @@ namespace bdlat_NullableValueFunctions {
     template <typename TYPE>
     struct IsNullableValue<bdlb::NullableAllocatedValue<TYPE> > {
 //ARB:ENUM 440
-        enum { VALUE = 1 };
+        enum { VALUE = 1 };//ARB:ONELINE
     };
 
     template <typename TYPE>

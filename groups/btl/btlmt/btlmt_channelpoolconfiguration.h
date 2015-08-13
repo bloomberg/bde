@@ -247,7 +247,7 @@ class ChannelPoolConfiguration {
 
   private:
 //ARB:ENUM 249
-    enum { BTEMT_DEFAULT_THREAD_STACK_SIZE  = 1024 * 1024 };
+    enum { BTEMT_DEFAULT_THREAD_STACK_SIZE  = 1024 * 1024 };//ARB:ONELINE
 
     // Resource limits
     int                   d_maxConnections;    // maximum number of connections
@@ -291,7 +291,7 @@ class ChannelPoolConfiguration {
     enum {
 //ARB:ENUM 291
         NUM_ATTRIBUTES = 14 // the number of attributes in this class
-    };
+    };//ARB:IFNDEF
 
     enum {
 //ARB:ENUM 295
@@ -336,7 +336,7 @@ class ChannelPoolConfiguration {
 //ARB:ENUM 321
         ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
             // index for 'CollectTimeMetrics' attribute
-    };
+    };//ARB:IFNDEF
 
     enum {
 //ARB:ENUM 326
@@ -381,7 +381,7 @@ class ChannelPoolConfiguration {
 //ARB:ENUM 352
         ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
             // id for 'CollectTimeMetrics' attribute
-    };
+    };//ARB:IFNDEF
 
   public:
     // CONSTANTS
@@ -1459,7 +1459,7 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                       int          id)
 {
 //ARB:ENUM 1431
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_CONNECTIONS: {
@@ -1546,7 +1546,7 @@ int ChannelPoolConfiguration::manipulateAttribute(
                                                      int           nameLength)
 {
 //ARB:ENUM 1517
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);
@@ -1843,7 +1843,7 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
                                                                           const
 {
 //ARB:ENUM 1813
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
     switch (id) {
       case ATTRIBUTE_ID_MAX_CONNECTIONS: {
@@ -1930,7 +1930,7 @@ int ChannelPoolConfiguration::accessAttribute(ACCESSOR&   accessor,
                                                                           const
 {
 //ARB:ENUM 1899
-    enum { NOT_FOUND = -1 };
+    enum { NOT_FOUND = -1 };//ARB:ONELINE
 
      const bdeat_AttributeInfo *attributeInfo =
            lookupAttributeInfo(name, nameLength);

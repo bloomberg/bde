@@ -184,7 +184,7 @@ struct Float {
         BDES_INFINITE  = 0x08, // positive or negative infinity
 //ARB:ENUM 181
         BDES_NAN       = 0x10  // not a number
-    };
+    };//ARB:IFNDEF
 
     enum FineClassification {
         // Fine-grained classifications for floating-point numbers that
@@ -217,7 +217,7 @@ struct Float {
         BDES_POSITIVE_ZERO      = BDES_ZERO,
 //ARB:ENUM 202
         BDES_NEGATIVE_ZERO      = BDES_ZERO | BDES_NEGATIVE
-    };
+    };//ARB:IFNDEF
 
     // CLASS METHODS
     static Classification classify(float number);

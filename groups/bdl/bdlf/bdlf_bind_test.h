@@ -322,7 +322,7 @@ struct Bind_TestSlotsBase {
     enum {
 //ARB:ENUM 323
         NUM_SLOTS = 15
-    };
+    };//ARB:IFNDEF
 
   private:
     // PRIVATE CLASS DATA
@@ -457,7 +457,7 @@ class Bind_TestTypeNoAlloc {
     enum {
 //ARB:ENUM 457
         N1 = -1   // default value for all private data
-    };
+    };//ARB:IFNDEF
 
     // CREATORS
     explicit Bind_TestTypeNoAlloc(
@@ -831,7 +831,7 @@ class Bind_TestTypeAlloc {
     enum {
 //ARB:ENUM 830
         N1 = -1   // default value for all private data
-    };
+    };//ARB:IFNDEF
 
     // PRIVATE DATA
     mutable Arg1  d_a1;
