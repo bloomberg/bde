@@ -226,33 +226,31 @@ TcpCbChannel_RReg::~TcpCbChannel_RReg() {
 }
 
 // MANIPULATORS
-
 inline
-void TcpCbChannel_RReg::invoke(int status, int asyncStatus) const {
+void TcpCbChannel_RReg::invoke(int status, int augStatus) const {
     BSLS_ASSERT(e_VFUNC2 == d_callbackType);
     bdlf::Function<void (*)(int, int)> *cb =
         (bdlf::Function<void (*)(int, int)> *)
         (void *) const_cast<char *>(d_cb.d_arena);
-    (*cb)(status, asyncStatus);
+    (*cb)(status, augStatus);
 }
 
 inline
 void TcpCbChannel_RReg::invoke(const char *buffer,
                                int         status,
-                               int         asyncStatus) const {
+                               int         augStatus) const {
     BSLS_ASSERT(e_VFUNC3 == d_callbackType);
     BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
-    (*cb)(buffer, status, asyncStatus);
+    (*cb)(buffer, status, augStatus);
 }
 
 inline
-void TcpCbChannel_RReg::invokeConditionally(int status,
-                                            int asyncStatus) const {
+void TcpCbChannel_RReg::invokeConditionally(int status, int augStatus) const {
     if (e_VFUNC2 == d_callbackType) {
-        invoke(status, asyncStatus);
+        invoke(status, augStatus);
     }
     else {
-        invoke(NULL, status, asyncStatus);
+        invoke(NULL, status, augStatus);
     }
 }
 
@@ -442,15 +440,15 @@ TcpCbChannel_WReg::~TcpCbChannel_WReg() {
 // MANIPULATORS
 
 inline
-void TcpCbChannel_WReg::invoke(int status, int asyncStatus) const
+void TcpCbChannel_WReg::invoke(int status, int augStatus) const
 {
-    d_callback(status, asyncStatus);
+    d_callback(status, augStatus);
 }
 
 inline
-void TcpCbChannel_WReg::invokeConditionally(int status, int asyncStatus) const
+void TcpCbChannel_WReg::invokeConditionally(int status, int augStatus) const
 {
-    d_callback(status, asyncStatus);
+    d_callback(status, augStatus);
 }
 }  // close package namespace
 

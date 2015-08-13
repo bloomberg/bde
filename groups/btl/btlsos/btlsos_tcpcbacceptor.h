@@ -185,7 +185,7 @@ BSLS_IDENT("$Id: $")
 //      int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
 //      if (s) {
 //          cout << "Failed to open listening port." << endl;
-//          return s;
+//          return s;                                                 // RETURN
 //      }
 //      cout << "server's socket: " << d_allocator.address() << endl;
 //      assert(0 == d_allocator.isInvalid());
@@ -194,7 +194,7 @@ BSLS_IDENT("$Id: $")
 //          cout << "Can't enqueue an allocation request." << endl;
 //          assert(d_allocator.isInvalid());
 //          d_allocator.close();
-//          return s;
+//          return s;                                                 // RETURN
 //      }
 //      return 0;
 //  }
@@ -233,7 +233,7 @@ BSLS_IDENT("$Id: $")
 //          if (d_allocator.allocateTimed(d_allocateFunctor)) {
 //              d_allocator.close();
 //          }
-//          return;
+//          return;                                                   // RETURN
 //      }
 //      assert(0 >= status);    // Interrupts are not enabled.
 //      if (0 == status) {
@@ -276,7 +276,7 @@ BSLS_IDENT("$Id: $")
 //                                               + d_writeTimeout, callback)) {
 //              cout << "Failed to enqueue write request" << endl;
 //              d_allocator.deallocate(channel);
-//              return;
+//              return;                                               // RETURN
 //          }
 //          // Re-register read request
 //          bdlf::Function<void (*)(const char *, int, int)> readCallback(
@@ -335,7 +335,7 @@ BSLS_IDENT("$Id: $")
 //              {
 //                  cout << "Failed to enqueue write request" << endl;
 //                  d_allocator.deallocate(channel);
-//                  return;
+//                  return;                                           // RETURN
 //              }
 //          // Re-register read request
 //          bdlf::Function<void (*)(int, int)> readCallback(

@@ -40,6 +40,9 @@
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
+#include <signal.h>
+#include <unistd.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -405,9 +408,9 @@ static int testExecutionHelper(btlsos::TcpAcceptor           *acceptor,
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
     // specified 'newChannel' will be store the value returned.  If the
-    // 'command' is to deallocate a channel, the first channel in the array of
-    // 'channels' will be deallocated.  Return 0 on success, and a non-zero
-    // value otherwise.
+    // 'command' is to deallocate a channel, the first channel in the specified
+    // array of 'channels' will be deallocated.  Return 0 on success, and a
+    // non-zero value otherwise.
 {
     int rCode = 0;
 

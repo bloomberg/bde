@@ -4,16 +4,21 @@
 
 #include <btlsos_tcptimedcbchannel.h>
 #include <btlsos_tcpcbchannel.h>
+
 #include <btlso_ipv4address.h>
 #include <btlso_tcptimereventmanager.h>
 #include <btlso_inetstreamsocketfactory.h>
 
+#include <btlsc_timedcbchannel.h>
+
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
+#include <bdlf_placeholder.h>
 
 #include <bdls_testutil.h>
 
+#include <bdlqq_mutex.h>
 #include <bdlqq_threadattributes.h>
 #include <bdlqq_threadutil.h>
 
@@ -24,9 +29,9 @@
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'strcmp'
-
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
@@ -108,7 +113,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define NL()  cout << endl;                   // Print newline
@@ -118,9 +124,11 @@ bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
 #define P_T(X) d_mutex.lock(); P_(X); d_mutex.unlock();
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
 const char* hostName = "127.0.0.1";
 
 static int verbose;
@@ -283,7 +291,7 @@ enum {
         int s = d_allocator.open(serverAddress, k_QUEUE_SIZE);
         if (s) {
             cout << "Failed to open listening port." << endl;
-            return s;
+            return s;                                                 // RETURN
         }
         cout << "server's socket: " << d_allocator.address() << endl;
         ASSERT(0 == d_allocator.isInvalid());
@@ -292,7 +300,7 @@ enum {
             cout << "Can't enqueue an allocation request." << endl;
             ASSERT(d_allocator.isInvalid());
             d_allocator.close();
-            return s;
+            return s;                                                 // RETURN
         }
         return 0;
     }
@@ -331,7 +339,7 @@ enum {
             if (d_allocator.allocateTimed(d_allocateFunctor)) {
                 d_allocator.close();
             }
-            return;
+            return;                                                   // RETURN
         }
         ASSERT(0 >= status);    // Interrupts are not enabled.
         if (0 == status) {
@@ -374,7 +382,7 @@ enum {
                                                  + d_writeTimeout, callback)) {
                 cout << "Failed to enqueue write request" << endl;
                 d_allocator.deallocate(channel);
-                return;
+                return;                                               // RETURN
             }
             // Re-register read request
             bdlf::Function<void (*)(const char *, int, int)> readCallback(
@@ -433,7 +441,7 @@ enum {
                 {
                     cout << "Failed to enqueue write request" << endl;
                     d_allocator.deallocate(channel);
-                    return;
+                    return;                                           // RETURN
                 }
             // Re-register read request
             bdlf::Function<void (*)(int, int)> readCallback(
@@ -681,7 +689,7 @@ void my_TickReporter::readCb(const char            *buffer,
     d_acceptor_p->deallocate(clientChannel);
 }
 
-my_TickReporter::my_TickReporter(bsl::ostream&             console,
+my_TickReporter::my_TickReporter(bsl::ostream&              console,
                                  btlsc::CbChannelAllocator *acceptor)
 : d_acceptor_p(acceptor)
 , d_console(console)
