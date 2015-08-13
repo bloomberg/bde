@@ -27,12 +27,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate a typical use of the 'bdlde::Crc32'
-// class.  Each function would typically execute in separate processes or
-// potentially on separate machines.  The 'senderExample' function below
-// demonstrates how a message sender can write a message and its CRC-32
-// checksum to a 'bdex' output stream.  Note that 'Out' may be a 'typedef'
-// of any class that implements the 'bdlxxxx::OutStream' protocol:
+// The following snippets of code illustrate a typical use of the
+// 'bdlde::Crc32' class.  Each function would typically execute in separate
+// processes or potentially on separate machines.  The 'senderExample' function
+// below demonstrates how a message sender can write a message and its CRC-32
+// checksum to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of
+// any class that implements the 'bslx::OutStream' protocol:
 //..
 //  void senderExample(Out& output)
 //      // Write a message and its CRC-32 checksum to the specified 'output'
@@ -45,18 +45,18 @@ BSLS_IDENT("$Id: $")
 //      bdlde::Crc32 crc(message.data(), message.length());
 //
 //      // write the message to 'output'
-//      bdex_OutStreamFunctions::streamOut(output, message, 0);
+//      output << message;
 //
 //      // write the checksum to 'output'
 //      const int VERSION = 1;
-//      bdex_OutStreamFunctions::streamOut(output, crc, VERSION);
+//      crc.bdexStreamOut(output, VERSION);
 //  }
 //..
 // The 'receiverExample' function below illustrates how a message receiver can
 // read a message and its CRC-32 checksum from a 'bdex' input stream, then
 // perform a local CRC-32 computation to verify that the message was received
 // intact.  Note that 'In' may be a 'typedef' of any class that implements the
-// 'bdlxxxx::InStream' protocol:
+// 'bslx::InStream' protocol:
 //..
 //  void receiverExample(In& input)
 //      // Read a message and its CRC-32 checksum from the specified 'input'
@@ -64,12 +64,12 @@ BSLS_IDENT("$Id: $")
 //  {
 //      // read the message from 'input'
 //      bsl::string message;
-//      bdex_InStreamFunctions::streamIn(input, message, 0);
+//      input >> message;
 //
 //      // read the checksum from 'input'
 //      bdlde::Crc32 crc;
 //      const int VERSION = 1;
-//      bdex_InStreamFunctions::streamIn(input, crc, VERSION);
+//      crc.bdexStreamIn(input, VERSION);
 //
 //      // locally compute the checksum of the received 'message'
 //      bdlde::Crc32 crcLocal;
@@ -94,8 +94,8 @@ BSLS_IDENT("$Id: $")
 
 
 namespace BloombergLP {
-
 namespace bdlde {
+
                             // =================
                             // class Crc32
                             // =================
@@ -120,14 +120,17 @@ class Crc32 {
     unsigned int d_crc;  // value of the checksum ^ 0xffffffff
 
     // FRIENDS
-    friend bool operator==(const Crc32& lhs, const Crc32& rhs);
+    friend bool operator==(const Crc32&, const Crc32&);
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that the 'versionSelector' is expected to be formatted
+        // as 'yyyymmdd', a date representation.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     // CREATORS
     Crc32();
@@ -156,14 +159,15 @@ class Crc32 {
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
         // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If the
-        // specified 'version' is not supported, 'stream' is marked invalid,
-        // but this object is unaltered.  Note that no version is read from
-        // 'stream'.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     unsigned int checksumAndReset();
         // Return the current value of this checksum and set the value of this
@@ -188,14 +192,14 @@ class Crc32 {
     // ACCESSORS
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' and return a
-        // reference to the modifiable 'stream'.  Optionally specify an
-        // explicit 'version' format; by default, the maximum supported version
-        // is written to 'stream' and used as the format.  If 'version' is
-        // specified, that format is used, but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
+        // Write this value to the specified output 'stream' using the
+        // specified 'version' format, and return a reference to 'stream'.
+        // If 'stream' is initially invalid, this operation has no effect.
+        // If 'version' is not supported, 'stream' is invalidated but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     unsigned int checksum() const;
         // Return the current value of this checksum.
@@ -212,6 +216,13 @@ class Crc32 {
         // not valid on entry, this operation has no effect.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // CLASS METHOD
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  (See the package-group-level documentation for more
+        // information on 'bdex' streaming of container types.)
+
+    // ACCESSOR
     unsigned int view() const;
         // Return the current value of this checksum.
         //
@@ -245,7 +256,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Crc32& checksum);
 
 // CLASS METHODS
 inline
-int Crc32::maxSupportedBdexVersion()
+int Crc32::maxSupportedBdexVersion(int)
 {
     return 1;
 }
@@ -287,7 +298,7 @@ STREAM& Crc32::bdexStreamIn(STREAM& stream, int version)
             unsigned int crc;
             stream.getUint32(crc);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
             d_crc = crc;
           } break;
@@ -321,6 +332,9 @@ STREAM& Crc32::bdexStreamOut(STREAM& stream, int version) const
       case 1: {
         stream.putUint32(d_crc);
       } break;
+      default: {
+        stream.invalidate();
+      } break;
     }
     return stream;
 }
@@ -330,38 +344,46 @@ unsigned int Crc32::checksum() const
 {
     return d_crc ^ 0xffffffff;
 }
-}  // close package namespace
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-namespace bdlde {inline
+// CLASS METHODS
+inline
+int Crc32::maxSupportedBdexVersion()
+{
+    return maxSupportedBdexVersion(0);
+}
+
+// ACCESSORS
+inline
 unsigned int Crc32::view() const
 {
     return d_crc ^ 0xffffffff;
 }
-}  // close package namespace
+
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // FREE OPERATORS
 inline
-bool bdlde::operator==(const Crc32& lhs, const Crc32& rhs)
+bool operator==(const Crc32& lhs, const Crc32& rhs)
 {
     return lhs.d_crc == rhs.d_crc;
 }
 
 inline
-bool bdlde::operator!=(const Crc32& lhs, const Crc32& rhs)
+bool operator!=(const Crc32& lhs, const Crc32& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Crc32& checksum)
+bsl::ostream& operator<<(bsl::ostream& stream, const Crc32& checksum)
 {
     return checksum.print(stream);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
