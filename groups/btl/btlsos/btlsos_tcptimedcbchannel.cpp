@@ -109,40 +109,42 @@ public:
     char              d_callbackType;
 
     // CREATORS
-    TcpTimedCbChannel_RReg(char *buffer, int length,
-                                 int numSysCalls,
-                                 const ReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(char          *buffer,
+                           int            length,
+                           int            numSysCalls,
+                           const ReadCb&  callback,
+                           int            flags);
 
-    TcpTimedCbChannel_RReg(char *buffer, int length,
-                                 int numSysCalls,
-                                 const bsls::TimeInterval& timeout,
-                                 const ReadCb& callback,
-                                 int flags);
-
-    TcpTimedCbChannel_RReg(const btls::Iovec *buffers,
-                                 int numBuffers,
-                                 int numSysCalls,
-                                 const ReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(char                      *buffer,
+                           int                        length,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const ReadCb&              callback,
+                           int                        flags);
 
     TcpTimedCbChannel_RReg(const btls::Iovec *buffers,
-                                 int numBuffers,
-                                 int numSysCalls,
-                                 const bsls::TimeInterval& timeout,
-                                 const ReadCb& callback,
-                                 int flags);
+                           int                numBuffers,
+                           int                numSysCalls,
+                           const ReadCb&      callback,
+                           int                flags);
 
-    TcpTimedCbChannel_RReg(int length,
-                                 int numSysCalls,
-                                 const BReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(const btls::Iovec         *buffers,
+                           int                        numBuffers,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const ReadCb&              callback,
+                           int                        flags);
 
-    TcpTimedCbChannel_RReg(int length,
-                                 int numSysCalls,
-                                 const bsls::TimeInterval& timeout,
-                                 const BReadCb& callback,
-                                 int flags);
+    TcpTimedCbChannel_RReg(int            length,
+                           int            numSysCalls,
+                           const BReadCb& callback,
+                           int            flags);
+
+    TcpTimedCbChannel_RReg(int                       length,
+                           int                       numSysCalls,
+                           const bsls::TimeInterval& timeout,
+                           const BReadCb&            callback,
+                           int                       flags);
 
     ~TcpTimedCbChannel_RReg();
         // Destroy this request.
@@ -343,7 +345,8 @@ void TcpTimedCbChannel_RReg::invoke(int status, int asyncStatus) const {
 
 inline
 void TcpTimedCbChannel_RReg::invoke(const char *buffer,
-                                          int status, int asyncStatus) const {
+                                    int         status,
+                                    int         asyncStatus) const {
     BSLS_ASSERT(e_VFUNC3 == d_callbackType);
     BReadCb *cb = (BReadCb *)(void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(buffer, status, asyncStatus);
@@ -351,7 +354,7 @@ void TcpTimedCbChannel_RReg::invoke(const char *buffer,
 
 inline
 void TcpTimedCbChannel_RReg::invokeConditionally(int status,
-                                                        int asyncStatus) const
+                                                 int asyncStatus) const
 {
     if (e_VFUNC2 == d_callbackType) {
         invoke(status, asyncStatus);
@@ -427,53 +430,55 @@ public:
     char                  d_isTimedFlag;      // true if operation is timed
 
     // CREATORS
-    TcpTimedCbChannel_WReg(const char *buffer, int length,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(const char     *buffer,
+                           int             length,
+                           int             numSysCalls,
+                           const WriteCb&  callback,
+                           int             flags);
 
-    TcpTimedCbChannel_WReg(const char *buffer, int length,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
-
-    TcpTimedCbChannel_WReg(const btls::Iovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(const char                *buffer,
+                           int                        length,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const WriteCb&             callback,
+                           int                        flags);
 
     TcpTimedCbChannel_WReg(const btls::Iovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
+                           int                numBuffers,
+                           int                numSysCalls,
+                           const WriteCb&     callback,
+                           int                flags);
+
+    TcpTimedCbChannel_WReg(const btls::Iovec         *buffers,
+                           int                        numBuffers,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const WriteCb&             callback,
+                           int                        flags);
 
     TcpTimedCbChannel_WReg(const btls::Ovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+                           int               numBuffers,
+                           int               numSysCalls,
+                           const WriteCb&    callback,
+                           int               flags);
 
-    TcpTimedCbChannel_WReg(const btls::Ovec *buffers,
-                                  int numBuffers,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(const btls::Ovec          *buffers,
+                           int                        numBuffers,
+                           int                        numSysCalls,
+                           const bsls::TimeInterval&  timeout,
+                           const WriteCb&             callback,
+                           int                        flags);
 
-    TcpTimedCbChannel_WReg(int length,
-                                  int numSysCalls,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(int            length,
+                           int            numSysCalls,
+                           const WriteCb& callback,
+                           int            flags);
 
-    TcpTimedCbChannel_WReg(int length,
-                                  int numSysCalls,
-                                  const bsls::TimeInterval& timeout,
-                                  const WriteCb& callback,
-                                  int flags);
+    TcpTimedCbChannel_WReg(int                       length,
+                           int                       numSysCalls,
+                           const bsls::TimeInterval& timeout,
+                           const WriteCb&            callback,
+                           int                       flags);
 
     ~TcpTimedCbChannel_WReg();
         // Destroy this request.
@@ -683,7 +688,7 @@ void TcpTimedCbChannel_WReg::invoke(int status, int asyncStatus) const
 
 inline
 void TcpTimedCbChannel_WReg::invokeConditionally(int status,
-                                                        int asyncStatus) const
+                                                 int asyncStatus) const
 {
     d_callback(status, asyncStatus);
 }
@@ -743,9 +748,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
 
 static inline
 int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
-                      bsl::vector<char>             *bufferPtr,
-                      int                           *offset,
-                      int                           *SP)
+                      bsl::vector<char>              *bufferPtr,
+                      int                            *offset,
+                      int                            *SP)
     // Try to satisfy the specified 'request' given that there is data in the
     // specified 'buffer' of the specified '*offset' length.  Return 0 if the
     // 'request' cannot be satisfied, and a non-zero value otherwise.  If the
@@ -843,9 +848,9 @@ int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
                      // ===============================
 
 static inline
-void initializeBuffer(bsl::vector<char>                     *buffer,
+void initializeBuffer(bsl::vector<char>                       *buffer,
                       btlso::StreamSocket<btlso::IPv4Address> *socket_p,
-                      int                                    option)
+                      int                                      option)
 {
     enum { k_DEFAULT_BUFFER_SIZE = 8192 };
     int result;
@@ -3454,11 +3459,11 @@ int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
 }
 
 int TcpTimedCbChannel::timedBufferedWrite(
-        const char               *buffer,
-        int                       numBytes,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+                                      const char                *buffer,
+                                      int                        numBytes,
+                                      const bsls::TimeInterval&  timeout,
+                                      const WriteCallback&       writeCallback,
+                                      int                        flags)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < numBytes);
@@ -3562,11 +3567,10 @@ int TcpTimedCbChannel::timedBufferedWrite(
 
 }
 
-int TcpTimedCbChannel::bufferedWritev(
-        const btls::Ovec      *buffers,
-        int                   numBuffers,
-        const WriteCallback&  writeCallback,
-        int                   flags)
+int TcpTimedCbChannel::bufferedWritev(const btls::Ovec     *buffers,
+                                      int                   numBuffers,
+                                      const WriteCallback&  writeCallback,
+                                      int                   flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -4016,11 +4020,11 @@ int TcpTimedCbChannel::timedBufferedWritev(
 }
 
 int TcpTimedCbChannel::timedBufferedWritev(
-        const btls::Iovec  *buffers,
-        int                       numBuffers,
-        const bsls::TimeInterval&  timeout,
-        const WriteCallback&      writeCallback,
-        int                       flags)
+                                      const btls::Iovec         *buffers,
+                                      int                        numBuffers,
+                                      const bsls::TimeInterval&  timeout,
+                                      const WriteCallback&       writeCallback,
+                                      int                        flags)
 {
     BSLS_ASSERT(buffers);
     BSLS_ASSERT(0 < numBuffers);
@@ -4288,16 +4292,14 @@ void TcpTimedCbChannel::invalidateWrite() {
     d_isInvalidWriteFlag = 1;
 }
 
-void TcpTimedCbChannel::setReadEventManager(
-        btlso::TimerEventManager *manager)
+void TcpTimedCbChannel::setReadEventManager(btlso::TimerEventManager *manager)
 {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingReadOperations());
     d_rManager_p = manager;
 }
 
-void TcpTimedCbChannel::setWriteEventManager(
-        btlso::TimerEventManager *manager)
+void TcpTimedCbChannel::setWriteEventManager(btlso::TimerEventManager *manager)
 {
     BSLS_ASSERT(manager);
     BSLS_ASSERT(0 == numPendingWriteOperations());

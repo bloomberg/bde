@@ -253,8 +253,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  void my_EchoServer::bufferedReadCb(const char *buffer, int status,
-//                                     int asyncStatus,
+//  void my_EchoServer::bufferedReadCb(const char            *buffer,
+//                                     int                    status,
+//                                     int                    asyncStatus,
 //                                     btlsc::TimedCbChannel *channel)
 //  {
 //      cout << "my_EchoServer::bufferedReadCb: "

@@ -310,8 +310,9 @@ static const char *getNextCbCommand(const char *cbCmd)
         return 0;
 }
 
-static int helpWrite(btlso::SocketHandle::Handle client, const char *buf,
-                     int bufLen)
+static int helpWrite(btlso::SocketHandle::Handle  client,
+                     const char                  *buf,
+                     int                          bufLen)
     // Write data into the channel, by which different read function can be
     // tested. return 0 on success, non-zero otherwise.
 {
@@ -355,7 +356,10 @@ static void helpBuildVector()
 
 }
 
-static void helpAssertVecData(int i, int j, int type, void *vecBuffer,
+static void helpAssertVecData(int         i,
+                              int         j,
+                              int         type,
+                              void       *vecBuffer,
                               const char *expData)
 {
     enum { e_NON_VEC = 0, e_OVECTOR, e_IOVECTOR };
@@ -390,15 +394,15 @@ static void helpAssertVecData(int i, int j, int type, void *vecBuffer,
     }
 }
 
-static void bufferedReadCallback(const char                 *buf,
-                                 int                         status,
-                                 int                         augStatus,
+static void bufferedReadCallback(const char                  *buf,
+                                 int                          status,
+                                 int                          augStatus,
                                  btlso::TcpTimerEventManager *eveManager,
                                  btlsos::TcpTimedCbChannel   *channel,
-                                 int                         expStatus,
-                                 int                         expAugStatus,
-                                 const char                 *script,
-                                 Buffer                     *buffer)
+                                 int                          expStatus,
+                                 int                          expAugStatus,
+                                 const char                  *script,
+                                 Buffer                      *buffer)
     // Callback function for a buffered read request to indicate the execution
     // status for the read request to notify the user if it succeeds, partially
     // completes, fails or needs to issue other requests.
@@ -473,14 +477,14 @@ static void bufferedReadCallback(const char                 *buf,
     }
 }
 
-static void readCallback(int                         status,
-                         int                         augStatus,
+static void readCallback(int                          status,
+                         int                          augStatus,
                          btlso::TcpTimerEventManager *eveManager,
                          btlsos::TcpTimedCbChannel   *channel,
-                         int                         expStatus,
-                         int                         expAugStatus,
-                         const char                 *script,
-                         Buffer                     *buffer)
+                         int                          expStatus,
+                         int                          expAugStatus,
+                         const char                  *script,
+                         Buffer                      *buffer)
     // Callback function for a non-buffered read request to indicate the
     // execution status for a read request to notify the user if it succeeds,
     // partially completes, fails or needs to issue other requests.
@@ -596,14 +600,14 @@ static void myReadCallback(int status,
     }
 }
 
-static void readvCallback(int                         status,
-                          int                         augStatus,
+static void readvCallback(int                          status,
+                          int                          augStatus,
                           btlso::TcpTimerEventManager *eveManager,
                           btlsos::TcpTimedCbChannel   *channel,
-                          int                         expStatus,
-                          int                         expAugStatus,
-                          const char                 *script,
-                          Buffer                     *buffer)
+                          int                          expStatus,
+                          int                          expAugStatus,
+                          const char                  *script,
+                          Buffer                      *buffer)
     // Callback function for a non-buffered readv request to indicate the
     // execution status for a read request to notify the user if it succeeds,
     // partially completes, fails or needs to issue other request.
@@ -667,14 +671,14 @@ static void readvCallback(int                         status,
     }
 }
 
-static void writeCallback(int                         status,
-                          int                         augStatus,
+static void writeCallback(int                          status,
+                          int                          augStatus,
                           btlso::TcpTimerEventManager *eveManager,
                           btlsos::TcpTimedCbChannel   *channel,
-                          int                         expStatus,
-                          int                         expAugStatus,
-                          const char                 *script,
-                          Buffer                     *buffer)
+                          int                          expStatus,
+                          int                          expAugStatus,
+                          const char                  *script,
+                          Buffer                      *buffer)
     // Callback function for a write request to indicate the execution status
     // for a read request to notify the user if it succeeds, partially
     // completes, fails or needs to issue other requests.
@@ -1655,8 +1659,9 @@ gg(btlsos::TcpTimedCbChannel   *channel,
 }
 //-----------------------------------------------------------------------------
 static inline
-void adjustBufferSizes(btlso::SocketHandle::Handle sockFd, int bufferSize,
-                       int watermark)
+void adjustBufferSizes(btlso::SocketHandle::Handle sockFd,
+                       int                         bufferSize,
+                       int                         watermark)
     // Set the send and receive buffer sizes and the watermarks on the
     // specified 'sockFd' socket handle to the specified 'bufferSize' and
     // 'watermark' values respectively.

@@ -677,9 +677,9 @@ void *threadToAcceptConnection(void *arg)
 }
 
 static int testExecutionHelper(btlsos::TcpTimedCbConnector *connector,
-                               int                        *numConnections,
+                               int                         *numConnections,
                                btlso::TcpTimerEventManager *manager,
-                               const TestCommand          *command,
+                               const TestCommand           *command,
                                const btlso::IPv4Address    *newPeer)
 {
     int rCode = 0;
@@ -976,21 +976,20 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         btlsc::TimedCbChannel::BufferedReadCallback d_readFunctor;  // reused
 
       private:
-        void connectCb(btlsc::TimedCbChannel *serverChannel,
-                       int                   status);
+        void connectCb(btlsc::TimedCbChannel *serverChannel, int status);
             // Called when a new server channel has been established.  ...
 
-        void writeCb(int                   status,
-                     int                   asyncStatus,
+        void writeCb(int                    status,
+                     int                    asyncStatus,
                      btlsc::TimedCbChannel *serverChannel,
-                     int                   messageSize,
-                     int                   maxTicks);
+                     int                    messageSize,
+                     int                    maxTicks);
             // Called when a write operation to the server channel ends.  ...
 
-        void timeCb(int                  lastNumTicks,
-                    int                 *curNumTicks,
-                    int                  maxTicks,
-                    bsls::TimeInterval    lastTime);
+        void timeCb(int                 lastNumTicks,
+                    int                *curNumTicks,
+                    int                 maxTicks,
+                    bsls::TimeInterval  lastTime);
             // To calculate the tick send/receive rate (Ticks/second).
 
       private:  // Not implemented.
@@ -999,10 +998,10 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
 
       public:
         my_TickerplantSimulator(
-                             bsl::ostream&                  console,
-                             btlsc::TimedCbChannelAllocator *connector,
-                             btlso::TcpTimerEventManager    *d_eventManager_p,
-                             int                            inputSize);
+                              bsl::ostream&                   console,
+                              btlsc::TimedCbChannelAllocator *connector,
+                              btlso::TcpTimerEventManager    *d_eventManager_p,
+                              int                             inputSize);
             // Create a non-blocking ticker-plant simulator using the specified
             // 'input' channel to read ASCII tick records of the specified
             // 'inputSize' and convert each record to a 'my_Tick' structure;
@@ -1026,7 +1025,7 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
 
     void my_TickerplantSimulator::connectCb(
                                           btlsc::TimedCbChannel *serverChannel,
-                                          int                   status)
+                                          int                    status)
     {
         if (serverChannel) {     // Successfully created a connection.
             struct Tick {               // for usage example
@@ -1098,11 +1097,11 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         }
     }
 
-    void my_TickerplantSimulator::writeCb(int                   status,
-                                          int                   asyncStatus,
+    void my_TickerplantSimulator::writeCb(int                    status,
+                                          int                    asyncStatus,
                                           btlsc::TimedCbChannel *serverChannel,
-                                          int                   msgSize,
-                                          int                   maxTicks)
+                                          int                    msgSize,
+                                          int                    maxTicks)
     {
         static int curNumTicks = 0;
         ASSERT(serverChannel);
@@ -1187,9 +1186,9 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
         }
     }
 
-    void my_TickerplantSimulator::timeCb(int                lastNumTicks,
-                                         int               *curNumTicks,
-                                         int                maxTicks,
+    void my_TickerplantSimulator::timeCb(int                 lastNumTicks,
+                                         int                *curNumTicks,
+                                         int                 maxTicks,
                                          bsls::TimeInterval  lastTime)
     {
         int numTicks = *curNumTicks - lastNumTicks;
@@ -1218,10 +1217,10 @@ static void myPrintTick(bsl::ostream& stream, const char *buffer, int len)
     }
 
     my_TickerplantSimulator::
-        my_TickerplantSimulator(bsl::ostream&                  console,
+        my_TickerplantSimulator(bsl::ostream&                   console,
                                 btlsc::TimedCbChannelAllocator *connector,
                                 btlso::TcpTimerEventManager    *eventManager,
-                                int                            inputSize)
+                                int                             inputSize)
     : d_connector_p(connector)
     , d_eventManager_p(eventManager)
     , d_console(console)

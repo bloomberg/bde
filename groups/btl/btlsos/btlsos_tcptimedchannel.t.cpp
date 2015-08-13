@@ -571,15 +571,14 @@ void fillBuffers(VECBUFFER *vecBuffers, int numBuffers, char ch)
     }
 }
 
-static int testExecutionHelper(
-                      btlsos::TcpTimedChannel                *channel,
-                      TestCommand                           *command,
-                      btlso::SocketHandle::Handle            *socketPair,
-                      bdlqq::ThreadUtil::Handle              *threadHandle,
-                      char                                  *buffer,
-                      const btls::Iovec                      *ioBuffer,
-                      const btls::Ovec                       *oBuffer,
-                      int                                    ioType)
+static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
+                               TestCommand                 *command,
+                               btlso::SocketHandle::Handle *socketPair,
+                               bdlqq::ThreadUtil::Handle   *threadHandle,
+                               char                        *buffer,
+                               const btls::Iovec           *ioBuffer,
+                               const btls::Ovec            *oBuffer,
+                               int                          ioType)
     // Process the specified 'command' to invoke some operation of the
     // specified 'channel', or the 'helperSocket' which is the control endpoint
     // of the socket pair.  For a read operation, load either 'buffer' or

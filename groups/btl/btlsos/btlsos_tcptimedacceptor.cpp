@@ -50,10 +50,10 @@ enum {
 
 template <class RESULT>
 inline
-RESULT *allocate(int                                   *status,
-                 int                                    flags,
+RESULT *allocate(int                                     *status,
+                 int                                      flags,
                  btlso::StreamSocket<btlso::IPv4Address> *socket,
-                 bdlma::Pool                            *pool)
+                 bdlma::Pool                             *pool)
 {
     BSLS_ASSERT(socket);
     BSLS_ASSERT(pool);

@@ -49,11 +49,12 @@ enum {
 
 template <class RESULT>
 inline
-    RESULT *allocate(int                                          *status,
-                     int                                           flags,
-                     const btlso::IPv4Address&                     peerAddress,
-                     btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                     bdlma::Pool                                   *pool)
+    RESULT *allocate(
+                   int                                            *status,
+                   int                                             flags,
+                   const btlso::IPv4Address&                       peerAddress,
+                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                   bdlma::Pool                                    *pool)
 {
     BSLS_ASSERT(factory);
     BSLS_ASSERT(pool);

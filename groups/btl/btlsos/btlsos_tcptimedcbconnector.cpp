@@ -125,18 +125,20 @@ class TcpTimedCbConnector_Reg {
         operator=(const TcpTimedCbConnector_Reg&);
   public:
     // CREATORS
-    TcpTimedCbConnector_Reg(const bsls::TimeInterval& timeout,
+    TcpTimedCbConnector_Reg(
+          const bsls::TimeInterval&                                    timeout,
           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
           int                                                          flags);
     TcpTimedCbConnector_Reg(
-            const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-            int                                                     flags);
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags);
     TcpTimedCbConnector_Reg(
           const bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>& functor,
           int                                                          flags);
-    TcpTimedCbConnector_Reg(const bsls::TimeInterval& timeout,
-            const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
-            int                                                     flags);
+    TcpTimedCbConnector_Reg(
+               const bsls::TimeInterval&                               timeout,
+               const bdlf::Function<void (*)(btlsc::CbChannel*, int)>& functor,
+               int                                                     flags);
 
     ~TcpTimedCbConnector_Reg();
 
@@ -234,8 +236,7 @@ void TcpTimedCbConnector_Reg::invoke(int status) {
 }
 
 inline
-void TcpTimedCbConnector_Reg::invoke(btlsc::CbChannel *channel,
-                                            int              status) {
+void TcpTimedCbConnector_Reg::invoke(btlsc::CbChannel *channel, int status) {
     BSLS_ASSERT(0 == d_isTimedChannel);
     bdlf::Function<void (*)(btlsc::CbChannel*, int)> *cb =
              (bdlf::Function<void (*)(btlsc::CbChannel*, int)>*)
@@ -245,7 +246,7 @@ void TcpTimedCbConnector_Reg::invoke(btlsc::CbChannel *channel,
 
 inline
 void TcpTimedCbConnector_Reg::invokeTimed(btlsc::TimedCbChannel *channel,
-                                                 int                   status)
+                                          int                    status)
 {
     bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)> *cb =
         (bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>*)
@@ -294,10 +295,10 @@ TcpTimedCbConnector_Reg::timedCallback() const {
 
 template <class CALLBACK_TYPE, class CHANNEL>
 int TcpTimedCbConnector::initiateTimedConnection(
-                                       const CALLBACK_TYPE&     callback,
-                                       const bsls::TimeInterval& timeout,
-                                       int                      flags,
-                                       int                      enqueueRequest)
+                                      const CALLBACK_TYPE&      callback,
+                                      const bsls::TimeInterval& timeout,
+                                      int                       flags,
+                                      int                       enqueueRequest)
     // Initiate a non-blocking connection to the peer server, invoke the
     // specified 'callback' if the operation completed immediately, either
     // successfully or not, (and allocate a channel, if needed), or enqueue the
