@@ -20,9 +20,9 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component provides a value-semantic class 'btls5::ProxyDescription' that
-// encodes information about a SOCKS5 proxy.  Basic setters and getters are
-// used to verify that proxy description accurately reflects data as set.
+// This component provides a value-semantic class 'btls5::ProxyDescription'
+// that encodes information about a SOCKS5 proxy.  Basic setters and getters
+// are used to verify that proxy description accurately reflects data as set.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [2] btls5::ProxyDescription(address, *a = 0);

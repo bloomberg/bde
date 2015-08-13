@@ -405,12 +405,12 @@ static void connectToEndpoint(btls5::Negotiator::NegotiationHandle negotiation)
 }
 
 static void sendAuthenticationRequest(
-                              btls5::Negotiator::NegotiationHandle negotiation);
+                             btls5::Negotiator::NegotiationHandle negotiation);
     // Send the username and password credentials to authenticate with the
     // SOCKS5 server for the specified 'negotiation'.
 
 static void authenticationCallback(
-                               btls5::Negotiator::NegotiationHandle negotiation)
+                              btls5::Negotiator::NegotiationHandle negotiation)
     // Process the response to an authentication request for the specified
     // 'negotiation'.
 {
@@ -423,9 +423,9 @@ static void authenticationCallback(
                                            sizeof pkt);
     if (sizeof pkt != rc) {
         terminate(
-                negotiation,
-                btls5::Negotiator::e_ERROR,
-                btls5::DetailedStatus("error reading authentication response"));
+               negotiation,
+               btls5::Negotiator::e_ERROR,
+               btls5::DetailedStatus("error reading authentication response"));
         return;                                                       // RETURN
     }
 

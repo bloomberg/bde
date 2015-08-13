@@ -11,50 +11,16 @@ BSLS_IDENT_RCSID(btls5_proxydescription_cpp, "$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btls5 {
-                         // ----------------------------
+                         // ----------------------
                          // class ProxyDescription
-                         // ----------------------------
-
-// CREATORS
-ProxyDescription::ProxyDescription(
-                                         bslma::Allocator      *basicAllocator)
-: d_address(basicAllocator)
-, d_credentials(basicAllocator)
-{
-}
-
-ProxyDescription::ProxyDescription(
-                                         const btlso::Endpoint&  address,
-                                         bslma::Allocator      *basicAllocator)
-: d_address(address, basicAllocator)
-, d_credentials(basicAllocator)
-{
-}
-
-ProxyDescription::ProxyDescription(
-                                      const btlso::Endpoint&     address,
-                                      const Credentials&  credentials,
-                                      bslma::Allocator         *basicAllocator)
-: d_address(address, basicAllocator)
-, d_credentials(credentials, basicAllocator)
-{
-}
-
-ProxyDescription::ProxyDescription(
-                                 const ProxyDescription&  original,
-                                 bslma::Allocator              *basicAllocator)
-: d_address(original.d_address, basicAllocator)
-, d_credentials(original.d_credentials, basicAllocator)
-{
-}
+                         // ----------------------
 
 // ACCESSORS
-
                                   // Aspects
 
 bsl::ostream& ProxyDescription::print(bsl::ostream& stream,
-                                            int           level,
-                                            int           spacesPerLevel) const
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -64,25 +30,11 @@ bsl::ostream& ProxyDescription::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
 
-// FREE OPERATORS
-bool btls5::operator==(const ProxyDescription& lhs,
-                const ProxyDescription& rhs)
-{
-    return lhs.address()     == rhs.address()
-        && lhs.credentials() == rhs.credentials();
-}
-
-bool btls5::operator!=(const ProxyDescription& lhs,
-                const ProxyDescription& rhs)
-{
-    return lhs.address()     != rhs.address()
-        || lhs.credentials() != rhs.credentials();
-}
-
-bsl::ostream& btls5::operator<<(bsl::ostream&                 stream,
-                         const ProxyDescription& object)
+bsl::ostream& btls5::operator<<(bsl::ostream&           stream,
+                                const ProxyDescription& object)
 {
     stream << "[ " << object.address();
     if (!object.credentials().username().empty()) {
@@ -97,7 +49,7 @@ bsl::ostream& btls5::operator<<(bsl::ostream&                 stream,
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2013
+//      Copyright (C) Bloomberg L.P., 2015
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

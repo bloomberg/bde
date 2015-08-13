@@ -170,7 +170,7 @@ struct Socks5Session : public btlmt::Session {
                                                    int        length,
                                                    int       *consumed,
                                                    int       *numNeeded));
-        // If the specified 'result' is 'BTEMT_SUCCESS' invoke the specified
+        // If the specified 'result' is 'BTLMT_SUCCESS' invoke the specified
         // 'func' passing it the data from the specified 'msg' as the specified
         // template type 'MSG'.
 
@@ -211,11 +211,11 @@ struct Socks5Session : public btlmt::Session {
         // represented by the specified 'data' with the specified 'length', and
         // update the specified 'consumed' and 'needed' byte counts.
 
-    void readProxy(int           result,
-                   int          *needed,
+    void readProxy(int         result,
+                   int        *needed,
                    btlb::Blob *msg,
-                   int           channelId);
-        // If the specified 'result' is 'BTEMT_SUCCESS' forward the specified
+                   int         channelId);
+        // If the specified 'result' is 'BTLMT_SUCCESS' forward the specified
         // 'msg' to the opposite connection, updating the counters at the
         // specified 'consumed' location to reflect the bytes forwarded, and
         // the specified 'needed' location to request (at least) one more byte.
