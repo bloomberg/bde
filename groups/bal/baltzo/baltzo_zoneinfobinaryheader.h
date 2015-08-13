@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an attribute class for Zoneinfo binary-file header data
+//@PURPOSE: Provide an attribute class for Zoneinfo binary-file header data.
 //
 //@CLASSES:
 //   baltzo::ZoneinfoBinaryHeader: attribute class for Zoneinfo header data
@@ -17,8 +17,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_zoneinfobinaryreader
 //
-//@DESCRIPTION: This component provides a simply constrained attribute class
-// representing the header data of a Zoneinfo binary data file.
+//@DESCRIPTION: This component provides a simply constrained attribute class,
+// 'baltzo::ZoneinfoBinaryHeader', representing the header data of a Zoneinfo
+// binary data file.
 //
 ///Attributes
 ///----------
@@ -271,8 +272,8 @@ class ZoneinfoBinaryHeader {
                          int  numTransitions,
                          int  numLocalTimeTypes,
                          int  abbrevDataSize);
-        // Create a 'ZoneinfoBinaryHeader' having the specified
-        // 'version', 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
+        // Create a 'ZoneinfoBinaryHeader' having the specified 'version',
+        // 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
         // 'numLocalTimeTypes', and 'abbrevDataSize' values.  The behavior is
         // undefined unless '0 == version || 50 == version', '0 <= numIsGmt',
         // '0 <= numIsStd', '0 == numLeaps', '0 <= numTransitions',
@@ -367,17 +368,17 @@ class ZoneinfoBinaryHeader {
 bool operator==(const ZoneinfoBinaryHeader& lhs,
                 const ZoneinfoBinaryHeader& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'ZoneinfoBinaryHeader' objects
-    // have the same value if the corresponding values of their 'version',
+    // value, and 'false' otherwise.  Two 'ZoneinfoBinaryHeader' objects have
+    // the same value if the corresponding values of their 'version',
     // 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
     // 'numLocalTimeTypes', and 'abbrevDataSize' attributes are the same.
 
 bool operator!=(const ZoneinfoBinaryHeader& lhs,
                 const ZoneinfoBinaryHeader& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'ZoneinfoBinaryHeader' objects
-    // do not have the same value if the corresponding values of their
-    // 'version', 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
+    // value, and 'false' otherwise.  Two 'ZoneinfoBinaryHeader' objects do not
+    // have the same value if the corresponding values of their 'version',
+    // 'numIsGmt', 'numIsStd', 'numLeaps', 'numTransitions',
     // 'numLocalTimeTypes', or 'abbrevDataSize' attributes are not the same.
 
 bsl::ostream& operator<<(bsl::ostream&               stream,
@@ -397,7 +398,7 @@ void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                         // --------------------------

@@ -2,30 +2,39 @@
 #include <baltzo_zoneinfocache.h>
 
 #include <baltzo_errorcode.h>
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_zoneinfo.h>
 
 #include <ball_administration.h>
 #include <ball_defaultobserver.h>
 #include <ball_log.h>
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
-#include <bslma_testallocator.h>
 #include <bdlqq_threadutil.h>
 #include <bdlqq_barrier.h>
-#include <bsls_atomic.h>
+
+#include <bdlt_datetime.h>
+#include <bdlt_epochutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_atomic.h>
+#include <bsls_types.h>
 
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_memory.h>
+#include <bsl_set.h>
 
 using namespace BloombergLP;
 using namespace std;
@@ -139,17 +148,17 @@ typedef baltzo::Zoneinfo            Zone;
 typedef baltzo::LocalTimeDescriptor Desc;
 typedef bsl::shared_ptr<Desc>      DescPtr;
 
-const int U = baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;
+const int U = baltzo::ErrorCode::k_UNSUPPORTED_ID;
 
 //=============================================================================
 //                      GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-void executeInParallel(int                               numThreads,
+void executeInParallel(int                                numThreads,
                        bdlqq::ThreadUtil::ThreadFunction  func,
-                       void                             *threadArgs)
-   // Create the specified 'numThreads', each executing the specified 'func'
-   // on the specified 'threadArgs'.
+                       void                              *threadArgs)
+    // Create the specified 'numThreads', each executing the specified 'func'
+    // on the specified 'threadArgs'.
 {
     bdlqq::ThreadUtil::Handle *threads =
                                      new bdlqq::ThreadUtil::Handle[numThreads];
@@ -168,7 +177,7 @@ void executeInParallel(int                               numThreads,
 class ConcurrencyCounterGuard {
     // A guard that increments a counter, supplied at construction, during
     // construction, and decrements the same counter when it goes out of scope
-    // and is destroyed.   If the counter is greater than 1 after being
+    // and is destroyed.  If the counter is greater than 1 after being
     // incremented on construction, the guard will assert.
 
     bsls::AtomicInt *d_counter;
@@ -180,10 +189,10 @@ class ConcurrencyCounterGuard {
 
   public:
 
-    explicit ConcurrencyCounterGuard(bsls::AtomicInt *concurrenyCallCounter)
+    explicit ConcurrencyCounterGuard(bsls::AtomicInt *concurrentCallCounter)
         // Increment the specified 'concurrentCallCounter' and assert if the
         // resulting count is greater than 1.
-    : d_counter(concurrenyCallCounter)
+    : d_counter(concurrentCallCounter)
     {
         int concurrentCount = ++(*d_counter);
         ASSERT(1 >= concurrentCount);
@@ -245,9 +254,9 @@ class TestDriverTestLoader : public baltzo::Loader {
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  By default the test loader will return
-        // 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' for all time zone
-        // identifiers.  Note that providing a delay for 'loadTimeZone' in
-        // order to verify thread safe access to that method.
+        // 'baltzo::ErrorCode::k_UNSUPPORTED_ID' for all time zone identifiers.
+        // Note that providing a delay for 'loadTimeZone' in order to verify
+        // thread safe access to that method.
 
     virtual ~TestDriverTestLoader();
         // Destroy this time zone data-source.
@@ -257,20 +266,20 @@ class TestDriverTestLoader : public baltzo::Loader {
                      int         utcOffset,
                      bool        dstFlag,
                      const char *name);
-        // If 'name' is not 0, add to this test loader a time zone having the
-        // specified 'identifier', and containing a single local time
-        // descriptor having the specified  'utcOffset', 'dstFlag', and
-        // 'name', and add an invalid time zone otherwise.
+        // If the specified 'name' is not 0, add to this test loader a time
+        // zone having the specified 'identifier', and containing a single
+        // local time descriptor having the specified 'utcOffset', 'dstFlag',
+        // and 'name', and add an invalid time zone otherwise.
 
     void addTimeZone(const char *timeZoneId,
                      const char *cacheIdentifier,
                      int         utcOffset,
                      bool        dstFlag,
                      const char *name);
-        // If 'timeZoneId' is not 0, add to this test loader a time zone
-        // having the 'timeZoneId', but being identified in the cache using
-        // the specified 'cacheIdentifier', and containing a single local time
-        // descriptor having the specified  'utcOffset', 'dstFlag', and
+        // If the specified 'timeZoneId' is not 0, add to this test loader a
+        // time zone having the 'timeZoneId', but being identified in the cache
+        // using the specified 'cacheIdentifier', and containing a single local
+        // time descriptor having the specified 'utcOffset', 'dstFlag', and
         // 'name'; if 'timeZoneId' is not 0 add an invalid time zone.  Note
         // that this operation is provided to test situations where
         // 'baltzo::Loader' returns an 'baltzo::Zoneinfo' object different than
@@ -283,7 +292,7 @@ class TestDriverTestLoader : public baltzo::Loader {
     virtual int loadTimeZone(baltzo::Zoneinfo *result, const char *timeZoneId);
         // Load into the specified 'result' the olson time zone information
         // for the time zone identified by the specified 'timeZoneId'.  Return
-        // 0 on success, 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' if the
+        // 0 on success, 'baltzo::ErrorCode::k_UNSUPPORTED_ID' if the
         // identified time zone is not supported, and a negative value if any
         // other error occurs.
 
@@ -324,25 +333,25 @@ TestDriverTestLoader::~TestDriverTestLoader()
 }
 
 // MANIPULATORS
-void TestDriverTestLoader::addTimeZone(const char *timeZone,
+void TestDriverTestLoader::addTimeZone(const char *identifier,
                                        int         utcOffset,
                                        bool        dstFlag,
                                        const char *name)
 {
     baltzo::Zoneinfo zoneinfo;
-    zoneinfo.setIdentifier(timeZone);
+    zoneinfo.setIdentifier(identifier);
 
     if (0 != name) {
         baltzo::LocalTimeDescriptor type(utcOffset,
-                                        dstFlag,
-                                        name,
-                                        d_allocator_p);
+                                         dstFlag,
+                                         name,
+                                         d_allocator_p);
         bdlt::Datetime firstTime(1, 1, 1);
         bsls::Types::Int64 firstTimeT =
                                   bdlt::EpochUtil::convertToTimeT64(firstTime);
         zoneinfo.addTransition(firstTimeT, type);
     }
-    d_timeZones[timeZone] = zoneinfo;
+    d_timeZones[identifier] = zoneinfo;
 }
 
 void TestDriverTestLoader::addTimeZone(const char *timeZoneId,
@@ -369,7 +378,7 @@ void TestDriverTestLoader::addTimeZone(const char *timeZoneId,
 }
 
 int TestDriverTestLoader::loadTimeZone(baltzo::Zoneinfo *result,
-                                       const char      *timeZoneId)
+                                       const char       *timeZoneId)
 {
     // Ensure that this method is not invoked concurrently.
 
@@ -383,7 +392,7 @@ int TestDriverTestLoader::loadTimeZone(baltzo::Zoneinfo *result,
     TimeZoneMap::const_iterator it = d_timeZones.find(timeZoneId);
 
     if (it == d_timeZones.end()) {
-        return baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;              // RETURN
+        return baltzo::ErrorCode::k_UNSUPPORTED_ID;                   // RETURN
     }
 
     *result = it->second;
@@ -502,8 +511,8 @@ class TestLoader : public baltzo::Loader {
     // 'baltzo::Loader' protocol (an abstract interface) for obtaining a time
     // zone.  This test implementation maintains a mapping of time zone
     // identifiers to 'baltzo::Zoneinfo' objects.  Olson time zone objects are
-    // associated with a time zone identifier using the 'setTimeZone'
-    // method, and can be subsequently accessed by calling the protocol method
+    // associated with a time zone identifier using the 'setTimeZone' method,
+    // and can be subsequently accessed by calling the protocol method
     // 'loadTimeZone' with the same identifier.
 
   private:
@@ -512,8 +521,8 @@ class TestLoader : public baltzo::Loader {
         // information about that time zone.
 
     // DATA
-    TimeZoneMap d_timeZones;  // set of time zones that this test loader
-                              // will return
+    TimeZoneMap d_timeZones;  // set of time zones that this test loader will
+                              // return
 
   public:
     // CREATORS
@@ -521,8 +530,8 @@ class TestLoader : public baltzo::Loader {
         // Create a 'TestLoader' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  By default the
-        // test loader will return 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID'
-        // for all time zone identifiers.
+        // test loader will return 'baltzo::ErrorCode::k_UNSUPPORTED_ID' for
+        // all time zone identifiers.
 
     virtual ~TestLoader();
         // Destroy this time zone data-source.
@@ -530,16 +539,16 @@ class TestLoader : public baltzo::Loader {
     void print();
 
     // MANIPULATORS
-    void setTimeZone(const baltzo::Zoneinfo&  timeZone);
+    void setTimeZone(const baltzo::Zoneinfo& timeZone);
         // Set, to the specified 'timeZone', the time zone information that
         // will be returned by 'loadTimeZone' for the identifier
         // 'timeZone.identifier()'.
 
     virtual int loadTimeZone(baltzo::Zoneinfo *timeZone,
-                             const char      *timeZoneId);
+                             const char       *timeZoneId);
         // Load into the specified 'result' the olson time zone information
         // for the time zone identified by the specified 'timeZoneId'.  Return
-        // 0 on success, 'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' if the
+        // 0 on success, 'baltzo::ErrorCode::k_UNSUPPORTED_ID' if the
         // identified time zone is not supported, and a negative value if any
         // other error occurs.
 };
@@ -560,7 +569,7 @@ TestLoader::~TestLoader()
 }
 
 // MANIPULATORS
-void TestLoader::setTimeZone(const baltzo::Zoneinfo&  timeZone)
+void TestLoader::setTimeZone(const baltzo::Zoneinfo& timeZone)
 {
     TimeZoneMap::iterator it = d_timeZones.find(timeZone.identifier());
     if (it == d_timeZones.end()) {
@@ -572,16 +581,16 @@ void TestLoader::setTimeZone(const baltzo::Zoneinfo&  timeZone)
     }
 }
 
-int TestLoader::loadTimeZone(baltzo::Zoneinfo *result,
-                             const char      *timeZoneId)
+int TestLoader::loadTimeZone(baltzo::Zoneinfo *timeZone,
+                             const char       *timeZoneId)
 {
     TimeZoneMap::const_iterator it = d_timeZones.find(timeZoneId);
 
     if (it == d_timeZones.end()) {
-        return baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID;              // RETURN
+        return baltzo::ErrorCode::k_UNSUPPORTED_ID;                   // RETURN
     }
 
-    *result = it->second;
+    *timeZone = it->second;
     return 0;
 }
 
@@ -752,7 +761,7 @@ int main(int argc, char *argv[])
 // identifier is not supported:
 //..
     ASSERT(0 == cache.getZoneinfo(&rc, "badId"));
-    ASSERT(baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID == rc);
+    ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 //..
 
       } break;
@@ -777,7 +786,7 @@ int main(int argc, char *argv[])
         //: 1 Define a 'TestDriverTestLoader' implementation of
         //:   'baltzo::Loader' that will delay on calls to 'loadTimeZone',
         //:   maintain a count of concurrent invocations, and ASSERT if that
-        //:   conccurent call count is greater than 1.
+        //:   concurrent call count is greater than 1.
         //:
         //: 2 Create an instance of 'TestDriverTestLoader' and configure that
         //:   instance with a set of sample data.
@@ -1028,16 +1037,14 @@ int main(int argc, char *argv[])
         //  Address concerns for 'getZoneinfo' not directly tested by the
         //  bootstrap tests:
         //
-        //: 1 'getZoneinfo' will return an 'BALTZO_UNSPECIFIED_ID' if the time
-        //:   zone loader does not know the specified id.
+        //: 1 'getZoneinfo' will return an 'k_UNSPECIFIED_ID' if the time zone
+        //:   loader does not know the specified id.
         //:
-        //: 2 'getZoneinfo' will return an error (other than
-        //:   'BALTZO_UNSPECIED_ID') if the loaded time zone is not
-        //:   well-defined.
+        //: 2 'getZoneinfo' will return an error (other than 'k_UNSPECIED_ID')
+        //:   if the loaded time zone is not well-defined.
         //:
         //: 3 'getZoneinfo' will return an error code, other than
-        //:   ' BALTZO_UNSPECIFIED_ID' it the loader fails to load the time
-        //:    zone.
+        //:   'k_UNSPECIFIED_ID' it the loader fails to load the time zone.
         //:
         //: 4 'getZoneinfo' uses the appropriate allocator.
         //:
@@ -1227,9 +1234,10 @@ int main(int argc, char *argv[])
                 // CREATORS
                 explicit ErrorLoader(int code): d_code(code) {}
                 virtual ~ErrorLoader() {}
+
                 // MANIPULATORS
                 virtual int loadTimeZone(baltzo::Zoneinfo *result,
-                                         const char      *getZoneinfo)
+                                         const char       *getZoneinfo)
                 { return d_code; }
             };
 
@@ -1454,8 +1462,8 @@ int main(int argc, char *argv[])
         //:   provided.
         //:
         //: 2 That 'loadTimeZone' returns
-        //:   'baltzo::ErrorCode::BALTZO_UNSUPPORTED_ID' for time zone ids that
-        //:   have not been added.
+        //:   'baltzo::ErrorCode::k_UNSUPPORTED_ID' for time zone ids that have
+        //:   not been added.
         //:
         //: 3 That 'lastReturnedTimeZone' correctly returns the last time zone
         //:   requested using the 'loadTimeZone' method, and

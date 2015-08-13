@@ -32,7 +32,7 @@ bsl::ostream& baltzo::LocalTimeValidity::print(
 
 const char *baltzo::LocalTimeValidity::toAscii(LocalTimeValidity::Enum value)
 {
-#define CASE(X) case(BALTZO_ ## X): return #X;
+#define CASE(X) case(e_ ## X): return #X;
 
     switch (value) {
       CASE(VALID_UNIQUE)                                              // RETURN

@@ -7,6 +7,12 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
+#include <bdlt_date.h>
+#include <bdlt_datetimeinterval.h>
+#include <bdlt_delegatingdateimputil.h>
+#include <bdlt_time.h>
+#include <bdlt_timeunitratio.h>
+
 #include <bslma_default.h>
 
 #include <bsls_assert.h>

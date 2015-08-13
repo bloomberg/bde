@@ -15,7 +15,8 @@ BSLS_IDENT_RCSID(baltzo_defaultzoneinfocache_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#include <bsl_c_stdlib.h>    // 'getenv'
+#include <bsl_cstdlib.h>    // 'getenv'
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 
@@ -43,7 +44,7 @@ static
 baltzo::ZoneinfoCache *initSystemDefaultCache()
     // Return the address of a modifiable singleton default, system-wide,
     // default-cache instance, initializing that instance if this method has
-    // not perviously been called.  Subsequent calls to this method return the
+    // not previously been called.  Subsequent calls to this method return the
     // previously created (singleton) instance with no other effect.  This
     // methods is *not* thread safe.
 {

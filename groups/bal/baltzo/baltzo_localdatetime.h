@@ -195,8 +195,6 @@ class LocalDatetime {
     LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
                   const char               *timeZoneId,
                   bslma::Allocator         *basicAllocator = 0);
-        // Create a 'LocalDatetime' object having the specified
-        // 'datetimeTz' and 'timeZoneId' attribute values.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  If 'timeZoneId'
         // is passed as a null pointer, it is treated as an empty string.
@@ -312,11 +310,11 @@ bool operator==(const LocalDatetime& lhs, const LocalDatetime& rhs);
 
 bool operator!=(const LocalDatetime& lhs, const LocalDatetime& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'LocalDatetime'
-    // objects do not have the same value if any of the corresponding values of
-    // their 'datetimeTz' or 'timeZoneId' attributes are not the same.
+    // same value, and 'false' otherwise.  Two 'LocalDatetime' objects do not
+    // have the same value if any of the corresponding values of their
+    // 'datetimeTz' or 'timeZoneId' attributes are not the same.
 
-bsl::ostream& operator<<(bsl::ostream&             stream,
+bsl::ostream& operator<<(bsl::ostream&        stream,
                          const LocalDatetime& localDatetime);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing
@@ -336,7 +334,7 @@ void swap(LocalDatetime& a, LocalDatetime& b);
 }  // close package namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                             // -------------------
@@ -447,8 +445,10 @@ void baltzo::LocalDatetime::swap(LocalDatetime& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bsl::swap(d_datetimeTz, other.d_datetimeTz);
-    bsl::swap(d_timeZoneId, other.d_timeZoneId);
+    using bsl::swap;
+
+    swap(d_datetimeTz, other.d_datetimeTz);
+    swap(d_timeZoneId, other.d_timeZoneId);
 }
 
 // ACCESSORS

@@ -2,11 +2,13 @@
 #include <baltzo_defaultzoneinfocache.h>
 
 #include <baltzo_datafileloader.h>
+#include <baltzo_localtimedescriptor.h>
 #include <baltzo_testloader.h>
 #include <baltzo_zoneinfo.h>
 
 #include <bdlsu_filesystemutil.h>
 
+#include <bdlt_date.h>
 #include <bdlt_datetime.h>
 
 #include <bdlt_currenttime.h>
@@ -19,6 +21,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -147,12 +150,12 @@ typedef bsl::string                 Id;
 //..
     int getLocalTimeDescriptor(baltzo::LocalTimeDescriptor *result,
                                const bdlt::Datetime&        utcTime,
-                               const char                 *timeZoneId,
+                               const char                  *timeZoneId,
                                baltzo::ZoneinfoCache       *zoneinfoCache = 0)
         // Load into the specified 'result' the local time descriptor for the
-        // that the UTC time specified by the specified 'utcTime' for
-        // the time zone identified by the specified 'timeZoneId'.  Return
-        // 0 on success, and a non-zero value otherwise.  Optionally specify a
+        // that the UTC time specified by the specified 'utcTime' for the time
+        // zone identified by the specified 'timeZoneId'.  Return 0 on success,
+        // and a non-zero value otherwise.  Optionally specify a
         // 'zoneinfoCache' used to retrieve time-zone information.  If
         // 'zoneinfoCache' is 0, the currently installed default Zoneinfo cache
         // is used.
@@ -761,9 +764,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNot passing in a cache object and testing GA"
                           << endl;
         {
-            // QOI: globalAllocator will allocate the strings when compiled
-            // in the 32-bit mode, and will not allocate (short-string
-            // optimization) in 64-bit mode. The latter provides a larger
+            // QOI: globalAllocator will allocate the strings when compiled in
+            // the 32-bit mode, and will not allocate (short-string
+            // optimization) in 64-bit mode.  The latter provides a larger
             // bufffer for the SSO.
 
             const int GA_NUM_BYTES = globalAllocator.numBytesInUse();
